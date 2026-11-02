@@ -8,7 +8,6 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort.*;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
 import java.time.*;
 import java.util.*;
@@ -50,7 +49,12 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     }
 
     @Override
-    public Optional<ConsumptionParticipant.Prepared> prepare(UUID requestId) {
+    public Optional<ConsumptionParticipant.Prepared> prepare(
+            UUID requestId, PreparationReads reads) {
+        return reads.source(context -> prepareInSnapshot(requestId));
+    }
+
+    private Optional<ConsumptionParticipant.Prepared> prepareInSnapshot(UUID requestId) {
         var stored = store.load(requestId);
         if (stored.terminal().isPresent()) return Optional.empty();
         var proposal = prepare(stored);
@@ -70,8 +74,14 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     }
 
     @Override
-    public RecoveryObservation observe(UUID requestId, RecoveryReadContext context) {
-        return observation.observe(requestId, context);
+    public Recovery prepareRecovery(UUID requestId, PreparationReads reads) {
+        return context ->
+                switch (observation.observe(requestId, context)) {
+                    case COMPLETED -> EffectEvidence.SATISFIED;
+                    case NOT_COMPLETED -> EffectEvidence.MISSING;
+                    case INCONSISTENT -> EffectEvidence.DIVERGENT;
+                    case UNAVAILABLE -> EffectEvidence.UNAVAILABLE;
+                };
     }
 
     private void finalizeProposal(Proposal prepared, SlotCompletion completion) {

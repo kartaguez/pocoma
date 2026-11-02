@@ -134,22 +134,53 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
         manager.setNestedTransactionAllowed(false);
         var readOwner = new SpringAttemptTransactions(read.dataSource, manager, 20);
         for (boolean completionPhase : List.of(false, true)) {
-            var failure = assertThrows(AttemptTransactions.Failure.class, () -> readOwner.write(() -> {
-                SpringAttemptTransactions.guarded(read.dataSource, () -> {
-                    read.jdbc.update("insert into foundation_effect values (?,?)", new UUID(0, 19), "late guard prefix");
-                    return null;
-                });
-                SpringAttemptTransactions.closePublication(read.dataSource);
-                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                    void late() {
-                        try { SpringAttemptTransactions.guarded(read.dataSource, () -> null); }
-                        catch (RuntimeException intercepted) { /* Must poison even when caught. */ }
-                    }
-                    public void beforeCommit(boolean readOnly) { if (!completionPhase) late(); }
-                    public void beforeCompletion() { if (completionPhase) late(); }
-                });
-                return null;
-            }));
+            var failure =
+                    assertThrows(
+                            AttemptTransactions.Failure.class,
+                            () ->
+                                    readOwner.write(
+                                            () -> {
+                                                SpringAttemptTransactions.guarded(
+                                                        read.dataSource,
+                                                        () -> {
+                                                            read.jdbc.update(
+                                                                    "insert into foundation_effect"
+                                                                            + " values (?,?)",
+                                                                    new UUID(0, 19),
+                                                                    "late guard prefix");
+                                                            return null;
+                                                        });
+                                                SpringAttemptTransactions.closePublication(
+                                                        read.dataSource);
+                                                TransactionSynchronizationManager
+                                                        .registerSynchronization(
+                                                                new TransactionSynchronization() {
+                                                                    void late() {
+                                                                        try {
+                                                                            SpringAttemptTransactions
+                                                                                    .guarded(
+                                                                                            read.dataSource,
+                                                                                            () ->
+                                                                                                    null);
+                                                                        } catch (
+                                                                                RuntimeException
+                                                                                        intercepted) {
+                                                                            /* Must poison even when caught. */
+                                                                        }
+                                                                    }
+
+                                                                    public void beforeCommit(
+                                                                            boolean readOnly) {
+                                                                        if (!completionPhase)
+                                                                            late();
+                                                                    }
+
+                                                                    public void beforeCompletion() {
+                                                                        if (completionPhase) late();
+                                                                    }
+                                                                });
+                                                return null;
+                                            }));
             assertEquals(AttemptTransactions.Resolution.UNKNOWN, failure.resolution());
             assertEquals(0, read.observedEffects());
         }
@@ -440,21 +471,34 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
         assertEquals(1, read.observedEffects());
         assertEquals(0, write.observedEffects());
         var saved = new AtomicReference<RecoveryReadContext>();
-        readOwner.read(
-                context -> {
-                    saved.set(context);
-                    SpringAttemptTransactions.requireRead(read.dataSource, context);
-                    assertEquals(
-                            "on",
-                            read.jdbc.queryForObject("show transaction_read_only", String.class));
-                    assertEquals(
-                            "repeatable read",
-                            read.jdbc.queryForObject("show transaction_isolation", String.class));
-                    assertThrows(
-                            RuntimeException.class,
-                            () -> SpringAttemptTransactions.requireRead(write.dataSource, context));
-                    return null;
-                });
+        var refused =
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () ->
+                                readOwner.read(
+                                        context -> {
+                                            saved.set(context);
+                                            SpringAttemptTransactions.requireRead(
+                                                    read.dataSource, context);
+                                            assertEquals(
+                                                    "on",
+                                                    read.jdbc.queryForObject(
+                                                            "show transaction_read_only",
+                                                            String.class));
+                                            assertEquals(
+                                                    "repeatable read",
+                                                    read.jdbc.queryForObject(
+                                                            "show transaction_isolation",
+                                                            String.class));
+                                            assertThrows(
+                                                    RuntimeException.class,
+                                                    () ->
+                                                            SpringAttemptTransactions.requireRead(
+                                                                    write.dataSource, context));
+                                            return null;
+                                        }));
+        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, refused.resolution());
+        assertEquals(1, read.observedEffects());
         assertThrows(RuntimeException.class, saved.get()::requireActiveRead);
         assertThrows(
                 AttemptTransactions.Failure.class,
@@ -575,5 +619,199 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                         }));
         assertEquals(AttemptTransactions.Resolution.COMMITTED, committed.resolution());
         assertEquals(1, write.observedEffects());
+    }
+
+    private static final class SharedGuard implements AttemptTransactions.Guard {
+        final AtomicReference<Throwable> cause = new AtomicReference<>();
+
+        public void invalidate(Throwable fault) {
+            cause.compareAndSet(null, fault);
+        }
+
+        public void requireValid() {
+            if (cause.get() instanceof RuntimeException runtime) throw runtime;
+            if (cause.get() instanceof Error error) throw error;
+        }
+    }
+
+    @Test
+    void i2ExpiredSourcePoisonsOtherAuthorityEvenWhenCaught() {
+        var guard = new SharedGuard();
+        var saved = new AtomicReference<RecoveryReadContext>();
+        owner.read(
+                context -> {
+                    saved.set(context);
+                    return null;
+                },
+                guard);
+        var manager = new DataSourceTransactionManager(read.dataSource);
+        manager.setNestedTransactionAllowed(false);
+        var effects = new SpringAttemptTransactions(read.dataSource, manager, 20);
+        var failure =
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () ->
+                                effects.read(
+                                        context -> {
+                                            SpringAttemptTransactions.requireRead(
+                                                    read.dataSource, context);
+                                            assertThrows(
+                                                    IllegalTransactionStateException.class,
+                                                    saved.get()::requireActiveRead);
+                                            return null;
+                                        },
+                                        guard));
+        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, failure.resolution());
+        assertSame(guard.cause.get(), failure.getCause());
+        assertThrows(
+                IllegalTransactionStateException.class,
+                () -> effects.write(() -> fail("no next begin"), guard));
+        assertEquals(0, read.observedEffects());
+        assertEquals(0, write.observedEffects());
+    }
+
+    @Test
+    void i2SharedGuardLateCallbacksPreventJdbcAndJpaPhysicalCommit() {
+        for (boolean jpa : List.of(false, true))
+            for (boolean beforeCompletion : List.of(false, true)) {
+                var guard = new SharedGuard();
+                var saved = new AtomicReference<RecoveryReadContext>();
+                owner.read(
+                        context -> {
+                            saved.set(context);
+                            return null;
+                        },
+                        guard);
+                var ds = jpa ? write.dataSource : read.dataSource;
+                var jdbc = jpa ? write.jdbc : read.jdbc;
+                var manager = new DataSourceTransactionManager(ds);
+                manager.setNestedTransactionAllowed(false);
+                var effects = jpa ? owner : new SpringAttemptTransactions(ds, manager, 20);
+                jdbc.update("insert into fixture_owner_slot values(17)");
+                var failure =
+                        assertThrows(
+                                AttemptTransactions.Failure.class,
+                                () ->
+                                        effects.write(
+                                                () -> {
+                                                    SpringAttemptTransactions.guarded(
+                                                            ds,
+                                                            () -> {
+                                                                jdbc.update(
+                                                                        "insert into"
+                                                                            + " foundation_effect"
+                                                                            + " values (?,?)",
+                                                                        new UUID(0, 17),
+                                                                        "prefix");
+                                                                jdbc.update(
+                                                                        "delete from"
+                                                                            + " fixture_owner_slot"
+                                                                            + " where id=17");
+                                                                return null;
+                                                            });
+                                                    if (jpa) effects.flushBeforePublication();
+                                                    SpringAttemptTransactions.closePublication(ds);
+                                                    TransactionSynchronizationManager
+                                                            .registerSynchronization(
+                                                                    new TransactionSynchronization() {
+                                                                        void fault() {
+                                                                            assertThrows(
+                                                                                    IllegalTransactionStateException
+                                                                                            .class,
+                                                                                    saved.get()
+                                                                                            ::requireActiveRead);
+                                                                        }
+
+                                                                        public void beforeCommit(
+                                                                                boolean readOnly) {
+                                                                            if (!beforeCompletion)
+                                                                                fault();
+                                                                        }
+
+                                                                        public void
+                                                                                beforeCompletion() {
+                                                                            if (beforeCompletion)
+                                                                                fault();
+                                                                        }
+                                                                    });
+                                                    return null;
+                                                },
+                                                guard));
+                // L2 remains conservative once handed to Spring's commit path.
+                assertEquals(AttemptTransactions.Resolution.UNKNOWN, failure.resolution());
+                assertSame(guard.cause.get(), failure.getCause());
+                assertEquals(
+                        0,
+                        jdbc.queryForObject(
+                                "select count(*) from foundation_effect where id=?",
+                                Integer.class,
+                                new UUID(0, 17)));
+                assertEquals(
+                        1,
+                        jdbc.queryForObject(
+                                "select count(*) from fixture_owner_slot where id=17",
+                                Integer.class));
+                jdbc.update("delete from fixture_owner_slot where id=17");
+            }
+    }
+
+    @Test
+    void i2PoisonAfterCompletionCannotRewriteConfirmedPhysicalCommit() {
+        for (boolean jpa : List.of(false, true)) {
+            var guard = new SharedGuard();
+            var saved = new AtomicReference<RecoveryReadContext>();
+            owner.read(
+                    context -> {
+                        saved.set(context);
+                        return null;
+                    },
+                    guard);
+            var ds = jpa ? write.dataSource : read.dataSource;
+            var jdbc = jpa ? write.jdbc : read.jdbc;
+            var manager = new DataSourceTransactionManager(ds);
+            manager.setNestedTransactionAllowed(false);
+            var effects = jpa ? owner : new SpringAttemptTransactions(ds, manager, 20);
+            jdbc.update("insert into fixture_owner_slot values(19)");
+            effects.write(
+                    () -> {
+                        SpringAttemptTransactions.guarded(
+                                ds,
+                                () -> {
+                                    jdbc.update(
+                                            "insert into foundation_effect values (?,?)",
+                                            new UUID(0, 19),
+                                            "committed");
+                                    jdbc.update("delete from fixture_owner_slot where id=19");
+                                    return null;
+                                });
+                        if (jpa) effects.flushBeforePublication();
+                        SpringAttemptTransactions.closePublication(ds);
+                        TransactionSynchronizationManager.registerSynchronization(
+                                new TransactionSynchronization() {
+                                    public void afterCompletion(int status) {
+                                        assertEquals(STATUS_COMMITTED, status);
+                                        assertThrows(
+                                                IllegalTransactionStateException.class,
+                                                saved.get()::requireActiveRead);
+                                    }
+                                });
+                        return null;
+                    },
+                    guard);
+            assertNotNull(guard.cause.get());
+            assertEquals(
+                    1,
+                    jdbc.queryForObject(
+                            "select count(*) from foundation_effect where id=?",
+                            Integer.class,
+                            new UUID(0, 19)));
+            assertEquals(
+                    0,
+                    jdbc.queryForObject(
+                            "select count(*) from fixture_owner_slot where id=19", Integer.class));
+            assertThrows(
+                    IllegalTransactionStateException.class,
+                    () -> effects.read(c -> fail("late SQL"), guard));
+        }
     }
 }

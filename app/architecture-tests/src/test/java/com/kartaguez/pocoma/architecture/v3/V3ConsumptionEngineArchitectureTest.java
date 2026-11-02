@@ -419,4 +419,62 @@ class V3ConsumptionEngineArchitectureTest {
     static class BadOwner {
         org.springframework.transaction.support.TransactionTemplate template;
     }
+
+    @Test
+    void i2ParticipantCapabilitiesCannotReceiveTheSharedGuardOrAResource() throws Exception {
+        var participants =
+                select(
+                        PROD,
+                        c ->
+                                c.getName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".engine.write.pot.v3.ExecutePotCommand")
+                                        || c.getName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".engine.consume.registration.v3.ExecuteIdentityRequest"));
+        var guardRule =
+                noClasses()
+                        .should()
+                        .dependOnClassesThat()
+                        .haveFullyQualifiedName(
+                                ROOT + ".port.transaction.v3.AttemptTransactions$Guard");
+        guardRule.check(participants);
+        assertTrue(
+                guardRule
+                        .evaluate(new ClassFileImporter().importClasses(BadParticipantGuard.class))
+                        .hasViolation());
+        var reads = Class.forName(ROOT + ".engine.consumption.v3.PreparationReads");
+        assertEquals(
+                Set.of("source", "effects"),
+                Arrays.stream(reads.getDeclaredMethods())
+                        .map(java.lang.reflect.Method::getName)
+                        .collect(java.util.stream.Collectors.toSet()));
+        for (var type :
+                List.of(
+                        com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences
+                                .Reference.class,
+                        com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences.Window
+                                .class,
+                        com.kartaguez.pocoma.domain.projection.v3.SubobjectVersion.class,
+                        com.kartaguez.pocoma.domain.projection.v3.SubobjectKey.class)) {
+            assertTrue(type.isRecord());
+            for (var component : type.getRecordComponents()) {
+                var name = component.getType().getName();
+                assertFalse(
+                        name.startsWith("java.sql.")
+                                || name.startsWith("javax.sql.")
+                                || name.startsWith("jakarta.persistence.")
+                                || name.contains("RecoveryReadContext")
+                                || name.contains("AttemptTransactions")
+                                || name.contains("PreparationReads"),
+                        name);
+            }
+        }
+    }
+
+    static class BadParticipantGuard {
+        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard;
+    }
 }

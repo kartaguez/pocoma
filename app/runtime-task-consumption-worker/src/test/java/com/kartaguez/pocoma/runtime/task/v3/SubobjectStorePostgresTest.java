@@ -152,9 +152,13 @@ class SubobjectStorePostgresTest {
             var failure=assertThrows(AttemptTransactions.Failure.class,()->f.tx.write(()->{try {foreign.insertOrVerifyAll(List.of(v));}catch(RuntimeException caught){}return null;}));
             assertEquals(AttemptTransactions.Resolution.ROLLED_BACK,failure.resolution());assertEquals(0,f.count());
             var saved=new AtomicReference<RecoveryReadContext>();
-            f.tx.read(c->{saved.set(c);assertEquals(Map.of(),f.store.readAll(List.of(v.key()),c));
+            var poisonedRead=assertThrows(AttemptTransactions.Failure.class,()->f.tx.read(c->{saved.set(c);assertEquals(Map.of(),f.store.readAll(List.of(v.key()),c));
                 assertThrows(RuntimeException.class,()->foreign.readAll(List.of(v.key()),c));
-                assertThrows(ExecutionException.class,()->get(f.threads.submit(()->f.store.readAll(List.of(v.key()),c))));return null;});
+                assertThrows(ExecutionException.class,()->get(f.threads.submit(()->f.store.readAll(List.of(v.key()),c))));return null;}));
+            assertEquals(AttemptTransactions.Resolution.ROLLED_BACK,poisonedRead.resolution());
+            assertInstanceOf(org.springframework.transaction.IllegalTransactionStateException.class,poisonedRead.getCause());
+            assertEquals(0,f.count());
+            f.trace.add("caught foreign/async observation: physical="+poisonedRead.resolution()+" cause="+poisonedRead.getCause());
             assertThrows(RuntimeException.class,()->f.store.readAll(List.of(v.key()),saved.get()));
             var manager=new DataSourceTransactionManager(f.source);manager.setNestedTransactionAllowed(false);
             var independent=new TransactionTemplate(manager);independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);

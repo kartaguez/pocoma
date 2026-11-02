@@ -31,15 +31,19 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         final TransactionSynchronization synchronization;
         boolean active = true;
         boolean publicationClosed;
-        Throwable poisonCause;
+        volatile Throwable poisonCause;
+        volatile boolean resolved;
+        final Guard guard;
 
         Unit(
                 TransactionStatus status,
                 DataSource source,
                 EntityManagerFactory emf,
                 boolean read,
-                TransactionSynchronization synchronization) {
+                TransactionSynchronization synchronization,
+                Guard guard) {
             this.status = status;
+            this.guard = Objects.requireNonNull(guard);
             this.source = source;
             this.emf = emf;
             this.read = read;
@@ -48,7 +52,31 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
             entityManager = emf == null ? null : TransactionSynchronizationManager.getResource(emf);
         }
 
+        void invalidate(Throwable cause) {
+            synchronized (this) {
+                if (poisonCause == null) poisonCause = cause;
+            }
+            guard.invalidate(cause);
+            // A foreign thread can invalidate the pure guard, never drive this manager.
+            if (Thread.currentThread() == thread && !resolved && !status.isCompleted()) {
+                status.setRollbackOnly();
+                poisonEntityManager(entityManager, cause);
+            }
+        }
+
         void requireCurrent() {
+            try {
+                guard.requireValid();
+                if (poisonCause != null) rethrow(poisonCause);
+                checkCurrent();
+            } catch (RuntimeException | Error failure) {
+                invalidate(failure);
+                poisonUnits(failure);
+                throw failure;
+            }
+        }
+
+        private void checkCurrent() {
             if (!active
                     || Thread.currentThread() != thread
                     || status.isRollbackOnly()
@@ -80,14 +108,20 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
 
         @Override
         public void requireActiveRead() {
-            requireCurrent();
-            if (!read
-                    || !TransactionSynchronizationManager.isCurrentTransactionReadOnly()
-                    || !Objects.equals(
-                            TransactionSynchronizationManager.getCurrentTransactionIsolationLevel(),
-                            TransactionDefinition.ISOLATION_REPEATABLE_READ))
-                throw new IllegalTransactionStateException(
-                        "Recovery requires its repeatable read snapshot");
+            try {
+                requireCurrent();
+                if (!read
+                        || !TransactionSynchronizationManager.isCurrentTransactionReadOnly()
+                        || !Objects.equals(
+                                TransactionSynchronizationManager.getCurrentTransactionIsolationLevel(),
+                                TransactionDefinition.ISOLATION_REPEATABLE_READ))
+                    throw new IllegalTransactionStateException(
+                            "Recovery requires its repeatable read snapshot");
+            } catch (RuntimeException | Error failure) {
+                invalidate(failure);
+                poisonUnits(failure);
+                throw failure;
+            }
         }
     }
 
@@ -104,11 +138,15 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                     .filter(Unit.class::isInstance)
                     .map(Unit.class::cast)
                     .filter(unit -> unit.status == transaction)
-                    .forEach(unit -> {
-                        if (unit.poisonCause != null || unit.status.isRollbackOnly())
-                            throw new IllegalTransactionStateException(
-                                    "Poisoned attempt cannot reach physical commit", unit.poisonCause);
-                    });
+                    .forEach(
+                            unit -> {
+                                unit.guard.requireValid();
+                                if (unit.poisonCause != null) rethrow(unit.poisonCause);
+                                if (unit.status.isRollbackOnly())
+                                    throw new IllegalTransactionStateException(
+                                            "Poisoned attempt cannot reach physical commit",
+                                            unit.poisonCause);
+                            });
         }
     }
 
@@ -175,10 +213,11 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
     }
 
     @Override
-    public <T> T read(Function<RecoveryReadContext, T> action) {
+    public <T> T read(Function<RecoveryReadContext, T> action, Guard guard) {
         return run(
                 read,
                 true,
+                guard,
                 unit -> {
                     new JdbcTemplate(source).execute("set transaction read only");
                     unit.requireActiveRead();
@@ -187,16 +226,20 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
     }
 
     @Override
-    public <T> T write(Supplier<T> action) {
-        return run(write, false, unit -> action.get());
+    public <T> T write(Supplier<T> action, Guard guard) {
+        return run(write, false, guard, unit -> action.get());
     }
 
-    private <T> T run(TransactionTemplate template, boolean reading, Function<Unit, T> action) {
+    private <T> T run(
+            TransactionTemplate template, boolean reading, Guard guard, Function<Unit, T> action) {
+        Objects.requireNonNull(guard).requireValid();
+        Objects.requireNonNull(action);
         if (TransactionSynchronizationManager.isActualTransactionActive()
                 || TransactionSynchronizationManager.isSynchronizationActive()) {
             var failure =
                     new IllegalTransactionStateException(
                             "Attempt owner requires no ambient transaction");
+            guard.invalidate(failure);
             poisonUnits(failure);
             throw failure;
         }
@@ -213,22 +256,32 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                                             @Override
                                             public void afterCompletion(int outcome) {
                                                 completion[0] = outcome;
+                                                if (capturedUnit[0] != null)
+                                                    capturedUnit[0].resolved = true;
                                             }
                                         };
-                                var unit = new Unit(status, source, emf, reading, synchronization);
+                                var unit =
+                                        new Unit(
+                                                status,
+                                                source,
+                                                emf,
+                                                reading,
+                                                synchronization,
+                                                guard);
                                 capturedUnit[0] = unit;
                                 TransactionSynchronizationManager.bindResource(
                                         new Key(source), unit);
                                 TransactionSynchronizationManager.registerSynchronization(
                                         synchronization);
                                 try {
+                                    unit.requireCurrent();
                                     T value = action.apply(unit);
                                     unit.requireCurrent();
                                     handedToCommit[0] = true;
                                     return value;
                                 } catch (RuntimeException | Error failure) {
                                     callbackFailure[0] = failure;
-                                    status.setRollbackOnly();
+                                    unit.invalidate(failure);
                                     throw failure;
                                 } finally {
                                     // Keep the guard bound through Spring callbacks and physical
@@ -260,6 +313,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                                                     || explicitServerRejection(failure))
                                     ? Resolution.ROLLED_BACK
                                     : Resolution.UNKNOWN;
+            guard.invalidate(original);
             throw new Failure(resolution, original);
         } finally {
             TransactionSynchronizationManager.unbindResourceIfPossible(new Key(source));
@@ -317,11 +371,55 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         }
     }
 
+    /** The entire observation, including decoding and comparisons, participates in poison. */
+    public static <T> T observed(
+            DataSource source, RecoveryReadContext context, Supplier<T> action) {
+        try {
+            requireRead(source, context);
+            return action.get();
+        } catch (RuntimeException | Error failure) {
+            poisonUnits(failure);
+            poisonConnection(source, failure);
+            throw failure;
+        }
+    }
+
+    /** Existing autonomous L1 preconditions remain those of the wrapped reader. */
+    public static <T> T participating(DataSource source, Supplier<T> action) {
+        try {
+            var unit = current(source);
+            if (unit != null) unit.requireCurrent();
+            else if (TransactionSynchronizationManager.getResourceMap().values().stream()
+                    .anyMatch(Unit.class::isInstance))
+                throw new IllegalTransactionStateException("Reader belongs to another authority");
+            return action.get();
+        } catch (RuntimeException | Error failure) {
+            poisonUnits(failure);
+            poisonConnection(source, failure);
+            throw failure;
+        }
+    }
+
     public static void requireRead(DataSource source, RecoveryReadContext context) {
-        context.requireActiveRead();
-        var unit = current(source);
-        if (unit == null || unit != context)
-            throw new IllegalTransactionStateException("Observation belongs to another authority");
+        try {
+            Objects.requireNonNull(context).requireActiveRead();
+            var unit = current(source);
+            if (unit == null || unit != context)
+                throw new IllegalTransactionStateException(
+                        "Observation belongs to another authority");
+        } catch (RuntimeException | Error failure) {
+            // An expired Unit retains its original Guard, even on a foreign caller thread.
+            if (context instanceof Unit unit) unit.invalidate(failure);
+            poisonUnits(failure);
+            poisonConnection(source, failure);
+            throw failure;
+        }
+    }
+
+    private static void rethrow(Throwable failure) {
+        if (failure instanceof Error error) throw error;
+        if (failure instanceof RuntimeException runtime) throw runtime;
+        throw new IllegalStateException("Unexpected checked attempt failure", failure);
     }
 
     private static Unit current(DataSource source) {
@@ -332,18 +430,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         TransactionSynchronizationManager.getResourceMap().values().stream()
                 .filter(Unit.class::isInstance)
                 .map(Unit.class::cast)
-                .forEach(
-                        unit -> {
-                            if (unit.poisonCause == null) unit.poisonCause = cause;
-                            unit.status.setRollbackOnly();
-                            // Like JpaTransactionManager.doSetRollbackOnly: after the owner
-                            // callback,
-                            // a beforeCommit listener can catch a guard failure. Spring's local
-                            // flag
-                            // alone is no longer checked there; JPA must also be globally
-                            // rollback-only.
-                            poisonEntityManager(unit.entityManager, cause);
-                        });
+                .forEach(unit -> unit.invalidate(cause));
     }
 
     private static void poisonEntityManager(Object resource, Throwable cause) {

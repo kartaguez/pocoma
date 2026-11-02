@@ -56,11 +56,17 @@ class DiscoveryEngineTest {
                             definition, this, this, this, settings(cap), this, this, r -> true);
         }
 
-        public <T> T read(Function<RecoveryReadContext, T> f) {
+        public <T> T read(
+                Function<RecoveryReadContext, T> f,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+            guard.requireValid();
             return f.apply(() -> {});
         }
 
-        public <T> T write(Supplier<T> f) {
+        public <T> T write(
+                Supplier<T> f,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+            guard.requireValid();
             T result = f.get();
             if (unknown)
                 throw new AttemptTransactions.Failure(
@@ -120,6 +126,15 @@ class DiscoveryEngineTest {
 
         public ConsumableFamily family() {
             return definition.family();
+        }
+
+        public java.util.Optional<
+                        com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences
+                                .Reference>
+                find(
+                        java.util.UUID eventId,
+                        com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext context) {
+            throw new AssertionError("This discovery-only source does not implement recovery");
         }
 
         public NonBurnableReferences.Window window(long after, int max, RecoveryReadContext r) {

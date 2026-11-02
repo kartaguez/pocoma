@@ -5,6 +5,7 @@ import static com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
@@ -235,20 +236,33 @@ class V3WorkerResourcesPostgresTest {
                                 : new com.kartaguez.pocoma.runtime.consumption.v3.dev
                                         .V3TechnicalReadParticipant(source, binding.definition());
                 replace(binding.engine(), "participant", participant);
+                if (!write)
+                    replace(
+                            binding.engine(),
+                            "admissions",
+                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
+                                    .JdbcDiscoveryAdmissionStore(
+                                    source,
+                                    (DiscoveryEngine.Settings)
+                                            field(binding.discovery(), "settings")));
             }
             if (write
                     && binding.definition().authority()
                             == com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition
                                     .Authority.READ) {
                 replace(binding.discovery(), "sourceReads", owner);
-                replace(
-                        binding.discovery(),
-                        "events",
+                replace(binding.engine(), "sourceTransactions", owner);
+                var references =
                         new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcEventDiscoveryReferences(
                                 source,
                                 binding.definition().family(),
-                                (DiscoveryEngine.Settings) field(binding.discovery(), "settings")));
+                                (DiscoveryEngine.Settings) field(binding.discovery(), "settings"));
+                replace(binding.engine(), "recoverySource", Optional.of(references));
+                replace(
+                        binding.discovery(),
+                        "events",
+                        references);
             }
         }
         return source;
@@ -1328,15 +1342,20 @@ class V3WorkerResourcesPostgresTest {
                                 binding.engine(),
                                 "participant",
                                 new ConsumptionParticipant() {
-                                    public Optional<Prepared> prepare(UUID id) {
-                                        new JdbcTemplate(business)
-                                                .queryForObject("select 1/0", Integer.class);
-                                        throw new AssertionError();
+                                    public Optional<Prepared> prepare(
+                                            UUID id, PreparationReads reads) {
+                                        return reads.effects(
+                                                preparationContext -> {
+                                                    new JdbcTemplate(business)
+                                                            .queryForObject(
+                                                                    "select 1/0", Integer.class);
+                                                    throw new AssertionError();
+                                                });
                                     }
 
-                                    public RecoveryObservation observe(
-                                            UUID id, RecoveryReadContext context) {
-                                        return real.observe(id, context);
+                                    public Recovery prepareRecovery(
+                                            UUID id, PreparationReads reads) {
+                                        return real.prepareRecovery(id, reads);
                                     }
                                 });
                         var ownership =
@@ -1606,7 +1625,11 @@ class V3WorkerResourcesPostgresTest {
                         binding.engine(),
                         "controlTransactions",
                         new ForwardingTransactions(real) {
-                            public <T> T write(Supplier<T> work) {
+                            public <T> T write(
+                                    Supplier<T> work,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
                                 return real.write(
                                         () -> {
                                             if (Thread.currentThread()
@@ -1616,7 +1639,8 @@ class V3WorkerResourcesPostgresTest {
                                                 latch(release);
                                             }
                                             return work.get();
-                                        });
+                                        },
+                                        guard);
                             }
                         });
                 try (var threads = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -1702,15 +1726,25 @@ class V3WorkerResourcesPostgresTest {
                     runtime.bindings.getFirst().engine(),
                     "participant",
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id) {
-                            if (id.equals(poison.get()) && failOnce.compareAndSet(true, false))
-                                new JdbcTemplate(uncheckedPool(runtime, "writeBusiness"))
-                                        .queryForObject("select 1/0", Integer.class);
-                            return real.prepare(id);
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            return real.prepare(
+                                    id,
+                                    beforePreparationScope(
+                                            reads,
+                                            () -> {
+                                                if (id.equals(poison.get())
+                                                        && failOnce.compareAndSet(true, false))
+                                                    new JdbcTemplate(
+                                                                    uncheckedPool(
+                                                                            runtime,
+                                                                            "writeBusiness"))
+                                                            .queryForObject(
+                                                                    "select 1/0", Integer.class);
+                                            }));
                         }
 
-                        public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
-                            return real.observe(id, context);
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                            return real.prepareRecovery(id, reads);
                         }
                     });
             // Lost callback after real commit drives actual inspect/R9, without pretending this is
@@ -1722,8 +1756,11 @@ class V3WorkerResourcesPostgresTest {
                     engine,
                     "transactions",
                     new ForwardingTransactions(effects) {
-                        public <T> T write(Supplier<T> action) {
-                            var result = effects.write(action);
+                        public <T> T write(
+                                Supplier<T> action,
+                                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                        guard) {
+                            var result = effects.write(action, guard);
                             if (uncertainOnce.compareAndSet(true, false))
                                 throw new AttemptTransactions.Failure(
                                         AttemptTransactions.Resolution.UNKNOWN,
@@ -1987,8 +2024,8 @@ class V3WorkerResourcesPostgresTest {
                                                     var row =
                                                             sql.queryForMap(
                                                                     "select pg_backend_pid()"
-                                                                            + " pid,pg_current_xact_id()::text"
-                                                                            + " xid");
+                                                                        + " pid,pg_current_xact_id()::text"
+                                                                        + " xid");
                                                     discoveryPid.set(
                                                             ((Number) row.get("pid")).intValue());
                                                     discoveryXid.set(row.get("xid").toString());
@@ -2398,13 +2435,22 @@ class V3WorkerResourcesPostgresTest {
             assertThrows(
                     RuntimeException.class,
                     () -> owner.write(() -> businessOwner.write(() -> null)));
-            owner.read(
-                    context -> {
-                        assertThrows(
-                                RuntimeException.class,
-                                () -> SpringAttemptTransactions.requireRead(business, context));
-                        return null;
-                    });
+            var failure =
+                    assertThrows(
+                            AttemptTransactions.Failure.class,
+                            () ->
+                                    owner.read(
+                                            context -> {
+                                                assertThrows(
+                                                        RuntimeException.class,
+                                                        () -> SpringAttemptTransactions.requireRead(business, context));
+                                                return null;
+                                            }));
+            assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, failure.resolution());
+            assertInstanceOf(
+                    org.springframework.transaction.IllegalTransactionStateException.class,
+                    failure.getCause());
+            f.trace.add("caught foreign read poisoned unit: " + failure.resolution() + " cause=" + failure.getCause());
             assertEquals(0, runtime.capacity.snapshot().worker());
             f.evidence("i5_r08");
         }
@@ -2772,5 +2818,34 @@ class V3WorkerResourcesPostgresTest {
                     f.evidence("i5_r09-P7-" + (write ? "WRITE" : "READ"));
                 }
             }
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

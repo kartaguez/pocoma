@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
@@ -434,6 +435,39 @@ class V3WorkerPostgresTest {
         var f = target.getClass().getDeclaredField(name);
         f.setAccessible(true);
         f.set(target, value);
+        // WRITE source/effects are one owner. A test decorator must replace both aliases.
+        if (target instanceof ConsumptionEngine && name.equals("transactions")) {
+            var definition =
+                    (com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition)
+                            field(target, "definition");
+            if (definition.authority()
+                    == com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition.Authority
+                            .WRITE) {
+                var source = target.getClass().getDeclaredField("sourceTransactions");
+                source.setAccessible(true);
+                source.set(target, value);
+            }
+        }
+    }
+
+    static PreparationReads beforePreparationScope(PreparationReads reads, Runnable before) {
+        return new PreparationReads() {
+            public <T> T source(java.util.function.Function<RecoveryReadContext, T> action) {
+                return reads.source(
+                        context -> {
+                            before.run();
+                            return action.apply(context);
+                        });
+            }
+
+            public <T> T effects(java.util.function.Function<RecoveryReadContext, T> action) {
+                return reads.effects(
+                        context -> {
+                            before.run();
+                            return action.apply(context);
+                        });
+            }
+        };
     }
 
     /** Calls the real active factory before start so deterministic seams have Thread.start HB. */
@@ -525,13 +559,13 @@ class V3WorkerPostgresTest {
                     engine,
                     "participant",
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id) {
-                            barrier.accept(id);
-                            return real.prepare(id);
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            return real.prepare(
+                                    id, beforePreparationScope(reads, () -> barrier.accept(id)));
                         }
 
-                        public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
-                            return real.observe(id, context);
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                            return real.prepareRecovery(id, reads);
                         }
                     });
         }
@@ -847,17 +881,23 @@ class V3WorkerPostgresTest {
                     runtime.bindings.getFirst().engine(),
                     "participant",
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id) {
-                            if (id.equals(poisoned.get())) {
-                                failures.incrementAndGet();
-                                throw new IllegalStateException(
-                                        "countable fixture preparation failure");
-                            }
-                            return real.prepare(id);
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            return real.prepare(
+                                    id,
+                                    beforePreparationScope(
+                                            reads,
+                                            () -> {
+                                                if (id.equals(poisoned.get())) {
+                                                    failures.incrementAndGet();
+                                                    throw new IllegalStateException(
+                                                            "countable fixture preparation"
+                                                                    + " failure");
+                                                }
+                                            }));
                         }
 
-                        public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
-                            return real.observe(id, c);
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                            return real.prepareRecovery(id, reads);
                         }
                     });
             var classifier =
@@ -1069,8 +1109,11 @@ class V3WorkerPostgresTest {
                     engine,
                     "controlTransactions",
                     new ForwardingTransactions(real) {
-                        public <T> T write(Supplier<T> action) {
-                            var result = real.write(action);
+                        public <T> T write(
+                                Supplier<T> action,
+                                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                        guard) {
+                            var result = real.write(action, guard);
                             if (Thread.currentThread().getName().startsWith("v3-renew-WRITE-")
                                     && !Thread.currentThread()
                                             .getName()
@@ -1180,8 +1223,12 @@ class V3WorkerPostgresTest {
                         target.engine(),
                         "controlTransactions",
                         new ForwardingTransactions(owner) {
-                            public <T> T write(java.util.function.Supplier<T> action) {
-                                var result = owner.write(action);
+                            public <T> T write(
+                                    java.util.function.Supplier<T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                var result = owner.write(action, guard);
                                 if (Thread.currentThread().getName().startsWith("v3-renew-")
                                         && !Thread.currentThread().getName().contains("-2-")
                                         && first.compareAndSet(true, false)) {
@@ -1264,8 +1311,8 @@ class V3WorkerPostgresTest {
                         engine,
                         "participant",
                         new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id) {
-                                var value = real.prepare(id);
+                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                                var value = real.prepare(id, reads);
                                 if (prepares.incrementAndGet() == 1) {
                                     firstPrepared.countDown();
                                     latch(rollback);
@@ -1295,9 +1342,8 @@ class V3WorkerPostgresTest {
                                 return value;
                             }
 
-                            public RecoveryObservation observe(
-                                    UUID id, RecoveryReadContext context) {
-                                return real.observe(id, context);
+                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                                return real.prepareRecovery(id, reads);
                             }
                         });
                 var owner = (AttemptTransactions) field(engine, "controlTransactions");
@@ -1305,8 +1351,12 @@ class V3WorkerPostgresTest {
                         engine,
                         "controlTransactions",
                         new ForwardingTransactions(owner) {
-                            public <T> T write(java.util.function.Supplier<T> action) {
-                                var result = owner.write(action);
+                            public <T> T write(
+                                    java.util.function.Supplier<T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                var result = owner.write(action, guard);
                                 if (Thread.currentThread().getName().startsWith("v3-renew-")
                                         && !Thread.currentThread().getName().contains("-2-")
                                         && once.compareAndSet(true, false)) {
@@ -1388,12 +1438,16 @@ class V3WorkerPostgresTest {
             this.delegate = delegate;
         }
 
-        public <T> T read(Function<RecoveryReadContext, T> action) {
-            return delegate.read(action);
+        public <T> T read(
+                Function<RecoveryReadContext, T> action,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+            return delegate.read(action, guard);
         }
 
-        public <T> T write(Supplier<T> action) {
-            return delegate.write(action);
+        public <T> T write(
+                Supplier<T> action,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+            return delegate.write(action, guard);
         }
 
         public void poison(Throwable t) {
@@ -1436,8 +1490,11 @@ class V3WorkerPostgresTest {
                     engine,
                     "controlTransactions",
                     new ForwardingTransactions(owner) {
-                        public <T> T write(Supplier<T> action) {
-                            var result = owner.write(action);
+                        public <T> T write(
+                                Supplier<T> action,
+                                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                        guard) {
+                            var result = owner.write(action, guard);
                             if (Thread.currentThread().getName().startsWith("v3-consumption-")
                                     && arm.compareAndSet(true, false)) {
                                 acquired.countDown();
@@ -1554,8 +1611,8 @@ class V3WorkerPostgresTest {
                             engine,
                             "participant",
                             new ConsumptionParticipant() {
-                                public Optional<Prepared> prepare(UUID id) {
-                                    var value = real.prepare(id);
+                                public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                                    var value = real.prepare(id, reads);
                                     prepared.countDown();
                                     latch(enterFinal);
                                     return value.map(
@@ -1574,9 +1631,8 @@ class V3WorkerPostgresTest {
                                                     });
                                 }
 
-                                public RecoveryObservation observe(
-                                        UUID id, RecoveryReadContext context) {
-                                    return real.observe(id, context);
+                                public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                                    return real.prepareRecovery(id, reads);
                                 }
                             });
                     if (write) f.inject(10001 + boundary);
@@ -1821,8 +1877,12 @@ class V3WorkerPostgresTest {
                             engine,
                             "controlTransactions",
                             new ForwardingTransactions(realControl) {
-                                public <T> T write(java.util.function.Supplier<T> action) {
-                                    var result = realControl.write(action);
+                                public <T> T write(
+                                        java.util.function.Supplier<T> action,
+                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                        .Guard
+                                                guard) {
+                                    var result = realControl.write(action, guard);
                                     if (Thread.currentThread().getName().startsWith("v3-renew-")
                                             && !Thread.currentThread().getName().contains("-2-")
                                             && firstRenewal.compareAndSet(true, false)) {
@@ -1839,8 +1899,8 @@ class V3WorkerPostgresTest {
                         engine,
                         "participant",
                         new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id) {
-                                var value = original.prepare(id);
+                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                                var value = original.prepare(id, reads);
                                 targetThread.set(Thread.currentThread());
                                 prepared.countDown();
                                 latch(continueAttempt);
@@ -1864,9 +1924,8 @@ class V3WorkerPostgresTest {
                                                 });
                             }
 
-                            public RecoveryObservation observe(
-                                    UUID id, RecoveryReadContext context) {
-                                return original.observe(id, context);
+                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                                return original.prepareRecovery(id, reads);
                             }
                         });
                 if (write) f.inject(11000);
@@ -2128,8 +2187,11 @@ class V3WorkerPostgresTest {
                     engine,
                     "transactions",
                     new ForwardingTransactions(business) {
-                        public <T> T write(java.util.function.Supplier<T> action) {
-                            T result = business.write(action);
+                        public <T> T write(
+                                java.util.function.Supplier<T> action,
+                                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                        guard) {
+                            T result = business.write(action, guard);
                             throw new AttemptTransactions.Failure(
                                     AttemptTransactions.Resolution.UNKNOWN,
                                     new IllegalStateException(
@@ -2325,8 +2387,12 @@ class V3WorkerPostgresTest {
                         engine,
                         "controlTransactions",
                         new ForwardingTransactions(control) {
-                            public <T> T write(java.util.function.Supplier<T> work) {
-                                T result = control.write(work);
+                            public <T> T write(
+                                    java.util.function.Supplier<T> work,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                T result = control.write(work, guard);
                                 if (Thread.currentThread().getName().startsWith("v3-consumption-")
                                         && result instanceof Optional<?> optional
                                         && optional.orElse(null) instanceof List<?> claims
@@ -2341,14 +2407,18 @@ class V3WorkerPostgresTest {
                         engine,
                         "controlTransactions",
                         new ForwardingTransactions(control) {
-                            public <T> T write(java.util.function.Supplier<T> work) {
+                            public <T> T write(
+                                    java.util.function.Supplier<T> work,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
                                 if (Thread.currentThread().getName().startsWith("v3-consumption-"))
                                     for (; ; )
                                         try {
                                             Thread.sleep(1000);
                                         } catch (InterruptedException ignored) {
                                         }
-                                return control.write(work);
+                                return control.write(work, guard);
                             }
                         });
                 var discovery = runtime.bindings.getFirst().discovery();
@@ -2357,8 +2427,12 @@ class V3WorkerPostgresTest {
                         discovery,
                         "effects",
                         new ForwardingTransactions(owner) {
-                            public <T> T write(java.util.function.Supplier<T> work) {
-                                T result = owner.write(work);
+                            public <T> T write(
+                                    java.util.function.Supplier<T> work,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                T result = owner.write(work, guard);
                                 if (Thread.currentThread().getName().startsWith("v3-discovery-"))
                                     stop.run();
                                 return result;
@@ -2370,8 +2444,8 @@ class V3WorkerPostgresTest {
                     engine,
                     "participant",
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id) {
-                            var prepared = participant.prepare(id);
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            var prepared = participant.prepare(id, reads);
                             if (boundary.equals("cession"))
                                 throw new IllegalStateException("counted test rollback");
                             return prepared.map(
@@ -2393,8 +2467,8 @@ class V3WorkerPostgresTest {
                                             });
                         }
 
-                        public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
-                            return participant.observe(id, context);
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                            return participant.prepareRecovery(id, reads);
                         }
                     });
             if (boundary.equals("commit"))
@@ -2402,8 +2476,12 @@ class V3WorkerPostgresTest {
                         engine,
                         "transactions",
                         new ForwardingTransactions(business) {
-                            public <T> T write(java.util.function.Supplier<T> work) {
-                                T result = business.write(work);
+                            public <T> T write(
+                                    java.util.function.Supplier<T> work,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                T result = business.write(work, guard);
                                 if (Thread.currentThread().getName().startsWith("v3-attempt-"))
                                     stop.run();
                                 return result;
@@ -2414,8 +2492,12 @@ class V3WorkerPostgresTest {
                         engine,
                         "controlTransactions",
                         new ForwardingTransactions(control) {
-                            public <T> T write(java.util.function.Supplier<T> work) {
-                                T result = control.write(work);
+                            public <T> T write(
+                                    java.util.function.Supplier<T> work,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                T result = control.write(work, guard);
                                 if (Thread.currentThread().getName().startsWith("v3-attempt-"))
                                     stop.run();
                                 return result;
@@ -2967,14 +3049,16 @@ class V3WorkerPostgresTest {
                         engine,
                         "participant",
                         new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id) {
-                                throw new IllegalStateException(
-                                        "confirmed countable fixture failure");
+                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                                return reads.source(
+                                        preparationContext -> {
+                                            throw new IllegalStateException(
+                                                    "confirmed countable fixture failure");
+                                        });
                             }
 
-                            public RecoveryObservation observe(
-                                    UUID id, RecoveryReadContext context) {
-                                return original.observe(id, context);
+                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                                return original.prepareRecovery(id, reads);
                             }
                         });
                 for (int n = 1; n <= 3; n++) {
@@ -3515,5 +3599,34 @@ class V3WorkerPostgresTest {
                 f.evidence("i5_w15");
             }
         }
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

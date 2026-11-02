@@ -304,7 +304,9 @@ final class I5TemporalV2Postgres {
                                                     }
                                         };
                                         try {
-                                            var result = invoke(owner, m, wrapped);
+                                            var forwarded = args.clone();
+                                            forwarded[0] = wrapped[0];
+                                            var result = invoke(owner, m, forwarded);
                                             tx.resolution = "COMMITTED";
                                             return result;
                                         } catch (AttemptTransactions.Failure failure) {
@@ -909,7 +911,9 @@ final class I5TemporalV2Postgres {
                 }
                 for (var target : targets) {
                     await(
-                            () -> System.nanoTime() - target.omittedAt.get() >= ns("excessive.hold"),
+                            () ->
+                                    System.nanoTime() - target.omittedAt.get()
+                                            >= ns("excessive.hold"),
                             Duration.ofSeconds(7));
                     var row =
                             target.sql.queryForMap(
@@ -919,7 +923,9 @@ final class I5TemporalV2Postgres {
                                     target.lease.consumptionId().value(),
                                     target.lease.partitionId());
                     assertEquals(target.lease.ownerToken(), row.get("owner_token"));
-                    assertEquals(target.holder.oldUntil, ((Timestamp) row.get("owned_until")).toInstant());
+                    assertEquals(
+                            target.holder.oldUntil,
+                            ((Timestamp) row.get("owned_until")).toInstant());
                     assertTrue(
                             System.nanoTime() - target.omittedAt.get()
                                     >= ns("revalidation") - ns("operation"));

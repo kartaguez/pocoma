@@ -1,6 +1,6 @@
 # Pocoma V3 — L4/I2 — Plan d’implémentation de la préparation interautorités et du recovery
 
-**2 novembre 2026 — `feat/v3-architecture` — PLAN DOCUMENTAIRE, sans GO d’implémentation.**
+**2 novembre 2026 — `feat/v3-architecture` — GO CONDITIONNEL humain : corrections AUD-I2-08/09/10 puis implémentation I2.**
 
 Ce document remplace intégralement l’esquisse `6d41ee439800c079ccd05a02ccc285b5daa4221f`.
 Les signatures marquées **cibles** sont à implémenter ; elles ne sont pas attribuées au code actuel.
@@ -288,7 +288,7 @@ locaux, avant chaque callback, à son retour, puis dans
 `PoisonedCommitGuard.beforeCommit` **après les synchronisations et avant `doCommit`**. Le listener
 existant examine cause locale, rollback-only **et** garde partagée, même si `unit.active=false`.
 Il ne faut ni avancer ce listener avant les callbacks, ni unbind le Unit avant terminaison.
-Une faute interceptée dans `beforeCommit` ou `beforeCompletion` ne peut ainsi committer le préfixe.
+Une faute gardée interceptée dans `beforeCommit` ou `beforeCompletion` ne peut ainsi committer le préfixe.
 Le résultat COMMITTED réellement attesté après `afterCompletion` ne peut être annulé rétroactivement
 par un usage ultérieur illégal d’un contexte : cet usage est refusé avant tout SQL. La garde ne
 prétend pas modifier un commit physique déjà décidé.
@@ -434,6 +434,90 @@ La première appartient à `V3ConsumptionDiscoveryComposition`, la seconde à
 `Attempt`, pour transmettre explicitement la garde au `transactions.write(action, guard)`.
 Aucun `ThreadLocal` de session ni dépendance de Spring vers `engine-consumption` n’est nécessaire.
 
+### 4.5 AUD-I2-08 — catégories, propagation et classification
+
+La première cause reste l’objet original (RuntimeException/Error), sans conversion SQL → faute
+structurelle. Les enveloppes gardées invalident avant de relancer ; la garde propage cette même
+cause. Les causes secondaires sont conservées sans créer de wrapper de contrat qui masquerait
+le classement SQL/JPA. Le classifier L2 existant reste seul propriétaire de NON_COUNTABLE,
+SQL_OR_JPA et TECHNICAL ; `PreparationReads.Invalid` est ajouté aux exclusions structurelles.
+Une observation ou une erreur de garde ne constitue jamais une autorité de résolution.
+
+| Catégorie | Unit / garde partagée | Résolution et classement L2 | Suite et capacité |
+|---|---|---|---|
+| SQL/JPA invalidante dans un port gardé | Poison du Unit courant et Guard, même après catch ; rollback-only sur thread owner | Failure selon résolution Spring/L2 existante ; SQL_OR_JPA si rollback qualifié, sauf exclusions existantes (transport notamment) | Aucun scope/finaliseur suivant ; cession unique seulement sur rollback qualifié et cause comptable ; UNKNOWN retient le ticket |
+| Décodage/comparaison Java dans observed/participating | Même poison, même sans SQLSTATE aborté ; cause originale | Runtime technique → TECHNICAL, sauf cause déjà exclue ; jamais conversion automatique en InvalidReference | Même arrêt et règles de capacité ; erreur de contenu source explicitement InvalidReference : diagnostic INCONSISTENT seulement si lecture physiquement résolue |
+| Contexte expiré/étranger, mauvaise datasource | Le contexte invalide son Unit d’origine et sa Guard ; le refus empoisonne aussi le Unit du caller s’il existe ; aucun SQL | Faute structurelle NON_COUNTABLE ; résolution du/des Units indépendante de ce refus | Pas de poursuite ; refus depuis autre thread ne touche pas au manager de l’owner ; ticket libérable seulement après sorties/résolutions connues |
+| Violation structurelle hors transaction (scope imbriqué, expiré, concurrent) | Pas de Unit nouveau ; Guard irréversiblement invalidée ; Unit actif voit la barrière | Invalid NON_COUNTABLE ; rejet logique ROLLED_BACK si tous les scopes sont connus résolus, sans requalifier un read déjà COMMITTED | Aucun begin supplémentaire ; aucune cession comptable ; ticket réglé par L2, jamais sur le seul refus |
+| Exception Java pure qui sort du callback/scope | Unit + Guard invalidés à la sortie ; hors scope, Guard invalidée et absence de transaction contrôlée | Owner : Failure qualifiée ou brute conservatrice ; hors scope connu sans transaction : rejet logique, classement TECHNICAL ou exclusion selon cause originale | Aucun finaliseur ; une brute d’owner crée incertitude, une pure hors scope n’invente pas un read UNKNOWN |
+| Exception interceptée par le participant | Une erreur passée par garde/owner reste empoisonnante ; une exception Java pure levée et absorbée sans interaction gardée n’est pas observable | Catch ne change ni cause ni résolution ni classement ; pure absorbée seule ne prouve aucune faute physique | Barrières interdisent la suite si poison ; sinon règles normales, sans prétention d’intercepter toute exception Java |
+| Erreur pendant callbacks Spring | Faute gardée : avant décision physique, poison/Guard et barrière pré-doCommit ; après commit, accès refusé et Guard invalidée sans réécrire la décision. Exception pure propagée par Spring : traitée par le catch owner ; pure absorbée par Spring sans interaction gardée : non observable comme pour le participant | Conserver l’algorithme L2 : handedToCommit + rollback notifié n’est pas à lui seul ROLLED_BACK ; sans rejet serveur explicite, UNKNOWN possible même si oracle extérieur prouve rollback ; COMMITTED attesté reste COMMITTED | Aucun résultat d’un read en échec réutilisé ; UNKNOWN préparation/recovery retient capacité ; succès physique final COMMITTED suit L2 même si cleanup échoue |
+
+### 4.6 AUD-I2-09 — barrières et décision physique
+
+Il n’y a qu’une machine transactionnelle : celle du manager Spring. Guard est un poison monotone,
+`active` est une durée d’utilisation du callback, `completion` est le témoin Spring existant.
+Ils ne sont pas trois résolutions concurrentes. L’expiration de PreparationReads ferme seulement
+les ouvertures ; elle ne détruit pas Guard. La notification afterCompletion est conservée même si
+un callback ultérieur échoue. Aucun callback participant n’est autorisé après sa sortie.
+
+| Transition | Contrôle obligatoire / oracle PostgreSQL |
+|---|---|
+| Avant begin / callback actif | Guard saine puis Unit courant, thread/ressources/owner exacts ; PID, base, rôle, isolation RR et RO serveur ; refus imbriqué sans second borrow |
+| Sortie callback | Contrôler Guard et poison local avant handedToCommit ; active=false dans finally ; Unit reste lié pendant synchronisations et résolution ; effet témoin extérieur encore invisible |
+| Synchronisations beforeCommit / beforeCompletion | Un contexte expiré refuse avant SQL et invalide Guard même si l’exception est catchée ; les exceptions beforeCompletion peuvent être journalisées/absorbées par Spring, donc le listener demeure indispensable |
+| TransactionExecutionListener.beforeCommit | Après ces synchronisations, juste avant doCommit : contrôler poison, rollback-only et Guard sans exiger active=true ; oracle extérieur : préfixe et DELETE tous deux rollbackés, slot conservé ; le contre-owner sans listener doit être détecté |
+| Résolution physique | Aucun scope suivant avant retour synchrone de l’owner et résultat confirmé ; commit serveur ACK perdu reste UNKNOWN selon L2 ; témoins indépendants : backend/locks, effet/slot dans une autre connexion |
+| afterCompletion(COMMITTED/ROLLED_BACK/UNKNOWN) | Enregistrer le statut notifié existant ; un accès gardé y est expiré, refusé avant SQL ; après COMMITTED, ce refus n’annule pas le commit ; démontrer effet+DELETE durables et absence de SQL tardif |
+| Retour owner puis expiration capacité | Un retour réussi exige COMMITTED notifié ; une Failure COMMITTED perd le résultat du read sans créer de préparation incertaine ; expire ferme source/effects mais Guard reste reliée à la finalisation |
+| Accès tardif après résolution / pendant prochain scope ou finalisation | Ancien contexte conserve Guard et refuse ; s’il arrive avant prochain commit, celui-ci est empêché ; après commit confirmé, résultat physique inchangé ; nouveaux appels refusés, aucune réparation/DELETE autonome |
+
+Les oracles différencient donc (a) poison avant décision et rollback physique, (b) commit confirmé
+puis faute tardive, (c) UNKNOWN avec commit durable, (d) UNKNOWN avec rollback ou backend actif.
+Ils vérifient effets et slot indépendamment, ainsi que le nombre de SQL/begin : une exception Java
+seule ne distingue pas ces quatre cas. Les callbacks JDBC et JPA sont requis, y compris faute
+interceptée dans beforeCompletion et dans afterCompletion après confirmation.
+
+### 4.7 AUD-I2-10 — lookup exact, absence et incohérence
+
+Une unique requête, dans le snapshot source RR RO, est ancrée sur l’UUID demandé (paramètre bindé).
+`<table>` et `<sequence>` proviennent exclusivement du switch fermé du §4.4 :
+
+```sql
+select p.family, p.position, p.event_id,
+       e.event_id as envelope_id, e.subject_type, c.position as published
+from (values (cast(? as uuid))) q(event_id)
+left join v3_event_position p on p.event_id=q.event_id
+left join <table> e on e.event_id=q.event_id
+left join v3_event_counter c on c.family=?
+```
+
+Ne pas filtrer `p.family` dans le WHERE/JOIN : cela transformerait une mauvaise famille en absence.
+L’UUID de l’enveloppe est lu séparément du sujet. `v3_event_position.event_id UNIQUE`, PK
+`(family,position)`, PK event_id des enveloppes et PK family du compteur assurent au plus une
+ligne ; l’ancre assure au moins une. Vérifier néanmoins exactement une ligne décodable. Le
+compteur doit exister et être non négatif, même pour un UUID absent. Si p et e sont absents,
+retourner empty. Si un seul existe, si famille différente, IDs différents de l’UUID demandé,
+position non positive ou supérieure au compteur, ou sujet hors ensemble autorisé : InvalidReference.
+Un compteur absent/régressé sous la position est une incohérence positive, pas empty. Le compteur
+n’est ni un checkpoint READ ni une preuve que tous les effets ont été appliqués.
+
+SQL/timeout/connexion/permission indisponible reste l’erreur technique originale, jamais
+InvalidReference et jamais empty. Une erreur de décodage non reconnue reste erreur technique.
+La contrainte UNIQUE et les triggers existants garantissent publication/famille ; le lookup
+n’invente pas de mapping parallèle, de jointure interautorités ni de validation historique globale.
+L’absence est bornée à la table de famille attendue et à la position globale de cet UUID ;
+une enveloppe d’une autre famille sans position relève déjà d’une corruption des producteurs,
+pas d’un scan universel ajouté par ce lookup. `window` reste propriétaire du préfixe dense.
+
+Contre-exemples obligatoires : publication réelle de chacune des quatre familles ; UUID réellement
+absent ; UUID positionné dans une autre famille ; enveloppe orpheline et position orpheline ;
+compteur absent et inférieur à la position ; sujet invalide ; mauvais contexte/datasource ;
+permissions/timeout/transport impossibles. Les corruptions normalement interdites sont injectées
+administrativement dans la fixture, puis distinguées d’une indisponibilité. Un contre-lookup qui
+filtre la famille ou utilise INNER JOIN doit échouer sur ces mêmes données. Aucune migration,
+contrainte, permission runtime ni publication existante n’est modifiée pour les rendre possibles.
+
 ## 5. Durée de vie, erreurs et détachement
 
 ### 5.1 Automate de la capacité
@@ -500,7 +584,7 @@ par l’API que l’Engine devrait « détacher plus tard ».
 | Identity préparation | Business WRITE RR RO : charge intention ; TERMINAL retourne empty ; Prepared capture Stored | Un seul `reads.source(ctx -> prepareInSnapshot(id))` enveloppe ce corps ; ne lit ni ne décide de courant EUI |
 | Identity finalisation | RC : slot protégé, recharge intention, verrous EUI ordonnés, lectures courant après attente, décision Registration/Link/Unlink, apply si Changed, terminal, complete puis publish | Corps inchangé. Génération token/user et `IdentityTransitions` restent sous verrous. Pas de décision d’autorité dans source RR |
 | Identity recovery | Préfixe durable WRITE avec provenance, EUI historique, utilisateur, événements et positions | Comparaison différée de `JdbcIdentityRequestObservation.observe` dans WRITE, slot même snapshot ; aucun checkpoint |
-| Probes READ | Effet `i5_read_probe_effect`, aucune matérialisation métier | Adaptation interface et récupération technique complète ; récupération source par Engine, preuve exacte de l’effet ; zéro activation métier |
+| Probes READ | Effet `i5_read_probe_effect`, aucune matérialisation métier | Un scope RR RO `reads.effects` conserve la préparation technique existante ; récupération source par Engine puis preuve exacte de l’effet, divergence positive distinguée ; zéro activation métier |
 
 `prepareInSnapshot(UUID)` est une méthode privée cible de chaque participant, de retour
 `Optional<Prepared>`, obtenue en extrayant son corps `prepare(UUID)` actuel. Les classes
@@ -658,6 +742,12 @@ les compositions le reconnaissent explicitement comme NON_COUNTABLE.
    appeler recovery et exiger COMPLETED ;
 5. recontrôler sortie locale/exclusions, retirer `pending`, `ticket.release` idempotent.
 
+Une sortie brute non qualifiée de l’owner conserve sa propagation RuntimeException/Error existante,
+avec incertitude et rétention ; la ligne « Attempt RECOVERY_PENDING/UNKNOWN » désigne le chemin
+Failure UNKNOWN qualifié, pas une obligation d’absorber un Error brut. Une interruption réelle
+peut elle-même perdre l’ACK du rollback JDBC : l’oracle doit alors exiger UNKNOWN et ticket retenu,
+pas forcer ROLLED_BACK parce qu’aucun effet métier n’existe.
+
 Une nouvelle observation UNKNOWN pendant cette boucle coupe les restitutions suivantes.
 Aucune observation NOT_COMPLETED ne décrète un rollback, une restitution, un retry ou une cession.
 Le règlement technique ne réécrit jamais la résolution UNKNOWN stockée dans l’Attempt historique.
@@ -744,7 +834,8 @@ UNCHANGED, réemployés et requalifiés selon leur impact :
 | `app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java` | Pools/quotas/activation fermée |
 | `app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionCatalogConfiguration.java` | Catalogue inchangé |
 
-Toutes les migrations du §2.1, POM, scripts, configurations et preuves sont UNCHANGED. Les ports
+Les migrations du §2.1, POM, scripts et configurations de production restent UNCHANGED.
+Les preuves historiques restent inchangées ; I2 produit ses propres preuves et opérateurs de collecte. Les ports
 L1 et Identity (`PotHistoryPort`, `PotCommandStore`, `PotCommandObservation`, `IdentityRequestStore`,
 `IdentityRequestObservation`, `IdentityAuthority`, `PotActorAuthority`) gardent toutes leurs signatures.
 Aucune évolution métier/SQL n’est cachée dans le mot « adaptation ».
@@ -783,6 +874,7 @@ est réellement présent ; aucun changement n’est réalisé pendant la présen
 | MODIFY | `app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java` | Preuve de la racine active avec nouveaux contrats et owners explicites |
 | MODIFY | `app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3WorkerMonolithPostgresTest.java` | Preuve de la racine active avec nouveaux contrats et owners explicites |
 | MODIFY | `app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectAtomicityPostgresTest.java` | Adapter prepare/recovery, constructeurs, doubles/forwarders et ajouter les oracles concernés sans réduire les assertions |
+| MODIFY | `app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectStorePostgresTest.java` | Conserver les refus internes de mauvaise autorité/thread et exiger le rollback physique du read empoisonné, même après catch |
 | MODIFY | `app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectPostgresFixture.java` | Adapter prepare/recovery, constructeurs, doubles/forwarders et ajouter les oracles concernés sans réduire les assertions |
 | CREATE | `app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/PreparationReadsTest.java` | Automate, barrières, erreurs et capacité ; pas preuve physique |
 | CREATE | `app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/InterAuthorityPreparationPostgresTest.java` | P01–P08 et W01 ; vrai PRIMARY/READ distincts |
@@ -930,7 +1022,7 @@ sélectionnés. Aucun `skipTests`, `maven.test.skip` ou exclusion cachée ne pro
 ### 12.2 CHANGE / INTEGRATION — protocoles PostgreSQL ciblés
 
 ```sh
-./mvnw -pl runtime-task-consumption-worker,runtime-command-consumption-worker -am -Dtest=InterAuthorityPreparationPostgresTest,InterAuthorityRecoveryPostgresTest,SubobjectAtomicityPostgresTest,AttemptTransactionsPostgresTest,CommandExecutionPostgresTest,IdentityRequestExecutionPostgresTest,IdentityConcurrencyPostgresTest,IdentityPotAuthorityPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+./mvnw -pl runtime-task-consumption-worker,runtime-command-consumption-worker -am -Dtest=InterAuthorityPreparationPostgresTest,InterAuthorityRecoveryPostgresTest,SubobjectAtomicityPostgresTest,SubobjectStorePostgresTest,AttemptTransactionsPostgresTest,CommandExecutionPostgresTest,IdentityRequestExecutionPostgresTest,IdentityConcurrencyPostgresTest,IdentityPotAuthorityPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
 Cette sélection prouve les nouveaux contrats et les régressions directes ; elle ne couvre pas
@@ -1055,6 +1147,9 @@ tant que son implémentation et ses campagnes n’ont pas eu lieu.
 | AUD-I2-05 — matrice recovery | §7.2–7.4 distingue READ/WRITE, présence/absence, couverture, préexistence, monotonie, suppression, divergence/absence et indisponibilité | R01–R09 et contre-oracle à deux snapshots |
 | AUD-I2-06 — détachement opérationnel | §5.2 inventorie valeurs/captures/fermeture et limite explicite du générique ; ports gardés, absence de source en finalisation | P08/W01/P01, pas inspection superficielle du résultat seul |
 | AUD-I2-07 — fichiers/gates | §10 fournit chemins/action exacts, y compris fakes/décorateurs/racines ; §11–12 fixent tests et gates, BINDING conditionnel et MONOLITH obligatoire couvert par Architecture si inventaire le prouve | Inventaire effectif, résultats attribués, rapport de franchissement |
+| AUD-I2-08 — catégories/propagation | §4.5 conserve cause originale, classement L2, refus hors unité, exceptions pures et faute gardée interceptée ; scope UNKNOWN distinct du rejet logique | P04–P07, classification, callbacks JDBC/JPA ; voir rapport I2 |
+| AUD-I2-09 — garde après résolution | §4.6 distingue active, synchronisations, barrière pré-doCommit, notification physique, expiration et accès tardifs ; COMMITTED non rétroactif | P03/W03, afterCompletion confirmé, contre-forwarder et pertes d’ACK |
+| AUD-I2-10 — oracle SQL exact | §4.7 donne la requête ancrée sur UUID, PK/UNIQUE, position/famille/enveloppe/compteur et erreurs distinctes | R04 quatre familles réelles et corruptions administratives ; contre-lookup filtrant/INNER JOIN |
 
 Contrôles documentaires de cette mission : lecture intégrale finale du document, comparaison des
 signatures existantes/cibles et des chemins contre les sources, inventaire des implémenteurs et
@@ -1072,3 +1167,29 @@ ordinaires sont arrêtés, l’inventaire et les gates sont explicites, les preu
 falsifiables et les réserves restantes ne masquent pas une architecture indéfinie. Ce verdict
 qualifie le caractère directement implémentable du plan ; il ne constitue **ni GO humain Java,
 ni PASS d’implémentation/qualification I2**, qui relèvent d’une décision et d’une mission distinctes.
+
+
+## 15. Mission enchaînée autorisée du 2 novembre 2026
+
+SHA audité/initial : `a9937991a75428d8718e6036da11be2382c633d0`, worktree propre.
+La décision humaine de cette mission autorise A puis B sans GO intermédiaire ; elle remplace
+les mentions historiques « futur GO distinct » des sections précédentes, sans accepter le code.
+AUD-I2-08 est précisé au §4.5, AUD-I2-09 au §4.6, AUD-I2-10 au §4.7.
+Le contrôle A→B confronte ces contrats aux sources Spring/L2, schémas, contraintes et mappings
+réels. Les six critères doivent être consignés dans le rapport d’exécution avant modification Java.
+Les déclarations documentaires précédentes décrivent la mission historique de rédaction, pas
+les campagnes à venir de cette mission. Les réserves I1/r05/r12 et leurs attributions demeurent.
+
+
+### 15.1 Réalisation et qualification de la mission enchaînée
+
+Le [rapport d’exécution I2](L4_I2_Execution_Report.md) consigne le passage A→B et les contrats livrés.
+Le tableau d’inventaire précédent reste la référence du cadrage ; l’inventaire exact réalisé est
+[publié avec ses empreintes](../testing/evidence/L4-I2/Implementation_Files.json).
+Les adaptations supplémentaires de forwarders L1/Worker/metrics et de l’instrumentation réflexive
+sont compilatoires/probatoires dans les mêmes slices, sans nouveau comportement BINDING.
+Les propriétaires et contrats de production du §10 restent dans leur frontière déclarée.
+La qualification officielle est isolée des targets du workspace interactif ; les refus, FAIL,
+contre-preuves et réserves historiques sont conservés, sans réattribution à I2 des anciens totaux.
+Le rapport et le manifeste portent seuls les résultats effectifs des campagnes ; le plan ne clôt
+pas I2 et ne remplace ni audit indépendant ni décision humaine.

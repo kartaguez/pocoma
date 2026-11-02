@@ -223,7 +223,7 @@ class CommandExecutionPostgresTest {
                         status -> {
                             jdbc.queryForList(
                                     "select consumable_id from consumption_slot where"
-                                        + " consumable_id=? for update",
+                                            + " consumable_id=? for update",
                                     request);
                             return jdbc.update(
                                                     "update consumption_slot set"
@@ -371,8 +371,10 @@ class CommandExecutionPostgresTest {
         final CountDownLatch prepared = new CountDownLatch(1), resume = new CountDownLatch(1);
 
         @Override
-        public <T> T read(java.util.function.Function<RecoveryReadContext, T> action) {
-            var value = tx.read(action);
+        public <T> T read(
+                java.util.function.Function<RecoveryReadContext, T> action,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+            var value = tx.read(action, guard);
             timeline.add("preparation committed");
             prepared.countDown();
             await(resume);
@@ -380,8 +382,10 @@ class CommandExecutionPostgresTest {
         }
 
         @Override
-        public <T> T write(Supplier<T> action) {
-            return tx.write(action);
+        public <T> T write(
+                Supplier<T> action,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+            return tx.write(action, guard);
         }
     }
 
@@ -806,13 +810,19 @@ class CommandExecutionPostgresTest {
         var failures = new ArrayList<AttemptTransactions.Failure>();
         AttemptTransactions observing =
                 new ForwardingTransactions(tx) {
-                    public <T> T read(java.util.function.Function<RecoveryReadContext, T> action) {
-                        return tx.read(action);
+                    public <T> T read(
+                            java.util.function.Function<RecoveryReadContext, T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
+                        return tx.read(action, guard);
                     }
 
-                    public <T> T write(Supplier<T> action) {
+                    public <T> T write(
+                            Supplier<T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
                         try {
-                            return tx.write(action);
+                            return tx.write(action, guard);
                         } catch (AttemptTransactions.Failure failure) {
                             failures.add(failure);
                             throw failure;
@@ -1591,15 +1601,22 @@ class CommandExecutionPostgresTest {
                         new ForwardingTransactions(pt) {
                             @Override
                             public <T> T read(
-                                    java.util.function.Function<RecoveryReadContext, T> action) {
-                                var result = pt.read(action);
+                                    java.util.function.Function<RecoveryReadContext, T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                var result = pt.read(action, guard);
                                 if (proxy.intercepted.get() == 0) proxy.armed.set(fault);
                                 return result;
                             }
 
                             @Override
-                            public <T> T write(Supplier<T> action) {
-                                return pt.write(action);
+                            public <T> T write(
+                                    Supplier<T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                return pt.write(action, guard);
                             }
                         };
                 var command = command(2, new UpdatePotDetails(new Label("wire")));

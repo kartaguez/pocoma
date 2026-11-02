@@ -117,6 +117,56 @@ public final class V3ConsumptionLifecycleComposition {
                 observation);
     }
 
+    /** READ explicitly owns its PRIMARY source and its effects snapshot independently. */
+    public static ConsumptionEngine assemble(
+            V3BootstrapGuard guard,
+            ConsumptionDefinition definition,
+            com.zaxxer.hikari.HikariDataSource business,
+            com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions effects,
+            ConsumptionParticipant participant,
+            com.zaxxer.hikari.HikariDataSource control,
+            com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions technical,
+            DataSource writeSource,
+            com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions sourceReads,
+            DiscoveryEngine.Settings discoverySettings,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            AttemptFailureClassifier classifier,
+            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+        if (definition.authority() != ConsumptionDefinition.Authority.READ)
+            throw new IllegalArgumentException("Explicit event recovery is READ only");
+        if (business == control
+                || business.getMaximumPoolSize() < capacity.workerLimit() + 2
+                || control.getMaximumPoolSize() < capacity.workerLimit() + 6)
+            throw new IllegalArgumentException("distinct Business/Control reserves required");
+        effects.requireSource(business);
+        technical.requireSource(control);
+        sourceReads.requireSource(writeSource);
+        var profile = V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY;
+        guard.validateLifecycleSource(business, definition.authority(), profile);
+        guard.validateLifecycleSource(control, definition.authority(), profile);
+        guard.validateLifecycleSource(writeSource, ConsumptionDefinition.Authority.WRITE, profile);
+        return new ConsumptionEngine(
+                definition,
+                effects,
+                new JdbcConsumptionSlotStore(business),
+                participant,
+                sourceReads,
+                Optional.of(
+                        new JdbcEventDiscoveryReferences(
+                                writeSource, definition.family(), discoverySettings)),
+                r -> V3ConsumptionDiscoveryComposition.relevant(definition, r),
+                new JdbcDiscoveryAdmissionStore(business, discoverySettings),
+                technical,
+                new JdbcConsumptionSlotStore(control),
+                new JdbcPartitionOwnershipStore(control),
+                settings,
+                capacity,
+                classifier,
+                new JdbcSlotKeyNavigation(control, settings),
+                observation);
+    }
+
     /** Excluded causes dominate SQL/JPA, then technical faults; wrappers alone prove no fault. */
     public static FailureKind classify(Throwable failure) {
         if (failure == null) return FailureKind.NON_COUNTABLE;
@@ -138,7 +188,8 @@ public final class V3ConsumptionLifecycleComposition {
                 if (state != null && (state.startsWith("08") || state.equals("40003")))
                     excluded = true;
                 else sql = true;
-            } else if (cause
+            } else if (cause instanceof PreparationReads.Invalid) excluded = true;
+            else if (cause
                             instanceof
                             org.springframework.transaction.IllegalTransactionStateException
                     || cause instanceof org.springframework.beans.BeansException) excluded = true;

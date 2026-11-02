@@ -46,12 +46,12 @@ class WriteRevisionPerformancePostgresTest {
                                 s -> {
                                     f.jdbc.update(
                                             "update v3_pot_details set active_to=3 where pot_id=?"
-                                                + " and active_to is null",
+                                                    + " and active_to is null",
                                             f.p.value());
                                     f.jdbc.update(
                                             "insert into v3_pot_version(pot_id,version,recorded_at)"
-                                                + " select ?,v,clock_timestamp() from"
-                                                + " generate_series(3,?) v",
+                                                    + " select ?,v,clock_timestamp() from"
+                                                    + " generate_series(3,?) v",
                                             f.p.value(),
                                             depth);
                                     f.jdbc.update(
@@ -231,19 +231,23 @@ class WriteRevisionPerformancePostgresTest {
             this.delegate = delegate;
         }
 
-        public <T> T read(java.util.function.Function<RecoveryReadContext, T> action) {
+        public <T> T read(
+                java.util.function.Function<RecoveryReadContext, T> action,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
             long start = System.nanoTime();
             try {
-                return delegate.read(action);
+                return delegate.read(action, guard);
             } finally {
                 preparation = System.nanoTime() - start;
             }
         }
 
-        public <T> T write(Supplier<T> action) {
+        public <T> T write(
+                Supplier<T> action,
+                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
             long start = System.nanoTime();
             try {
-                return delegate.write(action);
+                return delegate.write(action, guard);
             } finally {
                 finalization = System.nanoTime() - start;
             }

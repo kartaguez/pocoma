@@ -6,9 +6,21 @@ import java.util.UUID;
 
 public interface ConsumptionParticipant {
     /** Empty when already terminal: Engine must observe rather than finalize again. */
-    java.util.Optional<Prepared> prepare(UUID consumableId);
+    java.util.Optional<Prepared> prepare(UUID consumableId, PreparationReads reads);
 
-    RecoveryObservation observe(UUID consumableId, RecoveryReadContext context);
+    Recovery prepareRecovery(UUID consumableId, PreparationReads reads);
+
+    enum EffectEvidence {
+        SATISFIED,
+        MISSING,
+        DIVERGENT,
+        UNAVAILABLE
+    }
+
+    @FunctionalInterface
+    interface Recovery {
+        EffectEvidence observe(RecoveryReadContext context);
+    }
 
     interface Prepared {
         void finalizeIn(SlotCompletion completion);

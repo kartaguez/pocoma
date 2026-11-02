@@ -306,17 +306,25 @@ class V3WorkerMetricsTest {
                                                             com.kartaguez.pocoma.port.transaction.v3
                                                                     .RecoveryReadContext,
                                                             T>
-                                                    body) {
-                                        return owner.read(body);
+                                                    body,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .AttemptTransactions.Guard
+                                                    guard) {
+                                        return owner.read(body, guard);
                                     }
 
-                                    public <T> T write(java.util.function.Supplier<T> body) {
+                                    public <T> T write(
+                                            java.util.function.Supplier<T> body,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .AttemptTransactions.Guard
+                                                    guard) {
                                         return owner.write(
                                                 () -> {
                                                     body.get();
                                                     throw new IllegalStateException(
                                                             "actual rollback after admission");
-                                                });
+                                                },
+                                                guard);
                                     }
 
                                     public void poison(Throwable failure) {
@@ -422,7 +430,7 @@ class V3WorkerMetricsTest {
                                         + " slots="
                                         + f.write.queryForList(
                                                 "select consumption_id,consumable_id from"
-                                                    + " consumption_slot"));
+                                                        + " consumption_slot"));
                         f.evidence("i5_m03-" + scenario);
                     } finally {
                         // The manual fixture launches no schedulers; start the existing drain path

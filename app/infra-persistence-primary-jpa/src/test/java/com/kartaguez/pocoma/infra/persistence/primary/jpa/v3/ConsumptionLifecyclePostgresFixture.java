@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
@@ -152,6 +153,10 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                     "create table fixture_effect(id uuid primary key,value text not null);grant"
                             + " select,insert on fixture_effect to "
                             + runtimeRole);
+            oracle.execute(
+                    "create table fixture_recovery_event(id uuid primary key,position bigint"
+                            + " generated always as identity unique,subject text not null)");
+            oracle.execute("grant select on fixture_recovery_event to " + runtimeRole);
             tx = new SpringAttemptTransactions(source, jdbcManager(source));
         }
         participant = participantFor(source, tx);
@@ -199,36 +204,45 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                     Clock.systemUTC());
         }
         return new ConsumptionParticipant() {
-            public Optional<Prepared> prepare(UUID id) {
-                return Optional.of(
-                        new Prepared() {
-                            public void finalizeIn(SlotCompletion completion) {
-                                SpringAttemptTransactions.guarded(
-                                        source,
-                                        () -> {
-                                            sql.update(
-                                                    "insert into fixture_effect values"
-                                                            + " (?,'expected')",
-                                                    id);
-                                            return null;
-                                        });
-                                completion.complete();
-                                SpringAttemptTransactions.closePublication(source);
-                            }
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                return reads.effects(
+                        preparationContext -> {
+                            return Optional.of(
+                                    new Prepared() {
+                                        public void finalizeIn(SlotCompletion completion) {
+                                            SpringAttemptTransactions.guarded(
+                                                    source,
+                                                    () -> {
+                                                        sql.update(
+                                                                "insert into fixture_effect values"
+                                                                        + " (?,'expected')",
+                                                                id);
+                                                        return null;
+                                                    });
+                                            completion.complete();
+                                            SpringAttemptTransactions.closePublication(source);
+                                        }
 
-                            public void requireCompletionReady() {
-                                assertEquals(
-                                        1,
-                                        sql.queryForObject(
-                                                "select count(*) from fixture_effect where id=? and"
-                                                        + " value='expected'",
-                                                Integer.class,
-                                                id));
-                            }
+                                        public void requireCompletionReady() {
+                                            assertEquals(
+                                                    1,
+                                                    sql.queryForObject(
+                                                            "select count(*) from fixture_effect"
+                                                                    + " where id=? and"
+                                                                    + " value='expected'",
+                                                            Integer.class,
+                                                            id));
+                                        }
+                                    });
                         });
             }
 
-            public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return context -> evidence(observeInSnapshot(id, context, reads));
+            }
+
+            private RecoveryObservation observeInSnapshot(
+                    UUID id, RecoveryReadContext context, PreparationReads reads) {
                 SpringAttemptTransactions.requireRead(source, context);
                 return Boolean.TRUE.equals(
                                 sql.queryForObject(
@@ -324,6 +338,12 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                 owner,
                 store,
                 p,
+                owner,
+                write ? Optional.empty() : Optional.of(references()),
+                r -> true,
+                write ? null : new JdbcDiscoveryAdmissionStore(source, discoverySettings()),
+                owner,
+                store,
                 ownership,
                 settings,
                 capacity,
@@ -335,7 +355,45 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                     return c instanceof ExecutePotCommand.Collision
                             ? AttemptFailureClassifier.FailureKind.COLLISION
                             : AttemptFailureClassifier.FailureKind.TECHNICAL;
-                });
+                },
+                null,
+                ConsumptionObservation.noop());
+    }
+
+    static DiscoveryEngine.Settings discoverySettings() {
+        return new DiscoveryEngine.Settings(
+                128, 32, 32, 1024, Duration.ofSeconds(2), Duration.ofSeconds(10));
+    }
+
+    NonBurnableReferences references() {
+        return new NonBurnableReferences() {
+            public ConsumableFamily family() {
+                return definition.family();
+            }
+
+            public Optional<Reference> find(UUID id, RecoveryReadContext context) {
+                return SpringAttemptTransactions.observed(
+                        source,
+                        context,
+                        () ->
+                                sql
+                                        .query(
+                                                "select position,id,subject from"
+                                                        + " fixture_recovery_event where id=?",
+                                                (r, n) ->
+                                                        new Reference(
+                                                                r.getLong(1),
+                                                                r.getObject(2, UUID.class),
+                                                                r.getString(3)),
+                                                id)
+                                        .stream()
+                                        .findFirst());
+            }
+
+            public Window window(long after, int max, RecoveryReadContext context) {
+                throw new AssertionError("recovery-only fixture");
+            }
+        };
     }
 
     <T> T technical(Supplier<T> action) {
@@ -377,6 +435,21 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                 definition.family().name(),
                 id,
                 partition);
+        if (!write) {
+            long position =
+                    oracle.queryForObject(
+                            "insert into fixture_recovery_event(id,subject) values (?,'POT')"
+                                    + " returning position",
+                            Long.class,
+                            id);
+            oracle.update(
+                    "insert into discovery_checkpoint values (?,?,?) on"
+                            + " conflict(consumption_id,partition_id) do update set"
+                            + " position=greatest(discovery_checkpoint.position,excluded.position)",
+                    definition.id().value(),
+                    partition,
+                    position);
+        }
         trace.add(
                 "seed before acquisition key="
                         + id
@@ -531,5 +604,34 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
     public void close() {
         threads.close();
         if (emf != null) emf.destroy();
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

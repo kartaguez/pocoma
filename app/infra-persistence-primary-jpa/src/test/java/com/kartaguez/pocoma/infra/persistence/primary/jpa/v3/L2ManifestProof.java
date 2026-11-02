@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
@@ -96,9 +97,9 @@ class L2ManifestProof {
 
     ConsumptionParticipant wrapped(Consumer<ConsumptionParticipant.Prepared> action) {
         return new ConsumptionParticipant() {
-            public Optional<Prepared> prepare(UUID id) {
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
                 return participant
-                        .prepare(id)
+                        .prepare(id, reads)
                         .map(
                                 p ->
                                         new Prepared() {
@@ -113,8 +114,8 @@ class L2ManifestProof {
                                         });
             }
 
-            public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
-                return participant.observe(id, c);
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return participant.prepareRecovery(id, reads);
             }
         };
     }
@@ -689,7 +690,10 @@ class L2ManifestProof {
                             "repeatable read",
                             f.jdbc.queryForObject("show transaction_isolation", String.class));
                     slots.observe(claim.consumptionId(), claim.consumableId(), context);
-                    participant.observe(claim.consumableId(), context);
+                    legacy(
+                            participant
+                                    .prepareRecovery(claim.consumableId(), inSnapshot(context))
+                                    .observe(context));
                     return null;
                 });
         assertThrows(RuntimeException.class, retained.get()::requireActiveRead);
@@ -729,7 +733,11 @@ class L2ManifestProof {
     void l2m_r9_03_unavailable() {
         var unavailable =
                 new ForwardingTransactions(f.tx) {
-                    public <T> T read(Function<RecoveryReadContext, T> action) {
+                    public <T> T read(
+                            Function<RecoveryReadContext, T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
+                        guard.requireValid();
                         throw new IllegalStateException("connection lost");
                     }
                 };
@@ -818,7 +826,11 @@ class L2ManifestProof {
                         }
                         assertEquals(
                                 RecoveryObservation.NOT_COMPLETED,
-                                participant.observe(claim.consumableId(), context));
+                                legacy(
+                                        participant
+                                                .prepareRecovery(
+                                                        claim.consumableId(), inSnapshot(context))
+                                                .observe(context)));
                         return null;
                     });
         } finally {
@@ -907,10 +919,14 @@ class L2ManifestProof {
                 var physicalFailures = new ArrayList<AttemptTransactions.Failure>();
                 var armed =
                         new ForwardingTransactions(owner) {
-                            public <T> T write(Supplier<T> action) {
+                            public <T> T write(
+                                    Supplier<T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
                                 proxy.armed.set(fault);
                                 try {
-                                    return owner.write(action);
+                                    return owner.write(action, guard);
                                 } catch (AttemptTransactions.Failure failure) {
                                     physicalFailures.add(failure);
                                     throw failure;
@@ -1715,7 +1731,10 @@ class L2ManifestProof {
         var reads = new AtomicInteger();
         var owner =
                 new ForwardingTransactions(f.tx) {
-                    public <T> T read(Function<RecoveryReadContext, T> action) {
+                    public <T> T read(
+                            Function<RecoveryReadContext, T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
                         return f.tx.read(
                                 context -> {
                                     if (reads.incrementAndGet() == 1)
@@ -1727,7 +1746,8 @@ class L2ManifestProof {
                                                     }
                                                 });
                                     return action.apply(context);
-                                });
+                                },
+                                guard);
                     }
                 };
         var result = engine(participant, slots, owner).execute(claim);
@@ -1829,5 +1849,54 @@ class L2ManifestProof {
     @Test
     void l2m_l1_f2_summary_f202() throws Exception {
         new WriteRevisionPerformancePostgresTest().f201WriteDepthProfiles();
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
+    }
+
+    /** Only for direct participant tests already enclosed by their physical owner. */
+    private static PreparationReads inSnapshot(
+            com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext context) {
+        return new PreparationReads() {
+            public <T> T source(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                return action.apply(context);
+            }
+
+            public <T> T effects(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                throw new AssertionError("WRITE preparation uses one source snapshot");
+            }
+        };
     }
 }

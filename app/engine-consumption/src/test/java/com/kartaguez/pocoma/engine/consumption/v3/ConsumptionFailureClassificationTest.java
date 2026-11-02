@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.consumption.v3;
 
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
@@ -34,11 +35,17 @@ class ConsumptionFailureClassificationTest {
     final AtomicInteger prepares = new AtomicInteger();
     final AttemptTransactions tx =
             new AttemptTransactions() {
-                public <T> T read(Function<RecoveryReadContext, T> f) {
+                public <T> T read(
+                        Function<RecoveryReadContext, T> f,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+                    guard.requireValid();
                     return f.apply(() -> {});
                 }
 
-                public <T> T write(Supplier<T> f) {
+                public <T> T write(
+                        Supplier<T> f,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+                    guard.requireValid();
                     return f.get();
                 }
 
@@ -96,13 +103,21 @@ class ConsumptionFailureClassificationTest {
                                 (p, m, args) -> null);
         var participant =
                 new ConsumptionParticipant() {
-                    public Optional<Prepared> prepare(UUID id) {
-                        prepares.incrementAndGet();
-                        callback.run();
-                        throw new Failure(resolution.get(), cause.get());
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        return reads.source(
+                                preparationContext -> {
+                                    prepares.incrementAndGet();
+                                    callback.run();
+                                    throw new Failure(resolution.get(), cause.get());
+                                });
                     }
 
-                    public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return c -> evidence(observeInSnapshot(id, c, reads));
+                    }
+
+                    private RecoveryObservation observeInSnapshot(
+                            UUID id, RecoveryReadContext c, PreparationReads reads) {
                         return observation.get();
                     }
                 };
@@ -348,5 +363,34 @@ class ConsumptionFailureClassificationTest {
         e.abandon(unused);
         assertEquals(0, capacity.snapshot().worker());
         assertThrows(IllegalArgumentException.class, () -> e.execute(unused));
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

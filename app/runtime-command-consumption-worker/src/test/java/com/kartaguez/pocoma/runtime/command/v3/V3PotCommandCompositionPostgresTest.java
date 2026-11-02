@@ -18,6 +18,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
@@ -383,15 +384,31 @@ class V3PotCommandCompositionPostgresTest {
             var command = h.command("factory-real", token, new PotId(UUID.randomUUID()), 0,
                     new PotCommand.CreatePot(new Label("real factory")));
             h.completed(command, "CHANGED", null);
-            assertEquals(h.f.user("factory-real"), h.f.write.queryForObject(
-                    "select creator_id from v3_pot_details where pot_id=?", UUID.class, command.potId().value()));
+            assertEquals(
+                    h.f.user("factory-real"),
+                    h.f.write.queryForObject(
+                            "select creator_id from v3_pot_details where pot_id=?",
+                            UUID.class,
+                            command.potId().value()));
             var before = h.business();
-            assertTrue(h.owner.<Boolean>read(c -> new com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand(
-                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotCommandStore(h.source, h.owner),
-                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotCommandObservation(h.source),
-                    h.real, new JdbcPotHistoryAdapter(h.source),
-                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotRevisionAdapter(h.source),
-                    Clock.systemUTC()).prepare(command.requestId()).isEmpty()));
+            assertTrue(
+                    h.owner.<Boolean>read(
+                            c ->
+                                    new com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand(
+                                                    new com.kartaguez.pocoma.infra.persistence
+                                                            .primary.jpa.v3.JdbcPotCommandStore(
+                                                            h.source, h.owner),
+                                                    new com.kartaguez.pocoma.infra.persistence
+                                                            .primary.jpa.v3
+                                                            .JdbcPotCommandObservation(h.source),
+                                                    h.real,
+                                                    new JdbcPotHistoryAdapter(h.source),
+                                                    new com.kartaguez.pocoma.infra.persistence
+                                                            .primary.jpa.v3.JdbcPotRevisionAdapter(
+                                                            h.source),
+                                                    Clock.systemUTC())
+                                            .prepare(command.requestId(), inSnapshot(c))
+                                            .isEmpty()));
             assertEquals(before, h.business());
             h.evidence("l3_composition_real_authority_and_classifier");
         }
@@ -402,5 +419,25 @@ class V3PotCommandCompositionPostgresTest {
                 new ConsumptionId(UUID.fromString("98f7268d-d340-581c-b83d-010926223e14")),
                 request,
                 token);
+    }
+
+    /** Only for direct participant tests already enclosed by their physical owner. */
+    private static PreparationReads inSnapshot(
+            com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext context) {
+        return new PreparationReads() {
+            public <T> T source(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                return action.apply(context);
+            }
+
+            public <T> T effects(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                throw new AssertionError("WRITE preparation uses one source snapshot");
+            }
+        };
     }
 }

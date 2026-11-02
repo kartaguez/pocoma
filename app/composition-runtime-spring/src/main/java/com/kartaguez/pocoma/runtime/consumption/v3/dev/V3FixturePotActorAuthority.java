@@ -44,7 +44,11 @@ public final class V3FixturePotActorAuthority implements PotActorAuthority {
     }
 
     public Witness observe(PotCommand command) {
-        return read(command, false);
+        return SpringAttemptTransactions.participating(
+                source,
+                () -> {
+                    return read(command, false);
+                });
     }
 
     public boolean protect(PotCommand command, Witness observed) {

@@ -327,15 +327,19 @@ public final class JdbcConsumptionSlotStore implements ConsumptionSlotStore {
     @Override
     public SlotObservation observe(
             ConsumptionId id, UUID consumableId, RecoveryReadContext context) {
-        SpringAttemptTransactions.requireRead(source, context);
-        return Boolean.TRUE.equals(
-                        jdbc.queryForObject(
-                                "select exists(select 1 from consumption_slot "
-                                        + "where consumption_id=? and consumable_id=?)",
-                                Boolean.class,
-                                id.value(),
-                                consumableId))
-                ? SlotObservation.PRESENT
-                : SlotObservation.ABSENT;
+        return SpringAttemptTransactions.observed(
+                source,
+                context,
+                () -> {
+                    return Boolean.TRUE.equals(
+                                    jdbc.queryForObject(
+                                            "select exists(select 1 from consumption_slot "
+                                                    + "where consumption_id=? and consumable_id=?)",
+                                            Boolean.class,
+                                            id.value(),
+                                            consumableId))
+                            ? SlotObservation.PRESENT
+                            : SlotObservation.ABSENT;
+                });
     }
 }

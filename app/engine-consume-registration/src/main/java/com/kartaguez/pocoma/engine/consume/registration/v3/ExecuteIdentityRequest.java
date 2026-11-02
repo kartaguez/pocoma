@@ -4,7 +4,6 @@ import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -31,7 +30,11 @@ public final class ExecuteIdentityRequest implements ConsumptionParticipant {
     }
 
     @Override
-    public Optional<Prepared> prepare(UUID requestId) {
+    public Optional<Prepared> prepare(UUID requestId, PreparationReads reads) {
+        return reads.source(context -> prepareInSnapshot(requestId));
+    }
+
+    private Optional<Prepared> prepareInSnapshot(UUID requestId) {
         var stored =
                 store.load(requestId)
                         .orElseThrow(() -> new IllegalStateException("Identity request missing"));
@@ -99,7 +102,13 @@ public final class ExecuteIdentityRequest implements ConsumptionParticipant {
     }
 
     @Override
-    public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
-        return observation.observe(id, context);
+    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+        return context ->
+                switch (observation.observe(id, context)) {
+                    case COMPLETED -> EffectEvidence.SATISFIED;
+                    case NOT_COMPLETED -> EffectEvidence.MISSING;
+                    case INCONSISTENT -> EffectEvidence.DIVERGENT;
+                    case UNAVAILABLE -> EffectEvidence.UNAVAILABLE;
+                };
     }
 }

@@ -34,41 +34,50 @@ public final class JdbcIdentityPotActorAuthority implements PotActorAuthority {
 
     @Override
     public Witness observe(PotCommand command) {
-        if (!TransactionSynchronizationManager.isActualTransactionActive()
-                || !TransactionSynchronizationManager.hasResource(source)
-                || !TransactionSynchronizationManager.isCurrentTransactionReadOnly()
-                || !Objects.equals(
-                        TransactionSynchronizationManager.getCurrentTransactionIsolationLevel(),
-                        TransactionDefinition.ISOLATION_REPEATABLE_READ))
-            throw new IllegalStateException("Identity observation requires Business RR RO");
-        var key = key(command);
-        return redacted(
-                () ->
-                        jdbc
-                                .query(
-                                        """
+        return SpringAttemptTransactions.participating(
+                source,
+                () -> {
+                    if (!TransactionSynchronizationManager.isActualTransactionActive()
+                            || !TransactionSynchronizationManager.hasResource(source)
+                            || !TransactionSynchronizationManager.isCurrentTransactionReadOnly()
+                            || !Objects.equals(
+                                    TransactionSynchronizationManager
+                                            .getCurrentTransactionIsolationLevel(),
+                                    TransactionDefinition.ISOLATION_REPEATABLE_READ))
+                        throw new IllegalStateException(
+                                "Identity observation requires Business RR RO");
+                    var key = key(command);
+                    return redacted(
+                            () ->
+                                    jdbc
+                                            .query(
+                                                    """
 select a.current_version,v.version,v.user_id,v.binding_token
 from v3_eui_authority a left join v3_eui_version v
   on v.eui_id=a.eui_id and v.version=a.current_version
 where a.issuer=? and a.subject=?
 """,
-                                        (rs, n) -> {
-                                            long version = rs.getLong("current_version");
-                                            Long stateVersion = rs.getObject("version", Long.class);
-                                            if (version > 0 && stateVersion == null)
-                                                throw new IllegalStateException(
-                                                        "Identity current state missing");
-                                            return witness(
-                                                    version,
-                                                    rs.getObject("user_id", UUID.class),
-                                                    rs.getString("binding_token"),
-                                                    command);
-                                        },
-                                        key.issuer(),
-                                        key.subject())
-                                .stream()
-                                .findFirst()
-                                .orElseGet(() -> new Witness(0, Optional.empty())));
+                                                    (rs, n) -> {
+                                                        long version =
+                                                                rs.getLong("current_version");
+                                                        Long stateVersion =
+                                                                rs.getObject("version", Long.class);
+                                                        if (version > 0 && stateVersion == null)
+                                                            throw new IllegalStateException(
+                                                                    "Identity current state"
+                                                                            + " missing");
+                                                        return witness(
+                                                                version,
+                                                                rs.getObject("user_id", UUID.class),
+                                                                rs.getString("binding_token"),
+                                                                command);
+                                                    },
+                                                    key.issuer(),
+                                                    key.subject())
+                                            .stream()
+                                            .findFirst()
+                                            .orElseGet(() -> new Witness(0, Optional.empty())));
+                });
     }
 
     @Override

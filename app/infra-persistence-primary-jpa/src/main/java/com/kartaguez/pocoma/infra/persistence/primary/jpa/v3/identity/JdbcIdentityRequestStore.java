@@ -55,77 +55,92 @@ public final class JdbcIdentityRequestStore implements IdentityRequestStore {
 
     @Override
     public Optional<Stored> load(UUID id) {
-        requireTransaction();
-        return redacted(
-                () ->
-                        jdbc
-                                .query(
-                                        """
+        return SpringAttemptTransactions.participating(
+                source,
+                () -> {
+                    requireTransaction();
+                    return redacted(
+                            () ->
+                                    jdbc
+                                            .query(
+                                                    """
 select c.*,r.outcome,r.target_eui_id,r.target_version,r.rejection
 from v3_identity_request c left join v3_identity_request_result r using(request_id) where c.request_id=?
 """,
-                                        (r, n) -> {
-                                            var requester =
-                                                    new ExternalIdentity(
-                                                            r.getString("requester_issuer"),
-                                                            r.getString("requester_subject"));
-                                            var target =
-                                                    new ExternalIdentity(
-                                                            r.getString("target_issuer"),
-                                                            r.getString("target_subject"));
-                                            var token = r.getString("binding_token");
-                                            var request =
-                                                    new IdentityRequest(
-                                                            id,
-                                                            requester,
-                                                            IdentityRequestJson.operation(
-                                                                    r.getString("operation"),
-                                                                    target),
-                                                            token == null
-                                                                    ? null
-                                                                    : new BindingToken(token),
-                                                            r.getTimestamp("created_at")
-                                                                    .toInstant(),
-                                                            IdentityRequestJson.decode(
-                                                                    r.getString(
-                                                                            "admission_context")));
-                                            String outcome = r.getString("outcome");
-                                            var result =
-                                                    outcome == null
-                                                            ? Optional.<Result>empty()
-                                                            : Optional.of(
-                                                                    new Result(
-                                                                            Outcome.valueOf(
-                                                                                    outcome),
-                                                                            r.getObject(
-                                                                                                    "target_eui_id")
-                                                                                            == null
-                                                                                    ? null
-                                                                                    : new ExternalUserIdentityId(
-                                                                                            r
-                                                                                                    .getObject(
-                                                                                                            "target_eui_id",
-                                                                                                            UUID.class)),
-                                                                            (Long)
-                                                                                    r.getObject(
-                                                                                            "target_version"),
-                                                                            r.getString("rejection")
-                                                                                            == null
-                                                                                    ? null
-                                                                                    : IdentityTransitionResult
-                                                                                            .Rejection
-                                                                                            .valueOf(
-                                                                                                    r
-                                                                                                            .getString(
-                                                                                                                    "rejection"))));
-                                            return new Stored(
-                                                    request,
-                                                    Status.valueOf(r.getString("status")),
-                                                    result);
-                                        },
-                                        id)
-                                .stream()
-                                .findFirst());
+                                                    (r, n) -> {
+                                                        var requester =
+                                                                new ExternalIdentity(
+                                                                        r.getString(
+                                                                                "requester_issuer"),
+                                                                        r.getString(
+                                                                                "requester_subject"));
+                                                        var target =
+                                                                new ExternalIdentity(
+                                                                        r.getString(
+                                                                                "target_issuer"),
+                                                                        r.getString(
+                                                                                "target_subject"));
+                                                        var token = r.getString("binding_token");
+                                                        var request =
+                                                                new IdentityRequest(
+                                                                        id,
+                                                                        requester,
+                                                                        IdentityRequestJson
+                                                                                .operation(
+                                                                                        r.getString(
+                                                                                                "operation"),
+                                                                                        target),
+                                                                        token == null
+                                                                                ? null
+                                                                                : new BindingToken(
+                                                                                        token),
+                                                                        r.getTimestamp("created_at")
+                                                                                .toInstant(),
+                                                                        IdentityRequestJson.decode(
+                                                                                r.getString(
+                                                                                        "admission_context")));
+                                                        String outcome = r.getString("outcome");
+                                                        var result =
+                                                                outcome == null
+                                                                        ? Optional.<Result>empty()
+                                                                        : Optional.of(
+                                                                                new Result(
+                                                                                        Outcome
+                                                                                                .valueOf(
+                                                                                                        outcome),
+                                                                                        r.getObject(
+                                                                                                                "target_eui_id")
+                                                                                                        == null
+                                                                                                ? null
+                                                                                                : new ExternalUserIdentityId(
+                                                                                                        r
+                                                                                                                .getObject(
+                                                                                                                        "target_eui_id",
+                                                                                                                        UUID.class)),
+                                                                                        (Long)
+                                                                                                r
+                                                                                                        .getObject(
+                                                                                                                "target_version"),
+                                                                                        r.getString(
+                                                                                                                "rejection")
+                                                                                                        == null
+                                                                                                ? null
+                                                                                                : IdentityTransitionResult
+                                                                                                        .Rejection
+                                                                                                        .valueOf(
+                                                                                                                r
+                                                                                                                        .getString(
+                                                                                                                                "rejection"))));
+                                                        return new Stored(
+                                                                request,
+                                                                Status.valueOf(
+                                                                        r.getString("status")),
+                                                                result);
+                                                    },
+                                                    id)
+                                            .stream()
+                                            .findFirst());
+                });
     }
 
     @Override

@@ -39,49 +39,59 @@ public final class JdbcPotCommandStore implements PotCommandStore {
 
     @Override
     public Stored load(UUID requestId) {
-        requireTransaction();
-        var rows =
-                jdbc.queryForList(
-                        "select c.*,r.outcome,r.resulting_pot_version,r.rejection from v3_command c"
-                                + " left join v3_command_result r using(request_id) where"
-                                + " c.request_id=?",
-                        requestId);
-        if (rows.size() != 1) throw new InconsistentPotFactsException("Durable Command missing");
-        var row = rows.getFirst();
-        var command =
-                new PotCommand(
-                        requestId,
-                        new PotCommand.Eui(
-                                (String) row.get("requester_issuer"),
-                                (String) row.get("requester_subject")),
-                        (String) row.get("binding_token"),
-                        new PotId((UUID) row.get("pot_id")),
-                        ((Number) row.get("observed_version")).longValue(),
-                        PotCommandJson.decode(
-                                (String) row.get("operation"), row.get("payload").toString()));
-        boolean terminal = row.get("status").equals("TERMINAL");
-        if (terminal != (row.get("outcome") != null))
-            throw new InconsistentPotFactsException("Terminal/result mismatch");
-        if (!terminal) return new Stored(command, Optional.empty());
-        var version = (Number) row.get("resulting_pot_version");
-        return new Stored(
-                command,
-                Optional.of(
-                        new Result(
-                                Outcome.valueOf((String) row.get("outcome")),
-                                version == null ? null : version.longValue(),
-                                (String) row.get("rejection"))));
+        return SpringAttemptTransactions.participating(
+                source,
+                () -> {
+                    requireTransaction();
+                    var rows =
+                            jdbc.queryForList(
+                                    "select c.*,r.outcome,r.resulting_pot_version,r.rejection from"
+                                            + " v3_command c left join v3_command_result r"
+                                            + " using(request_id) where c.request_id=?",
+                                    requestId);
+                    if (rows.size() != 1)
+                        throw new InconsistentPotFactsException("Durable Command missing");
+                    var row = rows.getFirst();
+                    var command =
+                            new PotCommand(
+                                    requestId,
+                                    new PotCommand.Eui(
+                                            (String) row.get("requester_issuer"),
+                                            (String) row.get("requester_subject")),
+                                    (String) row.get("binding_token"),
+                                    new PotId((UUID) row.get("pot_id")),
+                                    ((Number) row.get("observed_version")).longValue(),
+                                    PotCommandJson.decode(
+                                            (String) row.get("operation"),
+                                            row.get("payload").toString()));
+                    boolean terminal = row.get("status").equals("TERMINAL");
+                    if (terminal != (row.get("outcome") != null))
+                        throw new InconsistentPotFactsException("Terminal/result mismatch");
+                    if (!terminal) return new Stored(command, Optional.empty());
+                    var version = (Number) row.get("resulting_pot_version");
+                    return new Stored(
+                            command,
+                            Optional.of(
+                                    new Result(
+                                            Outcome.valueOf((String) row.get("outcome")),
+                                            version == null ? null : version.longValue(),
+                                            (String) row.get("rejection"))));
+                });
     }
 
     @Override
     public long currentVersion(PotId pot) {
-        requireTransaction();
-        var versions =
-                jdbc.queryForList(
-                        "select current_version from v3_pot_identity where pot_id=?",
-                        Long.class,
-                        pot.value());
-        return versions.isEmpty() ? 0 : versions.getFirst();
+        return SpringAttemptTransactions.participating(
+                source,
+                () -> {
+                    requireTransaction();
+                    var versions =
+                            jdbc.queryForList(
+                                    "select current_version from v3_pot_identity where pot_id=?",
+                                    Long.class,
+                                    pot.value());
+                    return versions.isEmpty() ? 0 : versions.getFirst();
+                });
     }
 
     @Override

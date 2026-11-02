@@ -3,7 +3,6 @@ package com.kartaguez.pocoma.runtime.consumption.v3.dev;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,7 +25,11 @@ public final class V3TechnicalReadParticipant implements ConsumptionParticipant 
         this.definition = definition;
     }
 
-    public Optional<Prepared> prepare(UUID id) {
+    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+        return reads.effects(context -> prepareInSnapshot(id));
+    }
+
+    private Optional<Prepared> prepareInSnapshot(UUID id) {
         return Optional.of(
                 new Prepared() {
                     public void finalizeIn(SlotCompletion completion) {
@@ -66,8 +69,23 @@ public final class V3TechnicalReadParticipant implements ConsumptionParticipant 
                 id);
     }
 
-    public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
-        SpringAttemptTransactions.requireRead(source, context);
-        return count(id) == 1 ? RecoveryObservation.COMPLETED : RecoveryObservation.NOT_COMPLETED;
+    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+        return context ->
+                SpringAttemptTransactions.observed(
+                        source,
+                        context,
+                        () -> {
+                            var values =
+                                    jdbc.queryForList(
+                                            "select value from i5_read_probe_effect where"
+                                                    + " consumption_id=? and consumable_id=?",
+                                            String.class,
+                                            definition.id().value(),
+                                            id);
+                            if (values.isEmpty()) return EffectEvidence.MISSING;
+                            return values.size() == 1 && "technical".equals(values.getFirst())
+                                    ? EffectEvidence.SATISFIED
+                                    : EffectEvidence.DIVERGENT;
+                        });
     }
 }

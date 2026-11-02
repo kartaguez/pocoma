@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
@@ -179,10 +180,24 @@ class DiscoveryPostgresTest {
                             owner,
                             slots,
                             participant,
+                            (w.write ? owner : w.tx),
+                            (w.write ? Optional.empty() : Optional.of(w.references())),
+                            r -> true,
+                            (w.write
+                                    ? null
+                                    : new JdbcDiscoveryAdmissionStore(
+                                            w.source,
+                                            ConsumptionLifecyclePostgresFixture
+                                                    .discoverySettings())),
+                            owner,
+                            slots,
                             ownership,
                             w.settings,
                             capacity,
-                            c -> AttemptFailureClassifier.FailureKind.TECHNICAL);
+                            c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
+                            null,
+                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    .noop());
             var lease = e.acquirePartition(0).orElseThrow();
             var settings =
                     new DiscoveryEngine.Settings(
@@ -1119,9 +1134,9 @@ class DiscoveryPostgresTest {
                             + "'::uuid) execute function fixture_i4_pause()");
             var participant =
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID request) {
+                        public Optional<Prepared> prepare(UUID request, PreparationReads reads) {
                             return f.participant
-                                    .prepare(request)
+                                    .prepare(request, reads)
                                     .map(
                                             p ->
                                                     new Prepared() {
@@ -1140,8 +1155,13 @@ class DiscoveryPostgresTest {
                                                     });
                         }
 
-                        public RecoveryObservation observe(UUID request, RecoveryReadContext c) {
-                            return f.participant.observe(request, c);
+                        public Recovery prepareRecovery(UUID request, PreparationReads reads) {
+                            return c -> evidence(observeInSnapshot(request, c, reads));
+                        }
+
+                        private RecoveryObservation observeInSnapshot(
+                                UUID request, RecoveryReadContext c, PreparationReads reads) {
+                            return legacy(f.participant.prepareRecovery(request, reads).observe(c));
                         }
                     };
             var e =
@@ -1150,10 +1170,21 @@ class DiscoveryPostgresTest {
                             f.target.tx,
                             f.target.slots,
                             participant,
+                            (f.definition.authority() == ConsumptionDefinition.Authority.WRITE
+                                    ? f.target.tx
+                                    : f.write.tx),
+                            Optional.ofNullable(f.events),
+                            r -> true,
+                            f.admissions,
+                            f.target.tx,
+                            f.target.slots,
                             f.target.ownership,
                             f.target.settings,
                             f.capacity,
-                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    .noop());
             var claim = e.acquire(lease, List.of(id)).claims().getFirst();
             future = f.target.threads.submit(() -> e.execute(claim));
             f.target.await(
@@ -1591,13 +1622,20 @@ class DiscoveryPostgresTest {
                 AttemptTransactions tx =
                         new AttemptTransactions() {
                             public <T> T read(
-                                    java.util.function.Function<RecoveryReadContext, T> action) {
-                                return owner.read(action);
+                                    java.util.function.Function<RecoveryReadContext, T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                return owner.read(action, guard);
                             }
 
-                            public <T> T write(java.util.function.Supplier<T> action) {
+                            public <T> T write(
+                                    java.util.function.Supplier<T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
                                 proxy.armed.set(fault);
-                                return owner.write(action);
+                                return owner.write(action, guard);
                             }
 
                             public void poison(Throwable t) {
@@ -1816,9 +1854,9 @@ class DiscoveryPostgresTest {
                     f.engine().discoverEvents(lease);
                     var bad =
                             new ConsumptionParticipant() {
-                                public Optional<Prepared> prepare(UUID id) {
+                                public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
                                     return f.participant
-                                            .prepare(id)
+                                            .prepare(id, reads)
                                             .map(
                                                     p ->
                                                             new Prepared() {
@@ -1836,8 +1874,14 @@ class DiscoveryPostgresTest {
                                                             });
                                 }
 
-                                public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
-                                    return f.participant.observe(id, c);
+                                public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                                    return c -> evidence(observeInSnapshot(id, c, reads));
+                                }
+
+                                private RecoveryObservation observeInSnapshot(
+                                        UUID id, RecoveryReadContext c, PreparationReads reads) {
+                                    return legacy(
+                                            f.participant.prepareRecovery(id, reads).observe(c));
                                 }
                             };
                     var e =
@@ -1846,10 +1890,22 @@ class DiscoveryPostgresTest {
                                     f.target.tx,
                                     f.target.slots,
                                     bad,
+                                    (f.definition.authority()
+                                                    == ConsumptionDefinition.Authority.WRITE
+                                            ? f.target.tx
+                                            : f.write.tx),
+                                    Optional.ofNullable(f.events),
+                                    r -> true,
+                                    f.admissions,
+                                    f.target.tx,
+                                    f.target.slots,
                                     f.target.ownership,
                                     f.target.settings,
                                     f.capacity,
-                                    c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                                    c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
                     assertEquals(ConsumptionEngine.Status.ROLLED_BACK, e.execute(claim).status());
                     assertTrue(f.slotIds().contains(f.q(0)));
@@ -2055,10 +2111,24 @@ class DiscoveryPostgresTest {
                                     w.tx,
                                     w.slots,
                                     participant,
+                                    (w.write ? w.tx : w.tx),
+                                    (w.write ? Optional.empty() : Optional.of(w.references())),
+                                    r -> true,
+                                    (w.write
+                                            ? null
+                                            : new JdbcDiscoveryAdmissionStore(
+                                                    w.source,
+                                                    ConsumptionLifecyclePostgresFixture
+                                                            .discoverySettings())),
+                                    w.tx,
+                                    w.slots,
                                     w.ownership,
                                     w.settings,
                                     new WorkerCapacity(4, Map.of(w.definition.id(), 4)),
-                                    c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                                    c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     var claims = new ArrayList<ConsumptionEngine.AcquiredClaim>();
                     for (int n = 0; n < 2; n++) {
                         String actor = n == 0 ? "dense-a" : "dense-b";
@@ -2955,16 +3025,23 @@ class DiscoveryPostgresTest {
                                     new AttemptTransactions() {
                                         public <T> T read(
                                                 java.util.function.Function<RecoveryReadContext, T>
-                                                        a) {
-                                            return owner.read(a);
+                                                        a,
+                                                com.kartaguez.pocoma.port.transaction.v3
+                                                                .AttemptTransactions.Guard
+                                                        guard) {
+                                            return owner.read(a, guard);
                                         }
 
-                                        public <T> T write(java.util.function.Supplier<T> a) {
+                                        public <T> T write(
+                                                java.util.function.Supplier<T> a,
+                                                com.kartaguez.pocoma.port.transaction.v3
+                                                                .AttemptTransactions.Guard
+                                                        guard) {
                                             if (armed.compareAndSet(true, false))
                                                 proxy.armed.set(
                                                         CommitAcknowledgementProxy.Fault
                                                                 .AFTER_COMMIT);
-                                            return owner.write(a);
+                                            return owner.write(a, guard);
                                         }
 
                                         public void poison(Throwable t) {
@@ -2981,12 +3058,22 @@ class DiscoveryPostgresTest {
                                             tx,
                                             new JdbcConsumptionSlotStore(ds),
                                             f.write.participantFor(ds, owner),
+                                            (f.definition.authority()
+                                                            == ConsumptionDefinition.Authority.WRITE
+                                                    ? tx
+                                                    : f.write.tx),
+                                            Optional.ofNullable(f.events),
+                                            r -> true,
+                                            f.admissions,
+                                            tx,
+                                            new JdbcConsumptionSlotStore(ds),
                                             new JdbcPartitionOwnershipStore(ds),
                                             f.target.settings,
                                             f.capacity,
-                                            c ->
-                                                    AttemptFailureClassifier.FailureKind
-                                                            .NON_COUNTABLE);
+                                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                            null,
+                                            com.kartaguez.pocoma.engine.consumption.v3.port
+                                                    .ConsumptionObservation.noop());
                             var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
                             armed.set(true);
                             var result = e.execute(claim);
@@ -3090,8 +3177,9 @@ class DiscoveryPostgresTest {
                                 var delegate = f.participant;
                                 var participant =
                                         new ConsumptionParticipant() {
-                                            public Optional<Prepared> prepare(UUID id) {
-                                                return delegate.prepare(id)
+                                            public Optional<Prepared> prepare(
+                                                    UUID id, PreparationReads reads) {
+                                                return delegate.prepare(id, reads)
                                                         .map(
                                                                 p ->
                                                                         new Prepared() {
@@ -3117,9 +3205,9 @@ class DiscoveryPostgresTest {
                                                                         });
                                             }
 
-                                            public RecoveryObservation observe(
-                                                    UUID id, RecoveryReadContext c) {
-                                                return delegate.observe(id, c);
+                                            public Recovery prepareRecovery(
+                                                    UUID id, PreparationReads reads) {
+                                                return delegate.prepareRecovery(id, reads);
                                             }
                                         };
                                 var finalizer =
@@ -3128,12 +3216,25 @@ class DiscoveryPostgresTest {
                                                 f.target.tx,
                                                 f.target.slots,
                                                 participant,
+                                                (f.definition.authority()
+                                                                == ConsumptionDefinition.Authority
+                                                                        .WRITE
+                                                        ? f.target.tx
+                                                        : f.write.tx),
+                                                Optional.ofNullable(f.events),
+                                                r -> true,
+                                                f.admissions,
+                                                f.target.tx,
+                                                f.target.slots,
                                                 f.target.ownership,
                                                 f.target.settings,
                                                 f.capacity,
                                                 c ->
                                                         AttemptFailureClassifier.FailureKind
-                                                                .NON_COUNTABLE);
+                                                                .NON_COUNTABLE,
+                                                null,
+                                                com.kartaguez.pocoma.engine.consumption.v3.port
+                                                        .ConsumptionObservation.noop());
                                 var second =
                                         finalizer
                                                 .acquire(lease, List.of(f.q(1)))
@@ -3337,6 +3438,18 @@ class DiscoveryPostgresTest {
 
                             public ConsumableFamily family() {
                                 return f.family;
+                            }
+
+                            public java.util.Optional<
+                                            com.kartaguez.pocoma.engine.consumption.v3.port
+                                                    .NonBurnableReferences.Reference>
+                                    find(
+                                            java.util.UUID eventId,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .RecoveryReadContext
+                                                    context) {
+                                throw new AssertionError(
+                                        "This discovery-only source does not implement recovery");
                             }
 
                             public Window window(long k, int max, RecoveryReadContext c) {
@@ -4110,9 +4223,10 @@ class DiscoveryPostgresTest {
                         if (!ack) {
                             var bad =
                                     new ConsumptionParticipant() {
-                                        public Optional<Prepared> prepare(UUID request) {
+                                        public Optional<Prepared> prepare(
+                                                UUID request, PreparationReads reads) {
                                             return f.participant
-                                                    .prepare(request)
+                                                    .prepare(request, reads)
                                                     .map(
                                                             p ->
                                                                     new Prepared() {
@@ -4134,9 +4248,9 @@ class DiscoveryPostgresTest {
                                                                     });
                                         }
 
-                                        public RecoveryObservation observe(
-                                                UUID request, RecoveryReadContext c) {
-                                            return f.participant.observe(request, c);
+                                        public Recovery prepareRecovery(
+                                                UUID request, PreparationReads reads) {
+                                            return f.participant.prepareRecovery(request, reads);
                                         }
                                     };
                             var e =
@@ -4145,12 +4259,22 @@ class DiscoveryPostgresTest {
                                             f.target.tx,
                                             f.target.slots,
                                             bad,
+                                            (f.definition.authority()
+                                                            == ConsumptionDefinition.Authority.WRITE
+                                                    ? f.target.tx
+                                                    : f.write.tx),
+                                            Optional.ofNullable(f.events),
+                                            r -> true,
+                                            f.admissions,
+                                            f.target.tx,
+                                            f.target.slots,
                                             f.target.ownership,
                                             f.target.settings,
                                             f.capacity,
-                                            c ->
-                                                    AttemptFailureClassifier.FailureKind
-                                                            .NON_COUNTABLE);
+                                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                            null,
+                                            com.kartaguez.pocoma.engine.consumption.v3.port
+                                                    .ConsumptionObservation.noop());
                             var claim = e.acquire(lease, List.of(id)).claims().getFirst();
                             assertEquals(
                                     ConsumptionEngine.Status.ROLLED_BACK,
@@ -4192,16 +4316,23 @@ class DiscoveryPostgresTest {
                                             public <T> T read(
                                                     java.util.function.Function<
                                                                     RecoveryReadContext, T>
-                                                            a) {
-                                                return owner.read(a);
+                                                            a,
+                                                    com.kartaguez.pocoma.port.transaction.v3
+                                                                    .AttemptTransactions.Guard
+                                                            guard) {
+                                                return owner.read(a, guard);
                                             }
 
-                                            public <T> T write(java.util.function.Supplier<T> a) {
+                                            public <T> T write(
+                                                    java.util.function.Supplier<T> a,
+                                                    com.kartaguez.pocoma.port.transaction.v3
+                                                                    .AttemptTransactions.Guard
+                                                            guard) {
                                                 if (armed.compareAndSet(true, false))
                                                     proxy.armed.set(
                                                             CommitAcknowledgementProxy.Fault
                                                                     .AFTER_COMMIT);
-                                                return owner.write(a);
+                                                return owner.write(a, guard);
                                             }
 
                                             public void poison(Throwable t) {
@@ -4218,12 +4349,25 @@ class DiscoveryPostgresTest {
                                                 tx,
                                                 new JdbcConsumptionSlotStore(source),
                                                 f.target.participantFor(source, owner),
+                                                (f.definition.authority()
+                                                                == ConsumptionDefinition.Authority
+                                                                        .WRITE
+                                                        ? tx
+                                                        : f.write.tx),
+                                                Optional.ofNullable(f.events),
+                                                r -> true,
+                                                f.admissions,
+                                                tx,
+                                                new JdbcConsumptionSlotStore(source),
                                                 new JdbcPartitionOwnershipStore(source),
                                                 f.target.settings,
                                                 f.capacity,
                                                 c ->
                                                         AttemptFailureClassifier.FailureKind
-                                                                .NON_COUNTABLE);
+                                                                .NON_COUNTABLE,
+                                                null,
+                                                com.kartaguez.pocoma.engine.consumption.v3.port
+                                                        .ConsumptionObservation.noop());
                                 var claim = e.acquire(lease, List.of(id)).claims().getFirst();
                                 armed.set(true);
                                 var result = e.execute(claim);
@@ -4583,42 +4727,54 @@ class DiscoveryPostgresTest {
     ConsumptionParticipant independentParticipant(
             DiscoveryPostgresFixture f, ConsumptionId consumption, boolean fail) {
         return new ConsumptionParticipant() {
-            public Optional<Prepared> prepare(UUID id) {
-                return Optional.of(
-                        new Prepared() {
-                            public void finalizeIn(SlotCompletion completion) {
-                                SpringAttemptTransactions.guarded(
-                                        f.target.source,
-                                        () -> {
-                                            f.target.sql.update(
-                                                    "insert into fixture_effect_by_consumption"
-                                                            + " values(?,?,'expected')",
-                                                    consumption.value(),
-                                                    id);
-                                            return null;
-                                        });
-                                completion.complete();
-                                SpringAttemptTransactions.closePublication(f.target.source);
-                                if (fail)
-                                    throw new CancellationException(
-                                            "one independent READ finalization rolls back");
-                            }
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                return reads.source(
+                        preparationContext -> {
+                            return Optional.of(
+                                    new Prepared() {
+                                        public void finalizeIn(SlotCompletion completion) {
+                                            SpringAttemptTransactions.guarded(
+                                                    f.target.source,
+                                                    () -> {
+                                                        f.target.sql.update(
+                                                                "insert into"
+                                                                    + " fixture_effect_by_consumption"
+                                                                    + " values(?,?,'expected')",
+                                                                consumption.value(),
+                                                                id);
+                                                        return null;
+                                                    });
+                                            completion.complete();
+                                            SpringAttemptTransactions.closePublication(
+                                                    f.target.source);
+                                            if (fail)
+                                                throw new CancellationException(
+                                                        "one independent READ finalization rolls"
+                                                                + " back");
+                                        }
 
-                            public void requireCompletionReady() {
-                                assertEquals(
-                                        1,
-                                        f.target.sql.queryForObject(
-                                                "select count(*) from fixture_effect_by_consumption"
-                                                        + " where consumption_id=? and id=? and"
-                                                        + " value='expected'",
-                                                Integer.class,
-                                                consumption.value(),
-                                                id));
-                            }
+                                        public void requireCompletionReady() {
+                                            assertEquals(
+                                                    1,
+                                                    f.target.sql.queryForObject(
+                                                            "select count(*) from"
+                                                                + " fixture_effect_by_consumption"
+                                                                + " where consumption_id=? and id=?"
+                                                                + " and value='expected'",
+                                                            Integer.class,
+                                                            consumption.value(),
+                                                            id));
+                                        }
+                                    });
                         });
             }
 
-            public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return c -> evidence(observeInSnapshot(id, c, reads));
+            }
+
+            private RecoveryObservation observeInSnapshot(
+                    UUID id, RecoveryReadContext c, PreparationReads reads) {
                 SpringAttemptTransactions.requireRead(f.target.source, c);
                 return f.target.sql.queryForObject(
                                 "select exists(select 1 from fixture_effect_by_consumption where"
@@ -4676,10 +4832,21 @@ class DiscoveryPostgresTest {
                             f.target.tx,
                             f.target.slots,
                             p,
+                            (f.definition.authority() == ConsumptionDefinition.Authority.WRITE
+                                    ? f.target.tx
+                                    : f.write.tx),
+                            Optional.ofNullable(f.events),
+                            r -> true,
+                            f.admissions,
+                            f.target.tx,
+                            f.target.slots,
                             f.target.ownership,
                             f.target.settings,
                             capacity,
-                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    .noop());
             var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
             var result = e.execute(claim);
             assertEquals(
@@ -4714,10 +4881,21 @@ class DiscoveryPostgresTest {
                                 f.target.tx,
                                 f.target.slots,
                                 independentParticipant(f, definition.id(), false),
+                                (f.definition.authority() == ConsumptionDefinition.Authority.WRITE
+                                        ? f.target.tx
+                                        : f.write.tx),
+                                Optional.ofNullable(f.events),
+                                r -> true,
+                                f.admissions,
+                                f.target.tx,
+                                f.target.slots,
                                 f.target.ownership,
                                 f.target.settings,
                                 capacity,
-                                c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                                c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                null,
+                                com.kartaguez.pocoma.engine.consumption.v3.port
+                                        .ConsumptionObservation.noop());
                 assertEquals(
                         ConsumptionEngine.Status.COMMITTED,
                         retry.execute(retry.acquire(lease, List.of(f.q(0))).claims().getFirst())
@@ -4764,5 +4942,34 @@ class DiscoveryPostgresTest {
                         java.math.BigDecimal.class,
                         before)
                 .longValueExact();
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

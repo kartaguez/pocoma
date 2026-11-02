@@ -54,6 +54,14 @@ public final class V3ConsumptionDiscoveryComposition {
                         : new JdbcCommandDiscoveryReferences(source, settings));
     }
 
+    public static boolean relevant(
+            ConsumptionDefinition definition,
+            com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences.Reference
+                    reference) {
+        return definition.family() != ConsumableFamily.IDENTITY_EVENT
+                || reference.subjectType().equals("EXTERNAL_USER_IDENTITY");
+    }
+
     public static DiscoveryEngine events(
             V3BootstrapGuard guard,
             ConsumptionDefinition definition,
@@ -81,8 +89,6 @@ public final class V3ConsumptionDiscoveryComposition {
                 settings,
                 sourceReads,
                 new JdbcEventDiscoveryReferences(writeSource, definition.family(), settings),
-                r ->
-                        definition.family() != ConsumableFamily.IDENTITY_EVENT
-                                || r.subjectType().equals("EXTERNAL_USER_IDENTITY"));
+                r -> relevant(definition, r));
     }
 }

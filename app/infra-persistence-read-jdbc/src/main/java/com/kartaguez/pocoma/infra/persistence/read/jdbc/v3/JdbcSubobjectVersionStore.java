@@ -4,12 +4,15 @@ import com.kartaguez.pocoma.domain.projection.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.projection.v3.*;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
+
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.IllegalTransactionStateException;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import javax.sql.DataSource;
+
 import java.util.*;
+
+import javax.sql.DataSource;
 
 /** No autonomous connections, transaction boundaries, updates or slot operations. */
 public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
@@ -24,31 +27,43 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
     }
 
     @Override public Map<SubobjectKey, SubobjectVersion> readAll(Collection<SubobjectKey> keys, RecoveryReadContext context) {
-        SpringAttemptTransactions.requireRead(source, context);
-        return Map.copyOf(load(sortedKeys(keys)));
+        return SpringAttemptTransactions.observed(
+                source,
+                context,
+                () -> {
+                    return Map.copyOf(load(sortedKeys(keys)));
+                });
     }
 
     @Override public void insertOrVerifyAll(Collection<SubobjectVersion> candidates) {
-        SpringAttemptTransactions.guarded(source, () -> {
-            requireReadCommitted();
-            var sorted = sortedVersions(candidates);
-            for (int start = 0; start < sorted.size(); start += CHUNK) {
-                var chunk = sorted.subList(start, Math.min(start + CHUNK, sorted.size()));
-                var args = new ArrayList<Object>();
-                var tuples = new ArrayList<String>();
-                for (var candidate : chunk) {
-                    tuples.add("(?,?,?,?,1,?::jsonb)");
-                    keyArguments(args, candidate.key());
-                    args.add(SubobjectJson.encode(candidate));
-                }
-                sql.update("insert into read_subobject_version(pot_id,kind,object_id,local_version,schema_version,payload) values "
-                        + String.join(",", tuples) + " on conflict(pot_id,kind,object_id,local_version) do nothing", args.toArray());
-                // New READ_COMMITTED statement snapshot, after any unique-index wait.
-                // DO NOT merge with INSERT in a CTE: it can miss a concurrent winner.
-                compare(chunk, load(chunk.stream().map(SubobjectVersion::key).toList()));
-            }
-            return null;
-        });
+        SpringAttemptTransactions.guarded(
+                source,
+                () -> {
+                    requireReadCommitted();
+                    var sorted = sortedVersions(candidates);
+                    for (int start = 0; start < sorted.size(); start += CHUNK) {
+                        var chunk = sorted.subList(start, Math.min(start + CHUNK, sorted.size()));
+                        var args = new ArrayList<Object>();
+                        var tuples = new ArrayList<String>();
+                        for (var candidate : chunk) {
+                            tuples.add("(?,?,?,?,1,?::jsonb)");
+                            keyArguments(args, candidate.key());
+                            args.add(SubobjectJson.encode(candidate));
+                        }
+                        sql.update(
+                                "insert into"
+                                    + " read_subobject_version(pot_id,kind,object_id,local_version,schema_version,payload)"
+                                    + " values "
+                                        + String.join(",", tuples)
+                                        + " on conflict(pot_id,kind,object_id,local_version) do"
+                                        + " nothing",
+                                args.toArray());
+                        // New READ_COMMITTED statement snapshot, after any unique-index wait.
+                        // DO NOT merge with INSERT in a CTE: it can miss a concurrent winner.
+                        compare(chunk, load(chunk.stream().map(SubobjectVersion::key).toList()));
+                    }
+                    return null;
+                });
     }
 
     @Override public void requireStored(Collection<SubobjectVersion> expected) {
@@ -84,18 +99,26 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
                 tuples.add("(?,?,?,?)");
                 keyArguments(args, key);
             }
-            sql.query("select pot_id,kind,object_id,local_version,schema_version,payload::text from read_subobject_version"
-                            + " where (pot_id,kind,object_id,local_version) in (" + String.join(",", tuples) + ")",
+            sql.query(
+                    "select pot_id,kind,object_id,local_version,schema_version,payload::text from"
+                        + " read_subobject_version where (pot_id,kind,object_id,local_version) in ("
+                            + String.join(",", tuples)
+                            + ")",
                     rs -> {
                         SubobjectKey key;
                         try {
-                            key = new SubobjectKey(rs.getObject(1, UUID.class), SubobjectKind.valueOf(rs.getString(2)),
-                                    rs.getObject(3, UUID.class), rs.getLong(4));
+                            key =
+                                    new SubobjectKey(
+                                            rs.getObject(1, UUID.class),
+                                            SubobjectKind.valueOf(rs.getString(2)),
+                                            rs.getObject(3, UUID.class),
+                                            rs.getLong(4));
                         } catch (IllegalArgumentException | NullPointerException invalid) {
                             throw new CorruptSubobjectException(null);
                         }
                         result.put(key, SubobjectJson.decode(key, rs.getInt(5), rs.getString(6)));
-                    }, args.toArray());
+                    },
+                    args.toArray());
         }
         return result;
     }
@@ -110,7 +133,8 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
         result.forEach(Objects::requireNonNull);
         result.sort(Comparator.naturalOrder());
         for (int i = 1; i < result.size(); i++)
-            if (result.get(i - 1).equals(result.get(i))) throw new IllegalArgumentException("Duplicate subobject key");
+            if (result.get(i - 1).equals(result.get(i)))
+                throw new IllegalArgumentException("Duplicate subobject key");
         return result;
     }
 
@@ -120,7 +144,8 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
         result.forEach(Objects::requireNonNull);
         result.sort(Comparator.comparing(SubobjectVersion::key));
         for (int i = 1; i < result.size(); i++)
-            if (result.get(i - 1).key().equals(result.get(i).key())) throw new IllegalArgumentException("Duplicate subobject key");
+            if (result.get(i - 1).key().equals(result.get(i).key()))
+                throw new IllegalArgumentException("Duplicate subobject key");
         return result;
     }
 }

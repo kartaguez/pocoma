@@ -9,6 +9,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.ComponentRead;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort;
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
 import org.springframework.jdbc.support.SqlArrayValue;
 
@@ -28,6 +29,15 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
 
     /** Maintenance check in a caller-owned snapshot; deliberately outside point reads. */
     public void verifyHistory(PotId pot) {
+        SpringAttemptTransactions.participating(
+                rows.dataSource,
+                () -> {
+                    verifyHistoryInSnapshot(pot);
+                    return null;
+                });
+    }
+
+    private void verifyHistoryInSnapshot(PotId pot) {
         rows.requireTransaction(true);
         var versions = rows.versions(pot);
         if (versions.isEmpty()) return;
@@ -45,77 +55,107 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
 
     @Override
     public Optional<Snapshot> atVersion(PotId pot, long version) {
-        rows.requireTransaction(true);
-        if (version < 1) throw new IllegalArgumentException("Positive version required");
-        var metadata = rows.version(pot, version);
-        if (metadata == null) return Optional.empty();
-        long latest = number(metadata, "latest");
-        var potBirth = Map.of(pot.value(), 1L);
-        var header =
-                potHeader(
-                        rows.component("pot_header", pot, version, latest, potBirth)
-                                .get(pot.value()));
-        var details =
-                potDetails(
-                        rows.component("pot_details", pot, version, latest, potBirth)
-                                .get(pot.value()));
-        var shareholderBirths = rows.identities("shareholder", pot, null, version);
-        var shareholders = shareholders(pot, version, latest, shareholderBirths);
-        var expenses =
-                expenses(pot, version, latest, rows.identities("expense", pot, null, version));
-        validateReferences(shareholders, expenses, shareholderBirths);
-        return Optional.of(
-                new Snapshot(
-                        pot,
-                        version,
-                        instant(metadata, "recorded_at"),
-                        new PotState(header, details),
-                        shareholders,
-                        expenses));
+        return SpringAttemptTransactions.participating(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(true);
+                    if (version < 1)
+                        throw new IllegalArgumentException("Positive version required");
+                    var metadata = rows.version(pot, version);
+                    if (metadata == null) return Optional.empty();
+                    long latest = number(metadata, "latest");
+                    var potBirth = Map.of(pot.value(), 1L);
+                    var header =
+                            potHeader(
+                                    rows.component("pot_header", pot, version, latest, potBirth)
+                                            .get(pot.value()));
+                    var details =
+                            potDetails(
+                                    rows.component("pot_details", pot, version, latest, potBirth)
+                                            .get(pot.value()));
+                    var shareholderBirths = rows.identities("shareholder", pot, null, version);
+                    var shareholders = shareholders(pot, version, latest, shareholderBirths);
+                    var expenses =
+                            expenses(
+                                    pot,
+                                    version,
+                                    latest,
+                                    rows.identities("expense", pot, null, version));
+                    validateReferences(shareholders, expenses, shareholderBirths);
+                    return Optional.of(
+                            new Snapshot(
+                                    pot,
+                                    version,
+                                    instant(metadata, "recorded_at"),
+                                    new PotState(header, details),
+                                    shareholders,
+                                    expenses));
+                });
     }
 
     @Override
     public Optional<PotFinancialState> financialAtVersion(PotId pot, long version) {
-        rows.requireTransaction(true);
-        if (version < 1) throw new IllegalArgumentException("Positive version required");
-        var metadata = rows.version(pot, version);
-        if (metadata == null) return Optional.empty();
-        long latest = number(metadata, "latest");
-        var header =
-                potHeader(
-                        rows.component("pot_header", pot, version, latest, Map.of(pot.value(), 1L))
-                                .get(pot.value()));
-        var births = rows.identities("shareholder", pot, null, version);
-        var headers = rows.component("shareholder_header", pot, version, latest, births);
-        var weights = rows.component("shareholder_weight", pot, version, latest, births);
-        var shareholders = new LinkedHashMap<ShareholderId, PotFinancialState.Shareholder>();
-        headers.forEach(
-                (id, row) ->
-                        shareholders.put(
-                                new ShareholderId(id),
-                                new PotFinancialState.Shareholder(
-                                        shareholderHeader(row),
-                                        shareholderWeight(weights.get(id)))));
-        var expenseBirths = rows.identities("expense", pot, null, version);
-        var expenseHeaders = rows.component("expense_header", pot, version, latest, expenseBirths);
-        var financials =
-                financials(
-                        rows.component("expense_financials", pot, version, latest, expenseBirths));
-        var expenses = new LinkedHashMap<ExpenseId, PotFinancialState.Expense>();
-        financials.forEach(
-                (id, value) -> {
-                    var references = new HashSet<>(value.value().participants().keySet());
-                    references.add(value.value().payerId());
-                    for (var reference : references)
-                        if (!births.containsKey(reference.value())
-                                || births.get(reference.value()) > value.activeFrom())
-                            throw bad("Financial reference created after Financials");
-                    expenses.put(
-                            new ExpenseId(id),
-                            new PotFinancialState.Expense(
-                                    expenseHeader(expenseHeaders.get(id)), value));
+        return SpringAttemptTransactions.participating(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(true);
+                    if (version < 1)
+                        throw new IllegalArgumentException("Positive version required");
+                    var metadata = rows.version(pot, version);
+                    if (metadata == null) return Optional.empty();
+                    long latest = number(metadata, "latest");
+                    var header =
+                            potHeader(
+                                    rows.component(
+                                                    "pot_header",
+                                                    pot,
+                                                    version,
+                                                    latest,
+                                                    Map.of(pot.value(), 1L))
+                                            .get(pot.value()));
+                    var births = rows.identities("shareholder", pot, null, version);
+                    var headers =
+                            rows.component("shareholder_header", pot, version, latest, births);
+                    var weights =
+                            rows.component("shareholder_weight", pot, version, latest, births);
+                    var shareholders =
+                            new LinkedHashMap<ShareholderId, PotFinancialState.Shareholder>();
+                    headers.forEach(
+                            (id, row) ->
+                                    shareholders.put(
+                                            new ShareholderId(id),
+                                            new PotFinancialState.Shareholder(
+                                                    shareholderHeader(row),
+                                                    shareholderWeight(weights.get(id)))));
+                    var expenseBirths = rows.identities("expense", pot, null, version);
+                    var expenseHeaders =
+                            rows.component("expense_header", pot, version, latest, expenseBirths);
+                    var financials =
+                            financials(
+                                    rows.component(
+                                            "expense_financials",
+                                            pot,
+                                            version,
+                                            latest,
+                                            expenseBirths));
+                    var expenses = new LinkedHashMap<ExpenseId, PotFinancialState.Expense>();
+                    financials.forEach(
+                            (id, value) -> {
+                                var references =
+                                        new HashSet<>(value.value().participants().keySet());
+                                references.add(value.value().payerId());
+                                for (var reference : references)
+                                    if (!births.containsKey(reference.value())
+                                            || births.get(reference.value()) > value.activeFrom())
+                                        throw bad("Financial reference created after Financials");
+                                expenses.put(
+                                        new ExpenseId(id),
+                                        new PotFinancialState.Expense(
+                                                expenseHeader(expenseHeaders.get(id)), value));
+                            });
+                    return Optional.of(
+                            new PotFinancialState(pot, version, header, shareholders, expenses));
                 });
-        return Optional.of(new PotFinancialState(pot, version, header, shareholders, expenses));
     }
 
     private Map<ShareholderId, ShareholderState> shareholders(
@@ -153,26 +193,34 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
 
     @Override
     public Optional<SelectedPot> current(PotId pot, UserId actor, Selection selection) {
-        rows.requireTransaction(true);
-        Objects.requireNonNull(actor);
-        Objects.requireNonNull(selection);
-        var metadata = rows.version(pot, null);
-        if (metadata == null) return Optional.empty();
-        long version = number(metadata, "version");
-        return Optional.of(selected(pot, actor, selection, version, version));
+        return SpringAttemptTransactions.participating(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(true);
+                    Objects.requireNonNull(actor);
+                    Objects.requireNonNull(selection);
+                    var metadata = rows.version(pot, null);
+                    if (metadata == null) return Optional.empty();
+                    long version = number(metadata, "version");
+                    return Optional.of(selected(pot, actor, selection, version, version));
+                });
     }
 
     @Override
     public Optional<SelectedPot> componentsAtVersion(
             PotId pot, long version, UserId actor, Selection selection) {
-        rows.requireTransaction(true);
-        Objects.requireNonNull(actor);
-        Objects.requireNonNull(selection);
-        if (version < 1) throw new IllegalArgumentException("Positive version required");
-        var metadata = rows.version(pot, version);
-        if (metadata == null) return Optional.empty();
-        long latest = number(metadata, "latest");
-        return Optional.of(selected(pot, actor, selection, version, latest));
+        return SpringAttemptTransactions.participating(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(true);
+                    Objects.requireNonNull(actor);
+                    Objects.requireNonNull(selection);
+                    if (version < 1) throw new IllegalArgumentException("Positive version required");
+                    var metadata = rows.version(pot, version);
+                    if (metadata == null) return Optional.empty();
+                    long latest = number(metadata, "latest");
+                    return Optional.of(selected(pot, actor, selection, version, latest));
+                });
     }
 
     private SelectedPot selected(
@@ -311,44 +359,53 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
 
     @Override
     public ActiveShareholderUsage activeUsage(PotId pot, long version, ShareholderId shareholder) {
-        rows.requireTransaction(true);
-        if (version < 1) throw bad("Unknown usage version");
-        var metadata = rows.version(pot, version);
-        if (metadata == null) throw bad("Unknown usage version");
-        long latest = number(metadata, "latest");
-        var shareholders = rows.identities("shareholder", pot, null, version);
-        if (!shareholders.containsKey(shareholder.value())
-                || shareholders.get(shareholder.value()) > version)
-            throw bad("Unknown usage subject");
-        var shareholderHeaders =
-                rows.component("shareholder_header", pot, version, latest, shareholders);
-        var births = rows.identities("expense", pot, null, version);
-        var headers = rows.component("expense_header", pot, version, latest, births);
-        var financials =
-                financials(rows.component("expense_financials", pot, version, latest, births));
-        for (var entry : financials.entrySet()) {
-            var financial = entry.getValue();
-            var ids = new HashSet<>(financial.value().participants().keySet());
-            ids.add(financial.value().payerId());
-            for (var id : ids) {
-                var reference = shareholderHeaders.get(id.value());
-                if (reference == null
-                        || shareholders.get(id.value()) > financial.activeFrom()
-                        || (!(boolean) headers.get(entry.getKey()).get("deleted")
-                                && (boolean) reference.get("deleted")))
-                    throw bad("Inconsistent Expense in exhaustive usage scope");
-            }
-        }
-        boolean referenced =
-                headers.entrySet().stream()
-                        .anyMatch(
-                                entry -> {
-                                    if ((boolean) entry.getValue().get("deleted")) return false;
-                                    var f = financials.get(entry.getKey()).value();
-                                    return f.payerId().equals(shareholder)
-                                            || f.participants().containsKey(shareholder);
-                                });
-        return new ActiveShareholderUsage(pot, version, shareholder, referenced, true);
+        return SpringAttemptTransactions.participating(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(true);
+                    if (version < 1) throw bad("Unknown usage version");
+                    var metadata = rows.version(pot, version);
+                    if (metadata == null) throw bad("Unknown usage version");
+                    long latest = number(metadata, "latest");
+                    var shareholders = rows.identities("shareholder", pot, null, version);
+                    if (!shareholders.containsKey(shareholder.value())
+                            || shareholders.get(shareholder.value()) > version)
+                        throw bad("Unknown usage subject");
+                    var shareholderHeaders =
+                            rows.component(
+                                    "shareholder_header", pot, version, latest, shareholders);
+                    var births = rows.identities("expense", pot, null, version);
+                    var headers = rows.component("expense_header", pot, version, latest, births);
+                    var financials =
+                            financials(
+                                    rows.component(
+                                            "expense_financials", pot, version, latest, births));
+                    for (var entry : financials.entrySet()) {
+                        var financial = entry.getValue();
+                        var ids = new HashSet<>(financial.value().participants().keySet());
+                        ids.add(financial.value().payerId());
+                        for (var id : ids) {
+                            var reference = shareholderHeaders.get(id.value());
+                            if (reference == null
+                                    || shareholders.get(id.value()) > financial.activeFrom()
+                                    || (!(boolean) headers.get(entry.getKey()).get("deleted")
+                                            && (boolean) reference.get("deleted")))
+                                throw bad("Inconsistent Expense in exhaustive usage scope");
+                        }
+                    }
+                    boolean referenced =
+                            headers.entrySet().stream()
+                                    .anyMatch(
+                                            entry -> {
+                                                if ((boolean) entry.getValue().get("deleted"))
+                                                    return false;
+                                                var f = financials.get(entry.getKey()).value();
+                                                return f.payerId().equals(shareholder)
+                                                        || f.participants()
+                                                                .containsKey(shareholder);
+                                            });
+                    return new ActiveShareholderUsage(pot, version, shareholder, referenced, true);
+                });
     }
 
     private Map<UUID, Versioned<ExpenseFinancials>> financials(

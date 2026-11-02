@@ -1,20 +1,27 @@
 package com.kartaguez.pocoma.engine.consumption.v3;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.v3.RoutingV1;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore.*;
+import com.kartaguez.pocoma.engine.consumption.v3.port.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences;
 import com.kartaguez.pocoma.engine.consumption.v3.port.PartitionOwnershipStore;
 import com.kartaguez.pocoma.engine.consumption.v3.port.SlotKeyNavigation;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.*;
+import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /** Bounded lifecycle orchestration. One acquisition, one attempt; no polling or internal retry. */
@@ -57,6 +64,10 @@ public final class ConsumptionEngine {
     private final AttemptTransactions transactions;
     private final ConsumptionSlotStore slots;
     private final ConsumptionParticipant participant;
+    private final AttemptTransactions sourceTransactions;
+    private final Optional<NonBurnableReferences> recoverySource;
+    private final Predicate<NonBurnableReferences.Reference> relevant;
+    private final DiscoveryAdmissionStore admissions;
     private final AttemptTransactions controlTransactions;
     private final ConsumptionSlotStore controlSlots;
     private final SlotKeyNavigation navigation;
@@ -137,6 +148,53 @@ public final class ConsumptionEngine {
             AttemptFailureClassifier classifier,
             SlotKeyNavigation navigation,
             ConsumptionObservation observation) {
+        this(
+                definition,
+                effectsTransactions,
+                effectsSlots,
+                participant,
+                effectsTransactions,
+                Optional.empty(),
+                r -> true,
+                null,
+                controlTransactions,
+                controlSlots,
+                ownership,
+                settings,
+                capacity,
+                classifier,
+                navigation,
+                observation);
+    }
+
+    public ConsumptionEngine(
+            ConsumptionDefinition definition,
+            AttemptTransactions effectsTransactions,
+            ConsumptionSlotStore effectsSlots,
+            ConsumptionParticipant participant,
+            AttemptTransactions sourceTransactions,
+            Optional<NonBurnableReferences> recoverySource,
+            Predicate<NonBurnableReferences.Reference> relevant,
+            DiscoveryAdmissionStore admissions,
+            AttemptTransactions controlTransactions,
+            ConsumptionSlotStore controlSlots,
+            PartitionOwnershipStore ownership,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            AttemptFailureClassifier classifier,
+            SlotKeyNavigation navigation,
+            ConsumptionObservation observation) {
+        this.sourceTransactions = Objects.requireNonNull(sourceTransactions);
+        this.recoverySource = Objects.requireNonNull(recoverySource);
+        this.relevant = Objects.requireNonNull(relevant);
+        this.admissions = admissions;
+        if (definition.authority() == ConsumptionDefinition.Authority.READ) {
+            if (recoverySource.isEmpty() || recoverySource.get().family() != definition.family())
+                throw new IllegalArgumentException("READ requires its exact source family");
+            Objects.requireNonNull(admissions, "READ requires effects admissions");
+        } else if (sourceTransactions != effectsTransactions || recoverySource.isPresent())
+            throw new IllegalArgumentException(
+                    "WRITE requires one source/effects owner and no event lookup");
         this.definition = Objects.requireNonNull(definition);
         this.transactions = Objects.requireNonNull(effectsTransactions);
         this.slots = Objects.requireNonNull(effectsSlots);
@@ -551,36 +609,48 @@ public final class ConsumptionEngine {
         Objects.requireNonNull(claim);
         if (!definition.id().equals(claim.consumptionId()))
             throw new IllegalArgumentException("Claim belongs to another Consumption");
-        java.util.Optional<ConsumptionParticipant.Prepared> prepared;
+        var reads = new Reads();
+        Optional<ConsumptionParticipant.Prepared> prepared;
         try {
             prepared =
-                    measured(
-                            Phase.PREPARE,
-                            () ->
-                                    transactions.read(
-                                            context -> participant.prepare(claim.consumableId())));
-        } catch (Failure failure) {
-            if (failure.resolution() == Resolution.UNKNOWN) acquired.unresolvedPreparation = true;
-            // A committed preparation snapshot is not a committed business attempt.
-            return failure.resolution() == Resolution.ROLLED_BACK
-                    ? new Attempt(
-                            Status.ROLLED_BACK, Resolution.ROLLED_BACK, null, failure.getCause())
-                    : observed(claim, Resolution.UNKNOWN, failure.getCause());
+                    measured(Phase.PREPARE, () -> participant.prepare(claim.consumableId(), reads));
+            reads.requireValid();
+            Objects.requireNonNull(prepared);
         } catch (RuntimeException | Error failure) {
-            acquired.unresolvedPreparation = true;
-            throw failure;
+            reads.invalidate(failure);
+            if (reads.physicallyUnresolved() && reads.failedResolution == null) throw failure;
+            if (reads.physicallyUnresolved())
+                return new Attempt(
+                        Status.RECOVERY_PENDING, Resolution.UNKNOWN, null, reads.cause());
+            if (reads.failedResolution == Resolution.COMMITTED)
+                return observed(claim, Resolution.UNKNOWN, reads.cause());
+            // No business transaction began; resolved reads keep their own physical outcome.
+            return new Attempt(Status.ROLLED_BACK, Resolution.ROLLED_BACK, null, reads.cause());
+        } finally {
+            reads.expire();
+            if (reads.physicallyUnresolved()) acquired.unresolvedPreparation = true;
         }
         return prepared.isEmpty()
                 ? observed(claim, Resolution.UNKNOWN, null)
-                : finalizeAttempt(claim, prepared.get());
+                : finalizeAttempt(claim, prepared.get(), reads);
     }
 
-    private Attempt finalizeAttempt(ClaimedSlot claim, ConsumptionParticipant.Prepared prepared) {
-        return measured(Phase.FINALIZE, () -> finalizeAttemptOperation(claim, prepared));
+    private Attempt finalizeAttempt(
+            ClaimedSlot claim,
+            ConsumptionParticipant.Prepared prepared,
+            AttemptTransactions.Guard guard) {
+        return measured(Phase.FINALIZE, () -> finalizeAttemptOperation(claim, prepared, guard));
     }
 
     private Attempt finalizeAttemptOperation(
-            ClaimedSlot claim, ConsumptionParticipant.Prepared prepared) {
+            ClaimedSlot claim,
+            ConsumptionParticipant.Prepared prepared,
+            AttemptTransactions.Guard guard) {
+        try {
+            guard.requireValid();
+        } catch (RuntimeException | Error failure) {
+            return new Attempt(Status.ROLLED_BACK, Resolution.ROLLED_BACK, null, failure);
+        }
         try {
             transactions.write(
                     () -> {
@@ -595,7 +665,8 @@ public final class ConsumptionEngine {
                         } finally {
                             completion.active = false;
                         }
-                    });
+                    },
+                    guard);
             return new Attempt(Status.COMMITTED, Resolution.COMMITTED, null, null);
         } catch (Failure failure) {
             if (failure.resolution() == Resolution.COMMITTED)
@@ -622,27 +693,170 @@ public final class ConsumptionEngine {
         if (!definition.id().equals(claim.consumptionId()))
             throw new IllegalArgumentException("Claim belongs to another Consumption");
         if (unresolvedRecovery) return RecoveryObservation.UNAVAILABLE;
+        var reads = new Reads();
+        NonBurnableReferences.Reference reference = null;
+        boolean readingSource = definition.authority() == ConsumptionDefinition.Authority.READ;
+        boolean finalReadStarted = false;
         try {
+            if (readingSource) {
+                var found =
+                        reads.source(
+                                ctx ->
+                                        recoverySource
+                                                .orElseThrow()
+                                                .find(claim.consumableId(), ctx));
+                reads.requireValid();
+                if (found.isEmpty()
+                        || !found.get().eventId().equals(claim.consumableId())
+                        || !relevant.test(found.get())) return RecoveryObservation.INCONSISTENT;
+                reference = found.get();
+            }
+            readingSource = false;
+            var recovery =
+                    Objects.requireNonNull(
+                            participant.prepareRecovery(claim.consumableId(), reads));
+            reads.expire();
+            reads.requireValid();
+            var source = reference;
+            finalReadStarted = true;
             return transactions.read(
                     context -> {
                         var slot =
                                 slots.observe(claim.consumptionId(), claim.consumableId(), context);
-                        var business = participant.observe(claim.consumableId(), context);
+                        long checkpoint =
+                                source == null
+                                        ? 0
+                                        : admissions.checkpoint(
+                                                definition.id(),
+                                                RoutingV1.partition(
+                                                        RoutingV1.hash(
+                                                                definition.family(),
+                                                                claim.consumableId()),
+                                                        definition.partitionCount()),
+                                                context);
+                        var business = recovery.observe(context);
+                        if (business == ConsumptionParticipant.EffectEvidence.UNAVAILABLE)
+                            return RecoveryObservation.UNAVAILABLE;
+                        if (source != null && checkpoint < source.position())
+                            return RecoveryObservation.INCONSISTENT;
                         return switch (business) {
-                            case COMPLETED ->
-                                    slot == ConsumptionSlotStore.SlotObservation.ABSENT
-                                            ? business
+                            case SATISFIED ->
+                                    slot == SlotObservation.ABSENT
+                                            ? RecoveryObservation.COMPLETED
+                                            : source != null
+                                                    ? RecoveryObservation.NOT_COMPLETED
+                                                    : RecoveryObservation.INCONSISTENT;
+                            case MISSING ->
+                                    slot == SlotObservation.PRESENT
+                                            ? RecoveryObservation.NOT_COMPLETED
                                             : RecoveryObservation.INCONSISTENT;
-                            case NOT_COMPLETED ->
-                                    slot == ConsumptionSlotStore.SlotObservation.PRESENT
-                                            ? business
-                                            : RecoveryObservation.INCONSISTENT;
-                            case INCONSISTENT, UNAVAILABLE -> business;
+                            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+                            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
                         };
-                    });
+                    },
+                    reads);
         } catch (RuntimeException | Error failure) {
-            recoveryFailed(failure, claim);
+            if (reads.physicallyUnresolved()) recoveryFailed(failure, claim);
+            else if (readingSource
+                    && reads.cause() instanceof NonBurnableReferences.InvalidReference)
+                return RecoveryObservation.INCONSISTENT;
+            else if (reads.failedResolution != null)
+                recoveryFailed(new Failure(reads.failedResolution, failure), claim);
+            else if (!finalReadStarted)
+                recoveryFailed(new Failure(Resolution.ROLLED_BACK, failure), claim);
+            else recoveryFailed(failure, claim);
             return RecoveryObservation.UNAVAILABLE;
+        } finally {
+            reads.expire();
+        }
+    }
+
+    /** Pure, monotone invocation guard. Spring remains the sole physical transaction owner. */
+    private final class Reads implements PreparationReads, AttemptTransactions.Guard {
+        private final Thread thread = Thread.currentThread();
+        private final AtomicReference<Throwable> first = new AtomicReference<>();
+        private boolean open = true;
+        private boolean active;
+        private volatile boolean uncertain;
+        private volatile Resolution failedResolution;
+        private int entered;
+
+        @Override
+        public <T> T source(Function<RecoveryReadContext, T> action) {
+            return scope(sourceTransactions, action);
+        }
+
+        @Override
+        public <T> T effects(Function<RecoveryReadContext, T> action) {
+            return scope(transactions, action);
+        }
+
+        @Override
+        public void invalidate(Throwable cause) {
+            first.compareAndSet(null, Objects.requireNonNull(cause));
+        }
+
+        private Throwable cause() {
+            return first.get();
+        }
+
+        @Override
+        public void requireValid() {
+            if (Thread.currentThread().isInterrupted())
+                invalidate(new PreparationReads.Invalid("Preparation interrupted", null));
+            var failure = first.get();
+            if (failure instanceof Error error) throw error;
+            if (failure instanceof RuntimeException runtime) throw runtime;
+            if (failure != null) throw new IllegalStateException("Preparation failed", failure);
+        }
+
+        private <T> T scope(AttemptTransactions owner, Function<RecoveryReadContext, T> action) {
+            synchronized (this) {
+                if (Thread.currentThread() != thread || !open || active) {
+                    var fault =
+                            new PreparationReads.Invalid(
+                                    "Preparation scope expired, nested or foreign", null);
+                    invalidate(fault);
+                    throw fault;
+                }
+                try {
+                    requireValid();
+                    Objects.requireNonNull(action);
+                } catch (RuntimeException | Error failure) {
+                    invalidate(failure);
+                    throw failure;
+                }
+                active = true;
+                entered++;
+            }
+            T result;
+            try {
+                result = owner.read(action, this);
+            } catch (Failure failure) {
+                failedResolution = failure.resolution();
+                if (failure.resolution() == Resolution.UNKNOWN) uncertain = true;
+                invalidate(failure.getCause());
+                throw failure;
+            } catch (RuntimeException | Error failure) {
+                uncertain = true;
+                invalidate(failure);
+                throw failure;
+            } finally {
+                synchronized (this) {
+                    active = false;
+                }
+            }
+            // Physical success preceded this barrier; a late poison cannot undo that success.
+            requireValid();
+            return result;
+        }
+
+        private synchronized void expire() {
+            open = false;
+        }
+
+        private boolean physicallyUnresolved() {
+            return uncertain;
         }
     }
 

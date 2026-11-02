@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
@@ -259,40 +260,50 @@ class DiscoveryCompositionPostgresTest {
             var readSql = new JdbcTemplate(f.r.source());
             var readParticipant =
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID eventId) {
-                            return Optional.of(
-                                    new Prepared() {
-                                        public void finalizeIn(SlotCompletion completion) {
-                                            SpringAttemptTransactions.guarded(
-                                                    f.r.source(),
-                                                    () -> {
-                                                        readSql.update(
-                                                                "insert into fixture_read_effect"
-                                                                    + " values(?,'expected')",
-                                                                eventId);
-                                                        return null;
-                                                    });
-                                            completion.complete();
-                                            SpringAttemptTransactions.closePublication(
-                                                    f.r.source());
-                                        }
+                        public Optional<Prepared> prepare(UUID eventId, PreparationReads reads) {
+                            return reads.source(
+                                    preparationContext -> {
+                                        return Optional.of(
+                                                new Prepared() {
+                                                    public void finalizeIn(
+                                                            SlotCompletion completion) {
+                                                        SpringAttemptTransactions.guarded(
+                                                                f.r.source(),
+                                                                () -> {
+                                                                    readSql.update(
+                                                                            "insert into"
+                                                                                + " fixture_read_effect"
+                                                                                + " values(?,'expected')",
+                                                                            eventId);
+                                                                    return null;
+                                                                });
+                                                        completion.complete();
+                                                        SpringAttemptTransactions.closePublication(
+                                                                f.r.source());
+                                                    }
 
-                                        public void requireCompletionReady() {
-                                            assertEquals(
-                                                    1,
-                                                    readSql.queryForObject(
-                                                            "select count(*) from"
-                                                                + " fixture_read_effect",
-                                                            Integer.class));
-                                        }
+                                                    public void requireCompletionReady() {
+                                                        assertEquals(
+                                                                1,
+                                                                readSql.queryForObject(
+                                                                        "select count(*) from"
+                                                                            + " fixture_read_effect",
+                                                                        Integer.class));
+                                                    }
+                                                });
                                     });
                         }
 
-                        public RecoveryObservation observe(UUID eventId, RecoveryReadContext c) {
+                        public Recovery prepareRecovery(UUID eventId, PreparationReads reads) {
+                            return c -> evidence(observeInSnapshot(eventId, c, reads));
+                        }
+
+                        private RecoveryObservation observeInSnapshot(
+                                UUID eventId, RecoveryReadContext c, PreparationReads reads) {
                             SpringAttemptTransactions.requireRead(f.r.source(), c);
                             return readSql.queryForObject(
                                             "select exists(select 1 from fixture_read_effect where"
-                                                + " id=?)",
+                                                    + " id=?)",
                                             Boolean.class,
                                             eventId)
                                     ? RecoveryObservation.COMPLETED
@@ -300,19 +311,28 @@ class DiscoveryCompositionPostgresTest {
                         }
                     };
             var readLifecycle =
-                    V3ConsumptionLifecycleComposition.assemble(
-                            f.guard(),
+                    new ConsumptionEngine(
                             event,
-                            f.r.source(),
                             read,
+                            new JdbcConsumptionSlotStore(f.r.source()),
                             readParticipant,
+                            write,
+                            Optional.of(
+                                    new JdbcEventDiscoveryReferences(
+                                            f.w.source(), event.family(), SETTINGS)),
+                            r -> true,
+                            new JdbcDiscoveryAdmissionStore(f.r.source(), SETTINGS),
+                            read,
+                            new JdbcConsumptionSlotStore(f.r.source()),
+                            new JdbcPartitionOwnershipStore(f.r.source()),
                             LifecycleSettings.pilot(),
                             capacity,
-                            6,
                             c ->
                                     com.kartaguez.pocoma.engine.consumption.v3.port
                                             .AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
-                            COMBINED);
+                            null,
+                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    .noop());
             assertSame(read, field(readLifecycle, "transactions"));
             assertSame(capacity, field(readLifecycle, "capacity"));
             var slot =
@@ -481,5 +501,34 @@ class DiscoveryCompositionPostgresTest {
         trace.add(
                 "I1/I3 strict refusal, I4 explicit exact union only; unchanged ACL and runtime"
                         + " identities, no SQL mutation by construction");
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

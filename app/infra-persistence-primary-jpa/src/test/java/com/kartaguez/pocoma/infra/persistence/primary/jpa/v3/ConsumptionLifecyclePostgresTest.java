@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
@@ -117,9 +118,9 @@ class ConsumptionLifecyclePostgresTest {
             Consumer<ConsumptionParticipant.Prepared> before,
             Consumer<ConsumptionParticipant.Prepared> after) {
         return new ConsumptionParticipant() {
-            public Optional<Prepared> prepare(UUID id) {
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
                 return f.participant
-                        .prepare(id)
+                        .prepare(id, reads)
                         .map(
                                 p ->
                                         new Prepared() {
@@ -135,8 +136,13 @@ class ConsumptionLifecyclePostgresTest {
                                         });
             }
 
-            public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
-                return f.participant.observe(id, context);
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return context -> evidence(observeInSnapshot(id, context, reads));
+            }
+
+            private RecoveryObservation observeInSnapshot(
+                    UUID id, RecoveryReadContext context, PreparationReads reads) {
+                return legacy(f.participant.prepareRecovery(id, reads).observe(context));
             }
         };
     }
@@ -144,12 +150,20 @@ class ConsumptionLifecyclePostgresTest {
     ConsumptionParticipant preparationFailure(
             ConsumptionLifecyclePostgresFixture f, RuntimeException fault) {
         return new ConsumptionParticipant() {
-            public Optional<Prepared> prepare(UUID id) {
-                throw fault;
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                return reads.effects(
+                        preparationContext -> {
+                            throw fault;
+                        });
             }
 
-            public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
-                return f.participant.observe(id, c);
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return c -> evidence(observeInSnapshot(id, c, reads));
+            }
+
+            private RecoveryObservation observeInSnapshot(
+                    UUID id, RecoveryReadContext c, PreparationReads reads) {
+                return legacy(f.participant.prepareRecovery(id, reads).observe(c));
             }
         };
     }
@@ -1113,8 +1127,11 @@ class ConsumptionLifecyclePostgresTest {
         var injected = new AtomicBoolean();
         var owner =
                 new ForwardingTransactions(f.tx) {
-                    public <T> T read(Function<RecoveryReadContext, T> action) {
-                        var result = f.tx.read(action);
+                    public <T> T read(
+                            Function<RecoveryReadContext, T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
+                        var result = f.tx.read(action, guard);
                         if (injected.compareAndSet(false, true)) {
                             preparations.incrementAndGet();
                             completed(f, good, acquire(f, good, lease, concurrent));
@@ -1328,7 +1345,12 @@ class ConsumptionLifecyclePostgresTest {
                     // UNKNOWN preparation does not manufacture rollback or charge a second slot.
                     var unknown =
                             new ForwardingTransactions(f.tx) {
-                                public <T> T read(Function<RecoveryReadContext, T> action) {
+                                public <T> T read(
+                                        Function<RecoveryReadContext, T> action,
+                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                        .Guard
+                                                guard) {
+                                    guard.requireValid();
                                     throw new Failure(
                                             Resolution.UNKNOWN,
                                             new SQLException("unavailable", "08006"));
@@ -1344,8 +1366,8 @@ class ConsumptionLifecyclePostgresTest {
                     f.noEffects(id2);
                     f.trace.add(
                             "I5-F01 strengthened: UNKNOWN read-only preparation cannot be resolved"
-                                + " by an unlocked slot; no physical witness in current ports,"
-                                + " retain ticket until Worker termination");
+                                    + " by an unlocked slot; no physical witness in current ports,"
+                                    + " retain ticket until Worker termination");
                 });
     }
 
@@ -1356,9 +1378,13 @@ class ConsumptionLifecyclePostgresTest {
                     var sawRollback = new AtomicBoolean();
                     var physical =
                             new ForwardingTransactions(f.tx) {
-                                public <T> T read(Function<RecoveryReadContext, T> action) {
+                                public <T> T read(
+                                        Function<RecoveryReadContext, T> action,
+                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                        .Guard
+                                                guard) {
                                     try {
-                                        return f.tx.read(action);
+                                        return f.tx.read(action, guard);
                                     } catch (Failure failure) {
                                         assertEquals(Resolution.ROLLED_BACK, failure.resolution());
                                         sawRollback.set(true);
@@ -1374,6 +1400,17 @@ class ConsumptionLifecyclePostgresTest {
                                     preparationFailure(
                                             f,
                                             new IllegalStateException("actual preparation fault")),
+                                    (f.write ? physical : f.tx),
+                                    (f.write ? Optional.empty() : Optional.of(f.references())),
+                                    r -> true,
+                                    (f.write
+                                            ? null
+                                            : new JdbcDiscoveryAdmissionStore(
+                                                    f.source,
+                                                    ConsumptionLifecyclePostgresFixture
+                                                            .discoverySettings())),
+                                    physical,
+                                    f.slots,
                                     f.ownership,
                                     f.settings,
                                     f.capacity,
@@ -1382,7 +1419,10 @@ class ConsumptionLifecyclePostgresTest {
                                         throw new AssertionError(
                                                 "process stops after confirmed rollback before"
                                                         + " cession");
-                                    });
+                                    },
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     var h = acquire(f, e, lease, id);
@@ -1495,10 +1535,24 @@ class ConsumptionLifecyclePostgresTest {
                                                 new IllegalStateException(
                                                         "same physical rollback, different actual"
                                                                 + " cause policy")),
+                                        (f.write ? f.tx : f.tx),
+                                        (f.write ? Optional.empty() : Optional.of(f.references())),
+                                        r -> true,
+                                        (f.write
+                                                ? null
+                                                : new JdbcDiscoveryAdmissionStore(
+                                                        f.source,
+                                                        ConsumptionLifecyclePostgresFixture
+                                                                .discoverySettings())),
+                                        f.tx,
+                                        f.slots,
                                         f.ownership,
                                         f.settings,
                                         f.capacity,
-                                        classifier);
+                                        classifier,
+                                        null,
+                                        com.kartaguez.pocoma.engine.consumption.v3.port
+                                                .ConsumptionObservation.noop());
                         var id = f.seed(0);
                         var result = e.execute(acquire(f, e, lease, id));
                         assertEquals(Resolution.ROLLED_BACK, result.resolution());
@@ -1752,39 +1806,50 @@ class ConsumptionLifecyclePostgresTest {
                             id.value(), key, d.family().name(), key);
                     var participant =
                             new ConsumptionParticipant() {
-                                public Optional<Prepared> prepare(UUID k) {
-                                    return Optional.of(
-                                            new Prepared() {
-                                                public void finalizeIn(SlotCompletion completion) {
-                                                    SpringAttemptTransactions.guarded(
-                                                            f.source,
-                                                            () -> {
-                                                                f.sql.update(
-                                                                        "insert into"
-                                                                            + " fixture_other_effect"
-                                                                            + " values (?)",
-                                                                        k);
-                                                                return null;
-                                                            });
-                                                    completion.complete();
-                                                    SpringAttemptTransactions.closePublication(
-                                                            f.source);
-                                                }
+                                public Optional<Prepared> prepare(UUID k, PreparationReads reads) {
+                                    return reads.effects(
+                                            preparationContext -> {
+                                                return Optional.of(
+                                                        new Prepared() {
+                                                            public void finalizeIn(
+                                                                    SlotCompletion completion) {
+                                                                SpringAttemptTransactions.guarded(
+                                                                        f.source,
+                                                                        () -> {
+                                                                            f.sql.update(
+                                                                                    "insert into"
+                                                                                        + " fixture_other_effect"
+                                                                                        + " values"
+                                                                                        + " (?)",
+                                                                                    k);
+                                                                            return null;
+                                                                        });
+                                                                completion.complete();
+                                                                SpringAttemptTransactions
+                                                                        .closePublication(f.source);
+                                                            }
 
-                                                public void requireCompletionReady() {
-                                                    assertEquals(
-                                                            1,
-                                                            f.sql.queryForObject(
-                                                                    "select count(*) from"
-                                                                        + " fixture_other_effect"
-                                                                        + " where id=?",
-                                                                    Integer.class,
-                                                                    k));
-                                                }
+                                                            public void requireCompletionReady() {
+                                                                assertEquals(
+                                                                        1,
+                                                                        f.sql.queryForObject(
+                                                                                "select count(*)"
+                                                                                    + " from"
+                                                                                    + " fixture_other_effect"
+                                                                                    + " where id=?",
+                                                                                Integer.class,
+                                                                                k));
+                                                            }
+                                                        });
                                             });
                                 }
 
-                                public RecoveryObservation observe(UUID k, RecoveryReadContext c) {
+                                public Recovery prepareRecovery(UUID k, PreparationReads reads) {
+                                    return c -> evidence(observeInSnapshot(k, c, reads));
+                                }
+
+                                private RecoveryObservation observeInSnapshot(
+                                        UUID k, RecoveryReadContext c, PreparationReads reads) {
                                     SpringAttemptTransactions.requireRead(f.source, c);
                                     return f.sql.queryForObject(
                                                             "select count(*) from"
@@ -1803,10 +1868,24 @@ class ConsumptionLifecyclePostgresTest {
                                     f.tx,
                                     f.slots,
                                     participant,
+                                    (f.write ? f.tx : f.tx),
+                                    (f.write ? Optional.empty() : Optional.of(f.references())),
+                                    r -> true,
+                                    (f.write
+                                            ? null
+                                            : new JdbcDiscoveryAdmissionStore(
+                                                    f.source,
+                                                    ConsumptionLifecyclePostgresFixture
+                                                            .discoverySettings())),
+                                    f.tx,
+                                    f.slots,
                                     f.ownership,
                                     f.settings,
                                     new WorkerCapacity(4, Map.of(id, 2)),
-                                    cause -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                                    cause -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     int p =
                             f.oracle.queryForObject(
                                     "select partition_id from consumption_slot where"
@@ -1935,7 +2014,11 @@ class ConsumptionLifecyclePostgresTest {
                     var armed = new AtomicBoolean();
                     var forwarding =
                             new ForwardingTransactions(owner) {
-                                public <T> T write(Supplier<T> action) {
+                                public <T> T write(
+                                        Supplier<T> action,
+                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                        .Guard
+                                                guard) {
                                     int n = writes.incrementAndGet();
                                     if (armed.get()
                                             && (phase.equals("acquisition")
@@ -1944,7 +2027,7 @@ class ConsumptionLifecyclePostgresTest {
                                         proxy.armed.set(fault);
                                         armed.set(false);
                                     }
-                                    return owner.write(action);
+                                    return owner.write(action, guard);
                                 }
                             };
                     var business = f.participantFor(source, owner);
@@ -1958,10 +2041,24 @@ class ConsumptionLifecyclePostgresTest {
                                     forwarding,
                                     sqlSlots,
                                     business,
+                                    (f.write ? forwarding : f.tx),
+                                    (f.write ? Optional.empty() : Optional.of(f.references())),
+                                    r -> true,
+                                    (f.write
+                                            ? null
+                                            : new JdbcDiscoveryAdmissionStore(
+                                                    source,
+                                                    ConsumptionLifecyclePostgresFixture
+                                                            .discoverySettings())),
+                                    forwarding,
+                                    sqlSlots,
                                     leases,
                                     f.settings,
                                     f.capacity,
-                                    c -> AttemptFailureClassifier.FailureKind.TECHNICAL);
+                                    c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     f.expireLease(0);
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
@@ -2099,9 +2196,12 @@ class ConsumptionLifecyclePostgresTest {
             var enable = new AtomicBoolean();
             var tx =
                     new ForwardingTransactions(real) {
-                        public <T> T write(Supplier<T> action) {
+                        public <T> T write(
+                                Supplier<T> action,
+                                com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                        guard) {
                             if (enable.compareAndSet(true, false)) arm.set(true);
-                            return real.write(action);
+                            return real.write(action, guard);
                         }
                     };
             var capacity = new WorkerCapacity(1, Map.of(f.definition.id(), 1));
@@ -2114,10 +2214,24 @@ class ConsumptionLifecyclePostgresTest {
                                     ? preparationFailure(
                                             f, new IllegalStateException("before cession"))
                                     : f.participantFor(source, real),
+                            (f.write ? tx : f.tx),
+                            (f.write ? Optional.empty() : Optional.of(f.references())),
+                            r -> true,
+                            (f.write
+                                    ? null
+                                    : new JdbcDiscoveryAdmissionStore(
+                                            source,
+                                            ConsumptionLifecyclePostgresFixture
+                                                    .discoverySettings())),
+                            tx,
+                            new JdbcConsumptionSlotStore(source),
                             new JdbcPartitionOwnershipStore(source),
                             f.settings,
                             capacity,
-                            c -> AttemptFailureClassifier.FailureKind.TECHNICAL);
+                            c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
+                            null,
+                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    .noop());
             f.expireLease(0);
             var lease = e.acquirePartition(0).orElseThrow();
             var id = f.seed(0);
@@ -2196,20 +2310,32 @@ class ConsumptionLifecyclePostgresTest {
             var exited = new CountDownLatch(1);
             var participant =
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID key) {
-                            entered.countDown();
-                            boolean done = false;
-                            while (!done)
-                                try {
-                                    finish.await();
-                                    done = true;
-                                } catch (InterruptedException ignored) {
-                                }
-                            throw new IllegalStateException("local callback exits later");
+                        public Optional<Prepared> prepare(UUID key, PreparationReads reads) {
+                            return reads.effects(
+                                    preparationContext -> {
+                                        entered.countDown();
+                                        boolean done = false;
+                                        while (!done)
+                                            try {
+                                                finish.await();
+                                                done = true;
+                                            } catch (InterruptedException ignored) {
+                                            }
+                                        throw new IllegalStateException(
+                                                "local callback exits later");
+                                    });
                         }
 
-                        public RecoveryObservation observe(UUID key, RecoveryReadContext c) {
-                            return f.participantFor(source, real).observe(key, c);
+                        public Recovery prepareRecovery(UUID key, PreparationReads reads) {
+                            return c -> evidence(observeInSnapshot(key, c, reads));
+                        }
+
+                        private RecoveryObservation observeInSnapshot(
+                                UUID key, RecoveryReadContext c, PreparationReads reads) {
+                            return legacy(
+                                    f.participantFor(source, real)
+                                            .prepareRecovery(key, reads)
+                                            .observe(c));
                         }
                     };
             var active =
@@ -2218,10 +2344,24 @@ class ConsumptionLifecyclePostgresTest {
                             real,
                             new JdbcConsumptionSlotStore(source),
                             participant,
+                            (f.write ? real : f.tx),
+                            (f.write ? Optional.empty() : Optional.of(f.references())),
+                            r -> true,
+                            (f.write
+                                    ? null
+                                    : new JdbcDiscoveryAdmissionStore(
+                                            source,
+                                            ConsumptionLifecyclePostgresFixture
+                                                    .discoverySettings())),
+                            real,
+                            new JdbcConsumptionSlotStore(source),
                             new JdbcPartitionOwnershipStore(source),
                             f.settings,
                             capacity,
-                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                            c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    .noop());
             var h2 = acquire(f, active, lease, id);
             var task =
                     f.threads.submit(
@@ -2265,7 +2405,10 @@ class ConsumptionLifecyclePostgresTest {
         var pid = new AtomicInteger();
         var owner =
                 new ForwardingTransactions(f.tx) {
-                    public <T> T read(Function<RecoveryReadContext, T> action) {
+                    public <T> T read(
+                            Function<RecoveryReadContext, T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
                         var result =
                                 f.tx.read(
                                         context -> {
@@ -2274,7 +2417,8 @@ class ConsumptionLifecyclePostgresTest {
                                                             "select pg_backend_pid()",
                                                             Integer.class));
                                             return action.apply(context);
-                                        });
+                                        },
+                                        guard);
                         if (once.compareAndSet(true, false)) {
                             resolved.countDown();
                             boolean done = false;
@@ -2295,10 +2439,23 @@ class ConsumptionLifecyclePostgresTest {
                         owner,
                         f.slots,
                         f.participant,
+                        (f.write ? owner : f.tx),
+                        (f.write ? Optional.empty() : Optional.of(f.references())),
+                        r -> true,
+                        (f.write
+                                ? null
+                                : new JdbcDiscoveryAdmissionStore(
+                                        f.source,
+                                        ConsumptionLifecyclePostgresFixture.discoverySettings())),
+                        owner,
+                        f.slots,
                         f.ownership,
                         f.settings,
                         capacity,
-                        c -> AttemptFailureClassifier.FailureKind.TECHNICAL);
+                        c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
+                        null,
+                        com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                .noop());
         f.expireLease(0);
         var lease = e.acquirePartition(0).orElseThrow();
         var id = f.seed(0);
@@ -2341,8 +2498,11 @@ class ConsumptionLifecyclePostgresTest {
         var armed = new AtomicBoolean();
         var tx =
                 new ForwardingTransactions(f.tx) {
-                    public <T> T write(Supplier<T> action) {
-                        var result = f.tx.write(action);
+                    public <T> T write(
+                            Supplier<T> action,
+                            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard
+                                    guard) {
+                        var result = f.tx.write(action, guard);
                         if (armed.compareAndSet(true, false))
                             throw new Failure(
                                     Resolution.UNKNOWN,
@@ -2352,13 +2512,18 @@ class ConsumptionLifecyclePostgresTest {
                 };
         var business =
                 new ConsumptionParticipant() {
-                    public Optional<Prepared> prepare(UUID id) {
-                        return f.participant.prepare(id);
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        return f.participant.prepare(id, reads);
                     }
 
-                    public RecoveryObservation observe(UUID id, RecoveryReadContext context) {
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                        return context -> evidence(observeInSnapshot(id, context, reads));
+                    }
+
+                    private RecoveryObservation observeInSnapshot(
+                            UUID id, RecoveryReadContext context, PreparationReads reads) {
                         return coherent.get()
-                                ? f.participant.observe(id, context)
+                                ? legacy(f.participant.prepareRecovery(id, reads).observe(context))
                                 : RecoveryObservation.INCONSISTENT;
                     }
                 };
@@ -2369,10 +2534,23 @@ class ConsumptionLifecyclePostgresTest {
                         tx,
                         f.slots,
                         business,
+                        (f.write ? tx : f.tx),
+                        (f.write ? Optional.empty() : Optional.of(f.references())),
+                        r -> true,
+                        (f.write
+                                ? null
+                                : new JdbcDiscoveryAdmissionStore(
+                                        f.source,
+                                        ConsumptionLifecyclePostgresFixture.discoverySettings())),
+                        tx,
+                        f.slots,
                         f.ownership,
                         f.settings,
                         capacity,
-                        c -> AttemptFailureClassifier.FailureKind.TECHNICAL);
+                        c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
+                        null,
+                        com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                .noop());
         f.expireLease(0);
         var lease = e.acquirePartition(0).orElseThrow();
         var id = f.seed(0);
@@ -2400,9 +2578,13 @@ class ConsumptionLifecyclePostgresTest {
                         var failOnce = new AtomicBoolean(true);
                         var owner =
                                 new ForwardingTransactions(f.tx) {
-                                    public <T> T write(Supplier<T> action) {
+                                    public <T> T write(
+                                            Supplier<T> action,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .AttemptTransactions.Guard
+                                                    guard) {
                                         try {
-                                            return f.tx.write(action);
+                                            return f.tx.write(action, guard);
                                         } catch (Failure failure) {
                                             rollback.set(failure.resolution());
                                             throw failure;
@@ -2429,6 +2611,22 @@ class ConsumptionLifecyclePostgresTest {
                                                         throw new IllegalStateException(
                                                                 "after effects and publication");
                                                 }),
+                                        (f.write ? owner : f.tx),
+                                        (f.write ? Optional.empty() : Optional.of(f.references())),
+                                        r -> true,
+                                        (f.write
+                                                ? null
+                                                : new JdbcDiscoveryAdmissionStore(
+                                                        f.source,
+                                                        ConsumptionLifecyclePostgresFixture
+                                                                .discoverySettings())),
+                                        owner,
+                                        intercept(
+                                                f,
+                                                (name, args) -> {
+                                                    if (name.equals("cede"))
+                                                        cessions.incrementAndGet();
+                                                }),
                                         f.ownership,
                                         f.settings,
                                         capacity,
@@ -2438,7 +2636,10 @@ class ConsumptionLifecyclePostgresTest {
                                             if (mode.equals("runtime")) throw fault;
                                             if (mode.equals("error")) throw fatal;
                                             return null;
-                                        });
+                                        },
+                                        null,
+                                        com.kartaguez.pocoma.engine.consumption.v3.port
+                                                .ConsumptionObservation.noop());
                         f.expireLease(0);
                         var lease = e.acquirePartition(0).orElseThrow();
                         var id = f.seed(0);
@@ -2488,6 +2689,17 @@ class ConsumptionLifecyclePostgresTest {
                                     f.slots,
                                     preparationFailure(
                                             f, new IllegalStateException("preparation rollback")),
+                                    (f.write ? f.tx : f.tx),
+                                    (f.write ? Optional.empty() : Optional.of(f.references())),
+                                    r -> true,
+                                    (f.write
+                                            ? null
+                                            : new JdbcDiscoveryAdmissionStore(
+                                                    f.source,
+                                                    ConsumptionLifecyclePostgresFixture
+                                                            .discoverySettings())),
+                                    f.tx,
+                                    f.slots,
                                     f.ownership,
                                     f.settings,
                                     capacity,
@@ -2495,7 +2707,10 @@ class ConsumptionLifecyclePostgresTest {
                                         entered.countDown();
                                         latch(finish);
                                         throw fault;
-                                    });
+                                    },
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     var h = acquire(f, e, lease, id);
@@ -2543,9 +2758,13 @@ class ConsumptionLifecyclePostgresTest {
                         var fault = new IllegalStateException("unexpected cession fault after SQL");
                         var owner =
                                 new ForwardingTransactions(f.tx) {
-                                    public <T> T write(Supplier<T> action) {
+                                    public <T> T write(
+                                            Supplier<T> action,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .AttemptTransactions.Guard
+                                                    guard) {
                                         try {
-                                            return f.tx.write(action);
+                                            return f.tx.write(action, guard);
                                         } catch (Failure failure) {
                                             rollback.set(failure.resolution());
                                             if (unreported && armed.compareAndSet(true, false))
@@ -2586,13 +2805,27 @@ class ConsumptionLifecyclePostgresTest {
                                         store,
                                         preparationFailure(
                                                 f, new IllegalStateException("business fault")),
+                                        (f.write ? owner : f.tx),
+                                        (f.write ? Optional.empty() : Optional.of(f.references())),
+                                        r -> true,
+                                        (f.write
+                                                ? null
+                                                : new JdbcDiscoveryAdmissionStore(
+                                                        f.source,
+                                                        ConsumptionLifecyclePostgresFixture
+                                                                .discoverySettings())),
+                                        owner,
+                                        store,
                                         f.ownership,
                                         f.settings,
                                         capacity,
                                         cause -> {
                                             armed.set(true);
                                             return AttemptFailureClassifier.FailureKind.TECHNICAL;
-                                        });
+                                        },
+                                        null,
+                                        com.kartaguez.pocoma.engine.consumption.v3.port
+                                                .ConsumptionObservation.noop());
                         f.expireLease(0);
                         var lease = e.acquirePartition(0).orElseThrow();
                         var id = f.seed(0);
@@ -2659,26 +2892,45 @@ class ConsumptionLifecyclePostgresTest {
                 f -> {
                     var capacity = new WorkerCapacity(1, Map.of(f.definition.id(), 1));
                     var failureMode = new AtomicBoolean();
+                    var uncertainOwner =
+                            new ForwardingTransactions(f.tx) {
+                                public <T> T write(
+                                        Supplier<T> action,
+                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                        .Guard
+                                                guard) {
+                                    if (failureMode.get())
+                                        throw new Failure(
+                                                Resolution.UNKNOWN,
+                                                new SQLException(
+                                                        "uncertain server transaction", "08006"));
+                                    return f.tx.write(action, guard);
+                                }
+                            };
                     var e =
                             new ConsumptionEngine(
                                     f.definition,
-                                    new ForwardingTransactions(f.tx) {
-                                        public <T> T write(Supplier<T> action) {
-                                            if (failureMode.get())
-                                                throw new Failure(
-                                                        Resolution.UNKNOWN,
-                                                        new SQLException(
-                                                                "uncertain server transaction",
-                                                                "08006"));
-                                            return f.tx.write(action);
-                                        }
-                                    },
+                                    uncertainOwner,
                                     f.slots,
                                     f.participant,
+                                    (f.write ? uncertainOwner : f.tx),
+                                    (f.write ? Optional.empty() : Optional.of(f.references())),
+                                    r -> true,
+                                    (f.write
+                                            ? null
+                                            : new JdbcDiscoveryAdmissionStore(
+                                                    f.source,
+                                                    ConsumptionLifecyclePostgresFixture
+                                                            .discoverySettings())),
+                                    uncertainOwner,
+                                    f.slots,
                                     f.ownership,
                                     f.settings,
                                     capacity,
-                                    c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
+                                    c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                    null,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .ConsumptionObservation.noop());
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     try (var lock = f.lock(id)) {
@@ -2846,5 +3098,34 @@ class ConsumptionLifecyclePostgresTest {
                         // entry point.
                     }
                 });
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

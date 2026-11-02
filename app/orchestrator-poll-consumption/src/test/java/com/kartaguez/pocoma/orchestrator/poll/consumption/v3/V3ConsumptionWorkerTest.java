@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 
@@ -37,11 +38,17 @@ class V3ConsumptionWorkerTest {
 
     static final AttemptTransactions TX =
             new AttemptTransactions() {
-                public <T> T read(Function<RecoveryReadContext, T> f) {
+                public <T> T read(
+                        Function<RecoveryReadContext, T> f,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+                    guard.requireValid();
                     return f.apply(() -> {});
                 }
 
-                public <T> T write(Supplier<T> f) {
+                public <T> T write(
+                        Supplier<T> f,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+                    guard.requireValid();
                     return f.get();
                 }
 
@@ -213,24 +220,35 @@ class V3ConsumptionWorkerTest {
                         };
                 var participant =
                         new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID key) {
-                                return Optional.of(
-                                        new Prepared() {
-                                            public void finalizeIn(SlotCompletion completion) {
-                                                beforeEffect.run();
-                                                done.incrementAndGet();
-                                                completion.complete();
-                                                if (unknown)
-                                                    throw new AttemptTransactions.Failure(
-                                                            AttemptTransactions.Resolution.UNKNOWN,
-                                                            new RuntimeException());
-                                            }
+                            public Optional<Prepared> prepare(UUID key, PreparationReads reads) {
+                                return reads.source(
+                                        preparationContext -> {
+                                            return Optional.of(
+                                                    new Prepared() {
+                                                        public void finalizeIn(
+                                                                SlotCompletion completion) {
+                                                            beforeEffect.run();
+                                                            done.incrementAndGet();
+                                                            completion.complete();
+                                                            if (unknown)
+                                                                throw new AttemptTransactions
+                                                                        .Failure(
+                                                                        AttemptTransactions
+                                                                                .Resolution.UNKNOWN,
+                                                                        new RuntimeException());
+                                                        }
 
-                                            public void requireCompletionReady() {}
+                                                        public void requireCompletionReady() {}
+                                                    });
                                         });
                             }
 
-                            public RecoveryObservation observe(UUID key, RecoveryReadContext c) {
+                            public Recovery prepareRecovery(UUID key, PreparationReads reads) {
+                                return c -> evidence(observeInSnapshot(key, c, reads));
+                            }
+
+                            private RecoveryObservation observeInSnapshot(
+                                    UUID key, RecoveryReadContext c, PreparationReads reads) {
                                 return ids.isEmpty()
                                         ? RecoveryObservation.COMPLETED
                                         : RecoveryObservation.NOT_COMPLETED;
@@ -931,11 +949,21 @@ class V3ConsumptionWorkerTest {
                                                 });
                 var owner =
                         new AttemptTransactions() {
-                            public <T> T read(Function<RecoveryReadContext, T> body) {
+                            public <T> T read(
+                                    Function<RecoveryReadContext, T> body,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                guard.requireValid();
                                 return body.apply(() -> {});
                             }
 
-                            public <T> T write(Supplier<T> body) {
+                            public <T> T write(
+                                    Supplier<T> body,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                guard.requireValid();
                                 journal.add("owner-enter");
                                 T result = body.get();
                                 if (lostResult != null)
@@ -1002,6 +1030,19 @@ class V3ConsumptionWorkerTest {
                             new NonBurnableReferences() {
                                 public ConsumableFamily family() {
                                     return family;
+                                }
+
+                                public java.util.Optional<
+                                                com.kartaguez.pocoma.engine.consumption.v3.port
+                                                        .NonBurnableReferences.Reference>
+                                        find(
+                                                java.util.UUID eventId,
+                                                com.kartaguez.pocoma.port.transaction.v3
+                                                                .RecoveryReadContext
+                                                        context) {
+                                    throw new AssertionError(
+                                            "This discovery-only source does not implement"
+                                                    + " recovery");
                                 }
 
                                 public Window window(
@@ -1129,5 +1170,34 @@ class V3ConsumptionWorkerTest {
             f.pass(1);
             assertEquals(3, f.admitted.size());
         }
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

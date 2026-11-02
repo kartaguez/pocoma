@@ -43,16 +43,20 @@ public final class JdbcDiscoveryAdmissionStore implements DiscoveryAdmissionStor
     }
 
     public long checkpoint(ConsumptionId id, int partition, RecoveryReadContext context) {
-        SpringAttemptTransactions.requireRead(source, context);
-        jdbc.queryForObject(
-                "select set_config('lock_timeout',?,true)",
-                String.class,
-                settings.lockTimeout().toMillis() + "ms");
-        jdbc.queryForObject(
-                "select set_config('statement_timeout',?,true)",
-                String.class,
-                settings.statementTimeout().toMillis() + "ms");
-        return checkpoint(id, partition);
+        return SpringAttemptTransactions.observed(
+                source,
+                context,
+                () -> {
+                    jdbc.queryForObject(
+                            "select set_config('lock_timeout',?,true)",
+                            String.class,
+                            settings.lockTimeout().toMillis() + "ms");
+                    jdbc.queryForObject(
+                            "select set_config('statement_timeout',?,true)",
+                            String.class,
+                            settings.statementTimeout().toMillis() + "ms");
+                    return checkpoint(id, partition);
+                });
     }
 
     public long currentCheckpoint(PartitionLease lease) {

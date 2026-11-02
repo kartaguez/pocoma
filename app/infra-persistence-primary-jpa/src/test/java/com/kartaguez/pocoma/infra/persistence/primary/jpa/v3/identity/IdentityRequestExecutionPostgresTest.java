@@ -8,6 +8,7 @@ import com.kartaguez.pocoma.domain.useridentity.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consume.registration.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
@@ -35,7 +36,9 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                 RecoveryObservation.COMPLETED,
                 tx.read(c -> observation.observe(req.requestId(), c)));
         var before = vector();
-        assertTrue(tx.<Boolean>read(c -> participant.prepare(req.requestId()).isEmpty()));
+        assertTrue(
+                tx.<Boolean>read(
+                        c -> participant.prepare(req.requestId(), inSnapshot(c)).isEmpty()));
         assertEquals(before, vector());
         assertEquals(0, count("consumption_slot"));
     }
@@ -325,8 +328,8 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
             discover(request);
             ConsumptionParticipant altered =
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id) {
-                            var p = participant.prepare(id).orElseThrow();
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            var p = participant.prepare(id, reads).orElseThrow();
                             return Optional.of(
                                     new Prepared() {
                                         public void requireCompletionReady() {
@@ -369,8 +372,8 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                                     });
                         }
 
-                        public RecoveryObservation observe(UUID id, RecoveryReadContext ctx) {
-                            return participant.observe(id, ctx);
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                            return participant.prepareRecovery(id, reads);
                         }
                     };
             var alteredEngine = engine(altered, tx);
@@ -509,8 +512,8 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                                 UUID::randomUUID);
                 ConsumptionParticipant armed =
                         new ConsumptionParticipant() {
-                            public Optional<Prepared> prepare(UUID id) {
-                                var prepared = delegate.prepare(id).orElseThrow();
+                            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                                var prepared = delegate.prepare(id, reads).orElseThrow();
                                 return Optional.of(
                                         new Prepared() {
                                             public void finalizeIn(SlotCompletion completion) {
@@ -524,9 +527,8 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                                         });
                             }
 
-                            public RecoveryObservation observe(
-                                    UUID id, RecoveryReadContext context) {
-                                return delegate.observe(id, context);
+                            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                                return delegate.prepareRecovery(id, reads);
                             }
                         };
                 var actual =
@@ -564,7 +566,10 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                     var committed = businessVector();
                     assertTrue(
                             tx.<Boolean>read(
-                                    c -> participant.prepare(request.requestId()).isEmpty()));
+                                    c ->
+                                            participant
+                                                    .prepare(request.requestId(), inSnapshot(c))
+                                                    .isEmpty()));
                     assertEquals(committed, businessVector());
                 } else {
                     assertEquals(0, proxy.committedReplyCount());
@@ -886,5 +891,54 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
         static AttemptFailureClassifier.FailureKind classify(Throwable cause) {
             return AttemptFailureClassifier.FailureKind.TECHNICAL;
         }
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
+    }
+
+    /** Only for direct participant tests already enclosed by their physical owner. */
+    static PreparationReads inSnapshot(
+            com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext context) {
+        return new PreparationReads() {
+            public <T> T source(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                return action.apply(context);
+            }
+
+            public <T> T effects(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                throw new AssertionError("WRITE preparation uses one source snapshot");
+            }
+        };
     }
 }

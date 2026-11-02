@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 
 import org.junit.jupiter.api.Test;
 
@@ -86,7 +87,8 @@ class ExecuteIdentityRequestTest {
 
     @Test
     void l3_participant_order() {
-        var prepared = participant().prepare(request.requestId()).orElseThrow();
+        var prepared =
+                participant().prepare(request.requestId(), inSnapshot(() -> {})).orElseThrow();
         assertEquals(List.of("load"), calls);
         calls.clear();
         prepared.finalizeIn(
@@ -107,13 +109,14 @@ class ExecuteIdentityRequestTest {
                 calls);
         assertEquals(
                 IdentityRequestStore.Outcome.CHANGED, stored.terminal().orElseThrow().outcome());
-        assertTrue(participant().prepare(request.requestId()).isEmpty());
+        assertTrue(participant().prepare(request.requestId(), inSnapshot(() -> {})).isEmpty());
     }
 
     @Test
     void l3_technical_not_rejected() {
         technical = new IllegalStateException("technical");
-        var prepared = participant().prepare(request.requestId()).orElseThrow();
+        var prepared =
+                participant().prepare(request.requestId(), inSnapshot(() -> {})).orElseThrow();
         assertSame(
                 technical,
                 assertThrows(
@@ -151,10 +154,30 @@ class ExecuteIdentityRequestTest {
                                 a,
                                 () -> new BindingToken("fresh"),
                                 UUID::randomUUID)
-                        .prepare(request.requestId())
+                        .prepare(request.requestId(), inSnapshot(() -> {}))
                         .orElseThrow();
         prepared.finalizeIn(() -> prepared.requireCompletionReady());
         assertEquals(
                 IdentityRequestStore.Outcome.REJECTED, stored.terminal().orElseThrow().outcome());
+    }
+
+    /** Only for direct participant tests already enclosed by their physical owner. */
+    private static PreparationReads inSnapshot(
+            com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext context) {
+        return new PreparationReads() {
+            public <T> T source(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                return action.apply(context);
+            }
+
+            public <T> T effects(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                throw new AssertionError("WRITE preparation uses one source snapshot");
+            }
+        };
     }
 }

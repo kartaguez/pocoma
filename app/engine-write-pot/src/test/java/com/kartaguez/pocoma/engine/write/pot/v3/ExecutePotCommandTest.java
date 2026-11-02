@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
@@ -38,7 +39,7 @@ class ExecutePotCommandTest {
     Result finished;
 
     Result execute() {
-        var prepared = engine().prepare(request).orElseThrow();
+        var prepared = engine().prepare(request, inSnapshot(() -> {})).orElseThrow();
         prepared.finalizeIn(
                 () -> {
                     calls.add("complete");
@@ -216,7 +217,7 @@ class ExecutePotCommandTest {
     @Test
     void u06TerminalReplaySkipsPreparationAndAllWrites() {
         terminal = Optional.of(new Result(Outcome.CHANGED, 3L, null));
-        assertTrue(engine().prepare(request).isEmpty());
+        assertTrue(engine().prepare(request, inSnapshot(() -> {})).isEmpty());
         assertEquals(0, preparations);
         assertTrue(calls.isEmpty());
         assertFalse(command.toString().contains("secret"));
@@ -233,5 +234,25 @@ class ExecutePotCommandTest {
         actorValid = false;
         assertThrows(Collision.class, this::execute);
         assertEquals(List.of("actor"), calls);
+    }
+
+    /** Only for direct participant tests already enclosed by their physical owner. */
+    private static PreparationReads inSnapshot(
+            com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext context) {
+        return new PreparationReads() {
+            public <T> T source(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                return action.apply(context);
+            }
+
+            public <T> T effects(
+                    java.util.function.Function<
+                                    com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext, T>
+                            action) {
+                throw new AssertionError("WRITE preparation uses one source snapshot");
+            }
+        };
     }
 }

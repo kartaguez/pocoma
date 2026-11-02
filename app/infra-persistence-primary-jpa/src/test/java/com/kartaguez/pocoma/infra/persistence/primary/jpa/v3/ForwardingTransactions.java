@@ -12,12 +12,16 @@ class ForwardingTransactions implements AttemptTransactions {
         this.delegate = delegate;
     }
 
-    public <T> T read(Function<RecoveryReadContext, T> action) {
-        return delegate.read(action);
+    public <T> T read(
+            Function<RecoveryReadContext, T> action,
+            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+        return delegate.read(action, guard);
     }
 
-    public <T> T write(Supplier<T> action) {
-        return delegate.write(action);
+    public <T> T write(
+            Supplier<T> action,
+            com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+        return delegate.write(action, guard);
     }
 
     public void poison(Throwable cause) {

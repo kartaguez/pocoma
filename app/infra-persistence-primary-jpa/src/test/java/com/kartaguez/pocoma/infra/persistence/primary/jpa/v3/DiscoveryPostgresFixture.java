@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
@@ -117,6 +118,34 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                             return family;
                         }
 
+                        public java.util.Optional<
+                                        com.kartaguez.pocoma.engine.consumption.v3.port
+                                                .NonBurnableReferences.Reference>
+                                find(
+                                        java.util.UUID eventId,
+                                        com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext
+                                                context) {
+                            return SpringAttemptTransactions.observed(
+                                    write.source,
+                                    context,
+                                    () ->
+                                            write
+                                                    .sql
+                                                    .query(
+                                                            "select position,id,subject from"
+                                                                + " fixture_discovery_event where"
+                                                                + " id=?",
+                                                            (r, n) ->
+                                                                    new Reference(
+                                                                            r.getLong(1),
+                                                                            r.getObject(
+                                                                                    2, UUID.class),
+                                                                            r.getString(3)),
+                                                            eventId)
+                                                    .stream()
+                                                    .findFirst());
+                        }
+
                         public Window window(long k, int max, RecoveryReadContext c) {
                             SpringAttemptTransactions.requireRead(write.source, c);
                             long safe =
@@ -215,54 +244,64 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
             requests = requestReferences(write.source);
             participant =
                     new ConsumptionParticipant() {
-                        public Optional<Prepared> prepare(UUID id) {
-                            return Optional.of(
-                                    new Prepared() {
-                                        public void finalizeIn(SlotCompletion c) {
-                                            SpringAttemptTransactions.guarded(
-                                                    write.source,
-                                                    () -> {
-                                                        write.sql.update(
-                                                                "insert into"
-                                                                    + " fixture_discovery_result"
-                                                                    + " values(?)",
-                                                                id);
-                                                        write.sql.update(
-                                                                "update fixture_discovery_request"
-                                                                    + " set status='TERMINAL' where"
-                                                                    + " id=? and status='PENDING'",
-                                                                id);
-                                                        return null;
-                                                    });
-                                            c.complete();
-                                            SpringAttemptTransactions.guarded(
-                                                    write.source,
-                                                    () -> {
-                                                        write.sql.update(
-                                                                "insert into"
-                                                                    + " fixture_discovery_completion"
-                                                                    + " values(?)",
-                                                                id);
-                                                        return null;
-                                                    });
-                                            SpringAttemptTransactions.closePublication(
-                                                    write.source);
-                                        }
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            return reads.source(
+                                    preparationContext -> {
+                                        return Optional.of(
+                                                new Prepared() {
+                                                    public void finalizeIn(SlotCompletion c) {
+                                                        SpringAttemptTransactions.guarded(
+                                                                write.source,
+                                                                () -> {
+                                                                    write.sql.update(
+                                                                            "insert into"
+                                                                                + " fixture_discovery_result"
+                                                                                + " values(?)",
+                                                                            id);
+                                                                    write.sql.update(
+                                                                            "update"
+                                                                                + " fixture_discovery_request"
+                                                                                + " set status='TERMINAL'"
+                                                                                + " where id=? and"
+                                                                                + " status='PENDING'",
+                                                                            id);
+                                                                    return null;
+                                                                });
+                                                        c.complete();
+                                                        SpringAttemptTransactions.guarded(
+                                                                write.source,
+                                                                () -> {
+                                                                    write.sql.update(
+                                                                            "insert into"
+                                                                                + " fixture_discovery_completion"
+                                                                                + " values(?)",
+                                                                            id);
+                                                                    return null;
+                                                                });
+                                                        SpringAttemptTransactions.closePublication(
+                                                                write.source);
+                                                    }
 
-                                        public void requireCompletionReady() {
-                                            assertEquals(
-                                                    1,
-                                                    write.sql.queryForObject(
-                                                            "select count(*) from"
-                                                                + " fixture_discovery_result where"
-                                                                + " id=?",
-                                                            Integer.class,
-                                                            id));
-                                        }
+                                                    public void requireCompletionReady() {
+                                                        assertEquals(
+                                                                1,
+                                                                write.sql.queryForObject(
+                                                                        "select count(*) from"
+                                                                            + " fixture_discovery_result"
+                                                                            + " where id=?",
+                                                                        Integer.class,
+                                                                        id));
+                                                    }
+                                                });
                                     });
                         }
 
-                        public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                            return c -> evidence(observeInSnapshot(id, c, reads));
+                        }
+
+                        private RecoveryObservation observeInSnapshot(
+                                UUID id, RecoveryReadContext c, PreparationReads reads) {
                             SpringAttemptTransactions.requireRead(write.source, c);
                             return write.sql.queryForObject(
                                             "select exists(select 1 from fixture_discovery_result"
@@ -491,11 +530,15 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
 
         AttemptTransactions transactions() {
             return new AttemptTransactions() {
-                public <T> T read(Function<RecoveryReadContext, T> body) {
-                    return owner.read(body);
+                public <T> T read(
+                        Function<RecoveryReadContext, T> body,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
+                    return owner.read(body, guard);
                 }
 
-                public <T> T write(Supplier<T> body) {
+                public <T> T write(
+                        Supplier<T> body,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Guard guard) {
                     var samples = new LinkedHashMap<String, Instant[]>();
                     held.set(samples);
                     var start = System.nanoTime();
@@ -514,7 +557,8 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                                             T value = body.get();
                                             end[0] = now();
                                             return value;
-                                        });
+                                        },
+                                        guard);
                         Instant resolved = f.target.now();
                         for (var sample : samples.entrySet()) {
                             long lower =
@@ -644,10 +688,20 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                 target.tx,
                 target.slots,
                 participant,
+                definition.authority() == ConsumptionDefinition.Authority.WRITE
+                        ? target.tx
+                        : write.tx,
+                Optional.ofNullable(events),
+                r -> true,
+                admissions,
+                target.tx,
+                target.slots,
                 target.ownership,
                 target.settings,
                 capacity,
-                c -> AttemptFailureClassifier.FailureKind.TECHNICAL);
+                c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
+                null,
+                ConsumptionObservation.noop());
     }
 
     void complete(PartitionLease lease, UUID id) {
@@ -852,5 +906,34 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
     public void close() {
         read.close();
         write.close();
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

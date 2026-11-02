@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.kartaguez.pocoma.domain.consumption.v3.RoutingV1;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
@@ -85,6 +86,22 @@ class SlotNavigationPostgresTest {
                     + " select ?,?,h,((h::bigint%4+4)%4)::int from (select consumption_hash_v1(?,?)"
                     + " h) x",
                 f.definition.id().value(), id, f.definition.family().name(), id);
+        if (!f.write) {
+            long position =
+                    f.oracle.queryForObject(
+                            "insert into fixture_recovery_event(id,subject) values (?,'POT')"
+                                + " returning position",
+                            Long.class,
+                            id);
+            int partition = RoutingV1.partition(RoutingV1.hash(f.definition.family(), id), 4);
+            f.oracle.update(
+                    "insert into discovery_checkpoint values (?,?,?) on"
+                        + " conflict(consumption_id,partition_id) do update set"
+                        + " position=greatest(discovery_checkpoint.position,excluded.position)",
+                    f.definition.id().value(),
+                    partition,
+                    position);
+        }
     }
 
     ConsumptionEngine engine(ConsumptionLifecyclePostgresFixture f, AttemptTransactions control) {
@@ -93,6 +110,14 @@ class SlotNavigationPostgresTest {
                 f.tx,
                 f.slots,
                 f.participant,
+                f.tx,
+                f.write ? Optional.empty() : Optional.of(f.references()),
+                r -> true,
+                f.write
+                        ? null
+                        : new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
+                                .JdbcDiscoveryAdmissionStore(
+                                f.source, ConsumptionLifecyclePostgresFixture.discoverySettings()),
                 control,
                 f.slots,
                 f.ownership,
@@ -266,12 +291,20 @@ class SlotNavigationPostgresTest {
                         var loseOnce = new java.util.concurrent.atomic.AtomicBoolean(true);
                         var lost =
                                 new AttemptTransactions() {
-                                    public <T> T read(Function<RecoveryReadContext, T> action) {
-                                        return f.tx.read(action);
+                                    public <T> T read(
+                                            Function<RecoveryReadContext, T> action,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .AttemptTransactions.Guard
+                                                    guard) {
+                                        return f.tx.read(action, guard);
                                     }
 
-                                    public <T> T write(Supplier<T> action) {
-                                        var result = f.tx.write(action);
+                                    public <T> T write(
+                                            Supplier<T> action,
+                                            com.kartaguez.pocoma.port.transaction.v3
+                                                            .AttemptTransactions.Guard
+                                                    guard) {
+                                        var result = f.tx.write(action, guard);
                                         if (loseOnce.getAndSet(false))
                                             throw new Failure(
                                                     resolution,
@@ -352,7 +385,7 @@ class SlotNavigationPostgresTest {
                                                             + " '1 hour'";
                                                 default ->
                                                         "retry_after=clock_timestamp()+interval '1"
-                                                            + " hour'";
+                                                                + " hour'";
                                             };
                                     f.oracle.execute(
                                             "with numbered as(select consumable_id,row_number()"
@@ -389,9 +422,9 @@ class SlotNavigationPostgresTest {
                                                 for (int seek = 0; seek < 3; seek++) {
                                                     String query =
                                                             "select consumable_id from"
-                                                                + " consumption_slot where"
-                                                                + " consumption_id=? and"
-                                                                + " partition_id=0"
+                                                                    + " consumption_slot where"
+                                                                    + " consumption_id=? and"
+                                                                    + " partition_id=0"
                                                                     + (seek == 1
                                                                             ? " and consumable_id>?"
                                                                                   + " and consumable_id<=?"
@@ -502,8 +535,8 @@ class SlotNavigationPostgresTest {
                     }
                     f.trace.add(
                             "Standalone JDBC cost: no Hikari in this navigation fixture."
-                                + " Pool/GC/scheduling costs separately r05/w16; no integrated"
-                                + " SPEC09 certification.");
+                                    + " Pool/GC/scheduling costs separately r05/w16; no integrated"
+                                    + " SPEC09 certification.");
                 });
     }
 

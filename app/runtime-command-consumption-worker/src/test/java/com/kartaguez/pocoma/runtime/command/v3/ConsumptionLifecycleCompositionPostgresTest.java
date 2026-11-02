@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
@@ -19,6 +21,7 @@ import org.testcontainers.utility.MountableFile;
 
 import java.nio.file.*;
 import java.sql.*;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -111,11 +114,19 @@ class ConsumptionLifecycleCompositionPostgresTest {
 
     ConsumptionParticipant inert() {
         return new ConsumptionParticipant() {
-            public Optional<Prepared> prepare(UUID id) {
-                throw new AssertionError("no business effect in resource proof");
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                return reads.effects(
+                        preparationContext -> {
+                            throw new AssertionError("no business effect in resource proof");
+                        });
             }
 
-            public RecoveryObservation observe(UUID id, RecoveryReadContext c) {
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return c -> evidence(observeInSnapshot(id, c, reads));
+            }
+
+            private RecoveryObservation observeInSnapshot(
+                    UUID id, RecoveryReadContext c, PreparationReads reads) {
                 return RecoveryObservation.NOT_COMPLETED;
             }
         };
@@ -137,6 +148,7 @@ class ConsumptionLifecycleCompositionPostgresTest {
     ConsumptionEngine engine(boolean write, WorkerCapacity capacity) {
         var target = write ? fixture.w : fixture.r;
         var tx = new SpringAttemptTransactions(target.source(), manager(target.source()));
+        if (!write) return readEngine(target.source(), tx, capacity);
         return V3ConsumptionLifecycleComposition.assemble(
                 fixture.guard(),
                 definition(write),
@@ -147,6 +159,39 @@ class ConsumptionLifecycleCompositionPostgresTest {
                 capacity,
                 8,
                 c -> FailureKind.NON_COUNTABLE);
+    }
+
+    ConsumptionEngine readEngine(
+            javax.sql.DataSource effects, AttemptTransactions owner, WorkerCapacity capacity) {
+        var definition = definition(false);
+        fixture.guard()
+                .validateLifecycleSource(
+                        effects,
+                        definition.authority(),
+                        V3BootstrapGuard.Privileges.LIFECYCLE_ONLY);
+        var source = new SpringAttemptTransactions(fixture.w.source(), manager(fixture.w.source()));
+        var ds =
+                new DiscoveryEngine.Settings(
+                        128, 32, 32, 1024, Duration.ofMillis(500), Duration.ofSeconds(2));
+        return new ConsumptionEngine(
+                definition,
+                owner,
+                new JdbcConsumptionSlotStore(effects),
+                inert(),
+                source,
+                Optional.of(
+                        new JdbcEventDiscoveryReferences(
+                                fixture.w.source(), definition.family(), ds)),
+                r -> true,
+                new JdbcDiscoveryAdmissionStore(effects, ds),
+                owner,
+                new JdbcConsumptionSlotStore(effects),
+                new JdbcPartitionOwnershipStore(effects),
+                LifecycleSettings.pilot(),
+                capacity,
+                c -> FailureKind.NON_COUNTABLE,
+                null,
+                com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation.noop());
     }
 
     ConsumptionEngine.AcquiredClaim acquire(boolean write, ConsumptionEngine e, UUID id) {
@@ -322,7 +367,11 @@ class ConsumptionLifecycleCompositionPostgresTest {
                 var armed = new AtomicBoolean();
                 AttemptTransactions owner =
                         new AttemptTransactions() {
-                            public <T> T write(Supplier<T> action) {
+                            public <T> T write(
+                                    Supplier<T> action,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
                                 return real.write(
                                         () -> {
                                             if (armed.get()) {
@@ -339,11 +388,16 @@ class ConsumptionLifecycleCompositionPostgresTest {
                                                 }
                                             }
                                             return action.get();
-                                        });
+                                        },
+                                        guard);
                             }
 
-                            public <T> T read(Function<RecoveryReadContext, T> a) {
-                                return real.read(a);
+                            public <T> T read(
+                                    Function<RecoveryReadContext, T> a,
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                    .Guard
+                                            guard) {
+                                return real.read(a, guard);
                             }
 
                             public void poison(Throwable c) {
@@ -355,16 +409,18 @@ class ConsumptionLifecycleCompositionPostgresTest {
                             }
                         };
                 var e =
-                        V3ConsumptionLifecycleComposition.assemble(
-                                fixture.guard(),
-                                d,
-                                pool,
-                                owner,
-                                inert(),
-                                LifecycleSettings.pilot(),
-                                cap,
-                                8,
-                                c -> FailureKind.NON_COUNTABLE);
+                        !write
+                                ? readEngine(pool, owner, cap)
+                                : V3ConsumptionLifecycleComposition.assemble(
+                                        fixture.guard(),
+                                        d,
+                                        pool,
+                                        owner,
+                                        inert(),
+                                        LifecycleSettings.pilot(),
+                                        cap,
+                                        8,
+                                        c -> FailureKind.NON_COUNTABLE);
                 var ids = new ArrayList<UUID>();
                 for (int n = 100; n < 104; n++) ids.add(slot(write, n));
                 var leases = new HashMap<Integer, PartitionLease>();
@@ -397,14 +453,25 @@ class ConsumptionLifecycleCompositionPostgresTest {
                         q.executeQuery().close();
                     }
                     armed.set(true);
-                    var s1 = threads.submit(() -> e.renewClaims(List.of(handles.get(0).claim())));
-                    var s2 = threads.submit(() -> e.renewClaims(List.of(handles.get(1).claim())));
+                    var s1 = threads.submit(() -> tracedRenewal("claim-1", () -> e.renewClaims(List.of(handles.get(0).claim()))));
+                    var s2 = threads.submit(() -> tracedRenewal("claim-2", () -> e.renewClaims(List.of(handles.get(1).claim()))));
                     var lp =
                             threads.submit(
                                     () ->
-                                            e.renewPartitions(
-                                                    List.of(leases.values().iterator().next())));
-                    assertTrue(entered.await(8, TimeUnit.SECONDS));
+                                            tracedRenewal("lease", () -> e.renewPartitions(
+                                                    List.of(leases.values().iterator().next()))));
+                    boolean allEntered = entered.await(8, TimeUnit.SECONDS);
+                    if (!allEntered) {
+                        var bean = pool.getHikariPoolMXBean();
+                        trace.add("renewal barrier missing=" + entered.getCount()
+                                + " active=" + bean.getActiveConnections()
+                                + " idle=" + bean.getIdleConnections()
+                                + " total=" + bean.getTotalConnections()
+                                + " waiting=" + bean.getThreadsAwaitingConnection());
+                        trace.add("renewal backend inventory=" + oracle.queryForList(
+                                "select pid,usename,state,wait_event_type,wait_event,query from pg_stat_activity where datname=current_database()"));
+                    }
+                    assertTrue(allEntered, "all three physical renewal lanes must reach the unchanged barrier");
                     assertEquals(8, pool.getHikariPoolMXBean().getActiveConnections());
                     go.countDown();
                     assertTrue(s1.get(8, TimeUnit.SECONDS).isEmpty());
@@ -430,5 +497,46 @@ class ConsumptionLifecycleCompositionPostgresTest {
                 }
             }
         }
+    }
+
+    private <T> T tracedRenewal(String lane, Supplier<T> operation) {
+        trace.add("renewal submit " + lane);
+        try {
+            return operation.get();
+        } catch (RuntimeException | Error failure) {
+            var out = new java.io.StringWriter();
+            failure.printStackTrace(new java.io.PrintWriter(out));
+            trace.add("renewal failure " + lane + " " + out);
+            throw failure;
+        }
+    }
+
+    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            evidence(RecoveryObservation value) {
+        return switch (value) {
+            case COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .SATISFIED;
+            case NOT_COMPLETED ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .MISSING;
+            case INCONSISTENT ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .DIVERGENT;
+            case UNAVAILABLE ->
+                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                            .UNAVAILABLE;
+        };
+    }
+
+    private static RecoveryObservation legacy(
+            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    value) {
+        return switch (value) {
+            case SATISFIED -> RecoveryObservation.COMPLETED;
+            case MISSING -> RecoveryObservation.NOT_COMPLETED;
+            case DIVERGENT -> RecoveryObservation.INCONSISTENT;
+            case UNAVAILABLE -> RecoveryObservation.UNAVAILABLE;
+        };
     }
 }

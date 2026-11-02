@@ -26,5 +26,13 @@ public interface NonBurnableReferences {
         }
     }
 
+    Optional<Reference> find(UUID eventId, RecoveryReadContext read);
+
+    final class InvalidReference extends IllegalStateException {
+        public InvalidReference(String message) {
+            super(message);
+        }
+    }
+
     Window window(long afterExclusive, int maxPositions, RecoveryReadContext read);
 }
