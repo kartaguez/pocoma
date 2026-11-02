@@ -1,0 +1,463 @@
+{
+  "format_version": 1,
+  "lot": "L4/I2",
+  "verdict": "IMPLEMENTED — QUALIFICATION INCOMPLETE",
+  "initial_sha": "a9937991a75428d8718e6036da11be2382c633d0",
+  "tested_head": "a9937991a75428d8718e6036da11be2382c633d0",
+  "tested_worktree": "dirty overlay; exact inputs in each provenance.json",
+  "final_application_commit": "23ad96d6b0ed9c075573247edf9989ed10472887",
+  "delivery_commit_locator": "git log -1 --format=%H -- docs/v3/L4_I2_Proof_Manifest.json",
+  "branch": "feat/v3-architecture",
+  "acceptance": "Independent code/evidence audit and later human decision required; I2 is not CLOSED",
+  "application_inputs": 1288,
+  "app_blobs_match_architecture_tested_inputs": true,
+  "app_blobs_match_canonical_tested_inputs": false,
+  "production_sql_build_configuration_match_both_campaigns": true,
+  "canonical_to_delivery_comparison": "docs/testing/evidence/L4-I2/Canonical_To_Delivery_Input_Comparison.json",
+  "verification": {
+    "declared_primary": "PROJECTION",
+    "declared_secondary": [
+      "COMMAND"
+    ],
+    "unexpected_production_slice_crossing": "NONE",
+    "binding_autonomous_gate": "NOT REQUIRED: no BINDING production behavior change",
+    "foundation_l2_slice": "NONE",
+    "global_architecture": "REQUIRED and RUN",
+    "monolith": "Four exact suites,14/0/0/0,covered by Architecture; autonomous gate not required",
+    "full_reactor": {
+      "autonomous_command_run": false,
+      "effective_complete_child_graph_run": true,
+      "effective_child_modules": 60,
+      "declared_child_modules": 60,
+      "reason": "Unchanged Maven graph: prescribed Architecture -am closure includes all60 child modules. Explicit user mandate and policy17 require this global gate. No standalone ./mvnw test; no SPEC10/production certification."
+    },
+    "database": "CURRENT V3 fresh; mandatory transitive historical migration suites retained; no migration changed",
+    "trusted_baseline": "NONE"
+  },
+  "findings": {
+    "AUD_I2_08": "Plan4.5 error category/propagation/classification table; original causes and L2 rules retained",
+    "AUD_I2_09": "Plan4.6 callback/physical transitions, pre-doCommit poison barrier and non-retroactive COMMITTED",
+    "AUD_I2_10": "Plan4.7 exact UUID-anchored SQL lookup,existing unique constraints/mappings/counter and counterexamples"
+  },
+  "campaigns": [
+    {
+      "name": "canonical",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1873,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 1873,
+      "modules": 51,
+      "invocation_id": "acdf677077654bd58bfc0866a761ead0",
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker,runtime-command-consumption-worker",
+        "-am",
+        "-Dpocoma.verification.id=acdf677077654bd58bfc0866a761ead0",
+        "-Dpocoma.verification.reports=/private/tmp/l4-i2-canonical-publication/reports",
+        "test"
+      ],
+      "seconds": 3135.850148,
+      "raw_sha256": "71d57c2b2f42154e6374eb24b0d460e45e15355e0c6e72438db7263fa1d6eeee",
+      "result": "docs/testing/evidence/L4-I2/canonical-fail-renewal/result.json",
+      "plan": "docs/testing/evidence/L4-I2/canonical-fail-renewal/plan.json",
+      "provenance": "docs/testing/evidence/L4-I2/canonical-fail-renewal/provenance.json",
+      "application_inputs": 1288,
+      "application_differences_to_delivery": [
+        {
+          "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
+          "tested_sha256": "769520b5edc2b8dc12eb5b0b2f44dfac3c108a4883ed93ac7c948373ec14dcf0",
+          "delivery_sha256": "c231b2b0c649d7a20292477aa62fe982d3ddf23e35d37dbe10482d956006053c"
+        }
+      ],
+      "filtered": false,
+      "reviewed_source_aliases": {
+        "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java"
+      }
+    },
+    {
+      "name": "architecture",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 2137,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 2137,
+      "modules": 60,
+      "invocation_id": "7a236bcea8744166b5719859b52f1e78",
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "-Dpocoma.verification.id=7a236bcea8744166b5719859b52f1e78",
+        "-Dpocoma.verification.reports=/private/tmp/l4-i2-architecture-delivery/reports",
+        "test"
+      ],
+      "seconds": 3263.207835,
+      "raw_sha256": "74ceb7332198215cade0646c61e6f392c7302d652524a375f87b785a3c21758d",
+      "result": "docs/testing/evidence/L4-I2/architecture/result.json",
+      "plan": "docs/testing/evidence/L4-I2/architecture/plan.json",
+      "provenance": "docs/testing/evidence/L4-I2/architecture/provenance.json",
+      "application_inputs": 1288,
+      "application_differences_to_delivery": [],
+      "filtered": false,
+      "reviewed_source_aliases": {
+        "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java"
+      }
+    }
+  ],
+  "implementation_files": "docs/testing/evidence/L4-I2/Implementation_Files.json",
+  "physical_index": "docs/testing/evidence/L4-I2/Physical_Index.json",
+  "suite_contributions": "docs/testing/evidence/L4-I2/Suite_Contributions.json",
+  "monolith_coverage": "docs/testing/evidence/L4-I2/Monolith_Coverage.json",
+  "execution_report": "docs/v3/L4_I2_Execution_Report.md",
+  "blocking_reservations": [
+    {
+      "id": "I2-QUAL-01",
+      "test": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess",
+      "campaign": "canonical",
+      "observation": "WRITE3 physical renewal lanes, READ2 of3 at unchanged8s barrier",
+      "cause": "NOT ESTABLISHED: initial trace lacks missing lane Future failure",
+      "diagnostic": "Only observation added;1/0/0/0 did not reproduce. Same pool8,5 held,connection1s,barrier8s and assertions. Architecture PASS does not resolve original mandatory FAIL.",
+      "disposition": "Blocks global PASS; no timeout/oracle/gate weakening,prewarming or hidden retry"
+    }
+  ],
+  "historical_reservations": {
+    "preserved": true,
+    "attribution": "I1 and historical r05/r12 documents unchanged; QUALIFIED active=false registry retained; no implicit waiver/closure",
+    "references": [
+      "docs/v3/L4_I1_Acceptance_Decision.md",
+      "docs/v3/L4_I1_Execution_Report.md",
+      "docs/v3/L3_I2_Execution_Report.md",
+      "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md"
+    ]
+  },
+  "limits": [
+    "No I3-I7 business participants or I8 production READ activation",
+    "No second engine,durable receipt/UNKNOWN,migration,POM or runtime structural change",
+    "No global PRJ/READ/SEC/OPS/PERF/production certificate",
+    "Pure Java exceptions swallowed without guarded interaction are not observable; generic capability is not a Java linear type",
+    "Shared target ECJ-style stubs were observed and retained; producer not attributed. Qualification uses isolated checkout with no inherited targets",
+    "No PASS transferred from native filtered feedback or failed/interrupted campaigns"
+  ],
+  "preserved_nonpass_receipts": [
+    {
+      "path": "docs/testing/evidence/L4-I2/preflight/result.json",
+      "verdict": "INCONCLUSIVE",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Original verdict retained; no partial success promoted to global PASS"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-navigation/result.json",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1438,
+        "failures": 0,
+        "errors": 5,
+        "skipped": 0
+      },
+      "note": "Original verdict retained; no partial success promoted to global PASS"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-store-owner/result.json",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1553,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "note": "Original verdict retained; no partial success promoted to global PASS"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-renewal/result.json",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1873,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Original verdict retained; no partial success promoted to global PASS"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/canonical-interrupted/result.json",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "note": "Original verdict retained; no partial success promoted to global PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/testing/evidence/L4-I2/Canonical_To_Delivery_Input_Comparison.json",
+      "bytes": 911,
+      "sha256": "caa4aa1e79dcc72a56e350a7fce6d4b0126a9e12a7d11e9bd97e9af1969bc7d4"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/Implementation_Files.json",
+      "bytes": 13765,
+      "sha256": "c873fca38f6deec72843a48eeda0e11decd4274802a8a5231cd998e918ba9b3a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/Monolith_Coverage.json",
+      "bytes": 1191,
+      "sha256": "bff7180eb6c90e5bc6e6ca65706237f80be571018d922def83036de9c54532db"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/Physical_Index.json",
+      "bytes": 905532,
+      "sha256": "6902e837ca75f9ed537916b1676964cfa84eb3e7732598f75f77fa54cc8ec687"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/README.md",
+      "bytes": 3568,
+      "sha256": "567db1e14a01be0a91bc1b3a8e416e1e8a66b2dc982e686c9b40da2d90cb4171"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/Suite_Contributions.json",
+      "bytes": 130043,
+      "sha256": "3d1a21ccb6a5f368c0f394b53ce3e9c2da49299c098f9855e67e4b3e848be851"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/architecture/plan.json",
+      "bytes": 188993,
+      "sha256": "dbcf542ee92eba3c5954c6c9aa54c5be44c62a994edbcb490ccf6d1ed3b7f409"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/architecture/provenance.json",
+      "bytes": 254284,
+      "sha256": "93308597902eec8cbc4e4ca586ef119c06cc672ab70f325ed782090141d1474d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/architecture/raw.tar.gz",
+      "bytes": 36513400,
+      "sha256": "74ceb7332198215cade0646c61e6f392c7302d652524a375f87b785a3c21758d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/architecture/result.json",
+      "bytes": 901245,
+      "sha256": "f1fea402fd572e723e5e898805f7a77da46bdee9301918b4ef1fab3e106a3b30"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-navigation/plan.json",
+      "bytes": 161222,
+      "sha256": "992c7eed7e694ae4b451eed54ee45f168dc70d5638f29374f2b8dbf45833cac6"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-navigation/provenance.json",
+      "bytes": 254165,
+      "sha256": "aeb760b8d0aeefd49723f7c20313042423e5b868057ccf0514f5c5946d84e967"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-navigation/raw.tar.gz",
+      "bytes": 35059028,
+      "sha256": "6c1ac100b2fedf16fa8c065bf2689faf8807dcdd141ee725e12ab9b11199db43"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-navigation/result.json",
+      "bytes": 675357,
+      "sha256": "55f907236fd225c22633728958f07038da9393804a2e5edcab4ee7cc6459cd66"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-renewal/plan.json",
+      "bytes": 161302,
+      "sha256": "40705649b09bd728262daa29e0d92c8be85e0decc1af0285ac6335922e93e327"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-renewal/provenance.json",
+      "bytes": 254284,
+      "sha256": "36b240c9300a36e5faa1b06b10aa70e72ddaaf8040fab59f5ff0ae58c201d0e8"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-renewal/raw.tar.gz",
+      "bytes": 35970976,
+      "sha256": "71d57c2b2f42154e6374eb24b0d460e45e15355e0c6e72438db7263fa1d6eeee"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-renewal/result.json",
+      "bytes": 812820,
+      "sha256": "12b17600e2e53d8cc3f712132110eccb4032ed08500f4f3108fc885a518bc34b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-store-owner/plan.json",
+      "bytes": 161296,
+      "sha256": "fbb0d43e98e1116cbe2a33ade7236f4bbb9c601e531ed2350bcd2713aa322478"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-store-owner/provenance.json",
+      "bytes": 254165,
+      "sha256": "aff9e89d9255f2ddea0c4a364e3a94e56524605c5dbaf9ae2de3e2c9c9643572"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-store-owner/raw.tar.gz",
+      "bytes": 35270975,
+      "sha256": "49d71ce1c137b9a1f9dda86c030a4a44e98aa9a190f7c0b4a5ce0c08db1f05df"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical-fail-store-owner/result.json",
+      "bytes": 751801,
+      "sha256": "37c3288b3f8314cfcd8718dabbb093af1a2f9c8bc2d744ef2e300b6a11eae000"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/README.md",
+      "bytes": 629,
+      "sha256": "d8a0aeee4d45b7cee26c2239eea3761eb49bccf0019b1d2972b2cf1e9f376740"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/boundary-oracles-regression-guard-fail.tar.gz",
+      "bytes": 50425,
+      "sha256": "c7f08ea3e56caa7b4453e3947d6ded82ad6eb903e3111935d29927d305364a43"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/build-feedback-logs.tar.gz",
+      "bytes": 299481,
+      "sha256": "0f04d608465c1d9d07a52a9dce038cb4939e1612644c6e602ace6e0be3058182"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/canonical-interrupted/partial-observations.json",
+      "bytes": 343,
+      "sha256": "e4df91bcdf078414a59c7ee31a733ec6548d31e608753f7437e9b855c30424f7"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/canonical-interrupted/plan.json",
+      "bytes": 161162,
+      "sha256": "cf8ef9340c0d842a395780763ed43fe2e9e761d87053ddbcc484ce71717a6798"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/canonical-interrupted/provenance.json",
+      "bytes": 254165,
+      "sha256": "1b5d28c816027f4fcc8c7dd68f6943deb124168ddc296169a9b850c34fadd51b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/canonical-interrupted/raw.tar.gz",
+      "bytes": 1827720,
+      "sha256": "73bcbd2b4e9cc77bd2167d2dc2d1b49db4580b7154cb56c7136a9fb5828698e6"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/canonical-interrupted/result.json",
+      "bytes": 607,
+      "sha256": "b3564bf8eb92bb92c443b2e8694377bc48345ee816df5febee64f6e4f665bf94"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/fast-1-fail.tar.gz",
+      "bytes": 4959,
+      "sha256": "63b614b3fe58c8923fe9245c980931d045fff97abcbd0a260b59896193d2a6ea"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/fast-2-fail.tar.gz",
+      "bytes": 19838,
+      "sha256": "94eefab8ca33425139ff018d4a7193c48c234ee496b3d7635fd733da23c8689a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/final-physical-feedback.tar.gz",
+      "bytes": 127427,
+      "sha256": "45746d7e12b632924664f3d1d748cb6b4c8283ac96ebd9210a8b3b915bc33a63"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/history-unguarded-counterexample-fail.tar.gz",
+      "bytes": 30146,
+      "sha256": "cd431aac8b836b973de0d8665c9484a26c3af53eb5556ca15a6e230790b133cb"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/integration-1-fail.tar.gz",
+      "bytes": 211632,
+      "sha256": "9dbadb2168f2d97c22ceae7f168b50e3983e0891c8a82f699899829de0b46a8d"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/isolated-targeted-1-fail.tar.gz",
+      "bytes": 164120,
+      "sha256": "b6c27125d65b5bd4b069bb74d7f8c44d038221ff21184aa2a62fa71799360280"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/isolated-targeted-2-fail.tar.gz",
+      "bytes": 48129,
+      "sha256": "5fe55fd648ece8fea862855c08f4d0ed7e68dcb776e69ebbf33fcccd166a7984"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/physical-1-fail.tar.gz",
+      "bytes": 93650,
+      "sha256": "22e321798d3fecf1c84c68104f2a67b3a5efb68ca2f8ea6a99420039f29efd2a"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/polluted-bytecode-javap.txt",
+      "bytes": 19908,
+      "sha256": "9c8c433567bf17ae8fb0874fac0216b8a110c3aa592039cd8ba79e70a40f204b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/renewal-diagnostic-nonreproduced.tar.gz",
+      "bytes": 13036,
+      "sha256": "194f981ff419956e318db1e523227976499d6751affe38fb21690c39f2b9d0e4"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/store-owner-feedback.tar.gz",
+      "bytes": 14306,
+      "sha256": "7cd1c34b26c7a773e3c426971927f24379410ec02afa38883118066754c86f84"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/targeted-2-shared-target-fail.tar.gz",
+      "bytes": 139974,
+      "sha256": "21e733f4a6dfbb3be416d6b61aa0b1c9fae9851c8e7d2112a5170f46e38f1820"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/worker-integration-fail.tar.gz",
+      "bytes": 3420208,
+      "sha256": "7fb6b06a092f515d750cfba7e921f06727c2bd63ea6ca803b963e2bd02471e13"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/preflight/discovery.log",
+      "bytes": 9385,
+      "sha256": "242a1f0723a41f72e9a906b93394c18b2e3b650bb3e1637d08f7a993044e85a9"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/preflight/operator.log",
+      "bytes": 128,
+      "sha256": "c57404293bb29884b9142d976278ee22ca151b1d983160851074562bb1a23cd6"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/preflight/result.json",
+      "bytes": 679,
+      "sha256": "45244779321a1e4adf002c1c921eeb8f187d648789d95fdc2c8250aa2ec4e2ca"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/run-campaign.py",
+      "bytes": 2138,
+      "sha256": "8451d05219934d58cca4364d93e371ba7ee3ad8c6d9c6894fa7ba2e15b2442d2"
+    },
+    {
+      "path": "docs/v3/L4_I2_Implementation_Plan.md",
+      "bytes": 114682,
+      "sha256": "f7899c7d98e77b3224c2eda012b528a27f45b4665ca2270886d32793d4c78851"
+    },
+    {
+      "path": "docs/v3/L4_I2_Execution_Report.md",
+      "bytes": 27094,
+      "sha256": "37f51bfb82b9e62797900fab5a2fa9d7391d16ea49c2714c4224954ffb7e57ef"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/Integrity_Verification.json",
+      "bytes": 1434,
+      "sha256": "3aa10866599c7551d8f47a548ef09e71977925ec75f606a2e199727ef0b0e044"
+    }
+  ]
+}

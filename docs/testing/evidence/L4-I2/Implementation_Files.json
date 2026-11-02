@@ -1,0 +1,272 @@
+[
+  {
+    "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+    "status": "MODIFY",
+    "sha256": "7f4669e5ece3565d8a4ec9b4a1e0d2bd6de846a78772ff9b3b6ead100b27eee9"
+  },
+  {
+    "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionDiscoveryComposition.java",
+    "status": "MODIFY",
+    "sha256": "ca21230d5f690213e75817af6d300f592b1eb19030257862d630ad5a6a8a54d6"
+  },
+  {
+    "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+    "status": "MODIFY",
+    "sha256": "de67adb7254b453704945be2b037a6ce81116616c2651c410e1643de88d6562a"
+  },
+  {
+    "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+    "status": "MODIFY",
+    "sha256": "4ba5090d5b0658f5bcc679109d832245c036b916d428f11b74a909b616979f59"
+  },
+  {
+    "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3FixturePotActorAuthority.java",
+    "status": "MODIFY",
+    "sha256": "c9736827c4e4713ecc9060cdb6469eed05312371e529757faa3c9feabecf9919"
+  },
+  {
+    "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3TechnicalReadParticipant.java",
+    "status": "MODIFY",
+    "sha256": "d3a36460603f97630413fae4a8c821f6c0cdfabc3d9c489ec57032a723970c53"
+  },
+  {
+    "path": "app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequest.java",
+    "status": "MODIFY",
+    "sha256": "1e5ed4956a8fe7631cc2e6c460a15910aa57925109c0ec1570da8d5732636fdf"
+  },
+  {
+    "path": "app/engine-consume-registration/src/test/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequestTest.java",
+    "status": "MODIFY",
+    "sha256": "2ade971f28eb0d63367ade55689e42e47cbacbd91f076ae4369dd2de2562e85e"
+  },
+  {
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+    "status": "MODIFY",
+    "sha256": "7f772b353cb7f2feb19cfdf37e2ee4e48886d026f30a22d1cc1fb2fb0db18139"
+  },
+  {
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionParticipant.java",
+    "status": "MODIFY",
+    "sha256": "ce1eb024e4f13968811d56d501cdb1e4237a2d934a00232f9dc31195e4ec4ee2"
+  },
+  {
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/PreparationReads.java",
+    "status": "CREATE",
+    "sha256": "f25b851017e7143d7bfc15448a2170e77608bc2d201056ed910ceec4eaea5df0"
+  },
+  {
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/NonBurnableReferences.java",
+    "status": "MODIFY",
+    "sha256": "bd05a860590098c596c1b5f5fa171d3db6f3b8c9ba1321e09d0e71ff19709657"
+  },
+  {
+    "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java",
+    "status": "MODIFY",
+    "sha256": "9ea333fdcd601a86e4b117fe241840759e0608db6bbe2adfc3ef841a311bf655"
+  },
+  {
+    "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/DiscoveryEngineTest.java",
+    "status": "MODIFY",
+    "sha256": "61740c4017ae964b2715bf2e8c1d1929bc14625e390569f54664ff9ede290c79"
+  },
+  {
+    "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/PreparationReadsTest.java",
+    "status": "CREATE",
+    "sha256": "9e427f573b18c4baf41756b575abc477ff6de50d82193cad7727b36e75acaedb"
+  },
+  {
+    "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommand.java",
+    "status": "MODIFY",
+    "sha256": "7bf7488f547bbeb1f95f6c24e3b410adb56b8ecb692a776b702720df721f57b8"
+  },
+  {
+    "path": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommandTest.java",
+    "status": "MODIFY",
+    "sha256": "9688abfa8895b70faba68dd1d9de831caf3e1609268dccc11f0f30e1c9692660"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandObservation.java",
+    "status": "MODIFY",
+    "sha256": "91935011b61d7fcf1241c388a3c4f3e23a73f2f850d1467f93b7755a21517de1"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java",
+    "status": "MODIFY",
+    "sha256": "9d1fc5b05bf0920bce2db5a2990026827b7cc43bf5474767ff32a858fc4ab28b"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java",
+    "status": "MODIFY",
+    "sha256": "5b2e65bff7781fc440b3add6111a9f4209fc7ba3fee234dd016c7817d543bf8f"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java",
+    "status": "MODIFY",
+    "sha256": "f7c06ef66d7eae2fe8895afa2ef32ce17a8c48b1301f9ab7435839de0598a012"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcDiscoveryAdmissionStore.java",
+    "status": "MODIFY",
+    "sha256": "79472acc2768b804d7c1f9a6aae0a8ab9f243a73133516d0394f32ec1979b4bf"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcEventDiscoveryReferences.java",
+    "status": "MODIFY",
+    "sha256": "2a000079f772b07b8239cbf152da3290990c216a9f60b4e0f9bc722a2de5ed6f"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityPotActorAuthority.java",
+    "status": "MODIFY",
+    "sha256": "7e1d12f7685bd94a28097cffe3bb03535afb850b7116dbce9a6a842cedfaac31"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityRequestObservation.java",
+    "status": "MODIFY",
+    "sha256": "5949171f7031322c86e8b3e7bb8b4c0aa2e0baf6748817eb8a91916309c211b4"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityRequestStore.java",
+    "status": "MODIFY",
+    "sha256": "72ff245c49ec108eab46be045371f699ce152a291586f649804d26f886d54202"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommandExecutionPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "93dfefafd646d0a45c3d590eb211d55cdbf777151bfbb78a0ab94576bbf7fda8"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresFixture.java",
+    "status": "MODIFY",
+    "sha256": "8e5f8fc9e34d44573148f2006e647b15d3a9dbea2729c87723055fd01de6ee5a"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "61816ee3235d43ee3c5f2751a7b9ae4dc7ce42cd8daaf378b88938e4a3979fd5"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/DiscoveryPostgresFixture.java",
+    "status": "MODIFY",
+    "sha256": "5788213a0036b62a23e74558dd986a7cbd7db44a632ebe9f4f4a22a63b309195"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/DiscoveryPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "031af054001b1d8f1864b22d7da30a17a5802bee772cb300c8679470e4657e1c"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ForwardingTransactions.java",
+    "status": "MODIFY",
+    "sha256": "05874e0e7ee83b9a0ec46d37b5dfe6ef66949e56c095243337d72ee0ed3b6dc6"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L2ManifestProof.java",
+    "status": "MODIFY",
+    "sha256": "2e3411fba53ced1ac65f10b3d8082adec9421e5575d9fc76381196be6c75d6a0"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/SlotNavigationPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "5da59c7b8f230d5dbad877a315fac5486227af57c070dc42053be61de6dc2428"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPerformancePostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "ceae2159fdb71a186cd9e811946efa8198e608c02a8dd7ccfc45608597284e79"
+  },
+  {
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityRequestExecutionPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "8b101cd837b61c8a895ca4e737e1c6a31a1050bc0176f36c958705b14c1ed938"
+  },
+  {
+    "path": "app/infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/JdbcSubobjectVersionStore.java",
+    "status": "MODIFY",
+    "sha256": "1e1944929ddef16d0ac812ef080f77fc89c86c39451450f6d10c39da99fb6420"
+  },
+  {
+    "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+    "status": "MODIFY",
+    "sha256": "ebb6fa60a4e943ec6a7bba4e23f18fc9cdb3eca7b1213f3e627ece8341354047"
+  },
+  {
+    "path": "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/AttemptTransactionsPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "0eeb793c42083c69b25c57fbb3c7e4a11b90735a53257b99714cd347408d3cc2"
+  },
+  {
+    "path": "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java",
+    "status": "MODIFY",
+    "sha256": "e3681d89001d5ea640aa5c74682721e46e72cdab9b12983bf914d182e3ddefd7"
+  },
+  {
+    "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/AttemptTransactions.java",
+    "status": "MODIFY",
+    "sha256": "54bb77f874b581e5044e3a8e49054300a55bc0a4473848457bd813e44e367ff5"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "c231b2b0c649d7a20292477aa62fe982d3ddf23e35d37dbe10482d956006053c"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/DiscoveryCompositionPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "af87e28d1abfe7772cf89faec0fcc75fa61f8ef477431896d62f3c8359b8bfd9"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java",
+    "status": "MODIFY",
+    "sha256": "35fd06de85789d1a53c6f8786b3678cb9fb803d78f30acd88ea50cddb574f06c"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "d0a6fc59d0bfd1126744550091962f0d7d17ebb5b73afdaa8b18627d78c33f2e"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.java",
+    "status": "MODIFY",
+    "sha256": "02a7bfbb6d26ec08b4a0ac8f9b8da3d9ca05a0910a209db25ac184c49f4ea1b0"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "3736529ddc327da9c7e47bcbfeda44934f588d644d34e8336cf30aba9b6225ba"
+  },
+  {
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "8a3dfdaabeb39997d21ba1a3fb729e87b163e01d097115f2f67611528b35fe3e"
+  },
+  {
+    "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/InterAuthorityPostgresFixture.java",
+    "status": "CREATE",
+    "sha256": "13d02be3e88fc98800d563de162436ec213740ddd439a74e19270f5c4a23fdaa"
+  },
+  {
+    "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/InterAuthorityPreparationPostgresTest.java",
+    "status": "CREATE",
+    "sha256": "cbc78747a983d45d8dd1d5a28fadc768877a5c6883984f305d0f6c2ac6952b36"
+  },
+  {
+    "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/InterAuthorityRecoveryPostgresTest.java",
+    "status": "CREATE",
+    "sha256": "3b0430f8b4bcb1bb7a5cb889b86330f99f0a2edcb9b26106c9cb3e88ad9362bd"
+  },
+  {
+    "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectAtomicityPostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "8dae892eb688c55f643b930e1e6f8502232c3ff9a254fd70a651faff55c7b69f"
+  },
+  {
+    "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectPostgresFixture.java",
+    "status": "MODIFY",
+    "sha256": "cc01150733635a41d225aa8985871ae8ab40e061103ca7764d508d15d0e52ef0"
+  },
+  {
+    "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectStorePostgresTest.java",
+    "status": "MODIFY",
+    "sha256": "9e11a0c0fb98d77d5b7d56735127a8ba30d65ccccc9174e45c42839897f87c20"
+  }
+]

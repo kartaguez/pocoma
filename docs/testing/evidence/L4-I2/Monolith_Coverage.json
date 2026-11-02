@@ -1,0 +1,46 @@
+{
+  "expected_classes": [
+    "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+    "com.kartaguez.pocoma.RuntimeMonolithPostgresTest",
+    "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
+    "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest"
+  ],
+  "counts": {
+    "tests": 14,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source": "architecture effective model and fresh execution inventory",
+  "autonomous_gate_required": false,
+  "suites": {
+    "com.kartaguez.pocoma.ConsumptionPilotIsolationTest": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.1139999999999999
+    },
+    "com.kartaguez.pocoma.RuntimeMonolithPostgresTest": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 3.4780000000000006
+    },
+    "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 66.963
+    },
+    "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 10.098
+    }
+  }
+}
