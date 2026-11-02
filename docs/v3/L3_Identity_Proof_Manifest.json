@@ -10963,8 +10963,8 @@
   },
   "proof_artifacts": {
     "docs/README.md": {
-      "bytes": 11540,
-      "sha256": "d627b907a8aac872b019ab9bd7e900a80d6e78a3df39921ba370ed6edf9e1e65"
+      "bytes": 12700,
+      "sha256": "134a4f6bde2fda5a23d949ff3d021b85752adaaa4fe645ecc29e96c1e7def84a"
     },
     "docs/testing/evidence/L3-I4/Variant_Receipts.json": {
       "bytes": 39187,
@@ -11127,28 +11127,28 @@
       "sha256": "09bb3412794cd466a3ca586a605c48b0ab7b30a5d97dbff4f91d716d765d264c"
     },
     "docs/v3/L3_Identity_Closure.md": {
-      "bytes": 8176,
-      "sha256": "723e232d54d69744b70e77b1234cddb91828a880cb6abb5fadc4db919bda730a"
+      "bytes": 10683,
+      "sha256": "4edf8920d4553794cd9f05d36528e9d3b4105f52e48adcbb4e2d73ea88266173"
     },
     "docs/v3/L3_Identity_Execution_Report.md": {
-      "bytes": 55302,
-      "sha256": "070c5b532ff0b1848d34b0bae40f565b9053a4411f63c97cd442eafa95fa11d6"
+      "bytes": 58844,
+      "sha256": "b2d8bc93bd3ae87b9e05c19f0a6963b71c2c9e69e403540599687d1b9d13e75a"
     },
     "docs/v3/L3_Identity_Inventory_and_Implementation_Plan.md": {
-      "bytes": 167397,
-      "sha256": "52431cb434b19a96b67a868a8e5a47388faf23b71874c35dd7361abe54adf3e7"
+      "bytes": 167620,
+      "sha256": "2ce8e10edab7490fefa5d38eb3812d4d8fe5bb215824e72dbabec9975975b176"
     },
     "docs/v3/L3_Identity_Runtime_Runbook.md": {
       "bytes": 16140,
       "sha256": "bf1c2e058c1f359033f32c2448b7c22f360ccbdc9e34333da98a38bb901e36ed"
     },
     "docs/v3/V3_Canon_and_Roadmap.md": {
-      "bytes": 46356,
-      "sha256": "8912897151fb238fc3a3066ef9b6c80d6f668185b88b2cf3f8a9fdbcc9054b08"
+      "bytes": 46579,
+      "sha256": "8b1f06b78bc98386dd1f86bf7031a7671ae10f2a59b7cef89a3ebc4f26ec15ed"
     },
     "docs/v3/V3_Implementation_Master_Plan.md": {
-      "bytes": 61539,
-      "sha256": "e17bc4260fdbc8c3749430e8cd9531bc8ff816e285f3f625f4694f623e30ee45"
+      "bytes": 64142,
+      "sha256": "fbd531df835602a29dac38338dc0e6ab85d234f6ab27a5517e0b1743ebc1cca5"
     },
     "docs/testing/evidence/L3-I5/canonical/Campaigns.json": {
       "bytes": 97062,
@@ -11793,7 +11793,48 @@
     "decision_date": "2026-11-01",
     "decision_authority": "Responsable du programme Pocoma V3",
     "decision_source": "docs/v3/L3_Identity_Closure.md",
-    "l4_go_scope": "Framing only after verified publication"
+    "l4_go_scope": "Framing only after verified publication",
+    "post_closure_resolution": {
+      "date": "2026-11-02",
+      "baseline_sha": "3bba9dbaa4fedfe040ed9f7e5d7ca2239b1ddab7",
+      "decision": "B — Conversion en benchmark + couverture fonctionnelle déterministe",
+      "benchmark_extracted": {
+        "classname": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingContentionBenchmark",
+        "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingContentionBenchmark.java",
+        "bytes": 9551,
+        "sha256": "913579bf4165f9d5294faf53e8ff15e58261674dd50e9e3e83f70d0601dfd740",
+        "entrypoint": "public static void main(String[] args)",
+        "discovered_by_surefire_or_verify": false
+      },
+      "deterministic_test_replacement": {
+        "classname": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+        "method": "kConcurrentMultiWorkerBatchContentionAndUnsequencedControl",
+        "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingPostgresTest.java",
+        "bytes": 24406,
+        "sha256": "ef896f4023e19ac6aa4e547223c156d028045cc53ca8ae8941ee20dd5f980620",
+        "conditional_annotations_remaining": 0,
+        "class_test_count": 14
+      },
+      "verification": {
+        "reproducibility_runs": 5,
+        "targeted_verify_invocation_id": "0348906f6482435280fe9b099dd1856e",
+        "targeted_counts": {
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "fast_identity_invocation_id": "9418566de9e54eb780ea2ebbf0b93c70",
+        "fast_identity_counts": {
+          "tests": 65,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "explicit_benchmark_default_campaign": "PASS (48 runs, 5760 transactions)"
+      },
+      "historical_archives_preserved": true
+    }
   },
   "documentary_qualification_receipt": "docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json",
   "l4_framing_orientation": {

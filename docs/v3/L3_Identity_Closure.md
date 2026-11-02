@@ -57,6 +57,39 @@ ne vaut ni certification globale ni exception réutilisable pour d’autres test
 Les obligations SPEC-09/SPEC-10 PERF-01 restent dues. Toute évolution du source,
 des assertions ou du contrat impose son propre examen.
 
+### Résolution définitive post-clôture du SKIP exploratoire (2 novembre 2026)
+
+Conformément au mandat « L3/I5 — Résolution définitive du SKIP exploratoire », la
+tolérance temporaire `OPTIONAL_EXPLORATORY_PERFORMANCE` est levée pour les exécutions
+courantes et futures par application de l’issue **B — Conversion en benchmark +
+couverture fonctionnelle déterministe** depuis la baseline
+`3bba9dbaa4fedfe040ed9f7e5d7ca2239b1ddab7` :
+
+1. **Extraction en benchmark explicite hors découverte Surefire/JUnit :** la campagne
+   exploratoire de contention (grille `concurrence ∈ {1,4} × events ∈ {1,8} × familles ∈ {1,2}`,
+   3 répétitions alternées `enabled ∈ {false,true}`, chauffe 8, mesure 40, sortie
+   `STEP3B CSV`) est extraite dans
+   [`TerminalSequencingContentionBenchmark`](../../app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingContentionBenchmark.java)
+   (point d’entrée `main`, sans annotation JUnit ni suffixe `*Test`).
+2. **Couverture fonctionnelle déterministe inconditionnelle :** dans
+   [`TerminalSequencingPostgresTest`](../../app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingPostgresTest.java),
+   l’annotation `@EnabledIfSystemProperty(named = "step3b.measure", matches = "true")`
+   est supprimée et remplacée par le test inconditionnel
+   `kConcurrentMultiWorkerBatchContentionAndUnsequencedControl`, qui vérifie de
+   manière déterministe (a) le témoin `sequence = false` sous concurrence (4 workers,
+   barrières explicites `CountDownLatch`, 128 événements persistés, 0 position et
+   compteurs à 0) et (b) la contention réelle multi-workers/multi-familles
+   `sequence = true` (observation directe dans `pg_stat_activity` de la file d’attente
+   PostgreSQL `wait_event_type = 'Lock'` des 3 workers suiveurs derrière le détenteur
+   de `experiment.authority`, continuité exacte `1..64` par famille active, ordre
+   canonique `E:BUSINESS_EVENT → E:COMMAND_TERMINAL`, `terminalTrace` sur les 16
+   transactions).
+3. **Résultat de qualification :** `TerminalSequencingPostgresTest` exécute désormais
+   ses **14 tests inconditionnels (`14/0/0/0 PASS`)** sans propriété système
+   `-Dstep3b.measure=true`. Plus aucun `@EnabledIf*` ou `@Disabled*` ne subsiste sous
+   `app/`. Les archives et verdicts historiques O20/O21 au SHA `cfd3f645` demeurent
+   inchangés.
+
 ## O25 — portée réelle de l’audit et de la décision
 
 L’avis favorable de l’audit indépendant final O25 est **transmis par le responsable

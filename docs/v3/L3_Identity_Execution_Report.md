@@ -678,3 +678,51 @@ les mentions OPEN/PENDING que dans les historiques explicitement identifiés.
 Les résultats de ces contrôles sont **PASS** ; la liste exacte du diff et le SHA
 publié sont fournis dans le reçu final de livraison après push normal. Toutes
 les réserves ci-dessus et les reports L4/L5/L6–L8 demeurent applicables.
+
+## Résolution définitive du SKIP exploratoire — 2 novembre 2026
+
+Depuis la baseline `3bba9dbaa4fedfe040ed9f7e5d7ca2239b1ddab7` sur `feat/v3-architecture`,
+le SKIP conditionnel de
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
+(`@EnabledIfSystemProperty(named = "step3b.measure", matches = "true")`) est
+définitivement résolu selon l’option **B — Conversion en benchmark + couverture
+fonctionnelle déterministe** :
+
+- **Benchmark explicite hors découverte Surefire/JUnit :** création de
+  [`TerminalSequencingContentionBenchmark.java`](../../app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingContentionBenchmark.java),
+  exécutable explicitement via `main` sans être découvert comme test unitaire par
+  Surefire ni par `scripts/testing/verify.py`. Il conserve intégralement la grille
+  3B (`concurrence ∈ {1,4} × events ∈ {1,8} × familles ∈ {1,2}`, 3 répétitions
+  appariées `enabled ∈ {false,true}`, chauffe 8, mesure 40, contrôles de validité
+  et sortie `STEP3B CSV`).
+- **Test de concurrence déterministe inconditionnel :** remplacement dans
+  [`TerminalSequencingPostgresTest.java`](../../app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingPostgresTest.java)
+  par `@Test void kConcurrentMultiWorkerBatchContentionAndUnsequencedControl()`,
+  sans `@EnabledIfSystemProperty`. Ce test prouve de façon déterministe :
+  1. le témoin `sequence = false` sous concurrence à 4 workers synchronisés par
+     `CountDownLatch` (4 tx/worker × 4 événements × 2 familles = 16 tx / 128 événements :
+     `count("event") == 128`, `count("event_position") == 0`, `counter(family) == 0`,
+     trace `FINALIZATIONS_DONE < FLUSH < COMMIT` sans acquisition `E:` ni `POSITION:`) ;
+  2. la contention multi-workers/multi-familles `sequence = true` à 4 workers
+     (barrière explicite `afterFirstE` sur le worker 0, vérification dans
+     `pg_stat_activity` que les 3 workers suiveurs sont effectivement bloqués en
+     `wait_event_type = 'Lock'` derrière le détenteur de `experiment.authority`,
+     puis exécution de 16 tx / 128 événements vérifiant `continuous(BUSINESS_EVENT, 64)`,
+     `continuous(COMMAND_TERMINAL, 64)`, `counter(BINDING_FACT) == 0`,
+     `counter(USER_CREATED) == 0`, ordre canonique `E:` et `terminalTrace` sur les
+     16 collections).
+- **Preuves d’exécution :**
+  - 5 exécutions consécutives de `TerminalSequencingPostgresTest` : **14 tests,
+    0 failure, 0 error, 0 skipped — PASS** chacune (`4,412 s` à `4,621 s`).
+  - Collecteur `verify.py` isolé sur `TerminalSequencingPostgresTest` (invocation
+    `0348906f6482435280fe9b099dd1856e`) : **PASS (`14/0/0/0`)**, `issues: []`.
+  - Gate `python3 -B scripts/testing/verify.py FAST identity` (invocation
+    `9418566de9e54eb780ea2ebbf0b93c70`) : **PASS (`65/0/0/0`)**, `2,237 s`, `issues: []`.
+  - Inventaire effectif non filtré `CHANGE COMMAND` via `verify.py` : `1786`
+    invocations attendues, `discovery_issues: []`, `TerminalSequencingContentionBenchmark`
+    exclu de l’inventaire des tests, 14 méthodes inconditionnelles découvertes pour
+    `TerminalSequencingPostgresTest`.
+  - Exécution explicite complète de `TerminalSequencingContentionBenchmark` (48 runs,
+    5 760 transactions) : **PASS** (code 0).
+- Les archives et verdicts historiques O20/O21 au SHA `cfd3f645` demeurent
+  intégralement préservés.

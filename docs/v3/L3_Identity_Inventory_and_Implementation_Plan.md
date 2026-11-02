@@ -8,7 +8,10 @@ Baseline documentaire examinée : `ece3f5057808c4c99afd31d276acf043fe7872b4`.
 O20 et O25 : **SATISFIED WITH EXPLICIT RESERVATIONS** ; O21 : **SATISFIED WITH RESERVATIONS**.
 La classification `OPTIONAL_EXPLORATORY_PERFORMANCE` et la recevabilité du SKIP de
 `TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
-sont ratifiées nominativement pour la seule qualification interne L3/I5.
+sont ratifiées nominativement pour la seule qualification interne L3/I5 (SKIP
+définitivement résolu le 02-11-2026 par extraction dans `TerminalSequencingContentionBenchmark`
+et remplacement par le test déterministe inconditionnel
+`kConcurrentMultiWorkerBatchContentionAndUnsequencedControl`).
 O20 **2057/0/0/1** et O21 **1791/0/0/1** restent strictement **INCONCLUSIVE** ;
 [archives, compteurs et sources](../testing/evidence/L3-I5/canonical/Campaigns.json) inchangés.
 Les FAIL/UNPROVEN antérieurs et toutes les réserves L2/L3 sont conservés.

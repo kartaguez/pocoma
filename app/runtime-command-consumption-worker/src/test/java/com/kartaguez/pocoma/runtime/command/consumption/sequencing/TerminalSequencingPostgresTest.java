@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.*;
 import org.springframework.transaction.support.*;
@@ -59,10 +58,11 @@ class TerminalSequencingPostgresTest {
         assertEquals(0,f.sql.queryForObject(
             "select count(*) from pg_locks where pid=pg_backend_pid() and relation='experiment.authority'::regclass",Integer.class));
     }
-    static void continuous(Family family,long n) {
-        assertEquals(n,f.counter(family));
-        assertEquals(n,f.sql.queryForObject("select count(*) from experiment.event_position where family=?",Long.class,family.name()));
-        assertEquals(n,f.sql.queryForObject("""
+    static void continuous(Family family,long n) { continuous(f,family,n); }
+    static void continuous(TerminalSequencingFixture fixture,Family family,long n) {
+        assertEquals(n,fixture.counter(family));
+        assertEquals(n,fixture.sql.queryForObject("select count(*) from experiment.event_position where family=?",Long.class,family.name()));
+        assertEquals(n,fixture.sql.queryForObject("""
             select count(*) from generate_series(1,?) n
             join experiment.event_position p on p.family=? and p.position=n
             join experiment.event e on e.family=p.family and e.event_id=p.event_id
@@ -291,51 +291,93 @@ class TerminalSequencingPostgresTest {
         }));
         assertEquals(0,f.count("event")); assertEquals(0,f.counter(BUSINESS_EVENT));
     }
-    @Test @EnabledIfSystemProperty(named="step3b.measure",matches="true")
-    void zExploratoryContentionSeparateFromCorrectness() throws Exception {
-        System.out.println("STEP3B MEASURE warmup=8/worker measured=40/worker repeats=3; fresh connection/transaction; mean/median/p95/max/sd in us");
-        for(int concurrency:List.of(1,4)) for(int eventCount:List.of(1,8)) for(int families:List.of(1,2)) {
-            for(int repeat=0;repeat<3;repeat++) for(boolean enabled:repeat%2==0?List.of(false,true):List.of(true,false)) {
-                f.reset(); TerminalSequencingFixture measured=new TerminalSequencingFixture(ds,enabled);
-                ExecutorService workers=Executors.newFixedThreadPool(concurrency);
-                List<Long> latency=Collections.synchronizedList(new ArrayList<>());
-                List<Long> wait=Collections.synchronizedList(new ArrayList<>()),hold=Collections.synchronizedList(new ArrayList<>());
-                CountDownLatch ready=new CountDownLatch(concurrency),start=new CountDownLatch(1);
-                List<Future<?>> tasks=new ArrayList<>();
-                try {
-                    for(int worker=0;worker<concurrency;worker++) tasks.add(workers.submit(() -> {
-                        for(int i=0;i<8;i++) measureTransaction(measured,eventCount,families,null,null,null);
-                        ready.countDown(); await(start);
-                        for(int i=0;i<40;i++) measureTransaction(measured,eventCount,families,latency,wait,hold);
-                    }));
-                    await(ready); long begin=System.nanoTime(); start.countDown();
-                    for(Future<?> task:tasks) task.get(60,TimeUnit.SECONDS);
-                    double seconds=(System.nanoTime()-begin)/1e9;
-                    assertEquals((8+40)*concurrency*eventCount*families,measured.count("event"));
-                    if(enabled) for(Family family:families==1?List.of(BUSINESS_EVENT):List.of(BUSINESS_EVENT,COMMAND_TERMINAL))
-                        continuous(family,(8+40)*concurrency*eventCount);
-                    else assertEquals(0,measured.count("event_position"));
-                    System.out.printf(Locale.ROOT,"STEP3B CSV,%d,%d,%d,%d,%s,%d,%.3f,%s,%s,%s%n",repeat,concurrency,eventCount,families,
-                        enabled,latency.size(),latency.size()/seconds,stats(latency),stats(wait),stats(hold));
-                } finally { start.countDown(); workers.shutdownNow(); assertTrue(workers.awaitTermination(15,TimeUnit.SECONDS)); }
+    @Test void kConcurrentMultiWorkerBatchContentionAndUnsequencedControl() throws Exception {
+        TerminalSequencingFixture unsequenced=new TerminalSequencingFixture(ds,false);
+        CountDownLatch unseqReady=new CountDownLatch(4),unseqStart=new CountDownLatch(1);
+        List<Collection> unseqCollections=Collections.synchronizedList(new ArrayList<>());
+        List<Future<?>> unseqTasks=new ArrayList<>();
+        for(int worker=0;worker<4;worker++) unseqTasks.add(pool.submit(() -> {
+            unseqReady.countDown(); await(unseqStart);
+            for(int tx=0;tx<4;tx++) unseqCollections.add(unsequenced.runner.runInTransaction(() -> {
+                for(int i=0;i<4;i++) { unsequenced.publish(BUSINESS_EVENT); unsequenced.publish(COMMAND_TERMINAL); }
+                return unsequenced.current();
+            }));
+        }));
+        try { await(unseqReady); unseqStart.countDown(); for(Future<?> task:unseqTasks) get(task); }
+        finally { unseqStart.countDown(); }
+        assertEquals(16,unseqCollections.size()); assertEquals(128,unsequenced.count("event"));
+        assertEquals(0,unsequenced.count("event_position"));
+        for(Family family:Family.values()) assertEquals(0,unsequenced.counter(family));
+        for(Collection c:unseqCollections) {
+            assertFalse(c.trace.stream().anyMatch(s -> s.startsWith("E:")||s.startsWith("POSITION:")));
+            assertTrue(c.trace.indexOf("FINALIZATIONS_DONE")<c.trace.indexOf("FLUSH"));
+            assertTrue(c.trace.indexOf("FLUSH")<c.trace.indexOf("COMMIT"));
+        }
+
+        f.reset();
+        CountDownLatch firstAcquired=new CountDownLatch(1),releaseFirst=new CountDownLatch(1),followersReady=new CountDownLatch(3);
+        CompletableFuture<Integer> holderPid=new CompletableFuture<>();
+        List<CompletableFuture<Integer>> waiterPids=List.of(new CompletableFuture<>(),new CompletableFuture<>(),new CompletableFuture<>());
+        List<Collection> seqCollections=Collections.synchronizedList(new ArrayList<>());
+        List<Future<?>> seqTasks=new ArrayList<>();
+        seqTasks.add(pool.submit(() -> {
+            seqCollections.add(f.runner.runInTransaction(() -> {
+                Collection c=f.current(); holderPid.complete(c.pid);
+                for(int i=0;i<4;i++) { f.publish(BUSINESS_EVENT); f.publish(COMMAND_TERMINAL); }
+                c.afterFirstE=() -> { firstAcquired.countDown(); await(releaseFirst); };
+                return c;
+            }));
+            for(int tx=0;tx<3;tx++) seqCollections.add(f.runner.runInTransaction(() -> {
+                for(int i=0;i<4;i++) { f.publish(BUSINESS_EVENT); f.publish(COMMAND_TERMINAL); }
+                return f.current();
+            }));
+        }));
+        try {
+            await(firstAcquired);
+            for(int w=0;w<3;w++) {
+                int idx=w;
+                seqTasks.add(pool.submit(() -> {
+                    followersReady.countDown(); await(followersReady);
+                    for(int tx=0;tx<4;tx++) {
+                        int txIdx=tx;
+                        seqCollections.add(f.runner.runInTransaction(() -> {
+                            Collection c=f.current();
+                            if(txIdx==0) waiterPids.get(idx).complete(c.pid);
+                            for(int i=0;i<4;i++) { f.publish(BUSINESS_EVENT); f.publish(COMMAND_TERMINAL); }
+                            return c;
+                        }));
+                    }
+                }));
             }
+            int holder=get(holderPid);
+            List<Integer> waiters=List.of(get(waiterPids.get(0)),get(waiterPids.get(1)),get(waiterPids.get(2)));
+            long deadline=System.nanoTime()+Duration.ofSeconds(10).toNanos();
+            while(true) {
+                var rows=f.sql.queryForList("""
+                    select pid,backend_xid,wait_event_type,wait_event,query,pg_blocking_pids(pid) blockers,
+                           ?=any(pg_blocking_pids(pid)) direct_holder,
+                           pg_blocking_pids(pid) <@ array[?,?,?,?]::integer[] in_cluster
+                    from pg_stat_activity where pid in (?,?,?) and wait_event_type='Lock' and cardinality(pg_blocking_pids(pid))>0
+                    """,holder,holder,waiters.get(0),waiters.get(1),waiters.get(2),waiters.get(0),waiters.get(1),waiters.get(2));
+                if(rows.size()==3) {
+                    System.out.println("STEP3B BLOCK " + rows);
+                    assertTrue(rows.stream().anyMatch(r -> Boolean.TRUE.equals(r.get("direct_holder"))));
+                    assertTrue(rows.stream().allMatch(r -> Boolean.TRUE.equals(r.get("in_cluster"))));
+                    break;
+                }
+                if(System.nanoTime()>=deadline) fail("no 3-waiter PostgreSQL lock queue on authority: " + rows);
+                Thread.onSpinWait();
+            }
+        } finally { releaseFirst.countDown(); }
+        for(Future<?> task:seqTasks) get(task);
+        assertEquals(16,seqCollections.size()); assertEquals(128,f.count("event"));
+        assertEquals(128,f.count("event_position"));
+        continuous(BUSINESS_EVENT,64); continuous(COMMAND_TERMINAL,64);
+        assertEquals(0,f.counter(BINDING_FACT)); assertEquals(0,f.counter(USER_CREATED));
+        for(Collection c:seqCollections) {
+            assertEquals(List.of("E:BUSINESS_EVENT","E:COMMAND_TERMINAL"),
+                c.trace.stream().filter(s -> s.startsWith("E:")).toList());
+            terminalTrace(c);
         }
-    }
-    static void measureTransaction(TerminalSequencingFixture m,int events,int families,List<Long> latency,List<Long> wait,List<Long> hold) {
-        long begin=System.nanoTime();
-        Collection c=m.runner.runInTransaction(() -> {
-            for(int i=0;i<events;i++) { m.publish(BUSINESS_EVENT); if(families==2) m.publish(COMMAND_TERMINAL); }
-            return m.current();
-        });
-        if(latency!=null) {
-            latency.add(System.nanoTime()-begin); wait.add(c.waitNanos); hold.add(c.acquiredNanos==0?0:c.endNanos-c.acquiredNanos);
-        }
-    }
-    static String stats(List<Long> values) {
-        long[] a=values.stream().mapToLong(Long::longValue).sorted().toArray();
-        double mean=Arrays.stream(a).average().orElseThrow();
-        double sd=Math.sqrt(Arrays.stream(a).mapToDouble(v -> (v-mean)*(v-mean)).average().orElseThrow());
-        return String.format(Locale.ROOT,"%.1f/%.1f/%.1f/%.1f/%.1f",mean/1000,a[(a.length-1)/2]/1000.0,
-            a[(int)Math.ceil(a.length*.95)-1]/1000.0,a[a.length-1]/1000.0,sd/1000);
     }
 }
