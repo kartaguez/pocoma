@@ -4,7 +4,9 @@
 
 **Branche et HEAD examinés :** feat/v3-architecture — e11d3372bad9ff88e30d4645b46fe6211829c001.
 
-**Statut : READY WITH OPEN ARBITRATIONS — audit indépendant du plan attendu.**
+**Statut consolidé au 2 novembre 2026 : READY FOR I1 IMPLEMENTATION REVIEW.**
+
+Référence de consolidation : `e9729ae20531f688a7eb16a2642c0f3e7b82fece`, locale et distante vérifiées identiques par fetch ; worktree initial propre, quatre autres worktrees examinés et préservés. Les constats historiques ci-dessous restent attribués au HEAD initial `e11d3372…`. L’avis indépendant **GO WITH RESERVATIONS L4/I1** et les dix amendements sont transmis par le mandat humain ; son rapport original n’est pas fourni dans le dépôt sous un nom identifiable. Cette consolidation vérifie les affirmations dans les sources, sans revendiquer un nouvel audit indépendant. Le [plan autonome I1](L4_I1_Implementation_Plan.md) fixe le contrat à soumettre à la revue et au GO humain distinct.
 
 **Aucune autorisation d’implémentation L4/I1.**
 
@@ -25,11 +27,11 @@ Les décisions D1–D4 du §5 précisent ce report. Les constats de code et le b
 de la mission initiale restent attribués à leur référence d’examen ci-dessus ;
 ils ne constituent pas une nouvelle vérification applicative.
 Cet amendement documentaire ne vaut ni acceptation globale du plan, ni GO L4/I1.
-Le plan amendé reste soumis à audit indépendant avant décision humaine distincte.
+Cette phrase décrit l’état du 1er novembre ; la consolidation du 2 novembre ci-dessus intègre l’avis transmis et prépare la revue I1 avant décision humaine distincte.
 
 ## 1. Synthèse exécutive
 
-**Le plan L4 peut être soumis à audit indépendant, avec un arbitrage technique ouvert sur la frontière de préparation et de recovery du moteur L2. Aucun démarrage d’implémentation n’est proposé dans cette mission.**
+**Le plan audité est consolidé pour la revue d’implémentation I1. Les réserves de préparation/recovery restent en I2 et celles d’activation en I8 ; aucune ne force I2 avant I1. Aucun démarrage d’implémentation n’est autorisé par cette mission.**
 
 L’approche A est conservée : modules Maven actuels, classification logique Fondation/Branchement, réutilisation conditionnelle des preuves. Aucune extraction Maven ni nouvelle certification L2 n’est nécessaire au cadrage.
 
@@ -104,6 +106,21 @@ Les quatre autres worktrees recensés sont restés intacts : audit de vérificat
 **Commandes exécutées :** lectures avec cat, nl, sed, rg, wc, head, tail ; commandes Git de statut, références, inventaire et diff ; scripts Python ponctuels avec -B, uniquement pour lire les POM et l’inventaire JSON historique.
 
 **Aucun Maven, PostgreSQL, bootstrap, collecteur de campagne, modification de fichier, commit ou push.** verify.py, y compris son mode dry-run, n’a pas été exécuté.
+
+### Traçabilité de la consolidation A01–A10
+
+| Amendement | Intégration contractuelle | Incrément |
+|---|---|---|
+| A01 | §6.2 : capacité PreparationReads, durée de vie, résolution irréversible | I2 |
+| A02 | §6.5 : table de décision recovery checkpoint/slot/preuves | I2 puis participants I3–I7 |
+| A03 | §6.2 : conservation des snapshots Command, verrous Identity et READ_COMMITTED final | I2 |
+| A04 | §7.3 et plan I1 §§2–4 : clé, huit contenus, égalité, codec, SQL et insertion | I1 |
+| A05 | §9/I1 et plan I1 §§5–8 : vrais slots/owner READ et oracles physiques | I1 |
+| A06 | §9/I5 : ensemble visible à version égale, garde, readiness et tombstones | I5 |
+| A07 | §8 : configuration et ressources des six participants, deux racines | I8 |
+| A08 | §7.2 : composition typée autonome, manifeste canonique et UUID PostgreSQL | I3 ; ordre/clé réutilisés dès I1 |
+| A09 | §11.5 : attribution nominative, dirty, O20/O21, limites de r05/r12 | Chaque réutilisation ; ressources I8 |
+| A10 | §9/I7 : issues Command et Identity réellement définies, requesterEui et égalité | I7 |
 
 ### Sources
 
@@ -422,7 +439,7 @@ Références : [Engine, lignes 554–561](../../app/engine-consumption/src/main/
 
 **Il serait incorrect de simplement injecter un owner WRITE et de l’appeler depuis la préparation READ actuelle.**
 
-#### Proposition précise soumise à arbitrage
+#### A01/A03 — Proposition bornée soumise à arbitrage I2
 
 Faire évoluer **le contrat L2 existant**, sans second protocole :
 
@@ -442,6 +459,12 @@ Forme proposée, à figer à l’audit d’I2 :
     }
 
 prepare(id, reads) peut alors orchestrer les lectures séquentielles nécessaires. L2 conserve les owners physiques, la résolution et la classification des issues.
+
+Contrat obligatoire à figer avant code I2 : capacité créée et contrôlée **exclusivement par L2**, valable pour **une seule préparation**, son thread et son callback propriétaires. Aucun participant ne construit ni prolonge cette capacité. Scopes source/effets strictement séquentiels, jamais imbriqués/concurrents ; fermeture et **résolution physique qualifiée** de chaque scope avant le suivant. Les contextes étrangers/expirés sont refusés ; les résultats retournés sont complètement détachés (ni connexion, curseur, stream JDBC, proxy JPA paresseux ou entité attachée).
+
+L2 détient un état d’invalidation ou d’incertitude **irréversible** pour la préparation : scope mal résolu, erreur invalidante ou UNKNOWN interdit tout scope suivant et toute finalisation, même si le participant intercepte l’exception. Un simple retour Java ou timeout ne prouve pas la fin physique. Interruption, annulation, capacité réservée, renouvellements et drainage conservent leurs garanties L2 ; aucun ticket libéré sur une issue non résolue. Ce mécanisme n’est pas implémenté en I1 ni par le présent amendement.
+
+**Préservation WRITE (A03)** : la préparation Command reste un **snapshot unique WRITE** pour la demande, l’autorité Identity et les faits Pot ; elle ne doit pas être éclatée entre appels source/effets susceptibles d’observer des instants différents. IdentityRequest continue de décider la transition **sous les verrous de finalisation EUI en ordre canonique**, comme `ExecuteIdentityRequest`, et non dans un snapshot préparatoire substitué aux verrous. Les transactions finales existantes restent **READ_COMMITTED**, afin de voir l’autorité committée après attente. Aucun changement du protocole métier WRITE (intention, CAS, résultat, publication, fencing, budget). I2 doit lister preuves invalidées/conservées/à produire : préparation, scopes/owners et recovery affectés à requalifier ; transitions et routage inchangés réutilisables seulement après comparaison ; non-régression Command/Identity réelle obligatoire. Sources : [contrat L1-C](L1_C_Transaction_Contract.md), [ExecuteIdentityRequest](../../app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequest.java), [SpringAttemptTransactions](../../app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java).
 
 Pour recovery, préparer hors transaction READ les **références source immuables** nécessaires, puis effectuer l’observation effective dans le snapshot READ L2. Une observation préparée, non persistée, peut capturer ces références ; elle ne capture aucun verdict de commit.
 
@@ -510,6 +533,27 @@ Ces conditions doivent être examinées ensemble. **Un pointeur monotone plus r�
 
 Un slot encore présent peut coexister légitimement avec un contenu immuable déjà identique ou une projection mutable plus récente. L’observation doit alors rester NOT_COMPLETED, sans transformer cette coexistence en fausse corruption.
 
+#### A02 — Table de décision recovery à réaliser en I2
+
+L’observation technique combine **checkpoint de la Consumption C concernée**, partition calculée/famille/position source éligible, slot natif `(C,eventId)` et **preuves métier de publication**. Checkpoint, slot et effets sont lus dans **un même snapshot READ cohérent** L2 ; les références historiques immuables WRITE sont préparées séparément avant ce snapshot, jamais lues via une connexion WRITE cachée dans la transaction READ. Aucun reçu durable supplémentaire ni état UNKNOWN SQL. Les quatre résultats L2 restent `COMPLETED`, `NOT_COMPLETED`, `INCONSISTENT`, `UNAVAILABLE`. Les lignes nominales ci-dessous supposent une source valide et un enrôlement cohérent ; incohérence démontrée de routage/checkpoint/source → INCONSISTENT, impossibilité de les observer → UNAVAILABLE avant tout verdict de complétion.
+
+| Cas dans le snapshot READ | Résultat / condition |
+|---|---|
+| Slot présent, effets requis absents | NOT_COMPLETED, même si checkpoint couvre ; la disparition du slot n’est pas présumée |
+| Slot présent, effets identiques préexistants | NOT_COMPLETED : déduplication légitime ; ni fausse complétion ni corruption par simple présence de l’effet |
+| Slot absent, checkpoint C/p couvrant la position éligible et preuves métier conformes | COMPLETED ; l’effet seul ou le checkpoint seul ne suffit pas |
+| Slot absent, sans couverture C/p établie | INCONSISTENT pour un événement prétendu enrôlé ; absence ne prouve aucune complétion. Si la couverture ne peut être lue, UNAVAILABLE |
+| Slot absent, couverture établie mais preuve métier obligatoire manquante | INCONSISTENT, aucune reconstruction/réparation pendant observation |
+| Effet divergent/corrompu | INCONSISTENT, slot présent ou absent ; ne pas convertir en succès ni réécrire |
+| Observation techniquement indisponible (READ ou référence source) | UNAVAILABLE, conserver l’incertitude ; aucun retry/cession spéculatif |
+| Balance(D) | Source exacte prouve D, absence de Balance(D) conforme ; slot présent → NOT_COMPLETED ; absent + checkpoint couvrant → COMPLETED ; Balance(D) présente → INCONSISTENT |
+| Visibility obsolète V<G | Garde/état courant cohérents ; slot présent → NOT_COMPLETED ; absent + couverture → COMPLETED sans exiger l’ensemble ancien encore courant ; garde récente seule insuffisante |
+| CurrentBinding dépassé V<W | Même règle technique ; vérifier cohérence de l’état W, ne pas exiger qu’il reproduise le contenu de V, ne pas déduire l’exécution de V du seul W |
+
+PotVersion et balances actives exigent toujours leurs preuves **exactes à V**, même si un pointeur supérieur existe. Pour Visibility/Binding à version égale, comparer le contenu complet attendu ; divergence → INCONSISTENT. La préparation des références n’emporte jamais de verdict de commit ; NOT_COMPLETED après UNKNOWN ne prouve pas un rollback. Aucune mutation, nouvelle tentative ou cession à partir de cette seule observation.
+
+**Écart technique actuel assumé** : Engine combine aujourd’hui une observation participante et le slot (`COMPLETED`+slot présent → INCONSISTENT), sans transmettre le checkpoint/slot au participant. I2 doit rendre disponibles ces faits techniques dans son observation bornée, comme proposé §6.2. Ne pas imposer ce recovery étendu à la fixture technique I1 ni présenter le comportement cible comme déjà livré.
+
 ### 6.6 Échecs, retry et incertitude
 
 | Situation | Traitement |
@@ -570,7 +614,15 @@ Elles restent inchangées.
 
 Cette proposition aboutit à neuf tables métier pour les huit projections L4, parce que la navigation comporte une garde et des entrées. **Le nombre résulte des responsabilités, pas du nombre normatif de projections.**
 
-#### Représentation
+#### A08 — Représentation canonique PotVersion (I3, sans livraison I1)
+
+Contrat interne proposé : racine JSONB `schema_version=1`, colonnes `(pot_id,pot_version)` et composition **typée complète à V**. Références exactes : Pot `{headerLocalVersion,detailsLocalVersion}` avec objet=Pot ; Shareholders `{shareholderId,headerLocalVersion,detailsLocalVersion,weightLocalVersion,deleted,isFree}` ; Expenses `{expenseId,headerLocalVersion,detailsLocalVersion,financialsLocalVersion,deleted}`. Le Header local détermine l’état supprimé, sans effacer les références historiques ; les listes recensent les objets existant à V et leurs états, jamais des objets futurs. Le manifeste Expense ne se contente pas d’une version globale ou d’un seul identifiant : il contient les trois versions locales nécessaires aux détails exacts. Aucun payload financier dupliqué dans la composition.
+
+Tableaux triés par UUID PostgreSQL : comparaison des 16 octets **non signés**, ou chaînes UUID canoniques minuscules de largeur fixe ; **pas `UUID.compareTo` Java signé**. Références uniques par identité et kind, versions positives, appartenance au Pot et correspondance des métadonnées vérifiées. Formes inconnues/corrompues et références dupliquées refusées avant conversion en map. `authorizedUserIds` = créateur ∪ utilisateurs des Shareholders actifs à V ; `attachedActiveUserIds` = utilisateurs effectivement rattachés à ces Shareholders, **sans ajout automatique du créateur**. Deux ensembles internes distincts, chacun intentionnellement dédupliqué et trié ; un utilisateur multi-Shareholders apparaît une fois, sans supprimer de référence Shareholder. `isFree` correspond à l’absence de userId dans la sous-version exacte et ne l’expose pas au client.
+
+Égalité métier : identité/version globale, composition entière, versions locales, états, indicateurs et ensembles internes ; indépendante de l’ordre des propriétés JSONB et des métadonnées eventId/tentative/horloge. Codec strict et comparaison typée, aucune égalité textuelle ou digest seul. Un autre schema_version est refusé tant qu’un contrat d’évolution n’est pas accepté. Reconstruction directe WRITE@V, sans dépendance à PotVersion(V−1). I3 vérifiera groupé l’existence/décodage de toutes ces sous-versions avant readiness et pointeur ; I1 ne crée aucune valeur ni table de manifeste. Source : [SPEC-04 §§3/12](SPEC-04_Read_Projections.md).
+
+#### Représentation commune
 
 Proposition :
 
@@ -592,6 +644,10 @@ Les références JSONB vers les sous-versions ne bénéficient pas d’une FK é
 Aucune FK de Balance vers PotVersion : elle créerait une dépendance entre participants indépendants.
 
 ### 7.3 Immutabilité — sémantique obligatoire
+
+**A04 — Contrat I1 figé pour revue** : clé exacte `(pot_id,kind,object_id,local_version)`, huit kinds seulement (`POT_HEADER`, `POT_DETAILS`, `SHAREHOLDER_HEADER`, `SHAREHOLDER_DETAILS`, `SHAREHOLDER_WEIGHT`, `EXPENSE_HEADER`, `EXPENSE_DETAILS`, `EXPENSE_FINANCIALS`). Les deux kinds Pot imposent object_id=pot_id, comme le [DDL source](../../app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V1__pot_components.sql). Identités et versions locales ne sont ni revision_id ni version globale. Le [plan I1 §3](L4_I1_Implementation_Plan.md#3-contrats-figés-i1-a04-partie-i1-de-a3) définit tous les champs contractuels, exclusions d’égalité, codecs stricts, signatures du port, batchs et erreurs ; §4 fixe colonnes/contraintes/droits/immutabilité et migration V2 cumulative. Ce contrat remplace les simples suggestions de ce cadrage pour I1, sans modifier les SPEC.
+
+Ordre final : slot protégé par L2, puis sous-versions triées par Pot UUID PostgreSQL/kind à rang fixe/objet UUID PostgreSQL/version locale, puis en I3 seulement PotVersion et CurrentPot. INSERT ON CONFLICT DO NOTHING, **SELECT séparé à READ_COMMITTED** après résolution du conflit, décodage et comparaison complète du contenu réellement committé. Un CTE sur le snapshot précédent ne suffit pas. Les erreurs de validation/codec/divergence/SQL restent sous garde et poisoning même interceptées. Aucune mutation d’immuable.
 
 | Cas | Sémantique |
 |---|---|
@@ -617,7 +673,7 @@ Mécanisme PostgreSQL recommandé :
 
 Pas de DO UPDATE sur les valeurs immuables. Un digest peut accélérer ou diagnostiquer, **mais ne remplace pas seul l’égalité de contenu**.
 
-La comparaison exclut les données variables de traitement : heure de projection, compteur de tentative et activeTo WRITE. Une sous-version réutilisée par plusieurs PotVersion ne doit pas devenir divergente à cause d’un autre eventId consommateur.
+La comparaison exclut les données variables de traitement : heure de projection, compteur de tentative, activeFrom/activeTo WRITE, revision_id et writer_xid source. Une sous-version réutilisée par plusieurs PotVersion ne doit pas devenir divergente à cause d’un autre eventId consommateur.
 
 #### Limite du chargement sélectif
 
@@ -649,6 +705,8 @@ Ordre proposé :
 11. installation/vérification administrative des contrats de routage.
 
 Les objets 4–8 arrivent dans leurs incréments, pas tous en I1.
+
+Pour I1 : localisation métier `db/v3-read-business/migration`, **V2__subobject_version.sql** proposée (V2 libre dans la chaîne V3 READ à la référence, à recontrôler avant code), même `flyway_schema_history` et schéma non-public que V1 L2, localisations cumulatives. Sur extension peuplée avec historique V1 valide, Flyway n’exécute que V2 ; pas de baselineOnMigrate, second historique ni reset. La chaîne historique READ V1–V14 n’est pas chargée dans cette chaîne V3. [Parcours détaillés I1 §4](L4_I1_Implementation_Plan.md#4-migration-postgresql-current-v3).
 
 **Attention VERIFIED :** la migration L2 V1 refuse une cible non vide. Elle ne doit pas être rejouée sur une autorité READ déjà peuplée lors de l’ajout des tables métier.
 
@@ -760,6 +818,10 @@ Les lectures source utilisent explicitement l’owner WRITE ; les effets utilise
 
 La composition actuelle impose notamment des réserves M_W+2 business et M_W+6 control ; elles ne deviennent pas automatiquement une preuve de capacité pour six nouveaux participants. Voir [composition lifecycle, lignes 83–117](../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java#L83).
 
+**A07 — Dossier d’activation I8 obligatoire** : pour chacun des six participants du tableau catalogue, figer nom↔UUID↔famille, filtre de sujet, autorité READ, settings/allowlists, candidatures de partitions et capacités locales/globales (`M_C`, `M_W`, batch, softCap), intervalles et budgets complets de leases/claims/renewals, timeouts et hypothèses de pauses/latence. Les quatre partitions du contrat durable restent la référence, pas un paramètre modifiable implicitement. Comptabiliser tous les participants WRITE et READ coexistants et toutes les instances dans la capacité PostgreSQL globale, connexions admin/observation et réserves serveur incluses ; distinguer maximum configuré, connexions physiques mesurées et disponibilité sous saturation.
+
+Les réservations business/control doivent laisser progresser Discovery/renewals pendant les préparations et finalisations longues, et rester protégées en UNKNOWN/DRAINING. Les quatre pools sont une **hypothèse initiale à qualifier**, pas une topologie déjà démontrée pour six participants. Les budgets `M_W+2`/`M_W+6`, paramètres et leases du pilote ne se transfèrent pas automatiquement. Préflights de cibles, routage, droits effectifs, identités datasource/owner et exposition auxiliaire ; exclusion vérifiée des chemins Task/Binding/Result legacy et des probes dans les compositions métier V3. Tests de démarrage/refus, régime chargé, arrêt d’admissions, drainage, arrêt qualifié ou CRASH explicite, puis reprise sans reset/fencing, dans **le runtime PROJECTION existant et le monolithe**. Aucun nouveau processus imposé par participant.
+
 I8 devra prouver :
 
 - renouvellements malgré préparations longues ;
@@ -794,7 +856,7 @@ Maven/runtimes n’est un préalable ou un critère de sortie I1–I8.
 - **Modules :** domain-projection, port-projection, infra-persistence-read-jdbc ; tests d’assemblage bornés dans la fermeture PROJECTION.
 - **Contrat :** première insertion, duplication identique, divergence, batch présence/lecture, transaction appelante obligatoire.
 - **Migrations :** table, PK, checks, droits, protection d’immutabilité.
-- **Tests :** courses identiques/divergentes, rollback après insertion et suppression du slot, exception interceptée/poisoning, datasource étrangère, écriture hors owner, restart sans reset.
+- **Tests (A05) :** insertion identique/divergente, courses identiques/divergentes, conflit SQL suivi de lecture du contenu réellement committé ; erreur interceptée/poisoning, mauvais owner physique, contexte étranger/expiré ; rollback après tentative DELETE du slot, contrainte différée rejetée au vrai commit, ACK de commit perdu/UNKNOWN, fermeture incorrecte et tentative de finalisation sans readiness effective. [Protocole et matrice I1 §§5–6](L4_I1_Implementation_Plan.md#5-preuve-transactionnelle-avec-l2-réel-a05) : vraie transaction READ possédée par L2, slot acquis/protégé/supprimé par ses stores réels, témoins PG PID/XID des effets et DELETE dans la même unité, contre-oracle deux connexions. Une transaction simulée ou créée par le store ne constitue pas cette preuve.
 - **Gates :** G-I1 du §11.
 - **Preuves réutilisables :** fondation physique I1/I2 L2 sous hypothèses inchangées ; aucune preuve métier.
 - **Acceptation :** zéro divergence silencieuse ; zéro effet orphelin ; quatre tables L2 inchangées.
@@ -877,6 +939,8 @@ I4 peut être vérifié sans attendre que MaterializePotVersion ait traité le m
 - **Livrables :** participant inactif, requêtes keyset et plans SQL.
 - **Passage :** courses et absence de fuite interutilisateurs démontrées en interne.
 
+**A06 — Contrat I5** : sous la garde collective **par Pot**, V=G exige la comparaison de **l’ensemble visible complet** avec l’ensemble préparé à V ; égalité = idempotence, divergence = anomalie technique et rollback, jamais un no-op silencieux. Pour V>G, readiness relit le résultat entier du différentiel (visibles attendus, désactivations/tombstones et garde G=V), avant complete. Les tombstones restent conservées et les entrées invisibles ne participent pas au scan différentiel ; V<G ne recule ni garde ni ligne et complète normalement le slot sous les conditions techniques. L’état récent ne prouve pas l’exécution de cet ancien slot (table §6.5).
+
 Une ligne inchangée peut conserver un potVersion inférieur à celui de la garde. Elle ne doit pas servir d’indicateur global de fraîcheur.
 
 ### I6 — CurrentBinding
@@ -908,10 +972,14 @@ CurrentBinding@V signifie ici « état projeté de cette EUI à sa version local
 - **Tests :** succès, no-op, rejet, token invalide, Registration sans Binding initial, EUI commune à plusieurs sessions, EUI distinctes liées au même User, Link/Unlink/re-Link, courses et commits inconnus.
 - **Gates :** G-I7.
 - **Capitalisation :** provenance et terminalisation WRITE L1/L3 ; les anciens tests Result ne prouvent pas la source V3.
-- **Acceptation :** requesterEui strictement recopiée ; CHANGED/UNCHANGED→COMPLETED ; REJECTED→REJECTED ; aucun FAILED technique/PENDING/EXPIRED inventé.
+- **Acceptation :** requesterEui strictement recopiée depuis la demande durable ; mappings distincts par modèle décrits ci-dessous ; aucun FAILED technique/PENDING/EXPIRED inventé.
 - **Risques :** lecture du seul événement, attribution au User courant, confusion cible/initiateur.
 - **Livrables :** deux participants inactifs et preuves A10 internes.
 - **Passage :** résultats accessibles en interne avant toutes les projections métier ; ownership inchangé après mutations Identity.
+
+**A10 — Issues terminales exactes I7** : Command WRITE `CHANGED` ou `UNCHANGED` → READ `COMPLETED` avec resultingPotVersion exacte (nouvelle V ou V courante inchangée) ; `REJECTED` → READ `REJECTED` avec motif, sans resultingPotVersion. IdentityRequest WRITE, suivant [IdentityRequestStore.Result](../../app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestStore.java), n’a que **CHANGED et REJECTED** : CHANGED → READ COMPLETED avec EUI cible/targetVersion ; REJECTED → READ REJECTED avec motif, sans cible/version de succès. **Aucun UNCHANGED Identity artificiel.** La liste de tests « no-op » ci-dessus concerne Command ; Registration/Link/Unlink conservent leurs transitions réelles. Aucun FAILED technique parmi les résultats métier V3.
+
+Lire demande ET terminal via requestId de complétion ; copier requesterEui `(issuer,subject)` de l’admission durable, jamais du User ou Binding courant. Comparer immuablement **tous les champs contractuels de chaque ligne** : requestId, opération, requesterEui, issue READ et issue WRITE conservée si le modèle la porte, resultingPotVersion pour Command, EUI cible/targetVersion pour Identity, motif de rejet, et toute provenance contractuelle effectivement stockée. Tokens, état d’autorité copié et métadonnées variables de tentative ne font pas partie du résultat. La forme et nullité de chaque variante sont contrôlées ; aucune réparation d’un résultat divergent. Sources : [SPEC-04 §7](SPEC-04_Read_Projections.md#7-résultats-terminaux), [PotCommandStore](../../app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandStore.java).
 
 ### I8 — Assemblage actif et qualification L4
 
@@ -1094,11 +1162,27 @@ Sources historiques capitalisables, **DOCUMENTED_ONLY ici** :
 | L2 I4 Discovery | 0b08d3bf0bfce1334260cfd5249b13c3040a67bb | Sources réelles et fixtures distinguées |
 | L2 I5 | SHAs distincts du dossier de clôture | Anciennes observations temporelles non converties en PASS |
 | L3 O20/O21 | cfd3f6458f7de61945bd3f73cb71c794dddf9e57 | Verdicts stricts INCONCLUSIVE, pas de preuve READ |
-| Requalification nominative r05/r12 | Références distinctes du contre-audit 32504fca… | Ne remplace pas les réserves générales ni les gates L4 |
+| Requalification nominative r05/r12 | HEAD des reçus `0092b4d1bafe644017717865a620f0a35b68fbb5`, **dirty** ; publication du contre-audit `32504fca0f8d5ba6f236cf3111145d346ddc7930` | Attribution exacte et limites détaillées A09 ci-dessous ; aucun PASS d’un checkout propre 32504fca déduit |
 
 Références : [attribution L2, lignes 121–169](L2_Documentary_Closure.md#5-preuves-existantes-et-shas-réellement-testés), [consolidation et limites, lignes 147–170](L2_I6_I7_Consolidation.md#6-provenance-réutilisation-et-récupération), [O20/O21, lignes 48–58](L3_Identity_Closure.md#ratification-nominative-du-skip).
 
-Avant toute utilisation comme preuve réutilisée : vérifier les artefacts accessibles et leurs empreintes, comparer explicitement ancien→nouveau SQL, sources, tests, configuration, dépendances et environnement. Cette mission n’a pas revérifié exhaustivement les archives.
+#### A09 — Attribution nominative et limites vérifiées sur pièces
+
+| Preuve accessible dans le dépôt | Attribution réelle | Verdict et portée |
+|---|---|---|
+| [r05 résultat](../testing/evidence/L3-I5/reused/gemini-r05/result.json.gz), [provenance](../testing/evidence/L3-I5/reused/gemini-r05/provenance.json.gz), [brut](../testing/evidence/L3-I5/reused/gemini-r05/raw.tar.gz) | Invocation `cd87a634f2804df3bd91d312e74007fb`, HEAD `0092b4d1bafe644017717865a620f0a35b68fbb5`, arbre **dirty** | 1/0/0/0, PASS ciblé ; 43,369 s méthode / 47,70041 s processus Maven |
+| [r12 résultat](../testing/evidence/L3-I5/reused/gemini-r12/result.json.gz), [provenance](../testing/evidence/L3-I5/reused/gemini-r12/provenance.json.gz), [brut](../testing/evidence/L3-I5/reused/gemini-r12/raw.tar.gz) | Invocation `94527adaae634c3a815004d52cf9968d`, même HEAD, arbre **dirty** | 1/0/0/0, PASS ciblé ; 51,819 s méthode / 56,06311 s processus Maven |
+| [O20/O21 index des campagnes](../testing/evidence/L3-I5/canonical/Campaigns.json), [index d’archives et empreintes](../testing/evidence/L3-I5/Archive_Index.json), [archives et limites](../testing/evidence/L3-I5/README.md) | SHA propre exécuté `cfd3f6458f7de61945bd3f73cb71c794dddf9e57`, invocations O20 `cf3c434170594c8597027aca4cdabe2e`, O21 `2dd51d57245e44bfb794dd0bb74e387e` | O20 2057/0/0/1 (Architecture 163 PASS) ; O21 1791/0/0/1 ; verdicts stricts **INCONCLUSIVE**, r05/r12 nominatifs PASS dans les deux |
+
+Dirty des deux campagnes ciblées : trois sources de tests (`I5TemporalV2Postgres`, `I5TemporalV2Test`, `V3WorkerResourcesPostgresTest`), `scripts/testing/test_verification.py`, `verification-campaigns.json`, `verify.py`, et `__pycache__` non suivi. Leur code testé ne peut donc être identifié par le seul SHA du HEAD. Le rapport de contre-audit est publié à `32504fca…` ; son SHA initial long `0092b4d188aa1d575c3f3fa599bbdf38865d1309` **ne correspond pas au HEAD des reçus**, dont la valeur exacte est celle du tableau. Ne pas attribuer automatiquement ces exécutions à l’arbre propre 32504fca : une équivalence exige la comparaison des empreintes d’entrées, tests/outillage compris. Ce constat ne réécrit aucun rapport, registre ou archive.
+
+**Limites de l’oracle r05** : le code présent [I5TemporalV2Postgres](../../app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java) distingue l’omission sous Discovery concurrente et le CAS retourné (`returned`). La reproduction PG `i5_r05_discovery_skip_locked_interleaving` et les contre-exemples établissent un entrelacement précis et le refus d’une omission sans contention ; le journal emploie aussi des enveloppes temporelles/clé, pas une reconstruction universelle de chaque durée de verrou PostgreSQL. Un PASS ne certifie pas toutes les distributions de contention, pauses JVM ou fenêtres physiques. Le code à la référence appelle pour `i5_r05` **W1/B1/MW4** ; les autres anciens profils ne sont pas réattribués à cette méthode actuelle.
+
+**Limites du scénario r12** : le code appelle `campaign(PG,2,32,true)`, donc **W2/B32/MW4**, lease 90 s ; pas les quatre combinaisons B1/B32 × MW1/MW4 affirmées dans certains résumés historiques. Deux Workers, quatre pools chacun, huit préparations retenues et quatre contentions excessives constituent le scénario contrôlé. Les candidatures **0|1 et 2|3 sont disjointes** ; la compétition sur candidatures chevauchantes relève de `w02`, pas de r12 seul. Les douze couples couverts sont **trois Consumptions (Command et deux probes READ) × quatre partitions**, pas six participants READ métier ni « quatre autorités × trois partitions ». Les sources de méthodes/oracle n’ont pas changé entre `cfd3f645…` et la référence de consolidation ; ce constat statique ne vaut pas rejeu. Les assertions d’allocation physique sont bornées à ce scénario, pas une preuve générale de disponibilité.
+
+**Réserves maintenues** : paramètres de production à 30 s non certifiés, enveloppe expérimentale 90 s, UNKNOWN → drainage conservateur, réserves L2/L3 et confiance admin PG. Le registre qualifie nominativement r05/r12 (`active:false`) ; la formulation historique de politique/rapports ne dispense d’aucun gate frais. O20/O21 ont un SKIP nominatif `TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`, accepté humainement **pour L3/I5 seulement** ; ne pas transposer cette exception à I1. Le résumé ancien « 319 tests COMMAND » est un compte de module historique, pas du réacteur entier ; il n’établit pas un PASS strict avec skip. **Aucune certification générale L2 ni levée globale de réserve** n’est déduite.
+
+Avant réutilisation : artefacts accessibles et empreintes vérifiées via l’index, attribution SHA + dirty + inputs, oracle et limites conservés, comparaison explicite ancien→nouveau **SQL, sources, tests, configuration, dépendances, toolchain/PG, charge et hypothèses temporelles**. Toute hypothèse modifiée/non vérifiée interdit la réutilisation pour cette propriété. Les changements I2/I8 imposent leurs preuves affectées fraîches ; le stockage I1 exige ses propres preuves physiques. Les contrôles de cette consolidation sont des lectures d’archives et attributions, **pas une nouvelle exécution ni une vérification exhaustive de tout le dossier historique**.
 
 La [politique §34, lignes 1245–1250](../testing/Reactor_Verification_Policy.md#34-proportionate-certification-and-evidence-reuse) interdit de remplacer une gate fraîche prescrite par ces observations historiques.
 
@@ -1229,11 +1313,11 @@ Cet arbitrage porte sur l’activation fonctionnelle, pas sur une fusion de runt
 
 **A3 — Ordre et représentation interne du manifeste.**
 
-Adopter un ordre canonique explicite et des références préservant identité et versions locales. Proposition : ordre stable par identifiant métier canonique ; coordonnées exactes de composantes. La représentation HTTP, compression et plafonds restent L5.
+**Partie I1 figée** : clé, huit contenus, égalité/codec/SQL et ordre UUID PostgreSQL définis au §7.3 et au plan autonome I1 §3. La composition canonique anticipée pour I3 est précisée par A08 au §7.2 ; aucune valeur PotVersion n’est implémentée en I1. Revue de réalisation du manifeste avant I3 ; représentation HTTP, compression et plafonds restent L5. Aucun point ouvert de représentation ne force I2 avant I1.
 
 **A4 — Attribution des qualifications nominatives récentes.**
 
-Faire confirmer à l’audit la portée utilisable du dossier r05/r12 face aux formulations historiques conservées. Aucun arbitrage de levée générale de réserve n’est demandé ni présumé.
+Attribution et limites fixées au §11.5/A09 ; comparaison ancien→nouveau et vérification d’artefacts restent dues **avant chaque réutilisation**, notamment I2/I8. Les divergences des résumés historiques sont signalées sans réécriture. Aucun arbitrage de levée générale de réserve n’est demandé ni présumé ; A4 ne bloque pas la conception du stockage I1.
 
 ### Obligations différées
 
@@ -1252,7 +1336,7 @@ indispensables et leurs qualifications restent dans les lots concernés.
 
 ## 15. Proposition de périmètre précis de L4/I1
 
-**I1 doit rester un contrat technique de stockage et d’atomicité, sans matérialisation métier.**
+**I1 doit rester un contrat technique de stockage et d’atomicité, sans matérialisation métier.** Le [plan autonome I1](L4_I1_Implementation_Plan.md) détaille fichiers/signatures, huit valeurs, migration V2 neuve/extension, oracles PG et gates ; il fait partie du contrat de revue de cet incrément.
 
 ### Inclus
 
@@ -1316,17 +1400,10 @@ Avant I2, A1 doit en outre être tranché et l’adaptation exacte des contrats 
 | Fichiers modifiés | Aucun |
 | Nouvelle certification | Aucune |
 
-**Verdict : READY WITH OPEN ARBITRATIONS.**
+**Verdict consolidé : READY FOR I1 IMPLEMENTATION REVIEW.**
 
-Le périmètre, les propriétaires d’invariants, les stores, les participants, les incréments et les preuves attendues sont suffisamment définis pour un audit indépendant. L’arbitrage principal concerne une adaptation explicite de la frontière L2, nécessaire pour respecter les lectures WRITE hors transaction READ et le recovery sans reçu supplémentaire.
+Les dix amendements A01–A10 sont intégrés ; le contrat I1 est figé dans son plan autonome. A1 reste à décider avant **I2**, A2 avant **I8**, A4 avant chaque réutilisation ; la partie I1 d’A3 est définie. Les huit incréments et leurs livrables restent inchangés, sans dépendance circulaire I1/I2. D1–D4 et la stratégie de gates proportionnées sont conservés. Aucun arbitrage normatif bloquant I1 identifié ; les limites probatoires et désaccords techniques A09 restent explicites.
 
-Ce verdict autorise la revue du plan. **Il ne constitue aucun GO L4/I1. La mission s’arrête ici, sans implémentation.**
+Cette consolidation ne constitue ni un audit indépendant du code, ni une preuve d’implémentation, ni un GO. La revue du plan I1 puis la **décision humaine séparée d’implémentation I1** restent requises. Les conditions historiques ci-dessus désignent les obligations préalables, pas des tâches déjà satisfaites par du code.
 
-**Portée du présent amendement :** seul ce plan L4 est amendé ; les documents
-supérieurs, qualifications et preuves existantes sont conservés. Vérification
-documentaire seulement, aucune slice applicative, gate globale non requise,
-aucun full reactor ni PostgreSQL. Les incréments I1–I8 restent fonctionnellement
-inchangés, y compris I2 et l’activation I8. Le report D1–D4 ne crée aucune
-obligation implicite de rationalisation avant la clôture fonctionnelle et la
-qualification de L6, ni nouvelle certification L2/L3. **Audit indépendant du plan
-amendé, puis décision humaine de GO L4/I1 distincte restent requis.**
+**Vérification de cette mission documentaire (2 novembre 2026)** : slices **NONE** ; lectures statiques sources/SPEC/politique et archives nominatives, contrôle des liens/ancres/chemins et du séquencement/cohérence des deux plans, empreintes SHA-256 et accès des quatre archives r05/r12/O20/O21 vérifiés contre leur index (sans vérification exhaustive des membres imbriqués), revue complète du diff et `git diff --check`. Aucun fichier applicatif, test, migration, script, POM, preuve/archive/registre ou autorité normative supérieure modifié ; seuls les deux plans documentaires sont écrits. Aucune campagne Maven/PostgreSQL ni collecteur exécuté, aucune requalification L2/L3 déclenchée. Gate globale **NOT REQUIRED / NOT RUN**, full reactor **NOT RUN**, car mission documentaire ; aucun franchissement inattendu. Le SHA final et la synchronisation de publication sont rapportés après commit/push, sans autoréférence du présent document.
