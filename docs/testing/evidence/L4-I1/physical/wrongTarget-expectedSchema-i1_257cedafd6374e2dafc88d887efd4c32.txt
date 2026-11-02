@@ -1,0 +1,79 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_257cedafd6374e2dafc88d887efd4c32
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_257cedafd6374e2dafc88d887efd4c32_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_257cedafd6374e2dafc88d887efd4c32
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_257cedafd6374e2dafc88d887efd4c32_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_257cedafd6374e2dafc88d887efd4c32_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_257cedafd6374e2dafc88d887efd4c32_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_257cedafd6374e2dafc88d887efd4c32, current_user=i1_257cedafd6374e2dafc88d887efd4c32_a, clock_timestamp=2026-11-02 08:38:27.712685} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_257cedafd6374e2dafc88d887efd4c32_w admin=i1_257cedafd6374e2dafc88d887efd4c32_a
+L2 rows={consumption_routing_contract=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, family=IDENTITY_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, family=COMMAND_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, family=IDENTITY_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, family=INVITATION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}], consumption_slot=[], discovery_checkpoint=[], partition_ownership=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=3, owner_token=null, owned_until=null}]}
+L2 rows={consumption_routing_contract=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, family=IDENTITY_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, family=COMMAND_COMPLETION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, family=IDENTITY_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, family=INVITATION_EVENT, routing_version=sha256-v1, partition_count=4}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, family=POT_EVENT, routing_version=sha256-v1, partition_count=4}], consumption_slot=[], discovery_checkpoint=[], partition_ownership=[{consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=1d8ff246-358f-5ddd-a7f5-416efcfd7445, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=7b8d2838-bf7a-5117-868a-e5c14b4c0221, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=924cd9e3-435d-5804-9d1e-c6aecadb9ab4, partition_id=3, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=0, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=1, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=2, owner_token=null, owned_until=null}, {consumption_id=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa, partition_id=3, owner_token=null, owned_until=null}]}

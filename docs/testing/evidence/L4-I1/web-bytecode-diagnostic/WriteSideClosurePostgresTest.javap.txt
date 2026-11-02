@@ -1,0 +1,128 @@
+Compiled from "WriteSideClosurePostgresTest.java"
+class com.kartaguez.pocoma.WriteSideClosurePostgresTest {
+  private static final java.lang.String ISSUER;
+
+  private static final java.lang.String SUBJECT;
+
+  static final org.testcontainers.postgresql.PostgreSQLContainer POSTGRES;
+
+  org.springframework.web.context.WebApplicationContext context;
+
+  com.kartaguez.pocoma.supra.http.write.CommandRequestSizeFilter commandRequestSizeFilter;
+
+  com.fasterxml.jackson.databind.ObjectMapper mapper;
+
+  org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+  com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol protocol;
+
+  com.kartaguez.pocoma.port.transaction.PublishedEvents declarations;
+
+  com.kartaguez.pocoma.port.transaction.TransactionRunner transactions;
+
+  com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandUseCase commands;
+
+  com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter discovery;
+
+  com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository slots;
+
+  com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionClaimRepository claims;
+
+  com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionInputRepository inputs;
+
+  com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionResultRepository results;
+
+  java.time.Clock clock;
+
+  private org.springframework.test.web.servlet.MockMvc http;
+
+  private com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker worker;
+
+  com.kartaguez.pocoma.WriteSideClosurePostgresTest();
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #55                 // String Unresolved compilation problem: \n\tWriteSidePotCommandBindingConfiguration cannot be resolved to a type\n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  static void database(org.springframework.test.context.DynamicPropertyRegistry);
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  void cleanAndAssembleRuntimeRoles();
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  void stopWorker() throws java.lang.InterruptedException;
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  void committedHttpAdmissionIsConsumedThroughTheRealPollingLoop() throws java.lang.Exception;
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  void staleBindingIsAcceptedThenRejectedByTheWorkerWithoutBusinessMutation() throws java.lang.Exception;
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker pollingWorker();
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private org.springframework.security.oauth2.jwt.Jwt token();
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private int count(java.lang.String, java.lang.String, java.lang.Object);
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private void reserveCurrentBinding(java.util.UUID, java.util.UUID);
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+
+  private static void await(java.util.function.BooleanSupplier);
+    Code:
+       0: new           #53                 // class java/lang/Error
+       3: dup
+       4: ldc           #67                 // String Unresolved compilation problem: \n
+       6: invokespecial #57                 // Method java/lang/Error."<init>":(Ljava/lang/String;)V
+       9: athrow
+}

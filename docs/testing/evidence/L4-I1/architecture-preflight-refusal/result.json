@@ -1,0 +1,26 @@
+{
+  "verdict": "INCONCLUSIVE",
+  "counts": {
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [
+    "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest: cannot trace external inputs"
+  ],
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "architecture-tests",
+    "-am",
+    "-Dstep3b.measure=true",
+    "-Dpocoma.verification.id=c27065381b9245de93f69945970fb745",
+    "-Dpocoma.verification.reports=/tmp/l4-i1-evidence-architecture-final/reports",
+    "test"
+  ],
+  "invocation_id": "c27065381b9245de93f69945970fb745",
+  "exit_code": null
+}

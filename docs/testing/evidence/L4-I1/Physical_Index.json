@@ -1,0 +1,427 @@
+{
+  "invocation_id": "bc033ccb299f41e2aec0411aacf208b7",
+  "result": "PASS",
+  "scenario_files": [
+    {
+      "scenario": "ack-AFTER_COMMIT-unavailable-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/ack-AFTER_COMMIT-unavailable-false-i1_e89f4173d6a04ab89c2cad5e0673cc4b.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/ack-AFTER_COMMIT-unavailable-false-i1_e89f4173d6a04ab89c2cad5e0673cc4b.txt",
+      "bytes": 4551,
+      "sha256": "322639172207f8aa47a400134bb3c162f2123101e9451b6df9e9b5ca2b556448"
+    },
+    {
+      "scenario": "ack-AFTER_COMMIT-unavailable-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/ack-AFTER_COMMIT-unavailable-true-i1_11250d9ea72a4ab49228ef849e4ef3a4.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/ack-AFTER_COMMIT-unavailable-true-i1_11250d9ea72a4ab49228ef849e4ef3a4.txt",
+      "bytes": 4560,
+      "sha256": "0834d545cd7db6a36ae2f2551515ea578b308f54e8fad62c98ee2d9fcb39281a"
+    },
+    {
+      "scenario": "ack-BEFORE_COMMIT-unavailable-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/ack-BEFORE_COMMIT-unavailable-false-i1_169f1afa168d4e9e97d8b3f883276365.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/ack-BEFORE_COMMIT-unavailable-false-i1_169f1afa168d4e9e97d8b3f883276365.txt",
+      "bytes": 2680,
+      "sha256": "c0a1959bb4d64c0cf24336f55ed4fdf09ef272ee46167332baee84425e5eb75b"
+    },
+    {
+      "scenario": "ack-BEFORE_COMMIT-unavailable-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/ack-BEFORE_COMMIT-unavailable-true-i1_61d1c121c9714803a175a49f65f95793.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/ack-BEFORE_COMMIT-unavailable-true-i1_61d1c121c9714803a175a49f65f95793.txt",
+      "bytes": 2678,
+      "sha256": "5dc58504a171397dc20cebdf0a56c5f17804ff065c829a78e55f59d2e1f24c33"
+    },
+    {
+      "scenario": "afterReadinessBeforeDelete",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/afterReadinessBeforeDelete-i1_0124e3b340d24434be00c58de497b380.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/afterReadinessBeforeDelete-i1_0124e3b340d24434be00c58de497b380.txt",
+      "bytes": 2516,
+      "sha256": "6612d5a4682b0c4dccf990d48d06a4b8d678dafa5b67760141c88eacd4374fd6"
+    },
+    {
+      "scenario": "allFieldsMatter",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/allFieldsMatter-i1_a34c6e3a24dc4ff5a9dd5470d8027811.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/allFieldsMatter-i1_a34c6e3a24dc4ff5a9dd5470d8027811.txt",
+      "bytes": 1600,
+      "sha256": "d49efd53717733b1c39d656accb995f16ab69193ca5ffdf671b1c79f9976628b"
+    },
+    {
+      "scenario": "atomicRace-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/atomicRace-false-i1_3126547ca03543bc834cb13c9dc53fec.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/atomicRace-false-i1_3126547ca03543bc834cb13c9dc53fec.txt",
+      "bytes": 3322,
+      "sha256": "f553b2317a4a1e992e10459d72e69ffe7ce9f7179cbb979f52e0e576a53014ef"
+    },
+    {
+      "scenario": "atomicRace-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/atomicRace-true-i1_63219b1f6dce42cb9ee2e840bff08f39.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/atomicRace-true-i1_63219b1f6dce42cb9ee2e840bff08f39.txt",
+      "bytes": 3345,
+      "sha256": "08da474681c02638707f4268f77437f73e15ae814bb698f65f9eca56e21cf5b0"
+    },
+    {
+      "scenario": "batchAllOrNothing",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/batchAllOrNothing-i1_5f522259b0534ebea76e14aeece25958.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/batchAllOrNothing-i1_5f522259b0534ebea76e14aeece25958.txt",
+      "bytes": 1692,
+      "sha256": "7208a9a7609769c480d7f9390485911d249af04f119e278db0f7ef4208ccc449"
+    },
+    {
+      "scenario": "caught-divergence",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/caught-divergence-i1_2419d9e2235948ccbfa56d3dba52b412.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/caught-divergence-i1_2419d9e2235948ccbfa56d3dba52b412.txt",
+      "bytes": 2241,
+      "sha256": "251279bebef3c6cca0af51af19a2e2cec7a6eb69bc3f5f34ea727ad52e58cb69"
+    },
+    {
+      "scenario": "caught-duplicate",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/caught-duplicate-i1_7bcb6686660d403384f7c354251aea48.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/caught-duplicate-i1_7bcb6686660d403384f7c354251aea48.txt",
+      "bytes": 2209,
+      "sha256": "ff63305df1af376957597799741498c84cac1af26bf2a0fe0e645f3895b4a382"
+    },
+    {
+      "scenario": "caught-null",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/caught-null-i1_f64233f416cd430ea88288cc35952fa3.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/caught-null-i1_f64233f416cd430ea88288cc35952fa3.txt",
+      "bytes": 2205,
+      "sha256": "1d2d91156a1ff9e2191520bda4221d383f32a8a7f1b6501269f685cb91f24157"
+    },
+    {
+      "scenario": "caught-sql",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/caught-sql-i1_4269b678d14142bfb2aafb48d3c1981f.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/caught-sql-i1_4269b678d14142bfb2aafb48d3c1981f.txt",
+      "bytes": 2230,
+      "sha256": "48e613d903fde5028236840c037afa5749636ac6a66cfd0614472de1be12f03e"
+    },
+    {
+      "scenario": "corruptPersistedContent",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/corruptPersistedContent-i1_bb96017b1d99443e96ec6795fe619401.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/corruptPersistedContent-i1_bb96017b1d99443e96ec6795fe619401.txt",
+      "bytes": 1600,
+      "sha256": "245fc9175c0e902ef9eb3e74ce6d84adbfced4b437de4684bed01f0f642c5a87"
+    },
+    {
+      "scenario": "counterOracle-independent-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/counterOracle-independent-false-i1_5c71622e1625485b8c802953f0fb4e05.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/counterOracle-independent-false-i1_5c71622e1625485b8c802953f0fb4e05.txt",
+      "bytes": 2376,
+      "sha256": "9f2260dafac16508be0c5acda3253c3a9b4ff3d4727dfaee213f5325ad308519"
+    },
+    {
+      "scenario": "counterOracle-independent-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/counterOracle-independent-true-i1_b0cc4bdccccf47d2965a6702557e33eb.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/counterOracle-independent-true-i1_b0cc4bdccccf47d2965a6702557e33eb.txt",
+      "bytes": 2215,
+      "sha256": "4bd4ebd56999080ed90cad1b4814e5ab50ccc20816647159253a2193068016fb"
+    },
+    {
+      "scenario": "deferredCommitRejection",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/deferredCommitRejection-i1_0b83689a801e4a15bf5f4a0539ef6cc7.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/deferredCommitRejection-i1_0b83689a801e4a15bf5f4a0539ef6cc7.txt",
+      "bytes": 2535,
+      "sha256": "b59051f175185a3540c2aac0895b24b38ffdd58a916afdcd081ddf2353084136"
+    },
+    {
+      "scenario": "divergentInsert",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/divergentInsert-i1_022a6062c4fb43829c7e39270ac0c9c2.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/divergentInsert-i1_022a6062c4fb43829c7e39270ac0c9c2.txt",
+      "bytes": 1600,
+      "sha256": "3a748f50bb7697b0af51bc2ffdf9e5069128ad3acd98f17473c9570e81e9c82c"
+    },
+    {
+      "scenario": "effectsAndSlotSameUnit",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/effectsAndSlotSameUnit-i1_7560a08ca03f48e4b9d23cb75fe80483.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/effectsAndSlotSameUnit-i1_7560a08ca03f48e4b9d23cb75fe80483.txt",
+      "bytes": 4294,
+      "sha256": "bf7045b655e2622229b35d5fc7470795c846e88132f35d6844562d9024ec1286"
+    },
+    {
+      "scenario": "expiredCompletion",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/expiredCompletion-i1_e0a9220c9163497795dc1815f726ae33.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/expiredCompletion-i1_e0a9220c9163497795dc1815f726ae33.txt",
+      "bytes": 2021,
+      "sha256": "e14d8f00f3baf01ec51cc028ab41682f8a7b72b578b13d259372fe767c24f813"
+    },
+    {
+      "scenario": "freshMigration",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/freshMigration-i1_7c92acd3d27642f687095eb9fb55ba8e.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/freshMigration-i1_7c92acd3d27642f687095eb9fb55ba8e.txt",
+      "bytes": 7759,
+      "sha256": "a84ac681b33ac59c0248b7c3548e95fb42eada16ad2c01743ece6760d9668553"
+    },
+    {
+      "scenario": "identicalInsert",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/identicalInsert-i1_30b6c81c355d43798be3b602fbf19030.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/identicalInsert-i1_30b6c81c355d43798be3b602fbf19030.txt",
+      "bytes": 1600,
+      "sha256": "2bff1cf67063b67148ca664185fa9a770a60dac48265007a5bc109d6b7de16db"
+    },
+    {
+      "scenario": "lateCallback-completion-false-caught-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/lateCallback-completion-false-caught-false-i1_b433c4839f864c8885c8de2d6119fee0.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-false-caught-false-i1_b433c4839f864c8885c8de2d6119fee0.txt",
+      "bytes": 2542,
+      "sha256": "5d99ed793047e984a95c4be69b09c10eb0646945fcce8d32ba476a218972ce3a"
+    },
+    {
+      "scenario": "lateCallback-completion-false-caught-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/lateCallback-completion-false-caught-true-i1_8b066c3b7c11480c8d1632f0a8c0e3b0.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-false-caught-true-i1_8b066c3b7c11480c8d1632f0a8c0e3b0.txt",
+      "bytes": 2541,
+      "sha256": "9c6f3527462b597469a523da9920946ac03b2cee0b58eeaf9d05c3789cb6e525"
+    },
+    {
+      "scenario": "lateCallback-completion-true-caught-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/lateCallback-completion-true-caught-false-i1_8609a4271e53415eab0fbd1b3ff4b534.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-true-caught-false-i1_8609a4271e53415eab0fbd1b3ff4b534.txt",
+      "bytes": 2542,
+      "sha256": "7291b12549bcefaafbe34bd9202f29553431258ccb1281a526cee04868a77750"
+    },
+    {
+      "scenario": "lateCallback-completion-true-caught-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/lateCallback-completion-true-caught-true-i1_9c67ed2234c2437cb7820f14f4388db1.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/lateCallback-completion-true-caught-true-i1_9c67ed2234c2437cb7820f14f4388db1.txt",
+      "bytes": 2541,
+      "sha256": "2034f9ce610d850487d1fce145610dc007c0148a2fceb0c1dba3abc34c6ef12b"
+    },
+    {
+      "scenario": "noV1Replay",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/noV1Replay-i1_89d61936e84a453d8aee4fa366d45a4b.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/noV1Replay-i1_89d61936e84a453d8aee4fa366d45a4b.txt",
+      "bytes": 10200,
+      "sha256": "b67d1fddd0eee0b92382c1fdaa0b676e49ebe310c114087eb73a707e0477f3e1"
+    },
+    {
+      "scenario": "ownerAndContext",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/ownerAndContext-i1_fbc65667f67c4c5d8e70b0057beca046.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/ownerAndContext-i1_fbc65667f67c4c5d8e70b0057beca046.txt",
+      "bytes": 1600,
+      "sha256": "12441d3621c5ed67b033976c0777de918962e324443d72e316a213c2ede1364e"
+    },
+    {
+      "scenario": "physicalImmutability",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/physicalImmutability-i1_4df7ed4df5104c4b9b5a984c38532277.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/physicalImmutability-i1_4df7ed4df5104c4b9b5a984c38532277.txt",
+      "bytes": 8123,
+      "sha256": "eda7005b1fd46794829bfa1dfb2b02045a3092e6622090942990dc023b527edf"
+    },
+    {
+      "scenario": "populatedL2Extension",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/populatedL2Extension-i1_b21660d7ee634376ba1711296f8c94f5.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/populatedL2Extension-i1_b21660d7ee634376ba1711296f8c94f5.txt",
+      "bytes": 44252,
+      "sha256": "cf20b59a6405fde6ea053c26d84e4b01d29ce208222bc584aaf57490dd30a395"
+    },
+    {
+      "scenario": "postgresUuidOrder",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/postgresUuidOrder-i1_03422cb118dd4dd9a4148bd12ad4f5b5.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/postgresUuidOrder-i1_03422cb118dd4dd9a4148bd12ad4f5b5.txt",
+      "bytes": 1764,
+      "sha256": "aadb3d366e74a6326c901c60d97235a4b87c0424a967c87489b028cb19439e7d"
+    },
+    {
+      "scenario": "publication-doubleComplete",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/publication-doubleComplete-i1_ce97b73afe374def9f9a5adda819cea9.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/publication-doubleComplete-i1_ce97b73afe374def9f9a5adda819cea9.txt",
+      "bytes": 2154,
+      "sha256": "9200ca4e0720d00e33227ca8c26fed7418bf884e6fd3eb37d7d2b17bd6d1b643"
+    },
+    {
+      "scenario": "publication-early",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/publication-early-i1_784e92ae9a644a9ebd3c35154b212384.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/publication-early-i1_784e92ae9a644a9ebd3c35154b212384.txt",
+      "bytes": 2154,
+      "sha256": "836f7c10026a2f93b807eeb541f76de3f7c5435f156ebc7205657ab3dcc3b7fc"
+    },
+    {
+      "scenario": "publication-foreignThread",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/publication-foreignThread-i1_1c6d2cfd02b14cff8bbf84b31a200330.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/publication-foreignThread-i1_1c6d2cfd02b14cff8bbf84b31a200330.txt",
+      "bytes": 2226,
+      "sha256": "ef916cc3cd20ca7db57fe644df83e6455e6df50b6c3907d736ed01b73e8dd864"
+    },
+    {
+      "scenario": "publication-lateWriter",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/publication-lateWriter-i1_de3613375d2e47d795f4e716e1d4bf1a.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/publication-lateWriter-i1_de3613375d2e47d795f4e716e1d4bf1a.txt",
+      "bytes": 2200,
+      "sha256": "98487d48932b6166f0760519ebb61accfb531a8e60f21786b519267fe6397b8a"
+    },
+    {
+      "scenario": "publication-missing",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/publication-missing-i1_4321825440cc4ce698000e9e36fbfb36.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/publication-missing-i1_4321825440cc4ce698000e9e36fbfb36.txt",
+      "bytes": 2185,
+      "sha256": "b687272afbde48de041873a1475f646f4c49408705a212d4978f716a12bdd68f"
+    },
+    {
+      "scenario": "publication-missingComplete",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/publication-missingComplete-i1_bab43a7ee7d44e62861293133f2af754.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/publication-missingComplete-i1_bab43a7ee7d44e62861293133f2af754.txt",
+      "bytes": 2154,
+      "sha256": "f94e84d2c12b1e944cc2dd19307b99fcf60448f9b92c9db83ff11378b05cadbb"
+    },
+    {
+      "scenario": "race-false-false-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/race-false-false-false-i1_d294d109964f4d1a8215eb4ae4ddb085.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/race-false-false-false-i1_d294d109964f4d1a8215eb4ae4ddb085.txt",
+      "bytes": 2615,
+      "sha256": "dd1ca0fbd44c5f554a6b09f144df98aad478962cbd452e4e8037d6bc6cfb66a8"
+    },
+    {
+      "scenario": "race-false-false-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/race-false-false-true-i1_3bf92c9322844bbf9bd41534420604f1.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/race-false-false-true-i1_3bf92c9322844bbf9bd41534420604f1.txt",
+      "bytes": 262993,
+      "sha256": "c270b998eb7cb779c173541c76aaa173b841ee6773a73a3c23225d00d8afbc4d"
+    },
+    {
+      "scenario": "race-true-false-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/race-true-false-false-i1_731038705cfb4a1094aac967d78ba35b.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/race-true-false-false-i1_731038705cfb4a1094aac967d78ba35b.txt",
+      "bytes": 2614,
+      "sha256": "6e4d468afece9c3cb79a03a4e41bd0519693adddaeb026662b2e45e9060db68a"
+    },
+    {
+      "scenario": "race-true-false-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/race-true-false-false-i1_e0ee7584f88d47a1a7e520c5719f69a9.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/race-true-false-false-i1_e0ee7584f88d47a1a7e520c5719f69a9.txt",
+      "bytes": 2613,
+      "sha256": "a3f1c4aa76f506c482e94e8b1a83d7760200cebafd737e685a9b0b6e2e8f11f3"
+    },
+    {
+      "scenario": "race-true-true-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/race-true-true-false-i1_cefafce0a6044407b5f2c7ebc1a44896.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/race-true-true-false-i1_cefafce0a6044407b5f2c7ebc1a44896.txt",
+      "bytes": 2612,
+      "sha256": "8207e92e2bdbcc63e4d6c14312506cd8aa05289ee7d7f8ddc4b7f40b7301f002"
+    },
+    {
+      "scenario": "readiness-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/readiness-false-i1_55e02b6daa5a47b2bc1d693551826ffc.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/readiness-false-i1_55e02b6daa5a47b2bc1d693551826ffc.txt",
+      "bytes": 2290,
+      "sha256": "f368217820a496c8641d423f4d7704c6a8d7035a640aa9e598c5e57ba50dab0b"
+    },
+    {
+      "scenario": "readiness-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/readiness-true-i1_ab8668514c614cc7a38183a8ca457088.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/readiness-true-i1_ab8668514c614cc7a38183a8ca457088.txt",
+      "bytes": 2289,
+      "sha256": "2adff371cb6ea0fcf143c0bd7cdcdf4481164d3b7b933f0e3c49004fd7748645"
+    },
+    {
+      "scenario": "rollback-AFTER_CLOSE",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollback-AFTER_CLOSE-i1_993bc005cad04848842b112d16d7d573.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollback-AFTER_CLOSE-i1_993bc005cad04848842b112d16d7d573.txt",
+      "bytes": 2495,
+      "sha256": "3f7b97614d431400cd398f1f4b812a7e9b3cbe29a9b0ab4034557bc1ff707626"
+    },
+    {
+      "scenario": "rollback-AFTER_DELETE",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollback-AFTER_DELETE-i1_d7b46e331fe24160ae68cbfad71099eb.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollback-AFTER_DELETE-i1_d7b46e331fe24160ae68cbfad71099eb.txt",
+      "bytes": 2497,
+      "sha256": "251f95a5bda6bb9a83c5710374eb0f94272be3138c6de037766e08a422050b9c"
+    },
+    {
+      "scenario": "rollback-AFTER_INSERT",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollback-AFTER_INSERT-i1_b4a00ea0cd5b45919a4e0840c5feb386.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollback-AFTER_INSERT-i1_b4a00ea0cd5b45919a4e0840c5feb386.txt",
+      "bytes": 2442,
+      "sha256": "b6ee9fb5a545548b43f703fb4c4e88c6d9efc06ca845904466f610c1db453beb"
+    },
+    {
+      "scenario": "rollback-BEFORE_DELETE",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollback-BEFORE_DELETE-i1_31d2b3bfe3124aa789040f4bf76838f6.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollback-BEFORE_DELETE-i1_31d2b3bfe3124aa789040f4bf76838f6.txt",
+      "bytes": 2444,
+      "sha256": "c62e63960e0bb633f16f9e204c89c4d792ed6287b5625080620e0ff8191c21f0"
+    },
+    {
+      "scenario": "rollback-BEFORE_INSERT",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollback-BEFORE_INSERT-i1_f9341319a7c74fbaa91d6654137c99e8.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollback-BEFORE_INSERT-i1_f9341319a7c74fbaa91d6654137c99e8.txt",
+      "bytes": 2444,
+      "sha256": "499ff0cf6f68baae9ed78162b55d58315b15a3a990c8ee404fd77bbae5acc7b7"
+    },
+    {
+      "scenario": "rollback-READINESS",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollback-READINESS-i1_be8dba82dd9742998a7f0f45bdf1f68e.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollback-READINESS-i1_be8dba82dd9742998a7f0f45bdf1f68e.txt",
+      "bytes": 2491,
+      "sha256": "23c13b138aa6ae7b55edd57f7f482718e3c517367ccb81d015bc30b7018c27df"
+    },
+    {
+      "scenario": "rollbackBeforeCommit",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollbackBeforeCommit-i1_eda9ab96969c4a82aebf5ccedc5f693a.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollbackBeforeCommit-i1_eda9ab96969c4a82aebf5ccedc5f693a.txt",
+      "bytes": 2474,
+      "sha256": "df3b19afcf10cf04de52694cfe2002a0f744eea0c11e1b7012cb94fe8a705ec8"
+    },
+    {
+      "scenario": "rollbackFirstChunk",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/rollbackFirstChunk-i1_6db693f7949a43a6b9b0eddcfacf579e.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/rollbackFirstChunk-i1_6db693f7949a43a6b9b0eddcfacf579e.txt",
+      "bytes": 2445,
+      "sha256": "1e1ba675ea56585a58efb82201c3bcd3afc919759c41281c6a449e324727295a"
+    },
+    {
+      "scenario": "sqlShapeConstraints",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/sqlShapeConstraints-i1_35c3263e5f8f48b9b4ce6034d0f1b897.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/sqlShapeConstraints-i1_35c3263e5f8f48b9b4ce6034d0f1b897.txt",
+      "bytes": 4301,
+      "sha256": "bc7eb9d17aa8c56ac07087658ebddc1871f603cdcec62d9629f11b316ef045c1"
+    },
+    {
+      "scenario": "unsafeAuxiliaryDefiner-false",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/unsafeAuxiliaryDefiner-false-i1_b94dac7af9524802829524b76cc098d3.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/unsafeAuxiliaryDefiner-false-i1_b94dac7af9524802829524b76cc098d3.txt",
+      "bytes": 1659,
+      "sha256": "1197beb9bd0c7039afbbc4ae1b1d5e1c2b2641cafd50295930b691cf67d90432"
+    },
+    {
+      "scenario": "unsafeAuxiliaryDefiner-true",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/unsafeAuxiliaryDefiner-true-i1_a28b8d70620a4d5f99dd26a39f1d6f03.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/unsafeAuxiliaryDefiner-true-i1_a28b8d70620a4d5f99dd26a39f1d6f03.txt",
+      "bytes": 1699,
+      "sha256": "4cf0aeb2659c47c94e041ceb3071e8f1fc0fa3fd82e8b7764026284f699a4d08"
+    },
+    {
+      "scenario": "unsafeMembership",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/unsafeMembership-i1_28eaae990d204ca088c469803e596a95.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/unsafeMembership-i1_28eaae990d204ca088c469803e596a95.txt",
+      "bytes": 1600,
+      "sha256": "6ffface367fe602d6ff4bd62a955ad431d1d7e2b2bc61a17f6f6d995f67b0222"
+    },
+    {
+      "scenario": "wrongTarget-expectedAdmin",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/wrongTarget-expectedAdmin-i1_49ce56ebbffb47f88b2fea66cdebcb9a.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedAdmin-i1_49ce56ebbffb47f88b2fea66cdebcb9a.txt",
+      "bytes": 9560,
+      "sha256": "5ede20cf6b481d93f8dae4435632cc7db3145ccf5dac7f3638093d34edc61469"
+    },
+    {
+      "scenario": "wrongTarget-expectedDatabase",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/wrongTarget-expectedDatabase-i1_3d49e952dec44102aa15f917d506b6a0.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedDatabase-i1_3d49e952dec44102aa15f917d506b6a0.txt",
+      "bytes": 9559,
+      "sha256": "8d01adfd6ec1d5529d3e6b1f0bcf517bdaa94a0c09a2278bcedd6500325ff0b6"
+    },
+    {
+      "scenario": "wrongTarget-expectedRuntime",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/wrongTarget-expectedRuntime-i1_81f7f0d0b9a44246b57fe7ab59665a32.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedRuntime-i1_81f7f0d0b9a44246b57fe7ab59665a32.txt",
+      "bytes": 9560,
+      "sha256": "a4279dc67a7bb85c4f3d269b3953233a5d5fa98afa811e979d38a7cf79aaa8de"
+    },
+    {
+      "scenario": "wrongTarget-expectedSchema",
+      "raw_member": "app/runtime-task-consumption-worker/target/l4-i1-evidence/bc033ccb299f41e2aec0411aacf208b7/pocoma-runtime-task-consumption-worker/physical/wrongTarget-expectedSchema-i1_257cedafd6374e2dafc88d887efd4c32.txt",
+      "published_copy": "docs/testing/evidence/L4-I1/physical/wrongTarget-expectedSchema-i1_257cedafd6374e2dafc88d887efd4c32.txt",
+      "bytes": 9560,
+      "sha256": "21f757f36dbc21c88a6353f3b9b51303573e54c14a299e13568621338f47da85"
+    }
+  ],
+  "file_count": 60
+}

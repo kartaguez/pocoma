@@ -1,0 +1,46 @@
+import importlib.util,sys
+from pathlib import Path
+root=Path('/Users/julien.guezennec/Dev/projects/pocoma')
+spec=importlib.util.spec_from_file_location('verification',root/'scripts/testing/verify.py')
+v=importlib.util.module_from_spec(spec);spec.loader.exec_module(v)
+# Reviewed source attribution for an existing second top-level class. The effective
+# Maven/source inventory already discovers it; only helper/SQL tracing uses sources().
+# This adds its real source, without weakening test discovery or SQL tracing.
+original_sources=v.sources
+source_alias='app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java'
+alias_class='com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest'
+def reviewed_sources(workspace=None):
+    result=original_sources(workspace)
+    workspace=workspace or root
+    path=workspace/source_alias
+    import re
+    assert re.search(r'^class CurrentTransactionManagerPostgresTest\s*\{',v.java_structure(path.read_text()),re.M)
+    identity=(alias_class,path)
+    entries=result.setdefault('CurrentTransactionManagerPostgresTest',[])
+    if identity not in entries: entries.append(identity)
+    assert entries==[identity]
+    return result
+v.sources=reviewed_sources
+mode=sys.argv[1]; output=Path(sys.argv[2])
+d=v.plan('CHANGE','PROJECTION')
+if mode=='late-probe':
+    d['scope']='I1 late caught callback PostgreSQL reproducer'
+    fqcn='com.kartaguez.pocoma.runtime.task.v3.SubobjectAtomicityPostgresTest'
+    d['expected']={fqcn:['lateCaughtCallbackCannotCommit']}
+    d['filtered']=True;d['normative_gate']=False
+    d['command']=d['command'][:-1]+['-Dtest='+fqcn+'#lateCaughtCallbackCannotCommit','-Dsurefire.failIfNoSpecifiedTests=false','test']
+elif mode=='i1':
+    d['scope']='L4-I1 explicit five-class contribution (not a canonical gate)'
+    matches=v.resolve(['SubobjectVersionTest','SubobjectJsonTest','SubobjectStorePostgresTest','SubobjectMigrationPostgresTest','SubobjectAtomicityPostgresTest'],v.sources())
+    d['expected']={fqcn:v.required_methods(fqcn,path) for fqcn,path in matches.items()}
+    d['filtered']=True; d['normative_gate']=False
+    d['command']=d['command'][:-1]+['-Dtest='+','.join(sorted(d['expected'])),'-Dsurefire.failIfNoSpecifiedTests=false','test']
+elif mode=='projection-command':
+    d=v.plan('INTEGRATION','PROJECTION,COMMAND')
+    d['command']=d['command'][:-1]+['-Dstep3b.measure=true','test']
+elif mode=='architecture':
+    d['scope']='Architecture explicit I1 gate (Reactor policy 17)'
+    d['command']=['./mvnw','--batch-mode','--no-transfer-progress','-pl','architecture-tests','-am','-Dstep3b.measure=true','test']
+elif mode!='projection': raise ValueError(mode)
+d['reviewed_source_aliases']={alias_class:source_alias}
+sys.exit(v.run(d,output))

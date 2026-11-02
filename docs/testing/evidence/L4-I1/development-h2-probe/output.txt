@@ -1,0 +1,3 @@
+CAUGHT IllegalTransactionStateException
+OWNER com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions$Failure: Attempt transaction UNKNOWN
+DURABLE effects=1 slots=0

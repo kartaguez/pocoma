@@ -1,0 +1,84 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_11250d9ea72a4ab49228ef849e4ef3a4
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_11250d9ea72a4ab49228ef849e4ef3a4_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_11250d9ea72a4ab49228ef849e4ef3a4
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_11250d9ea72a4ab49228ef849e4ef3a4_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_11250d9ea72a4ab49228ef849e4ef3a4_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_11250d9ea72a4ab49228ef849e4ef3a4_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_11250d9ea72a4ab49228ef849e4ef3a4, current_user=i1_11250d9ea72a4ab49228ef849e4ef3a4_a, clock_timestamp=2026-11-02 08:38:14.710815} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_11250d9ea72a4ab49228ef849e4ef3a4_w admin=i1_11250d9ea72a4ab49228ef849e4ef3a4_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=8d864423-0b0b-46f0-b3fe-4f5138a043e1, claimToken=35215009-e9ff-4cf6-bd28-8a594683ea51] partition=1
+owner-before-insert 8d864423-0b0b-46f0-b3fe-4f5138a043e1 {pid=339, xid=888, db=i1_read, schema=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}
+readiness 8d864423-0b0b-46f0-b3fe-4f5138a043e1 slots=1
+armed AFTER_COMMIT {pid=339, xid=888, db=i1_read, schema=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}
+durable witnesses=[{op=DELETE, key=8d864423-0b0b-46f0-b3fe-4f5138a043e1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/EXPENSE_DETAILS/00000000-0000-0000-0000-000000000003/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/EXPENSE_FINANCIALS/00000000-0000-0000-0000-000000000003/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/EXPENSE_HEADER/00000000-0000-0000-0000-000000000003/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/POT_DETAILS/e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/POT_HEADER/e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/SHAREHOLDER_DETAILS/00000000-0000-0000-0000-000000000002/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/SHAREHOLDER_HEADER/00000000-0000-0000-0000-000000000002/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}, {op=INSERT, key=e5d8aa87-d1e0-4d5f-8370-82d16826f5ee/SHAREHOLDER_WEIGHT/00000000-0000-0000-0000-000000000002/1, pid=339, xid=888, db=i1_read, authority=i1_11250d9ea72a4ab49228ef849e4ef3a4, isolation=read committed}]
+external snapshot 8d864423-0b0b-46f0-b3fe-4f5138a043e1 {effects=8, slots=0, witnesses=9}
+wire fault=AFTER_COMMIT intercepted=1 server COMMIT replies=1 attempt=Attempt[status=RECOVERY_PENDING, resolution=UNKNOWN, observation=UNAVAILABLE, cause=org.springframework.transaction.TransactionSystemException: JDBC rollback failed, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] capacity=Snapshot[worker=1, consumptions={ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a]=1}] snapshot={effects=8, slots=0, witnesses=9}

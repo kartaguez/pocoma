@@ -1,0 +1,62 @@
+{
+  "maven.log": {
+    "bytes": 153211,
+    "sha256": "231319c82ae6ab66cfd059092055ab2f98075d22cad452f2600301fd6ddc62d9"
+  },
+  "effective-pom.xml": {
+    "bytes": 1140721,
+    "sha256": "2cef9762d3cce485ebd0278f8ca1eed235bfea027a9a15732187e068d90de491"
+  },
+  "discovery.log": {
+    "bytes": 2146,
+    "sha256": "255c0b1de139e2c281c21db4dcf022276ad0214e54e43306429e571779f3a507"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+    "bytes": 31035,
+    "sha256": "41a0e8ebdc871645c802042355ddcc5ebc1a85bd1ea1a52ff0dc2f2463c08957"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": {
+    "bytes": 95411,
+    "sha256": "d1f9266131b4752673791aad3246da2a07fbec3caa3921e7768055c5785d2e9c"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": {
+    "bytes": 45862,
+    "sha256": "81fa3fe455ab2043227155be4de2b1171410a6c3d42ffc1f28ae7592957944ca"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": {
+    "bytes": 50501,
+    "sha256": "6ada5f5dcd4d7141a68aa2a1c7912fb35d035395d4eeae097ebaa0a857de34cf"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": {
+    "bytes": 41081,
+    "sha256": "cb484ce0d4c25df288fad8177fb6a8c8b3924a799d5573a1a37e2bc3b021e6f8"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": {
+    "bytes": 61149,
+    "sha256": "46a9eb9b005a18f3c6e02b8bec2fd147ec46a409ff70b109ae27973c0bf52d38"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.txt": {
+    "bytes": 378,
+    "sha256": "760d3f8fbbab8996ce7a9af0ef55bf8a9942b6e9a46aa42be5a3c7e487fe758e"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.txt": {
+    "bytes": 393,
+    "sha256": "05089c18ba6e5d5b016a88a1960f1aee070b94edf998abd6189d2c20eda43974"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.txt": {
+    "bytes": 384,
+    "sha256": "a3b8377c54662e69af8d7a0d9d5ebbe024dc3fcf63dbc145bb4ab5d89b51083d"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.txt": {
+    "bytes": 394,
+    "sha256": "807a40e8c84e82b10170a38bb1e4ed8f2fbc883e340e52b9cb61f2c44b4981f7"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.txt": {
+    "bytes": 388,
+    "sha256": "7d3e69cc82fa5740ab6fcdce41a7381f2ba42222e4369b9f1fb6235e3d7448f3"
+  },
+  "reports/pocoma-infra-tx-spring/surefire-reports/com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.txt": {
+    "bytes": 400,
+    "sha256": "a7502f8cb60c11f247f249044b2b337a8b2a542926c4a041028fa9cf15a27559"
+  }
+}

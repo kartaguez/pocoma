@@ -1,0 +1,83 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_8b066c3b7c11480c8d1632f0a8c0e3b0
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_8b066c3b7c11480c8d1632f0a8c0e3b0_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_8b066c3b7c11480c8d1632f0a8c0e3b0
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_8b066c3b7c11480c8d1632f0a8c0e3b0_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_8b066c3b7c11480c8d1632f0a8c0e3b0_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_8b066c3b7c11480c8d1632f0a8c0e3b0_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_8b066c3b7c11480c8d1632f0a8c0e3b0, current_user=i1_8b066c3b7c11480c8d1632f0a8c0e3b0_a, clock_timestamp=2026-11-02 08:38:19.516068} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_8b066c3b7c11480c8d1632f0a8c0e3b0_w admin=i1_8b066c3b7c11480c8d1632f0a8c0e3b0_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=d7393d19-d437-4f9b-8ac8-1bb3dfda33c5, claimToken=7aeebf56-d2bd-4dfd-aaf8-5113171bf7ea] partition=0
+owner-before-insert d7393d19-d437-4f9b-8ac8-1bb3dfda33c5 {pid=1187, xid=1322, db=i1_read, schema=i1_8b066c3b7c11480c8d1632f0a8c0e3b0, isolation=read committed}
+readiness d7393d19-d437-4f9b-8ac8-1bb3dfda33c5 slots=1
+late store refused=class org.springframework.transaction.IllegalTransactionStateException intercepted=true
+external snapshot d7393d19-d437-4f9b-8ac8-1bb3dfda33c5 {effects=0, slots=1, witnesses=0}
+late callback result=Attempt[status=RECOVERY_PENDING, resolution=UNKNOWN, observation=NOT_COMPLETED, cause=org.springframework.transaction.IllegalTransactionStateException: Attempt unit changed, expired or poisoned, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] physical={effects=0, slots=1, witnesses=0}

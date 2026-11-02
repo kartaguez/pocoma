@@ -1,5 +1,14 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
+> **GO humain L4/I1 accordé le 2 novembre 2026 ; exécution autorisée.**
+> Le [rapport d’exécution I1](L4_I1_Execution_Report.md) et son
+> [manifeste de preuves](L4_I1_Proof_Manifest.json) portent le code, les tests,
+> les résultats stricts des gates et les réserves de livraison. Les mentions
+> antérieures « aucun GO » et « commandes futures » ci-dessous sont historiques.
+> Le périmètre I2–I8 reste inchangé ; aucune clôture humaine définitive I1 ou
+> acceptation indépendante du code n’est déduite de ce GO.
+
+
 **Date du cadrage :** 1er novembre 2026.
 
 **Branche et HEAD examinés :** feat/v3-architecture — e11d3372bad9ff88e30d4645b46fe6211829c001.

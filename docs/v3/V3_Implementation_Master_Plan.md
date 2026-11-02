@@ -1,5 +1,18 @@
 # Pocoma V3 — Plan directeur de réalisation L0–L8
 
+**L4/I1 — 2 novembre 2026 : IMPLEMENTED — LOCAL BOUNDED PASS, AUDIT PENDING.**
+GO humain explicite d’implémentation ; stockage immuable READ livré au commit
+`533c14746b61395691845edf19f40e5444f9edd9`, avec correctif L2 indispensable
+`9e8c18a9830fa151808f6aef8a96ae978a199c87` contre le poisoning JDBC tardif.
+[Rapport d’exécution](L4_I1_Execution_Report.md), [manifeste](L4_I1_Proof_Manifest.json) :
+I1 37/0/0/0, FOUNDATION 29/0/0/0, PROJECTION + COMMAND 1833/0/0/0,
+Architecture isolée 2096/0/0/0 dont 164 dans le module Architecture.
+Full reactor non requis/non exécuté. Les FAIL et contre-preuves antérieurs sont
+conservés ; les réserves L2/L3 restent ouvertes. Audit indépendant du code et des
+preuves puis clôture humaine I1 encore requis. Aucun GO I2–I8, HTTP ou L5/L6
+n’est déduit de cette livraison ; D1–D4 restent acquis.
+
+
 **Ratification humaine du 1er novembre 2026 — L3 — Identity WRITE Engine : CLOSED WITH EXPLICIT RESERVATIONS.**
 
 L’[acte de clôture unique](L3_Identity_Closure.md) consigne la décision explicite du

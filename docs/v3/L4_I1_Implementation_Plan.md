@@ -1,5 +1,14 @@
 # Pocoma V3 — L4/I1 — Plan d’implémentation du stockage immuable READ
 
+> **GO humain L4/I1 accordé le 2 novembre 2026 ; exécution autorisée.**
+> Le [rapport d’exécution I1](L4_I1_Execution_Report.md) et son
+> [manifeste de preuves](L4_I1_Proof_Manifest.json) portent le code, les tests,
+> les résultats stricts des gates et les réserves de livraison. Les mentions
+> antérieures « aucun GO » et « commandes futures » ci-dessous sont historiques.
+> Le périmètre I2–I8 reste inchangé ; aucune clôture humaine définitive I1 ou
+> acceptation indépendante du code n’est déduite de ce GO.
+
+
 **Consolidation : 2 novembre 2026. Référence vérifiée : `e9729ae20531f688a7eb16a2642c0f3e7b82fece`, branche `feat/v3-architecture`.**
 
 **Statut documentaire : READY FOR I1 IMPLEMENTATION REVIEW. Aucun GO d’implémentation.**

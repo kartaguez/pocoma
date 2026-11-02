@@ -1,0 +1,78 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_a28b8d70620a4d5f99dd26a39f1d6f03
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_a28b8d70620a4d5f99dd26a39f1d6f03_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_a28b8d70620a4d5f99dd26a39f1d6f03
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_a28b8d70620a4d5f99dd26a39f1d6f03_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_a28b8d70620a4d5f99dd26a39f1d6f03_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_a28b8d70620a4d5f99dd26a39f1d6f03_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_a28b8d70620a4d5f99dd26a39f1d6f03, current_user=i1_a28b8d70620a4d5f99dd26a39f1d6f03_a, clock_timestamp=2026-11-02 08:38:26.328996} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_a28b8d70620a4d5f99dd26a39f1d6f03_w admin=i1_a28b8d70620a4d5f99dd26a39f1d6f03_a
+unsafe accessible definer refused=i1_a28b8d70620a4d5f99dd26a39f1d6f03_aux.fixture_unsafe_auxiliary

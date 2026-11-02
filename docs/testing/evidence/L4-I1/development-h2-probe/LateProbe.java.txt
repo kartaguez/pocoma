@@ -1,0 +1,21 @@
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.JdbcSubobjectVersionStore;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.*;
+import org.springframework.transaction.support.*;
+import java.util.List;
+public class LateProbe {
+ public static void main(String[] args) {
+  var ds=new DriverManagerDataSource("jdbc:h2:mem:i1_late_probe;DB_CLOSE_DELAY=-1","sa","");
+  var sql=new JdbcTemplate(ds);sql.execute("create table effect(id int);create table slot(id int);insert into slot values(1)");
+  var manager=new DataSourceTransactionManager(ds);manager.setNestedTransactionAllowed(false);
+  var owner=new SpringAttemptTransactions(ds,manager);var store=new JdbcSubobjectVersionStore(ds,owner);
+  try {owner.write(()->{
+    SpringAttemptTransactions.guarded(ds,()->{sql.update("insert into effect values(1)");sql.update("delete from slot");return null;});
+    SpringAttemptTransactions.closePublication(ds);
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){public void beforeCommit(boolean readOnly){try {store.insertOrVerifyAll(List.of());}catch(RuntimeException caught){System.out.println("CAUGHT "+caught.getClass().getSimpleName());}}});
+    return null;
+  });System.out.println("RETURNED SUCCESS");}catch(RuntimeException failed){System.out.println("OWNER "+failed);}
+  System.out.println("DURABLE effects="+sql.queryForObject("select count(*) from effect",Integer.class)+" slots="+sql.queryForObject("select count(*) from slot",Integer.class));
+ }
+}

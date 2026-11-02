@@ -1,0 +1,122 @@
+{
+  "tested_head": "4028f2fa9f053e75dd60bb0ccefd091014a4fb9d",
+  "tested_worktree": "dirty; precise input hashes in each provenance.json",
+  "files": [
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java",
+      "bytes": 71887,
+      "sha256": "d8ae93f9bfaef314387eb4d6db1a0c07c9c7371cf5dfbc379f2d4f527d0c1dc9"
+    },
+    {
+      "path": "app/domain-projection/pom.xml",
+      "bytes": 805,
+      "sha256": "5314cc19593cc512d1b396be11987d9ab2b7f5e5e7af2ce459a4ae8531237cca"
+    },
+    {
+      "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectContent.java",
+      "bytes": 3338,
+      "sha256": "22d020a251593c1fcc48a6cf7bd8f100b010ff9cefadb78bd90d275478e46ae3"
+    },
+    {
+      "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectKey.java",
+      "bytes": 1376,
+      "sha256": "6706f51e030fcc35d03628a881bb357f2171be441fadb4e77241f10a8c0c4188"
+    },
+    {
+      "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectKind.java",
+      "bytes": 448,
+      "sha256": "475e86eb341cd600ede2b9346c476fbde12aaa5a968a3549697bf0391182c0ff"
+    },
+    {
+      "path": "app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectVersion.java",
+      "bytes": 588,
+      "sha256": "33f3d631ac0d455aea3160f83bebaa3f628cae515423ba66b410e8f6134c0c49"
+    },
+    {
+      "path": "app/domain-projection/src/test/java/com/kartaguez/pocoma/domain/projection/v3/SubobjectVersionTest.java",
+      "bytes": 7299,
+      "sha256": "0f40a6cd7ea69887e3185b3bc5f84de47228f797c4db635b5b4428314de5bbd8"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/pom.xml",
+      "bytes": 2505,
+      "sha256": "bfb137c1a7e7354d8e92ab75326b08877649b7989c03445d8d792c06e7a49d79"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/JdbcSubobjectVersionStore.java",
+      "bytes": 6456,
+      "sha256": "1d49ed62145e908728208e23ba8eb9f617a689e1471b91028e1d50c29f6a18cd"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/SubobjectJson.java",
+      "bytes": 8695,
+      "sha256": "19a01c130e260eefef7c6d3d5f1850f9913982d79b33cdbc16a3ea6bd937c443"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
+      "bytes": 5342,
+      "sha256": "43f85ccb97e2895cf769f6f091330c09c23496d982266dba9702473f4ca0811a"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/SubobjectJsonTest.java",
+      "bytes": 5880,
+      "sha256": "a25cfcb5d0d878d0c622575bb9e42d22879fec972878c596e913ce3fd23d18d8"
+    },
+    {
+      "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+      "bytes": 20331,
+      "sha256": "9e8c864d628d2b2bb944bf2c57765f5e1ae504b66bf709c8211fe04685a38f84"
+    },
+    {
+      "path": "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/AttemptTransactionsPostgresTest.java",
+      "bytes": 33609,
+      "sha256": "d69f13a87f47791a82026872b0e4d4113e2dd0d8e362f60c19e71ad85094f63c"
+    },
+    {
+      "path": "app/port-projection/pom.xml",
+      "bytes": 907,
+      "sha256": "6e27947a565a1699cb390892d283df04b79ca10be345d492c736a1e03a3190cc"
+    },
+    {
+      "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/CorruptSubobjectException.java",
+      "bytes": 352,
+      "sha256": "0b2125df89c243b42c4aa32431b621c088032a05984edf11d7e160708163738a"
+    },
+    {
+      "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/SubobjectConflictException.java",
+      "bytes": 356,
+      "sha256": "6e334cd74c94679c43829b3f8b2c5a8b22dc7c7dfc9cd31416bb5c8e803d1ae0"
+    },
+    {
+      "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/SubobjectVersionStore.java",
+      "bytes": 590,
+      "sha256": "759896bd2e74c5a1ac6b9ba0a56cfa435281ae274950d21a29c14fc1f2b548d9"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/CommitAcknowledgementProxy.java",
+      "bytes": 5333,
+      "sha256": "038b99cd17f3fd030d894e7878c4ba072e70d6a60431f7d2491bef9ff40375d7"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectAtomicityPostgresTest.java",
+      "bytes": 25002,
+      "sha256": "abc8e101b1b2158c06e4e2545eaec34443ee14f5f5db4bad0db0da33b4182f13"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectMigrationPostgresTest.java",
+      "bytes": 15713,
+      "sha256": "3efe36f2ad3987a79f0b9747dd611b52e9ee3d9724cf93d92fec127f98e333dd"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectPostgresFixture.java",
+      "bytes": 20595,
+      "sha256": "87b49933112ba6aca96ad0bff8ed19ccd9ec5babebbb7c28856858f4e3f0bb7c"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/SubobjectStorePostgresTest.java",
+      "bytes": 13170,
+      "sha256": "9c2e805efeb9a668a9dce876487fc74adcb715d28fcb091e2fb1478f7a85746b"
+    }
+  ],
+  "count": 23
+}

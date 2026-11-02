@@ -1,0 +1,86 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_7560a08ca03f48e4b9d23cb75fe80483
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_7560a08ca03f48e4b9d23cb75fe80483_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_7560a08ca03f48e4b9d23cb75fe80483
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_7560a08ca03f48e4b9d23cb75fe80483_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_7560a08ca03f48e4b9d23cb75fe80483_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_7560a08ca03f48e4b9d23cb75fe80483_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_7560a08ca03f48e4b9d23cb75fe80483, current_user=i1_7560a08ca03f48e4b9d23cb75fe80483_a, clock_timestamp=2026-11-02 08:38:21.622473} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_7560a08ca03f48e4b9d23cb75fe80483_w admin=i1_7560a08ca03f48e4b9d23cb75fe80483_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=d0db524b-1db4-446b-ba8c-8f42fe50995e, claimToken=f528c311-aabd-4a9b-b8c5-0aeec7173c37] partition=0
+owner-before-insert d0db524b-1db4-446b-ba8c-8f42fe50995e {pid=1564, xid=1519, db=i1_read, schema=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}
+readiness d0db524b-1db4-446b-ba8c-8f42fe50995e slots=1
+after-delete before commit {pid=1564, xid=1519, db=i1_read, schema=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}
+external snapshot d0db524b-1db4-446b-ba8c-8f42fe50995e {effects=0, slots=1, witnesses=0}
+slot lock contender PID=1566
+slot retained lock SQLSTATE=55P03
+external snapshot d0db524b-1db4-446b-ba8c-8f42fe50995e {effects=8, slots=0, witnesses=9}
+durable witnesses=[{op=DELETE, key=d0db524b-1db4-446b-ba8c-8f42fe50995e, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/EXPENSE_DETAILS/00000000-0000-0000-0000-000000000003/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/EXPENSE_FINANCIALS/00000000-0000-0000-0000-000000000003/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/EXPENSE_HEADER/00000000-0000-0000-0000-000000000003/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/POT_DETAILS/8904662a-8e12-487d-949b-6fbe675e79b1/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/POT_HEADER/8904662a-8e12-487d-949b-6fbe675e79b1/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/SHAREHOLDER_DETAILS/00000000-0000-0000-0000-000000000002/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/SHAREHOLDER_HEADER/00000000-0000-0000-0000-000000000002/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}, {op=INSERT, key=8904662a-8e12-487d-949b-6fbe675e79b1/SHAREHOLDER_WEIGHT/00000000-0000-0000-0000-000000000002/1, pid=1564, xid=1519, db=i1_read, authority=i1_7560a08ca03f48e4b9d23cb75fe80483, isolation=read committed}]

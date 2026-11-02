@@ -1,0 +1,25 @@
+{
+  "raw_sha256": "c0373a7459f98a9c959b33736b059977768cdc22daee40c0b6f8f038d158e09b",
+  "raw_members": 1415,
+  "xml_test_identities": 1500,
+  "expected_identities": 2096,
+  "unexpected_startup_error_identities": [
+    [
+      "com.kartaguez.pocoma.PotBindingConvergencePostgresTest",
+      ""
+    ],
+    [
+      "com.kartaguez.pocoma.WriteSideClosurePostgresTest",
+      ""
+    ]
+  ],
+  "counts": {
+    "tests": 1500,
+    "failures": 0,
+    "errors": 2,
+    "skipped": 0
+  },
+  "source_gate_verdict": "FAIL",
+  "archive_and_provenance_integrity": "PASS",
+  "scope": "Byte restoration, hashes, counters, identity/module/producer attribution; no new application replay."
+}

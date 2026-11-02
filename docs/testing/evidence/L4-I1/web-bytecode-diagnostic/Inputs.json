@@ -1,0 +1,14 @@
+[
+  {
+    "class": "app/runtime-web-api/target/test-classes/com/kartaguez/pocoma/PotBindingConvergencePostgresTest.class",
+    "class_sha256": "e6a6c3c3242b8f39ebf54d2bc3b71757b4b8888f90c2ebfcbca095c1ae733558",
+    "source": "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/PotBindingConvergencePostgresTest.java",
+    "source_sha256": "f958c1f9d418b750cc91af3cd8a9e3497150dae7ff491359033a23b7ce60e305"
+  },
+  {
+    "class": "app/runtime-web-api/target/test-classes/com/kartaguez/pocoma/WriteSideClosurePostgresTest.class",
+    "class_sha256": "3e21ced92a35298915621c4d61b70b5125fae92fca639efd7e16854556803b45",
+    "source": "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/WriteSideClosurePostgresTest.java",
+    "source_sha256": "41b2aaa91aefc9c7c2abdc198689e2672e513988097a534105e67640c37dee5e"
+  }
+]

@@ -1,0 +1,82 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_6db693f7949a43a6b9b0eddcfacf579e
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_6db693f7949a43a6b9b0eddcfacf579e_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_6db693f7949a43a6b9b0eddcfacf579e
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_6db693f7949a43a6b9b0eddcfacf579e_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_6db693f7949a43a6b9b0eddcfacf579e_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_6db693f7949a43a6b9b0eddcfacf579e_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_6db693f7949a43a6b9b0eddcfacf579e, current_user=i1_6db693f7949a43a6b9b0eddcfacf579e_a, clock_timestamp=2026-11-02 08:38:13.102488} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_6db693f7949a43a6b9b0eddcfacf579e_w admin=i1_6db693f7949a43a6b9b0eddcfacf579e_a
+acquired=ClaimedSlot[consumptionId=ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a], consumableId=8173ec9b-09ee-4ca1-a7b7-5ca3ebd36a0e, claimToken=be41375e-4653-49d6-a5a9-ce2f1c8934ac] partition=3
+owner-before-insert 8173ec9b-09ee-4ca1-a7b7-5ca3ebd36a0e {pid=97, xid=761, db=i1_read, schema=i1_6db693f7949a43a6b9b0eddcfacf579e, isolation=read committed}
+fault after first 256 physical inserts {pid=97, xid=761, db=i1_read, schema=i1_6db693f7949a43a6b9b0eddcfacf579e, isolation=read committed}
+external snapshot 8173ec9b-09ee-4ca1-a7b7-5ca3ebd36a0e {effects=0, slots=1, witnesses=0}
+ROLLED_BACK=Attempt[status=ROLLED_BACK, resolution=ROLLED_BACK, observation=null, cause=java.lang.IllegalStateException: I1 injected first chunk, failureKind=NON_COUNTABLE, cession=null, cessionResolution=null] snapshot={effects=0, slots=1, witnesses=0}

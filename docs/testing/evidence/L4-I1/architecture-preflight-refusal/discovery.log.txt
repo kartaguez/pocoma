@@ -1,0 +1,151 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.kartaguez.pocoma:pocoma-architecture-tests:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.kartaguez.pocoma:pocoma-runtime-task-consumption-worker:jar -> duplicate declaration of version ${project.version} @ line 117, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] pocoma                                                             [pom]
+[INFO] pocoma-domain-authorization                                        [jar]
+[INFO] pocoma-domain-event                                                [jar]
+[INFO] pocoma-domain-user-identity                                        [jar]
+[INFO] pocoma-contracts-authentication                                    [jar]
+[INFO] pocoma-domain-pot                                                  [jar]
+[INFO] pocoma-domain-projection                                           [jar]
+[INFO] pocoma-domain-consumption                                          [jar]
+[INFO] pocoma-port-transaction                                            [jar]
+[INFO] pocoma-port-binding-authority                                      [jar]
+[INFO] pocoma-engine-consumption                                          [jar]
+[INFO] pocoma-contracts-command                                           [jar]
+[INFO] pocoma-engine-write-pot                                            [jar]
+[INFO] pocoma-engine-consume-command                                      [jar]
+[INFO] pocoma-orchestrator-consumption                                    [jar]
+[INFO] pocoma-supra-consume-command                                       [jar]
+[INFO] pocoma-engine-read-command-result                                  [jar]
+[INFO] pocoma-engine-materialize-command-result                           [jar]
+[INFO] pocoma-supra-consume-command-result                                [jar]
+[INFO] pocoma-contracts-registration                                      [jar]
+[INFO] pocoma-engine-admit-registration                                   [jar]
+[INFO] pocoma-engine-consume-registration                                 [jar]
+[INFO] pocoma-supra-consume-registration                                  [jar]
+[INFO] pocoma-engine-read-registration-result                             [jar]
+[INFO] pocoma-engine-materialize-registration-result                      [jar]
+[INFO] pocoma-supra-consume-registration-result                           [jar]
+[INFO] pocoma-port-projection                                             [jar]
+[INFO] pocoma-engine-produce-projection-task                              [jar]
+[INFO] pocoma-engine-read-projection                                      [jar]
+[INFO] pocoma-projector-pot                                               [jar]
+[INFO] pocoma-engine-consume-projection-task                              [jar]
+[INFO] pocoma-supra-consume-projection-task                               [jar]
+[INFO] pocoma-engine-read-current-binding                                 [jar]
+[INFO] pocoma-engine-read-pot                                             [jar]
+[INFO] pocoma-engine-materialize-current-binding                          [jar]
+[INFO] pocoma-engine-materialize-latest-known-version                     [jar]
+[INFO] pocoma-infra-tx-spring                                             [jar]
+[INFO] pocoma-infra-persistence-projection-jdbc                           [jar]
+[INFO] pocoma-infra-persistence-read-jdbc                                 [jar]
+[INFO] pocoma-contracts-observability                                     [jar]
+[INFO] pocoma-engine-admit-command                                        [jar]
+[INFO] pocoma-supra-consume-lkv                                           [jar]
+[INFO] pocoma-infra-persistence-primary-jpa                               [jar]
+[INFO] pocoma-infra-projection-validation-networknt                       [jar]
+[INFO] pocoma-orchestrator-poll-consumption                               [jar]
+[INFO] pocoma-supra-consume-event                                         [jar]
+[INFO] pocoma-supra-consume-binding                                       [jar]
+[INFO] pocoma-supra-http-write                                            [jar]
+[INFO] pocoma-supra-http-read                                             [jar]
+[INFO] pocoma-composition-runtime-spring                                  [jar]
+[INFO] pocoma-runtime-monolith                                            [jar]
+[INFO] pocoma-runtime-web-api                                             [jar]
+[INFO] pocoma-runtime-event-consumption-worker                            [jar]
+[INFO] pocoma-runtime-command-result-consumption-worker                   [jar]
+[INFO] pocoma-runtime-registration-result-consumption-worker              [jar]
+[INFO] pocoma-runtime-registration-consumption-worker                     [jar]
+[INFO] pocoma-runtime-latest-known-version-consumption-worker             [jar]
+[INFO] pocoma-runtime-binding-consumption-worker                          [jar]
+[INFO] pocoma-runtime-task-consumption-worker                             [jar]
+[INFO] pocoma-runtime-command-consumption-worker                          [jar]
+[INFO] pocoma-architecture-tests                                          [jar]
+[INFO] 
+[INFO] --------------------< com.kartaguez.pocoma:pocoma >---------------------
+[INFO] Building pocoma 0.0.1-SNAPSHOT                                    [1/61]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- help:3.5.1:effective-pom (default-cli) @ pocoma ---
+[INFO] Effective-POM written to: /tmp/l4-i1-evidence-architecture-final/effective-pom.xml
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO] 
+[INFO] pocoma ............................................. SUCCESS [  0.820 s]
+[INFO] pocoma-domain-authorization ........................ SKIPPED
+[INFO] pocoma-domain-event ................................ SKIPPED
+[INFO] pocoma-domain-user-identity ........................ SKIPPED
+[INFO] pocoma-contracts-authentication .................... SKIPPED
+[INFO] pocoma-domain-pot .................................. SKIPPED
+[INFO] pocoma-domain-projection ........................... SKIPPED
+[INFO] pocoma-domain-consumption .......................... SKIPPED
+[INFO] pocoma-port-transaction ............................ SKIPPED
+[INFO] pocoma-port-binding-authority ...................... SKIPPED
+[INFO] pocoma-engine-consumption .......................... SKIPPED
+[INFO] pocoma-contracts-command ........................... SKIPPED
+[INFO] pocoma-engine-write-pot ............................ SKIPPED
+[INFO] pocoma-engine-consume-command ...................... SKIPPED
+[INFO] pocoma-orchestrator-consumption .................... SKIPPED
+[INFO] pocoma-supra-consume-command ....................... SKIPPED
+[INFO] pocoma-engine-read-command-result .................. SKIPPED
+[INFO] pocoma-engine-materialize-command-result ........... SKIPPED
+[INFO] pocoma-supra-consume-command-result ................ SKIPPED
+[INFO] pocoma-contracts-registration ...................... SKIPPED
+[INFO] pocoma-engine-admit-registration ................... SKIPPED
+[INFO] pocoma-engine-consume-registration ................. SKIPPED
+[INFO] pocoma-supra-consume-registration .................. SKIPPED
+[INFO] pocoma-engine-read-registration-result ............. SKIPPED
+[INFO] pocoma-engine-materialize-registration-result ...... SKIPPED
+[INFO] pocoma-supra-consume-registration-result ........... SKIPPED
+[INFO] pocoma-port-projection ............................. SKIPPED
+[INFO] pocoma-engine-produce-projection-task .............. SKIPPED
+[INFO] pocoma-engine-read-projection ...................... SKIPPED
+[INFO] pocoma-projector-pot ............................... SKIPPED
+[INFO] pocoma-engine-consume-projection-task .............. SKIPPED
+[INFO] pocoma-supra-consume-projection-task ............... SKIPPED
+[INFO] pocoma-engine-read-current-binding ................. SKIPPED
+[INFO] pocoma-engine-read-pot ............................. SKIPPED
+[INFO] pocoma-engine-materialize-current-binding .......... SKIPPED
+[INFO] pocoma-engine-materialize-latest-known-version ..... SKIPPED
+[INFO] pocoma-infra-tx-spring ............................. SKIPPED
+[INFO] pocoma-infra-persistence-projection-jdbc ........... SKIPPED
+[INFO] pocoma-infra-persistence-read-jdbc ................. SKIPPED
+[INFO] pocoma-contracts-observability ..................... SKIPPED
+[INFO] pocoma-engine-admit-command ........................ SKIPPED
+[INFO] pocoma-supra-consume-lkv ........................... SKIPPED
+[INFO] pocoma-infra-persistence-primary-jpa ............... SKIPPED
+[INFO] pocoma-infra-projection-validation-networknt ....... SKIPPED
+[INFO] pocoma-orchestrator-poll-consumption ............... SKIPPED
+[INFO] pocoma-supra-consume-event ......................... SKIPPED
+[INFO] pocoma-supra-consume-binding ....................... SKIPPED
+[INFO] pocoma-supra-http-write ............................ SKIPPED
+[INFO] pocoma-supra-http-read ............................. SKIPPED
+[INFO] pocoma-composition-runtime-spring .................. SKIPPED
+[INFO] pocoma-runtime-monolith ............................ SKIPPED
+[INFO] pocoma-runtime-web-api ............................. SKIPPED
+[INFO] pocoma-runtime-event-consumption-worker ............ SKIPPED
+[INFO] pocoma-runtime-command-result-consumption-worker ... SKIPPED
+[INFO] pocoma-runtime-registration-result-consumption-worker SKIPPED
+[INFO] pocoma-runtime-registration-consumption-worker ..... SKIPPED
+[INFO] pocoma-runtime-latest-known-version-consumption-worker SKIPPED
+[INFO] pocoma-runtime-binding-consumption-worker .......... SKIPPED
+[INFO] pocoma-runtime-task-consumption-worker ............. SKIPPED
+[INFO] pocoma-runtime-command-consumption-worker .......... SKIPPED
+[INFO] pocoma-architecture-tests .......................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.088 s
+[INFO] Finished at: 2026-11-02T08:30:18+01:00
+[INFO] ------------------------------------------------------------------------

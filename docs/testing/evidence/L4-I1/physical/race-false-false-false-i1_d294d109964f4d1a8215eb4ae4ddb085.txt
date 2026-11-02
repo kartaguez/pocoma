@@ -1,0 +1,81 @@
+script=bootstrap-l2-routing.sql rc=0 BEGIN
+LOCK TABLE
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_d294d109964f4d1a8215eb4ae4ddb085
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_d294d109964f4d1a8215eb4ae4ddb085_a
+(1 row)
+
+ set_config 
+------------
+ READ
+(1 row)
+
+DO
+INSERT 0 7
+INSERT 0 28
+DO
+COMMIT
+
+script=grant-l2-lifecycle.sql rc=0 BEGIN
+ set_config 
+------------
+ fixture
+(1 row)
+
+ set_config 
+------------
+ 
+(1 row)
+
+DO
+ set_config 
+------------
+ i1_read
+(1 row)
+
+             set_config              
+-------------------------------------
+ i1_d294d109964f4d1a8215eb4ae4ddb085
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_d294d109964f4d1a8215eb4ae4ddb085_a
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_d294d109964f4d1a8215eb4ae4ddb085_w
+(1 row)
+
+              set_config               
+---------------------------------------
+ i1_d294d109964f4d1a8215eb4ae4ddb085_r
+(1 row)
+
+DO
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+DO
+DO
+COMMIT
+
+environment={version=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit, db=i1_read, schema=i1_d294d109964f4d1a8215eb4ae4ddb085, current_user=i1_d294d109964f4d1a8215eb4ae4ddb085_a, clock_timestamp=2026-11-02 08:38:23.652406} image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 runtime=i1_d294d109964f4d1a8215eb4ae4ddb085_w admin=i1_d294d109964f4d1a8215eb4ae4ddb085_a
+loser-before-insert {pid=165, xid=789, db=i1_read, schema=i1_d294d109964f4d1a8215eb4ae4ddb085, isolation=read committed}
+blocked PostgreSQL backend=165 [{wait_event_type=Lock, wait_event=transactionid}]
+winner rollback=false divergent=false final={SubobjectKey[potId=87288d8a-20ff-41d3-bd4e-ceb453b64feb, kind=POT_HEADER, objectId=87288d8a-20ff-41d3-bd4e-ceb453b64feb, localVersion=1]=SubobjectVersion[key=SubobjectKey[potId=87288d8a-20ff-41d3-bd4e-ceb453b64feb, kind=POT_HEADER, objectId=87288d8a-20ff-41d3-bd4e-ceb453b64feb, localVersion=1], content=PotHeaderContent[value=PotHeader[potId=87288d8a-20ff-41d3-bd4e-ceb453b64feb, deleted=false]]]}
+loser SQL instructions=[insert into read_subobject_version(pot_id,kind,object_id,local_version,schema_version,payload) values (?,?,?,?,1,?::jsonb) on conflict(pot_id,kind,object_id,local_version) do nothing, select pot_id,kind,object_id,local_version,schema_version,payload::text from read_subobject_version where (pot_id,kind,object_id,local_version) in ((?,?,?,?))]
