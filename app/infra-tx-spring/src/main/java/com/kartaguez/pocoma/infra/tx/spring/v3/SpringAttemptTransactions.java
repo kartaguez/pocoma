@@ -91,6 +91,27 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         }
     }
 
+    /**
+     * Spring checks rollback flags before invoking transaction synchronizations. JDBC commit
+     * itself does not honour a ConnectionHolder flag raised by a caught late callback.
+     * This stateless check runs after those callbacks, immediately before manager.doCommit.
+     * Transactions without an Attempt Unit keep their existing behaviour.
+     */
+    private static final class PoisonedCommitGuard implements TransactionExecutionListener {
+        @Override
+        public void beforeCommit(TransactionExecution transaction) {
+            TransactionSynchronizationManager.getResourceMap().values().stream()
+                    .filter(Unit.class::isInstance)
+                    .map(Unit.class::cast)
+                    .filter(unit -> unit.status == transaction)
+                    .forEach(unit -> {
+                        if (unit.poisonCause != null || unit.status.isRollbackOnly())
+                            throw new IllegalTransactionStateException(
+                                    "Poisoned attempt cannot reach physical commit", unit.poisonCause);
+                    });
+        }
+    }
+
     private final DataSource source;
     private final EntityManagerFactory emf;
     private final TransactionTemplate read, write;
@@ -121,6 +142,9 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         var spring = (AbstractPlatformTransactionManager) manager;
         spring.setRollbackOnCommitFailure(true);
         spring.setGlobalRollbackOnParticipationFailure(true);
+        if (spring.getTransactionExecutionListeners().stream()
+                .noneMatch(PoisonedCommitGuard.class::isInstance))
+            spring.addListener(new PoisonedCommitGuard());
         read =
                 template(
                         manager,

@@ -129,6 +129,33 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
     }
 
     @Test
+    void jdbcCaughtLateCallbackCannotCommitPrefix() {
+        var manager = new DataSourceTransactionManager(read.dataSource);
+        manager.setNestedTransactionAllowed(false);
+        var readOwner = new SpringAttemptTransactions(read.dataSource, manager, 20);
+        for (boolean completionPhase : List.of(false, true)) {
+            var failure = assertThrows(AttemptTransactions.Failure.class, () -> readOwner.write(() -> {
+                SpringAttemptTransactions.guarded(read.dataSource, () -> {
+                    read.jdbc.update("insert into foundation_effect values (?,?)", new UUID(0, 19), "late guard prefix");
+                    return null;
+                });
+                SpringAttemptTransactions.closePublication(read.dataSource);
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    void late() {
+                        try { SpringAttemptTransactions.guarded(read.dataSource, () -> null); }
+                        catch (RuntimeException intercepted) { /* Must poison even when caught. */ }
+                    }
+                    public void beforeCommit(boolean readOnly) { if (!completionPhase) late(); }
+                    public void beforeCompletion() { if (completionPhase) late(); }
+                });
+                return null;
+            }));
+            assertEquals(AttemptTransactions.Resolution.UNKNOWN, failure.resolution());
+            assertEquals(0, read.observedEffects());
+        }
+    }
+
+    @Test
     void caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders() {
         for (String kind : List.of("application", "jdbc", "jpa"))
             for (boolean jpaFirst : List.of(false, true)) {
