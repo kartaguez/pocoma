@@ -5,9 +5,29 @@ GO humain : mandat explicite de cette mission ; il supplante les mentions
 historiques « aucun GO » des deux plans de référence. Aucun nouveau cadrage ni
 audit préalable n’a été lancé.
 
-**Verdict : IMPLEMENTED — LOCAL BOUNDED PASS.** Les obligations techniques I1
-sont démontrées sur le périmètre décrit. L’audit indépendant du code et des
-preuves, puis la clôture humaine définitive I1, restent à venir.
+**Verdict officiel courant : CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT
+RESERVATIONS**, décision humaine définitive du 2 novembre 2026, sur le dossier
+`3bba9dbaa4fedfe040ed9f7e5d7ca2239b1ddab7`.
+L’[acte de clôture dédié](L4_I1_Acceptance_Decision.md) distingue implémentation,
+qualification locale, recommandation d’audit et décision humaine. **I2 peut
+être engagé après son propre cadrage technique** ; L4 reste ouvert.
+
+**Verdict d’implémentation historique : IMPLEMENTED — LOCAL BOUNDED PASS.**
+Les obligations techniques I1 sont démontrées dans le périmètre décrit par les
+campagnes publiées. À la livraison initiale, l’audit indépendant du code et des
+preuves, puis la clôture humaine, restaient à venir. Les résultats et récits
+ci-dessous conservent leur attribution historique ; cet ajout ne produit ni
+audit ni nouveau rejeu Maven/PostgreSQL.
+
+Réserves conservées par la décision : preuves PostgreSQL issues des campagnes
+archivées, sans nouveau rejeu physique par l’audit indépendant ; FAIL Architecture
+initial et diagnostic des bytecodes WEB suspects conservés avec la qualification
+ultérieure isolée ; bornes mémoire du codec et volumes réels à examiner aux
+incréments métier, sans défaut I1 établi ; correctif de poisoning tardif L2 à
+préserver et inclure dans l’analyse de régression I2 avec PreparationReads.
+Ces réserves ne bloquent pas artificiellement la poursuite et n’étendent aucune
+certification. I2, matérialisations I3–I7, activation I8, qualification globale L4
+et contrats futurs L5/L6 restent hors clôture I1.
 
 ## Frontière déclarée et réalisation
 
@@ -290,8 +310,10 @@ est conservée telle quelle ; l’observation ultérieure du rollback ne la
 réécrit pas. Ce comportement conservateur reste inchangé par le correctif de poisoning
 tardif : le rollback observé ne réécrit pas l’ACK historique.
 
-- Aucun audit indépendant du code livré ni clôture humaine définitive I1 n’est
-  revendiqué : la livraison sera soumise à cet audit après publication.
+- État historique de la livraison initiale : aucun audit indépendant du code
+  livré ni clôture humaine définitive I1 n’était alors revendiqué. Le statut
+  courant relève désormais de l’[acte humain de clôture](L4_I1_Acceptance_Decision.md),
+  sans réécriture des résultats de campagne.
 - Pas de participant métier activé, pas de source WRITE@V, pas de préparation ou
   recovery interautorités I2, pas de certificat global READ/PRJ/SEC/OPS/PERF.
 - Les réserves historiques L2/L3 ne sont ni effacées ni levées par ces preuves.

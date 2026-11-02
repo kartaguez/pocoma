@@ -1,23 +1,28 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
-> **GO humain L4/I1 accordé le 2 novembre 2026 ; exécution autorisée.**
-> Le [rapport d’exécution I1](L4_I1_Execution_Report.md) et son
-> [manifeste de preuves](L4_I1_Proof_Manifest.json) portent le code, les tests,
-> les résultats stricts des gates et les réserves de livraison. Les mentions
-> antérieures « aucun GO » et « commandes futures » ci-dessous sont historiques.
-> Le périmètre I2–I8 reste inchangé ; aucune clôture humaine définitive I1 ou
-> acceptation indépendante du code n’est déduite de ce GO.
+> **Décision humaine définitive du 2 novembre 2026 — L4/I1 :
+> CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS.**
+> L’[acte de clôture](L4_I1_Acceptance_Decision.md) porte la décision sur le dossier
+> `3bba9dbaa4fedfe040ed9f7e5d7ca2239b1ddab7`, ses quatre réserves et les limites
+> des preuves acceptées. Le [rapport d’exécution I1](L4_I1_Execution_Report.md)
+> et le [manifeste](L4_I1_Proof_Manifest.json) conservent les résultats attribués
+> aux campagnes archivées ; aucun nouveau rejeu physique n’est revendiqué.
+> **I2 peut être engagé après son propre cadrage technique**, avec préservation
+> du poisoning tardif I1 et requalification ciblée L2. Aucun plan ni code I2
+> n’est créé ici ; I2–I8 et la qualification globale L4 restent hors clôture I1.
+> Les statuts de revue, interdictions de GO, commandes futures et bilans de
+> missions antérieures ci-dessous restent historiques ; ils ne rouvrent pas I1.
 
 
 **Date du cadrage :** 1er novembre 2026.
 
 **Branche et HEAD examinés :** feat/v3-architecture — e11d3372bad9ff88e30d4645b46fe6211829c001.
 
-**Statut consolidé au 2 novembre 2026 : READY FOR I1 IMPLEMENTATION REVIEW.**
+**Statut historique de la consolidation avant GO : READY FOR I1 IMPLEMENTATION REVIEW (2 novembre 2026).**
 
 Référence de consolidation : `e9729ae20531f688a7eb16a2642c0f3e7b82fece`, locale et distante vérifiées identiques par fetch ; worktree initial propre, quatre autres worktrees examinés et préservés. Les constats historiques ci-dessous restent attribués au HEAD initial `e11d3372…`. L’avis indépendant **GO WITH RESERVATIONS L4/I1** et les dix amendements sont transmis par le mandat humain ; son rapport original n’est pas fourni dans le dépôt sous un nom identifiable. Cette consolidation vérifie les affirmations dans les sources, sans revendiquer un nouvel audit indépendant. Le [plan autonome I1](L4_I1_Implementation_Plan.md) fixe le contrat à soumettre à la revue et au GO humain distinct.
 
-**Aucune autorisation d’implémentation L4/I1.**
+**État historique avant GO : aucune autorisation d’implémentation L4/I1 à cette étape.**
 
 > Publication documentaire demandée après remise de ce rapport dans la conversation.
 > Le corps conserve les constats et propositions du cadrage READ-ONLY ; les liens
@@ -858,6 +863,14 @@ Maven/runtimes n’est un préalable ou un critère de sortie I1–I8.
 
 ### I1 — Stockage immuable READ minimal
 
+**CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS**, décision humaine du
+2 novembre 2026 : [acte, réserves et attribution des preuves](L4_I1_Acceptance_Decision.md).
+Les exigences de conception ci-dessous restent historiques. La réalisation a
+nécessité le correctif de poisoning tardif de l’owner L2, avec frontière élargie
+PROJECTION + COMMAND et qualification Architecture isolée ; voir le
+[rapport](L4_I1_Execution_Report.md). Aucun nouveau test n’est dû pour enregistrer
+cette décision ; les preuves archivées restent inchangées.
+
 **Objectif :** établir le contrat physique de SubobjectVersion et son atomicité avec un slot L2, sans source métier WRITE.
 
 - **Préconditions :** plan audité, schéma des neuf projections validé sur le papier, GO I1 distinct.
@@ -874,6 +887,17 @@ Maven/runtimes n’est un préalable ou un critère de sortie I1–I8.
 - **Passage :** audit I1 et décision humaine ; pas d’activation de participant réel.
 
 ### I2 — Préparation et recovery interautorités dans L2
+
+**Transition autorisée après cadrage technique propre à I2.** Le prérequis
+« I1 accepté » est satisfait par l’[acte de clôture](L4_I1_Acceptance_Decision.md).
+Le cadrage distinct devra reprendre PreparationReads et les snapshots séquentiels
+source/effets, l’incertitude irréversible possédée par L2, la préservation des
+préparations Command/Identity, le recovery checkpoint/slot/preuves, l’absence de
+transaction distribuée et la requalification ciblée des contrats L2 affectés.
+**Inclure le correctif I1 de poisoning tardif dans l’analyse de régression**,
+notamment lors de l’introduction de PreparationReads. Les obligations ci-dessous
+restent le cadrage global anticipé ; aucun nouveau plan ni code I2 n’est produit
+par la clôture documentaire.
 
 **Objectif :** résoudre le finding du §6.2 dans l’unique Engine.
 
@@ -1409,7 +1433,7 @@ Avant I2, A1 doit en outre être tranché et l’adaptation exacte des contrats 
 | Fichiers modifiés | Aucun |
 | Nouvelle certification | Aucune |
 
-**Verdict consolidé : READY FOR I1 IMPLEMENTATION REVIEW.**
+**Verdict historique de la consolidation avant GO : READY FOR I1 IMPLEMENTATION REVIEW.**
 
 Les dix amendements A01–A10 sont intégrés ; le contrat I1 est figé dans son plan autonome. A1 reste à décider avant **I2**, A2 avant **I8**, A4 avant chaque réutilisation ; la partie I1 d’A3 est définie. Les huit incréments et leurs livrables restent inchangés, sans dépendance circulaire I1/I2. D1–D4 et la stratégie de gates proportionnées sont conservés. Aucun arbitrage normatif bloquant I1 identifié ; les limites probatoires et désaccords techniques A09 restent explicites.
 

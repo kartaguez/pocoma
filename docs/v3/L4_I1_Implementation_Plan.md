@@ -1,17 +1,22 @@
 # Pocoma V3 — L4/I1 — Plan d’implémentation du stockage immuable READ
 
-> **GO humain L4/I1 accordé le 2 novembre 2026 ; exécution autorisée.**
-> Le [rapport d’exécution I1](L4_I1_Execution_Report.md) et son
-> [manifeste de preuves](L4_I1_Proof_Manifest.json) portent le code, les tests,
-> les résultats stricts des gates et les réserves de livraison. Les mentions
-> antérieures « aucun GO » et « commandes futures » ci-dessous sont historiques.
-> Le périmètre I2–I8 reste inchangé ; aucune clôture humaine définitive I1 ou
-> acceptation indépendante du code n’est déduite de ce GO.
+> **Décision humaine définitive du 2 novembre 2026 — L4/I1 :
+> CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS.**
+> L’[acte de clôture](L4_I1_Acceptance_Decision.md) porte la décision sur le dossier
+> `3bba9dbaa4fedfe040ed9f7e5d7ca2239b1ddab7`, ses quatre réserves et les limites
+> des preuves acceptées. Le [rapport d’exécution I1](L4_I1_Execution_Report.md)
+> et le [manifeste](L4_I1_Proof_Manifest.json) conservent les résultats attribués
+> aux campagnes archivées ; aucun nouveau rejeu physique n’est revendiqué.
+> **I2 peut être engagé après son propre cadrage technique**, avec préservation
+> du poisoning tardif I1 et requalification ciblée L2. Aucun plan ni code I2
+> n’est créé ici ; I2–I8 et la qualification globale L4 restent hors clôture I1.
+> Les statuts de revue, interdictions de GO, commandes futures et bilans de
+> missions antérieures ci-dessous restent historiques ; ils ne rouvrent pas I1.
 
 
 **Consolidation : 2 novembre 2026. Référence vérifiée : `e9729ae20531f688a7eb16a2642c0f3e7b82fece`, branche `feat/v3-architecture`.**
 
-**Statut documentaire : READY FOR I1 IMPLEMENTATION REVIEW. Aucun GO d’implémentation.**
+**Statut historique du plan avant GO : READY FOR I1 IMPLEMENTATION REVIEW. Aucun GO d’implémentation à cette étape.**
 L’avis indépendant **GO WITH RESERVATIONS L4/I1** et les amendements A01–A10
 sont transmis par le mandat humain ; aucun rapport original d’audit L4 n’est
 présent sous un nom identifiable. Ce plan fige une proposition technique à revoir,
@@ -427,6 +432,13 @@ l’impact réel devient global au sens §§17/19, arrêter, expliquer et redéc
 le gate requis avant poursuite. Une simple difficulté de test ne justifie pas FULL.
 
 ## 8. Clôture objective et arbitrages restants
+
+**État courant : I1 définitivement CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT
+RESERVATIONS**, selon l’[acte humain](L4_I1_Acceptance_Decision.md). Les critères
+ci-dessous sont conservés comme contrat historique ; leur acceptation est bornée
+aux preuves archivées. Mémoire/volumes restent aux incréments métier ; le
+poisoning tardif L2 corrigé doit entrer dans l’analyse de régression I2, notamment
+avec PreparationReads. La clôture n’exige aucun nouveau plan ni rejeu I1.
 
 I1 est clôturable seulement si : huit types et clés conformes ; codecs stricts ;
 insertion identique idempotente, divergence détectée (y compris après conflit
