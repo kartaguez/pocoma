@@ -1,5 +1,9 @@
 # L4/I8 — Exécution et qualification READ
 
+**Clôture humaine du 3 novembre 2026 : L4 — READ Projections : CLOSED WITH EXPLICIT RESERVATIONS — COMPOSITE INTERNAL QUALIFICATION ACCEPTED.** L’[acte autonome](L4_Read_Closure_Decision.md) enregistre la décision sur la livraison `70ff3e53526d902cfba141cf11385e340138503d`, l’audit indépendant favorable sans BLOCKER ni MAJOR et le MINOR non bloquant `AUD-FINAL-I8-01` maintenu en suivi (prévalidation pure de `expenses` et `visible` avant acquisition du quota READ). Aucun full natif PASS, aucune certification SPEC-10 globale ; lease180, dimensionnement de production, limites historiques et obligations L5/L6/L7 conservés. Les mentions « L4 ouvert » et « audit/clôture à venir » ci-dessous décrivent l’état antérieur de livraison ; les preuves et verdicts restent inchangés.
+
+**Rapport de livraison historique I8, avant décision de clôture :**
+
 **IMPLEMENTED — COMPOSITE INTERNAL QUALIFICATION WITH EXPLICIT HUMAN DISPENSATION.** T01–T11 sont PASS. La qualification canonique/Architecture est composite et expressément autorisée : 2 024 tests hors Architecture PASS au SHA productif `a3470df6…` + 167 tests Architecture PASS au SHA d’oracles `8a007768…`, sans différence de code productif. **Aucun full PASS n’est déclaré ; L4 reste ouvert.**
 
 SHA initial : `a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc`, branche `feat/v3-architecture`, worktree initial propre. `origin` : `https://github.com/kartaguez/pocoma.git`, SHA distant identique vérifié avant modification. Les cinq autres worktrees restent intacts.

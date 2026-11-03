@@ -1,19 +1,20 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
-**L4/I8 — implémentation livrée, qualification composite autorisée le 3 novembre 2026.**
-Les six participants sont activables indépendamment dans PROJECTION et le monolithe ;
-les façades internes READ et T01–T11 sont PASS au code productif `a3470df6…`.
-Décision humaine explicite : **« Autoriser la qualification composite et dispenser le quatrième full »** :
-**2 024 tests hors Architecture PASS + 167 Architecture PASS** après correction de deux seuls
-fichiers d’oracles au SHA `8a007768…`, sans différence productive/POM/SQL.
-Le dernier full complet reste **FAIL 2 191/4/0/0** ; aucun full PASS n’est déclaré.
-Quatre full ont été démarrés : trois FAIL, le dernier interrompu dès réception de la dispense.
-[Rapport et coûts](L4_I8_Execution_Report.md), [manifeste](L4_I8_Proof_Manifest.json),
-[preuves](../testing/evidence/L4-I8/README.md). Lease180 reste une hypothèse locale,
-les réserves historiques et les obligations L5/L6/L7 sont maintenues.
-**L4 reste OPEN : audit indépendant et décision humaine de clôture à venir ;
-aucune certification SPEC-10 globale.** Le [plan I8 publié `a2b4e2a0…`](L4_I8_Implementation_and_Qualification_Plan.md)
-reste la référence ; les anciennes transitions ci-dessous sont historiques.
+**Décision humaine du 3 novembre 2026 : L4 — READ Projections : CLOSED WITH EXPLICIT RESERVATIONS — COMPOSITE INTERNAL QUALIFICATION ACCEPTED.**
+L’[acte autonome de clôture](L4_Read_Closure_Decision.md) porte l’acceptation interne du dossier I8
+`70ff3e53526d902cfba141cf11385e340138503d`, l’avis indépendant favorable sans BLOCKER ni MAJOR,
+les réserves et les conditions d’entrée de L5. Six participants activables dans PROJECTION et
+Monolithe, façades internes READ et T01–T11 PASS. Qualification composite acceptée :
+**2 024 tests applicatifs hors Architecture PASS** au SHA `a3470df662f4552d05785ab3ec191951c4cc9d56`
++ **167 tests Architecture PASS** au SHA `8a007768c23021153764473f6c6686042168df00`, sans différence productive/POM/SQL.
+**Aucun full natif PASS** : trois full terminés FAIL, quatrième interrompu par dispense humaine explicite.
+**Aucune certification SPEC-10 globale.** Lease180 et dimensionnement de production non homologués ;
+`AUD-FINAL-I8-01` (prévalidation pure de `expenses`/`visible` avant quota READ) reste MINOR non bloquant en suivi.
+[Rapport I8](L4_I8_Execution_Report.md), [manifeste historique](L4_I8_Proof_Manifest.json),
+[preuves figées](../testing/evidence/L4-I8/README.md) et [plan I8](L4_I8_Implementation_and_Qualification_Plan.md).
+Les réserves historiques I1/I2/I3–I7, recovery et L2/L3 ainsi que les obligations L5/L6/L7 sont conservées.
+**L5 : cadrage possible après publication vérifiée de l’acte, sous son propre plan et ses décisions ; aucun GO d’implémentation.**
+Les transitions et attentes antérieures ci-dessous sont historiques ; elles ne rouvrent aucun incrément.
 
 **Correctif ciblé recovery AUD-L4-01/02 — 3 novembre 2026.** CurrentPot est désormais inclus
 dans la preuve PotVersion ; les supersessions Visibility/CurrentBinding sont instruites et
@@ -50,7 +51,7 @@ Les cadrages et attentes antérieurs ci-dessous sont conservés comme historique
 
 ## Qualification globale reportée à la clôture L4
 
-**État courant : contributions canoniques/Architecture acquises par qualification composite explicitement autorisée ; dernier full natif FAIL conservé, aucun PASS global inventé. Le report décrit ci-dessous est historique.** [Résultats, dispense et limites](L4_I8_Execution_Report.md).
+**État courant : L4 clos avec réserves par l’[acte humain](L4_Read_Closure_Decision.md), contributions canoniques/Architecture acceptées par qualification composite autorisée ; dernier full natif FAIL conservé, aucune certification SPEC-10 globale. Le report et les consignes de lancement ci-dessous sont historiques et ne demandent aucun rejeu.** [Résultats, dispense et limites](L4_I8_Execution_Report.md).
 
 La requalification globale du système est reportée à la clôture du lot L4, après achèvement
 des incréments restants. Elle intégrera les invariants **L4/I1 à I7**, l’activation/assemblage I8,
