@@ -2,14 +2,19 @@
   "reference_campaign": "canonical-fail-renewal",
   "reference_verdict": "FAIL",
   "compared_app_inputs": 1288,
-  "unchanged_app_inputs": 1287,
+  "unchanged_app_inputs": 1286,
   "differences": [
+    {
+      "path": "app/mvnw.cmd",
+      "tested_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+      "delivery_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c"
+    },
     {
       "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
       "tested_sha256": "769520b5edc2b8dc12eb5b0b2f44dfac3c108a4883ed93ac7c948373ec14dcf0",
-      "delivery_sha256": "c231b2b0c649d7a20292477aa62fe982d3ddf23e35d37dbe10482d956006053c"
+      "delivery_sha256": "90a8c20097d48d030cf92438b5bc86549db68722f57c02139c69a83a23b22621"
     }
   ],
-  "description": "Diagnostic-only test instrumentation: per-lane failure traces and pool/pg_stat_activity inventory on failed barrier. Same setup, thresholds and assertions. No production, SQL or build configuration change.",
-  "qualification": "No PASS or complete application-byte equivalence transferred from this failed run. Architecture runs on the instrumented delivery inputs."
+  "description": "Test-only fix and diagnostic attribution in ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess: establish physical Hikari pool reserve (minimumIdle=8 + awaitPhysicalPoolReserve) matching production V3ConsumptionWorkerConfiguration, per-lane attribution, and unreserved counter-oracle. Same maximumPoolSize=8, 5 held connections, 3 renewal lanes, 1000ms borrow timeout, 8s barrier, and assertions. No production, SQL or build configuration change.",
+  "qualification": "Both canonical (PROJECTION + COMMAND) and architecture gates were re-executed on the identical committed application bytes (6496e6d0144ecfda9e58ec6d12e259445e7344ad) with 0 differences."
 }

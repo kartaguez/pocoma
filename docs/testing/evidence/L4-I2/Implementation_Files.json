@@ -207,7 +207,7 @@
   {
     "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
     "status": "MODIFY",
-    "sha256": "c231b2b0c649d7a20292477aa62fe982d3ddf23e35d37dbe10482d956006053c"
+    "sha256": "90a8c20097d48d030cf92438b5bc86549db68722f57c02139c69a83a23b22621"
   },
   {
     "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/DiscoveryCompositionPostgresTest.java",

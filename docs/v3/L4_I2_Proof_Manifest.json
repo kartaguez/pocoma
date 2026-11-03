@@ -1,17 +1,17 @@
 {
   "format_version": 1,
   "lot": "L4/I2",
-  "verdict": "IMPLEMENTED — QUALIFICATION INCOMPLETE",
+  "verdict": "I2-QUAL-01 RESOLVED — LOCAL BOUNDED PASS",
   "initial_sha": "a9937991a75428d8718e6036da11be2382c633d0",
-  "tested_head": "a9937991a75428d8718e6036da11be2382c633d0",
-  "tested_worktree": "dirty overlay; exact inputs in each provenance.json",
-  "final_application_commit": "23ad96d6b0ed9c075573247edf9989ed10472887",
+  "tested_head": "6496e6d0144ecfda9e58ec6d12e259445e7344ad",
+  "tested_worktree": "clean checkout (dirty = false); exact inputs in each provenance.json",
+  "final_application_commit": "6496e6d0144ecfda9e58ec6d12e259445e7344ad",
   "delivery_commit_locator": "git log -1 --format=%H -- docs/v3/L4_I2_Proof_Manifest.json",
   "branch": "feat/v3-architecture",
   "acceptance": "Independent code/evidence audit and later human decision required; I2 is not CLOSED",
   "application_inputs": 1288,
   "app_blobs_match_architecture_tested_inputs": true,
-  "app_blobs_match_canonical_tested_inputs": false,
+  "app_blobs_match_canonical_tested_inputs": true,
   "production_sql_build_configuration_match_both_campaigns": true,
   "canonical_to_delivery_comparison": "docs/testing/evidence/L4-I2/Canonical_To_Delivery_Input_Comparison.json",
   "verification": {
@@ -42,16 +42,16 @@
   "campaigns": [
     {
       "name": "canonical",
-      "verdict": "FAIL",
+      "verdict": "PASS",
       "counts": {
         "tests": 1873,
-        "failures": 1,
+        "failures": 0,
         "errors": 0,
         "skipped": 0
       },
       "expected_invocations": 1873,
-      "modules": 51,
-      "invocation_id": "acdf677077654bd58bfc0866a761ead0",
+      "modules": 279,
+      "invocation_id": "a51dbdc33d474f6da594a415230a9925",
       "command": [
         "./mvnw",
         "--batch-mode",
@@ -59,23 +59,17 @@
         "-pl",
         "runtime-task-consumption-worker,runtime-command-consumption-worker",
         "-am",
-        "-Dpocoma.verification.id=acdf677077654bd58bfc0866a761ead0",
-        "-Dpocoma.verification.reports=/private/tmp/l4-i2-canonical-publication/reports",
+        "-Dpocoma.verification.id=a51dbdc33d474f6da594a415230a9925",
+        "-Dpocoma.verification.reports=/private/tmp/l4-i2-canonical-pass/reports",
         "test"
       ],
-      "seconds": 3135.850148,
-      "raw_sha256": "71d57c2b2f42154e6374eb24b0d460e45e15355e0c6e72438db7263fa1d6eeee",
-      "result": "docs/testing/evidence/L4-I2/canonical-fail-renewal/result.json",
-      "plan": "docs/testing/evidence/L4-I2/canonical-fail-renewal/plan.json",
-      "provenance": "docs/testing/evidence/L4-I2/canonical-fail-renewal/provenance.json",
+      "seconds": 3127.318643,
+      "raw_sha256": "53c08f5f98934d332744be7553a5c7d3cb16254e13b22eeedaabd96b3cf56f0b",
+      "result": "docs/testing/evidence/L4-I2/canonical/result.json",
+      "plan": "docs/testing/evidence/L4-I2/canonical/plan.json",
+      "provenance": "docs/testing/evidence/L4-I2/canonical/provenance.json",
       "application_inputs": 1288,
-      "application_differences_to_delivery": [
-        {
-          "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
-          "tested_sha256": "769520b5edc2b8dc12eb5b0b2f44dfac3c108a4883ed93ac7c948373ec14dcf0",
-          "delivery_sha256": "c231b2b0c649d7a20292477aa62fe982d3ddf23e35d37dbe10482d956006053c"
-        }
-      ],
+      "application_differences_to_delivery": [],
       "filtered": false,
       "reviewed_source_aliases": {
         "com.kartaguez.pocoma.runtime.command.consumption.sequencing.CurrentTransactionManagerPostgresTest": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/JpaTerminalSequencingPostgresTest.java"
@@ -91,8 +85,8 @@
         "skipped": 0
       },
       "expected_invocations": 2137,
-      "modules": 60,
-      "invocation_id": "7a236bcea8744166b5719859b52f1e78",
+      "modules": 332,
+      "invocation_id": "db612392a6a143cda26be68bc2f5a209",
       "command": [
         "./mvnw",
         "--batch-mode",
@@ -100,12 +94,12 @@
         "-pl",
         "architecture-tests",
         "-am",
-        "-Dpocoma.verification.id=7a236bcea8744166b5719859b52f1e78",
-        "-Dpocoma.verification.reports=/private/tmp/l4-i2-architecture-delivery/reports",
+        "-Dpocoma.verification.id=db612392a6a143cda26be68bc2f5a209",
+        "-Dpocoma.verification.reports=/private/tmp/l4-i2-architecture-gate/reports",
         "test"
       ],
-      "seconds": 3263.207835,
-      "raw_sha256": "74ceb7332198215cade0646c61e6f392c7302d652524a375f87b785a3c21758d",
+      "seconds": 3344.163423,
+      "raw_sha256": "d9dfb3c626c3801d7294fd80faa8598f654b591ae199fdd44e4d251b648d00c0",
       "result": "docs/testing/evidence/L4-I2/architecture/result.json",
       "plan": "docs/testing/evidence/L4-I2/architecture/plan.json",
       "provenance": "docs/testing/evidence/L4-I2/architecture/provenance.json",
@@ -122,17 +116,7 @@
   "suite_contributions": "docs/testing/evidence/L4-I2/Suite_Contributions.json",
   "monolith_coverage": "docs/testing/evidence/L4-I2/Monolith_Coverage.json",
   "execution_report": "docs/v3/L4_I2_Execution_Report.md",
-  "blocking_reservations": [
-    {
-      "id": "I2-QUAL-01",
-      "test": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess",
-      "campaign": "canonical",
-      "observation": "WRITE3 physical renewal lanes, READ2 of3 at unchanged8s barrier",
-      "cause": "NOT ESTABLISHED: initial trace lacks missing lane Future failure",
-      "diagnostic": "Only observation added;1/0/0/0 did not reproduce. Same pool8,5 held,connection1s,barrier8s and assertions. Architecture PASS does not resolve original mandatory FAIL.",
-      "disposition": "Blocks global PASS; no timeout/oracle/gate weakening,prewarming or hidden retry"
-    }
-  ],
+  "blocking_reservations": [],
   "historical_reservations": {
     "preserved": true,
     "attribution": "I1 and historical r05/r12 documents unchanged; QUALIFIED active=false registry retained; no implicit waiver/closure",
@@ -211,53 +195,58 @@
   "artifacts": [
     {
       "path": "docs/testing/evidence/L4-I2/Canonical_To_Delivery_Input_Comparison.json",
-      "bytes": 911,
-      "sha256": "caa4aa1e79dcc72a56e350a7fce6d4b0126a9e12a7d11e9bd97e9af1969bc7d4"
+      "bytes": 1454,
+      "sha256": "9727a176b0cd475ca8cfd8d30e26fc5c3be915dcdc15c8a393ed933c0728b7fa"
     },
     {
       "path": "docs/testing/evidence/L4-I2/Implementation_Files.json",
       "bytes": 13765,
-      "sha256": "c873fca38f6deec72843a48eeda0e11decd4274802a8a5231cd998e918ba9b3a"
+      "sha256": "4ba8eb17e868e116467587e79a06cda798b2eb779a11b4051b1ba62c237c69c1"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/Integrity_Verification.json",
+      "bytes": 1049,
+      "sha256": "8c2a86bbd021d354758438b239787b89a5f087fd9546f8e5d679fb18ebf41313"
     },
     {
       "path": "docs/testing/evidence/L4-I2/Monolith_Coverage.json",
-      "bytes": 1191,
-      "sha256": "bff7180eb6c90e5bc6e6ca65706237f80be571018d922def83036de9c54532db"
+      "bytes": 1164,
+      "sha256": "25efbd26a5fc90d5090c53ac7521bd8a2628b37a4b0630f632aa2e073429819a"
     },
     {
       "path": "docs/testing/evidence/L4-I2/Physical_Index.json",
-      "bytes": 905532,
-      "sha256": "6902e837ca75f9ed537916b1676964cfa84eb3e7732598f75f77fa54cc8ec687"
+      "bytes": 908324,
+      "sha256": "fded914ed2be9ea089866f3584f4b89583841ef847f484dbe8594b515708bdd7"
     },
     {
       "path": "docs/testing/evidence/L4-I2/README.md",
-      "bytes": 3568,
-      "sha256": "567db1e14a01be0a91bc1b3a8e416e1e8a66b2dc982e686c9b40da2d90cb4171"
+      "bytes": 4410,
+      "sha256": "b2c0a8bac86b23085ec36b1940032e72559ab3543023b526211f2a2253b6419d"
     },
     {
       "path": "docs/testing/evidence/L4-I2/Suite_Contributions.json",
-      "bytes": 130043,
-      "sha256": "3d1a21ccb6a5f368c0f394b53ce3e9c2da49299c098f9855e67e4b3e848be851"
+      "bytes": 129886,
+      "sha256": "135356c3e6532b4f23a31a1102881bd2c48eb55666d1f3b831263e94a3cbc658"
     },
     {
       "path": "docs/testing/evidence/L4-I2/architecture/plan.json",
-      "bytes": 188993,
-      "sha256": "dbcf542ee92eba3c5954c6c9aa54c5be44c62a994edbcb490ccf6d1ed3b7f409"
+      "bytes": 188985,
+      "sha256": "46ab8311e311eb49da59dde287616b6fb2494f2fe5ade6c39f36d24568fe3d7b"
     },
     {
       "path": "docs/testing/evidence/L4-I2/architecture/provenance.json",
-      "bytes": 254284,
-      "sha256": "93308597902eec8cbc4e4ca586ef119c06cc672ab70f325ed782090141d1474d"
+      "bytes": 247426,
+      "sha256": "a141f9e02aef997edc89d4ed99deab8d244a7403d5c4e962e37314d1e66290c3"
     },
     {
       "path": "docs/testing/evidence/L4-I2/architecture/raw.tar.gz",
-      "bytes": 36513400,
-      "sha256": "74ceb7332198215cade0646c61e6f392c7302d652524a375f87b785a3c21758d"
+      "bytes": 36522827,
+      "sha256": "d9dfb3c626c3801d7294fd80faa8598f654b591ae199fdd44e4d251b648d00c0"
     },
     {
       "path": "docs/testing/evidence/L4-I2/architecture/result.json",
-      "bytes": 901245,
-      "sha256": "f1fea402fd572e723e5e898805f7a77da46bdee9301918b4ef1fab3e106a3b30"
+      "bytes": 914713,
+      "sha256": "b8d79d2f41aab7c91a7656e9288bcd31ae2b49124836ef43fe78698669622a6e"
     },
     {
       "path": "docs/testing/evidence/L4-I2/canonical-fail-navigation/plan.json",
@@ -320,9 +309,29 @@
       "sha256": "37c3288b3f8314cfcd8718dabbb093af1a2f9c8bc2d744ef2e300b6a11eae000"
     },
     {
+      "path": "docs/testing/evidence/L4-I2/canonical/plan.json",
+      "bytes": 161288,
+      "sha256": "fafdef9967c872688bbeff895e24d1dd463b0051fd25b7b0e620e5e852b2ee77"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical/provenance.json",
+      "bytes": 247426,
+      "sha256": "a141f9e02aef997edc89d4ed99deab8d244a7403d5c4e962e37314d1e66290c3"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical/raw.tar.gz",
+      "bytes": 35976744,
+      "sha256": "53c08f5f98934d332744be7553a5c7d3cb16254e13b22eeedaabd96b3cf56f0b"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/canonical/result.json",
+      "bytes": 826293,
+      "sha256": "90f5915a2203cb4fd24141cfca42829382d71bf7298087b84521cc78840f364b"
+    },
+    {
       "path": "docs/testing/evidence/L4-I2/development/README.md",
-      "bytes": 629,
-      "sha256": "d8a0aeee4d45b7cee26c2239eea3761eb49bccf0019b1d2972b2cf1e9f376740"
+      "bytes": 1237,
+      "sha256": "4c244e991f94b09d299f7c29f40154c85e622b6012a8daec9d678d168cb1f214"
     },
     {
       "path": "docs/testing/evidence/L4-I2/development/boundary-oracles-regression-guard-fail.tar.gz",
@@ -410,6 +419,26 @@
       "sha256": "194f981ff419956e318db1e523227976499d6751affe38fb21690c39f2b9d0e4"
     },
     {
+      "path": "docs/testing/evidence/L4-I2/development/renewal-diagnostic-reproduced.tar.gz",
+      "bytes": 15789,
+      "sha256": "93126415ea39f6ace812fb63a2948fcca6365e81657d4c3582745572aab6305f"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/renewal-fixed-targeted-pass.tar.gz",
+      "bytes": 16047,
+      "sha256": "51ec5ce54076722034d7ec7e9d9f020a00a2e953c0446fe0cf7b3fae21852aaa"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/renewal-unreserved-counteroracle-fail.tar.gz",
+      "bytes": 16015,
+      "sha256": "61b7122a19b349f5029b5c817d475effcae904d0277bcab9badacc37eb297767"
+    },
+    {
+      "path": "docs/testing/evidence/L4-I2/development/requalification-l3-waiterpid-cme-fail.tar.gz",
+      "bytes": 9593,
+      "sha256": "85795ec96c1170709f5f6e0491f94fee4d3631bdf3de940928bca92700b670ac"
+    },
+    {
       "path": "docs/testing/evidence/L4-I2/development/store-owner-feedback.tar.gz",
       "bytes": 14306,
       "sha256": "7cd1c34b26c7a773e3c426971927f24379410ec02afa38883118066754c86f84"
@@ -445,19 +474,34 @@
       "sha256": "8451d05219934d58cca4364d93e371ba7ee3ad8c6d9c6894fa7ba2e15b2442d2"
     },
     {
+      "path": "docs/v3/L4_I2_Execution_Report.md",
+      "bytes": 32321,
+      "sha256": "6417a86b50abb4231a1fce1ed4e94611cee4a435043085c31cfd41d3fe1fd392"
+    },
+    {
       "path": "docs/v3/L4_I2_Implementation_Plan.md",
       "bytes": 114682,
       "sha256": "f7899c7d98e77b3224c2eda012b528a27f45b4665ca2270886d32793d4c78851"
-    },
+    }
+  ],
+  "corrective_mission_initial_sha": "386cf841057e477e5f1f0cadac9ea17d9c4838db",
+  "prior_application_commit": "23ad96d6b0ed9c075573247edf9989ed10472887",
+  "resolved_reservations": [
     {
-      "path": "docs/v3/L4_I2_Execution_Report.md",
-      "bytes": 27094,
-      "sha256": "37f51bfb82b9e62797900fab5a2fa9d7391d16ea49c2714c4224954ffb7e57ef"
-    },
-    {
-      "path": "docs/testing/evidence/L4-I2/Integrity_Verification.json",
-      "bytes": 1434,
-      "sha256": "3aa10866599c7551d8f47a548ef09e71977925ec75f606a2e199727ef0b0e044"
+      "id": "I2-QUAL-01",
+      "test": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess",
+      "classification": "Case 2 — Test bench defect (L2/I3 test pool configured with minimumIdle=0 vs production V3ConsumptionWorkerConfiguration minimumIdle=maximumPoolSize=8)",
+      "root_cause": "In HikariCP 7.0.2, HikariPool$PoolEntryCreator creates at most 1 connection per task and calls quietlySleep(30L) on the single-threaded addConnectionExecutor after connectionBag.add(poolEntry). Under minimumIdle=0, after borrowing the 5 held connections, when 3 concurrent renewal threads call ConcurrentBag.borrow(1000, MILLISECONDS), each increments waiters (1, 2, 3) and calls addBagItem(waiting) which checks waiting > addConnectionExecutor.getQueue().size(). When the thread with waiting=1 reaches addBagItem(1) after the threads with waiting=2 and waiting=3 have queued 2 tasks while addConnectionExecutor is still in quietlySleep(30L), 1 > 2 is false, dropping the 3rd PoolEntryCreator task. With minimumIdle=0, fillPool() is a no-op, leaving total=7, active=7, idle=0, waiting=1 until the 3rd lane times out after 1000ms with SQLTransientConnectionException -> CannotCreateTransactionException -> AttemptTransactions.Failure(Resolution.UNKNOWN) without ever obtaining a PostgreSQL backend PID.",
+      "fix": "Set pool.setMinimumIdle(8) and awaitPhysicalPoolReserve(pool, 8) in ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess, matching V3ConsumptionWorkerConfiguration.createPool while preserving maximumPoolSize=8, 5 held connections, 3 concurrent renewal lanes, 1000ms connectionTimeout, 8s barrier, and all assertions.",
+      "counter_oracle": "assertUnreservedRenewalFailsWhenSixHeld holds 6 non-renewal connections out of 8 (leaving only 2 reserved connections for 3 renewal lanes) and verifies that the 3rd renewal lane fails within ~1s with AttemptTransactions.Failure(Resolution.UNKNOWN) caused by SQLTransientConnectionException (total=8, active=8, idle=0, waiting=0).",
+      "evidence": [
+        "docs/testing/evidence/L4-I2/canonical-fail-renewal/result.json",
+        "docs/testing/evidence/L4-I2/development/renewal-diagnostic-reproduced.tar.gz",
+        "docs/testing/evidence/L4-I2/development/renewal-unreserved-counteroracle-fail.tar.gz",
+        "docs/testing/evidence/L4-I2/development/renewal-fixed-targeted-pass.tar.gz",
+        "docs/testing/evidence/L4-I2/canonical/result.json",
+        "docs/testing/evidence/L4-I2/architecture/result.json"
+      ]
     }
   ]
 }

@@ -19,28 +19,28 @@
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 1.1139999999999999
+      "seconds": 1.076
     },
     "com.kartaguez.pocoma.RuntimeMonolithPostgresTest": {
       "tests": 3,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 3.4780000000000006
+      "seconds": 3.584
     },
     "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest": {
       "tests": 7,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 66.963
+      "seconds": 69.25
     },
     "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest": {
       "tests": 1,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "seconds": 10.098
+      "seconds": 11.294
     }
   }
 }

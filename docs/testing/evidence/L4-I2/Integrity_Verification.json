@@ -3,29 +3,23 @@
   "campaigns": [
     {
       "name": "canonical",
-      "raw_sha256": "71d57c2b2f42154e6374eb24b0d460e45e15355e0c6e72438db7263fa1d6eeee",
-      "artifact_members_checked": 1880,
+      "raw_sha256": "53c08f5f98934d332744be7553a5c7d3cb16254e13b22eeedaabd96b3cf56f0b",
+      "artifact_members_checked": 1884,
       "application_inputs_compared": 1288,
-      "application_differences_to_delivery": [
-        {
-          "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionLifecycleCompositionPostgresTest.java",
-          "tested_sha256": "769520b5edc2b8dc12eb5b0b2f44dfac3c108a4883ed93ac7c948373ec14dcf0",
-          "delivery_sha256": "c231b2b0c649d7a20292477aa62fe982d3ddf23e35d37dbe10482d956006053c"
-        }
-      ],
+      "application_differences_to_delivery": [],
       "external_sql_and_controls_match": true
     },
     {
       "name": "architecture",
-      "raw_sha256": "74ceb7332198215cade0646c61e6f392c7302d652524a375f87b785a3c21758d",
-      "artifact_members_checked": 1994,
+      "raw_sha256": "d9dfb3c626c3801d7294fd80faa8598f654b591ae199fdd44e4d251b648d00c0",
+      "artifact_members_checked": 1998,
       "application_inputs_compared": 1288,
       "application_differences_to_delivery": [],
       "external_sql_and_controls_match": true
     }
   ],
-  "physical_members_indexed": 2642,
+  "physical_members_indexed": 2650,
   "committed_application_blobs_checked": 1288,
-  "application_commit": "23ad96d6b0ed9c075573247edf9989ed10472887",
-  "statement": "Each referenced raw archive and member SHA256 was verified; Architecture app inputs match the committed blobs; canonical differs only by documented diagnostic test instrumentation. Integrity is not execution authenticity."
+  "application_commit": "6496e6d0144ecfda9e58ec6d12e259445e7344ad",
+  "statement": "Each referenced raw archive and member SHA256 was verified; both canonical (PROJECTION + COMMAND) and Architecture app inputs match the committed blobs (6496e6d0144ecfda9e58ec6d12e259445e7344ad) with zero differences."
 }

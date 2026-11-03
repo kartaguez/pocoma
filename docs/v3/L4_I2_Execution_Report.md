@@ -1,34 +1,71 @@
 # Pocoma V3 — L4/I2 — Rapport d’exécution
 
-**IMPLEMENTED — QUALIFICATION INCOMPLETE.** Les contrats I2 sont implémentés et les gates
-requises ont été exécutées. La gate canonique complète reste FAIL sur un renouvellement READ
-non expliqué ; son replay diagnostique et la gate Architecture réussis ne résolvent pas cet échec.
-I2 n’est pas CLOSED. L’acceptation du code reste soumise à l’audit indépendant et à la décision humaine.
+**I2-QUAL-01 RESOLVED — LOCAL BOUNDED PASS.** Les contrats I2 sont implémentés, la cause racine
+du failure `I2-QUAL-01` est démontrée et corrigée dans le banc de test sans affaiblir l’oracle,
+et les deux gates canoniques (`PROJECTION + COMMAND` et `Architecture`) passent sur les mêmes
+octets applicatifs propres (`6496e6d0144ecfda9e58ec6d12e259445e7344ad`). I2 n’est pas déclaré
+automatiquement `CLOSED` : la clôture reste soumise à l’audit indépendant et à la décision humaine.
 
-- SHA initial audité : `a9937991a75428d8718e6036da11be2382c633d0`.
-- Commit applicatif final : `23ad96d6b0ed9c075573247edf9989ed10472887`.
+- SHA initial du lot L4/I2 : `a9937991a75428d8718e6036da11be2382c633d0`.
+- SHA initial du chantier correctif `I2-QUAL-01` : `386cf841057e477e5f1f0cadac9ea17d9c4838db`
+  (commit applicatif antérieur : `23ad96d6b0ed9c075573247edf9989ed10472887`).
+- Commit applicatif final qualifié : `6496e6d0144ecfda9e58ec6d12e259445e7344ad`.
 - Branche : `feat/v3-architecture`, propre au début de mission ; aucun travail préexistant modifié.
 - Commit de livraison : `git log -1 --format=%H -- docs/v3/L4_I2_Proof_Manifest.json`.
   Le SHA de publication et la vérification directe du distant sont donnés dans le message de livraison.
 
-## Réserve bloquante I2-QUAL-01
+## Résolution causale de I2-QUAL-01 (Cas 2 — Défaut du banc de test)
 
-`ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess` échoue dans
-la gate canonique à la barrière de trois lanes physiques (attente inchangée de 8 s).
-Les traces montrent trois PID WRITE, puis deux PID READ. Le journal initial ne capture pas
-l’exception de la troisième tâche ; la cause physique demeure **non établie**.
+Dans la campagne initiale [canonical-fail-renewal](../testing/evidence/L4-I2/canonical-fail-renewal/result.json)
+(`1873/1/0/0`), `ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess`
+avait observé trois PID PostgreSQL en `WRITE` (`158`, `160`, `162`), mais seulement deux PID en
+`READ` (`181`, `183`) à la barrière de 8 s (`expected: <3> but was: <2>`).
 
-Le diagnostic ajouté au test enregistre les exceptions par lane et, en cas de barrière manquée,
-l’état Hikari et `pg_stat_activity`. La configuration reste pool 8, cinq emprunts retenus,
-connexion 1 s, attentes 8 s ; toutes les assertions sont conservées. Le replay 1/0/0/0 ne reproduit
-pas le failure. Aucun préchauffage, retry caché, exclusion ou délai augmenté n’est introduit.
-La gate Architecture ultérieure passe aussi, mais ne constitue pas une correction démontrée de
-ce failure. Les pièces originales restent dans
-[canonical-fail-renewal](../testing/evidence/L4-I2/canonical-fail-renewal/result.json).
+L’analyse causale (désassemblage `HikariCP 7.0.2`, corrélation complète des `PID 150..186` de
+`raw.tar.gz` et reproduction déterministe archivée dans
+[renewal-diagnostic-reproduced.tar.gz](../testing/evidence/L4-I2/development/renewal-diagnostic-reproduced.tar.gz))
+établit la chaîne physique suivante :
 
-La requalification complète des propriétés L2 de disponibilité/renouvellement reste donc
-incomplète. Cette réserve est distincte des réserves historiques r05/r12 et ne leur est pas attribuée.
-Elle doit être expliquée et corrigée, puis qualifiée aux mêmes oracles avant tout PASS global I2.
+1. **Écart entre la production L2/I5 et le banc L2/I3** : en production,
+   `V3ConsumptionWorkerSettings.PoolSpec` (ligne 295) et
+   `V3ConsumptionWorkerConfiguration.createPool` (lignes 407–435) imposent `minimumIdle == maximumPoolSize`
+   et attendent l’établissement effectif de la réserve physique (`getIdleConnections() == spec.maximum()`,
+   `"physical pool reserve not established"`). En revanche, le test `renewalsHaveReservedDatabaseAccess`
+   (écrit en L2/I3 avant `V3ConsumptionWorkerConfiguration`) configurait `pool.setMinimumIdle(0)` sur
+   un `HikariDataSource` de `maximumPoolSize = 8`.
+2. **Mécanisme interne `HikariCP 7.0.2` (`PoolEntryCreator` + `ConcurrentBag`)** :
+   `HikariPool.addConnectionExecutor` est un exécuteur mono-thread (`ThreadPoolExecutor(1, 1, ...)`).
+   Chaque tâche `HikariPool$PoolEntryCreator.call()` crée au plus **une** connexion physique
+   (`goto 143` / `break` à l’offset bytecode 70–73) puis exécute `quietlySleep(30L)` (30 ms) sur
+   l’unique thread `Connection adder` *après* `connectionBag.add(poolEntry)`.
+3. **Perte de la 3e soumission `addBagItem(waiting)` sous `minimumIdle = 0`** : après l’emprunt
+   séquentiel des 5 connexions retenues (`PID 176..180`, `total = 5, active = 5, idle = 0`), le
+   thread `addConnectionExecutor` est encore dans la fenêtre `quietlySleep(30L)` de la 5e connexion.
+   Lorsque les trois threads de renouvellement (`claim-1`, `claim-2`, `lease`) entrent simultanément
+   dans `ConcurrentBag.borrow(1000, MILLISECONDS)`, chacun incrémente `waiters` (`waiting = 1, 2, 3`),
+   parcourt `sharedList` (5 entrées `STATE_IN_USE`) sans verrou, puis appelle `HikariPool.addBagItem(waiting)`
+   qui teste `if (waiting - addConnectionExecutor.getQueue().size() >= 1)`. Dès que le thread ayant
+   capturé `waiting = 1` évalue cette garde après que les deux autres threads (`waiting = 2` et `3`)
+   ont enfilé leurs tâches `PoolEntryCreator` dans `getQueue()` (taille `2`), `1 - 2 >= 1` vaut `false` :
+   la 3e création de connexion n’est pas soumise. Comme `minimumIdle == 0`, `fillPool()` en fin de
+   tâche est un no-op, laissant le pool bloqué à `total = 7, active = 7, idle = 0, waiting = 1`.
+4. **Exception de la 3e lane et absence de 3e backend PostgreSQL** : la 3e lane n’obtient jamais de
+   backend PostgreSQL (le `PID 184` n’est ouvert que 6 s plus tard par le test suivant
+   `readAuthorityCannotExecuteCommandTask`), expire après `1000 ms` sur `handoffQueue.poll` avec
+   `SQLTransientConnectionException: HikariPool - Connection is not available, request timed out after 1000ms (total=7, active=7, idle=0, waiting=0)`,
+   convertie par `PlatformTransactionManagerAdapter.executeControl` en
+   `AttemptTransactions.Failure(Resolution.UNKNOWN)`, et n’atteint jamais `entered.countDown()`.
+5. **Correction minimale et contre-oracle** : aucun code de production n’est modifié. Dans
+   `ConsumptionLifecycleCompositionPostgresTest`, le pool du test établit désormais sa réserve
+   physique comme en production (`pool.setMinimumIdle(8)` + `awaitPhysicalPoolReserve(pool, 8)`),
+   en conservant strictement `maximumPoolSize = 8`, `5` connexions retenues, `3` lanes concurrentes,
+   `connectionTimeout = 1000 ms`, la barrière de `8 s`, l’instrumentation diagnostique des `Future`
+   et toutes les assertions. Un contre-oracle (`assertUnreservedRenewalFailsWhenSixHeld`, plus la
+   preuve dédiée [renewal-unreserved-counteroracle-fail.tar.gz](../testing/evidence/L4-I2/development/renewal-unreserved-counteroracle-fail.tar.gz))
+   vérifie à chaque exécution (`WRITE` et `READ`) que si 6 connexions non-renouvellement sont retenues
+   sur 8 (ne laissant que 2 connexions réservées pour 3 renouvellements), la 3e lane échoue en ~1 s
+   avec `AttemptTransactions.Failure(Resolution.UNKNOWN)` causé par `SQLTransientConnectionException`
+   (`total=8, active=8, idle=0, waiting=0`).
 
 ## AUD-I2-08/09/10 et passage A → B
 
@@ -123,8 +160,8 @@ avec provenance isolée et zéro skip, sans reprise de XML partagés de `target/
 
 | Gate | Modules | Compte | Résultat | Durée Maven |
 |---|---:|---|---|---:|
-| PROJECTION + COMMAND | 51 | 1873 / 1 / 0 / 0 | FAIL, I2-QUAL-01 | 3135,850 s |
-| Architecture obligatoire | 60 | 2137 / 0 / 0 / 0 | PASS | 3263,208 s |
+| PROJECTION + COMMAND | 51 | 1873 / 0 / 0 / 0 | PASS | 3127,319 s |
+| Architecture obligatoire | 60 | 2137 / 0 / 0 / 0 | PASS | 3344,163 s |
 | MONOLITH inclus dans Architecture | 1, sous-ensemble | 14 / 0 / 0 / 0 | PASS, quatre suites exactes | incluse |
 
 Commandes exécutées depuis `app/` :
@@ -162,7 +199,7 @@ exacte des méthodes attendues/observées. Sa gate autonome n’est donc pas né
 | `V3WorkerResourcesPostgresTest` | 13/0/0/0 | 13/0/0/0 |
 | `V3IdentityRequestCompositionPostgresTest` | 10/0/0/0 | 10/0/0/0 |
 | `V3IdentityPotCommandPostgresTest` | 9/0/0/0 | 9/0/0/0 |
-| `ConsumptionLifecycleCompositionPostgresTest` | 5/1/0/0 | 5/0/0/0 |
+| `ConsumptionLifecycleCompositionPostgresTest` | 5/0/0/0 | 5/0/0/0 |
 
 Les autres suites et identités effectives sont dans
 [Suite_Contributions.json](../testing/evidence/L4-I2/Suite_Contributions.json) et les reçus.
@@ -202,9 +239,10 @@ conservés. Aucun mock n’est présenté comme preuve d’une propriété physi
 | C03/C04 | Nouveau Worker réel : M_W/M_C saturés, scope source puis effects longs, renewals Control observés et échéance SQL avancée, drain au-delà du budget sans fermeture ni STOPPED, terminaison après vraie sortie ; campagnes Worker quatre pools dans gates |
 | C05 | `ConsumptionFailureClassificationTest` et `ConsumptionLifecyclePostgresTest` complets, notamment `i3_c05_*`, `i3_c03_j`, `i3_capacity_uncertainty`, audits classifier/cession : cause, budget une fois, cession distincte et jamais répétée sur ACK perdu |
 
-Les contributions C03/C04 nouvelles passent, ainsi que Worker/ressources ; **la famille de
-qualification capacité/renouvellement reste toutefois incomplète** à cause du failure obligatoire
-I2-QUAL-01. Cette matrice ne transforme pas la campagne canonique FAIL en PASS.
+Les contributions C03/C04 nouvelles, les campagnes Worker/ressources et le scénario de réserve
+des renouvellements `ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess`
+(en `WRITE` et en `READ`, avec son contre-oracle de non-réservation) passent dans les deux gates
+canoniques (`canonical` et `architecture`).
 
 ## Requalification L2, Command/Identity et I1
 
@@ -215,21 +253,30 @@ Les anciens totaux ne sont pas réutilisés comme nouveaux PASS. Les décisions 
 sous verrous EUI dans la finale RC ; Command conserve un seul snapshot source et son contrôle final.
 Le poisoning tardif I1 est conservé, y compris après callback Java et avant commit Spring.
 
-La requalification L2 est **partielle**, malgré les contributions réussies, puisque l’accès
-réservé d’une lane READ n’est pas expliqué dans le run canonique. Aucune libération de capacité
+La requalification des propriétés L2 (dont l’accès réservé des trois lanes de renouvellement
+en `WRITE` et `READ` sous saturation de 5 connexions retenues sur 8) est complète dans les deux
+gates (`3,856 s` en canonique, `4,024 s` en Architecture). Aucune libération de capacité
 n’est déduite d’une observation métier ou d’un backend désormais absent après UNKNOWN préparatoire.
 
 | Campagne | Réserve historique | Observation locale | Durée de méthode |
 |---|---|---|---:|
-| Canonique | `i5_r05` | PASS | 42.552 s |
-| Canonique | `i5_r12` | PASS | 51.005 s |
-| Architecture | `i5_r05` | PASS | 42.513 s |
-| Architecture | `i5_r12` | PASS | 49.883 s |
+| Canonique | `i5_r05` | PASS | 42.294 s |
+| Canonique | `i5_r12` | PASS | 51.108 s |
+| Architecture | `i5_r05` | PASS | 43.043 s |
+| Architecture | `i5_r12` | PASS | 50.390 s |
 
 Les réserves historiques I1/r05/r12 et leurs attributions sont conservées dans les documents
 originaux. Le registre reste `QUALIFIED, active=false` ; aucun timeout/oracle/quarantaine n’est
-modifié. Ces succès locaux ne lèvent pas les réserves et n’expliquent pas I2-QUAL-01.
+modifié. Ces succès locaux ne lèvent pas les réserves historiques.
 L4/I1 reste CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS selon la décision humaine.
+Une observation hors périmètre I2 est également documentée sans modification : lors d’une tentative
+intermédiaire de requalification (archivée dans
+[requalification-l3-waiterpid-cme-fail.tar.gz](../testing/evidence/L4-I2/development/requalification-l3-waiterpid-cme-fail.tar.gz)),
+le helper de test L3/I2 `IdentityPotAuthorityPostgresTest#waiterPid` (ligne 425, introduit au commit
+`145f42731a4e35488e9aaa56a7de3c3f453a9231`) a levé une `ConcurrentModificationException` sur
+`CopyOnWriteArrayList$COWSubList.getArrayChecked` parce qu’il appelle `lockCalls.subList(mark, lockCalls.size()).stream()`
+dans une boucle active pendant que le thread `waiter` ajoute un élément à `lockCalls`. Conformément
+au mandat borné à `I2-QUAL-01`, ce fichier L3/I2 n’a pas été touché.
 
 ## Provenance des preuves et octets livrés
 
@@ -239,29 +286,33 @@ L4/I1 reste CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS selon la d�
 [notice/opérateur](../testing/evidence/L4-I2/README.md).
 
 Les sources ont été qualifiées dans le worktree détaché isolé
-`/private/tmp/pocoma-l4-i2-qualification`. **Les 1288 blobs applicatifs du commit
-`23ad96d6b0ed9c075573247edf9989ed10472887` correspondent aux empreintes testées par Architecture.**
-Le tested HEAD était `a9937991…`, avec overlay dirty explicitement haché ; le SHA de base seul
-n’est pas présenté comme le code I2 testé. SQL externes, sélecteur, registre, settings et opérateur
-sont contrôlés avant/après ; les mêmes octets XML évalués sont archivés avec SHA-256.
+`/private/tmp/pocoma-l4-i2-qualification` au commit propre
+`6496e6d0144ecfda9e58ec6d12e259445e7344ad` (`dirty = false`). **Les 1288 blobs applicatifs du
+commit `6496e6d0144ecfda9e58ec6d12e259445e7344ad` correspondent exactement aux empreintes testées
+par la campagne canonique (`canonical/`) et par la campagne Architecture (`architecture/`).**
+SQL externes, sélecteur, registre, settings et opérateur sont contrôlés avant/après ; les mêmes
+octets XML évalués sont archivés avec SHA-256.
 
-Le run canonique et la livraison diffèrent uniquement sur le test instrumenté après son FAIL :
-[comparaison des entrées](../testing/evidence/L4-I2/Canonical_To_Delivery_Input_Comparison.json),
-1287 entrées identiques sur 1288. Production, SQL, configuration, setup, seuils et assertions
-restent identiques ; aucune équivalence applicative totale ni PASS n’est transféré de ce FAIL.
-L’opérateur étend seulement l’attribution nominative du second test top-level existant
-`CurrentTransactionManagerPostgresTest` à son fichier source, comme pour I1. Le refus initial
-du sélecteur standard reste archivé (INCONCLUSIVE, zéro test), sans affaiblir découverte/verdict.
+La [comparaison des entrées](../testing/evidence/L4-I2/Canonical_To_Delivery_Input_Comparison.json)
+confirme **1288 entrées identiques sur 1288** (`0` différence) entre la campagne canonique, la
+campagne Architecture et les octets livrés. L’opérateur étend seulement l’attribution nominative du
+second test top-level existant `CurrentTransactionManagerPostgresTest` à son fichier source, comme
+pour I1. Le refus initial du sélecteur standard reste archivé (INCONCLUSIVE, zéro test), sans
+affaiblir découverte/verdict.
 
-L’intégrité SHA-256 des archives et de tous leurs membres référencés a été vérifiée.
-L’index contient **2642 pièces physiques** sur les deux campagnes. Les identifiants sont
-`acdf677077654bd58bfc0866a761ead0` (canonique) et
-`7a236bcea8744166b5719859b52f1e78` (Architecture).
+L’intégrité SHA-256 des archives et de tous leurs membres référencés a été vérifiée
+([Integrity_Verification.json](../testing/evidence/L4-I2/Integrity_Verification.json)).
+L’index contient **2650 pièces physiques** sur les deux campagnes (`1321` en canonique, `1329` en
+Architecture). Les identifiants d’invocation sont `a51dbdc33d474f6da594a415230a9925` (canonique,
+`raw.tar.gz` SHA-256 `53c08f5f98934d332744be7553a5c7d3cb16254e13b22eeedaabd96b3cf56f0b`) et
+`db612392a6a143cda26be68bc2f5a209` (Architecture, `raw.tar.gz` SHA-256
+`d9dfb3c626c3801d7294fd80faa8598f654b591ae199fdd44e4d251b648d00c0`).
 
 ## Diagnostics conservés et corrections locales
 
-Les [archives de développement](../testing/evidence/L4-I2/development/) gardent les FAIL et
-contre-preuves ; elles ne certifient pas les octets finaux. Les principaux diagnostics sont :
+Les [archives de développement](../testing/evidence/L4-I2/development/) gardent les FAIL,
+reproductions causales et contre-preuves ; elles ne certifient pas les octets finaux. Les principaux
+diagnostics sont :
 
 - Propagation brute d’owner et rétention corrigées ; refus de mauvaise datasource intercepté
   désormais exigé empoisonnant, sans supprimer les assertions internes.
@@ -287,8 +338,11 @@ contre-preuves ; elles ne certifient pas les octets finaux. Les principaux diagn
 - `canonical-fail-store-owner` : 1553/0/1/0. Retour sain ancien après refus intercepté dans
   le stockage I1 ; refus internes conservés et rollback/cause/zéro version durable exigés.
   Replay intégral stockage 11/0/0/0.
-- `canonical-fail-renewal` : 1873/1/0/0, I2-QUAL-01 non expliqué ; diagnostic ciblé 1/0/0/0 et
-  Architecture 2137/0/0/0 ne sont pas transformés en preuve de correction de ce failure.
+- `canonical-fail-renewal` : 1873/1/0/0, échec initial de `I2-QUAL-01` conservé intégralement ;
+  reproduction causale déterministe dans `development/renewal-diagnostic-reproduced.tar.gz`,
+  contre-oracle d’absence de réserve dans `development/renewal-unreserved-counteroracle-fail.tar.gz`,
+  validation ciblée dans `development/renewal-fixed-targeted-pass.tar.gz`, et requalification
+  canonique complète réussie dans `canonical/` (`1873/0/0/0`) et `architecture/` (`2137/0/0/0`).
 
 Feedbacks récents exécutés (filtrés, non canoniques) :
 
@@ -298,6 +352,7 @@ Feedbacks récents exécutés (filtrés, non canoniques) :
 ./mvnw -pl runtime-task-consumption-worker,runtime-command-consumption-worker -am '-Dtest=InterAuthorityPreparationPostgresTest,InterAuthorityRecoveryPostgresTest,SubobjectAtomicityPostgresTest,AttemptTransactionsPostgresTest,V3WorkerPostgresTest#i5_w21,V3WorkerResourcesPostgresTest#i5_r08' -Dsurefire.failIfNoSpecifiedTests=false test
 ./mvnw -pl runtime-task-consumption-worker,runtime-command-consumption-worker -am -Dtest=SubobjectStorePostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
 ./mvnw -pl runtime-command-consumption-worker -am '-Dtest=ConsumptionLifecycleCompositionPostgresTest#renewalsHaveReservedDatabaseAccess' -Dsurefire.failIfNoSpecifiedTests=false test
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=ConsumptionLifecycleCompositionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
 Les compilations/test-compile et autres feedbacks natifs antérieurs restent dans les logs archivés,
@@ -311,15 +366,16 @@ aux probes et aux représentations techniques prévues au plan. Le contrat gén�
 prétend pas être un type linéaire ; une exception pure absorbée sans interaction gardée reste
 inobservable. Aucune certification globale PRJ/READ/SEC/OPS/PERF/production n’est prononcée.
 
-Publication autorisée sur `feat/v3-architecture`, en deux ensembles cohérents code/plan puis
+Publication sur `feat/v3-architecture`, en deux ensembles cohérents correctif de test puis
 rapports/preuves, sans force. Le worktree initial était propre. Les empreintes et `git diff --check`
 sont vérifiés ; le message de livraison rapporte les SHA local/distant directement comparés,
 la synchronisation et la propreté après publication. Les documents historiques restent inchangés.
 
-L’étape restante de qualification est d’expliquer I2-QUAL-01 avec la lane manquante observée,
-de corriger un défaut local s’il est démontré, puis de rejouer les gates avec les mêmes exigences.
-Le replay non reproducteur ne justifie ni assouplissement ni clôture. L’audit indépendant du code
-et la décision humaine d’acceptation restent nécessaires.
+La réserve bloquante `I2-QUAL-01` est résolue et qualifiée sur les deux gates canoniques.
+L’audit indépendant du code et des preuves ainsi que la décision humaine d’acceptation restent
+nécessaires avant toute clôture de L4/I2.
 
-**IMPLEMENTED — QUALIFICATION INCOMPLETE** : implémentation livrée et Architecture réussie,
-mais une campagne canonique obligatoire comporte encore un failure non expliqué. I2 n’est pas CLOSED.
+**I2-QUAL-01 RESOLVED — LOCAL BOUNDED PASS** : implémentation livrée, cause de `I2-QUAL-01`
+démontrée et corrigée dans le banc avec contre-oracle, et gates canoniques `PROJECTION + COMMAND`
+(`1873/0/0/0`) et `Architecture` (`2137/0/0/0`) réussies sur les mêmes octets applicatifs.
+I2 n’est pas déclaré automatiquement CLOSED.
