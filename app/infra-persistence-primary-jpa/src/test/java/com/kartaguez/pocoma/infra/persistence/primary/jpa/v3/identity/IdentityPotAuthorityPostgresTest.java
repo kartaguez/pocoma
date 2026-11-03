@@ -421,8 +421,9 @@ class IdentityPotAuthorityPostgresTest extends IdentityPostgresFixture {
     int waiterPid(ExternalIdentity key, int holder, int mark) {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
         while (System.nanoTime() < deadline) {
+            var snapshot = List.copyOf(lockCalls);
             var call =
-                    lockCalls.subList(mark, lockCalls.size()).stream()
+                    snapshot.subList(mark, snapshot.size()).stream()
                             .filter(c -> c.pid() != holder && c.key().equals(key))
                             .reduce((a, b) -> b);
             if (call.isPresent()) return call.get().pid();
