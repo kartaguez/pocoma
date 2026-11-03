@@ -47,6 +47,15 @@ class ReadRuntimeAssemblyPostgresTest {
         }
     }
 
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
+    static class LegacyIndirect {
+        @Bean
+        com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration
+                legacy() {
+            throw new AssertionError("active legacy factory must be refused before construction");
+        }
+    }
+
     static void refused(ReadRuntimeI8Fixture f, Map<String, Object> changed, Class<?>... extra) {
         String before = f.coordination();
         var properties = new LinkedHashMap<>(f.properties);
@@ -71,11 +80,7 @@ class ReadRuntimeAssemblyPostgresTest {
         try (var f = new ReadRuntimeI8Fixture(PG)) {
             f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
             refused(f, Map.of(), Unexpected.class);
-            refused(
-                    f,
-                    Map.of(),
-                    com.kartaguez.pocoma.runtime.task.consumption
-                            .CanonicalProjectionTaskRuntimeConfiguration.class);
+            refused(f, Map.of(), LegacyIndirect.class);
             refused(f, Map.of("pocoma.v3.worker.read-business.maximum-pool-size", "5"));
             f.read.execute("revoke insert on read_subobject_version from " + f.readRole);
             refused(f, Map.of());
@@ -217,7 +222,7 @@ class ReadRuntimeAssemblyPostgresTest {
             case "MaterializePotVersion" ->
                     f.read.queryForObject(
                                     "select count(*) from read_pot_version where pot_id=? and"
-                                        + " pot_version=?",
+                                            + " pot_version=?",
                                     Integer.class,
                                     pot,
                                     version)
@@ -225,7 +230,7 @@ class ReadRuntimeAssemblyPostgresTest {
             case "MaterializePotBalance" ->
                     f.read.queryForObject(
                                     "select count(*) from read_pot_balance where pot_id=? and"
-                                        + " pot_version=?",
+                                            + " pot_version=?",
                                     Integer.class,
                                     pot,
                                     version)
@@ -233,7 +238,7 @@ class ReadRuntimeAssemblyPostgresTest {
             case "MaterializePotVisibility" ->
                     f.read.queryForObject(
                                     "select count(*) from read_pot_visibility_state where pot_id=?"
-                                        + " and materialized_version=?",
+                                            + " and materialized_version=?",
                                     Integer.class,
                                     pot,
                                     version)
@@ -253,7 +258,7 @@ class ReadRuntimeAssemblyPostgresTest {
             case "MaterializeIdentityRequestResult" ->
                     f.read.queryForObject(
                                     "select count(*) from read_identity_request_result where"
-                                        + " request_id=?",
+                                            + " request_id=?",
                                     Integer.class,
                                     identity)
                             == 1;
@@ -359,7 +364,7 @@ class ReadRuntimeAssemblyPostgresTest {
                             1,
                             f.read.queryForObject(
                                     "select count(*) from consumption_slot where consumption_id=?"
-                                        + " and consumable_id=?",
+                                            + " and consumable_id=?",
                                     Integer.class,
                                     consumption,
                                     gate.event),
@@ -387,7 +392,7 @@ class ReadRuntimeAssemblyPostgresTest {
                     var witness =
                             f.read.queryForMap(
                                     "select pid,xid from i8_witness where t='consumption_slot' and"
-                                        + " consumption_id=? and consumable_id=?",
+                                            + " consumption_id=? and consumable_id=?",
                                     consumption,
                                     gate.event);
                     String table =
@@ -402,7 +407,7 @@ class ReadRuntimeAssemblyPostgresTest {
                     assertTrue(
                             f.read.queryForObject(
                                             "select count(*) from i8_witness where t=? and pid=?"
-                                                + " and xid=?",
+                                                    + " and xid=?",
                                             Integer.class,
                                             table,
                                             witness.get("pid"),
@@ -414,7 +419,7 @@ class ReadRuntimeAssemblyPostgresTest {
                             assertTrue(
                                     f.read.queryForObject(
                                                     "select count(*) from i8_witness where t=? and"
-                                                        + " pid=? and xid=?",
+                                                            + " pid=? and xid=?",
                                                     Integer.class,
                                                     atomic,
                                                     witness.get("pid"),
@@ -440,8 +445,8 @@ class ReadRuntimeAssemblyPostgresTest {
                     () ->
                             f.read.queryForObject(
                                             "select count(*) from read_pot_version where pot_id=?"
-                                                + " and pot_version=? and"
-                                                + " (payload->>'deleted')::boolean",
+                                                    + " and pot_version=? and"
+                                                    + " (payload->>'deleted')::boolean",
                                             Integer.class,
                                             pot.value(),
                                             terminal)
@@ -450,7 +455,7 @@ class ReadRuntimeAssemblyPostgresTest {
                     () ->
                             f.read.queryForObject(
                                             "select count(*) from read_user_pot where pot_id=? and"
-                                                + " visible",
+                                                    + " visible",
                                             Integer.class,
                                             pot.value())
                                     == 0);
@@ -463,7 +468,7 @@ class ReadRuntimeAssemblyPostgresTest {
                     0,
                     f.read.queryForObject(
                             "select count(*) from read_pot_balance where pot_id=? and"
-                                + " pot_version=?",
+                                    + " pot_version=?",
                             Integer.class,
                             pot.value(),
                             terminal),
@@ -478,7 +483,7 @@ class ReadRuntimeAssemblyPostgresTest {
             var userEvents =
                     f.write.queryForList(
                             "select event_id from v3_identity_event where"
-                                + " subject_type='POCOMA_USER'",
+                                    + " subject_type='POCOMA_USER'",
                             UUID.class);
             assertFalse(userEvents.isEmpty(), "interleaved real User events");
             for (UUID event : userEvents)
