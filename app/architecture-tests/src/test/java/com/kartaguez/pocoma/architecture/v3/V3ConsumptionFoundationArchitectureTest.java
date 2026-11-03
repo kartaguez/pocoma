@@ -77,10 +77,28 @@ class V3ConsumptionFoundationArchitectureTest {
                                             + "/src/main/java/com/kartaguez/pocoma/"
                                             + clazz
                                             + ".java"));
-            assertTrue(
-                    code.replaceAll("\\s+", "")
-                            .contains(
-                                    "@org.springframework.context.annotation.Profile(\"!v3-consumption-pilot&!v3-consumption-worker-dev\")"));
+            var application = Class.forName("com.kartaguez.pocoma." + clazz);
+            var legacy =
+                    java.util.Arrays.stream(application.getDeclaredClasses())
+                            .filter(type -> type.getSimpleName().equals("Legacy"))
+                            .findFirst()
+                            .orElseThrow();
+            var profiles =
+                    org.springframework.core.env.Profiles.of(
+                            legacy.getAnnotation(org.springframework.context.annotation.Profile.class)
+                                    .value());
+            assertTrue(profiles.matches(profile -> false), module + " legacy default remains enabled");
+            var excluded =
+                    module.equals("runtime-monolith")
+                            ? java.util.List.of(
+                                    "v3-consumption-pilot", "v3-consumption-worker-dev", "v3-read-worker")
+                            : java.util.List.of("v3-consumption-pilot", "v3-consumption-worker-dev");
+            for (int mask = 1; mask < (1 << excluded.size()); mask++) {
+                var active = new java.util.HashSet<String>();
+                for (int index = 0; index < excluded.size(); index++)
+                    if ((mask & (1 << index)) != 0) active.add(excluded.get(index));
+                assertFalse(profiles.matches(active::contains), module + " excludes " + active);
+            }
             assertTrue(code.contains("V3ConsumptionCatalogConfiguration.class"));
         }
     }

@@ -413,6 +413,12 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts() {
+		Set<String> v3ReadPorts = Set.of(
+				ROOT_PACKAGE + ".port.projection.v3.PotVersionStore",
+				ROOT_PACKAGE + ".port.projection.v3.SubobjectVersionStore",
+				ROOT_PACKAGE + ".port.projection.v3.PotVisibilityStore",
+				ROOT_PACKAGE + ".port.projection.v3.PotBalanceStore",
+				ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext");
 		Set<String> dependenciesOutsidePotRead = dependenciesOutside(
 				POT_READ_ENGINE_PACKAGE,
 				Set.of(
@@ -423,10 +429,12 @@ class HexagonalArchitectureTest {
 						POT_PROJECTION_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".domain.projection",
 						PROJECTION_READ_PORT_PACKAGE,
-                        USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".engine.read.currentbinding"));
+                        USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".engine.read.currentbinding"),
+				(origin, target) -> origin.equals(POT_READ_ENGINE_PACKAGE + ".v3")
+						&& v3ReadPorts.contains(target));
 		assertEquals(Set.of(), dependenciesOutsidePotRead,
 				"engine-read-pot must depend only on the JDK, authorization and Pot domains, "
-						+ "domain-projection and engine-projection-read");
+						+ "domain-projection, engine-projection-read and the exact V3 READ ports");
 	}
 
 	@Test
@@ -462,6 +470,14 @@ class HexagonalArchitectureTest {
 	@Test
 	void projectionTaskEngineRemainsPureAndKnowsNoLegacyExecutionConcept() {
 		String taskPackage = ROOT_PACKAGE + ".engine.consume.projectiontask";
+		Set<String> v3ParticipantContracts = Set.of(
+				ROOT_PACKAGE + ".engine.consumption.v3.ConsumptionParticipant",
+				ROOT_PACKAGE + ".engine.consumption.v3.ConsumptionParticipant$Prepared",
+				ROOT_PACKAGE + ".engine.consumption.v3.ConsumptionParticipant$EffectEvidence",
+				ROOT_PACKAGE + ".engine.consumption.v3.ConsumptionParticipant$Recovery",
+				ROOT_PACKAGE + ".engine.consumption.v3.PreparationReads",
+				ROOT_PACKAGE + ".engine.consumption.v3.SlotCompletion",
+				ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext");
 		Set<String> dependenciesOutsideProjectionTask = dependenciesOutside(
 				taskPackage,
 				Set.of(
@@ -473,7 +489,9 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.out.consumption",
 						ROOT_PACKAGE + ".port.projection",
 						ROOT_PACKAGE + ".projector.pot",
-						ROOT_PACKAGE + ".orchestrator.consumption"));
+						ROOT_PACKAGE + ".orchestrator.consumption"),
+				(origin, target) -> origin.equals(taskPackage + ".v3")
+						&& v3ParticipantContracts.contains(target));
 		assertEquals(Set.of(), dependenciesOutsideProjectionTask,
 				"engine-consume-projection-task may use only generic Consumption orchestration");
 
@@ -1409,6 +1427,7 @@ class HexagonalArchitectureTest {
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.task.consumption..")
 				.and().areNotAnnotatedWith(SpringBootApplication.class)
                 .and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaRuntimeMonolithApplication$Legacy")
+				.and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaTaskConsumptionWorkerApplication$Legacy")
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.task.consumption..")
 				.check(CLASSES);
@@ -1501,15 +1520,21 @@ class HexagonalArchitectureTest {
 	}
 
 	private static Set<String> dependenciesOutside(String sourcePackage, Set<String> allowedPackages) {
+		return dependenciesOutside(sourcePackage, allowedPackages, (origin, target) -> false);
+	}
+
+	private static Set<String> dependenciesOutside(String sourcePackage, Set<String> allowedPackages,
+			java.util.function.BiPredicate<String, String> exactAdditionalContract) {
 		return CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(sourcePackage))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.map(dependency -> dependency.getTargetClass())
-				.filter(target -> !target.getPackageName().startsWith("java."))
-				.filter(target -> allowedPackages.stream()
-						.noneMatch(allowed -> target.getPackageName().equals(allowed)
-								|| target.getPackageName().startsWith(allowed + ".")))
-				.map(target -> target.getName())
+				.filter(dependency -> !dependency.getTargetClass().getPackageName().startsWith("java."))
+				.filter(dependency -> allowedPackages.stream()
+						.noneMatch(allowed -> dependency.getTargetClass().getPackageName().equals(allowed)
+								|| dependency.getTargetClass().getPackageName().startsWith(allowed + ".")))
+				.filter(dependency -> !exactAdditionalContract.test(
+						dependency.getOriginClass().getPackageName(), dependency.getTargetClass().getName()))
+				.map(dependency -> dependency.getTargetClass().getName())
 				.collect(Collectors.toUnmodifiableSet());
 	}
 }
