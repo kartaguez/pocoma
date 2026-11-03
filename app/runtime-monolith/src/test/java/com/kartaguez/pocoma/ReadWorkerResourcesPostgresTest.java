@@ -521,7 +521,9 @@ class ReadWorkerResourcesPostgresTest {
             var actual = retained.getAndSet(null);
             if (actual != null)
                 try {
-                    if (!actual.isClosed()) {
+                    // commitFirst already resolved PostgreSQL before losing the ACK.
+                    // L2 may have drained and closed the pool meanwhile; only return the loan.
+                    if (!commitFirst) {
                         if (commit) actual.commit();
                         else actual.rollback();
                     }
