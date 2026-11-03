@@ -344,6 +344,92 @@ class ConsumptionLifecycleCompositionPostgresTest {
                                 "invalid composition")));
     }
 
+    static final class LaneDiag {
+        final String lane;
+        volatile String thread = "NOT_STARTED";
+        final AtomicInteger borrowAttempts = new AtomicInteger();
+        volatile long borrowElapsedMs = -1;
+        volatile String borrowPoolState = "NONE";
+        volatile Integer backendPid;
+        volatile String txState = "NONE";
+        volatile String waitStateAtBarrier = "NONE";
+        volatile boolean crossedBarrier;
+        volatile String exception = "NONE";
+
+        LaneDiag(String lane) {
+            this.lane = lane;
+        }
+
+        String summary() {
+            return "lane="
+                    + lane
+                    + " thread="
+                    + thread
+                    + " borrowAttempts="
+                    + borrowAttempts.get()
+                    + " borrowElapsedMs="
+                    + borrowElapsedMs
+                    + " borrowPoolState=["
+                    + borrowPoolState
+                    + "] backendPid="
+                    + (backendPid == null ? "NONE" : backendPid)
+                    + " txState=["
+                    + txState
+                    + "] waitStateAtBarrier=["
+                    + waitStateAtBarrier
+                    + "] crossedBarrier="
+                    + crossedBarrier
+                    + " exception="
+                    + exception;
+        }
+    }
+
+    static String failureChain(Throwable t) {
+        var parts = new ArrayList<String>();
+        for (Throwable cur = t; cur != null; cur = cur.getCause()) {
+            parts.add(cur.getClass().getSimpleName() + ": " + cur.getMessage());
+        }
+        return String.join(" <- ", parts);
+    }
+
+    static void awaitPhysicalPoolReserve(HikariDataSource pool, int expectedIdle)
+            throws SQLException, InterruptedException {
+        try (var init = pool.getConnection()) {
+            assertNotNull(init);
+        }
+        long deadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
+        while (pool.getHikariPoolMXBean().getIdleConnections() != expectedIdle
+                && System.nanoTime() < deadline) {
+            Thread.sleep(10);
+        }
+        assertEquals(
+                expectedIdle,
+                pool.getHikariPoolMXBean().getIdleConnections(),
+                "physical pool reserve not established");
+    }
+
+    static void attachWaitStates(
+            List<LaneDiag> lanes, List<Map<String, Object>> activity) {
+        for (var diag : lanes) {
+            if (diag.backendPid != null) {
+                activity.stream()
+                        .filter(r -> ((Number) r.get("pid")).intValue() == diag.backendPid)
+                        .findFirst()
+                        .ifPresent(
+                                r ->
+                                        diag.waitStateAtBarrier =
+                                                "state="
+                                                        + r.get("state")
+                                                        + ",wait="
+                                                        + r.get("wait_event_type")
+                                                        + ":"
+                                                        + r.get("wait_event")
+                                                        + ",blockers="
+                                                        + r.get("blockers"));
+            }
+        }
+    }
+
     @Test
     void renewalsHaveReservedDatabaseAccess() throws Exception {
         // Manual bounded borrower inventory only; no claim of resource reservation in the unstarted
@@ -357,14 +443,80 @@ class ConsumptionLifecycleCompositionPostgresTest {
                 pool.setUsername(target.runtimeRole());
                 pool.setPassword("fixture-runtime");
                 pool.setMaximumPoolSize(8);
-                pool.setMinimumIdle(0);
+                pool.setMinimumIdle(8);
                 pool.setConnectionTimeout(1000);
+                awaitPhysicalPoolReserve(pool, 8);
                 var cap = new WorkerCapacity(4, Map.of(d.id(), 4));
-                var real = new SpringAttemptTransactions(pool, manager(pool));
-                var jdbc = new JdbcTemplate(pool);
-                var entered = new CountDownLatch(3);
-                var go = new CountDownLatch(1);
+                var currentLane = new ThreadLocal<LaneDiag>();
                 var armed = new AtomicBoolean();
+                javax.sql.DataSource tracedSource =
+                        new org.springframework.jdbc.datasource.DelegatingDataSource(pool) {
+                            @Override
+                            public Connection getConnection() throws SQLException {
+                                var diag = currentLane.get();
+                                if (diag == null || !armed.get()) return super.getConnection();
+                                diag.borrowAttempts.incrementAndGet();
+                                var bean = pool.getHikariPoolMXBean();
+                                String before =
+                                        "active="
+                                                + bean.getActiveConnections()
+                                                + ",idle="
+                                                + bean.getIdleConnections()
+                                                + ",total="
+                                                + bean.getTotalConnections()
+                                                + ",waiting="
+                                                + bean.getThreadsAwaitingConnection();
+                                long startNs = System.nanoTime();
+                                try {
+                                    var c = super.getConnection();
+                                    diag.borrowElapsedMs =
+                                            TimeUnit.NANOSECONDS.toMillis(
+                                                    System.nanoTime() - startNs);
+                                    diag.borrowPoolState =
+                                            "OK before("
+                                                    + before
+                                                    + ") after(active="
+                                                    + bean.getActiveConnections()
+                                                    + ",idle="
+                                                    + bean.getIdleConnections()
+                                                    + ",total="
+                                                    + bean.getTotalConnections()
+                                                    + ",waiting="
+                                                    + bean.getThreadsAwaitingConnection()
+                                                    + ")";
+                                    try (var st = c.createStatement();
+                                            var rs = st.executeQuery("select pg_backend_pid()")) {
+                                        if (rs.next()) diag.backendPid = rs.getInt(1);
+                                    }
+                                    return c;
+                                } catch (SQLException ex) {
+                                    diag.borrowElapsedMs =
+                                            TimeUnit.NANOSECONDS.toMillis(
+                                                    System.nanoTime() - startNs);
+                                    diag.borrowPoolState =
+                                            "FAIL("
+                                                    + ex.getClass().getSimpleName()
+                                                    + ": "
+                                                    + ex.getMessage()
+                                                    + ") before("
+                                                    + before
+                                                    + ") after(active="
+                                                    + bean.getActiveConnections()
+                                                    + ",idle="
+                                                    + bean.getIdleConnections()
+                                                    + ",total="
+                                                    + bean.getTotalConnections()
+                                                    + ",waiting="
+                                                    + bean.getThreadsAwaitingConnection()
+                                                    + ")";
+                                    throw ex;
+                                }
+                            }
+                        };
+                var real = new SpringAttemptTransactions(tracedSource, manager(tracedSource));
+                var jdbc = new JdbcTemplate(tracedSource);
+                var enteredRef = new AtomicReference<>(new CountDownLatch(3));
+                var goRef = new AtomicReference<>(new CountDownLatch(1));
                 AttemptTransactions owner =
                         new AttemptTransactions() {
                             public <T> T write(
@@ -375,14 +527,34 @@ class ConsumptionLifecycleCompositionPostgresTest {
                                 return real.write(
                                         () -> {
                                             if (armed.get()) {
-                                                trace.add(
-                                                        "renew lane PID="
-                                                                + jdbc.queryForObject(
-                                                                        "select pg_backend_pid()",
-                                                                        Integer.class));
-                                                entered.countDown();
+                                                var row =
+                                                        jdbc.queryForMap(
+                                                                "select pg_backend_pid() as pid,"
+                                                                    + " coalesce(pg_current_xact_id_if_assigned()::text,'none')"
+                                                                    + " as xid,"
+                                                                    + " current_setting('transaction_read_only')"
+                                                                    + " as ro,"
+                                                                    + " current_setting('transaction_isolation')"
+                                                                    + " as iso");
+                                                int pid = ((Number) row.get("pid")).intValue();
+                                                var diag = currentLane.get();
+                                                if (diag != null) {
+                                                    diag.backendPid = pid;
+                                                    diag.txState =
+                                                            "xid="
+                                                                    + row.get("xid")
+                                                                    + ",ro="
+                                                                    + row.get("ro")
+                                                                    + ",iso="
+                                                                    + row.get("iso");
+                                                    diag.crossedBarrier = true;
+                                                }
+                                                trace.add("renew lane PID=" + pid);
+                                                enteredRef.get().countDown();
                                                 try {
-                                                    assertTrue(go.await(8, TimeUnit.SECONDS));
+                                                    assertTrue(
+                                                            goRef.get()
+                                                                    .await(8, TimeUnit.SECONDS));
                                                 } catch (InterruptedException e) {
                                                     throw new AssertionError(e);
                                                 }
@@ -410,11 +582,11 @@ class ConsumptionLifecycleCompositionPostgresTest {
                         };
                 var e =
                         !write
-                                ? readEngine(pool, owner, cap)
+                                ? readEngine(tracedSource, owner, cap)
                                 : V3ConsumptionLifecycleComposition.assemble(
                                         fixture.guard(),
                                         d,
-                                        pool,
+                                        tracedSource,
                                         owner,
                                         inert(),
                                         LifecycleSettings.pilot(),
@@ -436,13 +608,21 @@ class ConsumptionLifecycleCompositionPostgresTest {
                     handles.add(e.acquire(lease, List.of(id)).claims().getFirst());
                 }
                 assertEquals(4, cap.snapshot().worker());
+                awaitPhysicalPoolReserve(pool, 8);
                 var held = new ArrayList<Connection>();
+                var d1 = new LaneDiag("claim-1");
+                var d2 = new LaneDiag("claim-2");
+                var dl = new LaneDiag("lease");
+                var lanes = List.of(d1, d2, dl);
                 try (var threads = Executors.newVirtualThreadPerTaskExecutor()) {
                     for (int n = 0; n < 5; n++) {
                         var c = pool.getConnection();
                         c.setAutoCommit(false);
                         held.add(c);
                     }
+                    assertEquals(5, pool.getHikariPoolMXBean().getActiveConnections());
+                    assertEquals(3, pool.getHikariPoolMXBean().getIdleConnections());
+                    assertEquals(8, pool.getHikariPoolMXBean().getTotalConnections());
                     try (var q =
                             held.getFirst()
                                     .prepareStatement(
@@ -452,28 +632,113 @@ class ConsumptionLifecycleCompositionPostgresTest {
                         q.setObject(2, ids.getFirst());
                         q.executeQuery().close();
                     }
+                    var entered = enteredRef.get();
+                    var go = goRef.get();
                     armed.set(true);
-                    var s1 = threads.submit(() -> tracedRenewal("claim-1", () -> e.renewClaims(List.of(handles.get(0).claim()))));
-                    var s2 = threads.submit(() -> tracedRenewal("claim-2", () -> e.renewClaims(List.of(handles.get(1).claim()))));
+                    var s1 =
+                            threads.submit(
+                                    () ->
+                                            tracedRenewal(
+                                                    d1,
+                                                    currentLane,
+                                                    () ->
+                                                            e.renewClaims(
+                                                                    List.of(
+                                                                            handles.get(0)
+                                                                                    .claim()))));
+                    var s2 =
+                            threads.submit(
+                                    () ->
+                                            tracedRenewal(
+                                                    d2,
+                                                    currentLane,
+                                                    () ->
+                                                            e.renewClaims(
+                                                                    List.of(
+                                                                            handles.get(1)
+                                                                                    .claim()))));
                     var lp =
                             threads.submit(
                                     () ->
-                                            tracedRenewal("lease", () -> e.renewPartitions(
-                                                    List.of(leases.values().iterator().next()))));
-                    boolean allEntered = entered.await(8, TimeUnit.SECONDS);
+                                            tracedRenewal(
+                                                    dl,
+                                                    currentLane,
+                                                    () ->
+                                                            e.renewPartitions(
+                                                                    List.of(
+                                                                            leases.values()
+                                                                                    .iterator()
+                                                                                    .next()))));
+                    boolean allEntered = entered.await(250, TimeUnit.MILLISECONDS);
                     if (!allEntered) {
-                        var bean = pool.getHikariPoolMXBean();
-                        trace.add("renewal barrier missing=" + entered.getCount()
-                                + " active=" + bean.getActiveConnections()
-                                + " idle=" + bean.getIdleConnections()
-                                + " total=" + bean.getTotalConnections()
-                                + " waiting=" + bean.getThreadsAwaitingConnection());
-                        trace.add("renewal backend inventory=" + oracle.queryForList(
-                                "select pid,usename,state,wait_event_type,wait_event,query from pg_stat_activity where datname=current_database()"));
+                        var midBean = pool.getHikariPoolMXBean();
+                        trace.add(
+                                "renewal in-flight(250ms) authority="
+                                        + d.authority()
+                                        + " missing="
+                                        + entered.getCount()
+                                        + " active="
+                                        + midBean.getActiveConnections()
+                                        + " idle="
+                                        + midBean.getIdleConnections()
+                                        + " total="
+                                        + midBean.getTotalConnections()
+                                        + " waiting="
+                                        + midBean.getThreadsAwaitingConnection());
+                        allEntered = entered.await(7750, TimeUnit.MILLISECONDS);
                     }
-                    assertTrue(allEntered, "all three physical renewal lanes must reach the unchanged barrier");
-                    assertEquals(8, pool.getHikariPoolMXBean().getActiveConnections());
+                    var bean = pool.getHikariPoolMXBean();
+                    int activeAtBarrier = bean.getActiveConnections();
+                    int idleAtBarrier = bean.getIdleConnections();
+                    int totalAtBarrier = bean.getTotalConnections();
+                    int waitingAtBarrier = bean.getThreadsAwaitingConnection();
+                    var activity =
+                            oracle.queryForList(
+                                    "select pid,usename,state,wait_event_type,wait_event,"
+                                        + "pg_blocking_pids(pid)::text as blockers,left(query,80) as"
+                                        + " query from pg_stat_activity where"
+                                        + " datname=current_database() order by pid");
+                    attachWaitStates(lanes, activity);
+                    trace.add(
+                            "renewal barrier authority="
+                                    + d.authority()
+                                    + " allEntered="
+                                    + allEntered
+                                    + " missing="
+                                    + entered.getCount()
+                                    + " active="
+                                    + activeAtBarrier
+                                    + " idle="
+                                    + idleAtBarrier
+                                    + " total="
+                                    + totalAtBarrier
+                                    + " waiting="
+                                    + waitingAtBarrier);
+                    trace.add("renewal backend inventory=" + activity);
                     go.countDown();
+                    captureFuture(d1, s1);
+                    captureFuture(d2, s2);
+                    captureFuture(dl, lp);
+                    for (var diag : lanes) {
+                        trace.add(
+                                "renewal lane-diag authority="
+                                        + d.authority()
+                                        + " "
+                                        + diag.summary());
+                    }
+                    assertTrue(
+                            allEntered,
+                            () ->
+                                    "all three physical renewal lanes must reach the unchanged"
+                                            + " barrier; diagnostics="
+                                            + lanes.stream().map(LaneDiag::summary).toList());
+                    assertEquals(8, activeAtBarrier);
+                    assertEquals(0, idleAtBarrier);
+                    assertEquals(8, totalAtBarrier);
+                    assertEquals(
+                            3,
+                            Set.of(d1.backendPid, d2.backendPid, dl.backendPid).size(),
+                            "three distinct physical PostgreSQL backends required for renewals");
                     assertTrue(s1.get(8, TimeUnit.SECONDS).isEmpty());
                     assertEquals(1, s2.get(8, TimeUnit.SECONDS).size());
                     assertEquals(1, lp.get(8, TimeUnit.SECONDS).size());
@@ -487,8 +752,112 @@ class ConsumptionLifecycleCompositionPostgresTest {
                                             "select clock_timestamp(),claimed_until from"
                                                     + " consumption_slot where consumable_id=?",
                                             ids.get(1)));
+
+                    // Counter-oracle: when a 6th non-renewal connection encroaches on the 3-lane
+                    // renewal reserve (leaving only 2 connections for 3 renewal lanes), the same
+                    // barrier probe deterministically detects the missing reserve and captures the
+                    // borrow timeout failure on the unserved lane.
+                    armed.set(false);
+                    try (var encroaching = pool.getConnection()) {
+                        encroaching.setAutoCommit(false);
+                        assertEquals(6, pool.getHikariPoolMXBean().getActiveConnections());
+                        assertEquals(2, pool.getHikariPoolMXBean().getIdleConnections());
+                        var cEntered = new CountDownLatch(3);
+                        var cGo = new CountDownLatch(1);
+                        enteredRef.set(cEntered);
+                        goRef.set(cGo);
+                        var cd1 = new LaneDiag("counter-claim-1");
+                        var cd2 = new LaneDiag("counter-claim-2");
+                        var cdl = new LaneDiag("counter-lease");
+                        var cLanes = List.of(cd1, cd2, cdl);
+                        armed.set(true);
+                        var cs1 =
+                                threads.submit(
+                                        () ->
+                                                tracedRenewal(
+                                                        cd1,
+                                                        currentLane,
+                                                        () ->
+                                                                e.renewClaims(
+                                                                        List.of(
+                                                                                handles.get(0)
+                                                                                        .claim()))));
+                        var cs2 =
+                                threads.submit(
+                                        () ->
+                                                tracedRenewal(
+                                                        cd2,
+                                                        currentLane,
+                                                        () ->
+                                                                e.renewClaims(
+                                                                        List.of(
+                                                                                handles.get(1)
+                                                                                        .claim()))));
+                        var clp =
+                                threads.submit(
+                                        () ->
+                                                tracedRenewal(
+                                                        cdl,
+                                                        currentLane,
+                                                        () ->
+                                                                e.renewPartitions(
+                                                                        List.of(
+                                                                                leases.values()
+                                                                                        .iterator()
+                                                                                        .next()))));
+                        try {
+                            assertFalse(
+                                    cEntered.await(250, TimeUnit.MILLISECONDS),
+                                    "encroached reserve must not allow 3 renewal lanes into barrier");
+                            var cMid = pool.getHikariPoolMXBean();
+                            assertEquals(1L, cEntered.getCount());
+                            assertEquals(8, cMid.getActiveConnections());
+                            assertEquals(0, cMid.getIdleConnections());
+                            assertEquals(1, cMid.getThreadsAwaitingConnection());
+                            var cActivity =
+                                    oracle.queryForList(
+                                            "select pid,usename,state,wait_event_type,wait_event,"
+                                                + "pg_blocking_pids(pid)::text as"
+                                                + " blockers,left(query,80) as query from"
+                                                + " pg_stat_activity where"
+                                                + " datname=current_database() order by pid");
+                            attachWaitStates(cLanes, cActivity);
+                            assertFalse(
+                                    cEntered.await(900, TimeUnit.MILLISECONDS),
+                                    "unreserved 3rd renewal lane must time out before barrier");
+                        } finally {
+                            cGo.countDown();
+                        }
+                        captureFuture(cd1, cs1);
+                        captureFuture(cd2, cs2);
+                        captureFuture(cdl, clp);
+                        for (var diag : cLanes) {
+                            trace.add(
+                                    "counter-oracle lane-diag authority="
+                                            + d.authority()
+                                            + " "
+                                            + diag.summary());
+                        }
+                        assertEquals(
+                                2L,
+                                cLanes.stream().filter(l -> l.crossedBarrier).count(),
+                                "exactly 2 lanes must cross when only 2 connections remain reserved");
+                        var starved =
+                                cLanes.stream()
+                                        .filter(l -> !l.crossedBarrier)
+                                        .findFirst()
+                                        .orElseThrow();
+                        assertNull(starved.backendPid);
+                        assertTrue(
+                                starved.exception.contains("Attempt transaction UNKNOWN")
+                                        && starved.exception.contains(
+                                                "SQLTransientConnectionException"),
+                                () -> "unexpected counter-oracle failure chain: " + starved.exception);
+                        assertEquals(4, cap.snapshot().worker());
+                        encroaching.rollback();
+                    }
                 } finally {
-                    go.countDown();
+                    goRef.get().countDown();
                     for (var c : held) {
                         c.rollback();
                         c.close();
@@ -499,15 +868,36 @@ class ConsumptionLifecycleCompositionPostgresTest {
         }
     }
 
-    private <T> T tracedRenewal(String lane, Supplier<T> operation) {
-        trace.add("renewal submit " + lane);
+    private static void captureFuture(LaneDiag diag, Future<?> future) {
+        try {
+            future.get(8, TimeUnit.SECONDS);
+        } catch (ExecutionException ex) {
+            if ("NONE".equals(diag.exception)) {
+                diag.exception = failureChain(ex.getCause());
+            }
+        } catch (Exception ex) {
+            if ("NONE".equals(diag.exception)) {
+                diag.exception = failureChain(ex);
+            }
+        }
+    }
+
+    private <T> T tracedRenewal(
+            LaneDiag diag, ThreadLocal<LaneDiag> currentLane, Supplier<T> operation) {
+        currentLane.set(diag);
+        diag.thread =
+                Thread.currentThread().getName() + "#" + Thread.currentThread().threadId();
+        trace.add("renewal submit " + diag.lane + " thread=" + diag.thread);
         try {
             return operation.get();
         } catch (RuntimeException | Error failure) {
+            diag.exception = failureChain(failure);
             var out = new java.io.StringWriter();
             failure.printStackTrace(new java.io.PrintWriter(out));
-            trace.add("renewal failure " + lane + " " + out);
+            trace.add("renewal failure " + diag.lane + " " + out);
             throw failure;
+        } finally {
+            currentLane.remove();
         }
     }
 
