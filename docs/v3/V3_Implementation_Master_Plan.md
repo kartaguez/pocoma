@@ -1,12 +1,19 @@
 # Pocoma V3 — Plan directeur de réalisation L0–L8
 
-**L4/I8 — plan final publié le 3 novembre 2026.** Le [plan opérationnel I8](L4_I8_Implementation_and_Qualification_Plan.md)
-devient la référence pour activation/assemblage dans les deux racines existantes,
-façades READ internes et qualification finale : 11 tests nouveaux, gates G-I3…G-I8
-et Architecture mutualisées, puis un unique full reactor obligatoire. Proposition
-**GO WITH RESERVATIONS pour l’implémentation**, sans modification de code applicatif ni clôture L4.
-I3–I7 sont livrés avec PASS locaux filtrés, [recovery clos localement](L4_Recovery_Audit_Resolution.md) ;
-I1/I2 gardent leurs décisions, réserves historiques et attributions.
+**L4/I8 — implémentation livrée, qualification composite autorisée le 3 novembre 2026.**
+Les six participants sont activables indépendamment dans PROJECTION et le monolithe ;
+les façades internes READ et T01–T11 sont PASS au code productif `a3470df6…`.
+Décision humaine explicite : **« Autoriser la qualification composite et dispenser le quatrième full »** :
+**2 024 tests hors Architecture PASS + 167 Architecture PASS** après correction de deux seuls
+fichiers d’oracles au SHA `8a007768…`, sans différence productive/POM/SQL.
+Le dernier full complet reste **FAIL 2 191/4/0/0** ; aucun full PASS n’est déclaré.
+Quatre full ont été démarrés : trois FAIL, le dernier interrompu dès réception de la dispense.
+[Rapport et coûts](L4_I8_Execution_Report.md), [manifeste](L4_I8_Proof_Manifest.json),
+[preuves](../testing/evidence/L4-I8/README.md). Lease180 reste une hypothèse locale,
+les réserves historiques et les obligations L5/L6/L7 sont maintenues.
+**L4 reste OPEN : audit indépendant et décision humaine de clôture à venir ;
+aucune certification SPEC-10 globale.** Le [plan I8 publié `a2b4e2a0…`](L4_I8_Implementation_and_Qualification_Plan.md)
+reste la référence ; les anciennes transitions ci-dessous sont historiques.
 
 **L4/I2 — CLOSED — LOCAL BOUNDED PASS — 3 novembre 2026.**
 

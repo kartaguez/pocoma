@@ -1,0 +1,81 @@
+{
+  "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+  "reference_plan": {
+    "commit": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+    "path": "docs/v3/L4_I8_Implementation_and_Qualification_Plan.md",
+    "sha256": "a75b15976eae6910c1fca1f4736ace2a55800bedcdbf3f6779a5bf8bc451bb95",
+    "lines": 431
+  },
+  "protected_boundaries": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+        "8a007768c23021153764473f6c6686042168df00",
+        "--",
+        "app/domain-consumption",
+        "app/engine-consumption",
+        "app/infra-tx-spring",
+        "app/engine-consume-projection-task",
+        "app/engine-materialize-current-binding",
+        "app/engine-materialize-command-result",
+        "app/engine-materialize-registration-result",
+        "app/infra-persistence-primary-jpa",
+        "scripts/v3"
+      ],
+      "changed_paths": []
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "6496e6d0144ecfda9e58ec6d12e259445e7344ad",
+        "8a007768c23021153764473f6c6686042168df00",
+        "--",
+        "app/domain-consumption",
+        "app/engine-consumption",
+        "app/infra-tx-spring"
+      ],
+      "changed_paths": []
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "f30891541787decf308675aeabd57a0577db11c6",
+        "8a007768c23021153764473f6c6686042168df00",
+        "--",
+        "app/domain-consumption",
+        "app/engine-consumption",
+        "app/infra-tx-spring",
+        "app/engine-consume-projection-task",
+        "app/engine-materialize-current-binding",
+        "app/engine-materialize-command-result",
+        "app/engine-materialize-registration-result",
+        "app/infra-persistence-primary-jpa",
+        "scripts/v3"
+      ],
+      "changed_paths": []
+    }
+  ],
+  "recovery_external_SQL": [
+    {
+      "path": "scripts/v3/bootstrap-l2-routing.sql",
+      "historical_sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+      "current_sha256": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+      "matches": true
+    },
+    {
+      "path": "scripts/v3/grant-l2-lifecycle.sql",
+      "historical_sha256": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647",
+      "current_sha256": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647",
+      "matches": true
+    }
+  ],
+  "unexpected_slice_crossings": [],
+  "result": "PASS — bounded source comparison, not a test execution"
+}

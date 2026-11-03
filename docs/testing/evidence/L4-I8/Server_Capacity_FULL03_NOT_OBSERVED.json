@@ -1,0 +1,5 @@
+{
+  "status": "NOT_OBSERVED",
+  "reason": "campaign ended before observation",
+  "query": "select json_build_object(\n'observed_at',clock_timestamp(),'server_started_at',pg_postmaster_start_time(),'version',version(),\n'max_connections',current_setting('max_connections')::int,\n'superuser_reserved_connections',current_setting('superuser_reserved_connections')::int,\n'reserved_connections',current_setting('reserved_connections')::int,\n'client_connections',(select count(*) from pg_stat_activity where backend_type='client backend'),\n'root_connections',(select count(*) from pg_stat_activity where application_name like 'i8-monolith-%' or application_name like 'i8-projection-%'),\n'connections_by_pool',(select json_agg(x) from(select datname,application_name,count(*) connections from pg_stat_activity where application_name like 'i8-monolith-%' or application_name like 'i8-projection-%' group by datname,application_name order by datname,application_name)x));"
+}

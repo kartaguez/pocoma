@@ -2,7 +2,7 @@
 
 ## Programme V3 courant
 
-- [Plan final L4/I8](v3/L4_I8_Implementation_and_Qualification_Plan.md) : référence opérationnelle pour activation dans PROJECTION/monolithe, façades internes et qualification ; **GO WITH RESERVATIONS proposé pour l’implémentation**, 11 tests nouveaux, gates G-I3…G-I8/Architecture mutualisées puis un unique full reactor. I3–I7 et recovery qualifiés localement avec réserves ; aucune implémentation I8 ni clôture L4 par ce cadrage.
+- [Livraison L4/I8](v3/L4_I8_Execution_Report.md) : six participants indépendants dans deux racines, façades READ et **T01–T11 PASS**. **Qualification composite autorisée : 2 024 hors Architecture PASS (`a3470df6…`) + 167 Architecture PASS (`8a007768…`, seuls oracles changés)**. Dernier full **FAIL 2 191/4/0/0** conservé ; quatrième interrompu par dispense, aucun full PASS inventé. [Plan](v3/L4_I8_Implementation_and_Qualification_Plan.md), [manifeste](v3/L4_I8_Proof_Manifest.json), [preuves/coûts](testing/evidence/L4-I8/README.md). Lease180 et réserves maintenues ; **L4 OPEN, audit indépendant et décision humaine de clôture restent dus**.
 
 - [Clôture définitive L4/I2](v3/L4_I2_Execution_Report.md#clôture-définitive-du-3-novembre-2026) : **L4/I2 — CLOSED — LOCAL BOUNDED PASS**, décision humaine du **03-11-2026** ; `I2-QUAL-01` RESOLVED, aucune réserve bloquante I2. Gates acquises 1873 et 2137 tests PASS au SHA `6496e6d…`, preuves publiées `2a81d49…`, aucun rejeu global. [Plan I2](v3/L4_I2_Implementation_Plan.md), [plan global L4 et qualification finale reportée](v3/L4_Read_Inventory_and_Implementation_Plan.md#qualification-globale-reportée-à-la-clôture-l4), [correctif indépendant du helper L3/I2](v3/L3_I2_WaiterPid_Fix_Report.md). L4 reste ouvert ; aucune certification globale SPEC-10.
 

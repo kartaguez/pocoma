@@ -1,0 +1,56 @@
+{
+  "status": "PASS — archive integrity only, no gate verdict",
+  "campaigns": [
+    {
+      "campaign": "Architecture-correction-PASS",
+      "raw_sha256": "9686414111acd9d376b9e361e11e7bd9b204e143b266333f15887c70774934bd",
+      "hashed_members_verified": 66
+    },
+    {
+      "campaign": "F-I8-01-FAIL",
+      "raw_sha256": "d56e2064bc6c5da463369f18abd95c11a00cdcdc1375d10681e8c6384a161c2c",
+      "hashed_members_verified": 23
+    },
+    {
+      "campaign": "F-I8-02-FAIL",
+      "raw_sha256": "b7bd6ed4a0711c9dc5257c8a0cde9ab18e19c76d85f780395869d9e2b92e3656",
+      "hashed_members_verified": 36
+    },
+    {
+      "campaign": "FULL-02-FAIL",
+      "raw_sha256": "021abab934009e436dd614f99795d9cec1767a90301f8ecd1c9a06e905ac4ccb",
+      "hashed_members_verified": 1851
+    },
+    {
+      "campaign": "FULL-03-FAIL",
+      "raw_sha256": "05671010f8303e6c07678b2ab7a4b127abf34588f7005aa34835631382aaaf88",
+      "hashed_members_verified": 2119
+    },
+    {
+      "campaign": "FULL-04-FAIL",
+      "raw_sha256": "1dea3bdf43a7c8511935aef1dd6b94d19f3bbc4d0a706e4f278c77c3b035c529",
+      "hashed_members_verified": 2178
+    },
+    {
+      "campaign": "FULL-preflight-01-INCONCLUSIVE",
+      "raw_sha256": "e5e505660656e6c618cb3f8e9948315c60b6a85a35da8cc8e01d688dd1225e60",
+      "hashed_members_verified": 0
+    },
+    {
+      "campaign": "Historical-order-correction-PASS",
+      "raw_sha256": "0a14c8c6c6c1da33067a53612f2c44902699c5a1c2f72da5413ce170b7bf34f5",
+      "hashed_members_verified": 21
+    },
+    {
+      "campaign": "Legacy-isolation-correction-PASS",
+      "raw_sha256": "d5ba87f407f6b40635704aec46ed1354ce0df4b912f150afd518b4877273e140",
+      "hashed_members_verified": 12
+    },
+    {
+      "campaign": "T10-correction-PASS",
+      "raw_sha256": "59654b842d21ff1635e2b7dc259e23c003968acc67806c61d6fb4ff4e4bf6b4a",
+      "hashed_members_verified": 16
+    }
+  ],
+  "human_gate_decision": "APPROVED — composite qualification; see Human_Composite_Qualification_Decision.json"
+}

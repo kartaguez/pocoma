@@ -1,5 +1,20 @@
 # Pocoma V3 — L4/I8 — Plan définitif d’implémentation et de qualification
 
+**Suivi du 3 novembre 2026 : implémentation et qualification composite livrées avec dispense humaine explicite.**
+[Rapport](L4_I8_Execution_Report.md), [manifeste](L4_I8_Proof_Manifest.json), [preuves](../testing/evidence/L4-I8/README.md).
+T01–T11 PASS ; qualification autorisée : **2 024 tests hors Architecture PASS au code `a3470df6…`
++ 167 Architecture PASS aux seuls oracles corrigés `8a007768…`**. Aucun code productif/POM/SQL
+ne diffère entre ces deux SHAs. Dernier full complet **FAIL 2 191/4/0/0**, conservé ;
+le quatrième déjà lancé a été interrompu dès réception de la dispense. Aucun full PASS inventé.
+Écarts bornés : T09/T10 au monolithe pour charger les deux vraies mains sans cycle Maven ;
+C-I8/F-L4 mutualisés après équivalence et accord humain ; corrections de scan legacy puis ordre
+historique ; deux fichiers d’oracles Architecture alignés sur les contrats approuvés après findings.
+Lease180 reste une hypothèse de qualification, sans acceptation de production.
+**L4 reste ouvert : audit indépendant et décision humaine de clôture restent dus.**
+Le cadrage publié `a2b4e2a0…`, les commandes prévues et constats ci-dessous restent historiques ;
+les commandes réellement exécutées et l’arbitrage sont dans le dossier.
+
+
 **3 novembre 2026 — cadrage documentaire ; verdict proposé : GO WITH RESERVATIONS pour l’implémentation I8.**
 Ce document est la référence opérationnelle unique d’I8. Il fixe une passe d’implémentation, puis sa qualification et son audit. Aucun code I8, test applicatif ou gate n’est exécuté par sa publication. **L4 reste ouvert et non certifié.** Les réserves concernent des preuves à produire, notamment les ressources ; aucun nouvel arbitrage métier bloquant n’est identifié.
 

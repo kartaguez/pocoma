@@ -1,0 +1,21 @@
+{
+  "phases": {
+    "input_inventory": {
+      "status": "FINISHED",
+      "seconds": 0.06440195796312764
+    },
+    "discovery": {
+      "status": "FINISHED",
+      "seconds": 2.2645937080378644
+    }
+  },
+  "campaign_seconds": 2.3669653339893557,
+  "forecast": {
+    "seconds": null,
+    "basis": "UNKNOWN",
+    "uncertainty": "UNKNOWN"
+  },
+  "forecast_delta_seconds": null,
+  "forecast_exceeded": null,
+  "forecast_is_blocking": false
+}

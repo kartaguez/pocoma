@@ -1,0 +1,31 @@
+{
+  "decision": "APPROVED — composite qualification, fourth full dispensed",
+  "human_answer": "Autoriser la qualification composite et dispenser le quatrième full",
+  "received_at_UTC": "2026-11-03T19:18:43.991967+00:00",
+  "scope": {
+    "non_architecture": {
+      "tests": 2024,
+      "outcome": "PASS",
+      "application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45"
+    },
+    "architecture": {
+      "tests": 167,
+      "outcome": "PASS",
+      "oracles_sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "9a633445391845689c07678d040e440f"
+    }
+  },
+  "productive_changes_between_SHAs": [],
+  "last_completed_full_verdict": "FAIL — 2191/4/0/0 retained unchanged",
+  "global_full_PASS_claimed": false,
+  "L4_closed": false,
+  "fourth_full_already_started_while_no_dispensation_received": {
+    "output": "/private/tmp/pocoma-i8-FULL-05",
+    "driver_pid": 97608,
+    "maven_pid": 97867,
+    "driver_command": "/Library/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -B /private/tmp/pocoma-i8-reviewed-full-invocation.py /private/tmp/pocoma-l4-i8-qualification-06 /private/tmp/pocoma-i8-FULL-05 FULL",
+    "action": "SIGTERM driver to use existing controlled verifier interruption and collect partial reports"
+  },
+  "reason": "Explicit human arbitration received after launch; avoid further redundant execution."
+}

@@ -1,0 +1,118 @@
+{
+  "observed_at": "2026-11-03T17:18:51.425012+00:00",
+  "read_only": true,
+  "receipts": [
+    {
+      "container": "ad776b0e487e",
+      "command": [
+        "docker",
+        "exec",
+        "ad776b0e487e",
+        "psql",
+        "-X",
+        "-A",
+        "-t",
+        "-U",
+        "test",
+        "-d",
+        "test",
+        "-c",
+        "select json_build_object('clock',clock_timestamp(),'version',version(),'backends',(select json_agg(x) from(select datname,application_name,state,wait_event_type,wait_event,count(*) connections from pg_stat_activity where backend_type='client backend' group by datname,application_name,state,wait_event_type,wait_event order by datname,application_name)x),'blocked_sessions',(select count(*) from pg_stat_activity where cardinality(pg_blocking_pids(pid))>0));"
+      ],
+      "exit_code": 0,
+      "output": {
+        "clock": "2026-11-03T17:18:51.37964+00:00",
+        "version": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "backends": [
+          {
+            "datname": "i5_read",
+            "application_name": "i5-test-read-business",
+            "state": "idle",
+            "wait_event_type": "Client",
+            "wait_event": "ClientRead",
+            "connections": 3
+          },
+          {
+            "datname": "i5_read",
+            "application_name": "i5-test-read-control",
+            "state": "idle",
+            "wait_event_type": "Client",
+            "wait_event": "ClientRead",
+            "connections": 7
+          },
+          {
+            "datname": "test",
+            "application_name": "i5-test-write-business",
+            "state": "idle",
+            "wait_event_type": "Client",
+            "wait_event": "ClientRead",
+            "connections": 3
+          },
+          {
+            "datname": "test",
+            "application_name": "i5-test-write-control",
+            "state": "idle",
+            "wait_event_type": "Client",
+            "wait_event": "ClientRead",
+            "connections": 7
+          },
+          {
+            "datname": "test",
+            "application_name": "psql",
+            "state": "active",
+            "wait_event_type": null,
+            "wait_event": null,
+            "connections": 1
+          }
+        ],
+        "blocked_sessions": 0
+      }
+    },
+    {
+      "container": "e17227c4e238",
+      "command": [
+        "docker",
+        "exec",
+        "e17227c4e238",
+        "psql",
+        "-X",
+        "-A",
+        "-t",
+        "-U",
+        "test",
+        "-d",
+        "test",
+        "-c",
+        "select json_build_object('clock',clock_timestamp(),'version',version(),'backends',(select json_agg(x) from(select datname,application_name,state,wait_event_type,wait_event,count(*) connections from pg_stat_activity where backend_type='client backend' group by datname,application_name,state,wait_event_type,wait_event order by datname,application_name)x),'blocked_sessions',(select count(*) from pg_stat_activity where cardinality(pg_blocking_pids(pid))>0));"
+      ],
+      "exit_code": 0,
+      "output": {
+        "clock": "2026-11-03T17:18:51.417467+00:00",
+        "version": "PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+        "backends": [
+          {
+            "datname": "test",
+            "application_name": "PostgreSQL JDBC Driver",
+            "state": "idle",
+            "wait_event_type": "Client",
+            "wait_event": "ClientRead",
+            "connections": 20
+          },
+          {
+            "datname": "test",
+            "application_name": "psql",
+            "state": "active",
+            "wait_event_type": null,
+            "wait_event": null,
+            "connections": 1
+          }
+        ],
+        "blocked_sessions": 0
+      }
+    }
+  ],
+  "application_sha": "090b5327cd2a4e974bb8907c62c4e65b82a17e62",
+  "invocation_id": "4e6173c730f649bdbe3e536274a417e4",
+  "raw_text_archive": "Thread_Dumps_Raw.tar.gz",
+  "artifact_names_refer_to_archive_members": true
+}

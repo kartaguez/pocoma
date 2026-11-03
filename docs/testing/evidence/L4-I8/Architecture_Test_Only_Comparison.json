@@ -1,0 +1,28 @@
+{
+  "full_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "architecture_oracles_sha": "8a007768c23021153764473f6c6686042168df00",
+  "changed_paths": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java",
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java"
+  ],
+  "changed_paths_only_architecture_test_sources": true,
+  "productive_source_POM_resource_SQL_changes": [],
+  "full_qualified_inputs": 1373,
+  "byte_identical_inputs_in_new_qualification_checkout": 1371,
+  "byte_differences": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java",
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java"
+  ],
+  "source_full_invocation_id": "6b091895d103489b857c7027a3481e45",
+  "full_counts": {
+    "tests": 2191,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "all_non_architecture_methods": 2024,
+  "all_non_architecture_outcomes": "PASS",
+  "affected_and_replayed_scope": "Entire Architecture module, 167 methods; no productive or upstream test source changed.",
+  "mandatory_gate_disposition": "AUTHORIZED COMPOSITE — explicit human decision; no fourth full required; already-started fourth full interrupted with partial evidence preserved.",
+  "global_gate_waiver": "APPROVED — see Human_Composite_Qualification_Decision.json"
+}

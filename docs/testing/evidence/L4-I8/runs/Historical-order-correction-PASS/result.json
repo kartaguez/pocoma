@@ -1,0 +1,1204 @@
+{
+  "verdict": "PASS",
+  "counts": {
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest",
+      "method": "i5_w04",
+      "seconds": 15.367,
+      "outcome": "PASS"
+    },
+    {
+      "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r06",
+      "seconds": 27.602,
+      "outcome": "PASS"
+    }
+  ],
+  "compilation": {
+    "compiler_events": [
+      {
+        "module": "pocoma-domain-authorization",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 81
+      },
+      {
+        "module": "pocoma-domain-authorization",
+        "goal": "testCompile",
+        "sources": 3,
+        "destination": "target/test-classes",
+        "line": 88
+      },
+      {
+        "module": "pocoma-domain-event",
+        "goal": "compile",
+        "sources": 2,
+        "destination": "target/classes",
+        "line": 103
+      },
+      {
+        "module": "pocoma-domain-event",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 110
+      },
+      {
+        "module": "pocoma-domain-user-identity",
+        "goal": "compile",
+        "sources": 20,
+        "destination": "target/classes",
+        "line": 125
+      },
+      {
+        "module": "pocoma-domain-user-identity",
+        "goal": "testCompile",
+        "sources": 3,
+        "destination": "target/test-classes",
+        "line": 132
+      },
+      {
+        "module": "pocoma-contracts-authentication",
+        "goal": "compile",
+        "sources": 1,
+        "destination": "target/classes",
+        "line": 147
+      },
+      {
+        "module": "pocoma-domain-pot",
+        "goal": "compile",
+        "sources": 91,
+        "destination": "target/classes",
+        "line": 169
+      },
+      {
+        "module": "pocoma-domain-pot",
+        "goal": "testCompile",
+        "sources": 45,
+        "destination": "target/test-classes",
+        "line": 176
+      },
+      {
+        "module": "pocoma-domain-projection",
+        "goal": "compile",
+        "sources": 36,
+        "destination": "target/classes",
+        "line": 191
+      },
+      {
+        "module": "pocoma-domain-projection",
+        "goal": "testCompile",
+        "sources": 5,
+        "destination": "target/test-classes",
+        "line": 198
+      },
+      {
+        "module": "pocoma-domain-consumption",
+        "goal": "compile",
+        "sources": 27,
+        "destination": "target/classes",
+        "line": 213
+      },
+      {
+        "module": "pocoma-domain-consumption",
+        "goal": "testCompile",
+        "sources": 12,
+        "destination": "target/test-classes",
+        "line": 220
+      },
+      {
+        "module": "pocoma-port-transaction",
+        "goal": "compile",
+        "sources": 7,
+        "destination": "target/classes",
+        "line": 235
+      },
+      {
+        "module": "pocoma-port-binding-authority",
+        "goal": "compile",
+        "sources": 6,
+        "destination": "target/classes",
+        "line": 257
+      },
+      {
+        "module": "pocoma-engine-consumption",
+        "goal": "compile",
+        "sources": 56,
+        "destination": "target/classes",
+        "line": 279
+      },
+      {
+        "module": "pocoma-engine-consumption",
+        "goal": "testCompile",
+        "sources": 9,
+        "destination": "target/test-classes",
+        "line": 286
+      },
+      {
+        "module": "pocoma-contracts-command",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 303
+      },
+      {
+        "module": "pocoma-engine-write-pot",
+        "goal": "compile",
+        "sources": 68,
+        "destination": "target/classes",
+        "line": 325
+      },
+      {
+        "module": "pocoma-engine-write-pot",
+        "goal": "testCompile",
+        "sources": 24,
+        "destination": "target/test-classes",
+        "line": 332
+      },
+      {
+        "module": "pocoma-engine-consume-command",
+        "goal": "compile",
+        "sources": 73,
+        "destination": "target/classes",
+        "line": 347
+      },
+      {
+        "module": "pocoma-engine-consume-command",
+        "goal": "testCompile",
+        "sources": 19,
+        "destination": "target/test-classes",
+        "line": 354
+      },
+      {
+        "module": "pocoma-orchestrator-consumption",
+        "goal": "compile",
+        "sources": 15,
+        "destination": "target/classes",
+        "line": 369
+      },
+      {
+        "module": "pocoma-orchestrator-consumption",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 376
+      },
+      {
+        "module": "pocoma-supra-consume-command",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 391
+      },
+      {
+        "module": "pocoma-supra-consume-command",
+        "goal": "testCompile",
+        "sources": 4,
+        "destination": "target/test-classes",
+        "line": 398
+      },
+      {
+        "module": "pocoma-engine-read-command-result",
+        "goal": "compile",
+        "sources": 9,
+        "destination": "target/classes",
+        "line": 413
+      },
+      {
+        "module": "pocoma-engine-materialize-command-result",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 435
+      },
+      {
+        "module": "pocoma-engine-materialize-command-result",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 442
+      },
+      {
+        "module": "pocoma-supra-consume-command-result",
+        "goal": "compile",
+        "sources": 1,
+        "destination": "target/classes",
+        "line": 457
+      },
+      {
+        "module": "pocoma-contracts-registration",
+        "goal": "compile",
+        "sources": 2,
+        "destination": "target/classes",
+        "line": 479
+      },
+      {
+        "module": "pocoma-engine-admit-registration",
+        "goal": "compile",
+        "sources": 2,
+        "destination": "target/classes",
+        "line": 501
+      },
+      {
+        "module": "pocoma-engine-consume-registration",
+        "goal": "compile",
+        "sources": 10,
+        "destination": "target/classes",
+        "line": 523
+      },
+      {
+        "module": "pocoma-engine-consume-registration",
+        "goal": "testCompile",
+        "sources": 3,
+        "destination": "target/test-classes",
+        "line": 530
+      },
+      {
+        "module": "pocoma-supra-consume-registration",
+        "goal": "compile",
+        "sources": 1,
+        "destination": "target/classes",
+        "line": 545
+      },
+      {
+        "module": "pocoma-engine-read-registration-result",
+        "goal": "compile",
+        "sources": 7,
+        "destination": "target/classes",
+        "line": 567
+      },
+      {
+        "module": "pocoma-engine-materialize-registration-result",
+        "goal": "compile",
+        "sources": 6,
+        "destination": "target/classes",
+        "line": 589
+      },
+      {
+        "module": "pocoma-engine-materialize-registration-result",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 596
+      },
+      {
+        "module": "pocoma-supra-consume-registration-result",
+        "goal": "compile",
+        "sources": 1,
+        "destination": "target/classes",
+        "line": 611
+      },
+      {
+        "module": "pocoma-port-projection",
+        "goal": "compile",
+        "sources": 13,
+        "destination": "target/classes",
+        "line": 633
+      },
+      {
+        "module": "pocoma-engine-produce-projection-task",
+        "goal": "compile",
+        "sources": 6,
+        "destination": "target/classes",
+        "line": 655
+      },
+      {
+        "module": "pocoma-engine-produce-projection-task",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 662
+      },
+      {
+        "module": "pocoma-engine-read-projection",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 677
+      },
+      {
+        "module": "pocoma-engine-read-projection",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 684
+      },
+      {
+        "module": "pocoma-projector-pot",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 699
+      },
+      {
+        "module": "pocoma-projector-pot",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 706
+      },
+      {
+        "module": "pocoma-engine-consume-projection-task",
+        "goal": "compile",
+        "sources": 30,
+        "destination": "target/classes",
+        "line": 721
+      },
+      {
+        "module": "pocoma-engine-consume-projection-task",
+        "goal": "testCompile",
+        "sources": 6,
+        "destination": "target/test-classes",
+        "line": 728
+      },
+      {
+        "module": "pocoma-supra-consume-projection-task",
+        "goal": "compile",
+        "sources": 1,
+        "destination": "target/classes",
+        "line": 743
+      },
+      {
+        "module": "pocoma-engine-read-current-binding",
+        "goal": "compile",
+        "sources": 4,
+        "destination": "target/classes",
+        "line": 765
+      },
+      {
+        "module": "pocoma-engine-read-current-binding",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 772
+      },
+      {
+        "module": "pocoma-engine-read-pot",
+        "goal": "compile",
+        "sources": 19,
+        "destination": "target/classes",
+        "line": 787
+      },
+      {
+        "module": "pocoma-engine-read-pot",
+        "goal": "testCompile",
+        "sources": 5,
+        "destination": "target/test-classes",
+        "line": 794
+      },
+      {
+        "module": "pocoma-engine-materialize-current-binding",
+        "goal": "compile",
+        "sources": 9,
+        "destination": "target/classes",
+        "line": 809
+      },
+      {
+        "module": "pocoma-engine-materialize-latest-known-version",
+        "goal": "compile",
+        "sources": 6,
+        "destination": "target/classes",
+        "line": 831
+      },
+      {
+        "module": "pocoma-engine-materialize-latest-known-version",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 838
+      },
+      {
+        "module": "pocoma-infra-tx-spring",
+        "goal": "compile",
+        "sources": 3,
+        "destination": "target/classes",
+        "line": 853
+      },
+      {
+        "module": "pocoma-infra-tx-spring",
+        "goal": "testCompile",
+        "sources": 8,
+        "destination": "target/test-classes",
+        "line": 860
+      },
+      {
+        "module": "pocoma-infra-persistence-projection-jdbc",
+        "goal": "compile",
+        "sources": 5,
+        "destination": "target/classes",
+        "line": 875
+      },
+      {
+        "module": "pocoma-infra-persistence-projection-jdbc",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 882
+      },
+      {
+        "module": "pocoma-infra-persistence-read-jdbc",
+        "goal": "compile",
+        "sources": 17,
+        "destination": "target/classes",
+        "line": 897
+      },
+      {
+        "module": "pocoma-infra-persistence-read-jdbc",
+        "goal": "testCompile",
+        "sources": 17,
+        "destination": "target/test-classes",
+        "line": 904
+      },
+      {
+        "module": "pocoma-contracts-observability",
+        "goal": "compile",
+        "sources": 2,
+        "destination": "target/classes",
+        "line": 919
+      },
+      {
+        "module": "pocoma-contracts-observability",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 926
+      },
+      {
+        "module": "pocoma-engine-admit-command",
+        "goal": "compile",
+        "sources": 11,
+        "destination": "target/classes",
+        "line": 941
+      },
+      {
+        "module": "pocoma-engine-admit-command",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 948
+      },
+      {
+        "module": "pocoma-supra-consume-lkv",
+        "goal": "compile",
+        "sources": 8,
+        "destination": "target/classes",
+        "line": 963
+      },
+      {
+        "module": "pocoma-supra-consume-lkv",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 970
+      },
+      {
+        "module": "pocoma-infra-persistence-primary-jpa",
+        "goal": "compile",
+        "sources": 105,
+        "destination": "target/classes",
+        "line": 985
+      },
+      {
+        "module": "pocoma-infra-persistence-primary-jpa",
+        "goal": "testCompile",
+        "sources": 72,
+        "destination": "target/test-classes",
+        "line": 994
+      },
+      {
+        "module": "pocoma-infra-projection-validation-networknt",
+        "goal": "compile",
+        "sources": 1,
+        "destination": "target/classes",
+        "line": 1011
+      },
+      {
+        "module": "pocoma-infra-projection-validation-networknt",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 1018
+      },
+      {
+        "module": "pocoma-orchestrator-poll-consumption",
+        "goal": "compile",
+        "sources": 10,
+        "destination": "target/classes",
+        "line": 1033
+      },
+      {
+        "module": "pocoma-orchestrator-poll-consumption",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 1040
+      },
+      {
+        "module": "pocoma-supra-consume-event",
+        "goal": "compile",
+        "sources": 3,
+        "destination": "target/classes",
+        "line": 1057
+      },
+      {
+        "module": "pocoma-supra-consume-event",
+        "goal": "testCompile",
+        "sources": 2,
+        "destination": "target/test-classes",
+        "line": 1064
+      },
+      {
+        "module": "pocoma-supra-consume-binding",
+        "goal": "compile",
+        "sources": 4,
+        "destination": "target/classes",
+        "line": 1079
+      },
+      {
+        "module": "pocoma-supra-http-write",
+        "goal": "compile",
+        "sources": 8,
+        "destination": "target/classes",
+        "line": 1101
+      },
+      {
+        "module": "pocoma-supra-http-write",
+        "goal": "testCompile",
+        "sources": 1,
+        "destination": "target/test-classes",
+        "line": 1108
+      },
+      {
+        "module": "pocoma-supra-http-read",
+        "goal": "compile",
+        "sources": 8,
+        "destination": "target/classes",
+        "line": 1123
+      },
+      {
+        "module": "pocoma-supra-http-read",
+        "goal": "testCompile",
+        "sources": 4,
+        "destination": "target/test-classes",
+        "line": 1130
+      },
+      {
+        "module": "pocoma-composition-runtime-spring",
+        "goal": "compile",
+        "sources": 57,
+        "destination": "target/classes",
+        "line": 1145
+      },
+      {
+        "module": "pocoma-runtime-command-consumption-worker",
+        "goal": "compile",
+        "sources": 2,
+        "destination": "target/classes",
+        "line": 1167
+      },
+      {
+        "module": "pocoma-runtime-command-consumption-worker",
+        "goal": "testCompile",
+        "sources": 45,
+        "destination": "target/test-classes",
+        "line": 1174
+      }
+    ],
+    "announced_recompiled_source_inputs": 1114,
+    "source_inventory": [
+      {
+        "module": "domain-authorization",
+        "present_main_java": 5,
+        "present_test_java": 3,
+        "included_main_root_java": 5,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-event",
+        "present_main_java": 2,
+        "present_test_java": 1,
+        "included_main_root_java": 2,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-user-identity",
+        "present_main_java": 20,
+        "present_test_java": 3,
+        "included_main_root_java": 20,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-authentication",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-pot",
+        "present_main_java": 91,
+        "present_test_java": 45,
+        "included_main_root_java": 91,
+        "included_test_root_java": 45,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-projection",
+        "present_main_java": 36,
+        "present_test_java": 5,
+        "included_main_root_java": 36,
+        "included_test_root_java": 5,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "domain-consumption",
+        "present_main_java": 27,
+        "present_test_java": 12,
+        "included_main_root_java": 27,
+        "included_test_root_java": 12,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-transaction",
+        "present_main_java": 7,
+        "present_test_java": 0,
+        "included_main_root_java": 7,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-binding-authority",
+        "present_main_java": 6,
+        "present_test_java": 0,
+        "included_main_root_java": 6,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consumption",
+        "present_main_java": 56,
+        "present_test_java": 9,
+        "included_main_root_java": 56,
+        "included_test_root_java": 9,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-command",
+        "present_main_java": 5,
+        "present_test_java": 0,
+        "included_main_root_java": 5,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-write-pot",
+        "present_main_java": 68,
+        "present_test_java": 24,
+        "included_main_root_java": 68,
+        "included_test_root_java": 24,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-command",
+        "present_main_java": 73,
+        "present_test_java": 19,
+        "included_main_root_java": 73,
+        "included_test_root_java": 19,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "orchestrator-consumption",
+        "present_main_java": 15,
+        "present_test_java": 2,
+        "included_main_root_java": 15,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-command",
+        "present_main_java": 5,
+        "present_test_java": 4,
+        "included_main_root_java": 5,
+        "included_test_root_java": 4,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-command-result",
+        "present_main_java": 9,
+        "present_test_java": 0,
+        "included_main_root_java": 9,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-command-result",
+        "present_main_java": 5,
+        "present_test_java": 2,
+        "included_main_root_java": 5,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-command-result",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-registration",
+        "present_main_java": 2,
+        "present_test_java": 0,
+        "included_main_root_java": 2,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-admit-registration",
+        "present_main_java": 2,
+        "present_test_java": 0,
+        "included_main_root_java": 2,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-registration",
+        "present_main_java": 10,
+        "present_test_java": 3,
+        "included_main_root_java": 10,
+        "included_test_root_java": 3,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-registration",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-registration-result",
+        "present_main_java": 7,
+        "present_test_java": 0,
+        "included_main_root_java": 7,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-registration-result",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-registration-result",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "port-projection",
+        "present_main_java": 13,
+        "present_test_java": 0,
+        "included_main_root_java": 13,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-produce-projection-task",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-projection",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "projector-pot",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-consume-projection-task",
+        "present_main_java": 30,
+        "present_test_java": 6,
+        "included_main_root_java": 30,
+        "included_test_root_java": 6,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-projection-task",
+        "present_main_java": 1,
+        "present_test_java": 0,
+        "included_main_root_java": 1,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-current-binding",
+        "present_main_java": 4,
+        "present_test_java": 2,
+        "included_main_root_java": 4,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-read-pot",
+        "present_main_java": 19,
+        "present_test_java": 5,
+        "included_main_root_java": 19,
+        "included_test_root_java": 5,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-current-binding",
+        "present_main_java": 9,
+        "present_test_java": 0,
+        "included_main_root_java": 9,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-materialize-latest-known-version",
+        "present_main_java": 6,
+        "present_test_java": 2,
+        "included_main_root_java": 6,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-tx-spring",
+        "present_main_java": 3,
+        "present_test_java": 8,
+        "included_main_root_java": 3,
+        "included_test_root_java": 8,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-projection-jdbc",
+        "present_main_java": 5,
+        "present_test_java": 1,
+        "included_main_root_java": 5,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-read-jdbc",
+        "present_main_java": 17,
+        "present_test_java": 17,
+        "included_main_root_java": 17,
+        "included_test_root_java": 17,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "contracts-observability",
+        "present_main_java": 2,
+        "present_test_java": 1,
+        "included_main_root_java": 2,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "engine-admit-command",
+        "present_main_java": 11,
+        "present_test_java": 2,
+        "included_main_root_java": 11,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-lkv",
+        "present_main_java": 8,
+        "present_test_java": 2,
+        "included_main_root_java": 8,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-persistence-primary-jpa",
+        "present_main_java": 105,
+        "present_test_java": 72,
+        "included_main_root_java": 105,
+        "included_test_root_java": 72,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "infra-projection-validation-networknt",
+        "present_main_java": 1,
+        "present_test_java": 1,
+        "included_main_root_java": 1,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "orchestrator-poll-consumption",
+        "present_main_java": 10,
+        "present_test_java": 2,
+        "included_main_root_java": 10,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-event",
+        "present_main_java": 3,
+        "present_test_java": 2,
+        "included_main_root_java": 3,
+        "included_test_root_java": 2,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-consume-binding",
+        "present_main_java": 4,
+        "present_test_java": 0,
+        "included_main_root_java": 4,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-http-write",
+        "present_main_java": 8,
+        "present_test_java": 1,
+        "included_main_root_java": 8,
+        "included_test_root_java": 1,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "supra-http-read",
+        "present_main_java": 8,
+        "present_test_java": 4,
+        "included_main_root_java": 8,
+        "included_test_root_java": 4,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "composition-runtime-spring",
+        "present_main_java": 57,
+        "present_test_java": 0,
+        "included_main_root_java": 57,
+        "included_test_root_java": 0,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      },
+      {
+        "module": "runtime-command-consumption-worker",
+        "present_main_java": 2,
+        "present_test_java": 45,
+        "included_main_root_java": 2,
+        "included_test_root_java": 45,
+        "present_generated_main_java": 0,
+        "present_generated_test_java": 0
+      }
+    ],
+    "reused_source_count": null,
+    "semantics": "Compiler announcements include singular/plural and main/test invocations. Presence is separate. Generated inputs may overlap roots; do not sum inventories. Exact reused files and actual javac reads are not observable from these logs. Resource copies are not Java compilation."
+  },
+  "command": [
+    "./mvnw",
+    "-pl",
+    "runtime-command-consumption-worker",
+    "-am",
+    "-Dtest=V3WorkerPostgresTest#i5_w04,V3WorkerResourcesPostgresTest#i5_r06",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=87c25cec7ded4a67bfb21b480e19ef64",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-order-correction/reports",
+    "test"
+  ],
+  "level": "INTEGRATION",
+  "scope": "L4-I8-historical-order-correction",
+  "seconds": 54.753357,
+  "discovery_seconds": 2.3090791249996983,
+  "expected_invocations": 2,
+  "started_ns": 1793728085681251000,
+  "exit_code": 0,
+  "artifacts": {
+    "maven.log": "4efb047e2e3482d797993d5fd8140c344b20b778584baab8927734f7c5bda9c7",
+    "effective-pom.xml": "43c433b7b3f9ff0b579b0060d38ac497b8dbd1043d9876657a18a32929feaaf3",
+    "discovery.log": "67ff5eef47ed6f85bee6fc9754f017591e3272cb2eb80a91c4d93ed93b60915b",
+    "discovery.process.json": "334c414dd14c295dfc68c6c85ad8ee409b6e596a5edcfcc65a5a09dc502d8d6b",
+    "maven.process.json": "de8d783986f33a0e7b38b8f51ccdfb4bc55f25cfb5522d245f4bb6bf588b221c",
+    "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.xml": "5cef21cb9d3f6ccd2fed35938c75b56815d6e6a3c6f07f120b8e454fc2c15398",
+    "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml": "19168f656c6147701b7d7a3abc8ba320a8a5d1f51ce3c3d4b3c4bd27db4e2f21",
+    "reports/pocoma-runtime-command-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.txt": "9c0fb5b5d90da333c79371afff29b2ffda8670112b4bd322d9127355dfc18e58",
+    "reports/pocoma-runtime-command-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.txt": "54f8caa84b42f4f318ab3d429a4047ddcf786ce51574806e06cdfe468026a47a",
+    "app/contracts-command/target/classes/com/kartaguez/pocoma/contracts/command/CommandAuthenticationEvidence.class": "e919930097fd43b8bc7d6bed611633f61c27111d6c49762872a69da55a50d589",
+    "app/engine-admit-command/target/classes/com/kartaguez/pocoma/engine/admit/command/CommandAuthenticationEvidenceFactory.class": "d42e65ffaad97755c939d0a4e820b46626289c6e039e2367869c7fe648a747f4",
+    "app/engine-admit-command/target/test-classes/com/kartaguez/pocoma/engine/admit/command/CommandAuthenticationEvidenceFactoryTest.class": "b3b3dbbf5afaaa2267f9e010c2be86c8cb1f0160767464464dae52f5c5c2fe5f",
+    "app/engine-consumption/target/classes/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionParticipant$EffectEvidence.class": "15b5911503b9f1f14e2236b6446069b4f68b78a4fbaf6e5f132937b60dc2f494",
+    "app/port-projection/target/classes/com/kartaguez/pocoma/port/projection/v3/ReadEvidence.class": "eacf9d15d9584936713f8c2778719368e307f8cd7ccf7fade52601ec36886e88",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-READ-AFTER.txt": "9d1492de0ad8efa13725726ed587e6183c6e02fdd41e2f5ad3374902d4d639ce",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-READ-BEFORE.txt": "710281e63bf9ca3b3bed932314f3e6a9b18f224a9dc20698475d07864d1828ff",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-READ-RETAIN.txt": "ae949525c7269555aae6384c4a0007699706e809accb6b8112a70d0e2dafc335",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-WRITE-AFTER.txt": "14c6e67034dd8a487fe0706ea58d741d96b9a7ba84ef8f77c7d3c4befefab95c",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-WRITE-BEFORE.txt": "5c56d0f9f0045abc9281a3616ef77a8c08477f4a7f046f16ac5b433fea53f347",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_r06-P5-WRITE-RETAIN.txt": "94bb29b3d7fdd4832250eb18f124600ea0b58c90fb7e9529be1e63b96b02c347",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/i5_w04.txt": "8d9248aa95072ddcf6839a2d4f553664a1ed65413f25e1710a842df8c5db3ad5"
+  },
+  "invocation_id": "87c25cec7ded4a67bfb21b480e19ef64",
+  "reports_root": "/private/tmp/pocoma-i8-order-correction/reports",
+  "raw_sha256": "0a14c8c6c6c1da33067a53612f2c44902699c5a1c2f72da5413ce170b7bf34f5",
+  "previous_reports_not_counted": [],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "active_quarantined_scenarios": {},
+  "historical_quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
+    }
+  },
+  "timing": {
+    "phases": {
+      "input_inventory": {
+        "status": "FINISHED",
+        "seconds": 0.14512620802270249
+      },
+      "discovery": {
+        "status": "FINISHED",
+        "seconds": 2.3088247919804417
+      },
+      "maven": {
+        "status": "FINISHED",
+        "seconds": 54.75246054196032
+      },
+      "collection": {
+        "status": "FINISHED",
+        "seconds": 0.6146167919505388
+      }
+    },
+    "campaign_seconds": 58.78208929102402,
+    "forecast": {
+      "seconds": 60,
+      "basis": "Affected historical capacity and wire-fault oracles after restoring the original assembly order; no deadline",
+      "uncertainty": "HIGH"
+    },
+    "forecast_delta_seconds": -1.2179107089759782,
+    "forecast_exceeded": false,
+    "forecast_is_blocking": false
+  },
+  "operational_status": "PASS"
+}

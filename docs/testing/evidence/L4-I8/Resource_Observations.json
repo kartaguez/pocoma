@@ -1,0 +1,56 @@
+{
+  "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "invocation_id": "6b091895d103489b857c7027a3481e45",
+  "observations": [
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T09-crash-restart-PocomaRuntimeMonolithApplication.txt",
+      "observation": "T09 CRASH root=PocomaRuntimeMonolithApplication child_pid=81844 lease=180000ms PG remaining=179478 takeover_ms=180506"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T09-crash-restart-PocomaTaskConsumptionWorkerApplication.txt",
+      "observation": "T09 CRASH root=PocomaTaskConsumptionWorkerApplication child_pid=75868 lease=180000ms PG remaining=179595 takeover_ms=180788"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-batch-1.txt",
+      "observation": "T10 batch=1 server max_connections=100 allocated=32 fixture/admin/observer budget=12"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-batch-1.txt",
+      "observation": "T10 batch=1 MW=Snapshot[worker=4, consumptions={ConsumptionId[value=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa]=1, ConsumptionId[value=2999e75c-272d-5afe-a966-c9364ef021fe]=0, ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a]=1, ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14]=0, ConsumptionId[value=190a93c6-b8af-5ac7-8001-72e2ec53c2df]=1, ConsumptionId[value=63664303-d33e-5d42-8cce-c4dae8023311]=1, ConsumptionId[value=7b8d2838-bf7a-5117-868a-e5c14b4c0221]=0, ConsumptionId[value=1d8ff246-358f-5ddd-a7f5-416efcfd7445]=0}] all 32 candidates renewed, partial=8 omissions=8"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-batch-1.txt",
+      "observation": "T10 UNKNOWN physical_committed=false PID=623 XID=2147 state=Snapshot[state=STOPPED, handles=0, started=0, localExited=0, operations=0, submissions=0, cleanups=0, renewalCalls=0, unknownRenewals=0, deadlineExceeded=false]"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-batch-32.txt",
+      "observation": "T10 batch=32 server max_connections=100 allocated=32 fixture/admin/observer budget=12"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-batch-32.txt",
+      "observation": "T10 batch=32 MW=Snapshot[worker=4, consumptions={ConsumptionId[value=b4d04cce-b5da-5d1b-9698-5ff9af9a46fa]=1, ConsumptionId[value=2999e75c-272d-5afe-a966-c9364ef021fe]=0, ConsumptionId[value=3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a]=1, ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14]=0, ConsumptionId[value=190a93c6-b8af-5ac7-8001-72e2ec53c2df]=1, ConsumptionId[value=63664303-d33e-5d42-8cce-c4dae8023311]=1, ConsumptionId[value=7b8d2838-bf7a-5117-868a-e5c14b4c0221]=0, ConsumptionId[value=1d8ff246-358f-5ddd-a7f5-416efcfd7445]=0}] all 32 candidates renewed, partial=32 omissions=8"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-batch-32.txt",
+      "observation": "T10 UNKNOWN physical_committed=true PID=145 XID=1462 state=Snapshot[state=STOPPED, handles=0, started=0, localExited=0, operations=0, submissions=0, cleanups=0, renewalCalls=0, unknownRenewals=0, deadlineExceeded=false]"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T10-renewal-UNKNOWN.txt",
+      "observation": "T10 renewal UNKNOWN PID=1078 XID=2567 only external CRASH ended the unresolved call"
+    },
+    {
+      "artifact": "docs/testing/evidence/L4-I8/physical-final/T11-overlap.txt",
+      "observation": "T11 overlap: effective READ pairs=24, server connections=64, lease=180000ms, PG remaining=172804 takeover_ms=173740"
+    }
+  ],
+  "server_capacity": "Server_Capacity_Observation.json",
+  "lease_seconds": 180,
+  "calculated_read_bound_seconds": 164.24,
+  "production_sizing_accepted": false,
+  "limits": [
+    "Qualification variants only; not a production latency or performance certificate.",
+    "One bounded omission window per binding and progress on partial responses are assumptions.",
+    "Unknown transport stays conservatively draining; no speculative settlement.",
+    "Two authorities are different databases on one local fixture PostgreSQL server."
+  ]
+}

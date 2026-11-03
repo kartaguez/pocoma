@@ -1,14 +1,19 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
-**L4/I8 — cadrage final publié le 3 novembre 2026.** Le [plan opérationnel unique
-d’implémentation et de qualification I8](L4_I8_Implementation_and_Qualification_Plan.md)
-fixe l’inventaire au HEAD `12c748e7`, l’activation dans PROJECTION/monolithe, le dossier
-A07, les façades internes, 11 scénarios nouveaux et deux invocations canoniques
-mutualisées (dont un unique full reactor). Verdict proposé : **GO WITH RESERVATIONS
-pour l’implémentation**, sans démarrage de celle-ci ni clôture L4. Il actualise les
-propositions techniques I8 ci-dessous : la factory READ existe déjà, les trois
-lecteurs Binding/Results sont à raccorder, les migrations/grants métier sont livrés.
-I1/I2 et les qualifications locales I3–I7/recovery conservent leurs décisions et réserves.
+**L4/I8 — implémentation livrée, qualification composite autorisée le 3 novembre 2026.**
+Les six participants sont activables indépendamment dans PROJECTION et le monolithe ;
+les façades internes READ et T01–T11 sont PASS au code productif `a3470df6…`.
+Décision humaine explicite : **« Autoriser la qualification composite et dispenser le quatrième full »** :
+**2 024 tests hors Architecture PASS + 167 Architecture PASS** après correction de deux seuls
+fichiers d’oracles au SHA `8a007768…`, sans différence productive/POM/SQL.
+Le dernier full complet reste **FAIL 2 191/4/0/0** ; aucun full PASS n’est déclaré.
+Quatre full ont été démarrés : trois FAIL, le dernier interrompu dès réception de la dispense.
+[Rapport et coûts](L4_I8_Execution_Report.md), [manifeste](L4_I8_Proof_Manifest.json),
+[preuves](../testing/evidence/L4-I8/README.md). Lease180 reste une hypothèse locale,
+les réserves historiques et les obligations L5/L6/L7 sont maintenues.
+**L4 reste OPEN : audit indépendant et décision humaine de clôture à venir ;
+aucune certification SPEC-10 globale.** Le [plan I8 publié `a2b4e2a0…`](L4_I8_Implementation_and_Qualification_Plan.md)
+reste la référence ; les anciennes transitions ci-dessous sont historiques.
 
 **Correctif ciblé recovery AUD-L4-01/02 — 3 novembre 2026.** CurrentPot est désormais inclus
 dans la preuve PotVersion ; les supersessions Visibility/CurrentBinding sont instruites et
@@ -44,6 +49,8 @@ Cette décision ne certifie ni SPEC-10 global ni la clôture finale de L4 ; L4 r
 Les cadrages et attentes antérieurs ci-dessous sont conservés comme historique.
 
 ## Qualification globale reportée à la clôture L4
+
+**État courant : contributions canoniques/Architecture acquises par qualification composite explicitement autorisée ; dernier full natif FAIL conservé, aucun PASS global inventé. Le report décrit ci-dessous est historique.** [Résultats, dispense et limites](L4_I8_Execution_Report.md).
 
 La requalification globale du système est reportée à la clôture du lot L4, après achèvement
 des incréments restants. Elle intégrera les invariants **L4/I1 à I7**, l’activation/assemblage I8,

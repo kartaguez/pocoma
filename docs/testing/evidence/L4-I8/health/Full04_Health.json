@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-11-03T18:33:14.999591+00:00",
+  "application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "invocation_id": "6b091895d103489b857c7027a3481e45",
+  "command": [
+    "jcmd",
+    "93086",
+    "Thread.print"
+  ],
+  "exit_code": 0,
+  "observed_methods": [
+    "i5_w16"
+  ],
+  "artifact": "full04-command-suite.txt",
+  "read_only": true,
+  "raw_text_archive": "Thread_Dumps_Raw.tar.gz",
+  "artifact_names_refer_to_archive_members": true
+}

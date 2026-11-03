@@ -1,0 +1,830 @@
+{
+  "milestone": "L4/I8",
+  "verdict": "IMPLEMENTED — COMPOSITE INTERNAL QUALIFICATION WITH EXPLICIT HUMAN DISPENSATION",
+  "initial_sha": "a2b4e2a07a64e33eafe9e81a0ddc25c7961dc9cc",
+  "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+  "branch": "feat/v3-architecture",
+  "origin": "https://github.com/kartaguez/pocoma.git",
+  "declared_slices": {
+    "primary": [
+      "PROJECTION"
+    ],
+    "secondary": [
+      "BINDING",
+      "COMMAND"
+    ],
+    "complementary": [
+      "runtime-command-result-consumption-worker",
+      "runtime-registration-result-consumption-worker",
+      "runtime-monolith"
+    ],
+    "global_gate_required": true,
+    "reason": "I8 mandatory major milestone, common composition/settings/dependencies and deferred canonical/Architecture obligations",
+    "unexpected_crossings": [],
+    "protected_productive_paths_diff": [],
+    "bounded_scope_adjustments": [
+      "T09/T10 reside in monolith to load both actual roots without Maven cycle; eleven scenario identities preserved.",
+      "Two existing Architecture test files aligned with approved contracts after four concrete stale-oracle failures; productive code unchanged."
+    ]
+  },
+  "application_files": [
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java",
+      "sha256": "6fec0563d599a3e5a0af3448280f80b81f13fa38d8dfef97476c0a541c26e6e9"
+    },
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+      "sha256": "f2e2508cf73600a0b91415e17d9eca1078540ef6907db6ff1699278d534d967a"
+    },
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java",
+      "sha256": "515d9e2deab1304d97e61377d2d0b6421d10c95e5c415a0eebdba0cdb9dd0013"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java",
+      "sha256": "aaa7d7c664244f0c6f1fbc8b928c11101ffd9b8f75aa0fdac1b6b18b193313e4"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+      "sha256": "8fde13567f1192aa86390901875f1ac8d7c39ee8605d18a302dfbba92dc56a82"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java",
+      "sha256": "b2f2b81c7e2a4774622e422d08a01e01d8f20cf3cef793626285c13aa042e6d6"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeComposition.java",
+      "sha256": "4a901d885b80214cfe15ba6b93528e1f3bab52eedf7b56cd8b0b8bdcbcc41570"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeConfiguration.java",
+      "sha256": "1d2128406bbd563599fc5f81703022fad6dfddbe05604b5060fb8db1334e17b1"
+    },
+    {
+      "path": "app/engine-read-pot/pom.xml",
+      "sha256": "38835a23cf72c37f0eaa933a1cc04ea6a0a837439e7f0009259be89db9e4e178"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadLimitsV3.java",
+      "sha256": "0d7f099920a685b640f7accd57266c95ce22580906ce7d8abf8dbd4891f0fe3b"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadNavigationV3.java",
+      "sha256": "b53cca10e86640753e6a9578313286667f8a459fde76e3d2c1d3db8e4651c22e"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadPotV3.java",
+      "sha256": "ec476ae308985dd0e4afb10342886742ff5d1fa53f9e0db3c54abcd56e097c4f"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadPotV3Result.java",
+      "sha256": "c67c35057eef66cfed6a41571097128e13ff4d3a3cf440981918f9aa2bd7e42c"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/JdbcPotVersionStore.java",
+      "sha256": "7055b2d15f031527f7f794773baf5d2d7eb5e72e5c761d10d4098f1efedbe34a"
+    },
+    {
+      "path": "app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/PotVersionStore.java",
+      "sha256": "2ebc12ba9e41eac3fc744d136c27bd90ca76bf95c61ac82de8a9cfc8f6fabf2b"
+    },
+    {
+      "path": "app/runtime-monolith/pom.xml",
+      "sha256": "c492c5e80c1dedc06cbc57acf1e298bfc07e27fff3505e333fa5783ba7c125af"
+    },
+    {
+      "path": "app/runtime-monolith/src/main/java/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.java",
+      "sha256": "81ae62642823886bbcaf7f0373fe85749553d91a84af20f3443f32cdba34543f"
+    },
+    {
+      "path": "app/runtime-monolith/src/main/resources/application-v3-read-worker.properties",
+      "sha256": "0f5a11ccbd8debb5f0225de12ce5792ea0ee853e0c25dcd3807d0ecc79a230df"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadI8Child.java",
+      "sha256": "21a57d5bae49ef8ae8a2c4f34236925185bc07cd702eb9afedcb44cf0a6d27ac"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadMonolithI8Fixture.java",
+      "sha256": "ffc16109147b7978684df2d3e8e97290c74f69e5e312ca57937c2504105ae078"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadRootsCoexistencePostgresTest.java",
+      "sha256": "bd56b32a17baaff8cd98376eafac6d11c2ac069863a078c346eff53d95c44bf0"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ReadWorkerResourcesPostgresTest.java",
+      "sha256": "aa3a995f42afce9e78e9e7af85a1e3a2353d171e742c08bca1e34bf55f9d4ea8"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/pom.xml",
+      "sha256": "f6ab9889f2262531af4f6422063a8287eba1136a876c24a983e7297fe48cc4eb"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/PocomaTaskConsumptionWorkerApplication.java",
+      "sha256": "2d8d03c16551339039efe98e0cc9ac1ec7a4d96d878d8b050d6fe16f77b9e035"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/main/resources/application-v3-read-worker.properties",
+      "sha256": "0f5a11ccbd8debb5f0225de12ce5792ea0ee853e0c25dcd3807d0ecc79a230df"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadActivationSettingsTest.java",
+      "sha256": "69088d364fe900559b48efba6d01596d52d02aa8e153361a30adf640f2479936"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadFacadesPostgresTest.java",
+      "sha256": "179a3f39df31fe7420272291164b4d5e960c006be82f773090f0ce24189fa5cb"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadRuntimeAssemblyPostgresTest.java",
+      "sha256": "1abf19929cc6903b04e06074d385509fbe426166ebf54d7a668d3dd44f227d08"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadRuntimeI8Fixture.java",
+      "sha256": "db7699de5d73831b07cfb67c83815d65ec219f182c07d22271d8a345564e3e2d"
+    }
+  ],
+  "commands": "../testing/evidence/L4-I8/Commands_Actually_Executed.json",
+  "campaigns": [
+    {
+      "name": "Architecture-correction-PASS",
+      "verdict": "PASS",
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "worktree_status": "",
+      "counts": {
+        "tests": 167,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 167,
+      "maven_seconds": 47.827533,
+      "campaign_seconds": 51.65516866702819,
+      "invocation_id": "9a633445391845689c07678d040e440f",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.architecture.BindingLockOwnershipTest,com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest,com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest,com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest,com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest,com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest,com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest,com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest,com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest,com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest,com.kartaguez.pocoma.architecture.Wp2BoundaryTest,com.kartaguez.pocoma.architecture.Wp3BoundaryTest,com.kartaguez.pocoma.architecture.Wp4BoundaryTest,com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest,com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest,com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest,com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=9a633445391845689c07678d040e440f",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-architecture-correction/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/Architecture-correction-PASS",
+      "raw_sha256": "9686414111acd9d376b9e361e11e7bd9b204e143b266333f15887c70774934bd"
+    },
+    {
+      "name": "F-I8-01-FAIL",
+      "verdict": "FAIL",
+      "tested_application_sha": "9661538511e7bfe255dfe7572cd8b1ebca6b9fc4",
+      "worktree_status": "",
+      "counts": {
+        "tests": 8,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 11,
+      "maven_seconds": 45.013793,
+      "campaign_seconds": 48.293415417021606,
+      "invocation_id": "20e32b0b18434b60b8aeeb4a228e58dc",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-task-consumption-worker,runtime-monolith",
+        "-am",
+        "-Dtest=ReadActivationSettingsTest,ReadRuntimeAssemblyPostgresTest,ReadFacadesPostgresTest,ReadWorkerResourcesPostgresTest,ReadRootsCoexistencePostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=20e32b0b18434b60b8aeeb4a228e58dc",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-F-I8-01/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/F-I8-01-FAIL",
+      "raw_sha256": "d56e2064bc6c5da463369f18abd95c11a00cdcdc1375d10681e8c6384a161c2c"
+    },
+    {
+      "name": "F-I8-02-FAIL",
+      "verdict": "FAIL",
+      "tested_application_sha": "a8933b7924567bf4e893f58dbc10312d2f3ccfc1",
+      "worktree_status": "",
+      "counts": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "expected_invocations": 11,
+      "maven_seconds": 681.318614,
+      "campaign_seconds": 686.1875821250142,
+      "invocation_id": "90ff5d1ad9c443aaaffbb68ac9faac43",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-task-consumption-worker,runtime-monolith",
+        "-am",
+        "-Dtest=ReadActivationSettingsTest,ReadRuntimeAssemblyPostgresTest,ReadFacadesPostgresTest,ReadWorkerResourcesPostgresTest,ReadRootsCoexistencePostgresTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=90ff5d1ad9c443aaaffbb68ac9faac43",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-F-I8-02/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/F-I8-02-FAIL",
+      "raw_sha256": "b7bd6ed4a0711c9dc5257c8a0cde9ab18e19c76d85f780395869d9e2b92e3656"
+    },
+    {
+      "name": "FULL-02-FAIL",
+      "verdict": "FAIL",
+      "tested_application_sha": "03c629d6af52474bda5e5ba56a4268264a8df024",
+      "worktree_status": "",
+      "counts": {
+        "tests": 1619,
+        "failures": 0,
+        "errors": 3,
+        "skipped": 0
+      },
+      "expected_invocations": 2191,
+      "maven_seconds": 1921.200703,
+      "campaign_seconds": 1928.5314044589759,
+      "invocation_id": "90ec26ae7ca747e0b2ac90ca24f249de",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=90ec26ae7ca747e0b2ac90ca24f249de",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-02/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/FULL-02-FAIL",
+      "raw_sha256": "021abab934009e436dd614f99795d9cec1767a90301f8ecd1c9a06e905ac4ccb"
+    },
+    {
+      "name": "FULL-03-FAIL",
+      "verdict": "FAIL",
+      "tested_application_sha": "090b5327cd2a4e974bb8907c62c4e65b82a17e62",
+      "worktree_status": "",
+      "counts": {
+        "tests": 2024,
+        "failures": 1,
+        "errors": 1,
+        "skipped": 0
+      },
+      "expected_invocations": 2191,
+      "maven_seconds": 4101.876673,
+      "campaign_seconds": 4109.607982249989,
+      "invocation_id": "4e6173c730f649bdbe3e536274a417e4",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=4e6173c730f649bdbe3e536274a417e4",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-03/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/FULL-03-FAIL",
+      "raw_sha256": "05671010f8303e6c07678b2ab7a4b127abf34588f7005aa34835631382aaaf88"
+    },
+    {
+      "name": "FULL-04-FAIL",
+      "verdict": "FAIL",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "worktree_status": "",
+      "counts": {
+        "tests": 2191,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 2191,
+      "maven_seconds": 4107.41769,
+      "campaign_seconds": 4115.192402083019,
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=6b091895d103489b857c7027a3481e45",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-04/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL",
+      "raw_sha256": "1dea3bdf43a7c8511935aef1dd6b94d19f3bbc4d0a706e4f278c77c3b035c529"
+    },
+    {
+      "name": "FULL-05-INTERRUPTED-BY-DISPENSATION",
+      "verdict": "FAIL",
+      "tested_application_sha": "8a007768c23021153764473f6c6686042168df00",
+      "worktree_status": "",
+      "counts": {
+        "tests": 1046,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": null,
+      "maven_seconds": 444.23588791600196,
+      "campaign_seconds": 447.3447560829809,
+      "invocation_id": "afc2415ad7e4430e80d04b6a43458570",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=afc2415ad7e4430e80d04b6a43458570",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-05/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/FULL-05-INTERRUPTED-BY-DISPENSATION",
+      "raw_sha256": "8e5ef82ead011ed3262f1389104325208fd4bb60ade8f61b165a355701adcb2f",
+      "delivery_disposition": "INCONCLUSIVE — interrupted by explicit human dispensation",
+      "contributes_to_qualification": false
+    },
+    {
+      "name": "FULL-preflight-01-INCONCLUSIVE",
+      "verdict": "INCONCLUSIVE",
+      "tested_application_sha": null,
+      "worktree_status": "preflight only; no test subprocess",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": null,
+      "maven_seconds": null,
+      "campaign_seconds": 2.3669653339893557,
+      "invocation_id": "451ca3b61b9d45eaae180f3c9c90db82",
+      "test_process_executed": false,
+      "command": [
+        "./mvnw",
+        "-Dpocoma.verification.id=451ca3b61b9d45eaae180f3c9c90db82",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-FULL-01/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/FULL-preflight-01-INCONCLUSIVE",
+      "raw_sha256": "e5e505660656e6c618cb3f8e9948315c60b6a85a35da8cc8e01d688dd1225e60"
+    },
+    {
+      "name": "Historical-order-correction-PASS",
+      "verdict": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "worktree_status": "",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 2,
+      "maven_seconds": 54.753357,
+      "campaign_seconds": 58.78208929102402,
+      "invocation_id": "87c25cec7ded4a67bfb21b480e19ef64",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "-Dtest=V3WorkerPostgresTest#i5_w04,V3WorkerResourcesPostgresTest#i5_r06",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=87c25cec7ded4a67bfb21b480e19ef64",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-order-correction/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/Historical-order-correction-PASS",
+      "raw_sha256": "0a14c8c6c6c1da33067a53612f2c44902699c5a1c2f72da5413ce170b7bf34f5"
+    },
+    {
+      "name": "Legacy-isolation-correction-PASS",
+      "verdict": "PASS",
+      "tested_application_sha": "090b5327cd2a4e974bb8907c62c4e65b82a17e62",
+      "worktree_status": "",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 3,
+      "maven_seconds": 16.443649,
+      "campaign_seconds": 20.678350374975707,
+      "invocation_id": "38489d06f56f46ccaaf08563d09c375e",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.RuntimeMonolithPostgresTest#composesExactlyOneActiveInstanceOfEveryFunctionalWorkerAndStopsCleanly+actualCommandAndRegistrationOwnersSharePrimaryPhysicalTransaction",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=38489d06f56f46ccaaf08563d09c375e",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-legacy-correction/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/Legacy-isolation-correction-PASS",
+      "raw_sha256": "d5ba87f407f6b40635704aec46ed1354ce0df4b912f150afd518b4877273e140"
+    },
+    {
+      "name": "T10-correction-PASS",
+      "verdict": "PASS",
+      "tested_application_sha": "03c629d6af52474bda5e5ba56a4268264a8df024",
+      "worktree_status": "",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_invocations": 1,
+      "maven_seconds": 75.841759,
+      "campaign_seconds": 79.81622329202946,
+      "invocation_id": "0342c266665d4e59a418a0eff92cb753",
+      "test_process_executed": true,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest#allParticipantsFitPoolsAndRenewalEnvelope",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=0342c266665d4e59a418a0eff92cb753",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i8-T10-correction/reports",
+        "test"
+      ],
+      "proof_directory": "docs/testing/evidence/L4-I8/runs/T10-correction-PASS",
+      "raw_sha256": "59654b842d21ff1635e2b7dc259e23c003968acc67806c61d6fb4ff4e4bf6b4a"
+    }
+  ],
+  "test_manifest": [
+    {
+      "id": "T01",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest",
+      "method": "independentSelectionAndTemporalPreflight",
+      "seconds": 0.006,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T02",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+      "method": "rootsAndPrivilegesAreClosed",
+      "seconds": 7.261,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T03",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest",
+      "method": "sixParticipantsProgressThroughWorkers",
+      "seconds": 10.659,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T04",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "currentHistoryAndConcurrentAdvanceStayExact",
+      "seconds": 2.901,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T05",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "readinessDoesNotInventFreshness",
+      "seconds": 2.567,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T06",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "expenseBatchesRespectExactManifestAndBounds",
+      "seconds": 2.625,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T07",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "bindingAndResultsKeepTheirOwnAuthorities",
+      "seconds": 7.641,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T08",
+      "classname": "com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest",
+      "method": "navigationIsKeysetAndNeverAuthorizes",
+      "seconds": 2.715,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T09",
+      "classname": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+      "method": "drainAndRestartPreserveDurableProgress",
+      "seconds": 407.178,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T10",
+      "classname": "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest",
+      "method": "allParticipantsFitPoolsAndRenewalEnvelope",
+      "seconds": 57.974,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "id": "T11",
+      "classname": "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest",
+      "method": "projectionAndMonolithSharePartitionsSafely",
+      "seconds": 205.247,
+      "outcome": "PASS",
+      "tested_application_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "docs/testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    }
+  ],
+  "final_gate": {
+    "disposition": "COMPOSITE ACCEPTED BY EXPLICIT HUMAN DECISION",
+    "qualified_distinct_invocations": 2191,
+    "not_a_single_full_PASS": true,
+    "last_completed_full": {
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 2191,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "../testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    "Architecture_replay": {
+      "verdict": "PASS",
+      "counts": {
+        "tests": 167,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "9a633445391845689c07678d040e440f"
+    },
+    "G_I3_to_G_I8_and_Architecture": "Satisfied by authorized composite; productive source/POM/SQL unchanged between segments.",
+    "F_L4": "Executed; native FAIL retained. Further full explicitly dispensed after test-only correction.",
+    "full_test_processes_started": 4,
+    "full_test_processes_completed": 3,
+    "completed_full_results": [
+      "FAIL",
+      "FAIL",
+      "FAIL"
+    ],
+    "fourth_full": "Interrupted by explicit human dispensation; partial reports not qualification input.",
+    "separate_C_I8_test_processes": 0,
+    "decision": "../testing/evidence/L4-I8/Human_Composite_Qualification_Decision.json"
+  },
+  "audits": {
+    "AUD-I8-01": {
+      "status": "QUALIFIED WITH PRODUCTION SIZING RESERVATION",
+      "lease_seconds": 180,
+      "historical_L2_default_seconds_unchanged": 30,
+      "calculated_read_bound_seconds": 164.24,
+      "physical_evidence": "../testing/evidence/L4-I8/Resource_Observations.json"
+    },
+    "AUD-I8-02": {
+      "status": "C/F MODEL EQUIVALENCE AND MUTUALIZATION APPROVED; COMPOSITE QUALIFICATION EXPLICITLY APPROVED AFTER TEST-ONLY ARCHITECTURE CORRECTION",
+      "comparison": "../testing/evidence/L4-I8/Gate_Equivalence.json",
+      "commands": "../testing/evidence/L4-I8/Commands_Actually_Executed.json",
+      "composite_decision": "../testing/evidence/L4-I8/Human_Composite_Qualification_Decision.json"
+    },
+    "AUD-I8-03": {
+      "status": "11 NAMED TESTS; DISCRIMINATING SUBSCENARIOS",
+      "test_count": 11,
+      "source_inventory": "../testing/evidence/L4-I8/Application_Files.json"
+    }
+  },
+  "SPEC10_matrix": "../testing/evidence/L4-I8/SPEC10_Final_Matrix.json",
+  "historical_reuse": "../testing/evidence/L4-I8/Historical_Reuse_Comparison.json",
+  "integrity": "../testing/evidence/L4-I8/Evidence_Integrity_Check.json",
+  "resource_observations": "../testing/evidence/L4-I8/Resource_Observations.json",
+  "global_SPEC10_certification": false,
+  "L4_closed": false,
+  "pending": [
+    "Independent audit of code, coverage and evidence.",
+    "Human decision of L4 closure with explicit scope and reservations.",
+    "L5 HTTP/OIDC/consent/sessions/polling/public limits/CurrentInvitation.",
+    "L6 full administrative reconstruction/reset/replay and global performance/storage/WAL/long history.",
+    "L7 physical convergence and Maven rationalization."
+  ],
+  "publication": "Application SHA identifies tested code; evidence-only publication commits follow without application changes. Final published Git SHA is verified after push and reported in the delivery message.",
+  "participants": [
+    {
+      "name": "MaterializePotVersion",
+      "consumption_id": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+      "activation": "independent explicit configuration in PROJECTION and monolith; default inactive",
+      "qualified_by": [
+        "T01",
+        "T03",
+        "T09",
+        "T10",
+        "T11"
+      ],
+      "source_authority": "WRITE",
+      "effects_and_coordination_authority": "READ",
+      "protocol": "Existing L2 slots, claims, leases, checkpoints and finalization/recovery",
+      "durable_source_family": "POT_EVENT",
+      "activation_qualification": "PASS — explicit selection/removal, independent progression, both actual roots"
+    },
+    {
+      "name": "MaterializePotBalance",
+      "consumption_id": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+      "activation": "independent explicit configuration in PROJECTION and monolith; default inactive",
+      "qualified_by": [
+        "T01",
+        "T03",
+        "T09",
+        "T10",
+        "T11"
+      ],
+      "source_authority": "WRITE",
+      "effects_and_coordination_authority": "READ",
+      "protocol": "Existing L2 slots, claims, leases, checkpoints and finalization/recovery",
+      "durable_source_family": "POT_EVENT",
+      "activation_qualification": "PASS — explicit selection/removal, independent progression, both actual roots"
+    },
+    {
+      "name": "MaterializePotVisibility",
+      "consumption_id": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
+      "activation": "independent explicit configuration in PROJECTION and monolith; default inactive",
+      "qualified_by": [
+        "T01",
+        "T03",
+        "T09",
+        "T10",
+        "T11"
+      ],
+      "source_authority": "WRITE",
+      "effects_and_coordination_authority": "READ",
+      "protocol": "Existing L2 slots, claims, leases, checkpoints and finalization/recovery",
+      "durable_source_family": "POT_EVENT",
+      "activation_qualification": "PASS — explicit selection/removal, independent progression, both actual roots"
+    },
+    {
+      "name": "MaterializeCurrentBinding",
+      "consumption_id": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+      "activation": "independent explicit configuration in PROJECTION and monolith; default inactive",
+      "qualified_by": [
+        "T01",
+        "T03",
+        "T09",
+        "T10",
+        "T11"
+      ],
+      "source_authority": "WRITE",
+      "effects_and_coordination_authority": "READ",
+      "protocol": "Existing L2 slots, claims, leases, checkpoints and finalization/recovery",
+      "durable_source_family": "IDENTITY_EVENT",
+      "activation_qualification": "PASS — explicit selection/removal, independent progression, both actual roots"
+    },
+    {
+      "name": "MaterializeCommandResult",
+      "consumption_id": "63664303-d33e-5d42-8cce-c4dae8023311",
+      "activation": "independent explicit configuration in PROJECTION and monolith; default inactive",
+      "qualified_by": [
+        "T01",
+        "T03",
+        "T09",
+        "T10",
+        "T11"
+      ],
+      "source_authority": "WRITE",
+      "effects_and_coordination_authority": "READ",
+      "protocol": "Existing L2 slots, claims, leases, checkpoints and finalization/recovery",
+      "durable_source_family": "COMMAND_COMPLETION_EVENT",
+      "activation_qualification": "PASS — explicit selection/removal, independent progression, both actual roots"
+    },
+    {
+      "name": "MaterializeIdentityRequestResult",
+      "consumption_id": "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+      "activation": "independent explicit configuration in PROJECTION and monolith; default inactive",
+      "qualified_by": [
+        "T01",
+        "T03",
+        "T09",
+        "T10",
+        "T11"
+      ],
+      "source_authority": "WRITE",
+      "effects_and_coordination_authority": "READ",
+      "protocol": "Existing L2 slots, claims, leases, checkpoints and finalization/recovery",
+      "durable_source_family": "IDENTITY_COMPLETION_EVENT",
+      "activation_qualification": "PASS — explicit selection/removal, independent progression, both actual roots"
+    }
+  ],
+  "facades": {
+    "composition": "V3ReadFacadeComposition.Services",
+    "methods": [
+      "current",
+      "at",
+      "balance",
+      "expenses",
+      "visible",
+      "binding",
+      "commandResult",
+      "identityResult"
+    ],
+    "authority": "READ only, one frozen READ snapshot per call",
+    "qualification": [
+      "T04",
+      "T05",
+      "T06",
+      "T07",
+      "T08"
+    ],
+    "public_HTTP_OIDC": "DEFERRED L5"
+  },
+  "application_input_comparison": "../testing/evidence/L4-I8/Application_Input_Comparison.json",
+  "source_boundary_check": "../testing/evidence/L4-I8/Source_Boundary_Check.json",
+  "timing": {
+    "original_forecast_campaign_minutes": [
+      110,
+      155,
+      230
+    ],
+    "scope_of_original_forecast": "F-I8 + separate C-I8 + F-L4; before human mutualization, excluding development/diagnosis/audit/publication",
+    "actual_qualification_campaign_seconds": 11548.456339376047,
+    "actual_qualification_maven_test_seconds": 11495.929658916002,
+    "development_timing": "Per-command Maven totals in Development_Commands.json; no complete development wall-clock receipt, no invented total.",
+    "last_completed_full_campaign_seconds": 4115.192402083019,
+    "last_completed_full_maven_test_seconds": 4107.41769,
+    "Architecture_replay_maven_seconds": 47.827533,
+    "fourth_full_interrupted_by_human_dispensation": true
+  },
+  "productive_code_tested_sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+  "architecture_oracles_tested_sha": "8a007768c23021153764473f6c6686042168df00",
+  "qualification_is_composite": true,
+  "qualification_segments": [
+    {
+      "scope": "all non-Architecture tests",
+      "tests": 2024,
+      "outcome": "PASS",
+      "sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "invocation_id": "6b091895d103489b857c7027a3481e45",
+      "artifact": "../testing/evidence/L4-I8/runs/FULL-04-FAIL/raw.tar.gz"
+    },
+    {
+      "scope": "entire Architecture module",
+      "tests": 167,
+      "outcome": "PASS",
+      "sha": "8a007768c23021153764473f6c6686042168df00",
+      "invocation_id": "9a633445391845689c07678d040e440f",
+      "artifact": "../testing/evidence/L4-I8/runs/Architecture-correction-PASS/raw.tar.gz"
+    }
+  ],
+  "source_equivalence": "../testing/evidence/L4-I8/Architecture_Test_Only_Comparison.json",
+  "qualification_worktrees": [
+    {
+      "path": "/private/tmp/pocoma-l4-i8-qualification-05",
+      "sha": "a3470df662f4552d05785ab3ec191951c4cc9d56",
+      "scope": "completed full, productive code and 2024 non-Architecture tests",
+      "status": "clean at start, initially fresh targets; only same-SHA Maven outputs reused"
+    },
+    {
+      "path": "/private/tmp/pocoma-l4-i8-qualification-06",
+      "sha": "8a007768c23021153764473f6c6686042168df00",
+      "scope": "complete Architecture module replay; subsequent fourth full interrupted by human dispensation",
+      "status": "clean at start, initially fresh targets"
+    }
+  ],
+  "archive_index": "../testing/evidence/L4-I8/Archive_Index.json",
+  "delivery_files": "L4_I8_Delivery_Files.json",
+  "publication_receipt": "../testing/evidence/L4-I8/Publication_Receipt.json"
+}

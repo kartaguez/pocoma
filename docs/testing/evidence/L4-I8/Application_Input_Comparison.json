@@ -1,0 +1,18 @@
+{
+  "application_sha": "8a007768c23021153764473f6c6686042168df00",
+  "invocation_id": "9a633445391845689c07678d040e440f",
+  "input_count": 1373,
+  "byte_identical_inputs": 1372,
+  "normalization_only_unexecuted_inputs": [
+    {
+      "path": "app/mvnw.cmd",
+      "primary_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+      "qualified_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c",
+      "executed": false,
+      "content_equal_after_EOL_normalization": true
+    }
+  ],
+  "all_executed_inputs_byte_identical": true,
+  "unexpected_differences": [],
+  "scope": "Current source versus qualified Architecture checkout. Productive equivalence with completed full proven separately in Architecture_Test_Only_Comparison.json."
+}
