@@ -1,5 +1,15 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
+**L4/I8 — cadrage final publié le 3 novembre 2026.** Le [plan opérationnel unique
+d’implémentation et de qualification I8](L4_I8_Implementation_and_Qualification_Plan.md)
+fixe l’inventaire au HEAD `12c748e7`, l’activation dans PROJECTION/monolithe, le dossier
+A07, les façades internes, 11 scénarios nouveaux et deux invocations canoniques
+mutualisées (dont un unique full reactor). Verdict proposé : **GO WITH RESERVATIONS
+pour l’implémentation**, sans démarrage de celle-ci ni clôture L4. Il actualise les
+propositions techniques I8 ci-dessous : la factory READ existe déjà, les trois
+lecteurs Binding/Results sont à raccorder, les migrations/grants métier sont livrés.
+I1/I2 et les qualifications locales I3–I7/recovery conservent leurs décisions et réserves.
+
 **Correctif ciblé recovery AUD-L4-01/02 — 3 novembre 2026.** CurrentPot est désormais inclus
 dans la preuve PotVersion ; les supersessions Visibility/CurrentBinding sont instruites et
 conformes sous les garde-fous checkpoint/slot. [Verdicts, contre-tests et réserves](L4_Recovery_Audit_Resolution.md).
@@ -41,9 +51,10 @@ les régressions pertinentes **L2 et L3**, la correction du helper
 `IdentityPotAuthorityPostgresTest#waiterPid`, ainsi que les gates canoniques exigées par
 [la politique de vérification](../testing/Reactor_Verification_Policy.md) et SPEC-10.
 
-**Avant tout lancement**, le périmètre exact, les campagnes, leur durée maximale et leurs
-critères d’arrêt devront faire l’objet d’un cadrage explicite. Cette campagne n’est pas lancée
-dans la mission du 3 novembre 2026. Les commandes historiques G-I2 décrivent les preuves déjà
+**Avant tout lancement**, appliquer le [manifeste I8 et ses coûts prévisionnels](L4_I8_Implementation_and_Qualification_Plan.md#8-gates-commandes-exactes-et-coût-prévisionnel) :
+périmètre et campagnes fixés, estimations non bloquantes, poursuite d’une exécution saine
+jusqu’à son terme et diagnostic local en cas d’échec ; aucun plafond mural d’interruption.
+Cette campagne n’est pas lancée par le cadrage documentaire. Les commandes historiques G-I2 décrivent les preuves déjà
 acquises ; elles ne sont pas une demande de rejeu. Aucun PASS ciblé du helper ne constitue une
 requalification globale de L3/L4, une levée des réserves historiques ou un certificat SPEC-10.
 
@@ -1068,12 +1079,15 @@ Lire demande ET terminal via requestId de complétion ; copier requesterEui `(is
 
 ### I8 — Assemblage actif et qualification L4
 
+Le [plan autonome I8](L4_I8_Implementation_and_Qualification_Plan.md) est désormais
+la référence exécutable ; cette fiche conserve l’allocation fonctionnelle du plan global.
+
 **Objectif :** faire fonctionner les six participants dans les vrais Workers des runtimes existants et livrer les lectures internes cohérentes, sans convergence structurelle anticipée.
 
-- **Préconditions :** I1… I7 acceptés ; arbitrages d’assemblage et permissions arrêtés.
+- **Préconditions :** décisions I1/I2 acquises et livraison locale I3–I7/recovery publiée selon le mandat consolidé ; qualification canonique I3–I7 due dans I8, sans clôture préalable circulaire.
 - **Adapter :** settings, noms de définitions, branchement dans la racine PROJECTION et le monolithe existants, préflights, allowlists, assemblage constructor ; sans renommage de module/runtime ni refonte de leurs frontières.
-- **Créer :** factory READ explicite, services internes courants/historiques et lots d’Expenses.
-- **Migrations :** grants finaux ; aucune modification implicite du routage.
+- **Réutiliser :** factory READ explicite et lecteurs Binding/Results existants ; créer les services internes courants/historiques et lots d’Expenses réellement absents.
+- **Migrations :** migrations/grants métier V2–V7 déjà livrés ; adapter les préflights, sans nouvelle migration par défaut ni modification implicite du routage.
 - **Tests :** trois checkpoints POT indépendants ; arrêt d’un participant sans bloquer les autres ; mélanges d’ordres ; D ; résultats avant métier ; lecteur pendant avance CurrentPot ; saturation, renewal, drainage et restart.
 - **Gates :** G-I8 ; architecture et full requis pour ce jalon majeur.
 - **Capitalisation :** preuves techniques inchangées avec attribution ; aucune substitution aux gates fraîches.
