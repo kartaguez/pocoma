@@ -1,10 +1,13 @@
 # Pocoma V3 — L4/I2 — Rapport d’exécution
 
+**L4/I2 — CLOSED — LOCAL BOUNDED PASS — décision définitive du 3 novembre 2026.**
+Voir l’acte de clôture en fin de rapport ; les campagnes et états antérieurs sont conservés.
+
 **I2-QUAL-01 RESOLVED — LOCAL BOUNDED PASS.** Les contrats I2 sont implémentés, la cause racine
 du failure `I2-QUAL-01` est démontrée et corrigée dans le banc de test sans affaiblir l’oracle,
 et les deux gates canoniques (`PROJECTION + COMMAND` et `Architecture`) passent sur les mêmes
-octets applicatifs propres (`6496e6d0144ecfda9e58ec6d12e259445e7344ad`). I2 n’est pas déclaré
-automatiquement `CLOSED` : la clôture reste soumise à l’audit indépendant et à la décision humaine.
+octets applicatifs propres (`6496e6d0144ecfda9e58ec6d12e259445e7344ad`). La décision explicite de clôture du 3 novembre 2026 est enregistrée ci-dessous ;
+le statut précédent restait soumis à une décision humaine.
 
 - SHA initial du lot L4/I2 : `a9937991a75428d8718e6036da11be2382c633d0`.
 - SHA initial du chantier correctif `I2-QUAL-01` : `386cf841057e477e5f1f0cadac9ea17d9c4838db`
@@ -371,6 +374,8 @@ rapports/preuves, sans force. Le worktree initial était propre. Les empreintes 
 sont vérifiés ; le message de livraison rapporte les SHA local/distant directement comparés,
 la synchronisation et la propreté après publication. Les documents historiques restent inchangés.
 
+### État historique avant décision de clôture
+
 La réserve bloquante `I2-QUAL-01` est résolue et qualifiée sur les deux gates canoniques.
 L’audit indépendant du code et des preuves ainsi que la décision humaine d’acceptation restent
 nécessaires avant toute clôture de L4/I2.
@@ -379,3 +384,36 @@ nécessaires avant toute clôture de L4/I2.
 démontrée et corrigée dans le banc avec contre-oracle, et gates canoniques `PROJECTION + COMMAND`
 (`1873/0/0/0`) et `Architecture` (`2137/0/0/0`) réussies sur les mêmes octets applicatifs.
 I2 n’est pas déclaré automatiquement CLOSED.
+
+
+## Clôture définitive du 3 novembre 2026
+
+**L4/I2 — CLOSED — LOCAL BOUNDED PASS.**
+
+La décision humaine explicite du 3 novembre 2026 acte la clôture définitive bornée de I2.
+`I2-QUAL-01` est RESOLVED ; aucun défaut de production n’a été identifié dans sa résolution
+et aucune réserve bloquante I2 ne subsiste. Les deux gates canoniques déjà acceptées sont
+PROJECTION + COMMAND : **1873/0/0/0**, Architecture : **2137/0/0/0** (tests/failures/errors/skips),
+au commit applicatif `6496e6d0144ecfda9e58ec6d12e259445e7344ad`, avec publication des preuves
+`2a81d49ebeb595cc2c46f14b3d850cbf92863f93`. Ces résultats sont acquis et ne sont pas rejoués.
+La clôture I2 est indépendante du correctif du helper L3/I2 `IdentityPotAuthorityPostgresTest#waiterPid`.
+Les échecs, corrections, contre-oracles et réserves historiques restent attribués à leurs campagnes.
+Cette décision ne certifie ni SPEC-10 global ni la clôture finale de L4 ; L4 reste ouvert.
+
+Le mandat humain courant supplante l’attente procédurale de clôture conservée ci-dessus ;
+aucun nouvel audit indépendant n’est revendiqué. Le manifeste publié au commit `2a81d49…`
+reste une pièce historique inchangée : sa mention « I2 is not CLOSED » décrit l’état avant
+cette décision. Les empreintes et campagnes du manifeste restent liées au SHA qualifié,
+sans réattribution globale au commit corrigeant le helper.
+
+La présente mission ne modifie aucun code de production et ne relance aucune gate COMMAND,
+PROJECTION, Architecture, ni full reactor. Le [rapport ciblé du helper](L3_I2_WaiterPid_Fix_Report.md)
+porte séparément commande, inventaire, résultat, durée et provenance de sa seule classe de test.
+La [campagne globale finale](L4_Read_Inventory_and_Implementation_Plan.md#qualification-globale-reportée-à-la-clôture-l4)
+est reportée à la clôture du lot L4 après achèvement des incréments restants.
+
+La [liste exacte des 21 fichiers livrés](L4_I2_Closure_Delivery_Files.json) couvre le helper,
+son rapport/provenance et les documents de clôture ; aucune preuve brute historique I2
+n’est modifiée. Les contrôles documentaires exécutés sont les lectures Git/rg/sed,
+la validation Python des liens, empreintes d’archives et entrées testées, et `git diff --check`.
+Le seul Maven exécuté dans cette mission est celui du rapport ciblé lié ci-dessus.

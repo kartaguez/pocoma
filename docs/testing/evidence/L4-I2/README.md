@@ -60,3 +60,14 @@ interdits sont distingués par les mêmes témoins PostgreSQL et Hikari que les 
 
 Les réserves historiques I1 et r05/r12 restent dans leurs documents d’origine, avec leur
 attribution. Ce dossier n’en prononce aucune levée ni clôture définitive de I2.
+
+
+## Décision postérieure de clôture — 3 novembre 2026
+
+**L4/I2 — CLOSED — LOCAL BOUNDED PASS**, selon le
+[rapport et la décision humaine](../../../v3/L4_I2_Execution_Report.md#clôture-définitive-du-3-novembre-2026).
+La phrase précédente et le manifeste sont historiques, antérieurs à cette décision.
+Les archives, résultats et empreintes restent inchangés et attribués à `6496e6d…`,
+avec publication `2a81d49…`. Aucun rejeu des deux gates acquises n’a lieu ici.
+Le correctif `waiterPid` possède ses [preuves ciblées distinctes](../L3-I2-waiterpid/README.md)
+et ne conditionne pas la clôture I2. L4 reste ouvert ; qualification globale finale différée.

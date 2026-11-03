@@ -1,5 +1,21 @@
 # Pocoma V3 — L4/I2 — Plan d’implémentation de la préparation interautorités et du recovery
 
+**L4/I2 — CLOSED — LOCAL BOUNDED PASS — décision du 3 novembre 2026.**
+
+La décision humaine explicite du 3 novembre 2026 acte la clôture définitive bornée de I2.
+`I2-QUAL-01` est RESOLVED ; aucun défaut de production n’a été identifié dans sa résolution
+et aucune réserve bloquante I2 ne subsiste. Les deux gates canoniques déjà acceptées sont
+PROJECTION + COMMAND : **1873/0/0/0**, Architecture : **2137/0/0/0** (tests/failures/errors/skips),
+au commit applicatif `6496e6d0144ecfda9e58ec6d12e259445e7344ad`, avec publication des preuves
+`2a81d49ebeb595cc2c46f14b3d850cbf92863f93`. Ces résultats sont acquis et ne sont pas rejoués.
+La clôture I2 est indépendante du correctif du helper L3/I2 `IdentityPotAuthorityPostgresTest#waiterPid`.
+Les échecs, corrections, contre-oracles et réserves historiques restent attribués à leurs campagnes.
+Cette décision ne certifie ni SPEC-10 global ni la clôture finale de L4 ; L4 reste ouvert.
+Voir le [rapport d’exécution et acte de clôture](L4_I2_Execution_Report.md#clôture-définitive-du-3-novembre-2026).
+Les formulations de préparation, commandes futures et attentes de décision ci-dessous sont
+historiques ; les résultats effectifs sont ceux du rapport et des preuves conservées.
+
+
 **2 novembre 2026 — `feat/v3-architecture` — GO CONDITIONNEL humain : corrections AUD-I2-08/09/10 puis implémentation I2.**
 
 Ce document remplace intégralement l’esquisse `6d41ee439800c079ccd05a02ccc285b5daa4221f`.

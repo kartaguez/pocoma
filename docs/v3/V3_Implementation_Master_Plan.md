@@ -1,5 +1,25 @@
 # Pocoma V3 — Plan directeur de réalisation L0–L8
 
+**L4/I2 — CLOSED — LOCAL BOUNDED PASS — 3 novembre 2026.**
+
+La décision humaine explicite du 3 novembre 2026 acte la clôture définitive bornée de I2.
+`I2-QUAL-01` est RESOLVED ; aucun défaut de production n’a été identifié dans sa résolution
+et aucune réserve bloquante I2 ne subsiste. Les deux gates canoniques déjà acceptées sont
+PROJECTION + COMMAND : **1873/0/0/0**, Architecture : **2137/0/0/0** (tests/failures/errors/skips),
+au commit applicatif `6496e6d0144ecfda9e58ec6d12e259445e7344ad`, avec publication des preuves
+`2a81d49ebeb595cc2c46f14b3d850cbf92863f93`. Ces résultats sont acquis et ne sont pas rejoués.
+La clôture I2 est indépendante du correctif du helper L3/I2 `IdentityPotAuthorityPostgresTest#waiterPid`.
+Les échecs, corrections, contre-oracles et réserves historiques restent attribués à leurs campagnes.
+Cette décision ne certifie ni SPEC-10 global ni la clôture finale de L4 ; L4 reste ouvert.
+[Rapport et décision I2](L4_I2_Execution_Report.md#clôture-définitive-du-3-novembre-2026),
+[plan I2](L4_I2_Implementation_Plan.md), [manifestes/preuves historiques](L4_I2_Proof_Manifest.json).
+La requalification globale est reportée à la clôture L4 : I1–I7, régressions L2/L3,
+correctif `waiterPid`, activation I8 et gates politique/SPEC-10 ; son périmètre, ses campagnes,
+durées maximales et critères d’arrêt devront être cadrés avant lancement dans une mission distincte.
+Voir le [plan global L4](L4_Read_Inventory_and_Implementation_Plan.md#qualification-globale-reportée-à-la-clôture-l4).
+Les décisions antérieures de transition et de cadrage ci-dessous restent historiques.
+
+
 **L4/I1 — décision humaine définitive du 2 novembre 2026 :
 CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS.**
 L’[acte de clôture](L4_I1_Acceptance_Decision.md) enregistre l’acceptation bornée
@@ -306,7 +326,7 @@ Plans examinés : [Discovery Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
 | L1-F2 | [Inventaire](L1_F2_Contradictory_Inventory.md), [matrice](L1_F2_Invariant_Matrix.md), [rapport](L1_F2_Closure_Report.md), [manifeste](L1_F2_Proof_Manifest.json), preuves PG/performance | CLOSED/PASS interne ; revue indépendante avant entrée L2 |
 | L2 | [Clôture documentaire officielle](L2_Documentary_Closure.md), [plan](L2_Design_and_Verification_Plan.md), [dossier I6 et preuves](L2_I6_I7_Consolidation.md), rapports et manifestes historiques I1–I5 | ACCEPTED WITH EXPLICIT RESERVATIONS ; aucun complément requis pour cette acceptation de programme ; réserves ouvertes et qualification technique restante conservées pour les jalons appropriés |
 | L3 | [Plan Identity](L3_Identity_Inventory_and_Implementation_Plan.md), contrats I1, autorité I2, [livraison I3/R-ID](L3_I3_Execution_Report.md), [résolution et preuves](L3_I3_Findings_Resolution_Report.md), [ré-audit Gemini](L3_I3_Independent_Reaudit_Report.md), [décision I3](L3_I3_Acceptance_Decision.md), [livraison I4](L3_I4_Execution_Report.md), [décision I4](L3_I4_Acceptance_Decision.md), [rapport I5](L3_Identity_Execution_Report.md), [runbook](L3_Identity_Runtime_Runbook.md), [manifeste I5](L3_Identity_Proof_Manifest.json), [clôture L3](L3_Identity_Closure.md) | CLOSED WITH EXPLICIT RESERVATIONS. O20/O25 SATISFIED WITH EXPLICIT RESERVATIONS ; O21 SATISFIED WITH RESERVATIONS ; strict INCONCLUSIVE O20/O21 conservé ; L4 autorisé au cadrage après publication vérifiée |
-| L4 | [Plan global](L4_Read_Inventory_and_Implementation_Plan.md), [plan I1](L4_I1_Implementation_Plan.md), [rapport I1](L4_I1_Execution_Report.md), [manifeste](L4_I1_Proof_Manifest.json), [décision définitive I1](L4_I1_Acceptance_Decision.md) | I1 CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS ; I2 peut être engagé après cadrage technique distinct ; preuves métier I3–I7, activation I8 et qualification globale L4 restent à produire |
+| L4 | [Plan global](L4_Read_Inventory_and_Implementation_Plan.md), [plan I1](L4_I1_Implementation_Plan.md), [rapport I1](L4_I1_Execution_Report.md), [manifeste](L4_I1_Proof_Manifest.json), [décision définitive I1](L4_I1_Acceptance_Decision.md) | I1 CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS ; I2 CLOSED — LOCAL BOUNDED PASS ([plan](L4_I2_Implementation_Plan.md), [rapport](L4_I2_Execution_Report.md)) ; preuves métier I3–I7, activation I8 et qualification globale L4 restent à produire |
 | L5 | SPEC-01/02/04/06/10, Bruno historique | Plan L5, contrat de consentement/fournisseur, API/rétention/limites/secrets, preuves sécurité/parcours et audit |
 | L6 | SPEC-08/09/10, outils historiques | Plan L6 et protocole de mesure ratifié, procédure maintenance/READY, rapport/manifeste de certification et audit |
 | L7 | Chantier §6 et inventaires historiques | Plan de convergence/retrait et suites de remplacement ; manifeste des chemins, preuves sur code unifié et audit |
@@ -315,10 +335,10 @@ Plans examinés : [Discovery Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
 La conception L2 et A01–A12/R1–R10 restent validés. L2 conserve son acceptation
 avec réserves. **L3 est CLOSED WITH EXPLICIT RESERVATIONS**, selon l’[acte
 unique](L3_Identity_Closure.md). I1 L4 est clos selon l’[acte humain](L4_I1_Acceptance_Decision.md) ;
-I2 peut être engagé après son cadrage technique. Cette mission reste documentaire. Les invariants,
+I2 est CLOSED — LOCAL BOUNDED PASS selon la décision du 3 novembre 2026. Les invariants,
 scénarios et gates normatifs demeurent applicables.
 
-**Décisions ouvertes pour les lots suivants :** cadrer L4/I2 sous le
+**Décisions ouvertes pour les lots suivants :** cadrer les incréments L4 restants sous le
 [plan L4](L4_Read_Inventory_and_Implementation_Plan.md), puis les matérialisations
 et l’activation ; qualifier le consentement réel,
 les sessions, la rétention d’idempotence et les bornes de protection L5 ; ratifier

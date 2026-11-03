@@ -1,0 +1,26 @@
+{
+  "initial_sha": "2a81d49ebeb595cc2c46f14b3d850cbf92863f93",
+  "files": [
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityPotAuthorityPostgresTest.java",
+    "docs/README.md",
+    "docs/testing/evidence/L3-I2-waiterpid/README.md",
+    "docs/testing/evidence/L3-I2-waiterpid/run-targeted.py",
+    "docs/testing/evidence/L3-I2-waiterpid/sandbox-fail/budget.json",
+    "docs/testing/evidence/L3-I2-waiterpid/sandbox-fail/plan.json",
+    "docs/testing/evidence/L3-I2-waiterpid/sandbox-fail/provenance.json",
+    "docs/testing/evidence/L3-I2-waiterpid/sandbox-fail/raw.tar.gz",
+    "docs/testing/evidence/L3-I2-waiterpid/sandbox-fail/result.json",
+    "docs/testing/evidence/L3-I2-waiterpid/targeted/budget.json",
+    "docs/testing/evidence/L3-I2-waiterpid/targeted/plan.json",
+    "docs/testing/evidence/L3-I2-waiterpid/targeted/provenance.json",
+    "docs/testing/evidence/L3-I2-waiterpid/targeted/raw.tar.gz",
+    "docs/testing/evidence/L3-I2-waiterpid/targeted/result.json",
+    "docs/testing/evidence/L4-I2/README.md",
+    "docs/v3/L3_I2_WaiterPid_Fix_Report.md",
+    "docs/v3/L4_I2_Closure_Delivery_Files.json",
+    "docs/v3/L4_I2_Execution_Report.md",
+    "docs/v3/L4_I2_Implementation_Plan.md",
+    "docs/v3/L4_Read_Inventory_and_Implementation_Plan.md",
+    "docs/v3/V3_Implementation_Master_Plan.md"
+  ]
+}

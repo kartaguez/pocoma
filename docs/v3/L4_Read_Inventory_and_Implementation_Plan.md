@@ -1,5 +1,36 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
+**L4/I2 — CLOSED — LOCAL BOUNDED PASS — 3 novembre 2026.**
+
+La décision humaine explicite du 3 novembre 2026 acte la clôture définitive bornée de I2.
+`I2-QUAL-01` est RESOLVED ; aucun défaut de production n’a été identifié dans sa résolution
+et aucune réserve bloquante I2 ne subsiste. Les deux gates canoniques déjà acceptées sont
+PROJECTION + COMMAND : **1873/0/0/0**, Architecture : **2137/0/0/0** (tests/failures/errors/skips),
+au commit applicatif `6496e6d0144ecfda9e58ec6d12e259445e7344ad`, avec publication des preuves
+`2a81d49ebeb595cc2c46f14b3d850cbf92863f93`. Ces résultats sont acquis et ne sont pas rejoués.
+La clôture I2 est indépendante du correctif du helper L3/I2 `IdentityPotAuthorityPostgresTest#waiterPid`.
+Les échecs, corrections, contre-oracles et réserves historiques restent attribués à leurs campagnes.
+Cette décision ne certifie ni SPEC-10 global ni la clôture finale de L4 ; L4 reste ouvert.
+[Plan I2](L4_I2_Implementation_Plan.md), [rapport et décision](L4_I2_Execution_Report.md#clôture-définitive-du-3-novembre-2026),
+[preuves historiques](L4_I2_Proof_Manifest.json).
+Les cadrages et attentes antérieurs ci-dessous sont conservés comme historique.
+
+## Qualification globale reportée à la clôture L4
+
+La requalification globale du système est reportée à la clôture du lot L4, après achèvement
+des incréments restants. Elle intégrera les invariants **L4/I1 à I7**, l’activation/assemblage I8,
+les régressions pertinentes **L2 et L3**, la correction du helper
+`IdentityPotAuthorityPostgresTest#waiterPid`, ainsi que les gates canoniques exigées par
+[la politique de vérification](../testing/Reactor_Verification_Policy.md) et SPEC-10.
+
+**Avant tout lancement**, le périmètre exact, les campagnes, leur durée maximale et leurs
+critères d’arrêt devront faire l’objet d’un cadrage explicite. Cette campagne n’est pas lancée
+dans la mission du 3 novembre 2026. Les commandes historiques G-I2 décrivent les preuves déjà
+acquises ; elles ne sont pas une demande de rejeu. Aucun PASS ciblé du helper ne constitue une
+requalification globale de L3/L4, une levée des réserves historiques ou un certificat SPEC-10.
+
+
+
 > **Décision humaine définitive du 2 novembre 2026 — L4/I1 :
 > CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS.**
 > L’[acte de clôture](L4_I1_Acceptance_Decision.md) porte la décision sur le dossier
@@ -887,6 +918,9 @@ cette décision ; les preuves archivées restent inchangées.
 - **Passage :** audit I1 et décision humaine ; pas d’activation de participant réel.
 
 ### I2 — Préparation et recovery interautorités dans L2
+
+**Statut courant : L4/I2 — CLOSED — LOCAL BOUNDED PASS.** Voir la décision en tête du plan.
+Le cadrage suivant est historique et ses obligations sont réalisées selon le rapport I2.
 
 **Transition autorisée après cadrage technique propre à I2.** Le prérequis
 « I1 accepté » est satisfait par l’[acte de clôture](L4_I1_Acceptance_Decision.md).
