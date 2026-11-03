@@ -1,0 +1,24 @@
+{
+  "tested_sha": "f30891541787decf308675aeabd57a0577db11c6",
+  "tested_checkout_clean": true,
+  "app_input_count": 1357,
+  "byte_identical_except": [
+    {
+      "path": "app/mvnw.cmd",
+      "reason": "Windows wrapper not executed; .gitattributes text eol=crlf checkout normalization only",
+      "tested_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c",
+      "workspace_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+      "normalized_equal": true
+    }
+  ],
+  "external_sql_inputs": {
+    "scripts/v3/bootstrap-l2-routing.sql": "a1c20559057fc02ed947792a463f9e19a5698508e5c913874f620dbde9716d3f",
+    "scripts/v3/grant-l2-lifecycle.sql": "48915676f8464b3397fa1d020c2b9f8d3b5cb4dbf630cb4176b6f1f1fdff2647"
+  },
+  "unchanged_owners": [
+    "app/engine-consumption",
+    "app/domain-consumption",
+    "app/infra-tx-spring"
+  ],
+  "delivery_followup": "Documentation/evidence only after tested SHA; no claim of fresh PASS on documentation commit"
+}

@@ -1,5 +1,10 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
+**Correctif ciblé recovery AUD-L4-01/02 — 3 novembre 2026.** CurrentPot est désormais inclus
+dans la preuve PotVersion ; les supersessions Visibility/CurrentBinding sont instruites et
+conformes sous les garde-fous checkpoint/slot. [Verdicts, contre-tests et réserves](L4_Recovery_Audit_Resolution.md).
+Qualification locale bornée uniquement ; statuts I1/I2, reports I8 et interdiction d'activation préservés.
+
 **L4/I3–I7 — mandat consolidé du 3 novembre 2026.** Les six participants READ
 sont autorisés à l’implémentation et à la qualification locale, en restant inactifs
 dans les compositions productives jusqu’à I8. Les gates canoniques non filtrées
