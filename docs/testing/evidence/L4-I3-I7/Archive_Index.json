@@ -21,9 +21,14 @@
       "sha256": "0db25d062e1aa542db73e02792c69319cc1226b242aab2aa66a804c6c73349f0"
     },
     {
+      "path": "Publication_Receipt.json",
+      "bytes": 804,
+      "sha256": "aaa436099c52a0ce22c3ebff48ccd8bbc0e1ff27b31cfc21c63e5d98d15cd41b"
+    },
+    {
       "path": "README.md",
-      "bytes": 2076,
-      "sha256": "381f78f8f6d3bf3d0a8824c3adac000fdd49309ee5d92554b716e4a9156729d4"
+      "bytes": 2079,
+      "sha256": "6ecf6408c83b68037d0dfca9dcf0f94322e400dbcda446ddb1e0bb7c85d24159"
     },
     {
       "path": "Reuse_Attribution.json",
@@ -1491,9 +1496,9 @@
       "sha256": "eeb55693ebdfce97cbcb7146b67863b74da07ce7ee9a31cde1f51362e52fda35"
     },
     {
-      "path": "tooling/baseline-python.log",
-      "bytes": 9149,
-      "sha256": "dae2ccf59bde51e036f96a52e38871191293eb278aa92e4f6b24b754eb17e0ef"
+      "path": "tooling/baseline-python.log.gz",
+      "bytes": 2044,
+      "sha256": "fa9973bf0461176a96f9ab1a097fe70373529b54d1189571ae807f93cfa014a3"
     },
     {
       "path": "tooling/baseline-result.json",
@@ -1501,14 +1506,14 @@
       "sha256": "f46adb0adebf38289f2aa914ae54d5db52f8377d700c14cbeacf33ddc7800cc7"
     },
     {
-      "path": "tooling/pocoma-i3-i7-python-final.log",
-      "bytes": 3186,
-      "sha256": "80cd7f743b78fb5b8c82dfa99cf8af804929bef5bbc806d2552c3d015df4adaf"
+      "path": "tooling/pocoma-i3-i7-python-final.log.gz",
+      "bytes": 745,
+      "sha256": "5d09c304c35764048aafef0f39331ab9ac5b7180878cce2f2f6ded016802e80d"
     },
     {
-      "path": "tooling/pocoma-i3-i7-read-python-final.log",
-      "bytes": 106,
-      "sha256": "8642a1ac72c63530bbaa2c1f2526767cc3b14a928c117e4bff18cd4c4a88ad42"
+      "path": "tooling/pocoma-i3-i7-read-python-final.log.gz",
+      "bytes": 54,
+      "sha256": "a5075c8ffae45e221f48efb6e0110c5191dda960f84f73573f17f1ba5b4a894c"
     }
   ]
 }

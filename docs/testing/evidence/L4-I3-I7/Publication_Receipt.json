@@ -1,0 +1,11 @@
+{
+  "initial_sha": "3b7a3115723a3848a84e7c7b88031ecd6306b187",
+  "application_and_report_commit": "7da4a3b60ff275ae01c8bec2f4008baab4a9e94f",
+  "final_delivery_locator": "git log -1 --format=%H -- docs/testing/evidence/L4-I3-I7/Publication_Receipt.json",
+  "branch": "feat/v3-architecture",
+  "local_status": "COMPLETE / FILTERED PASS / INERT UNTIL I8",
+  "source_inputs": "Input_Comparisons.json",
+  "canonical_certification": "NOT RUN; human-approved deferral to I8",
+  "i2_status": "CLOSED — LOCAL BOUNDED PASS; I2-QUAL-01 RESOLVED",
+  "publication_note": "Three raw tooling .log files matched repository ignore rules; lossless gzip copies are explicitly published and indexed. Original local files preserved. Final remote synchronization is verified after push and reported in the conversation."
+}

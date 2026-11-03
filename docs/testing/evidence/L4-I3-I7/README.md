@@ -15,7 +15,7 @@ Les archives ne dépendent pas de la survie de `/private/tmp`.
 - [Rapport](../../../v3/L4_I3_I7_Execution_Report.md),
   [manifeste des preuves](../../../v3/L4_I3_I7_Proof_Manifest.json).
 - `initial/` préserve les octets préexistants d’outillage avant cette mission ;
-  `tooling/baseline-*` préexistaient. `tooling/*final.log` : 31 + 8 tests Python PASS.
+  `tooling/baseline-*` préexistaient. `tooling/*final.log.gz` : 31 + 8 tests Python PASS.
 - `development/` : compilations et feedback natifs, sans assimilation à une campagne/gate.
 - `replay-selection.py` : opérateur explicite borné aux méthodes enregistrées, motif obligatoire,
   sans retry ni élargissement. Deux appels d’intégration correctifs : 7 puis 6 invocations.
