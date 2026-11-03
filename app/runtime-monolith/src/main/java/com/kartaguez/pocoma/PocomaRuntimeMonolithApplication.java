@@ -30,6 +30,11 @@ public class PocomaRuntimeMonolithApplication {
     @org.springframework.context.annotation.ComponentScan(
             basePackages = "com.kartaguez.pocoma",
             excludeFilters = {
+                // T11's test dependency must not introduce a second legacy application root.
+                @org.springframework.context.annotation.ComponentScan.Filter(
+                        type = org.springframework.context.annotation.FilterType.REGEX,
+                        pattern =
+                                "com[.]kartaguez[.]pocoma[.]PocomaTaskConsumptionWorkerApplication([$].*)?"),
                 @org.springframework.context.annotation.ComponentScan.Filter(
                         type = org.springframework.context.annotation.FilterType.CUSTOM,
                         classes = org.springframework.boot.context.TypeExcludeFilter.class),
