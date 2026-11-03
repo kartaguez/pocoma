@@ -13,6 +13,65 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 class V3ConsumptionEngineArchitectureTest {
+    @Test
+    void i8QueriesHaveOnlyReadPortsAndNoWriteOrInfrastructureDependencies() {
+        var queries =
+                select(
+                        PROD,
+                        c -> c.getPackageName().equals("com.kartaguez.pocoma.engine.read.pot.v3"));
+        assertTrue(queries.size() >= 4);
+        noClasses()
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "com.kartaguez.pocoma.infra..",
+                        "com.kartaguez.pocoma.runtime..",
+                        "com.kartaguez.pocoma.engine.write..",
+                        "com.kartaguez.pocoma.engine.consumption..",
+                        "org.springframework..",
+                        "java.sql..",
+                        "javax.sql..",
+                        "jakarta.persistence..")
+                .check(queries);
+    }
+
+    @Test
+    void i8ReadRootsUseExplicitCompositionAndExcludeLegacyScanning() {
+        for (var root :
+                List.of(
+                        com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication.class,
+                        com.kartaguez.pocoma.PocomaRuntimeMonolithApplication.class)) {
+            assertArrayEquals(
+                    new String[] {"com.kartaguez.pocoma.runtime.bootstrap"},
+                    root.getAnnotation(
+                                    org.springframework.boot.autoconfigure.SpringBootApplication
+                                            .class)
+                            .scanBasePackages());
+            assertTrue(
+                    Arrays.asList(
+                                    root.getAnnotation(
+                                                    org.springframework.context.annotation.Import
+                                                            .class)
+                                            .value())
+                            .contains(
+                                    com.kartaguez.pocoma.runtime.consumption.v3
+                                            .V3ConsumptionWorkerConfiguration.class));
+            var legacy =
+                    Arrays.stream(root.getDeclaredClasses())
+                            .filter(c -> c.getSimpleName().equals("Legacy"))
+                            .findFirst()
+                            .orElseThrow();
+            assertTrue(
+                    String.join(
+                                    " ",
+                                    legacy.getAnnotation(
+                                                    org.springframework.context.annotation.Profile
+                                                            .class)
+                                            .value())
+                            .contains("!v3-read-worker"));
+        }
+    }
+
     static final String ROOT = "com.kartaguez.pocoma";
     static final JavaClasses PROD =
             new ClassFileImporter()

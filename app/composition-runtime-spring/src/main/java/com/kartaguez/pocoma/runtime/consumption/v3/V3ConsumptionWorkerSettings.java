@@ -24,6 +24,8 @@ public record V3ConsumptionWorkerSettings(
         boolean identityRequest,
         boolean commandEnabled,
         boolean technicalProbes,
+        boolean readMode,
+        List<String> readParticipants,
         Map<String, Integer> consumptionLimits,
         Map<String, List<Integer>> partitions,
         Pool writeBusiness,
@@ -34,6 +36,15 @@ public record V3ConsumptionWorkerSettings(
         V3ConsumptionWorker.Settings polling,
         LifecycleSettings lifecycle) {
     public static final String PROFILE = "v3-consumption-worker-dev";
+    public static final String READ_PROFILE = "v3-read-worker";
+    public static final List<String> READ_NAMES =
+            List.of(
+                    "MaterializePotVersion",
+                    "MaterializePotBalance",
+                    "MaterializePotVisibility",
+                    "MaterializeCurrentBinding",
+                    "MaterializeCommandResult",
+                    "MaterializeIdentityRequestResult");
     static final String PREFIX = "pocoma.v3.worker.";
 
     public record DevTarget(
@@ -80,6 +91,7 @@ public record V3ConsumptionWorkerSettings(
     }
 
     public V3ConsumptionWorkerSettings {
+        readParticipants = List.copyOf(readParticipants);
         consumptionLimits = Map.copyOf(consumptionLimits);
         partitions = Map.copyOf(partitions);
         allowedTargets = List.copyOf(allowedTargets);
@@ -98,14 +110,17 @@ public record V3ConsumptionWorkerSettings(
     }
 
     public static boolean requested(Environment env) {
-        boolean profile = Arrays.asList(env.getActiveProfiles()).contains(PROFILE);
+        boolean profile =
+                Arrays.stream(env.getActiveProfiles())
+                        .anyMatch(p -> p.equals(PROFILE) || p.equals(READ_PROFILE));
         boolean any =
                 profile
                         || env.containsProperty(PREFIX + "enabled")
                         || env.containsProperty(PREFIX + "fixture-identity")
                         || env.containsProperty(PREFIX + "technical-probes")
                         || env.containsProperty(PREFIX + "identity-authority")
-                        || env.containsProperty(PREFIX + "identity-request");
+                        || env.containsProperty(PREFIX + "identity-request")
+                        || env.containsProperty(PREFIX + "read-participants");
         if (!any) return false;
         if (!profile
                 || env.getActiveProfiles().length != 1
@@ -132,6 +147,9 @@ public record V3ConsumptionWorkerSettings(
 
     public static V3ConsumptionWorkerSettings from(Environment env) {
         if (!requested(env)) throw new IllegalStateException("I5 not authorized");
+        boolean readMode = Arrays.asList(env.getActiveProfiles()).contains(READ_PROFILE);
+        if (!readMode && env.containsProperty(PREFIX + "read-participants"))
+            throw new IllegalArgumentException("read-participants requires v3-read-worker");
         String name = env.getRequiredProperty(PREFIX + "worker-name");
         if (!name.matches("[a-z][a-z0-9-]{1,31}"))
             throw new IllegalArgumentException("invalid worker name");
@@ -149,14 +167,30 @@ public record V3ConsumptionWorkerSettings(
             throw new IllegalArgumentException(
                     "Real Identity forbids fixtures; IdentityRequest requires real authority");
         if (command && mode.equals("fixture") && !fixture)
-            throw new IllegalArgumentException("Fixture Command requires explicit fixture authority");
+            throw new IllegalArgumentException(
+                    "Fixture Command requires explicit fixture authority");
+        var reads = new ArrayList<String>();
+        if (readMode) {
+            if (fixture || probes || !mode.equals("real"))
+                throw new IllegalArgumentException(
+                        "READ business profile requires real Identity and forbids probes/fixtures");
+            String selection = env.getRequiredProperty(PREFIX + "read-participants");
+            if (!selection.isEmpty())
+                for (String selected : selection.split(",", -1)) {
+                    if (!READ_NAMES.contains(selected) || reads.contains(selected))
+                        throw new IllegalArgumentException(
+                                "unknown or duplicate READ participant: " + selected);
+                    reads.add(selected);
+                }
+            expected.addAll(reads);
+        }
         if (identity) expected.add("IdentityRequest");
         if (command) expected.add("Command");
         if (probes) expected.addAll(List.of("I5ReadPotProbe", "I5ReadCompletionProbe"));
-        if (expected.isEmpty())
+        if (expected.isEmpty() && !readMode)
             throw new IllegalArgumentException("at least one implemented pair required");
         var limits = new LinkedHashMap<String, Integer>();
-        for (var entry : env.getRequiredProperty(PREFIX + "consumption-limits").split(",")) {
+        for (var entry : entries(env.getRequiredProperty(PREFIX + "consumption-limits"), ",")) {
             var pair = entry.split("=", -1);
             if (pair.length != 2
                     || !expected.contains(pair[0])
@@ -167,7 +201,7 @@ public record V3ConsumptionWorkerSettings(
         if (!limits.keySet().equals(expected))
             throw new IllegalArgumentException("incomplete enabled Consumption limits");
         var partitions = new LinkedHashMap<String, List<Integer>>();
-        for (var entry : env.getRequiredProperty(PREFIX + "partitions").split(";")) {
+        for (var entry : entries(env.getRequiredProperty(PREFIX + "partitions"), ";")) {
             var pair = entry.split("=", -1);
             if (pair.length != 2 || !expected.contains(pair[0]))
                 throw new IllegalArgumentException("invalid candidate definition");
@@ -213,7 +247,12 @@ public record V3ConsumptionWorkerSettings(
         var life =
                 new LifecycleSettings(
                         batch,
-                        duration(env, "lifecycle.lease-duration-ms", 30000),
+                        (readMode
+                                ? Duration.ofMillis(
+                                        Long.parseLong(
+                                                env.getRequiredProperty(
+                                                        PREFIX + "lifecycle.lease-duration-ms")))
+                                : duration(env, "lifecycle.lease-duration-ms", 30000)),
                         duration(env, "lifecycle.claim-duration-ms", 60000),
                         duration(env, "lifecycle.renewal-interval-ms", 10000),
                         Duration.ofMillis(500),
@@ -238,10 +277,29 @@ public record V3ConsumptionWorkerSettings(
         // and observe all PostgreSQL deadlines with the measured whole-path envelope.
         int leaseLots =
                 partitions.values().stream().mapToInt(p -> (p.size() + batch - 1) / batch).sum();
-        if (settings.renewalInterval()
-                                .plusSeconds(5L * leaseLots + 3)
-                                .compareTo(life.leaseDuration())
-                        >= 0
+        Duration leaseBound = settings.renewalInterval().plusSeconds(5L * leaseLots + 3);
+        if (readMode) {
+            leaseBound = Duration.ZERO;
+            for (var authority : Authority.values()) {
+                int candidates = 0, bindings = 0;
+                for (var entry : partitions.entrySet())
+                    if (definition(entry.getKey()).authority() == authority) {
+                        candidates += entry.getValue().size();
+                        bindings++;
+                    }
+                // One useful renewal per call, one bounded no-progress window per binding.
+                // Independent lanes per authority. Qualification must observe each SQL deadline.
+                var bound =
+                        settings.renewalInterval()
+                                .plus(
+                                        settings.renewalBudget()
+                                                .multipliedBy((long) candidates + bindings))
+                                .plus(settings.minPoll().multipliedBy(candidates))
+                                .plusSeconds(4);
+                if (bound.compareTo(leaseBound) > 0) leaseBound = bound;
+            }
+        }
+        if (leaseBound.compareTo(life.leaseDuration()) >= 0
                 || settings.renewalInterval()
                                 .plusSeconds(5L * mw + 3)
                                 .compareTo(life.claimDuration())
@@ -258,6 +316,8 @@ public record V3ConsumptionWorkerSettings(
                 identity,
                 command,
                 probes,
+                readMode,
+                reads,
                 limits,
                 partitions,
                 wb,
@@ -267,6 +327,10 @@ public record V3ConsumptionWorkerSettings(
                 allowed,
                 settings,
                 life);
+    }
+
+    private static String[] entries(String value, String separator) {
+        return value.isEmpty() ? new String[0] : value.split(separator, -1);
     }
 
     private static Duration duration(Environment env, String key, long ms) {
@@ -371,7 +435,13 @@ public record V3ConsumptionWorkerSettings(
             case "Command" -> V3ConsumptionCatalogConfiguration.definitions().getFirst();
             case "I5ReadPotProbe" -> probeDefinitions().get(0);
             case "I5ReadCompletionProbe" -> probeDefinitions().get(1);
-            default -> throw new IllegalArgumentException("source/participant not delivered");
+            default -> {
+                int index = READ_NAMES.indexOf(name);
+                if (index < 0)
+                    throw new IllegalArgumentException("source/participant not delivered");
+                int catalogIndex = index < 3 ? index + 2 : index + 3; // Invitation stays inactive.
+                yield V3ConsumptionCatalogConfiguration.definitions().get(catalogIndex);
+            }
         };
     }
 

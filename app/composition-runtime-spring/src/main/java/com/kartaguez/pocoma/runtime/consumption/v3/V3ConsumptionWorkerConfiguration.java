@@ -29,7 +29,7 @@ import java.util.*;
 
 /** Always imported preflight; only the inner resource configuration is profile-dependent. */
 @Configuration(proxyBeanMethods = false)
-@Import(V3ConsumptionWorkerConfiguration.Active.class)
+@Import({V3ConsumptionWorkerConfiguration.Active.class, V3ReadFacadeConfiguration.class})
 public class V3ConsumptionWorkerConfiguration {
     @Bean
     static BeanFactoryPostProcessor v3WorkerPreflight(Environment env) {
@@ -42,19 +42,29 @@ public class V3ConsumptionWorkerConfiguration {
 
             boolean active = V3ConsumptionWorkerSettings.requested(env);
             var exact =
-                    Set.of(
-                            V3ConsumptionWorkerConfiguration.class.getName(),
-                            Active.class.getName(),
-                            Resources.class.getName(),
-                            Preflight.class.getName(),
-                            Lifecycle.class.getName(),
-                            V3ConsumptionWorker.class.getName(),
-                            WorkerCapacity.class.getName(),
-                            V3ConsumptionWorkerSettings.class.getName(),
-                            V3BootstrapGuard.class.getName(),
-                            MicrometerV3ConsumptionObservation.class.getName(),
-                            "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication",
-                            "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication");
+                    new HashSet<>(
+                            Set.of(
+                                    V3ConsumptionWorkerConfiguration.class.getName(),
+                                    Active.class.getName(),
+                                    Resources.class.getName(),
+                                    Preflight.class.getName(),
+                                    Lifecycle.class.getName(),
+                                    V3ConsumptionWorker.class.getName(),
+                                    WorkerCapacity.class.getName(),
+                                    V3ConsumptionWorkerSettings.class.getName(),
+                                    V3BootstrapGuard.class.getName(),
+                                    MicrometerV3ConsumptionObservation.class.getName(),
+                                    "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication",
+                                    "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
+            boolean readMode =
+                    Arrays.asList(env.getActiveProfiles())
+                            .contains(V3ConsumptionWorkerSettings.READ_PROFILE);
+            if (readMode)
+                exact.addAll(
+                        Set.of(
+                                V3ReadFacadeConfiguration.class.getName(),
+                                V3ReadFacadeComposition.Services.class.getName(),
+                                "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
             for (var name : factory.getBeanDefinitionNames()) {
                 var type = factory.getType(name, false);
                 var definition = factory.getBeanDefinition(name);
@@ -100,12 +110,37 @@ public class V3ConsumptionWorkerConfiguration {
                 throw new IllegalStateException(
                         "JDBC health, OSIV and runtime migration must be disabled");
             var settings = V3ConsumptionWorkerSettings.from(env);
+            if (readMode) {
+                V3ReadFacadeConfiguration.limits(env); // Validate before any resource allocation.
+                if (Arrays.stream(factory.getBeanDefinitionNames())
+                        .map(n -> factory.getType(n, false))
+                        .filter(Objects::nonNull)
+                        .anyMatch(
+                                t ->
+                                        t.getName()
+                                                .equals(
+                                                        "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication")))
+                    throw new IllegalStateException("READ profile forbidden on Command root");
+                boolean projection =
+                        Arrays.stream(factory.getBeanDefinitionNames())
+                                .map(n -> factory.getType(n, false))
+                                .filter(Objects::nonNull)
+                                .anyMatch(
+                                        t ->
+                                                t.getName()
+                                                        .equals(
+                                                                "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
+                if (projection && (settings.commandEnabled() || settings.identityRequest()))
+                    throw new IllegalStateException(
+                            "PROJECTION cannot activate WRITE participants");
+            }
             var w = settings.writeControl().preflightSource();
             var r = settings.readControl().preflightSource();
             settings.validateTarget(settings.writeControl(), w);
             settings.validateTarget(settings.readControl(), r);
             var guard =
-                    V3BootstrapGuard.development(
+                    guard(
+                            settings,
                             new V3BootstrapGuard.Target(
                                     w,
                                     settings.writeControl().database(),
@@ -116,9 +151,7 @@ public class V3ConsumptionWorkerConfiguration {
                                     settings.readControl().database(),
                                     settings.readControl().schema(),
                                     settings.readControl().username()),
-                            settings.catalog(),
-                            settings.technicalProbes(),
-                            settings.fixtureIdentity());
+                            settings.catalog());
             guard.validateLifecyclePrivileges(V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
             if (settings.identityAuthority().equals("real")) guard.validateIdentitySource(w);
             factory.registerSingleton("v3WorkerSettings", settings);
@@ -126,8 +159,34 @@ public class V3ConsumptionWorkerConfiguration {
         }
     }
 
+    private static V3BootstrapGuard guard(
+            V3ConsumptionWorkerSettings settings,
+            V3BootstrapGuard.Target write,
+            V3BootstrapGuard.Target read,
+            List<ConsumptionDefinition> catalog) {
+        return settings.readMode()
+                ? V3BootstrapGuard.readWorker(write, read, catalog)
+                : V3BootstrapGuard.development(
+                        write,
+                        read,
+                        catalog,
+                        settings.technicalProbes(),
+                        settings.fixtureIdentity());
+    }
+
+    /** Empty selections still allocate consultation resources but no worker/capacity/lifecycle. */
+    static class HasPairs implements Condition {
+        public boolean matches(
+                ConditionContext context,
+                org.springframework.core.type.AnnotatedTypeMetadata metadata) {
+            return !V3ConsumptionWorkerSettings.from(context.getEnvironment())
+                    .consumptionLimits()
+                    .isEmpty();
+        }
+    }
+
     @Configuration(proxyBeanMethods = false)
-    @Profile(V3ConsumptionWorkerSettings.PROFILE)
+    @Profile({V3ConsumptionWorkerSettings.PROFILE, V3ConsumptionWorkerSettings.READ_PROFILE})
     static class Active {
         @Bean(destroyMethod = "closeIfSafe")
         Resources v3WorkerResources(V3ConsumptionWorkerSettings settings, V3BootstrapGuard guard) {
@@ -155,6 +214,7 @@ public class V3ConsumptionWorkerConfiguration {
         }
 
         @Bean
+        @Conditional(HasPairs.class)
         WorkerCapacity v3WorkerCapacity(
                 V3ConsumptionWorkerSettings settings,
                 MicrometerV3ConsumptionObservation observation) {
@@ -166,11 +226,13 @@ public class V3ConsumptionWorkerConfiguration {
         }
 
         @Bean
+        @Conditional(HasPairs.class)
         MicrometerV3ConsumptionObservation v3WorkerObservation(MeterRegistry registry) {
             return new MicrometerV3ConsumptionObservation(registry);
         }
 
         @Bean
+        @Conditional(HasPairs.class)
         V3ConsumptionWorker v3ConsumptionWorker(
                 Resources resources,
                 V3ConsumptionWorkerSettings settings,
@@ -186,12 +248,15 @@ public class V3ConsumptionWorkerConfiguration {
                             64,
                             settings.lifecycle().lockTimeout(),
                             settings.lifecycle().statementTimeout());
-            for (String name :
-                    List.of(
-                            "IdentityRequest",
-                            "Command",
-                            "I5ReadPotProbe",
-                            "I5ReadCompletionProbe")) {
+            var reads =
+                    settings.readMode()
+                            ? V3ReadParticipants.create(
+                                    resources.writeBusiness,
+                                    resources.writeEffects,
+                                    resources.readBusiness,
+                                    resources.readEffects)
+                            : Map.<V3ReadParticipants.Name, V3ReadParticipants.Inert>of();
+            for (String name : new TreeSet<>(settings.consumptionLimits().keySet())) {
                 if (!settings.consumptionLimits().containsKey(name)) continue;
                 var definition = V3ConsumptionWorkerSettings.definition(name);
                 ConsumptionEngine engine;
@@ -227,7 +292,8 @@ public class V3ConsumptionWorkerConfiguration {
                                     real
                                             ? new JdbcIdentityPotActorAuthority(
                                                     resources.writeBusiness, resources.writeEffects)
-                                            : new V3FixturePotActorAuthority(resources.writeBusiness),
+                                            : new V3FixturePotActorAuthority(
+                                                    resources.writeBusiness),
                                     Clock.systemUTC(),
                                     guard,
                                     settings.lifecycle(),
@@ -239,6 +305,37 @@ public class V3ConsumptionWorkerConfiguration {
                                     definition,
                                     resources.writeControl,
                                     resources.writeTechnical,
+                                    ds,
+                                    V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+                } else if (V3ConsumptionWorkerSettings.READ_NAMES.contains(name)) {
+                    var participant =
+                            reads.get(
+                                    V3ReadParticipants.Name.values()[
+                                            V3ConsumptionWorkerSettings.READ_NAMES.indexOf(name)]);
+                    engine =
+                            V3ConsumptionLifecycleComposition.assemble(
+                                    guard,
+                                    definition,
+                                    resources.readBusiness,
+                                    resources.readEffects,
+                                    participant.participant(),
+                                    resources.readControl,
+                                    resources.readTechnical,
+                                    resources.writeBusiness,
+                                    resources.writeEffects,
+                                    ds,
+                                    settings.lifecycle(),
+                                    capacity,
+                                    V3ConsumptionLifecycleComposition::classify,
+                                    observation);
+                    discovery =
+                            V3ConsumptionDiscoveryComposition.events(
+                                    guard,
+                                    definition,
+                                    resources.readControl,
+                                    resources.readTechnical,
+                                    resources.writeBusiness,
+                                    resources.writeEffects,
                                     ds,
                                     V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
                 } else {
@@ -289,6 +386,13 @@ public class V3ConsumptionWorkerConfiguration {
         }
 
         @Bean
+        org.springframework.beans.factory.SmartInitializingSingleton v3ResourceValidation(
+                Resources resources, ConfigurableListableBeanFactory factory) {
+            return () -> Lifecycle.validate(resources, factory);
+        }
+
+        @Bean
+        @Conditional(HasPairs.class)
         Lifecycle v3WorkerLifecycle(
                 V3ConsumptionWorker worker,
                 Resources resources,
@@ -297,6 +401,7 @@ public class V3ConsumptionWorkerConfiguration {
         }
 
         @Bean
+        @Conditional(HasPairs.class)
         HealthIndicator v3WorkerHealth(V3ConsumptionWorker worker) {
             return () -> {
                 var snapshot = worker.snapshot();
@@ -467,6 +572,11 @@ public class V3ConsumptionWorkerConfiguration {
         }
 
         public void start() {
+            validate(resources, factory);
+            worker.start();
+        }
+
+        static void validate(Resources resources, ConfigurableListableBeanFactory factory) {
             // Validate actual singleton identities after construction, before Worker threads or
             // DML.
             var expected =
@@ -488,9 +598,9 @@ public class V3ConsumptionWorkerConfiguration {
                 if (bean != null && bean.getClass().getName().startsWith("com.kartaguez.pocoma.")) {
                     String value = org.springframework.util.ClassUtils.getUserClass(bean).getName();
                     boolean known =
-                            bean == worker
+                            bean == resources.worker
                                     || bean == resources
-                                    || bean == this
+                                    || bean instanceof Lifecycle
                                     || bean instanceof WorkerCapacity
                                     || bean instanceof V3BootstrapGuard
                                     || bean instanceof V3ConsumptionWorkerSettings
@@ -498,19 +608,27 @@ public class V3ConsumptionWorkerConfiguration {
                                     || bean instanceof Preflight
                                     || bean instanceof V3ConsumptionWorkerConfiguration
                                     || bean instanceof Active
+                                    || bean instanceof V3ReadFacadeConfiguration
+                                    || bean instanceof V3ReadFacadeComposition.Services
+                                    || value.equals(
+                                            "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication")
                                     || value.equals(
                                             "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication")
                                     || value.equals(
                                             "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
+                                    || name.equals("v3ResourceValidation")
                                     || (name.equals("v3WorkerHealth")
                                             && bean instanceof HealthIndicator);
                     if (!known)
                         throw new IllegalStateException("unallocated active singleton in I5");
                 }
             }
-            if (capacities != 1 || !actual.equals(expected))
+            int expectedCapacities =
+                    factory.getBean(V3ConsumptionWorkerSettings.class).consumptionLimits().isEmpty()
+                            ? 0
+                            : 1;
+            if (capacities != expectedCapacities || !actual.equals(expected))
                 throw new IllegalStateException("actual capacity/pools differ from preflight");
-            worker.start();
         }
 
         public void stop() {

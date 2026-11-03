@@ -25,6 +25,7 @@ public final class V3BootstrapGuard {
         LIFECYCLE_AND_DISCOVERY
     }
 
+    private final boolean readWorker;
     private final boolean development;
     private final boolean technicalProbes;
     private final boolean fixtureIdentity;
@@ -56,7 +57,7 @@ public final class V3BootstrapGuard {
     }
 
     public V3BootstrapGuard(Target write, Target read, List<ConsumptionDefinition> definitions) {
-        this(write, read, definitions, false, false, false);
+        this(write, read, definitions, false, false, false, false);
     }
 
     private V3BootstrapGuard(
@@ -65,7 +66,9 @@ public final class V3BootstrapGuard {
             List<ConsumptionDefinition> definitions,
             boolean development,
             boolean probes,
-            boolean fixture) {
+            boolean fixture,
+            boolean readWorker) {
+        this.readWorker = readWorker;
         this.write = Objects.requireNonNull(write);
         this.read = Objects.requireNonNull(read);
         this.definitions = List.copyOf(definitions);
@@ -91,7 +94,95 @@ public final class V3BootstrapGuard {
             List<ConsumptionDefinition> definitions,
             boolean probes,
             boolean fixture) {
-        return new V3BootstrapGuard(write, read, definitions, true, probes, fixture);
+        return new V3BootstrapGuard(write, read, definitions, true, probes, fixture, false);
+    }
+
+    public static V3BootstrapGuard readWorker(
+            Target write, Target read, List<ConsumptionDefinition> definitions) {
+        return new V3BootstrapGuard(write, read, definitions, true, false, false, true);
+    }
+
+    private static final Map<String, Set<String>> READ_UPDATES =
+            Map.of(
+                    "read_subobject_version",
+                    Set.of(),
+                    "read_pot_version",
+                    Set.of(),
+                    "read_current_pot",
+                    Set.of("pot_version"),
+                    "read_pot_balance",
+                    Set.of(),
+                    "read_pot_visibility_state",
+                    Set.of("materialized_version"),
+                    "read_user_pot",
+                    Set.of("pot_version", "visible"),
+                    "read_current_binding",
+                    Set.of("eui_version", "user_id", "binding_token"),
+                    "read_command_result",
+                    Set.of(),
+                    "read_identity_request_result",
+                    Set.of());
+
+    private static void inspectReadBusiness(Statement s) throws SQLException {
+        for (var entry : READ_UPDATES.entrySet()) {
+            String table = entry.getKey();
+            try (var rows =
+                    s.executeQuery(
+                            "select has_table_privilege('"
+                                    + table
+                                    + "','SELECT'),"
+                                    + "has_table_privilege('"
+                                    + table
+                                    + "','INSERT'),"
+                                    + "has_table_privilege('"
+                                    + table
+                                    + "','UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'),pg_has_role(current_user,(select"
+                                    + " tableowner from pg_tables where schemaname=current_schema()"
+                                    + " and tablename='"
+                                    + table
+                                    + "'),'MEMBER')")) {
+                rows.next();
+                require(
+                        rows.getBoolean(1)
+                                && rows.getBoolean(2)
+                                && !rows.getBoolean(3)
+                                && !rows.getBoolean(4),
+                        "unsafe READ business table rights: " + table);
+            }
+            try (var rows =
+                    s.executeQuery(
+                            "select a.attname,has_column_privilege(c.oid,a.attnum,'SELECT'),"
+                                + "has_column_privilege(c.oid,a.attnum,'INSERT'),has_column_privilege(c.oid,a.attnum,'UPDATE'),has_column_privilege(c.oid,a.attnum,'REFERENCES')"
+                                + " from pg_class c join pg_attribute a on a.attrelid=c.oid where"
+                                + " c.oid='"
+                                    + table
+                                    + "'::regclass and a.attnum>0 and not a.attisdropped")) {
+                while (rows.next())
+                    require(
+                            rows.getBoolean(2)
+                                    && rows.getBoolean(3)
+                                    && rows.getBoolean(4)
+                                            == entry.getValue().contains(rows.getString(1))
+                                    && !rows.getBoolean(5),
+                            "unsafe READ business column rights: "
+                                    + table
+                                    + "."
+                                    + rows.getString(1));
+            }
+            try (var rows =
+                    s.executeQuery(
+                            "select exists(select 1 from pg_class c, lateral aclexplode(c.relacl)"
+                                + " acl where c.oid='"
+                                    + table
+                                    + "'::regclass and acl.grantee=0) or exists(select 1 from"
+                                    + " pg_attribute a, lateral aclexplode(a.attacl) acl where"
+                                    + " a.attrelid='"
+                                    + table
+                                    + "'::regclass and acl.grantee=0)")) {
+                rows.next();
+                require(!rows.getBoolean(1), "PUBLIC READ business grant: " + table);
+            }
+        }
     }
 
     public void validate() {
@@ -735,12 +826,16 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
                             "unsafe fixture column rights");
             }
         }
+        if (readWorker && authority == Authority.READ) inspectReadBusiness(s);
         // Effective grants on any unlisted object would introduce another borrower/writer.
         try (var rows =
                 s.executeQuery(
                         "select"
                             + " tablename,has_table_privilege(quote_ident(schemaname)||'.'||quote_ident(tablename),'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')"
-                            + " from pg_tables where schemaname=current_schema()")) {
+                                + (readWorker
+                                        ? " or has_any_column_privilege(quote_ident(schemaname)||'.'||quote_ident(tablename),'SELECT,INSERT,UPDATE,REFERENCES')"
+                                        : "")
+                                + " from pg_tables where schemaname=current_schema()")) {
             var writeTables =
                     Set.of(
                             "v3_command",
@@ -767,6 +862,9 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
                 String table = rows.getString(1);
                 if (TABLES.contains(table)
                         || (enabled && table.equals(fixture))
+                        || (readWorker
+                                && authority == Authority.READ
+                                && READ_UPDATES.containsKey(table))
                         || (authority == Authority.WRITE
                                 && (writeTables.contains(table)
                                         || IDENTITY_TABLES.contains(table)))) continue;
