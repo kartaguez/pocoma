@@ -1,5 +1,18 @@
 # Pocoma V3 — L4 — Cadrage détaillé et plan d’implémentation READ
 
+**L4/I3–I7 — mandat consolidé du 3 novembre 2026.** Les six participants READ
+sont autorisés à l’implémentation et à la qualification locale, en restant inactifs
+dans les compositions productives jusqu’à I8. Les gates canoniques non filtrées
+G-I3 à G-I7 sont regroupées à I8 par dérogation humaine explicite ; la gate Architecture
+des deux dépendances fonctionnelles READ Results est reportée au même jalon.
+Aucune obligation n’est supprimée et aucun PASS canonique n’en découle. Les enveloppes
+FAST/CHANGE/INTEGRATION deviennent prévisionnelles, non bloquantes ; un dépassement
+sain ne vaut ni échec ni interruption. Les timeouts métier restent inchangés.
+[Décision et limites](L4_I3_I7_Consolidated_Execution.md),
+[rapport d’exécution et preuves locales](L4_I3_I7_Execution_Report.md).
+Les clauses antérieures de passage/gates ci-dessous restent historiques sauf ces
+dérogations bornées ; la clôture I2 qui suit reste acquise.
+
 **L4/I2 — CLOSED — LOCAL BOUNDED PASS — 3 novembre 2026.**
 
 La décision humaine explicite du 3 novembre 2026 acte la clôture définitive bornée de I2.

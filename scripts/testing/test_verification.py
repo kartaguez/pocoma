@@ -146,7 +146,7 @@ class AuditRegressionTests(unittest.TestCase):
             with patch.object(v, 'execute_maven', return_value=0) as run:
                 _, issues = v.effective_inventory(definition, output)
             self.assertEqual(issues, [])
-            self.assertEqual(sum(map(len, definition['expected'].values())), 28)
+            self.assertEqual(sum(map(len, definition['expected'].values())), 32)
         archive = v.ROOT / 'docs/testing/evidence/verification-independent-audit-d0927d94/audit-evidence.tar.gz'
         with tarfile.open(archive) as bundle:
             raw = bundle.extractfile('audit/foundation-hidden-filter-h2/raw.tar.gz').read()
@@ -156,11 +156,11 @@ class AuditRegressionTests(unittest.TestCase):
         result = v.assess(reports, definition['expected'], 0, False)
         self.assertEqual(result['counts']['tests'], 4)
         self.assertEqual(result['verdict'], 'INCONCLUSIVE')
-        self.assertEqual(sum('Expected one fresh execution' in s for s in result['issues']), 24)
+        self.assertEqual(sum('Expected one fresh execution' in s for s in result['issues']), 28)
 
     def test_foundation_second_recipe_uses_shared_expansion(self):
         fast, change, integration = [v.plan(level, 'foundation') for level in ['FAST', 'CHANGE', 'INTEGRATION']]
-        self.assertEqual([sum(map(len, p['expected'].values())) for p in [fast, change, integration]], [4, 28, 28])
+        self.assertEqual([sum(map(len, p['expected'].values())) for p in [fast, change, integration]], [4, 32, 32])
         self.assertLess(set(fast['expected']), set(change['expected']))
         self.assertEqual(change['expected'], integration['expected'])
         self.assertTrue(all(p['filtered'] and not p['normative_gate'] for p in [fast, change, integration]))

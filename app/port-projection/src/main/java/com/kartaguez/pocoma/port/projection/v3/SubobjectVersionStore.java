@@ -10,4 +10,5 @@ public interface SubobjectVersionStore {
     Map<SubobjectKey, SubobjectVersion> readAll(Collection<SubobjectKey> keys, RecoveryReadContext context);
     void insertOrVerifyAll(Collection<SubobjectVersion> candidates);
     void requireStored(Collection<SubobjectVersion> expected);
+    ReadEvidence evidence(Collection<SubobjectVersion> expected, RecoveryReadContext context);
 }

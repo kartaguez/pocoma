@@ -2,6 +2,7 @@
 """Small Maven command selector. Filtered feedback never replaces required unfiltered gates."""
 import argparse
 import collections
+from contextlib import contextmanager
 import hashlib
 import io
 import json
@@ -148,6 +149,69 @@ class VerificationInterrupted(Exception):
     pass
 
 
+class Measurements:
+    """Incremental monotonic receipts; forecasts never control process lifetime."""
+    def __init__(self, output, forecast=None):
+        self.output = output
+        self.started = time.monotonic()
+        self.phases = {}
+        self.forecast = forecast or dict(seconds=None, basis='UNKNOWN', uncertainty='UNKNOWN')
+
+    def receipt(self):
+        seconds = time.monotonic() - self.started
+        predicted = self.forecast.get('seconds')
+        return dict(phases=self.phases, campaign_seconds=seconds, forecast=self.forecast,
+                    forecast_delta_seconds=None if predicted is None else seconds - predicted,
+                    forecast_exceeded=None if predicted is None else seconds > predicted,
+                    forecast_is_blocking=False)
+
+    def save(self):
+        receipt = self.receipt()
+        (self.output / 'timings.json').write_text(json.dumps(receipt, indent=2) + '\n')
+        return receipt
+
+    @contextmanager
+    def phase(self, name):
+        started = time.monotonic()
+        self.phases[name] = dict(status='RUNNING', seconds=0)
+        self.save()
+        try:
+            yield
+        except BaseException:
+            self.phases[name]['status'] = 'INTERRUPTED_OR_FAILED'
+            raise
+        else:
+            self.phases[name]['status'] = 'FINISHED'
+        finally:
+            self.phases[name]['seconds'] = time.monotonic() - started
+            self.save()
+
+
+def partial_reports(output, definition):
+    """Retain observed counts after interruption; incomplete XML cannot prove PASS."""
+    reports = []
+    artifacts = {}
+    root = output / 'reports'
+    directories = [root / artifact / 'surefire-reports'
+                   for artifact in set(definition.get('expected_modules', {}).values())]
+    paths = []
+    for directory in directories:
+        if any(p.is_symlink() for p in [root, directory.parent, directory]):
+            continue
+        paths += sorted(directory.glob('*'))
+    for path in paths:
+        if path.is_symlink() or not path.is_file() or path.stat().st_nlink != 1:
+            continue
+        relative = str(path.relative_to(output))
+        raw = path.read_bytes()
+        artifacts[relative] = hashlib.sha256(raw).hexdigest()
+        if path.name.startswith('TEST-') and path.suffix == '.xml':
+            reports.append((relative, raw))
+    result = assess(reports, definition['expected'], 1, definition['filtered'], definition)
+    result.update(partial=True, artifacts=artifacts)
+    return result
+
+
 def interrupt(signum, frame):
     raise VerificationInterrupted(f'Interrupted by signal {signum}; Maven execution not completed')
 
@@ -156,9 +220,20 @@ def execute_maven(command, log):
     # Keep the checkout locked until Maven and its forked JVM process group stop.
     with subprocess.Popen(command, cwd=ROOT / 'app', stdout=log,
                           stderr=subprocess.STDOUT, start_new_session=True) as process:
+        process_path = Path(log.name).with_suffix('.process.json')
+        metadata = dict(pid=process.pid, process_group=process.pid, command=command)
+        process_path.write_text(json.dumps(metadata, indent=2) + '\n')
         try:
             return process.wait()
         except BaseException:
+            # Capture process identities before termination; no inferred stall timeout.
+            try:
+                metadata['interrupted_processes'] = subprocess.run(
+                    ['ps', '-axo', 'pid,ppid,pgid,stat,etime,comm'],
+                    capture_output=True, text=True, timeout=5).stdout
+                process_path.write_text(json.dumps(metadata, indent=2) + '\n')
+            except (OSError, subprocess.TimeoutExpired):
+                pass
             for sig in [signal.SIGTERM, signal.SIGKILL]:
                 try:
                     os.killpg(process.pid, sig)
@@ -432,6 +507,29 @@ def plan(level, scope, config=None, root=ROOT):
         selectors = [scenario['class'] + '#' + scenario['method']]
         if not re.search(r'\bvoid\s+' + re.escape(scenario['method']) + r'\s*\(', matches[scenario['class']].read_text()):
             raise ValueError('Quarantine method missing')
+    elif scope in config.get('campaigns', {}):
+        campaign = config['campaigns'][scope]
+        if level != campaign['level']:
+            raise ValueError('Campaign level differs from its registered level')
+        modules = campaign['modules']
+        if not modules or not campaign['tests']:
+            raise ValueError('Campaign requires explicit modules and positive method selections')
+        for fqcn, selected in campaign['tests'].items():
+            resolved = resolve([fqcn.split('.')[-1]], index)
+            if fqcn not in resolved or not selected or len(selected) != len(set(selected)):
+                raise ValueError(f'{fqcn}: invalid exact method selection')
+            available = required_methods(fqcn, resolved[fqcn])
+            expected[fqcn] = []
+            for method in selected:
+                if not re.fullmatch(r'[A-Za-z_$][\w$]*', method):
+                    raise ValueError(f'{fqcn}: selectors must be exact method names')
+                invocations = [m for m in available if m == method or m.startswith(method + '(')]
+                if not invocations:
+                    raise ValueError(f'{fqcn}#{method}: method missing from source inventory')
+                expected[fqcn] += invocations
+            selectors.append(fqcn + '#' + '+'.join(selected))
+        if sum(map(len, expected.values())) != campaign['expected_invocations']:
+            raise ValueError('Campaign invocation inventory differs from its adopted manifest')
     elif scope in config['recipes']:
         definition = config['recipes'][scope]
         modules = definition.get('fast_modules', [config['anchors'][definition['anchor']]]) if level == 'FAST' else [config['anchors'][definition['anchor']]]
@@ -471,7 +569,7 @@ def plan(level, scope, config=None, root=ROOT):
                         unselected_methods[fqcn] = omitted
     active_quarantine = {k: v for k, v in config['quarantine'].items() if v.get('active', True)}
     historical_quarantine = {k: v for k, v in config['quarantine'].items() if not v.get('active', True)}
-    return dict(level=level, scope=scope, command=command, expected=expected,
+    result = dict(level=level, scope=scope, command=command, expected=expected,
                 discovery='recipe-source' if selectors else 'pending-effective-model',
                 filtered=bool(selectors), normative_gate=not selectors,
                 not_selected_test_sources=sorted(unselected_sources),
@@ -481,6 +579,10 @@ def plan(level, scope, config=None, root=ROOT):
                 active_quarantine=active_quarantine,
                 historical_quarantine=historical_quarantine,
                 config_sha256=digest(CONFIG))
+    if scope in config.get('campaigns', {}):
+        result['forecast'] = config['campaigns'][scope].get('forecast', dict(
+            seconds=None, basis='UNKNOWN', uncertainty='UNKNOWN'))
+    return result
 
 
 def assess(reports, expected, exit_code, filtered, provenance=None):
@@ -560,8 +662,22 @@ def app_inputs():
 
 
 def capture(command):
-    proc = subprocess.run(command, cwd=ROOT / 'app', capture_output=True, text=True)
-    return dict(command=command, exit_code=proc.returncode, output=proc.stdout + proc.stderr)
+    with subprocess.Popen(command, cwd=ROOT / 'app', stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT, text=True, start_new_session=True) as proc:
+        try:
+            output, _ = proc.communicate()
+            return dict(command=command, exit_code=proc.returncode, output=output)
+        except BaseException:
+            for sig in (signal.SIGTERM, signal.SIGKILL):
+                try:
+                    os.killpg(proc.pid, sig)
+                except ProcessLookupError:
+                    break
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    continue
+            raise
 
 
 def run(definition, output):
@@ -574,19 +690,24 @@ def run(definition, output):
         raise ValueError('Another verification owns app targets (or stale app/.verification.lock; inspect before removal)')
     handlers = {sig: signal.signal(sig, interrupt) for sig in [signal.SIGTERM, signal.SIGHUP]}
     created_output = False
+    measurements = None
     try:
         output.mkdir(parents=True, exist_ok=False)
         created_output = True
+        measurements = Measurements(output, definition.get('forecast'))
+        measurements.save()
         definition['invocation_id'] = uuid.uuid4().hex
         definition['reports_root'] = str(output / 'reports')
         (output / 'reports').mkdir()
         definition['command'] = definition['command'][:-1] + [
             '-Dpocoma.verification.id=' + definition['invocation_id'],
             '-Dpocoma.verification.reports=' + definition['reports_root'], definition['command'][-1]]
-        inputs = app_inputs()
-        controls = control_inputs()
+        with measurements.phase('input_inventory'):
+            inputs = app_inputs()
+            controls = control_inputs()
         discovery_started = time.monotonic()
-        model, discovery_issues = effective_inventory(definition, output)
+        with measurements.phase('discovery'):
+            model, discovery_issues = effective_inventory(definition, output)
         discovery_seconds = time.monotonic() - discovery_started
         for project in model:
             for producer in ['surefire', 'failsafe']:
@@ -608,9 +729,10 @@ def run(definition, output):
         prior = sorted(str(p.relative_to(ROOT)) for p in (ROOT / 'app').glob('*/target/*-reports/TEST-*.xml'))
         started = time.time_ns()
         print(' '.join(definition['command']), '\nEvidence:', output, flush=True)
-        with (output / 'maven.log').open('wb') as log:
+        with measurements.phase('maven'), (output / 'maven.log').open('wb') as log:
             rc = execute_maven(definition['command'], log)
         seconds = (time.time_ns() - started)/1e9
+        collection_started = time.monotonic()
         reports = []
         artifacts = {}
         allowed = {output / 'reports' / p['artifact'] / (producer + '-reports')
@@ -619,7 +741,9 @@ def run(definition, output):
             if directory.is_symlink() or not directory.is_dir():
                 raise ValueError(f'Provenance: producer directory replaced or absent: {directory}')
         with tarfile.open(output / 'raw.tar.gz', 'w:gz') as bundle:
-            for filename in ['maven.log', 'effective-pom.xml', 'discovery.log']:
+            filenames = ['maven.log', 'effective-pom.xml', 'discovery.log']
+            filenames += [p.name for p in sorted(output.glob('*.process.json'))]
+            for filename in filenames:
                 bundle.add(output / filename, arcname=filename)
                 artifacts[filename] = digest(output / filename)
             for path in sorted((output / 'reports').rglob('*')):
@@ -666,16 +790,28 @@ def run(definition, output):
             quarantined_scenarios=definition['quarantine'],
             active_quarantined_scenarios=definition.get('active_quarantine', {}),
             historical_quarantined_scenarios=definition.get('historical_quarantine', {}))
+        measurements.phases['collection'] = dict(status='FINISHED', seconds=time.monotonic() - collection_started)
+        result['timing'] = measurements.save()
+        result['operational_status'] = ('INCOMPLETE' if result['verdict'] == 'INCONCLUSIVE'
+                                        else result['verdict'])
         (output / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
         print(json.dumps({k: result[k] for k in ['verdict', 'counts', 'seconds', 'issues']}, ensure_ascii=False), flush=True)
         return 0 if result['verdict'] == 'PASS' else 1
     except (ValueError, OSError, ET.ParseError, VerificationInterrupted, KeyboardInterrupt) as error:
         diagnostic = str(error) or 'Interrupted by keyboard; Maven execution not completed'
         if created_output:
-            result = dict(verdict='FAIL' if isinstance(error, (VerificationInterrupted, KeyboardInterrupt)) else 'INCONCLUSIVE',
-                          counts=dict(tests=0, failures=0, errors=0, skipped=0),
-                          issues=[diagnostic], command=definition['command'],
-                          invocation_id=definition.get('invocation_id'), exit_code=None)
+            try:
+                result = partial_reports(output, definition)
+            except OSError as partial_error:
+                result = dict(counts=dict(tests=0, failures=0, errors=0, skipped=0),
+                              issues=[f'Partial collection failed: {partial_error}'], partial=True)
+            result['verdict'] = 'FAIL' if isinstance(error, (VerificationInterrupted, KeyboardInterrupt)) or any(
+                result['counts'][k] for k in ['failures', 'errors']) else 'INCONCLUSIVE'
+            result['issues'].append(diagnostic)
+            result.update(command=definition['command'], invocation_id=definition.get('invocation_id'), exit_code=None,
+                          timing=measurements.save() if measurements else None)
+            result['operational_status'] = ('FAIL' if any(result['counts'][k]
+                for k in ['failures', 'errors']) else 'INCOMPLETE')
             (output / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
         print(diagnostic, file=sys.stderr)
         return 2
@@ -685,14 +821,51 @@ def run(definition, output):
         lock.rmdir()
 
 
+def run_sequence(name, output, config=None):
+    config = config or json.loads(CONFIG.read_text())
+    names = config.get('sequences', {}).get(name)
+    if not names:
+        raise ValueError('Unknown explicit campaign sequence')
+    output.mkdir(parents=True, exist_ok=False)
+    results = {campaign: dict(status='NOT RUN') for campaign in names}
+    started = time.monotonic()
+    def save():
+        (output / 'sequence.json').write_text(json.dumps(dict(
+            campaigns=results, seconds=time.monotonic()-started,
+            forecast_is_blocking=False, automatic_retries=0), indent=2)+'\n')
+    save()
+    for campaign in names:
+        try:
+            definition = plan(config['campaigns'][campaign]['level'], campaign, config)
+            rc = run(definition, output / campaign)
+            receipt = json.loads((output / campaign / 'result.json').read_text())
+            results[campaign] = dict(status=receipt.get('operational_status', receipt['verdict']),
+                                     timing=receipt.get('timing'), counts=receipt['counts'])
+        except (ValueError, OSError, ET.ParseError, KeyboardInterrupt) as error:
+            results[campaign] = dict(status='INCOMPLETE', reason=str(error))
+            rc = 2
+        save()
+        if rc:
+            return rc
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('level', choices=['FAST', 'CHANGE', 'INTEGRATION', 'CERTIFICATION', 'QUARANTINE'])
+    parser.add_argument('level', nargs='?', choices=['FAST', 'CHANGE', 'INTEGRATION', 'CERTIFICATION', 'QUARANTINE'])
     parser.add_argument('scope', nargs='?')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--sequence', choices=['read'])
     args = parser.parse_args()
     try:
+        if args.sequence:
+            if args.level or args.scope or args.dry_run:
+                raise ValueError('Sequence is explicit and cannot be combined with a scope/level/dry-run')
+            output = args.output or Path(tempfile.gettempdir()) / ('pocoma-read-' + str(time.time_ns()))
+            return run_sequence(args.sequence, output.resolve())
+        if not args.level:
+            raise ValueError('A level or explicit sequence is required')
         definition = plan(args.level, args.scope)
         if args.dry_run:
             print(json.dumps(definition, indent=2))

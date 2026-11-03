@@ -75,6 +75,17 @@ public final class JdbcSubobjectVersionStore implements SubobjectVersionStore {
         });
     }
 
+    @Override public ReadEvidence evidence(Collection<SubobjectVersion> expected, RecoveryReadContext context) {
+        return SpringAttemptTransactions.observed(source, context, () -> {
+            var sorted=sortedVersions(expected);
+            final Map<SubobjectKey,SubobjectVersion> actual;
+            try { actual=load(sorted.stream().map(SubobjectVersion::key).toList()); }
+            catch(CorruptSubobjectException corruption) { return ReadEvidence.DIVERGENT; }
+            for(var candidate:sorted) if(actual.containsKey(candidate.key()) && !candidate.equals(actual.get(candidate.key()))) return ReadEvidence.DIVERGENT;
+            return actual.size()==sorted.size()?ReadEvidence.SATISFIED:ReadEvidence.MISSING;
+        });
+    }
+
     private static void requireReadCommitted() {
         if (!Objects.equals(TransactionSynchronizationManager.getCurrentTransactionIsolationLevel(),
                 TransactionDefinition.ISOLATION_READ_COMMITTED))

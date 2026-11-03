@@ -1,0 +1,13 @@
+{
+  "head": "3b7a3115723a3848a84e7c7b88031ecd6306b187",
+  "tests": 31,
+  "failures": 2,
+  "errors": 0,
+  "skips": 0,
+  "seconds": 0.6620484169689007,
+  "command": "Python unittest against git show HEAD:scripts/testing/verify.py; Maven and PG mocked",
+  "failed_methods": [
+    "test_audit_four_test_counterexample_is_not_complete (baseline_tests.AuditRegressionTests.test_audit_four_test_counterexample_is_not_complete)",
+    "test_foundation_second_recipe_uses_shared_expansion (baseline_tests.AuditRegressionTests.test_foundation_second_recipe_uses_shared_expansion)"
+  ]
+}

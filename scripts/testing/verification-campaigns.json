@@ -96,5 +96,229 @@
       ],
       "INTEGRATION": []
     }
+  },
+  "campaigns": {
+    "READ-FAST-1": {
+      "level": "FAST",
+      "modules": [
+        "domain-projection",
+        "infra-persistence-read-jdbc"
+      ],
+      "expected_invocations": 2,
+      "tests": {
+        "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest": [
+          "compositionAndKeys"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest": [
+          "strictCanonicalCodec"
+        ]
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-FAST-3": {
+      "level": "FAST",
+      "modules": [
+        "engine-consume-projection-task"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest": [
+          "visibleSetRules"
+        ]
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-FAST-4": {
+      "level": "FAST",
+      "modules": [
+        "engine-read-current-binding",
+        "engine-materialize-command-result",
+        "engine-materialize-registration-result"
+      ],
+      "expected_invocations": 3,
+      "tests": {
+        "com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest": [
+          "euiStateAndMinVersion"
+        ],
+        "com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandResultV3ContractTest": [
+          "terminalContract"
+        ],
+        "com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityRequestResultV3ContractTest": [
+          "terminalContract"
+        ]
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-CHANGE-1": {
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "expected_invocations": 4,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest": [
+          "exactHistoricalComposition"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest": [
+          "historyAndReplay",
+          "concurrentPublishers",
+          "migrationAndPrivileges"
+        ]
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-CHANGE-2": {
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "expected_invocations": 4,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest": [
+          "exactHistoricalFinance"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest": [
+          "historyAndRationals",
+          "concurrentImmutablePublication",
+          "migrationAndPrivileges"
+        ]
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-CHANGE-3": {
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "expected_invocations": 5,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest": [
+          "exactHistoricalMembership"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest": [
+          "historyAndKeyset",
+          "concurrentGuardAndAtomicReaders",
+          "plansAndProfiles",
+          "migrationAndPrivileges"
+        ]
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-CHANGE-4": {
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "expected_invocations": 4,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest": [
+          "historyAndIsolation",
+          "concurrentVersionsAndDivergence",
+          "migrationAndPrivileges"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest": [
+          "exactEuiHistory"
+        ]
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-CHANGE-5": {
+      "level": "CHANGE",
+      "modules": [
+        "infra-persistence-primary-jpa",
+        "infra-persistence-read-jdbc"
+      ],
+      "expected_invocations": 4,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest": [
+          "mappingsAndOwnership",
+          "concurrentImmutableResults",
+          "migrationsAndPrivileges"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest": [
+          "durableRequestsAndTerminals"
+        ]
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    },
+    "READ-INTEGRATION-1": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-task-consumption-worker"
+      ],
+      "expected_invocations": 10,
+      "tests": {
+        "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest": [
+          "participantConformance",
+          "independentProgression",
+          "resultsBeforeDomain",
+          "uncertainCommitHasNoSpeculativeSettlement",
+          "boundedCapacityAndRenewal"
+        ]
+      },
+      "forecast": {
+        "seconds": 900,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      }
+    }
+  },
+  "sequences": {
+    "read": [
+      "READ-FAST-1",
+      "READ-FAST-3",
+      "READ-FAST-4",
+      "READ-CHANGE-1",
+      "READ-CHANGE-2",
+      "READ-CHANGE-3",
+      "READ-CHANGE-4",
+      "READ-CHANGE-5",
+      "READ-INTEGRATION-1"
+    ]
   }
 }

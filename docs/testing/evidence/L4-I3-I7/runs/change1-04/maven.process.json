@@ -1,0 +1,17 @@
+{
+  "pid": 89888,
+  "process_group": 89888,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=a8c96d00c0f244d9a7b3baa87398cdd7",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change1-04/reports",
+    "test"
+  ]
+}

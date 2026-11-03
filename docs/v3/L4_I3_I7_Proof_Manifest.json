@@ -1,0 +1,2387 @@
+{
+  "initial_sha": "3b7a3115723a3848a84e7c7b88031ecd6306b187",
+  "branch": "feat/v3-architecture",
+  "delivery_locator": "git log -1 --format=%H -- docs/v3/L4_I3_I7_Execution_Report.md",
+  "implementation": "COMPLETE — INERT UNTIL I8",
+  "local_qualification": "PASS — BOUNDED, FILTERED, COMPOSITE AFTER DIAGNOSED CORRECTIONS",
+  "certification": "NOT RUN",
+  "i2": "CLOSED — LOCAL BOUNDED PASS; I2-QUAL-01 RESOLVED",
+  "new_methods": 32,
+  "new_invocations": 37,
+  "historical_methods_replayed": 0,
+  "python_tests": 39,
+  "campaigns": [
+    {
+      "name": "change1-01",
+      "scope": "READ-CHANGE-1",
+      "invocation_id": "ff8b832a282e484f9177f7cd75397411",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "maven_seconds": 3.91771,
+      "campaign_seconds": 6.539411375008058,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06297037500189617
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.684167833009269
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 3.9174215830280446
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.34264612500555813
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -293.46058862499194,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=ff8b832a282e484f9177f7cd75397411",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change1-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change1-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change1-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change1-02",
+      "scope": "READ-CHANGE-1",
+      "invocation_id": "edf0cabc1bf34407babe64ad7018783d",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 3,
+        "skipped": 0
+      },
+      "maven_seconds": 5.524173,
+      "campaign_seconds": 8.042879624990746,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06236083398107439
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.6951659999904223
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 5.52302908297861
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.33641325001372024
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -291.95712037500925,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=edf0cabc1bf34407babe64ad7018783d",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change1-02/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change1-02/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change1-02/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change1-03",
+      "scope": "READ-CHANGE-1",
+      "invocation_id": "767ed0db5ec5480cb0610b471cf649d5",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 6.155637,
+      "campaign_seconds": 8.702126708987635,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.054916332999709994
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.6945395829970948
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 6.155351124994922
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.3275747909792699
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -291.29787329101237,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=767ed0db5ec5480cb0610b471cf649d5",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change1-03/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change1-03/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change1-03/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change1-04",
+      "scope": "READ-CHANGE-1",
+      "invocation_id": "a8c96d00c0f244d9a7b3baa87398cdd7",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 10.083929,
+      "campaign_seconds": 12.732307791011408,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06575062504271045
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.7560834999894723
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 10.083575624972582
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.35452329204417765
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -287.2676922089886,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=a8c96d00c0f244d9a7b3baa87398cdd7",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change1-04/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change1-04/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change1-04/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change2-01",
+      "scope": "READ-CHANGE-2",
+      "invocation_id": "dd1c7d3c5e614aef919ad3e731c83216",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 10.720959,
+      "campaign_seconds": 13.582800249976572,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06127054203534499
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.815546666039154
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 10.720577332947869
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.5189036250230856
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -286.4171997500234,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest#exactHistoricalFinance,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#historyAndRationals+concurrentImmutablePublication+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=dd1c7d3c5e614aef919ad3e731c83216",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change2-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change2-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change2-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change3-01",
+      "scope": "READ-CHANGE-3",
+      "invocation_id": "58ac6c89f8f048a69fa8fdd7e806c2ef",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 5.660618,
+      "campaign_seconds": 8.18625745800091,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06291808298556134
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.6744882089551538
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 5.660334624990355
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.3376077499706298
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -291.8137425419991,
+      "expected": 5,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset+concurrentGuardAndAtomicReaders+plansAndProfiles+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=58ac6c89f8f048a69fa8fdd7e806c2ef",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change3-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change3-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change3-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change3-02",
+      "scope": "READ-CHANGE-3",
+      "invocation_id": "e81a0b694d1b4fc68117029c16cc01d6",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 10.393642,
+      "campaign_seconds": 13.121773999999277,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.061423541978001595
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.7140076659852639
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 10.39331733295694
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.3607738750288263
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -286.8782260000007,
+      "expected": 5,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset+concurrentGuardAndAtomicReaders+plansAndProfiles+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=e81a0b694d1b4fc68117029c16cc01d6",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change3-02/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change3-02/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change3-02/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change4-01",
+      "scope": "READ-CHANGE-4",
+      "invocation_id": "c38204c57b91421b97be333495c09589",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "maven_seconds": 5.581761,
+      "campaign_seconds": 8.50123137497576,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.20363649999490008
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.8542154579772614
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 5.581397417001426
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.3521582090179436
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -291.49876862502424,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#historyAndIsolation+concurrentVersionsAndDivergence+migrationAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=c38204c57b91421b97be333495c09589",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change4-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change4-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change4-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change4-02",
+      "scope": "READ-CHANGE-4",
+      "invocation_id": "b9ccc144e8ab47ab8f4b343a821562fa",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 10.656385,
+      "campaign_seconds": 13.598736458981875,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06398999999510124
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.8640476249856874
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 10.656040041998494
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.5408099580090493
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -286.4012635410181,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#historyAndIsolation+concurrentVersionsAndDivergence+migrationAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=b9ccc144e8ab47ab8f4b343a821562fa",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change4-02/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change4-02/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change4-02/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "change5-01",
+      "scope": "READ-CHANGE-5",
+      "invocation_id": "0e3d297a2caf49829c5ed60658d71ee0",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 12.261952,
+      "campaign_seconds": 15.128363125026226,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06663199997274205
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.78320241603069
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 12.261385500023607
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.5581342910300009
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -284.8716368749738,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#mappingsAndOwnership+concurrentImmutableResults+migrationsAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest#durableRequestsAndTerminals",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=0e3d297a2caf49829c5ed60658d71ee0",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-change5-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/change5-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/change5-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "fast1-01",
+      "scope": "READ-FAST-1",
+      "invocation_id": "dcf49b67f363432e80ee49a8b531cb76",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "maven_seconds": 3.931321,
+      "campaign_seconds": 6.398426125000697,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06187145801959559
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.5775887910276651
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 3.9309799170005135
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.28194441698724404
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -53.6015738749993,
+      "expected": 2,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "domain-projection,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=dcf49b67f363432e80ee49a8b531cb76",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast1-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "port-projection",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/fast1-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/fast1-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "fast1-02",
+      "scope": "READ-FAST-1",
+      "invocation_id": "f2fedae92ea1402ea129a1a490e88602",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "maven_seconds": 1.996602,
+      "campaign_seconds": 4.240928250015713,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.062493500008713454
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.388101083051879
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 1.9963487919885665
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.2608063750085421
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -55.75907174998429,
+      "expected": 2,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "domain-projection,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=f2fedae92ea1402ea129a1a490e88602",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast1-02/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "port-projection",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/fast1-02/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/fast1-02/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "fast1-03",
+      "scope": "READ-FAST-1",
+      "invocation_id": "a561807011324aa78e30dd4be905cb97",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 2.436127,
+      "campaign_seconds": 4.765880667022429,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06262437498662621
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.4382947499980219
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 2.4357870839885436
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.2796934579964727
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -55.23411933297757,
+      "expected": 2,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "domain-projection,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=a561807011324aa78e30dd4be905cb97",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast1-03/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "port-projection",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/fast1-03/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/fast1-03/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "fast1-isolated",
+      "scope": "READ-FAST-1",
+      "invocation_id": "98e059af4d654371a4d4981c8d8b2794",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 4.31442,
+      "campaign_seconds": 7.136549832997844,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.19249691697768867
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.7510551249724813
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 4.313848041987512
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.2001413750112988
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -52.863450167002156,
+      "expected": 2,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "domain-projection,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=98e059af4d654371a4d4981c8d8b2794",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast1-isolated/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "port-projection",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/fast1-isolated/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/fast1-isolated/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "fast3-01",
+      "scope": "READ-FAST-3",
+      "invocation_id": "e3e0a2da27b74cae946fb9a4581447fa",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 2.39713,
+      "campaign_seconds": 4.6536459169583395,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06594333297107369
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.4199482079711743
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 2.3968337080441415
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.1979679580545053
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -55.34635408304166,
+      "expected": 1,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "engine-consume-projection-task",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVisibilityRulesTest#visibleSetRules",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=e3e0a2da27b74cae946fb9a4581447fa",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast3-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "orchestrator-consumption",
+        "port-projection",
+        "projector-pot",
+        "engine-consume-projection-task"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/fast3-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/fast3-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "fast4-01",
+      "scope": "READ-FAST-4",
+      "invocation_id": "dd0caa2c2e3f444fbbad7185805de558",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 2.694927,
+      "campaign_seconds": 5.393954082974233,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.2106891250004992
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.6237537079723552
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 2.6946192500181496
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.24950174998957664
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -54.60604591702577,
+      "expected": 3,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "engine-read-current-binding,engine-materialize-command-result,engine-materialize-registration-result",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.engine.read.currentbinding.v3.CurrentBindingV3ContractTest#euiStateAndMinVersion,com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandResultV3ContractTest#terminalContract,com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityRequestResultV3ContractTest#terminalContract",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=dd0caa2c2e3f444fbbad7185805de558",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-fast4-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "engine-read-current-binding"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/fast4-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/fast4-01/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-change-1",
+      "scope": "READ-CHANGE-1",
+      "invocation_id": "ad90d67719e0410c8d34211da9ed01cd",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 9.056577,
+      "campaign_seconds": 11.742897416988853,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06602612498681992
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.696429416013416
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 9.056195375043899
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.5011133750085719
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -288.25710258301115,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVersionSourcePostgresTest#exactHistoricalComposition,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionReadStorePostgresTest#historyAndReplay+concurrentPublishers+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=ad90d67719e0410c8d34211da9ed01cd",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-change-1/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-change-1/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-change-1/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-change-2",
+      "scope": "READ-CHANGE-2",
+      "invocation_id": "4506f97807b6400d91165c76f3467a8d",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 7.853648,
+      "campaign_seconds": 10.57546108297538,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.067598249996081
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.7149054170004092
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 7.85324920900166
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.4971177500556223
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -289.4245389170246,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotBalanceSourcePostgresTest#exactHistoricalFinance,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotBalanceReadStorePostgresTest#historyAndRationals+concurrentImmutablePublication+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=4506f97807b6400d91165c76f3467a8d",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-change-2/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-change-2/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-change-2/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-change-3",
+      "scope": "READ-CHANGE-3",
+      "invocation_id": "2d3914c6d99846ab98c04fe2219f3142",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 7.850254,
+      "campaign_seconds": 10.4659218750312,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.0687477919855155
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.7193476249813102
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 7.84975862497231
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.36928633303614333
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -289.5340781249688,
+      "expected": 5,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotVisibilitySourcePostgresTest#exactHistoricalMembership,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVisibilityReadStorePostgresTest#historyAndKeyset+concurrentGuardAndAtomicReaders+plansAndProfiles+migrationAndPrivileges",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=2d3914c6d99846ab98c04fe2219f3142",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-change-3/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-change-3/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-change-3/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-change-4",
+      "scope": "READ-CHANGE-4",
+      "invocation_id": "652d89ec501e4ce1b6db2ebe2db38507",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 7.580126,
+      "campaign_seconds": 10.16808058298193,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.0647462080232799
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.7225600410019979
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 7.579813459014986
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.3644270420190878
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -289.83191941701807,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.CurrentBindingReadStorePostgresTest#historyAndIsolation+concurrentVersionsAndDivergence+migrationAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.CurrentBindingSourcePostgresTest#exactEuiHistory",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=652d89ec501e4ce1b6db2ebe2db38507",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-change-4/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-change-4/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-change-4/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-change-5",
+      "scope": "READ-CHANGE-5",
+      "invocation_id": "f805ec20055c4c7d9b66bc574a73bc0b",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 9.392702,
+      "campaign_seconds": 12.105167958012316,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06980904098600149
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.6974475829629228
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 9.39235074998578
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.5051182080060244
+        }
+      },
+      "forecast": {
+        "seconds": 300,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -287.8948320419877,
+      "expected": 4,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-persistence-primary-jpa,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.TerminalResultsReadStorePostgresTest#mappingsAndOwnership+concurrentImmutableResults+migrationsAndPrivileges,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.TerminalResultSourcesPostgresTest#durableRequestsAndTerminals",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=f805ec20055c4c7d9b66bc574a73bc0b",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-change-5/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-change-5/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-change-5/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-fast-1",
+      "scope": "READ-FAST-1",
+      "invocation_id": "7a994ab70b2a41d9a6be48aad97dfce0",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 2.097151,
+      "campaign_seconds": 4.3055036250152625,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.16858195804525167
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.3533244580030441
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 2.096900208038278
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.23713841603603214
+        }
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -55.69449637498474,
+      "expected": 2,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "domain-projection,infra-persistence-read-jdbc",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest#compositionAndKeys,com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.PotVersionJsonTest#strictCanonicalCodec",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=7a994ab70b2a41d9a6be48aad97dfce0",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-fast-1/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "engine-consumption",
+        "contracts-command",
+        "engine-read-command-result",
+        "engine-read-registration-result",
+        "port-projection",
+        "engine-read-current-binding",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-fast-1/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-fast-1/raw.tar.gz",
+      "requalification": null
+    },
+    {
+      "name": "final-integration-filter",
+      "scope": "READ-INTEGRATION-1",
+      "invocation_id": "b7261ff9534a42c2b7be9ace0df80968",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 36.231482,
+      "campaign_seconds": 39.46726399997715,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06437783397268504
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 2.028467291034758
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 36.231074832961895
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.6722047080402263
+        }
+      },
+      "forecast": {
+        "seconds": 900,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -860.5327360000229,
+      "expected": 6,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=b7261ff9534a42c2b7be9ace0df80968",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-integration-filter/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "supra-consume-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "supra-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "supra-consume-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "engine-read-projection",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "supra-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-read-pot",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa",
+        "infra-projection-validation-networknt",
+        "orchestrator-poll-consumption",
+        "supra-consume-event",
+        "supra-consume-binding",
+        "supra-http-write",
+        "supra-http-read",
+        "composition-runtime-spring",
+        "runtime-task-consumption-worker"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-integration-filter/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-integration-filter/raw.tar.gz",
+      "requalification": {
+        "reason": "Final source audit: explicit PostgreSQL assertion that POCOMA_USER publications create no CurrentBinding slot and cannot justify recovery completion; production filter unchanged.",
+        "expected_invocations": 6,
+        "operator_sha256": "005f5ddabb33c16b581319680f2683ddca752ad2d4df93e9703ce540205492ab"
+      }
+    },
+    {
+      "name": "final-integration-recovery",
+      "scope": "READ-INTEGRATION-1",
+      "invocation_id": "0e28f5a20b0f4c6baa4d65b3528dc533",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 37.771458,
+      "campaign_seconds": 40.78046791598899,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.06637287500780076
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.836554375011474
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 37.77086483302992
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.6484951670281589
+        }
+      },
+      "forecast": {
+        "seconds": 900,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -859.219532084011,
+      "expected": 7,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance+uncertainCommitHasNoSpeculativeSettlement",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=0e28f5a20b0f4c6baa4d65b3528dc533",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-integration-recovery/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "supra-consume-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "supra-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "supra-consume-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "engine-read-projection",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "supra-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-read-pot",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa",
+        "infra-projection-validation-networknt",
+        "orchestrator-poll-consumption",
+        "supra-consume-event",
+        "supra-consume-binding",
+        "supra-http-write",
+        "supra-http-read",
+        "composition-runtime-spring",
+        "runtime-task-consumption-worker"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/final-integration-recovery/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/final-integration-recovery/raw.tar.gz",
+      "requalification": {
+        "reason": "Audit correction: malformed positive READ evidence must be INCONSISTENT without poisoning; requalify six participant conformances and UNKNOWN commit settlement only.",
+        "expected_invocations": 7,
+        "operator_sha256": "005f5ddabb33c16b581319680f2683ddca752ad2d4df93e9703ce540205492ab"
+      }
+    },
+    {
+      "name": "integration-01",
+      "scope": "READ-INTEGRATION-1",
+      "invocation_id": "45e2b7eb4edd4168a59eeb5d724f3248",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "maven_seconds": 59.853983,
+      "campaign_seconds": 63.04281795799034,
+      "phases": {
+        "input_inventory": {
+          "status": "FINISHED",
+          "seconds": 0.16695799998706207
+        },
+        "discovery": {
+          "status": "FINISHED",
+          "seconds": 1.8994763750233687
+        },
+        "maven": {
+          "status": "FINISHED",
+          "seconds": 59.85313354100799
+        },
+        "collection": {
+          "status": "FINISHED",
+          "seconds": 0.6363870840286836
+        }
+      },
+      "forecast": {
+        "seconds": 900,
+        "basis": "Indicative envelope, not a measured nominal estimate; nominal UNKNOWN",
+        "uncertainty": "HIGH",
+        "blocking": false
+      },
+      "delta_seconds": -836.9571820420097,
+      "expected": 10,
+      "command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-task-consumption-worker",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance+independentProgression+resultsBeforeDomain+uncertainCommitHasNoSpeculativeSettlement+boundedCapacityAndRenewal",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dpocoma.verification.id=45e2b7eb4edd4168a59eeb5d724f3248",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-integration-01/reports",
+        "test"
+      ],
+      "reactor_modules": [
+        "domain-authorization",
+        "domain-event",
+        "domain-user-identity",
+        "contracts-authentication",
+        "domain-pot",
+        "domain-projection",
+        "domain-consumption",
+        "port-transaction",
+        "port-binding-authority",
+        "engine-consumption",
+        "contracts-command",
+        "engine-write-pot",
+        "engine-consume-command",
+        "orchestrator-consumption",
+        "supra-consume-command",
+        "engine-read-command-result",
+        "engine-materialize-command-result",
+        "supra-consume-command-result",
+        "contracts-registration",
+        "engine-admit-registration",
+        "engine-consume-registration",
+        "supra-consume-registration",
+        "engine-read-registration-result",
+        "engine-materialize-registration-result",
+        "supra-consume-registration-result",
+        "port-projection",
+        "engine-produce-projection-task",
+        "engine-read-projection",
+        "projector-pot",
+        "engine-consume-projection-task",
+        "supra-consume-projection-task",
+        "engine-read-current-binding",
+        "engine-read-pot",
+        "engine-materialize-current-binding",
+        "engine-materialize-latest-known-version",
+        "infra-tx-spring",
+        "infra-persistence-projection-jdbc",
+        "infra-persistence-read-jdbc",
+        "contracts-observability",
+        "engine-admit-command",
+        "supra-consume-lkv",
+        "infra-persistence-primary-jpa",
+        "infra-projection-validation-networknt",
+        "orchestrator-poll-consumption",
+        "supra-consume-event",
+        "supra-consume-binding",
+        "supra-http-write",
+        "supra-http-read",
+        "composition-runtime-spring",
+        "runtime-task-consumption-worker"
+      ],
+      "receipt": "docs/testing/evidence/L4-I3-I7/runs/integration-01/result.json",
+      "raw": "docs/testing/evidence/L4-I3-I7/runs/integration-01/raw.tar.gz",
+      "requalification": null
+    }
+  ],
+  "first_complete_successful_set": [
+    "fast1-isolated",
+    "fast3-01",
+    "fast4-01",
+    "change1-04",
+    "change2-01",
+    "change3-02",
+    "change4-02",
+    "change5-01",
+    "integration-01"
+  ],
+  "retained_set": [
+    "final-fast-1",
+    "fast3-01",
+    "fast4-01",
+    "final-change-1",
+    "final-change-2",
+    "final-change-3",
+    "final-change-4",
+    "final-change-5",
+    "integration-01"
+  ],
+  "integration_corrections": [
+    "final-integration-recovery",
+    "final-integration-filter"
+  ],
+  "initial_nominal_forecast": "UNKNOWN",
+  "indicative_envelopes_seconds": 2580,
+  "hard_budget": null,
+  "first_successful_set_seconds": 148.3909494159161,
+  "first_successful_set_maven_seconds": 123.377327,
+  "retained_set_seconds": 132.45345049892785,
+  "additional_campaign_seconds": 194.98790604097303,
+  "all_campaign_seconds": 343.37885545688914,
+  "measured_campaign_runs": 25,
+  "measured_maven_processes": 75,
+  "development_logs": [
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-audit-compile.log.gz",
+      "maven_summary": [
+        "5.668 s"
+      ]
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-fast4-cb-feedback.log.gz",
+      "maven_summary": [
+        "1.035 s"
+      ]
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-final-compile.log.gz",
+      "maven_summary": [
+        "3.659 s"
+      ]
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-integration-compile-02.log.gz",
+      "maven_summary": [
+        "2.250 s"
+      ]
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-integration-compile-03.log.gz",
+      "maven_summary": [
+        "2.340 s"
+      ]
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-integration-compile.log.gz",
+      "maven_summary": [
+        "5.673 s"
+      ]
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-python-corrected.log.gz",
+      "maven_summary": null
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-python-final.log.gz",
+      "maven_summary": null
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-python.log.gz",
+      "maven_summary": null
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-read-python-corrected.log.gz",
+      "maven_summary": null
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-read-python-final.log.gz",
+      "maven_summary": null
+    },
+    {
+      "log": "docs/testing/evidence/L4-I3-I7/development/pocoma-i3-i7-read-python.log.gz",
+      "maven_summary": null
+    }
+  ],
+  "all_app_inputs_final_verified": true,
+  "deferred_gates": [
+    "G-I3",
+    "G-I4",
+    "G-I5",
+    "G-I6",
+    "G-I7",
+    "Architecture (two approved Results dependencies)",
+    "G-I8 including full reactor"
+  ],
+  "limits": [
+    "No productive activation",
+    "No canonical I3-I7 closure or SPEC-10 certificate",
+    "All new local PostgreSQL evidence uses isolated checkout, pinned image and exact input hashes",
+    "Earlier pure proofs reuse only named unchanged input bytes",
+    "Original complete integration run has 10 invocations; corrections replay 7 affected invocations then 6 conformances for an explicit existing routing filter oracle, not all 10 again",
+    "Reported first-successful-set sum is a sum of separate runs, not a single stopwatch of development",
+    "No new guarantee for 30s production settings, global load, restart or drain"
+  ]
+}

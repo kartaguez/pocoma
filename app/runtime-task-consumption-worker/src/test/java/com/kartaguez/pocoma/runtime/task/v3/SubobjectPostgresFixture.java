@@ -276,6 +276,9 @@ final class SubobjectPostgresFixture implements AutoCloseable {
                 .defaultSchema(schema)
                 .createSchemas(false)
                 .locations(business ? new String[] {V1, V2} : new String[] {V1})
+                // This historical I1 fixture proves V2 only; later business extensions have
+                // their own fresh/extension fixtures and must not silently widen I1.
+                .target(business ? "2" : "1")
                 .placeholders(placeholders)
                 .load();
     }

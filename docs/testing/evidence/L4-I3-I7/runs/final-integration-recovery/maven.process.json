@@ -1,0 +1,17 @@
+{
+  "pid": 7603,
+  "process_group": 7603,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-task-consumption-worker",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#participantConformance+uncertainCommitHasNoSpeculativeSettlement",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-Dpocoma.verification.id=0e28f5a20b0f4c6baa4d65b3528dc533",
+    "-Dpocoma.verification.reports=/private/tmp/pocoma-i3-i7-final-integration-recovery/reports",
+    "test"
+  ]
+}
