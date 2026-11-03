@@ -256,7 +256,15 @@ public class V3ConsumptionWorkerConfiguration {
                                     resources.readBusiness,
                                     resources.readEffects)
                             : Map.<V3ReadParticipants.Name, V3ReadParticipants.Inert>of();
-            for (String name : new TreeSet<>(settings.consumptionLimits().keySet())) {
+            Collection<String> assemblyOrder =
+                    settings.readMode()
+                            ? new TreeSet<>(settings.consumptionLimits().keySet())
+                            : List.of(
+                                    "IdentityRequest",
+                                    "Command",
+                                    "I5ReadPotProbe",
+                                    "I5ReadCompletionProbe");
+            for (String name : assemblyOrder) {
                 if (!settings.consumptionLimits().containsKey(name)) continue;
                 var definition = V3ConsumptionWorkerSettings.definition(name);
                 ConsumptionEngine engine;
