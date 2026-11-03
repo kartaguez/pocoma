@@ -108,7 +108,7 @@ class ReadParticipantsIntegrationPostgresTest {
             }
             f.f.read.trace.add("CON-06/PRJ/A10 branch="+participant+" mode="+mode+" outcome="+result.status());
         }
-        // A later mutable state or immutable version never substitutes for the old slot proof.
+        // A current mutable state can satisfy the business predicate; only L2 proves slot completion.
         if(name==Name.POT_VERSION || name==Name.POT_BALANCE || name==Name.POT_VISIBILITY || name==Name.CURRENT_BINDING)
             try(var f=new ReadParticipantsFixture(PG,participant+"-newer")) {
                 UUID newer;
@@ -125,6 +125,131 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(name==Name.POT_VERSION || name==Name.POT_BALANCE?RecoveryObservation.INCONSISTENT:RecoveryObservation.COMPLETED,engine.observe(old),"exact immutable proof versus derived mutable completion");
                 f.f.read.trace.add(participant+" newer state/old slot discriminant");
             }
+    }
+
+    /** Explicit bounded entry point: execute the unchanged conformance body for these three only. */
+    @Test void recoveryAffectedParticipantConformance() throws Exception {
+        for(var name:List.of("POT_VERSION","POT_VISIBILITY","CURRENT_BINDING")) participantConformance(name);
+    }
+
+    @Test void potVersionRecoveryRequiresCurrentPot() throws Exception {
+        var name=Name.POT_VERSION;
+        try(var f=new ReadParticipantsFixture(PG,"recovery-current-pot")) {
+            var v2=f.mutatePot(new PotCommand.UpdatePotDetails(new Label("V2")),1);
+            var v3=f.mutatePot(new PotCommand.UpdatePotDetails(new Label("V3")),2);
+            f.enroll();
+            for(var event:List.of(f.pot.event(),v2,v3)) f.execute(name,event);
+            var original=f.f.read.oracle.queryForObject("select payload::text from read_pot_version where pot_version=3",String.class);
+            f.f.read.oracle.execute("alter table read_pot_version disable trigger user");
+            // All corruptions below are administrative fault injections, never production writes.
+            assertAll(List.of("absent","lower","equal","higher","malformed-target","mixed-target","invalid-reference").stream().map(state -> (org.junit.jupiter.api.function.Executable) () -> {
+                f.f.read.oracle.update("update read_pot_version set payload=?::jsonb where pot_version=3",original);
+                f.f.read.oracle.update("delete from read_current_pot");
+                if(!state.equals("absent")) {
+                    long pointer=state.equals("lower")?1:state.equals("equal")?2:3;
+                    f.f.read.oracle.update("insert into read_current_pot values (?,?)",f.pot.pot(),pointer);
+                }
+                if(state.equals("malformed-target")) f.f.read.oracle.update("update read_pot_version set payload='{}'::jsonb where pot_version=3");
+                if(state.equals("mixed-target")) f.f.read.oracle.update("update read_pot_version set payload=jsonb_set(payload,'{version}','2') where pot_version=3");
+                if(state.equals("invalid-reference")) {
+                    assertThrows(org.springframework.dao.DataIntegrityViolationException.class,() -> f.f.read.oracle.update("update read_current_pot set pot_version=99"),"FK normally excludes a dangling pointer");
+                    f.f.read.oracle.execute("alter table read_current_pot drop constraint read_current_pot_pot_id_pot_version_fkey");
+                    f.f.read.oracle.update("update read_current_pot set pot_version=99");
+                }
+                boolean valid=state.equals("equal") || state.equals("higher");
+                assertAll(state,
+                    () -> { setRecoverySlot(f,name,v2,true); recoveryObservation(f,name,v2,state+"/present",valid || state.equals("absent")?RecoveryObservation.NOT_COMPLETED:RecoveryObservation.INCONSISTENT); },
+                    () -> { setRecoverySlot(f,name,v2,false); recoveryObservation(f,name,v2,state+"/absent",valid?RecoveryObservation.COMPLETED:RecoveryObservation.INCONSISTENT); });
+            }));
+            // A coherent higher pointer cannot replace the exact historical root or subobjects.
+            f.f.read.oracle.update("update read_pot_version set payload=?::jsonb where pot_version=3",original);
+            f.f.read.oracle.update("update read_current_pot set pot_version=3");
+            var historical=f.f.read.oracle.queryForObject("select payload::text from read_pot_version where pot_version=2",String.class);
+            f.f.read.oracle.update("delete from read_pot_version where pot_version=2");
+            recoveryObservation(f,name,v2,"higher/missing-historical-root",RecoveryObservation.INCONSISTENT);
+            f.f.read.oracle.update("insert into read_pot_version values (?,2,1,?::jsonb)",f.pot.pot(),historical);
+            f.f.read.oracle.execute("alter table read_subobject_version disable trigger user");
+            f.f.read.oracle.update("delete from read_subobject_version where kind='POT_DETAILS' and local_version=2");
+            recoveryObservation(f,name,v2,"higher/missing-historical-subobject",RecoveryObservation.INCONSISTENT);
+        }
+    }
+
+    @Test void visibilityRecoverySupersession() throws Exception {
+        var name=Name.POT_VISIBILITY;
+        try(var f=new ReadParticipantsFixture(PG,"recovery-visibility-supersession")) {
+            // Delete changes the visible set, so V1 and V2 are distinguishable by content.
+            var v2=f.mutatePot(new PotCommand.DeletePot(),1);
+            f.enroll(); f.execute(name,v2); var v1=f.event(name);
+            recoveryObservation(f,name,v1,"V2-exact/V1-present",RecoveryObservation.NOT_COMPLETED);
+            f.execute(name,v1); // Real obsolete-event finalization, without reverting V2.
+            recoveryObservation(f,name,v1,"V2-exact/V1-terminalized",RecoveryObservation.COMPLETED);
+            assertEquals(2L,f.f.read.oracle.queryForObject("select materialized_version from read_pot_visibility_state",Long.class));
+            assertEquals(0,f.f.read.oracle.queryForObject("select count(*) from read_user_pot where visible",Integer.class));
+            // Same durable observation without an individual V1 business receipt; derived proof.
+            for(boolean slot:List.of(true,false)) {
+                setRecoverySlot(f,name,v1,slot);
+                recoveryObservation(f,name,v1,"V2-exact/slot="+slot,slot?RecoveryObservation.NOT_COMPLETED:RecoveryObservation.COMPLETED);
+                f.f.read.oracle.update("insert into read_user_pot values (?,?,2,true)",UUID.randomUUID(),f.pot.pot());
+                recoveryObservation(f,name,v1,"V2-divergent/slot="+slot,RecoveryObservation.INCONSISTENT);
+                f.f.read.oracle.update("delete from read_user_pot");
+            }
+            checkpointDoesNotProveProcessing(f,name,v1);
+        }
+    }
+
+    @Test void currentBindingRecoverySupersession() throws Exception {
+        var name=Name.CURRENT_BINDING;
+        try(var f=new ReadParticipantsFixture(PG,"recovery-binding-supersession")) {
+            var token=f.f.oracle.queryForObject("select binding_token from v3_eui_version where version=1",String.class);
+            var request=f.publishIdentity(new IdentityRequest.Unlink(f.eui),new BindingToken(token));
+            // Re-registration yields an active higher version, permitting independent token/User probes.
+            var r3=f.publishIdentity(new IdentityRequest.Registration(),null);
+            var v2=f.f.oracle.queryForObject("select event_id from v3_identity_event where request_id=?",UUID.class,request);
+            var v3=f.f.oracle.queryForObject("select event_id from v3_identity_event where subject_type='EXTERNAL_USER_IDENTITY' and request_id=?",UUID.class,r3);
+            f.enroll(); f.execute(name,v2); var v1=f.event(name);
+            recoveryObservation(f,name,v1,"V2-exact/V1-present",RecoveryObservation.NOT_COMPLETED);
+            f.execute(name,v1);
+            recoveryObservation(f,name,v1,"V2-exact/V1-terminalized",RecoveryObservation.COMPLETED);
+            assertEquals(2L,f.f.read.oracle.queryForObject("select eui_version from read_current_binding",Long.class));
+            assertNull(f.f.read.oracle.queryForObject("select binding_token from read_current_binding",String.class));
+            f.execute(name,v3);
+            var exact=f.f.read.oracle.queryForMap("select * from read_current_binding");
+            for(boolean slot:List.of(true,false)) {
+                setRecoverySlot(f,name,v1,slot);
+                recoveryObservation(f,name,v1,"V3-exact/slot="+slot,slot?RecoveryObservation.NOT_COMPLETED:RecoveryObservation.COMPLETED);
+                for(var field:List.of("binding_token","user_id","eui_version")) {
+                    Object corrupt=field.equals("binding_token")?"wrong-fixture-token":field.equals("user_id")?UUID.randomUUID():2L;
+                    f.f.read.oracle.update("update read_current_binding set "+field+"=?",corrupt);
+                    recoveryObservation(f,name,v1,"V3-divergent-"+field+"/slot="+slot,RecoveryObservation.INCONSISTENT);
+                    f.f.read.oracle.update("update read_current_binding set "+field+"=?",exact.get(field));
+                }
+            }
+            checkpointDoesNotProveProcessing(f,name,v1);
+        }
+    }
+
+    void setRecoverySlot(ReadParticipantsFixture f,Name name,UUID event,boolean present) {
+        var d=f.participants.get(name).definition();
+        f.f.read.oracle.update("delete from consumption_slot where consumption_id=? and consumable_id=?",d.id().value(),event);
+        if(present) f.f.read.oracle.update("insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) select ?,?,h,((h::bigint%4+4)%4)::int from(select consumption_hash_v1(?,?) h)x",d.id().value(),event,d.family().name(),event);
+    }
+
+    void recoveryObservation(ReadParticipantsFixture f,Name name,UUID event,String scenario,RecoveryObservation expected) {
+        var claim=new ClaimedSlot(f.participants.get(name).definition().id(),event,UUID.randomUUID());
+        var actual=f.engines.get(name).observe(claim);
+        f.f.read.trace.add("RECOVERY "+name+" "+scenario+" expected="+expected+" actual="+actual);
+        assertEquals(expected,actual,scenario);
+    }
+
+    void checkpointDoesNotProveProcessing(ReadParticipantsFixture f,Name name,UUID event) {
+        var d=f.participants.get(name).definition();
+        int partition=RoutingV1.partition(RoutingV1.hash(d.family(),event),d.partitionCount());
+        // Administrative reset is deliberately invalid; it is not a legitimate Discovery regression.
+        f.f.read.oracle.update("delete from discovery_checkpoint where consumption_id=? and partition_id=?",d.id().value(),partition);
+        for(boolean slot:List.of(true,false)) {
+            setRecoverySlot(f,name,event,slot);
+            recoveryObservation(f,name,event,"checkpoint-zero/slot="+slot,RecoveryObservation.INCONSISTENT);
+        }
     }
 
     @Test void independentProgression() throws Exception {
