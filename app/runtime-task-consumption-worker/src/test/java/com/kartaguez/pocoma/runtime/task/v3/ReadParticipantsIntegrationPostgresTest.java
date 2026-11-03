@@ -181,6 +181,9 @@ class ReadParticipantsIntegrationPostgresTest {
             var v2=f.mutatePot(new PotCommand.DeletePot(),1);
             f.enroll(); f.execute(name,v2); var v1=f.event(name);
             recoveryObservation(f,name,v1,"V2-exact/V1-present",RecoveryObservation.NOT_COMPLETED);
+            setRecoverySlot(f,name,v1,false); // Deliberate violation of the sole-deletion-path invariant.
+            recoveryObservation(f,name,v1,"V2-exact/V1-never-executed/injected-absence",RecoveryObservation.COMPLETED);
+            setRecoverySlot(f,name,v1,true);
             f.execute(name,v1); // Real obsolete-event finalization, without reverting V2.
             recoveryObservation(f,name,v1,"V2-exact/V1-terminalized",RecoveryObservation.COMPLETED);
             assertEquals(2L,f.f.read.oracle.queryForObject("select materialized_version from read_pot_visibility_state",Long.class));
@@ -208,6 +211,9 @@ class ReadParticipantsIntegrationPostgresTest {
             var v3=f.f.oracle.queryForObject("select event_id from v3_identity_event where subject_type='EXTERNAL_USER_IDENTITY' and request_id=?",UUID.class,r3);
             f.enroll(); f.execute(name,v2); var v1=f.event(name);
             recoveryObservation(f,name,v1,"V2-exact/V1-present",RecoveryObservation.NOT_COMPLETED);
+            setRecoverySlot(f,name,v1,false); // Observationally identical; not a valid L2 history.
+            recoveryObservation(f,name,v1,"V2-exact/V1-never-executed/injected-absence",RecoveryObservation.COMPLETED);
+            setRecoverySlot(f,name,v1,true);
             f.execute(name,v1);
             recoveryObservation(f,name,v1,"V2-exact/V1-terminalized",RecoveryObservation.COMPLETED);
             assertEquals(2L,f.f.read.oracle.queryForObject("select eui_version from read_current_binding",Long.class));

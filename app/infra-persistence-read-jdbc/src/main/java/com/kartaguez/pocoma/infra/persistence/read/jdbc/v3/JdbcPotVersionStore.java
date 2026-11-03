@@ -18,7 +18,16 @@ public final class JdbcPotVersionStore implements PotVersionStore {
     public ReadEvidence evidence(PotVersion expected,RecoveryReadContext context) { return db.read(context,() -> {
         try {
             var actual=load(expected.potId(),expected.version());
-            return actual.isEmpty()?ReadEvidence.MISSING:actual.get().equals(expected)?ReadEvidence.SATISFIED:ReadEvidence.DIVERGENT;
+            if(actual.isEmpty()) return ReadEvidence.MISSING;
+            if(!actual.get().equals(expected)) return ReadEvidence.DIVERGENT;
+            // The publication also advances CurrentPot. A later pointer is admissible only
+            // with its own well-formed target; it never replaces the exact historical root.
+            var current=db.sql.query("select pot_version from read_current_pot where pot_id=?",(r,n) -> r.getLong(1),expected.potId());
+            if(current.isEmpty()) return ReadEvidence.MISSING;
+            long version=current.getFirst();
+            if(version<expected.version()) return ReadEvidence.DIVERGENT;
+            if(version>expected.version() && load(expected.potId(),version).isEmpty()) return ReadEvidence.DIVERGENT;
+            return ReadEvidence.SATISFIED;
         } catch(IllegalStateException positiveCorruption) { return ReadEvidence.DIVERGENT; }
     }); }
     public void insertAndAdvance(PotVersion value) { db.write(() -> {
