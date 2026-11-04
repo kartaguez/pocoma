@@ -52,6 +52,12 @@ class V3ReadQuotaPostgresTest {
             long calls = businessCalls();
             for (List<ExpenseRef> refs : Arrays.asList(null, List.<ExpenseRef>of(), Arrays.asList((ExpenseRef) null), Collections.nCopies(2, new ExpenseRef(id(1000), 1, 1, 1, false)), Collections.nCopies(51, new ExpenseRef(id(1000), 1, 1, 1, false))))
                 assertInstanceOf(InvalidInput.class, f.services().expenses(f.eui("owner"), TOKEN, POT, 1, refs));
+            var changingDuringCapture = new ArrayList<ExpenseRef>(List.of(new ExpenseRef(id(1000), 1, 1, 1, false))) {
+                @Override public Object[] toArray() {
+                    clear(); for (int n=0; n<51; n++) add(new ExpenseRef(id(1000+n),1,1,1,false)); return super.toArray();
+                }
+            };
+            assertInstanceOf(InvalidInput.class, f.services().expenses(f.eui("owner"), TOKEN, POT, 1, changingDuringCapture), "the captured snapshot itself is validated before quota");
             for (int limit : List.of(0, 101)) { assertInstanceOf(InvalidInput.class, f.services().visible(f.eui("owner"), TOKEN, null, limit)); assertEquals(400, f.get("/me/pots?limit=" + limit).statusCode()); }
             for (String body : List.of(f.batch(0, 1), f.batch(51, 1), "{\"references\":null}", "{\"references\":[" + ref(1000, 1) + "," + ref(1000, 1) + "]}")) assertEquals(400, f.post(f.path(POT, 1) + "/expenses/query", body).statusCode());
             assertEquals(calls, businessCalls()); assertEquals(2, f.pool().getHikariPoolMXBean().getActiveConnections());
@@ -146,11 +152,16 @@ class V3ReadQuotaPostgresTest {
         assertTrue(Runtime.getRuntime().maxMemory() <= 512L * 1024 * 1024, "isolated qualification JVM must use -Xmx512m");
         var memory = ManagementFactory.getMemoryMXBean(); var peak = new AtomicLong(); var samples = new AtomicLong(); var sampling = new AtomicBoolean(true);
         long before = memory.getHeapMemoryUsage().getUsed();
+        var phases = new LinkedHashMap<String,Object>(); var profiles = new LinkedHashMap<String,Object>();
+        phases.put("before-corpus", memoryPoint());
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             var sampler = executor.submit(() -> { while (sampling.get()) { peak.accumulateAndGet(memory.getHeapMemoryUsage().getUsed(), Math::max); samples.incrementAndGet(); try { Thread.sleep(5); } catch (InterruptedException stop) { return; } } });
             try {
             f.seedProfile(id(777), 1, 2000, 100, Set.of(OWNER), false, true, true, "renforcé-UTF8-é", 1024, false);
+            phases.put("after-grand-fixture", memoryPoint());
             var firstResponse = f.get(f.path(id(777), 1));
+            profiles.put("grandHttpBytes", firstResponse.body().length);
+            phases.put("after-one-grand-http", memoryPoint());
             if (firstResponse.statusCode() != 200) {
                 var service = f.services();
                 var ownerField = service.getClass().getDeclaredField("owner"); ownerField.setAccessible(true);
@@ -165,10 +176,12 @@ class V3ReadQuotaPostgresTest {
             assertTrue(memory.getHeapMemoryUsage().getMax() - memory.getHeapMemoryUsage().getUsed() > 32L * 1024 * 1024, "headroom before two finite calls");
             var one = executor.submit(() -> f.get(f.path(id(777), 1))); var two = executor.submit(() -> f.get(f.path(id(777), 1)));
             assertEquals(200, one.get(10, TimeUnit.SECONDS).statusCode()); assertEquals(200, two.get(10, TimeUnit.SECONDS).statusCode());
+            await(() -> f.context.getBean(V3ReadTransport.class).availableCapacity() == 2, Duration.ofSeconds(1));
+            phases.put("after-two-grand-http", memoryPoint());
             f.seedProfile(id(888), 1, 50, 20, Set.of(OWNER), false, true, true, "batch renforcé", 256, true);
-            var reinforced = f.post(f.path(id(888), 1) + "/expenses/query", f.batch(50, 1)); assertEquals(200, reinforced.statusCode()); assertEquals(50, f.body(reinforced).get("expenses").size());
+            var reinforced = f.post(f.path(id(888), 1) + "/expenses/query", f.batch(50, 1)); assertEquals(200, reinforced.statusCode()); assertEquals(50, f.body(reinforced).get("expenses").size()); profiles.put("reinforcedBatchHttpBytes",reinforced.body().length); phases.put("after-reinforced-batch",memoryPoint());
             f.seedProfile(id(889), 1, 50, 100, Set.of(OWNER), false, true, true, "batch extrême", 1024, true);
-            assertEquals(503, f.post(f.path(id(889), 1) + "/expenses/query", f.batch(50, 1)).statusCode());
+            assertEquals(503, f.post(f.path(id(889), 1) + "/expenses/query", f.batch(50, 1)).statusCode()); phases.put("after-extreme-refusal",memoryPoint());
             f.seed(id(778), 1, 0, Set.of(OWNER), false, true, true, "x".repeat(4_194_304)); assertEquals(503, f.get("/pots/" + id(778)).statusCode());
             } finally {
                 sampling.set(false); sampler.get(1, TimeUnit.SECONDS);
@@ -178,7 +191,24 @@ class V3ReadQuotaPostgresTest {
         assertTrue(samples.get() > 0); assertTrue(peak.get() < Runtime.getRuntime().maxMemory());
         var os = new ProcessBuilder("ps", "-o", "rss=", "-p", Long.toString(ProcessHandle.current().pid())).start(); String rss = new String(os.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim(); assertEquals(0, os.waitFor());
         var gc = ManagementFactory.getGarbageCollectorMXBeans().stream().map(g -> Map.of("name", g.getName(), "collections", g.getCollectionCount(), "milliseconds", g.getCollectionTime())).toList();
-        f.evidence("Q08-memory", Map.of("heapMax", Runtime.getRuntime().maxMemory(), "heapBefore", before, "heapAfter", memory.getHeapMemoryUsage().getUsed(), "sampledPeak", peak.get(), "samples", samples.get(), "sampleResolutionMillis", 5, "rssKiB", rss, "gc", gc, "copies", "detached JDBC view + explicit DTO + bounded 16KiB segments; no complete encoded-array copy; server/socket copies not fully quantified"));
+        var observation = new LinkedHashMap<String,Object>();
+        observation.put("heapMax",Runtime.getRuntime().maxMemory()); observation.put("heapBefore",before); observation.put("heapAfter",memory.getHeapMemoryUsage().getUsed()); observation.put("sampledPeak",peak.get()); observation.put("samples",samples.get()); observation.put("sampleResolutionMillis",5); observation.put("rssKiB",rss); observation.put("gc",gc); observation.put("phases",phases); observation.put("profiles",profiles);
+        observation.put("copies","detached JDBC view + DTO + bounded 16KiB segments, no complete encoded-array copy; OS/socket/JDBC internal copies not fully quantified");
+        observation.put("allocationScope","cumulative live platform-thread counters by ID; virtual-thread allocation and server-only attribution are not claimed; heap/RSS include JUnit/client/injector");
+        f.evidence("Q08-memory", observation);
+    }
+    Map<String,Object> memoryPoint() throws Exception {
+        var bean = ManagementFactory.getPlatformMXBean(com.sun.management.ThreadMXBean.class);
+        assertTrue(bean.isThreadAllocatedMemorySupported());
+        if (!bean.isThreadAllocatedMemoryEnabled()) bean.setThreadAllocatedMemoryEnabled(true);
+        var allocated = new TreeMap<String,Long>(); var http = new TreeMap<String,Long>();
+        for (long id : bean.getAllThreadIds()) {
+            long bytes = bean.getThreadAllocatedBytes(id); var info = bean.getThreadInfo(id);
+            if (bytes >= 0) { allocated.put(Long.toString(id),bytes); if (info != null && info.getThreadName().contains("-exec-")) http.put(Long.toString(id),bytes); }
+        }
+        var process = new ProcessBuilder("ps","-o","rss=","-p",Long.toString(ProcessHandle.current().pid())).start();
+        String rss = new String(process.getInputStream().readAllBytes(),StandardCharsets.UTF_8).trim(); assertEquals(0,process.waitFor());
+        return Map.of("nanoTime",System.nanoTime(),"heapUsed",ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed(),"rssKiB",rss,"platformAllocatedBytesByThread",allocated,"httpWorkerAllocatedBytesByThread",http,"activeReadConnections",f.pool().getHikariPoolMXBean().getActiveConnections(),"httpPermitsAvailable",f.context.getBean(V3ReadTransport.class).availableCapacity());
     }
     long businessCalls() { return f.sqlStats().stream().filter(s -> s.get("query").toString().toLowerCase(Locale.ROOT).startsWith("select") && s.get("query").toString().contains("read_")).mapToLong(s -> ((Number) s.get("calls")).longValue()).sum(); }
     @Test void jdbcCountsAndCosts() throws Exception {
@@ -186,7 +216,14 @@ class V3ReadQuotaPostgresTest {
         f.seed(id(779), 1, 2000, 100, Set.of(OWNER), false, true, true, "grand");
         before = businessCalls(); assertEquals(200, f.get("/pots/" + id(779)).statusCode()); assertEquals(6, businessCalls() - before);
         before = businessCalls(); assertEquals(200, f.get(f.path(id(779), 1)).statusCode()); assertEquals(5, businessCalls() - before);
-        f.evidence("Q09-jdbc", Map.of("batchSelects", 3, "currentGrandSelects", 6, "historyGrandSelects", 5, "executionsRowsTimes", f.sqlStats(), "batchHttpBytes", batch.body().length, "wireJdbcBytes", "NOT_MEASURED"));
+        long usefulBytes=0; int rows=0; long measuredStart=System.nanoTime(); String plan;
+        String sql="select payload::text from read_subobject_version where pot_id=? and local_version=1 and kind in ('EXPENSE_HEADER','EXPENSE_DETAILS','EXPENSE_FINANCIALS')";
+        try (var connection=f.pool().getConnection(); var statement=connection.prepareStatement(sql)) {
+            statement.setObject(1,POT); try (var result=statement.executeQuery()) { while(result.next()) { rows++; usefulBytes+=result.getString(1).getBytes(StandardCharsets.UTF_8).length; } }
+            try(var explain=connection.prepareStatement("explain (analyze,buffers,format json) "+sql)) { explain.setObject(1,POT); try(var result=explain.executeQuery()) { assertTrue(result.next()); plan=result.getString(1); } }
+        }
+        assertEquals(150,rows); assertTrue(usefulBytes>0);
+        var costs=new LinkedHashMap<String,Object>(); costs.put("batchSelects",3); costs.put("currentGrandSelects",6); costs.put("historyGrandSelects",5); costs.put("executionsRowsTimes",f.sqlStats()); costs.put("batchHttpBytes",batch.body().length); costs.put("measuredPayloadRows",rows); costs.put("measuredPayloadUtf8Bytes",usefulBytes); costs.put("measurementSeconds",(System.nanoTime()-measuredStart)/1e9); costs.put("measurementPlan",plan); costs.put("wireFramingBytes","NOT_MEASURED; payload byte count excludes PostgreSQL wire framing"); f.evidence("Q09-jdbc",costs);
     }
     @Test void workersProgressWithoutControlBorrow() throws Exception {
         initializeWorkerDatabase(PG);

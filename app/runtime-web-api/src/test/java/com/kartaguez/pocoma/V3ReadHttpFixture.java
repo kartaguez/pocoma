@@ -202,8 +202,11 @@ final class V3ReadHttpFixture implements AutoCloseable {
             try (var fixture = new V3ReadHttpFixture(pg)) {
                 fixture.corpus(); fixture.start(PocomaWebApiApplication.class);
                 Path signal = Files.createTempDirectory("pocoma-i1-publisher-").resolve("publish");
+                boolean expensesOnly = "true".equals(System.getenv("POCOMA_I1_BRUNO_EXPENSES_ONLY"));
+                String folder = expensesOnly ? "01 Identity and READ/03 Expense Batches" : "01 Identity and READ";
+                var expectedScenarios = java.util.stream.IntStream.rangeClosed(expensesOnly ? 15 : 1, expensesOnly ? 20 : 32).mapToObj(n -> "B%02d".formatted(n)).toList();
                 try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-                    var publisher = executor.submit(() -> {
+                    Future<Boolean> publisher = expensesOnly ? CompletableFuture.completedFuture(true) : executor.submit(() -> {
                         try {
                             long end = System.nanoTime() + Duration.ofSeconds(120).toNanos();
                             while (!Files.exists(signal) && System.nanoTime() < end) Thread.sleep(10);
@@ -213,7 +216,7 @@ final class V3ReadHttpFixture implements AutoCloseable {
                             return true;
                         } catch (Exception failed) { throw new IllegalStateException("B30 fixture publication failed", failed); }
                     });
-                    var command = List.of(repo.resolve("scripts/bruno-v3/node_modules/.bin/bru").toString(), "run", "-r", "01 Identity and READ", "--env", "Local", "--sandbox", "developer", "--noproxy", "--reporter-json", output.resolve("bruno.json").toString(), "--reporter-skip-all-headers", "--reporter-skip-body");
+                    var command = List.of(repo.resolve("scripts/bruno-v3/node_modules/.bin/bru").toString(), "run", "-r", folder, "--env", "Local", "--sandbox", "developer", "--noproxy", "--reporter-json", output.resolve("bruno.json").toString(), "--reporter-skip-all-headers", "--reporter-skip-body");
                     var process = new ProcessBuilder(command).directory(repo.resolve("scripts/bruno-v3").toFile());
                     var environment = process.environment(); environment.put("POCOMA_I1_BASE_URL", fixture.baseUrl); environment.put("POCOMA_I1_PUBLISH_SIGNAL", signal.toString()); environment.put("POCOMA_I1_REQUEST_RECEIPTS", output.resolve("requests.jsonl").toString());
                     for (var item : Map.of("Owner", "owner", "Other", "other", "SameUser", "same", "Inactive", "inactive", "Absent", "absent").entrySet()) environment.put("POCOMA_I1_bearer" + item.getKey(), fixture.jwt(item.getValue()));
@@ -222,11 +225,14 @@ final class V3ReadHttpFixture implements AutoCloseable {
                     long cliStarted = System.nanoTime(); int code = process.redirectErrorStream(true).redirectOutput(output.resolve("bruno.log").toFile()).start().waitFor();
                     Path requestReceipts = output.resolve("requests.jsonl");
                     long scenarioCount = Files.isRegularFile(requestReceipts) ? Files.readAllLines(requestReceipts).size() : 0;
-                    boolean coverage = scenarioCount == 32;
+                    var actualScenarios = new ArrayList<String>();
+                    if (Files.isRegularFile(requestReceipts)) for (String line : Files.readAllLines(requestReceipts)) actualScenarios.add(fixture.json.readTree(line).get("scenario").asText());
+                    actualScenarios.sort(String::compareTo);
+                    boolean coverage = actualScenarios.equals(expectedScenarios);
                     boolean publication;
                     if (code != 0 || !coverage) { publisher.cancel(true); publication = false; } else publication = publisher.get(125, TimeUnit.SECONDS);
                     var receipt = new LinkedHashMap<String,Object>();
-                    receipt.put("provenance", "READ_FIXTURE — NO PUBLIC ADMISSION PROOF"); receipt.put("cliVersion", "4.3.0"); receipt.put("cliSeconds", (System.nanoTime()-cliStarted)/1e9); receipt.put("exitCode", code); receipt.put("fixturePublisherCompleted", publication); receipt.put("expectedScenarios",32); receipt.put("executedScenarioReceipts",scenarioCount); receipt.put("coverageComplete",coverage); receipt.put("command",command); receipt.put("fixtureSecondsBeforeCli",(cliStarted-started)/1e9);
+                    receipt.put("provenance", "READ_FIXTURE — NO PUBLIC ADMISSION PROOF"); receipt.put("cliVersion", "4.3.0"); receipt.put("cliSeconds", (System.nanoTime()-cliStarted)/1e9); receipt.put("exitCode", code); receipt.put("fixturePublisherCompleted", publication); receipt.put("expectedScenarios",expectedScenarios); receipt.put("executedScenarioReceipts",scenarioCount); receipt.put("coverageComplete",coverage); receipt.put("command",command); receipt.put("fixtureSecondsBeforeCli",(cliStarted-started)/1e9);
                     Files.writeString(output.resolve("receipt.json"), fixture.json.writerWithDefaultPrettyPrinter().writeValueAsString(receipt));
                     // Reporters exclude bodies/headers. Scan actual generated reports for process secrets.
                     for (Path artifact : Files.list(output).filter(Files::isRegularFile).toList()) {

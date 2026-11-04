@@ -145,8 +145,11 @@ public final class V3ReadFacadeComposition {
                     || token.isBlank()
                     || id == null
                     || version < 1
-                    || !limits.validBatch(refs)) return new InvalidInput<>();
-            var captured = List.copyOf(refs);
+                    || refs == null || refs.isEmpty() || refs.size() > limits.expenseBatch()) return new InvalidInput<>();
+            final List<ExpenseRef> captured;
+            try { captured = List.copyOf(refs); }
+            catch (NullPointerException | ConcurrentModificationException malformedCapture) { return new InvalidInput<>(); }
+            if (!limits.validBatch(captured)) return new InvalidInput<>();
             return query(c -> pot.expenses(eui, token, id, version, captured, c));
         }
 

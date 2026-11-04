@@ -379,17 +379,21 @@
         "runtime-monolith"
       ],
       "tests": {
-        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
-          "webRoot",
-          "monolithRoot"
+        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+          "invalidInputBeforeQuota",
+          "memoryAndCopies",
+          "jdbcCountsAndCosts"
+        ],
+        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+          "batchCardinalityAndMalformedRefs"
         ]
       },
-      "expected_invocations": 2,
+      "expected_invocations": 4,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Recheck roots with production-owned legacy auto-configuration exclusions, then recursive B1; preserve other 38 exact methods",
+        "basis": "Frozen input capture correction and final physical cost collection; recheck only Q01/Q08/Q09/H16, then only expense B15-B20",
         "uncertainty": "UNMEASURED"
       }
     }

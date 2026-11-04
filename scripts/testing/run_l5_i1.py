@@ -40,11 +40,14 @@ def main():
             receipt['verdict'] = 'B1_NON_PASS'
             return code
         requests = [json.loads(line) for line in (output/'B1/requests.jsonl').read_text().splitlines()]
-        if sorted(r['scenario'] for r in requests) != [f'B{n:02d}' for n in range(1,33)]:
+        expense_only = env.get('POCOMA_I1_BRUNO_EXPENSES_ONLY') == 'true'
+        expected = [f'B{n:02d}' for n in range(15,21)] if expense_only else [f'B{n:02d}' for n in range(1,33)]
+        if sorted(r['scenario'] for r in requests) != expected:
             raise ValueError('B1 missing or duplicate scenario receipts')
+        receipt['bruno_scope'] = 'EXPENSE_DELTA_B15_B20' if expense_only else 'FULL_B1_B01_B32'
         receipt['bruno_scenarios'] = len(requests)
         receipt['bruno_http_requests'] = sum(r['requests'] for r in requests)
-        receipt['verdict'] = 'LOCAL_CHECKPOINT_PASS_WITH_EXTERNAL_RESERVATIONS'
+        receipt['verdict'] = 'LOCAL_CONTRIBUTION_PASS'
         return 0
     finally:
         receipt['seconds'] = time.monotonic()-started
