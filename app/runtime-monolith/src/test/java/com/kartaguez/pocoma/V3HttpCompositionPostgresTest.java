@@ -44,16 +44,23 @@ class V3HttpCompositionPostgresTest {
     @Test void monolithRoot() throws Exception {
         initializeWorkerDatabase(PG);
         try (var fixture = new ReadMonolithI8Fixture(PG); var http = new V3CompositionHttpFixture(PG)) {
-            fixture.select(List.of("CurrentBinding"), false);
+            fixture.select(List.of("MaterializeCurrentBinding"), false);
             var props = new LinkedHashMap<>(fixture.properties); props.putAll(http.properties);
+            props.put("pocoma.v3.worker.read-limits.navigation-page", "100");
             var app = new SpringApplication(PocomaRuntimeMonolithApplication.class); app.setAdditionalProfiles("v3-read-worker", "v3-http-read"); app.setDefaultProperties(props);
             app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-monolith-fixture", props)));
             var context = app.run(); fixture.contexts.add(context);
             try {
                 var services = context.getBean(V3ReadFacadeComposition.Services.class);
                 assertSame(services, context.getBean(ReadPotV3.Queries.class));
-                assertEquals(Set.of("CurrentBinding"), services.activeParticipants()); assertTrue(services.workerState().isPresent());
+                assertEquals(Set.of("MaterializeCurrentBinding"), services.activeParticipants()); assertTrue(services.workerState().isPresent());
                 assertEquals(4, context.getBeansOfType(HikariDataSource.class).size()); assertFalse(context.containsBean("v3HttpReadPool"));
+                http.context = context; http.baseUrl = "http://127.0.0.1:" + ((org.springframework.boot.web.server.context.WebServerApplicationContext) context).getWebServer().getPort();
+                fixture.read.update("insert into read_current_binding values (?,?,?,1,?,?)", http.issuer, "owner", UUID.randomUUID(), OWNER, TOKEN);
+                for (int n = 1; n <= 205; n++) fixture.read.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(10000+n));
+                assertEquals(200, http.get("/me/binding").statusCode());
+                var page = http.get("/me/pots?limit=100"); assertEquals(200, page.statusCode()); assertEquals(100, http.body(page).get("potIds").size());
+                assertEquals(8, routes(http).size());
                 assertEquals(1, context.getBeansOfType(V3ReadController.class).size()); assertEquals(1, context.getBeansOfType(V3ConsumptionWorker.class).size());
                 assertTrue(context.getBeansOfType(CurrentBindingController.class).isEmpty());
                 http.evidence("C02-monolith", Map.of("root", PocomaRuntimeMonolithApplication.class.getName(), "pools", 4, "httpSharesReadOwnerAndQuota", true, "participants", services.activeParticipants()));

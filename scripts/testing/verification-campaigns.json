@@ -406,7 +406,6 @@
           "mediaAndUnknownFields"
         ],
         "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
-          "memoryAndCopies",
           "workersProgressWithoutControlBorrow"
         ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
@@ -418,12 +417,12 @@
           "brunoFixtureProvenance"
         ]
       },
-      "expected_invocations": 32,
+      "expected_invocations": 31,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Completion after isolated run: reuse eight successful unaffected Q methods; fresh H24/C6/Q08/Q10, then B1",
+        "basis": "Reuse nine Q PASS from isolated-02; fresh Q10/H24/C6 after worker fixture corrections",
         "uncertainty": "UNMEASURED"
       }
     }

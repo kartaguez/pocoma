@@ -12,10 +12,14 @@ import java.util.*;
 public class V3ReadFacadeConfiguration {
     static ReadLimitsV3 limits(Environment env) {
         String p = "pocoma.v3.worker.read-limits.";
-        return new ReadLimitsV3(
+        var limits = new ReadLimitsV3(
                 Integer.parseInt(env.getRequiredProperty(p + "expense-batch")),
                 Integer.parseInt(env.getRequiredProperty(p + "navigation-page")),
                 Long.parseLong(env.getRequiredProperty(p + "response-budget")));
+        if (Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE)
+                && (limits.expenseBatch() != 50 || limits.navigationPage() != 100 || limits.responseBudget() != 16_000_000))
+            throw new IllegalStateException("V3 HTTP requires explicit ratified initial READ limits");
+        return limits;
     }
 
     @Bean

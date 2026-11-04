@@ -188,7 +188,7 @@ class V3ReadQuotaPostgresTest {
         // Existing I8 worker and physical authorities, no public admission or lease change.
         initializeWorkerDatabase(PG);
         try (var workerFixture = new ReadRuntimeI8Fixture(PG)) {
-            workerFixture.select(List.of("CurrentBinding"), false); var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null); workerFixture.produce(request);
+            workerFixture.select(List.of("MaterializeCurrentBinding"), false); var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null); workerFixture.produce(request);
             var context = workerFixture.start();
             try (var held = new Held()) {
                 await(() -> workerFixture.read.queryForObject("select count(*) from read_current_binding where subject='i1-worker'", Integer.class) == 1, Duration.ofSeconds(1));
