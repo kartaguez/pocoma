@@ -35,6 +35,8 @@ Les actes de clôture L1–L4 restent inchangés. Réserves transférées du pla
 
 Déclaration active avant code : **WEB primaire, PROJECTION secondaire, runtime-monolith complémentaire ; DB CURRENT READ/WRITE de fixture**, T1 filtrée et B1. Aucune clôture canonique autonome. Gates canoniques de référence conservées ci-dessus. **Déclencheur effectif déclaré avant code : modification des sélections de racines et allowlists de préflight (règles d’isolation runtime), §17. Architecture globale non filtrée REQUIRED pour cette livraison I1**, commande `./mvnw -pl architecture-tests -am test` depuis `app/`, en plus de T1+B1 ; ce contrôle ne démarre pas Q5. Aucun nouveau module ni restructuration large, full NOT REQUIRED à I1, dû à Q5. Pas d'impact domaine, matérialisation, Consumption/Discovery, leases, migrations ni admission.
 
+Franchissement inattendu constaté pendant la gate : **COMMAND, chargement de classes uniquement**, par `Services implements ReadPotV3.Queries` forçant une dépendance READ optionnelle sur une racine non READ. Correction déclarée avant écriture : adaptation du port dans la composition HTTP seule ; aucune modification du runtime Command, de ses algorithmes ou de ses dépendances de production. Vérification complémentaire COMMAND : reprise ciblée des 23 méthodes réellement en erreur de chargement, puis gate Architecture canonique non filtrée ; pas de nouveau full natif.
+
 ## 3. Réemploi réel et architecture minimale
 
 Les chemins ci-dessous sont relatifs à `app/`. Les liens pointent vers les composants existants au SHA publié. Aucun nom de composant proposé n'impose une classe supplémentaire si un contrôleur, mapper ou bean existant adapté suffit.

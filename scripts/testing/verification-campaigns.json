@@ -378,7 +378,8 @@
       "modules": [
         "runtime-web-api",
         "runtime-task-consumption-worker",
-        "runtime-monolith"
+        "runtime-monolith",
+        "runtime-command-consumption-worker"
       ],
       "tests": {
         "com.kartaguez.pocoma.V3ReadHttpContractTest": [
@@ -429,16 +430,48 @@
         "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
           "monolithRoot"
         ],
-        "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest": [
-          "allParticipantsFitPoolsAndRenewalEnvelope"
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest": [
+          "l3_rollback_boundaries",
+          "l3_real_authority_preserves_claim_fencing",
+          "l3_registration_and_same_user_relink_collide_in_engine",
+          "l3_atomic_command_physical_unit_and_closed_suffix",
+          "l3_observation_change_and_l2_retry",
+          "l3_unknown_commit",
+          "l3_command_lock_until_resolution",
+          "l3_negative_stable_and_a1_sql",
+          "l3_a1_illicit_version_rejected"
+        ],
+        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest": [
+          "l3_indirect_exposure_refused",
+          "l3_delivered_jpa_rejects_prebound_holder",
+          "l3_identity_discovery_checkpoint",
+          "l3_postgres_diagnostics_without_sensitive_detail",
+          "l3_command_only_preflight",
+          "l3_auxiliary_effective_privilege_matrix",
+          "l3_registration_command_and_relink_restart",
+          "l3_runtime_identity",
+          "l3_logging_override_refused"
+        ],
+        "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+          "l3_composition_real_authority_and_classifier"
+        ],
+        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest": [
+          "i5_c03",
+          "i5_c04"
+        ],
+        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest": [
+          "i5_m01"
+        ],
+        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest": [
+          "i5_w15"
         ]
       },
-      "expected_invocations": 41,
+      "expected_invocations": 63,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Isolate local deadlines to HTTP mode; retain all 40 I1 methods and recheck the one invalidated legacy non-HTTP consultation/renewal method, then fresh full B1",
+        "basis": "Keep optional READ port linkage in HTTP assembly: all40 I1 + 23 exact Command startup errors, then full B1. No unchanged replay or oracle relaxation.",
         "uncertainty": "UNMEASURED"
       }
     }

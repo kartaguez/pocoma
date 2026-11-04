@@ -69,6 +69,8 @@ public class V3ConsumptionWorkerConfiguration {
                 exact.addAll(Set.of(
                     V3ReadHttpConfiguration.class.getName(),
                     V3ReadHttpConfiguration.PrincipalResolver.class.getName(),
+                    V3ReadHttpConfiguration.PotQueries.class.getName(),
+                    com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3.Queries.class.getName(),
                     V3ReadHttpConfiguration.HttpPreflight.class.getName(),
                     com.kartaguez.pocoma.supra.http.read.v3.V3ReadController.class.getName(),
                     com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class.getName(),
@@ -641,6 +643,7 @@ public class V3ConsumptionWorkerConfiguration {
                                         bean instanceof V3ReadHttpConfiguration
                                         || bean instanceof V3ReadHttpConfiguration.HttpPreflight
                                         || bean instanceof V3ReadHttpConfiguration.PrincipalResolver
+                                        || (name.equals("v3HttpPot") && bean instanceof V3ReadHttpConfiguration.PotQueries)
                                         || bean instanceof com.kartaguez.pocoma.supra.http.read.v3.V3ReadController
                                         || bean instanceof com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport
                                         || (name.equals("v3HttpBinding") && bean instanceof com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query)

@@ -58,7 +58,7 @@ public final class V3ReadFacadeComposition {
                 worker, limits, read, httpBounds);
     }
 
-    public static final class Services implements ReadPotV3.Queries {
+    public static final class Services {
         private final SpringAttemptTransactions owner;
         private final ReadPotV3 pot;
         private final ReadNavigationV3 navigation;

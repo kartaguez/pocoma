@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
 import com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3;
 import com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult;
 import com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult;
@@ -84,6 +86,15 @@ public class V3ReadHttpConfiguration {
         var owner = new SpringAttemptTransactions(v3HttpReadPool, manager, 3);
         return V3ReadFacadeComposition.create(v3HttpReadPool, owner, new ReadLimitsV3(50, 100, 16_000_000), Set.of(), Optional::empty, true);
     }
+    /** Optional READ linkage belongs to the HTTP assembly, not to the shared Services type. */
+    public record PotQueries(V3ReadFacadeComposition.Services delegate) implements ReadPotV3.Queries {
+        public ReadPotV3Result<ReadPotV3Result.Pot> current(ExternalIdentity eui, String token, UUID id, long minimum) { return delegate.current(eui, token, id, minimum); }
+        public ReadPotV3Result<ReadPotV3Result.Pot> at(ExternalIdentity eui, String token, UUID id, long version) { return delegate.at(eui, token, id, version); }
+        public ReadPotV3Result<PotBalance> balance(ExternalIdentity eui, String token, UUID id, long version) { return delegate.balance(eui, token, id, version); }
+        public ReadPotV3Result<List<ReadPotV3Result.Expense>> expenses(ExternalIdentity eui, String token, UUID id, long version, List<ReadPotV3Result.ExpenseRef> references) { return delegate.expenses(eui, token, id, version, references); }
+        public ReadPotV3Result<List<UUID>> visible(ExternalIdentity eui, String token, UUID after, int limit) { return delegate.visible(eui, token, after, limit); }
+    }
+    @Bean ReadPotV3.Queries v3HttpPot(V3ReadFacadeComposition.Services services) { return new PotQueries(services); }
     @Bean GetCurrentBindingV3.Query v3HttpBinding(V3ReadFacadeComposition.Services services) {
         return (eui, minimum) -> {
             var result = services.binding(eui, minimum);
