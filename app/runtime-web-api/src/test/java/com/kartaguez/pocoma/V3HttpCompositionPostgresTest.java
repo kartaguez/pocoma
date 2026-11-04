@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.kartaguez.pocoma.V3CompositionHttpFixture.*;
+import static com.kartaguez.pocoma.V3ReadHttpFixture.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
 import com.kartaguez.pocoma.engine.read.currentbinding.v3.*;
@@ -26,7 +26,7 @@ import java.util.*;
 class V3HttpCompositionPostgresTest {
     @Container static final PostgreSQLContainer PG = container();
     @Test void webRoot() throws Exception {
-        try (var f = new V3CompositionHttpFixture(PG)) {
+        try (var f = new V3ReadHttpFixture(PG)) {
             f.start(PocomaWebApiApplication.class); f.corpus();
             assertEquals(8, routes(f).size()); assertTrue(routes(f).stream().allMatch(p -> p.startsWith("/api/v3/")));
             assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size()); assertEquals(2, f.pool().getMaximumPoolSize());
@@ -39,52 +39,22 @@ class V3HttpCompositionPostgresTest {
             f.evidence("C01-root", Map.of("root", PocomaWebApiApplication.class.getName(), "routes", routes(f), "pools", 1, "poolMaximum", 2, "workers", 0));
         }
     }
-    static Set<String> routes(V3CompositionHttpFixture f) {
+    static Set<String> routes(V3ReadHttpFixture f) {
         var routes = new TreeSet<String>(); f.context.getBeansOfType(RequestMappingHandlerMapping.class).values().forEach(mapping -> mapping.getHandlerMethods().forEach((info, method) -> {
             if (method.getBeanType().getName().startsWith("com.kartaguez.pocoma.supra.")) routes.addAll(info.getPatternValues()); })); return routes;
     }
-    @Test void monolithRoot() throws Exception {
-        var invalidProfiles = new org.springframework.mock.env.MockEnvironment();
-        invalidProfiles.setActiveProfiles("v3-read-worker", "v3-http-read", "unexpected");
-        assertThrows(IllegalStateException.class, () -> V3ConsumptionWorkerSettings.requested(invalidProfiles));
-        initializeWorkerDatabase(PG);
-        try (var fixture = new ReadMonolithI8Fixture(PG); var http = new V3CompositionHttpFixture(PG)) {
-            fixture.select(List.of("MaterializeCurrentBinding"), false);
-            var props = new LinkedHashMap<>(fixture.properties); props.putAll(http.properties);
-            props.put("pocoma.v3.worker.read-limits.navigation-page", "100");
-            var app = new SpringApplication(PocomaRuntimeMonolithApplication.class); app.setAdditionalProfiles("v3-read-worker", "v3-http-read"); app.setDefaultProperties(props);
-            app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-monolith-fixture", props)));
-            var context = app.run(); fixture.contexts.add(context);
-            try {
-                var services = context.getBean(V3ReadFacadeComposition.Services.class);
-                assertSame(services, context.getBean(ReadPotV3.Queries.class));
-                assertEquals(Set.of("MaterializeCurrentBinding"), services.activeParticipants()); assertTrue(services.workerState().isPresent());
-                assertEquals(4, context.getBeansOfType(HikariDataSource.class).size()); assertFalse(context.containsBean("v3HttpReadPool"));
-                http.context = context; http.baseUrl = "http://127.0.0.1:" + ((org.springframework.boot.web.server.context.WebServerApplicationContext) context).getWebServer().getPort();
-                fixture.read.update("insert into read_current_binding values (?,?,?,1,?,?)", http.issuer, "owner", UUID.randomUUID(), OWNER, TOKEN);
-                for (int n = 1; n <= 205; n++) fixture.read.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(10000+n));
-                assertEquals(200, http.get("/me/binding").statusCode());
-                var page = http.get("/me/pots?limit=100"); assertEquals(200, page.statusCode()); assertEquals(100, http.body(page).get("potIds").size());
-                assertEquals(8, routes(http).size());
-                assertEquals(1, context.getBeansOfType(V3ReadController.class).size()); assertEquals(1, context.getBeansOfType(V3ConsumptionWorker.class).size());
-                assertTrue(context.getBeansOfType(CurrentBindingController.class).isEmpty());
-                http.evidence("C02-monolith", Map.of("root", PocomaRuntimeMonolithApplication.class.getName(), "pools", 4, "httpSharesReadOwnerAndQuota", true, "participants", services.activeParticipants()));
-                fixture.drain(context);
-            } finally { context.close(); fixture.contexts.remove(context); }
-        }
-    }
-    @Configuration(proxyBeanMethods = false) static class LegacyInjection {
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false) static class LegacyInjection {
         @Bean CurrentBindingController injectedLegacyController() { throw new AssertionError("preflight must refuse before bean creation"); }
     }
     @Test void legacyComponentsRejected() throws Exception {
-        try (var f = new V3CompositionHttpFixture(PG)) {
+        try (var f = new V3ReadHttpFixture(PG)) {
             var failure = assertThrows(Exception.class, () -> f.start(PocomaWebApiApplication.class, LegacyInjection.class));
             Throwable root = failure; while (root.getCause() != null) root = root.getCause();
             assertTrue(root.getMessage().contains("legacy HTTP/admission component refused in V3"), root.toString());
         }
     }
     @Test void readOnlyAuthorityAndNoWriteFallback() throws Exception {
-        try (var f = new V3CompositionHttpFixture(PG)) {
+        try (var f = new V3ReadHttpFixture(PG)) {
             f.start(PocomaWebApiApplication.class); f.seed(POT, 1, 0, Set.of(OWNER), false, true, true, "read-only"); f.results();
             assertEquals(200, f.get("/pots/" + POT).statusCode()); assertEquals(404, f.get("/pots/" + id(999)).statusCode());
             assertEquals(200, f.get("/commands/" + id(401) + "/result").statusCode());
@@ -112,14 +82,14 @@ class V3HttpCompositionPostgresTest {
             String source = Files.readString(file); for (String forbidden : List.of("com.kartaguez.pocoma.runtime.", "com.kartaguez.pocoma.infra.", "engine.write", "engine.admit", "javax.sql", "RecoveryReadContext")) assertFalse(source.contains(forbidden), file + " " + forbidden);
         }
         for (Class<?> port : List.of(ReadPotV3.Queries.class, GetCurrentBindingV3.Query.class, GetCommandTerminalResult.Query.class, GetIdentityTerminalResult.Query.class)) for (var method : port.getMethods()) for (Class<?> parameter : method.getParameterTypes()) assertFalse(parameter.getName().contains("Context"), "no owner/context crosses HTTP");
-        String monolithPom = Files.readString(app.resolve("runtime-monolith/pom.xml")); assertTrue(monolithPom.contains("<artifactId>pocoma-runtime-web-api</artifactId><version>${project.version}</version><scope>test</scope>"));
+        String monolithPom = Files.readString(app.resolve("runtime-monolith/pom.xml")); assertFalse(monolithPom.contains("pocoma-runtime-web-api"), "Monolith must not depend on the Web runtime, even for tests");
     }
     static void visit(String node, Map<String, Set<String>> graph, Set<String> visiting, Set<String> done) {
         if (done.contains(node)) return; assertTrue(visiting.add(node), "Maven cycle " + node);
         for (String next : graph.getOrDefault(node, Set.of())) visit(next, graph, visiting, done); visiting.remove(node); done.add(node);
     }
     @Test void brunoFixtureProvenance() throws Exception {
-        try (var f = new V3CompositionHttpFixture(PG)) {
+        try (var f = new V3ReadHttpFixture(PG)) {
             f.start(PocomaWebApiApplication.class); f.corpus();
             var result = f.admin.queryForMap("select operation,requester_issuer,requester_subject,pot_id,write_outcome,resulting_pot_version from read_command_result where request_id=?", id(401));
             assertEquals("CreatePot", result.get("operation")); assertEquals(f.issuer, result.get("requester_issuer")); assertEquals("owner", result.get("requester_subject")); assertEquals(POT, result.get("pot_id")); assertEquals("CHANGED", result.get("write_outcome")); assertEquals(2L, result.get("resulting_pot_version"));

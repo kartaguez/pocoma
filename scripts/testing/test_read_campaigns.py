@@ -143,8 +143,8 @@ if __name__ == '__main__':
 class L5I1SelectionTests(unittest.TestCase):
     def test_exact_whole_class_inventory_and_heap_safety_bound(self):
         plan = v.plan('INTEGRATION', 'l5-i1')
-        self.assertEqual([len(methods) for methods in plan['expected'].values()], [24, 10, 6])
-        self.assertIn('-Dtest=V3ReadHttpContractTest,V3ReadQuotaPostgresTest,V3HttpCompositionPostgresTest', plan['command'])
+        self.assertEqual([len(methods) for methods in plan['expected'].values()], [24, 10, 5, 1])
+        self.assertIn('-Dtest=V3ReadHttpContractTest,V3ReadQuotaPostgresTest,V3HttpCompositionPostgresTest,V3MonolithHttpCompositionPostgresTest', plan['command'])
         self.assertIn('-DargLine=-Xmx512m', plan['command'])
         self.assertNotIn('architecture-tests', str(plan['command']))
         self.assertTrue(plan['filtered'])

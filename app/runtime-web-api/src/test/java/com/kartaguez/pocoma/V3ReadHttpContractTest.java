@@ -205,7 +205,7 @@ class V3ReadHttpContractTest {
         }
     }
     static volatile Object boundaryDto;
-    @Configuration(proxyBeanMethods = false) static class BoundaryProbe {
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false) static class BoundaryProbe {
         @Bean ServletRegistrationBean<HttpServlet> boundaryProbe(V3ReadTransport transport) {
             return new ServletRegistrationBean<>(new HttpServlet() { @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException { transport.write(response, boundaryDto); } }, "/api/v3/transport-boundary");
         }

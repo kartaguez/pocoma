@@ -355,11 +355,13 @@
         ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
           "webRoot",
-          "monolithRoot",
           "legacyComponentsRejected",
           "readOnlyAuthorityAndNoWriteFallback",
           "typedPortsAndDependencies",
           "brunoFixtureProvenance"
+        ],
+        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+          "monolithRoot"
         ]
       },
       "expected_invocations": 40,
@@ -374,7 +376,8 @@
     "l5-i1-completion": {
       "level": "INTEGRATION",
       "modules": [
-        "runtime-web-api"
+        "runtime-web-api",
+        "runtime-monolith"
       ],
       "tests": {
         "com.kartaguez.pocoma.V3ReadHttpContractTest": [
@@ -402,14 +405,27 @@
           "lateSerializationFailure",
           "exactDtoAndSecretLogs",
           "mediaAndUnknownFields"
+        ],
+        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+          "webRoot",
+          "legacyComponentsRejected",
+          "readOnlyAuthorityAndNoWriteFallback",
+          "typedPortsAndDependencies",
+          "brunoFixtureProvenance"
+        ],
+        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+          "monolithRoot"
+        ],
+        "com.kartaguez.pocoma.PocomaWebApiApplicationTest": [
+          "commandWebCompositionStartsWithoutLegacyQueryWiring"
         ]
       },
-      "expected_invocations": 24,
+      "expected_invocations": 31,
       "selection": "whole-classes",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Deterministic initialization of both physical HTTP pool connections before unchanged strict zero-SQL assertions; all H methods share this fixture",
+        "basis": "Remove forbidden Monolith to Web test dependency; six named C methods retained across their owning roots; verify actual roots without reflection or duplicated assembly",
         "uncertainty": "UNMEASURED"
       }
     }
