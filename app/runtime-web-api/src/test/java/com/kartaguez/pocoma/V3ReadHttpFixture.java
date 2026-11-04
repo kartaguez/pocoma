@@ -68,14 +68,16 @@ final class V3ReadHttpFixture implements AutoCloseable {
     final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     V3ReadHttpFixture(PostgreSQLContainer pg) throws Exception {
         this.pg = pg;
-        var root = new JdbcTemplate(new DriverManagerDataSource(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword()));
+        var control = new JdbcTemplate(new DriverManagerDataSource(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword()));
+        if (!control.queryForObject("select exists(select 1 from pg_database where datname='i1_read')", Boolean.class)) control.execute("create database i1_read");
+        url = "jdbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/i1_read?currentSchema=" + schema + ",public";
+        var root = new JdbcTemplate(new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword()));
         root.execute("create extension if not exists pgcrypto with schema public");
         root.execute("create extension if not exists pg_stat_statements with schema public");
         root.execute("create role " + role + " login password 'ephemeral-i1-fixture'");
-        url = "jdbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/" + pg.getDatabaseName() + "?currentSchema=" + schema + ",public";
         Flyway.configure().dataSource(url, pg.getUsername(), pg.getPassword()).schemas(schema).defaultSchema(schema)
             .locations("classpath:db/v3-consumption-read/migration", "classpath:db/v3-read-business/migration")
-            .placeholders(Map.of("expectedDatabase", pg.getDatabaseName(), "expectedSchema", schema, "expectedAdmin", pg.getUsername(), "expectedRuntime", role)).load().migrate();
+            .placeholders(Map.of("expectedDatabase", "i1_read", "expectedSchema", schema, "expectedAdmin", pg.getUsername(), "expectedRuntime", role)).load().migrate();
         var ds = new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword()); admin = new JdbcTemplate(ds);
         // Fixture HTTP role can only SELECT; injector and independent observer retain separate authority.
         admin.execute("revoke all on all tables in schema " + schema + " from " + role);
