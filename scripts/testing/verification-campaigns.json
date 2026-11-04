@@ -377,6 +377,7 @@
       "level": "INTEGRATION",
       "modules": [
         "runtime-web-api",
+        "runtime-task-consumption-worker",
         "runtime-monolith"
       ],
       "tests": {
@@ -406,6 +407,18 @@
           "exactDtoAndSecretLogs",
           "mediaAndUnknownFields"
         ],
+        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+          "invalidInputBeforeQuota",
+          "twoReadersAndImmediateRefusal",
+          "permitsAndConnectionsReleased",
+          "sqlTimeoutPhysicalResolution",
+          "cancellationDuringJdbc",
+          "disconnectDuringEncodingAndSend",
+          "httpInFlightUntilSendEnds",
+          "memoryAndCopies",
+          "jdbcCountsAndCosts",
+          "workersProgressWithoutControlBorrow"
+        ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
           "webRoot",
           "legacyComponentsRejected",
@@ -416,16 +429,16 @@
         "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
           "monolithRoot"
         ],
-        "com.kartaguez.pocoma.PocomaWebApiApplicationTest": [
-          "commandWebCompositionStartsWithoutLegacyQueryWiring"
+        "com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest": [
+          "allParticipantsFitPoolsAndRenewalEnvelope"
         ]
       },
-      "expected_invocations": 31,
-      "selection": "whole-classes",
+      "expected_invocations": 41,
+      "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Remove forbidden Monolith to Web test dependency; six named C methods retained across their owning roots; verify actual roots without reflection or duplicated assembly",
+        "basis": "Isolate local deadlines to HTTP mode; retain all 40 I1 methods and recheck the one invalidated legacy non-HTTP consultation/renewal method, then fresh full B1",
         "uncertainty": "UNMEASURED"
       }
     }

@@ -82,7 +82,7 @@ public class V3ReadHttpConfiguration {
     V3ReadFacadeComposition.Services v3HttpStandaloneServices(HikariDataSource v3HttpReadPool) {
         var manager = new DataSourceTransactionManager(v3HttpReadPool); manager.setNestedTransactionAllowed(false);
         var owner = new SpringAttemptTransactions(v3HttpReadPool, manager, 3);
-        return V3ReadFacadeComposition.create(v3HttpReadPool, owner, new ReadLimitsV3(50, 100, 16_000_000), Set.of(), Optional::empty);
+        return V3ReadFacadeComposition.create(v3HttpReadPool, owner, new ReadLimitsV3(50, 100, 16_000_000), Set.of(), Optional::empty, true);
     }
     @Bean GetCurrentBindingV3.Query v3HttpBinding(V3ReadFacadeComposition.Services services) {
         return (eui, minimum) -> {

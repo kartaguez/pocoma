@@ -32,6 +32,7 @@ public class V3ReadFacadeConfiguration {
                 resources.readEffects,
                 limits(env),
                 new HashSet<>(settings.readParticipants()),
-                () -> Optional.ofNullable(resources.worker).map(w -> w.snapshot()));
+                () -> Optional.ofNullable(resources.worker).map(w -> w.snapshot()),
+                Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE));
     }
 }

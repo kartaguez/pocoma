@@ -283,7 +283,7 @@ class V3ReadQuotaPostgresTest {
             };
             var manager = ReadRuntimeI8Fixture.manager(observed);
             var owner = new com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions(observed, manager, 3);
-            var readers = V3ReadFacadeComposition.create(observed, owner, new com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3(50,100,16000000), Set.of("MaterializeCurrentBinding"), Optional::empty);
+            var readers = V3ReadFacadeComposition.create(observed, owner, new com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3(50,100,16000000), Set.of("MaterializeCurrentBinding"), Optional::empty, true);
             try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
                 var one = executor.submit(() -> readers.binding(f.eui("owner"), 0)); var two = executor.submit(() -> readers.binding(f.eui("owner"), 0));
                 try {

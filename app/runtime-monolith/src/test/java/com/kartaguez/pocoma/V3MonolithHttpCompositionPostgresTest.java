@@ -51,6 +51,17 @@ class V3MonolithHttpCompositionPostgresTest {
                 for (int n = 1; n <= 205; n++) fixture.read.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(10000+n));
                 assertEquals(200, http.get("/me/binding").statusCode());
                 var page = http.get("/me/pots?limit=100"); assertEquals(200, page.statusCode()); assertEquals(100, http.body(page).get("potIds").size());
+                // Actual HTTP mode must retain its local SQL deadline on the shared owner.
+                try (var gate = fixture.read.getDataSource().getConnection()) {
+                    gate.setAutoCommit(false);
+                    gate.createStatement().execute("lock table read_current_binding in access exclusive mode");
+                    long began = System.nanoTime();
+                    assertEquals(503, http.get("/me/binding").statusCode());
+                    double seconds = (System.nanoTime()-began)/1e9;
+                    assertTrue(seconds >= 1.5 && seconds < 5, "HTTP SQL deadline remains bounded: " + seconds);
+                    gate.rollback();
+                }
+                assertEquals(200, http.get("/me/binding").statusCode());
                 assertEquals(8, routes(http).size());
                 assertEquals(1, context.getBeansOfType(V3ReadController.class).size()); assertEquals(1, context.getBeansOfType(V3ConsumptionWorker.class).size());
                 assertTrue(context.getBeansOfType(CurrentBindingController.class).isEmpty());

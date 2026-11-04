@@ -30,6 +30,14 @@ public final class V3ReadFacadeComposition {
             ReadLimitsV3 limits,
             Set<String> active,
             Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker) {
+        return create(read, owner, limits, active, worker, false);
+    }
+
+    /** HTTP bounds are opt-in: inherited non-HTTP consultations retain their owner contract. */
+    public static Services create(
+            DataSource read, SpringAttemptTransactions owner, ReadLimitsV3 limits,
+            Set<String> active, Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+            boolean httpBounds) {
         owner.requireSource(read);
         var binding = new JdbcCurrentBindingStore(read, owner);
         var pot =
@@ -47,7 +55,7 @@ public final class V3ReadFacadeComposition {
                 new GetCommandTerminalResult(new JdbcCommandTerminalResultStore(read, owner)),
                 new GetIdentityTerminalResult(new JdbcIdentityTerminalResultStore(read, owner)),
                 Set.copyOf(active),
-                worker, limits, read);
+                worker, limits, read, httpBounds);
     }
 
     public static final class Services implements ReadPotV3.Queries {
@@ -63,6 +71,7 @@ public final class V3ReadFacadeComposition {
         public static final int SQL_PERMITS = 2;
         private final Semaphore quota = new Semaphore(SQL_PERMITS);
         private final ReadLimitsV3 limits;
+        private final boolean httpBounds;
         private final org.springframework.jdbc.core.JdbcTemplate sql;
 
         private Services(
@@ -73,7 +82,8 @@ public final class V3ReadFacadeComposition {
                 GetCommandTerminalResult command,
                 GetIdentityTerminalResult identity,
                 Set<String> active,
-                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker, ReadLimitsV3 limits, DataSource source) {
+                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker, ReadLimitsV3 limits, DataSource source, boolean httpBounds) {
+            this.httpBounds = httpBounds;
             this.sql = new org.springframework.jdbc.core.JdbcTemplate(source);
             this.limits = Objects.requireNonNull(limits);
             this.owner = owner;
@@ -98,6 +108,7 @@ public final class V3ReadFacadeComposition {
                 Function<RecoveryReadContext, ReadPotV3Result<T>> call) {
             if (!quota.tryAcquire()) return new Unavailable<>();
             try {
+                if (!httpBounds) return owner.read(call);
                 long started = System.nanoTime();
                 var result = owner.read(c -> {
                     // Spring applies its JDBC holder deadline to each statement. Cap that
