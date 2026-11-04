@@ -1,0 +1,35 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-architecture-01",
+  "archive": "archives/pocoma-l5-i1-architecture-01.tar.gz",
+  "sha256": "9563f70a6f2a9b3db37fdbb53bae5f5ff4fbb437d14c551ded86fea51f3bbf3c",
+  "bytes": 1232029,
+  "files": {
+    "discovery.log": {
+      "original_sha256": "74af3c5a6b5af43ec94ebcfab81d82b8091a59cb9a3fd6360b76df7184007bae",
+      "published_sha256": "74af3c5a6b5af43ec94ebcfab81d82b8091a59cb9a3fd6360b76df7184007bae",
+      "bytes": 10733
+    },
+    "discovery.process.json": {
+      "original_sha256": "5f282179eab9c66aefe23c2acfb58712d875963f128b42f6f876679ab8150ac9",
+      "published_sha256": "5f282179eab9c66aefe23c2acfb58712d875963f128b42f6f876679ab8150ac9",
+      "bytes": 430
+    },
+    "effective-pom.xml": {
+      "original_sha256": "73d757806df4d14bb8c60be049a1e2bd77a3279416f26f238675676ef61ba451",
+      "published_sha256": "73d757806df4d14bb8c60be049a1e2bd77a3279416f26f238675676ef61ba451",
+      "bytes": 23259357
+    },
+    "result.json": {
+      "original_sha256": "1e18c8f2479184eebf15df2abd18b2912dd44fe41c113c336168b2a8fb6ebd52",
+      "published_sha256": "1e18c8f2479184eebf15df2abd18b2912dd44fe41c113c336168b2a8fb6ebd52",
+      "bytes": 373158
+    },
+    "timings.json": {
+      "original_sha256": "3bc4c6512ca5cd5e7995ae670c8f349f3b93b54b0cf3fe04ea2577c91c321ebe",
+      "published_sha256": "3bc4c6512ca5cd5e7995ae670c8f349f3b93b54b0cf3fe04ea2577c91c321ebe",
+      "bytes": 439
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

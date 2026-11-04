@@ -1,0 +1,151 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-completion-05",
+  "archive": "archives/pocoma-l5-i1-completion-05.tar.gz",
+  "sha256": "79f8d19e4740e75f3391598aeef9379ded204292987eb4ccaebf0fad9dfbd0f2",
+  "bytes": 2151402,
+  "files": {
+    "T1/discovery.log": {
+      "original_sha256": "a13b657f725d863e79389314bb2c5c39fee256543b1f997b9275a5be41bea0a6",
+      "published_sha256": "a13b657f725d863e79389314bb2c5c39fee256543b1f997b9275a5be41bea0a6",
+      "bytes": 9547
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "32ee66ff08fe8c424a1d15a0886983374aa8693b9f2077605b0fcf1ea1efbb5b",
+      "published_sha256": "32ee66ff08fe8c424a1d15a0886983374aa8693b9f2077605b0fcf1ea1efbb5b",
+      "bytes": 791
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "be6c42ec72b007d0f11405042750460ae4f2b57f02ffb5579959705e529749a3",
+      "published_sha256": "be6c42ec72b007d0f11405042750460ae4f2b57f02ffb5579959705e529749a3",
+      "bytes": 20185178
+    },
+    "T1/maven.log": {
+      "original_sha256": "ffd62a1f4085ed2c56f8443360b2b91beba309e23d6b131d379c9397b23da191",
+      "published_sha256": "f8b0b97a1fe43773dd2d45f3428cd999cbebcc698ea07cb99de0a5c373501efb",
+      "bytes": 90634
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "a0df789eb917f88b86c75eb1bd956aba6ec42bd03b9fb10adb5612063d1a71b5",
+      "published_sha256": "a0df789eb917f88b86c75eb1bd956aba6ec42bd03b9fb10adb5612063d1a71b5",
+      "bytes": 700
+    },
+    "T1/plan.json": {
+      "original_sha256": "ff3070528611320effed50459e9b91818a0680634b3cd9f25469888125ac8280",
+      "published_sha256": "ff3070528611320effed50459e9b91818a0680634b3cd9f25469888125ac8280",
+      "bytes": 55998
+    },
+    "T1/provenance.json": {
+      "original_sha256": "fce601410360b3982ef9ab652c2cb0f28fe69e2f919c68717e88050c45716cb6",
+      "published_sha256": "fce601410360b3982ef9ab652c2cb0f28fe69e2f919c68717e88050c45716cb6",
+      "bytes": 265310
+    },
+    "T1/raw.tar.gz": {
+      "original_sha256": "8d0ba43af38e983904969b41393aa7be2e1d4c36991f20afdc71707f2824682d",
+      "published_sha256": "e900d6c59d88937db2fec2326d8cebbe5370af4e8405ca5adc4147083e575080",
+      "bytes": 1053873
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.xml": {
+      "original_sha256": "1be60018613dabc6eb9867a35b120c1579efa7ae035526f76a6652965c609a10",
+      "published_sha256": "1be60018613dabc6eb9867a35b120c1579efa7ae035526f76a6652965c609a10",
+      "bytes": 55587
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.txt": {
+      "original_sha256": "4f8422be3424bc3f03123bad83c207bb0098cb104db238a317b568efb1bf1e67",
+      "published_sha256": "4f8422be3424bc3f03123bad83c207bb0098cb104db238a317b568efb1bf1e67",
+      "bytes": 370
+    },
+    "T1/reports/pocoma-runtime-web-api/surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml": {
+      "original_sha256": "14c199dfccf54e661a998cecf5b1a7721553f6b33b7bc0b0c292710fb68570ba",
+      "published_sha256": "04329efd65afbe7dcda7b0a4d92c64234b619c79cb21d5d6519321df2385991b",
+      "bytes": 59032
+    },
+    "T1/reports/pocoma-runtime-web-api/surefire-reports/com.kartaguez.pocoma.V3ReadHttpContractTest.txt": {
+      "original_sha256": "464adb05a52192a2b1eb47300efd7f97f44068c860bbaca1496175c35746eb69",
+      "published_sha256": "32c87c3c0c98bcbd5d1ee5b434e8593c186349a63dc2d6349362deec5b264f35",
+      "bytes": 1262
+    },
+    "T1/result.json": {
+      "original_sha256": "45fc4f0ed64330ae2b42f6ccb6aabf1db77d77f73f56ca5e2cbf7ded2b7e2811",
+      "published_sha256": "a4366a750a4a1b8692038ab05c7203804075c5b4ab3d0345580ae519c8a84dd3",
+      "bytes": 24886
+    },
+    "T1/timings.json": {
+      "original_sha256": "f8fcb3980cca056451c5bd7419029d5343aed528029ec4efe2c77375e2accec6",
+      "published_sha256": "f8fcb3980cca056451c5bd7419029d5343aed528029ec4efe2c77375e2accec6",
+      "bytes": 732
+    },
+    "T1.log": {
+      "original_sha256": "9915f03850b1707cc261a93c89954cc0849af22812a81ac2cb2591560ed2fd53",
+      "published_sha256": "9915f03850b1707cc261a93c89954cc0849af22812a81ac2cb2591560ed2fd53",
+      "bytes": 891
+    },
+    "campaign.json": {
+      "original_sha256": "d9f38ed151c9f6d820853888f5f40cdb55fd275867078bb2b1d097a9faed7e1b",
+      "published_sha256": "d9f38ed151c9f6d820853888f5f40cdb55fd275867078bb2b1d097a9faed7e1b",
+      "bytes": 6795
+    },
+    "physical/HTTP-i1_527b8da3681047a487483ccaed8b8771.json": {
+      "original_sha256": "47b5a6366276b07f448fa514af942e8b2e2439f571d9bc5727cc8755fb4f3aa1",
+      "published_sha256": "47b5a6366276b07f448fa514af942e8b2e2439f571d9bc5727cc8755fb4f3aa1",
+      "bytes": 1912
+    },
+    "physical/HTTP-i1_f937e62f211c45c4a19dcac0940d68ff.json": {
+      "original_sha256": "1a450f4b41112de61e25ec3ed8a5d3c47a1cef9c36aa4f647e62dcbdcdb768de",
+      "published_sha256": "1a450f4b41112de61e25ec3ed8a5d3c47a1cef9c36aa4f647e62dcbdcdb768de",
+      "bytes": 1395
+    },
+    "physical/Q07-send-timeout.json": {
+      "original_sha256": "a1f174253e3d25144e78b95e41abae0c5ff624cd392c39280ec49bd788612704",
+      "published_sha256": "a1f174253e3d25144e78b95e41abae0c5ff624cd392c39280ec49bd788612704",
+      "bytes": 96
+    },
+    "physical/Quota-i1_3a1788f3fc0646fa808024beb578dfef.json": {
+      "original_sha256": "5a977f47039c8bdb83e1d34c3aeb98fd8369d50898bdff2aee3943e9821e43b5",
+      "published_sha256": "5a977f47039c8bdb83e1d34c3aeb98fd8369d50898bdff2aee3943e9821e43b5",
+      "bytes": 1413
+    }
+  },
+  "redactions": [
+    {
+      "path": "T1/maven.log",
+      "original_sha256": "ffd62a1f4085ed2c56f8443360b2b91beba309e23d6b131d379c9397b23da191",
+      "published_sha256": "f8b0b97a1fe43773dd2d45f3428cd999cbebcc698ea07cb99de0a5c373501efb"
+    },
+    {
+      "path": "T1/raw.tar.gz::maven.log",
+      "original_sha256": "ffd62a1f4085ed2c56f8443360b2b91beba309e23d6b131d379c9397b23da191",
+      "published_sha256": "f8b0b97a1fe43773dd2d45f3428cd999cbebcc698ea07cb99de0a5c373501efb"
+    },
+    {
+      "path": "T1/raw.tar.gz::reports/pocoma-runtime-web-api/surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml",
+      "original_sha256": "14c199dfccf54e661a998cecf5b1a7721553f6b33b7bc0b0c292710fb68570ba",
+      "published_sha256": "04329efd65afbe7dcda7b0a4d92c64234b619c79cb21d5d6519321df2385991b"
+    },
+    {
+      "path": "T1/raw.tar.gz::reports/pocoma-runtime-web-api/surefire-reports/com.kartaguez.pocoma.V3ReadHttpContractTest.txt",
+      "original_sha256": "464adb05a52192a2b1eb47300efd7f97f44068c860bbaca1496175c35746eb69",
+      "published_sha256": "32c87c3c0c98bcbd5d1ee5b434e8593c186349a63dc2d6349362deec5b264f35"
+    },
+    {
+      "path": "T1/raw.tar.gz",
+      "original_sha256": "8d0ba43af38e983904969b41393aa7be2e1d4c36991f20afdc71707f2824682d",
+      "published_sha256": "e900d6c59d88937db2fec2326d8cebbe5370af4e8405ca5adc4147083e575080"
+    },
+    {
+      "path": "T1/reports/pocoma-runtime-web-api/surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml",
+      "original_sha256": "14c199dfccf54e661a998cecf5b1a7721553f6b33b7bc0b0c292710fb68570ba",
+      "published_sha256": "04329efd65afbe7dcda7b0a4d92c64234b619c79cb21d5d6519321df2385991b"
+    },
+    {
+      "path": "T1/reports/pocoma-runtime-web-api/surefire-reports/com.kartaguez.pocoma.V3ReadHttpContractTest.txt",
+      "original_sha256": "464adb05a52192a2b1eb47300efd7f97f44068c860bbaca1496175c35746eb69",
+      "published_sha256": "32c87c3c0c98bcbd5d1ee5b434e8593c186349a63dc2d6349362deec5b264f35"
+    },
+    {
+      "path": "T1/result.json",
+      "original_sha256": "45fc4f0ed64330ae2b42f6ccb6aabf1db77d77f73f56ca5e2cbf7ded2b7e2811",
+      "published_sha256": "a4366a750a4a1b8692038ab05c7203804075c5b4ab3d0345580ae519c8a84dd3"
+    }
+  ],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

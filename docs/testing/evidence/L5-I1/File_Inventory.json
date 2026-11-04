@@ -1,0 +1,1135 @@
+{
+  "reference": "f46d63a9bc4505c43610376eeba40a5854431230",
+  "qualified_source_sha": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23",
+  "qualified_git_trees": {
+    "app": "5293417b2590f355319e56b8f3e304ebf3931ae9",
+    "scripts/testing": "a1772d50d437fa545c48bce345c1787afd5f9e75",
+    "scripts/bruno-v3": "52fcfbf7fe7b155215e5e15c5470db5c535ffd9d",
+    "scripts/v3": "3b7b7614a9ab31072903bf51dc61987d6a6b08d1"
+  },
+  "file_count": 160,
+  "files": [
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+      "status_from_reference": "M",
+      "bytes": 36715,
+      "sha256": "cb28259539ee5f2a4fd5bb4d53199759fd32fbfb37c31ff85d6f8743c74c396a",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java",
+      "status_from_reference": "M",
+      "bytes": 22185,
+      "sha256": "6539b20a12b056e2fc893adefb38423cdf8f31f07901797ebc1249ca4120bd1d",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeComposition.java",
+      "status_from_reference": "M",
+      "bytes": 9600,
+      "sha256": "aa5439b8cdf0ce506927d9be676764ea12a89cfff639655622079beed5b884ee",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeConfiguration.java",
+      "status_from_reference": "M",
+      "bytes": 1720,
+      "sha256": "746ce9654a467def8b724174e1d84eed8b72308937cb849a8bc8f20290ab46c7",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadHttpConfiguration.java",
+      "status_from_reference": "A",
+      "bytes": 13751,
+      "sha256": "ae05bb461c6a5aa213c415b8a40afd0a44e15e8b2e65fb7141d8643f3f2f12fd",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/v3/GetCommandTerminalResult.java",
+      "status_from_reference": "M",
+      "bytes": 810,
+      "sha256": "bcc9bc494d9f7bb19cf07c73d56e1a95ca80caf0a0e5dcb603eb724bcd7ddd53",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/engine-read-current-binding/src/main/java/com/kartaguez/pocoma/engine/read/currentbinding/v3/GetCurrentBindingV3.java",
+      "status_from_reference": "M",
+      "bytes": 1702,
+      "sha256": "72568c8577a7fc790241086da3d4093e5798d288f279c8669267256c1d806028",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadLimitsV3.java",
+      "status_from_reference": "M",
+      "bytes": 976,
+      "sha256": "860a0f342adecc59dec235f5a88417ee7fbe9d5b8bfaaec8c97362dea1e8c4fb",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadNavigationV3.java",
+      "status_from_reference": "M",
+      "bytes": 1506,
+      "sha256": "a139f4395442f6beb7f7eddfa58ce3de92fcf2e2a96bf0e41621f9aa2b218375",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadPotV3.java",
+      "status_from_reference": "M",
+      "bytes": 15316,
+      "sha256": "51503326c8febc6ec99ad78bd186deda9142999cb780f12aec5689e3dac1e7af",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/engine-read-registration-result/src/main/java/com/kartaguez/pocoma/engine/read/registrationresult/v3/GetIdentityTerminalResult.java",
+      "status_from_reference": "M",
+      "bytes": 821,
+      "sha256": "d3284d78af6c0ee6cf59ccf1b8d7e2a5e3ca4e447da7e140e46de12a377393ac",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-monolith/pom.xml",
+      "status_from_reference": "M",
+      "bytes": 7378,
+      "sha256": "0190dd4e7629062403926c36e7932de59ff0a2db3bade9a426419ffe3406a60a",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-monolith/src/main/java/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.java",
+      "status_from_reference": "M",
+      "bytes": 3383,
+      "sha256": "28773059ff50ae0399f6c8336f10c20a0371cd9bd33d25c32690eeadccc9b842",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3CompositionHttpFixture.java",
+      "status_from_reference": "A",
+      "bytes": 17809,
+      "sha256": "d96fe2594e870069ca7d3b68f4b9f77858a3c0bc1c30e1f57f34cc1a51e51fbe",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3MonolithHttpCompositionPostgresTest.java",
+      "status_from_reference": "A",
+      "bytes": 5487,
+      "sha256": "6a3c876c6a66436dc91dbf86f144a836815876007f8a904beceb155059c030f6",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/pom.xml",
+      "status_from_reference": "M",
+      "bytes": 5078,
+      "sha256": "ae83057e306633d3780a88ac8ebeff3daeb6e39857d6e867be9445825c978273",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/PocomaTaskConsumptionWorkerApplication.java",
+      "status_from_reference": "M",
+      "bytes": 1845,
+      "sha256": "bab2559d920cac07a544469c2376fe918321d46bc516f28114c3e86281e0035d",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/main/resources/application.properties",
+      "status_from_reference": "M",
+      "bytes": 194,
+      "sha256": "467c13e5220c41bdeac8cd5d7bcdb4a345f92bccb933eacd19d9fc752fe74406",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/V3QuotaHttpFixture.java",
+      "status_from_reference": "A",
+      "bytes": 17928,
+      "sha256": "f273630362871033bfb378563924fee3d24e5b33a28366e4a4631ef891cf813c",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/V3ReadQuotaPostgresTest.java",
+      "status_from_reference": "A",
+      "bytes": 29761,
+      "sha256": "6af95c98d452cf918dc147a95bc8efb1c77b3528a6cf513b70bb63113f182273",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-web-api/src/main/java/com/kartaguez/pocoma/PocomaWebApiApplication.java",
+      "status_from_reference": "M",
+      "bytes": 1098,
+      "sha256": "d2e9a4b054cfda6eefb91b514c5e94f3eed57a85406507ae084bc562f6b40e75",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3HttpCompositionPostgresTest.java",
+      "status_from_reference": "A",
+      "bytes": 9166,
+      "sha256": "522b4e22fd962500ed6d669e52155dfde3b3fcef79004878c934edd645d10912",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3ReadHttpContractTest.java",
+      "status_from_reference": "A",
+      "bytes": 26036,
+      "sha256": "9459ed869159c868fd1624a5e71fe82a43b1549e530a72a0780cffe611fd9f16",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3ReadHttpFixture.java",
+      "status_from_reference": "A",
+      "bytes": 25014,
+      "sha256": "d811f16ce559a5c40a2e3c7834ce20b9e366a8ba313427a36827983f8d961557",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadController.java",
+      "status_from_reference": "A",
+      "bytes": 10258,
+      "sha256": "4440d1bd1758b7179caf5dbc504814844b1524831c48bca976844f3f59bb784e",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadDtos.java",
+      "status_from_reference": "A",
+      "bytes": 2992,
+      "sha256": "609766d06db0ae53f7334f8881f0a2c6444373006a0cc44d46aa066cbfc94520",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadTransport.java",
+      "status_from_reference": "A",
+      "bytes": 6080,
+      "sha256": "2ed62160cc0799096ce1808da41d09a9ce1997ebfe154c747fa82117157927c3",
+      "kind": "application_or_test"
+    },
+    {
+      "path": "docs/README.md",
+      "status_from_reference": "M",
+      "bytes": 18148,
+      "sha256": "26d157827db08c92d64cfd73796787fb9c045066c39966419b477c462c51250d",
+      "kind": "documentation"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Archive_Index.json",
+      "status_from_reference": "A",
+      "bytes": 7536,
+      "sha256": "b00fc3ca95d574ad5da5125248fe62d468999a57eaec90e89f3f1e455306f108",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Archive_Integrity_Check.json",
+      "status_from_reference": "A",
+      "bytes": 337,
+      "sha256": "26fed0058cb099c4708963704c9fecfde2d2d4a9e59d94d1c2cb894c02619f86",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Bruno_Observed_Counters.json",
+      "status_from_reference": "A",
+      "bytes": 4299,
+      "sha256": "1868fe043e0c8c2ae04c79119e048ec7d9562459973c42e28c15efad4876166f",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Clock_Measurement_Analysis.json",
+      "status_from_reference": "A",
+      "bytes": 1257,
+      "sha256": "252e71d4f7dad41aa0162d826dc91f6fef1f27ea65573fd5630113010d9fdc2a",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/D4_Observed_Measurements.json",
+      "status_from_reference": "A",
+      "bytes": 200706,
+      "sha256": "8e2cda8165c8e1114daae1adc073517ab1c4bada563d686abe31ede5f5528d65",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Delivery_Review.json",
+      "status_from_reference": "A",
+      "bytes": 1759,
+      "sha256": "f236d3033933c8550d2568583a666a232614b825d6216e481f92716aa5236234",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Executed_Command_Inventory.json",
+      "status_from_reference": "A",
+      "bytes": 151123,
+      "sha256": "4b4c56ed61c08021b34ee914fa475783219f767f128106a255e24b77a1014846",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/File_Inventory.json",
+      "status_from_reference": "A",
+      "bytes": null,
+      "sha256": null,
+      "reason": "self-reference; integrity from delivery Git blob",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Git_Prepublication_Check.json",
+      "status_from_reference": "A",
+      "bytes": 1332,
+      "sha256": "c042a737bdc452aa0a34419bb4f14c70788ff8c0f5555988ff9217ab859080d7",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Observed_Timings.md",
+      "status_from_reference": "A",
+      "bytes": 3302,
+      "sha256": "165c02ef19a6ae80e33e69afb1fc5d822c8ec1a1dad9bc319b3c3c7921284df3",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Phase_Cost_Analysis.json",
+      "status_from_reference": "A",
+      "bytes": 80528,
+      "sha256": "792e49c40c26893625a3b83d264e1413809fd75dd91f77f1b9ad845d70039171",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Plain_File_Secret_Check.json",
+      "status_from_reference": "A",
+      "bytes": 277,
+      "sha256": "f712bb03b3676c365e0b9e3ad9359846607b1fa40029bb588f043da5640b7464",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Process_Termination_Check.json",
+      "status_from_reference": "A",
+      "bytes": 407,
+      "sha256": "9dc33fcb4feb7effed92366f5656fc48cead8638973d1ccac4b1c2b6f672648e",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Publication_Collection_Timings.json",
+      "status_from_reference": "A",
+      "bytes": 2258,
+      "sha256": "e1109ac88f1d73e574f2acdfdc6f9a54c71e054e501685d0baa8630e10c18405",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Qualification_Summary.json",
+      "status_from_reference": "A",
+      "bytes": 226756,
+      "sha256": "6a809ff76a0646fde6ef82e6571fd612d0b1da629cb467684e557be941708f5b",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/README.md",
+      "status_from_reference": "A",
+      "bytes": 4622,
+      "sha256": "6ede01994e6860009803eb0526c4582cefa7aaeefcb8ac9aff3ebe83c15b7d4e",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Requirements_Test_Evidence_Matrix.md",
+      "status_from_reference": "A",
+      "bytes": 7536,
+      "sha256": "a5f8cb41b44dcb120635b77a7ddf156e666e1353714717161c77e187e26dfafc",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/Reuse_Assessment.json",
+      "status_from_reference": "A",
+      "bytes": 27315,
+      "sha256": "4c8b76dc0c91d79e3a489bed17a3d8b6327282882816c4bd4ff04cc0a7b4993d",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/bytecode-diagnostic.json",
+      "status_from_reference": "A",
+      "bytes": 911,
+      "sha256": "eb3b5ef5186a86b0b4366da47a5bbc952174b2fa0db5c78620704d930e6113cb",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/bytecode-diagnostic.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 6378,
+      "sha256": "56b9cf9bca2d6a11bb9c229be0337fad774ae2d142841782eb6415642381a83f",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/development.json",
+      "status_from_reference": "A",
+      "bytes": 11837,
+      "sha256": "856ccc3a2f343d1ccf4ecde4eb7291350fdd498c3c7cedd5ad2165216dac2a9b",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/development.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 84561,
+      "sha256": "f3e5b5ea48d629c70589004e8054c1c4abcb5a5002a8135dcf50e1dbde0b6095",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-01.json",
+      "status_from_reference": "A",
+      "bytes": 1641,
+      "sha256": "1e91d323de97e77aa375deee57d524438b2c7fc369e6a49a6766cc6cd4e886ca",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 1232029,
+      "sha256": "9563f70a6f2a9b3db37fdbb53bae5f5ff4fbb437d14c551ded86fea51f3bbf3c",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-02.json",
+      "status_from_reference": "A",
+      "bytes": 154554,
+      "sha256": "7b35a7e3911415413989de58c3740136bd3b4b069feb5f93a6814dc86109ac32",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-02.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 1795545,
+      "sha256": "4e7e91e6e943afa132a763d0f9d09a4bd639e8d5cc25919300860dfd34f4a05e",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-03.json",
+      "status_from_reference": "A",
+      "bytes": 232449,
+      "sha256": "c3ad99e2c57ecf9f68dce0a3d774f5b61433b56d5dd182500f2bb05806d55a6a",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-03.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 36898039,
+      "sha256": "8dbc320c3f4ef5aac55791c8c984560410202961cf4a29bbd777caeab3d56aee",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-04.json",
+      "status_from_reference": "A",
+      "bytes": 237946,
+      "sha256": "7f3855fe0a905d102e8831d2640b9523fd9ea814cc06df45dd3d5e22904c4326",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-04.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 36887182,
+      "sha256": "42aeab0f9a76902692ac8d9c084390520b9e6416e775e5d9ee26ea700f0d7b26",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-05.json",
+      "status_from_reference": "A",
+      "bytes": 556741,
+      "sha256": "2d18a4a4c53506e95421e0acfbd0490fc36fb79a172c2abbb2acc1808df7482a",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-05.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 35530426,
+      "sha256": "7154594b2359fbd94d62810f6fd74f5c1a579d5719ee3401611ec19f8ba437d4",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-06.json",
+      "status_from_reference": "A",
+      "bytes": 240274,
+      "sha256": "9a8352476bdb4e4c0c1823d0a0aa94b77ad8ee724f638e66826ff95dfae9917d",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-06.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 37028454,
+      "sha256": "a4f80a96e04ac2b5fd3b9bdefa399e30914f9dda888e7e9359e5794c05543c43",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-07.json",
+      "status_from_reference": "A",
+      "bytes": 300997,
+      "sha256": "eac188546d80cba1156c78318ccdce8df0430fac8e285ae0b64c7959bbc13a41",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-07.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 38444441,
+      "sha256": "96c17e676ea060a6546b0484812578899ccbde5e0f751bbb1749f1c3c9e87afa",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-08.json",
+      "status_from_reference": "A",
+      "bytes": 320908,
+      "sha256": "de290e3b6248bc8146e9423b841d8d9c496e9688268867f289f2a9e7fefaed0b",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-08.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 38748482,
+      "sha256": "424c65eaaf1a12d8f2e8d8243f9aa8dd663b2fc3827af02ad693aa0c214f5bd5",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-feedback-01.json",
+      "status_from_reference": "A",
+      "bytes": 22249,
+      "sha256": "f0f6dbd9601ea25cbc753ae44df7c621a220bbe002d5be9e063e2bd02b689dc9",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-feedback-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2702852,
+      "sha256": "45fe08d2a9d3e3e27d69595e9e72d64b9c4111b0e143ef445af680727170d7cc",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-b1-correction-01.json",
+      "status_from_reference": "A",
+      "bytes": 1861,
+      "sha256": "f33b8fc81548e838e30fe27b691084240f2e332a2db5ef904e6e08ae569cff2e",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-b1-correction-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 9334,
+      "sha256": "1ef1eeb7e94863426dbfeb1f9d4c32f41f0c08ab8db28fdcef87ec22519d995f",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-cold-01.json",
+      "status_from_reference": "A",
+      "bytes": 6814,
+      "sha256": "93fdb37f759a02023c9d7f5e8f382566c1ce5efdf3eb826f86128c64a31609aa",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-cold-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2169752,
+      "sha256": "6c3b99155a121f3f1324f40b4c6ebc0400aa7feaafe0f23cc96a3bd1be2d6be1",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-01.json",
+      "status_from_reference": "A",
+      "bytes": 4842,
+      "sha256": "613839514629796acd1bbdb4739018de215a47c85c8df43c3404426cdf6e0001",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2167913,
+      "sha256": "725112c71d30b38c50efce3e95184feaf44609d4d3d93b59a47e20419b857f25",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-02.json",
+      "status_from_reference": "A",
+      "bytes": 13715,
+      "sha256": "6270094047e798447768d5f0532acaa1faff2d7ffdab20a889fb0ff5c36e3e81",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-02.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2201057,
+      "sha256": "459aa4e542921f1f7043c2269d19907a438dc01e0a8fa11edbbb9299dae6e759",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-03.json",
+      "status_from_reference": "A",
+      "bytes": 7176,
+      "sha256": "58dada1319d8a5517ae5c71cecf61a4fbf45927b4bf4f1181b8b57c493a407f5",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-03.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2192003,
+      "sha256": "0cdf3d7b0a978d71a2c871f2148aac6651c500cdf8825b615c0f3bdd7299ea44",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-04.json",
+      "status_from_reference": "A",
+      "bytes": 3985,
+      "sha256": "88145cfd79abaecc0fc1feac9009bac3bde13de927cc93641df33d9567ada69e",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-04.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2165471,
+      "sha256": "7081e1443fb1b0334a91f59787f5bcc05e947356349d1861b465a87934044479",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-05.json",
+      "status_from_reference": "A",
+      "bytes": 7997,
+      "sha256": "38ccdec2fac3a260e79f2e71c26687c84c23dd96ff61f2909e65320584d87499",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-05.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2151402,
+      "sha256": "79f8d19e4740e75f3391598aeef9379ded204292987eb4ccaebf0fad9dfbd0f2",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-06.json",
+      "status_from_reference": "A",
+      "bytes": 8881,
+      "sha256": "0ad7a74c5c31bbbabd7a2e94ff0a3edb3d94cce195784672b79bacfab7f9fc40",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-06.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2165869,
+      "sha256": "d866b92b0098669d5f3dde4ee2c8de46665c7e3049a15010f4200d1443d51836",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-07.json",
+      "status_from_reference": "A",
+      "bytes": 5661,
+      "sha256": "37845a5224ea4f8250dbb34b7f7bbf08ead44c50c9bf5fd78e1755fec8ec23d0",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-completion-07.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2164145,
+      "sha256": "898dfcd453ba22450dc8b2410e23951fe25a659bb5567adde8ae4391958fbf53",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-composition-split-01.json",
+      "status_from_reference": "A",
+      "bytes": 21881,
+      "sha256": "6d1025697b5e3449ae52e549ed7236c361a832c08bb2a28d5d26bd62542edb29",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-composition-split-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2219120,
+      "sha256": "0548502d1ef954890d6dfd9a0c8dc826e987de8033bde55da1d8020c047c1387",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-correction-01.json",
+      "status_from_reference": "A",
+      "bytes": 6165,
+      "sha256": "f59e150dadfb387a007179fcc4027d358d420aed0fe75f4058ee48b1b506ef00",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-correction-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 1147213,
+      "sha256": "430bf83bcc04459203acd91e0377d5006c2098a92c9652dbb75c4d7c6120373d",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-final-delta.json",
+      "status_from_reference": "A",
+      "bytes": 7471,
+      "sha256": "74d56d78e0ae1e8193fb01fbdf9865bbea692f82c5f6875501ee8e1b0a8a56dc",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-final-delta.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2162840,
+      "sha256": "a73f2eee50350c06bfceb471da6c9174dbe83549c33c1387c32b063ead993cd3",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-formal-01.json",
+      "status_from_reference": "A",
+      "bytes": 4030,
+      "sha256": "34b1d334fa0749a066db13755f6039fc37aff401067bd8b51905eedafab7a705",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-formal-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2160979,
+      "sha256": "bf44ce0c34f6d1faa7ba042c59cf36c4a3892e25cb38f638828abba336ac7934",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-http-boundary-01.json",
+      "status_from_reference": "A",
+      "bytes": 28891,
+      "sha256": "5d42e8a324029c277bfaf2d4b078f0a86842e7f70ce177e521f06bf2aa919a9a",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-http-boundary-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2251674,
+      "sha256": "0904851ba0e4958d13a71149efc57f49cb21226c04966998f0f75e715214f71b",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-isolated-01.json",
+      "status_from_reference": "A",
+      "bytes": 7814,
+      "sha256": "baa81994fa4495994085361849a2eedf5a85b42ec36737f717a5a40280dfc1a9",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-isolated-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2179784,
+      "sha256": "1ea2bdca98bbba53dd6921e5fde642b05a7a55e819087c3a82e662a6297cc760",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-isolated-02.json",
+      "status_from_reference": "A",
+      "bytes": 7816,
+      "sha256": "647a4e5b9ae272c8f38192f57b7ef7c86a1cdbac49ca673c88602b338fc5ea7f",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-isolated-02.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2182066,
+      "sha256": "ebdf7a348451d256db525d33add455fd41416ed971e94d5343dee049b839ae6a",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-optional-port-01.json",
+      "status_from_reference": "A",
+      "bytes": 32912,
+      "sha256": "b7840c898b083ece536f8afa6979b97d4ef26497b698a743e6f189721915f558",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-optional-port-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2551456,
+      "sha256": "c8d14d40920313fe7795e2770fe96ff967e3090fc7879d794775ec915c275a71",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-pool-initialization-01.json",
+      "status_from_reference": "A",
+      "bytes": 18016,
+      "sha256": "e41929f55f7e4e482ba548bdf1a269e30947a41434f52ded0b084f213bd34bdf",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-pool-initialization-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2076138,
+      "sha256": "a0d8f2561950fcfa7ea4e25eba025ea5ab8ef2702be33d464631e94a3c20bd3a",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-worker-isolation-01.json",
+      "status_from_reference": "A",
+      "bytes": 5055,
+      "sha256": "755ed306fe539255a154b68a268e7344aa0c2225d0527d4c639ac315f91d68ec",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-worker-isolation-01.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2091688,
+      "sha256": "d3d73da29708a1c7a4718dd7f9253f7612038c1e30d9cf10fdaa37c86c3cece8",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-worker-isolation-02.json",
+      "status_from_reference": "A",
+      "bytes": 5052,
+      "sha256": "2279e637e20b9656b12da8403f99b7309efaff7f1616fff597abcc8ae783c4b9",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-worker-isolation-02.tar.gz",
+      "status_from_reference": "A",
+      "bytes": 2095087,
+      "sha256": "b4cab09ed5110ab6876f9d457d9967c31f6191df6c64ce43a6c6a9e100defd4b",
+      "kind": "evidence"
+    },
+    {
+      "path": "docs/v3/L5_I1_Execution_Report.md",
+      "status_from_reference": "A",
+      "bytes": 27252,
+      "sha256": "828c635f61bc634c0f2d193b4cc9f314c0c52ba67128ef7b9dba22cfbfbc2d9c",
+      "kind": "documentation"
+    },
+    {
+      "path": "docs/v3/L5_I1_Human_Ratification_and_GO.md",
+      "status_from_reference": "A",
+      "bytes": 4259,
+      "sha256": "f3abc267937c22cdeade036fb53c6d8203ca65bde9157cb437f7eb3aee1cc92d",
+      "kind": "documentation"
+    },
+    {
+      "path": "docs/v3/L5_I1_Implementation_and_Qualification_Plan.md",
+      "status_from_reference": "M",
+      "bytes": 66042,
+      "sha256": "376e249b30654dfc756d9ac515a5dd54ca8a7efa46eb2513420a7665664f6fed",
+      "kind": "documentation"
+    },
+    {
+      "path": "docs/v3/L5_I1_Proof_Manifest.json",
+      "status_from_reference": "A",
+      "bytes": 12231,
+      "sha256": "1164663ae1299d3eb974e8a6cce3cd835d663ac22188ca57191e8e2c9269fdbc",
+      "kind": "documentation"
+    },
+    {
+      "path": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "status_from_reference": "M",
+      "bytes": 179461,
+      "sha256": "74716987622f1df1cc0aebedcad82985142796fb4c279d6ff26a5b57ead4cb55",
+      "kind": "documentation"
+    },
+    {
+      "path": "scripts/bruno-v3/.gitignore",
+      "status_from_reference": "A",
+      "bytes": 23,
+      "sha256": "36d4d6f33a3ef86b6527552b92a2e9d8215ed6dcd7cbcb967efae5f38bb452a4",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/01 Own Binding/B01 activeOwnBinding.bru",
+      "status_from_reference": "A",
+      "bytes": 2062,
+      "sha256": "b5717067fd73c3f9fe68b016e57bf0e9fea50c8120efa9315e656a7fdc03fe30",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/01 Own Binding/B02 inactiveOwnBinding.bru",
+      "status_from_reference": "A",
+      "bytes": 1953,
+      "sha256": "5198f8e7366b91a1c7d371fcca543abf20ed23bddfc5c23e423c45d75446c330",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/01 Own Binding/B03 absentOwnBinding.bru",
+      "status_from_reference": "A",
+      "bytes": 1821,
+      "sha256": "4412e614407987dc371a44ac1437d25dbdaa435b6470c8e86645c0a68a2ed127",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/01 Own Binding/B04 bindingMinimum.bru",
+      "status_from_reference": "A",
+      "bytes": 2005,
+      "sha256": "52dfd3c15eb0050f7f0978cf2c258dbc708bbab028235c5b5798735095205c91",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/01 Own Binding/B05 foreignBindingSelector.bru",
+      "status_from_reference": "A",
+      "bytes": 1891,
+      "sha256": "0cd36baab1dc58c6f304857104b62a7b73589a8dd33a2ba0fe728cf11a185e92",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/01 Own Binding/B06 noBearer.bru",
+      "status_from_reference": "A",
+      "bytes": 1815,
+      "sha256": "d92a133bf0d343a35f5e153ddfa8f1f7c01fa8a991349a7b87d39ac4e35c6bbb",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B07 currentComplete.bru",
+      "status_from_reference": "A",
+      "bytes": 2293,
+      "sha256": "e28c19e2dc978384f62181c8d6dc0089d8665f6f78eecd23cfb77af0fb066b04",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B08 exactHistory.bru",
+      "status_from_reference": "A",
+      "bytes": 2130,
+      "sha256": "2c19cfec7a09497832616a7151c1b1bb6cd6cc501bbbf179beff8f4b715309a8",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B09 exactBalance.bru",
+      "status_from_reference": "A",
+      "bytes": 2105,
+      "sha256": "cb036d30290cc9e77e09ef59415fbae05297ab650b0f51dad64cd1cd95c733ec",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B10 forbiddenAndAbsent.bru",
+      "status_from_reference": "A",
+      "bytes": 2134,
+      "sha256": "7febfa191f6d0a285056d2cb661f37808d8125c31c0157d8d1fb0d7a85e000f0",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B11 deletedCurrent.bru",
+      "status_from_reference": "A",
+      "bytes": 1893,
+      "sha256": "1f434cc5d2ca299d0e50195399e949d37254c798fb95c12c6a6fd1ac401b8e71",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B12 terminalVersion.bru",
+      "status_from_reference": "A",
+      "bytes": 1969,
+      "sha256": "278f454f955706c49c8900408316447224a7031abb4834abb1ad729a1c720a6f",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B13 historyBeforeDeletion.bru",
+      "status_from_reference": "A",
+      "bytes": 2446,
+      "sha256": "977c0c038f963a6a07246168c38a2392ce5539c181c0405bcbf6ef9117ee7c4d",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B14 authorizedLag.bru",
+      "status_from_reference": "A",
+      "bytes": 2088,
+      "sha256": "c09eb98aa7ba7102a127f7a445cfd037b3708067a9d01dd18d019702d9cb42c5",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B15 singleExpense.bru",
+      "status_from_reference": "A",
+      "bytes": 2528,
+      "sha256": "8d7ae241c74e56ad4bdf0b86d4ee1b71cfadb94c94f75c83e20facbab50da4a0",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B16 fiftyExpenses.bru",
+      "status_from_reference": "A",
+      "bytes": 8230,
+      "sha256": "df7d28b8e760dc78296a0de5fc59096f9603ea82102b68e61caaa9ec8cb37e69",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B17 emptyBatch.bru",
+      "status_from_reference": "A",
+      "bytes": 1984,
+      "sha256": "087cf5a7502677bb6368ea09a32a3adc485a97ed318e37dc77b3b1e54cbc67fe",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B18 oversizedBatch.bru",
+      "status_from_reference": "A",
+      "bytes": 8158,
+      "sha256": "e9d47ce914b70353bd815891fc2a89bf129e2220e8714dd768015c8f68994a2d",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B19 duplicateBatch.bru",
+      "status_from_reference": "A",
+      "bytes": 2229,
+      "sha256": "69bf2f133d0cbd0bc08c5bd88209f2b5de200385f62c2258498c0d449be3572e",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B20 foreignReference.bru",
+      "status_from_reference": "A",
+      "bytes": 2110,
+      "sha256": "bc0b7175839445287c8ac124c8ff0b0285009e424939e8c2127e69a5b38771fd",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B21 navigationPages.bru",
+      "status_from_reference": "A",
+      "bytes": 2373,
+      "sha256": "b3e5898708de8d519c13bca27e379b5265db2e9d537fcbaf12ae680217ce8f6a",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B22 invalidCursor.bru",
+      "status_from_reference": "A",
+      "bytes": 1969,
+      "sha256": "e63a76e8891e62c1e4dd3d91dee64a754e73c44bdff51e7af9990ba835ac1ef3",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B23 pageLimits.bru",
+      "status_from_reference": "A",
+      "bytes": 2155,
+      "sha256": "b6b6501a5040bb3a138d66198c34d26f8d75ab01e33c24c6fd15c2992cce27cf",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B24 mismatchedToken.bru",
+      "status_from_reference": "A",
+      "bytes": 2276,
+      "sha256": "42d2eb717297e984346e03c2b9415e0739b1f03255d277fe204c82a31e4cf965",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B25 commandCompleted.bru",
+      "status_from_reference": "A",
+      "bytes": 2027,
+      "sha256": "84b8849aa393949314c59ee0b4cc149e23bea8f1f1b1d414627d373a949d08c3",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B26 commandRejected.bru",
+      "status_from_reference": "A",
+      "bytes": 2042,
+      "sha256": "09747235145031126c044a840a718a3b8c46cc5b375c964396f85c54b164015e",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B27 identityCompleted.bru",
+      "status_from_reference": "A",
+      "bytes": 2323,
+      "sha256": "2d87fcfeb6fae866d113737db42b60e10e4b810089cd9e5898c604bed8abde35",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B28 identityRejected.bru",
+      "status_from_reference": "A",
+      "bytes": 2090,
+      "sha256": "c4b1cc67fde6ee5d0e17b488eeed0fe0c2d9a3305a9e7618f3fdd6bbbe87376a",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B29 foreignAndSameUserResult.bru",
+      "status_from_reference": "A",
+      "bytes": 2315,
+      "sha256": "e65ad8b50ab1cddd0818d50f5974f9d965e631fb68cc8bc987d29c39fe7206b2",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B30 boundedResultPolling.bru",
+      "status_from_reference": "A",
+      "bytes": 3010,
+      "sha256": "b17926e1974e52c47c74acf4a6bff1cd730f89206135d14c27a6460c3d33b11f",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B31 invalidBearer.bru",
+      "status_from_reference": "A",
+      "bytes": 1819,
+      "sha256": "6c7f15a4eba91e30a40c036acde84a488921dbe37fe0fc6d42945359fe768453",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B32 transportAndPrivacy.bru",
+      "status_from_reference": "A",
+      "bytes": 2409,
+      "sha256": "f05e208330e7133d29d3fccfe3a19c86028d745af13f0591ab808a5534be1c9c",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/Coverage.md",
+      "status_from_reference": "A",
+      "bytes": 6175,
+      "sha256": "8c3277f75d9dd1e6296f14f847dc963033d6420ba9c76b05cf37edac319e40a9",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/README.md",
+      "status_from_reference": "A",
+      "bytes": 6289,
+      "sha256": "58e50358b5d63a345617d323219755cd0b336d7ece9d661c49daaba7c81725c7",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/bruno.json",
+      "status_from_reference": "A",
+      "bytes": 161,
+      "sha256": "dd08d8fc526839901e048bd8eb49b1ec0a5157e666ef2d14d7a99aafb6589ac0",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/collection.bru",
+      "status_from_reference": "A",
+      "bytes": 429,
+      "sha256": "179612033bb2b2edad3fb56927f2337d2802ebbf786f7353b53da490c466513b",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/environments/Local.bru",
+      "status_from_reference": "A",
+      "bytes": 112,
+      "sha256": "07c7321392f9e2a4bfd1b3e8b39cddfc52b5cc24e649747ce9a93377a33c9113",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/environments/Qualification.bru",
+      "status_from_reference": "A",
+      "bytes": 120,
+      "sha256": "3927c7e147064a13c13405f7dc51f64ac832317b5c5bbd509f9f303fede9d922",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/examples/error.json",
+      "status_from_reference": "A",
+      "bytes": 102,
+      "sha256": "7f28ddd15ffa652930f97cae74f5614eab57df8cd9719e3d8df33f5572971177",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/package-lock.json",
+      "status_from_reference": "A",
+      "bytes": 249896,
+      "sha256": "34a146f16bb90ac02be565548ef9e9bc4ecfaf502239a1aa224c8dbd69293b98",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/bruno-v3/package.json",
+      "status_from_reference": "A",
+      "bytes": 83,
+      "sha256": "6f48c86571038a0c6bfec16e55eccc65dc590958d7714038702d3af12049cf58",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/testing/run_l5_i1.py",
+      "status_from_reference": "A",
+      "bytes": 3265,
+      "sha256": "7137f7ded5b000dbf50781f4fbbaa5cb150b42c87c47500fdf465f3d3fab17fe",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/testing/test_read_campaigns.py",
+      "status_from_reference": "M",
+      "bytes": 9359,
+      "sha256": "cb2dd65ceeba69f881594a55991c93c886414a6428506c78ae15df4f0a7d6b3d",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/testing/test_verification.py",
+      "status_from_reference": "M",
+      "bytes": 22984,
+      "sha256": "4ccd332d53ce4b59f607b42fcdaf42fb0a4232562848c73f17e582f3c18f79b9",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/testing/verification-campaigns.json",
+      "status_from_reference": "M",
+      "bytes": 17544,
+      "sha256": "8d79e2287276cc1868ddec8fc06aeff74f970dd7232f6bb8bbe7e12350fc8efa",
+      "kind": "versioned_tool_or_fixture"
+    },
+    {
+      "path": "scripts/testing/verify.py",
+      "status_from_reference": "M",
+      "bytes": 48874,
+      "sha256": "261103920917e18170cd3d3606126e457627e7b863b1c6b9c38f79f1d28290bb",
+      "kind": "versioned_tool_or_fixture"
+    }
+  ],
+  "scope": "Full final working-tree delivery delta; archives already expurgated; raw auxiliary development directory excluded after sealing"
+}

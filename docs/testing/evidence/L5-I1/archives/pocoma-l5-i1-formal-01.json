@@ -1,0 +1,80 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-formal-01",
+  "archive": "archives/pocoma-l5-i1-formal-01.tar.gz",
+  "sha256": "bf44ce0c34f6d1faa7ba042c59cf36c4a3892e25cb38f638828abba336ac7934",
+  "bytes": 2160979,
+  "files": {
+    "T1/discovery.log": {
+      "original_sha256": "db63f1a7e9ddf470dd60b9caf12785269c3f70aa5491e292f89bf05787b892f3",
+      "published_sha256": "db63f1a7e9ddf470dd60b9caf12785269c3f70aa5491e292f89bf05787b892f3",
+      "bytes": 9543
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "6d2614dce83fceec1be705bb624877d93a497233c91f58192581122d79a12dac",
+      "published_sha256": "6d2614dce83fceec1be705bb624877d93a497233c91f58192581122d79a12dac",
+      "bytes": 634
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "6caa0a311c9eca8096262fa3d6d1ddb9cbd6be679f44013830453217441a73aa",
+      "published_sha256": "6caa0a311c9eca8096262fa3d6d1ddb9cbd6be679f44013830453217441a73aa",
+      "bytes": 20194184
+    },
+    "T1/maven.log": {
+      "original_sha256": "350b9cdb6bd0c405b0276cc3dde4207310215b0d277bb6c8443b467c092ff4f2",
+      "published_sha256": "350b9cdb6bd0c405b0276cc3dde4207310215b0d277bb6c8443b467c092ff4f2",
+      "bytes": 246865
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "7cf7471f47fb5682d19976733d6fa355209e8ddc8f788016f68803043a6d77ae",
+      "published_sha256": "7cf7471f47fb5682d19976733d6fa355209e8ddc8f788016f68803043a6d77ae",
+      "bytes": 547
+    },
+    "T1/plan.json": {
+      "original_sha256": "48e1a8739a25f3dacfe363b7e1f3289b719f7406e515c1fb5b9338117195de0a",
+      "published_sha256": "48e1a8739a25f3dacfe363b7e1f3289b719f7406e515c1fb5b9338117195de0a",
+      "bytes": 55591
+    },
+    "T1/provenance.json": {
+      "original_sha256": "64acf09bc3e4f01960f0d5d42ba574b2ec1d5404c1c5378fdfc0292ec81e6c62",
+      "published_sha256": "64acf09bc3e4f01960f0d5d42ba574b2ec1d5404c1c5378fdfc0292ec81e6c62",
+      "bytes": 265295
+    },
+    "T1/raw.tar.gz": {
+      "original_sha256": "ad5b530435bbb9126b0484d70c18f043c3f8c53e5c0c490af8c3e90fab0e9d69",
+      "published_sha256": "ad5b530435bbb9126b0484d70c18f043c3f8c53e5c0c490af8c3e90fab0e9d69",
+      "bytes": 1054982
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.xml": {
+      "original_sha256": "a376afe07b2e6be2a49fae8afba98239954089bb39045eda0bd8222dc7fc8d4d",
+      "published_sha256": "a376afe07b2e6be2a49fae8afba98239954089bb39045eda0bd8222dc7fc8d4d",
+      "bytes": 221000
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.txt": {
+      "original_sha256": "0823d7b17abe7cc0fc40b556ca7d8848a89e1bfb3e357e4cafed1712429e83fc",
+      "published_sha256": "0823d7b17abe7cc0fc40b556ca7d8848a89e1bfb3e357e4cafed1712429e83fc",
+      "bytes": 19160
+    },
+    "T1/result.json": {
+      "original_sha256": "42594ea6656ca3cabf6328d2b4407604a7c90c338cb89a0691c680550f3c996e",
+      "published_sha256": "42594ea6656ca3cabf6328d2b4407604a7c90c338cb89a0691c680550f3c996e",
+      "bytes": 35150
+    },
+    "T1/timings.json": {
+      "original_sha256": "433f36fd2d45ea0a18a1958e1efd442b77f4f4e3eb8958c8078640eca03ccd35",
+      "published_sha256": "433f36fd2d45ea0a18a1958e1efd442b77f4f4e3eb8958c8078640eca03ccd35",
+      "bytes": 698
+    },
+    "T1.log": {
+      "original_sha256": "2c5617d95a24ae8d85b384a901b778dd68e935512414e54b705d1c3e99d4f301",
+      "published_sha256": "2c5617d95a24ae8d85b384a901b778dd68e935512414e54b705d1c3e99d4f301",
+      "bytes": 3930
+    },
+    "campaign.json": {
+      "original_sha256": "acae15b3b96f4bdca6fe142e8cb7a4c30b0248156e3a4ffaebaede64d3ea3363",
+      "published_sha256": "acae15b3b96f4bdca6fe142e8cb7a4c30b0248156e3a4ffaebaede64d3ea3363",
+      "bytes": 6781
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

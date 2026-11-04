@@ -4,6 +4,8 @@
 
 ## Programme V3 courant
 
+- [Livraison L5/I1](v3/L5_I1_Execution_Report.md) — **I1 IMPLEMENTED — LOCAL BOUNDED PASS WITH RESERVATIONS** ; huit endpoints READ, T1 40 méthodes et B1 32 scénarios, résultats et réserves dans le [manifeste](v3/L5_I1_Proof_Manifest.json). Fournisseur AuthN réel non qualifié ; aucun I2–I4/Q5 ni clôture L5.
+
 - [Audit d’entrée et plan global L5 — Supras et parcours externes](v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md), version amendée publiée à `5193c540`, référence de code `c6dc722…` : **PLAN APPROVED — GO I1 AUTHORIZED** selon la ratification courante ; réserves et décisions futures I2–I4/Q5 conservées. Les constats de préparation du document gardent leur attribution historique.
 
 - [Ratification L5 D1/D6 et mandat D4](v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md) : D1-HTTP/représentation et D6-composition I1 approuvés ; AuthN sous qualification fournisseur et D6-gates sous conditions de politique ; principes D4-READ approuvés, nombres nouveaux PENDING. Tension §35 CERTIFICATION/full reactor à arbitrer, réserves L1–L4 conservées. **Acte historique antérieur au GO I1**, complété par la ratification courante sans réécriture de ses décisions.

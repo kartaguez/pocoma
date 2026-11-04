@@ -1,0 +1,80 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-completion-04",
+  "archive": "archives/pocoma-l5-i1-completion-04.tar.gz",
+  "sha256": "7081e1443fb1b0334a91f59787f5bcc05e947356349d1861b465a87934044479",
+  "bytes": 2165471,
+  "files": {
+    "T1/discovery.log": {
+      "original_sha256": "caf995c375fae641d2319d4eb401ef7e516960a89f146df1dff9d347f780436b",
+      "published_sha256": "caf995c375fae641d2319d4eb401ef7e516960a89f146df1dff9d347f780436b",
+      "bytes": 9547
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "af52f34485c9dd760e9e5bce08f99b0dcc4d1a0216d287bcfef177659d5de1e4",
+      "published_sha256": "af52f34485c9dd760e9e5bce08f99b0dcc4d1a0216d287bcfef177659d5de1e4",
+      "bytes": 629
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "725212efdc56f4a119f11cf2d2f7069b20c8acc660b41d37538da4447e955677",
+      "published_sha256": "725212efdc56f4a119f11cf2d2f7069b20c8acc660b41d37538da4447e955677",
+      "bytes": 20185178
+    },
+    "T1/maven.log": {
+      "original_sha256": "e441a5e955777b0a07f1d36c1c9fede698aec84692e6b3fdb34d8fda134d85c7",
+      "published_sha256": "e441a5e955777b0a07f1d36c1c9fede698aec84692e6b3fdb34d8fda134d85c7",
+      "bytes": 103204
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "0f5879922b46542d8ed44671c7cc2b415e4aae7bbe2ba5c4fbc4043b2922eed1",
+      "published_sha256": "0f5879922b46542d8ed44671c7cc2b415e4aae7bbe2ba5c4fbc4043b2922eed1",
+      "bytes": 538
+    },
+    "T1/plan.json": {
+      "original_sha256": "d58715bf5151f848af3870ce83799ef196101f0f1fcf1fc67bdefb0c6523fa98",
+      "published_sha256": "d58715bf5151f848af3870ce83799ef196101f0f1fcf1fc67bdefb0c6523fa98",
+      "bytes": 54463
+    },
+    "T1/provenance.json": {
+      "original_sha256": "bc4da13711057b1b975fa9bf6957777271cc318890be7c641783ceab119a9fbc",
+      "published_sha256": "bc4da13711057b1b975fa9bf6957777271cc318890be7c641783ceab119a9fbc",
+      "bytes": 265310
+    },
+    "T1/raw.tar.gz": {
+      "original_sha256": "083c341933463e5b8702b26f21a7a83cfa7fb3d92915c5c3136f7d7b98ed5424",
+      "published_sha256": "083c341933463e5b8702b26f21a7a83cfa7fb3d92915c5c3136f7d7b98ed5424",
+      "bytes": 1050960
+    },
+    "T1/reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3HttpCompositionPostgresTest.xml": {
+      "original_sha256": "149b345f4204d200a8cf18f45320713d079a681b62e0946b366766c7793806a5",
+      "published_sha256": "149b345f4204d200a8cf18f45320713d079a681b62e0946b366766c7793806a5",
+      "bytes": 77113
+    },
+    "T1/reports/pocoma-runtime-monolith/surefire-reports/com.kartaguez.pocoma.V3HttpCompositionPostgresTest.txt": {
+      "original_sha256": "ac7120000f8e45cb7b6ae9faf23490456d5ced9d0263a6b26aa25f1a6622224b",
+      "published_sha256": "ac7120000f8e45cb7b6ae9faf23490456d5ced9d0263a6b26aa25f1a6622224b",
+      "bytes": 1723
+    },
+    "T1/result.json": {
+      "original_sha256": "512a1e46a628463164c45c2d575f94949cbfae8cb2d315febdc9f3f1642d18ab",
+      "published_sha256": "512a1e46a628463164c45c2d575f94949cbfae8cb2d315febdc9f3f1642d18ab",
+      "bytes": 24146
+    },
+    "T1/timings.json": {
+      "original_sha256": "4d4887d140f5018eec3ca456ab54c731c573ad2c33e9118f74a6c0abc067a0f4",
+      "published_sha256": "4d4887d140f5018eec3ca456ab54c731c573ad2c33e9118f74a6c0abc067a0f4",
+      "bytes": 724
+    },
+    "T1.log": {
+      "original_sha256": "ada7e67df257ec0c3df6590e784ed468645b2d09607837cb085c019f1a8e63ea",
+      "published_sha256": "ada7e67df257ec0c3df6590e784ed468645b2d09607837cb085c019f1a8e63ea",
+      "bytes": 623
+    },
+    "campaign.json": {
+      "original_sha256": "96d651757b308bccdc73e01009768e947980cfcdaf5fd2246acae6aa0743bf8f",
+      "published_sha256": "96d651757b308bccdc73e01009768e947980cfcdaf5fd2246acae6aa0743bf8f",
+      "bytes": 6795
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

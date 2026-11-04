@@ -1,0 +1,22 @@
+{
+  "latest": {
+    "run": "architecture-08",
+    "source_sha": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23",
+    "maven_civil_seconds": 5213.848515,
+    "maven_monotonic_seconds": 4273.249066499993,
+    "civil_minus_monotonic_seconds": 940.5994485000065,
+    "collector_monotonic_seconds": 4281.1263409999665,
+    "maven_started_utc": "2026-11-04T15:59:42.177059+00:00",
+    "maven_finished_log": "2026-11-04T18:26:35+01:00",
+    "verdict": "PASS"
+  },
+  "clock_sources": {
+    "maven_civil": "verify.py time.time_ns() before and after capture",
+    "collector_and_phases": "verify.py time.monotonic()",
+    "maven_log": "Total time: 01:26 h; finished timestamp retained"
+  },
+  "cause": "NOT ESTABLISHED; no host suspension or clock adjustment asserted without independent evidence",
+  "replay": "NONE; clock discrepancy does not justify an unchanged campaign replay",
+  "other_runs": "Compared actual Maven civil vs monotonic phase durations in available formal result receipts; no other absolute difference >1s observed. T1+B1 owner sums retain their recorded monotonic basis.",
+  "interpretation": "Do not call collector monotonic duration civil wall time. Actual native Maven civil elapsed5213.848515s is reported separately. Raw receipts unchanged."
+}

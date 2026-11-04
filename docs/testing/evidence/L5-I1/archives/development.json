@@ -1,0 +1,238 @@
+{
+  "source": "/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L5-I1/development",
+  "archive": "archives/development.tar.gz",
+  "sha256": "f3e5b5ea48d629c70589004e8054c1c4abcb5a5002a8135dcf50e1dbde0b6095",
+  "bytes": 84561,
+  "files": {
+    "analyze_i1_phase_costs.py": {
+      "original_sha256": "9c5557dddf5f1f3fedd530f562f649a25243a852b990f99ad27dad14e161650d",
+      "published_sha256": "9c5557dddf5f1f3fedd530f562f649a25243a852b990f99ad27dad14e161650d",
+      "bytes": 3199
+    },
+    "archive_i1_evidence.py": {
+      "original_sha256": "59fb4f6316aa33751c682ab01477db94aec8afe85223aedc7681d1f47b64c972",
+      "published_sha256": "654757e120ecc104a43205010936c444ebd0bbfc8387d979791dbe67465351bd",
+      "bytes": 4978
+    },
+    "finalize_i1_delivery.py": {
+      "original_sha256": "ddd7830b2c3d5f4aa5e9f285832dc780d314880a6f02af654caee50a006fe6c3",
+      "published_sha256": "ddd7830b2c3d5f4aa5e9f285832dc780d314880a6f02af654caee50a006fe6c3",
+      "bytes": 9413
+    },
+    "finish_i1_evidence.py": {
+      "original_sha256": "3e35d4a4b1a9209a76f09ce72749d3f9d3645c7a5f088bb2b75813f2ebb10c77",
+      "published_sha256": "3e35d4a4b1a9209a76f09ce72749d3f9d3645c7a5f088bb2b75813f2ebb10c77",
+      "bytes": 2235
+    },
+    "generate_i1_commands.py": {
+      "original_sha256": "a5da69c7aabb22f7833ae6ecdb05ee95dc03b8992f44d42b2a2c7013a44cc34d",
+      "published_sha256": "a5da69c7aabb22f7833ae6ecdb05ee95dc03b8992f44d42b2a2c7013a44cc34d",
+      "bytes": 1428
+    },
+    "generate_i1_file_inventory.py": {
+      "original_sha256": "65f0d5f042c11737617f5c96a37004b24cbca6a30a4928f541f8b6dc62225e92",
+      "published_sha256": "65f0d5f042c11737617f5c96a37004b24cbca6a30a4928f541f8b6dc62225e92",
+      "bytes": 2143
+    },
+    "generate_i1_metadata.py": {
+      "original_sha256": "fd223760f992f095990940d938ad3067f29cf08e79a70233c265396a0a7c3b73",
+      "published_sha256": "fd223760f992f095990940d938ad3067f29cf08e79a70233c265396a0a7c3b73",
+      "bytes": 10568
+    },
+    "i1-collector-check.log": {
+      "original_sha256": "3441661e9c9e60cf1b3cbd2441c80eb7e8d78c6290d3a0aeb707a5ccc752973d",
+      "published_sha256": "3441661e9c9e60cf1b3cbd2441c80eb7e8d78c6290d3a0aeb707a5ccc752973d",
+      "bytes": 109
+    },
+    "i1-collector-final.log": {
+      "original_sha256": "5e39238e3da0317cd3d9781408f9fcf62bc07049ccb26f376587e501c9e709fb",
+      "published_sha256": "5e39238e3da0317cd3d9781408f9fcf62bc07049ccb26f376587e501c9e709fb",
+      "bytes": 109
+    },
+    "i1-collector-global-check.log": {
+      "original_sha256": "532ed937e6661103c151611872b715569136f0f8224436bd2b7dd2d3d85668ff",
+      "published_sha256": "532ed937e6661103c151611872b715569136f0f8224436bd2b7dd2d3d85668ff",
+      "bytes": 3190
+    },
+    "i1-collector-read-check.log": {
+      "original_sha256": "c6ee4700ad4cc1e90aced22e39a6972f982bb47ff2b4687320db2dd2c55ee3fe",
+      "published_sha256": "c6ee4700ad4cc1e90aced22e39a6972f982bb47ff2b4687320db2dd2c55ee3fe",
+      "bytes": 109
+    },
+    "i1-compile.log": {
+      "original_sha256": "baa148b869e07cd2810dcc824e4ddbbe386fa270e56ad0d78a5a60da5db858eb",
+      "published_sha256": "baa148b869e07cd2810dcc824e4ddbbe386fa270e56ad0d78a5a60da5db858eb",
+      "bytes": 52308
+    },
+    "i1-final-collector-units.log": {
+      "original_sha256": "f94e4aeb0ac705df9282e8a31faacfbeed224ebf5ddbe7c7d5724ae11bfb5bf9",
+      "published_sha256": "f94e4aeb0ac705df9282e8a31faacfbeed224ebf5ddbe7c7d5724ae11bfb5bf9",
+      "bytes": 109
+    },
+    "i1-final-compile.log": {
+      "original_sha256": "d04b0d7be9829d8968b9b737548c395784ecd9df76d2326f865438efec48f3e0",
+      "published_sha256": "d04b0d7be9829d8968b9b737548c395784ecd9df76d2326f865438efec48f3e0",
+      "bytes": 72352
+    },
+    "i1-memory-child-feedback.log": {
+      "original_sha256": "3ffbe2f4b2310bd2f854f6a0250736e72c4d8236dc756d20f95daf6f797848aa",
+      "published_sha256": "3ffbe2f4b2310bd2f854f6a0250736e72c4d8236dc756d20f95daf6f797848aa",
+      "bytes": 82977
+    },
+    "i1-memory-child-isolated-feedback.log": {
+      "original_sha256": "0a0c449bd037a618066aa4cde472a5c6a58b7d751f5ec5ff8379e31e64cc64a4",
+      "published_sha256": "0a0c449bd037a618066aa4cde472a5c6a58b7d751f5ec5ff8379e31e64cc64a4",
+      "bytes": 79267
+    },
+    "i1-memory-diagnostic.log": {
+      "original_sha256": "78a3f8177361c53fdd8f989a556eb0dd79734fea5d0ca8a80f1dffdd7b20a278",
+      "published_sha256": "78a3f8177361c53fdd8f989a556eb0dd79734fea5d0ca8a80f1dffdd7b20a278",
+      "bytes": 87029
+    },
+    "i1-memory-feedback.log": {
+      "original_sha256": "d0bed1227de33297d727890fded6daebb40107e5d9b074a493cffa51e4f8ae55",
+      "published_sha256": "d0bed1227de33297d727890fded6daebb40107e5d9b074a493cffa51e4f8ae55",
+      "bytes": 82584
+    },
+    "i1-split-collector-final.log": {
+      "original_sha256": "0989e441184956e0289e86ce4583ec632f2cb49e090a7bc7bac80c66d2e66186",
+      "published_sha256": "0989e441184956e0289e86ce4583ec632f2cb49e090a7bc7bac80c66d2e66186",
+      "bytes": 109
+    },
+    "i1-split-collector-units.log": {
+      "original_sha256": "c9454f81ea70fb739c7f09b90eb99cc03a8a1da3afa9a3f95948eeb0c66ff0a2",
+      "published_sha256": "c9454f81ea70fb739c7f09b90eb99cc03a8a1da3afa9a3f95948eeb0c66ff0a2",
+      "bytes": 109
+    },
+    "i1-startup-feedback.log": {
+      "original_sha256": "5eec6f2204e30915ef8a8e1cfde6d16d9507b88d05d42019691fcb9bf354f3fd",
+      "published_sha256": "5eec6f2204e30915ef8a8e1cfde6d16d9507b88d05d42019691fcb9bf354f3fd",
+      "bytes": 90835
+    },
+    "i1-testcompile-2.log": {
+      "original_sha256": "7aaee9e44e8814310b5c3d7379c60faac40f7bebac31abc92ed1850ec20f3a9a",
+      "published_sha256": "7aaee9e44e8814310b5c3d7379c60faac40f7bebac31abc92ed1850ec20f3a9a",
+      "bytes": 73938
+    },
+    "i1-testcompile-3.log": {
+      "original_sha256": "91a77b8c690f61ee8775ef0ad094beb735d3e1e005a56297ad6f9e33e8a107dd",
+      "published_sha256": "91a77b8c690f61ee8775ef0ad094beb735d3e1e005a56297ad6f9e33e8a107dd",
+      "bytes": 71775
+    },
+    "i1-testcompile-4.log": {
+      "original_sha256": "f413ecd87d9e3d4d33a218f615d7cf2d59389165ee9d0babcd0e5189399e8cef",
+      "published_sha256": "f413ecd87d9e3d4d33a218f615d7cf2d59389165ee9d0babcd0e5189399e8cef",
+      "bytes": 73066
+    },
+    "i1-testcompile-final.log": {
+      "original_sha256": "5ddd746cb4df790bdff9d40ba4548f4e0cf304892a9175802a764ae363e56613",
+      "published_sha256": "5ddd746cb4df790bdff9d40ba4548f4e0cf304892a9175802a764ae363e56613",
+      "bytes": 72352
+    },
+    "i1-testcompile.log": {
+      "original_sha256": "2b32b35e7a52052455c912b7ede8dfb75fd3c71d7283e9d9216b8f883d30002c",
+      "published_sha256": "2b32b35e7a52052455c912b7ede8dfb75fd3c71d7283e9d9216b8f883d30002c",
+      "bytes": 80030
+    },
+    "i1-verification-regression.log": {
+      "original_sha256": "26ada16b2e852e4321b674f882dd685bf4c57b2e512fe759f6cee1b21e77603d",
+      "published_sha256": "26ada16b2e852e4321b674f882dd685bf4c57b2e512fe759f6cee1b21e77603d",
+      "bytes": 5288
+    },
+    "i1-verification-unit.log": {
+      "original_sha256": "7406b0bc3bb48936919fb5526170e90debd8701052e3f1754224b074eb4194b9",
+      "published_sha256": "7406b0bc3bb48936919fb5526170e90debd8701052e3f1754224b074eb4194b9",
+      "bytes": 3187
+    },
+    "i1_architecture_feedback_owner.py": {
+      "original_sha256": "e955d2378a85273f7509f20f17e9a432b29d5c61ad389d9abc8dc50e4797ac66",
+      "published_sha256": "e955d2378a85273f7509f20f17e9a432b29d5c61ad389d9abc8dc50e4797ac66",
+      "bytes": 1381
+    },
+    "i1_architecture_owner_02.py": {
+      "original_sha256": "48591144946386ba2100f4af047c1b4b0fd7c7424579a1bdabd28a8760758aac",
+      "published_sha256": "48591144946386ba2100f4af047c1b4b0fd7c7424579a1bdabd28a8760758aac",
+      "bytes": 923
+    },
+    "i1_architecture_owner_03.py": {
+      "original_sha256": "78a63bbf72cfd2c6b43d5d68406a984e69f673e35b6ae7fba2d3fa08e1b7b3fb",
+      "published_sha256": "78a63bbf72cfd2c6b43d5d68406a984e69f673e35b6ae7fba2d3fa08e1b7b3fb",
+      "bytes": 923
+    },
+    "i1_architecture_owner_04.py": {
+      "original_sha256": "e211119e824c059ca1afb1f9ac1e0ea0df36108e9dd65e89ff94d72dbb6095d1",
+      "published_sha256": "e211119e824c059ca1afb1f9ac1e0ea0df36108e9dd65e89ff94d72dbb6095d1",
+      "bytes": 923
+    },
+    "i1_architecture_owner_05.py": {
+      "original_sha256": "39ba738927391eec24f25f679efb01fad4b877c4893bddf90621e86976dc2030",
+      "published_sha256": "39ba738927391eec24f25f679efb01fad4b877c4893bddf90621e86976dc2030",
+      "bytes": 1039
+    },
+    "i1_architecture_owner_06.py": {
+      "original_sha256": "3132b69274a9161601523d60cf0892480b5746b6de7894f716cab376cdba45fe",
+      "published_sha256": "3132b69274a9161601523d60cf0892480b5746b6de7894f716cab376cdba45fe",
+      "bytes": 1039
+    },
+    "i1_architecture_owner_07.py": {
+      "original_sha256": "52f85579922ff931dceb266f13d940ff5266455d41689baaa7eebff0d6f81641",
+      "published_sha256": "52f85579922ff931dceb266f13d940ff5266455d41689baaa7eebff0d6f81641",
+      "bytes": 1039
+    },
+    "i1_architecture_owner_08.py": {
+      "original_sha256": "41395fdcefb64e45e1d9a9f262cd7a2d3e187e885541ea30f2dc7f376fa14574",
+      "published_sha256": "41395fdcefb64e45e1d9a9f262cd7a2d3e187e885541ea30f2dc7f376fa14574",
+      "bytes": 1039
+    },
+    "i1_bruno_only.py": {
+      "original_sha256": "50d5b2fd99d3b9aa56d631f7b7fcd7f72bb7682d6987f61a7c959cf98a2286fe",
+      "published_sha256": "50d5b2fd99d3b9aa56d631f7b7fcd7f72bb7682d6987f61a7c959cf98a2286fe",
+      "bytes": 1643
+    },
+    "i1_git_prepublication.py": {
+      "original_sha256": "a7dde94760d57535ae1861474b0bdba756e5cbd96cb863aa5b3c38bfd779ece2",
+      "published_sha256": "a7dde94760d57535ae1861474b0bdba756e5cbd96cb863aa5b3c38bfd779ece2",
+      "bytes": 897
+    },
+    "review_i1_delivery.py": {
+      "original_sha256": "034a0a7fc6a90d691c2e57bfbc45f8e0e56b32ae556c9090349f28574f04cb38",
+      "published_sha256": "034a0a7fc6a90d691c2e57bfbc45f8e0e56b32ae556c9090349f28574f04cb38",
+      "bytes": 3815
+    },
+    "scan_i1_plain_files.py": {
+      "original_sha256": "91c0295572b294569637f3de07cf538e3ba68983c98d06e66415ccf1680c9d2a",
+      "published_sha256": "91c0295572b294569637f3de07cf538e3ba68983c98d06e66415ccf1680c9d2a",
+      "bytes": 1275
+    },
+    "test-output-cleanup.json": {
+      "original_sha256": "e4858c7c84335e037fbb5331a5ac0c85dbbc7ec11e2f57f62efad6e79253a7ac",
+      "published_sha256": "e4858c7c84335e037fbb5331a5ac0c85dbbc7ec11e2f57f62efad6e79253a7ac",
+      "bytes": 528
+    },
+    "update_i1_physical.py": {
+      "original_sha256": "205b55ab6309d6937b0c46dc119dda15a2bdbb6d5d0910158cfa1f8dd41b855d",
+      "published_sha256": "205b55ab6309d6937b0c46dc119dda15a2bdbb6d5d0910158cfa1f8dd41b855d",
+      "bytes": 1135
+    },
+    "verify_i1_archives.py": {
+      "original_sha256": "cdd95ab1ec408db7df5c48b1db2b72eb2a5ae5861cb04ccfa89a1ff182b015df",
+      "published_sha256": "51e9f240fb1a1cb9a78acb5bad4600f012011986f49a588f56e43822f2c590bb",
+      "bytes": 2291
+    }
+  },
+  "redactions": [
+    {
+      "path": "archive_i1_evidence.py",
+      "original_sha256": "59fb4f6316aa33751c682ab01477db94aec8afe85223aedc7681d1f47b64c972",
+      "published_sha256": "654757e120ecc104a43205010936c444ebd0bbfc8387d979791dbe67465351bd"
+    },
+    {
+      "path": "verify_i1_archives.py",
+      "original_sha256": "cdd95ab1ec408db7df5c48b1db2b72eb2a5ae5861cb04ccfa89a1ff182b015df",
+      "published_sha256": "51e9f240fb1a1cb9a78acb5bad4600f012011986f49a588f56e43822f2c590bb"
+    }
+  ],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path.",
+  "source_moved_to": "/private/tmp/pocoma-i1-development-raw-20261104",
+  "source_move_note": "Mission raw helper files moved after sealing; published archive and original/published member hash mapping unchanged."
+}

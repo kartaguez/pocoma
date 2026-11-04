@@ -1,0 +1,40 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-b1-correction-01",
+  "archive": "archives/pocoma-l5-i1-b1-correction-01.tar.gz",
+  "sha256": "1ef1eeb7e94863426dbfeb1f9d4c32f41f0c08ab8db28fdcef87ec22519d995f",
+  "bytes": 9334,
+  "files": {
+    "B1/bruno.json": {
+      "original_sha256": "d94963e48ca150327c9f60a5d8fd6a385f1264ae71f8866d1fed02b8020558a5",
+      "published_sha256": "d94963e48ca150327c9f60a5d8fd6a385f1264ae71f8866d1fed02b8020558a5",
+      "bytes": 42582
+    },
+    "B1/bruno.log": {
+      "original_sha256": "5e575231322e4f2d71e83d61abd50fde42fe2b70ef34c670894b3f02019490b1",
+      "published_sha256": "5e575231322e4f2d71e83d61abd50fde42fe2b70ef34c670894b3f02019490b1",
+      "bytes": 5200
+    },
+    "B1/receipt.json": {
+      "original_sha256": "7b7b467d4bfa0ecc1d7b5a563d2154958da69d22e1d0cebefdc06664eeeef2c0",
+      "published_sha256": "7b7b467d4bfa0ecc1d7b5a563d2154958da69d22e1d0cebefdc06664eeeef2c0",
+      "bytes": 633
+    },
+    "B1/requests.jsonl": {
+      "original_sha256": "4334118c6937abd26ff99c5305d2ce26737c32d1c2f80cf0637a74557e7ac809",
+      "published_sha256": "4334118c6937abd26ff99c5305d2ce26737c32d1c2f80cf0637a74557e7ac809",
+      "bytes": 1440
+    },
+    "B1.log": {
+      "original_sha256": "c96faf944e8f6a683cc92bc6835fc46a9d66960b1edbb99f409600a64b7295d5",
+      "published_sha256": "c96faf944e8f6a683cc92bc6835fc46a9d66960b1edbb99f409600a64b7295d5",
+      "bytes": 5262
+    },
+    "campaign.json": {
+      "original_sha256": "0f1d93e62a3919448a20650d09e64eab3e88d40e81b3e67521d8c8c8b3073779",
+      "published_sha256": "0f1d93e62a3919448a20650d09e64eab3e88d40e81b3e67521d8c8c8b3073779",
+      "bytes": 23397
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}

@@ -1,0 +1,11 @@
+{
+  "archives": 31,
+  "published_compressed_bytes": 269863380,
+  "nested_archives": 24,
+  "inspected_nested_members": 10101,
+  "hashes": "PASS",
+  "secret_scan": "PASS",
+  "findings": [],
+  "seconds": 61.30315512494417,
+  "scope": "Published archive member bytes including nested raw.tar.gz; not a claim of universal secret detection"
+}

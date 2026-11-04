@@ -1,0 +1,120 @@
+{
+  "source": "/private/tmp/pocoma-l5-i1-correction-01",
+  "archive": "archives/pocoma-l5-i1-correction-01.tar.gz",
+  "sha256": "430bf83bcc04459203acd91e0377d5006c2098a92c9652dbb75c4d7c6120373d",
+  "bytes": 1147213,
+  "files": {
+    "T1/discovery.log": {
+      "original_sha256": "c86317e8bf7b52ae0d8c444d0bb041d26dc7f792b88aaeefc58a1248e5e613c0",
+      "published_sha256": "c86317e8bf7b52ae0d8c444d0bb041d26dc7f792b88aaeefc58a1248e5e613c0",
+      "bytes": 9547
+    },
+    "T1/discovery.process.json": {
+      "original_sha256": "42c2532eb64f1e42a20b0c32596bc122338dbb5d829c7ff878f698cc41630f39",
+      "published_sha256": "42c2532eb64f1e42a20b0c32596bc122338dbb5d829c7ff878f698cc41630f39",
+      "bytes": 642
+    },
+    "T1/effective-pom.xml": {
+      "original_sha256": "f4f0a16bae12bc2bd56ec571a3f401f06058e788a761e874f75d3d94e8a6d5d7",
+      "published_sha256": "f4f0a16bae12bc2bd56ec571a3f401f06058e788a761e874f75d3d94e8a6d5d7",
+      "bytes": 20195672
+    },
+    "T1/maven.log": {
+      "original_sha256": "95836112678435eac5cafa4b54a4bbc34bb652668e407fea509fda56df52d259",
+      "published_sha256": "95836112678435eac5cafa4b54a4bbc34bb652668e407fea509fda56df52d259",
+      "bytes": 105806
+    },
+    "T1/maven.process.json": {
+      "original_sha256": "adb89b22bc5813c679c3e8fd876f5ac04df951565836286f5565e993c17495c4",
+      "published_sha256": "adb89b22bc5813c679c3e8fd876f5ac04df951565836286f5565e993c17495c4",
+      "bytes": 97749
+    },
+    "T1/plan.json": {
+      "original_sha256": "6b90005f6d03c3d5b2f97a26660acf3a8810bf68cfdad884f683a2d48798ea09",
+      "published_sha256": "6b90005f6d03c3d5b2f97a26660acf3a8810bf68cfdad884f683a2d48798ea09",
+      "bytes": 55599
+    },
+    "T1/provenance.json": {
+      "original_sha256": "3f9d49958e885fbff46c67e4efd3fafb803906e721ff1ede154817a3c1639b58",
+      "published_sha256": "3f9d49958e885fbff46c67e4efd3fafb803906e721ff1ede154817a3c1639b58",
+      "bytes": 265295
+    },
+    "T1/reports/pocoma-runtime-task-consumption-worker/surefire-reports/2026-11-04T09-04-47_563-jvmRun1.dumpstream": {
+      "original_sha256": "f0d6c52c0ddce58756f9c8804896e451bd58ec6e76939f10a0fb21cd84b33d34",
+      "published_sha256": "f0d6c52c0ddce58756f9c8804896e451bd58ec6e76939f10a0fb21cd84b33d34",
+      "bytes": 821
+    },
+    "T1/result.json": {
+      "original_sha256": "0b7b6bd490ce12e44d2132ea79b8c0df1c96ad3a2b72fe31441a68ef19e18a70",
+      "published_sha256": "0b7b6bd490ce12e44d2132ea79b8c0df1c96ad3a2b72fe31441a68ef19e18a70",
+      "bytes": 6609
+    },
+    "T1/timings.json": {
+      "original_sha256": "854e3ac2de5e378559fb67e4296ff87d6c0d517b70216ee63fd955e88441c6a8",
+      "published_sha256": "854e3ac2de5e378559fb67e4296ff87d6c0d517b70216ee63fd955e88441c6a8",
+      "bytes": 621
+    },
+    "T1.log": {
+      "original_sha256": "6307e8057c4795b2b60416a317df6e8e977f77a66f4455124640f71f40f6f626",
+      "published_sha256": "6307e8057c4795b2b60416a317df6e8e977f77a66f4455124640f71f40f6f626",
+      "bytes": 513
+    },
+    "campaign.json": {
+      "original_sha256": "19af59d458af208a406aa53183ea9aef9d57da64caeaae5458a7d950286488db",
+      "published_sha256": "19af59d458af208a406aa53183ea9aef9d57da64caeaae5458a7d950286488db",
+      "bytes": 6785
+    },
+    "deadlock-thread.txt": {
+      "original_sha256": "500b311c8369870d117d091c5c1b3f4e4db67ab820513edcf8d709d1e471124b",
+      "published_sha256": "500b311c8369870d117d091c5c1b3f4e4db67ab820513edcf8d709d1e471124b",
+      "bytes": 52435
+    },
+    "physical/Quota-i1_49c0e08ea2bb439985353f1a86d01724.json": {
+      "original_sha256": "b1ca00b2267c88a00f275306eacf20b760d95d5b409af460164f241d26c03350",
+      "published_sha256": "b1ca00b2267c88a00f275306eacf20b760d95d5b409af460164f241d26c03350",
+      "bytes": 1214
+    },
+    "physical/Quota-i1_4a35082d06a944a785b2426ef8ba1c94.json": {
+      "original_sha256": "4bda58d15fe1d37438d83d997321e2aa2c9c2b84e71b500fd758174ca2f42b8e",
+      "published_sha256": "4bda58d15fe1d37438d83d997321e2aa2c9c2b84e71b500fd758174ca2f42b8e",
+      "bytes": 1405
+    },
+    "physical/Quota-i1_6d8d0c2c1dfd41ce96eb5eb8e2061e74.json": {
+      "original_sha256": "ec9e4c7d08a9932edde7419153cfb8ea3ffe2a6ec1388da8d5649663165c5ec6",
+      "published_sha256": "ec9e4c7d08a9932edde7419153cfb8ea3ffe2a6ec1388da8d5649663165c5ec6",
+      "bytes": 1212
+    },
+    "physical/Quota-i1_8a2e408432814ad6b2dfb9d8e5c8c576.json": {
+      "original_sha256": "30434c7d5fd1ea5ef8efb622974f3e00d2aaa197a92b760a3fa6f0d521a7f5c2",
+      "published_sha256": "30434c7d5fd1ea5ef8efb622974f3e00d2aaa197a92b760a3fa6f0d521a7f5c2",
+      "bytes": 1226
+    },
+    "physical/Quota-i1_907621537ce64e2694f696cfa212b7f3.json": {
+      "original_sha256": "03fd726f77697ce479e0c86a90c7ca0b2f94f5b27ee4c0412649a45d62f3d3c5",
+      "published_sha256": "03fd726f77697ce479e0c86a90c7ca0b2f94f5b27ee4c0412649a45d62f3d3c5",
+      "bytes": 1404
+    },
+    "physical/Quota-i1_954ecdf113414537a982c257232dc1b9.json": {
+      "original_sha256": "005a82f826c07d8c8bbad578c2218712e27751c4559af347b38a37b5d15eb1ea",
+      "published_sha256": "005a82f826c07d8c8bbad578c2218712e27751c4559af347b38a37b5d15eb1ea",
+      "bytes": 1246
+    },
+    "physical/Quota-i1_c7c7765ff1054b5785f92471153a8f76.json": {
+      "original_sha256": "b946e31bac608e3eb67fe8458f4e23e146a31fb61b59e3b68e654dc058b0980d",
+      "published_sha256": "b946e31bac608e3eb67fe8458f4e23e146a31fb61b59e3b68e654dc058b0980d",
+      "bytes": 324
+    },
+    "physical/Quota-i1_ca30f370aa6a404b944bf82740364bb3.json": {
+      "original_sha256": "0672114bc75ac29570169e42c0c44292ca12adbe40bbdca01a3b53d48a2b930b",
+      "published_sha256": "0672114bc75ac29570169e42c0c44292ca12adbe40bbdca01a3b53d48a2b930b",
+      "bytes": 1211
+    },
+    "physical/Quota-i1_e9ecf3c2f0b04ae7877e244d862aa658.json": {
+      "original_sha256": "dd2a875326fd2b01659784dce90a21924d8a3ec7115b50af27d8a3af66eb4372",
+      "published_sha256": "dd2a875326fd2b01659784dce90a21924d8a3ec7115b50af27d8a3af66eb4372",
+      "bytes": 312
+    }
+  },
+  "redactions": [],
+  "policy": "Only secret/canary values redacted. Outcomes, identities, counters, timings and original hashes retained. Original process artifacts remain at the private source path."
+}
