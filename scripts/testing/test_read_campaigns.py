@@ -139,3 +139,24 @@ class PartialEvidenceTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class L5I1SelectionTests(unittest.TestCase):
+    def test_exact_whole_class_inventory_and_heap_safety_bound(self):
+        plan = v.plan('INTEGRATION', 'l5-i1')
+        self.assertEqual([len(methods) for methods in plan['expected'].values()], [24, 10, 6])
+        self.assertIn('-Dtest=V3ReadHttpContractTest,V3ReadQuotaPostgresTest,V3HttpCompositionPostgresTest', plan['command'])
+        self.assertIn('-DargLine=-Xmx512m', plan['command'])
+        self.assertNotIn('architecture-tests', str(plan['command']))
+        self.assertTrue(plan['filtered'])
+
+    def test_whole_class_cannot_omit_method_or_change_heap_silently(self):
+        config = json.loads(v.CONFIG.read_text())
+        campaign = config['campaigns']['l5-i1']
+        campaign['tests']['com.kartaguez.pocoma.V3ReadHttpContractTest'].pop()
+        campaign['expected_invocations'] = 39
+        with self.assertRaisesRegex(ValueError, 'retain every source method'):
+            v.plan('INTEGRATION', 'l5-i1', config)
+        config = json.loads(v.CONFIG.read_text())
+        config['campaigns']['l5-i1']['jvm_max_heap_mib'] = 513
+        with self.assertRaisesRegex(ValueError, 'JVM safety bound'):
+            v.plan('INTEGRATION', 'l5-i1', config)

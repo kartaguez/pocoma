@@ -1,5 +1,7 @@
 # Documentation Pocoma
 
+- [Ratification humaine et GO L5/I1](v3/L5_I1_Human_Ratification_and_GO.md) — **IMPLEMENTATION AUTHORIZED**, `f46d63a9`, 04-11-2026 : D4 initial approuvé avec réserves physiques, D6 full unique à Q5 sous couverture effective, plan I1 approuvé. T1+B1 : 15 minutes indicatives, campagne saine menée à terme ; I2–I4/Q5 exclus. Statuts de préparation ci-dessous historiques.
+
 ## Programme V3 courant
 
 - [Audit d’entrée et plan global L5 — Supras et parcours externes](v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md), version amendée publiée à `5193c540`, référence de code `c6dc722…` : **READY WITH EXPLICIT OPEN DECISIONS / DESIGN PENDING**. Architecture et I1–I4 + Q5 conservés ; les décisions humaines du **04-11-2026** sont précisées dans l'acte ci-dessous. Aucun GO I1 ni implémentation acquise.

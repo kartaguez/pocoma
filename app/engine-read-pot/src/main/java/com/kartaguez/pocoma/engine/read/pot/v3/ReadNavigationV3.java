@@ -25,8 +25,7 @@ public final class ReadNavigationV3 {
         if (eui == null
                 || token == null
                 || token.isBlank()
-                || limit < 1
-                || limit > limits.navigationPage()) return new InvalidInput<>();
+                || !limits.validPage(limit)) return new InvalidInput<>();
         var user = pot.user(eui, token, c);
         if (user.isEmpty()) return new NotFound<>();
         var values = visibility.visiblePots(user.get(), after, limit, c);

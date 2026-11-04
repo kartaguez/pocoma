@@ -47,10 +47,10 @@ public final class V3ReadFacadeComposition {
                 new GetCommandTerminalResult(new JdbcCommandTerminalResultStore(read, owner)),
                 new GetIdentityTerminalResult(new JdbcIdentityTerminalResultStore(read, owner)),
                 Set.copyOf(active),
-                worker);
+                worker, limits, read);
     }
 
-    public static final class Services {
+    public static final class Services implements ReadPotV3.Queries {
         private final SpringAttemptTransactions owner;
         private final ReadPotV3 pot;
         private final ReadNavigationV3 navigation;
@@ -59,7 +59,11 @@ public final class V3ReadFacadeComposition {
         private final GetIdentityTerminalResult identityReader;
         private final Set<String> active;
         private final Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker;
-        private final Semaphore quota = new Semaphore(2);
+        // Q=2 is the existing Business consultation allocation, never Control.
+        public static final int SQL_PERMITS = 2;
+        private final Semaphore quota = new Semaphore(SQL_PERMITS);
+        private final ReadLimitsV3 limits;
+        private final org.springframework.jdbc.core.JdbcTemplate sql;
 
         private Services(
                 SpringAttemptTransactions owner,
@@ -69,7 +73,9 @@ public final class V3ReadFacadeComposition {
                 GetCommandTerminalResult command,
                 GetIdentityTerminalResult identity,
                 Set<String> active,
-                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker) {
+                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker, ReadLimitsV3 limits, DataSource source) {
+            this.sql = new org.springframework.jdbc.core.JdbcTemplate(source);
+            this.limits = Objects.requireNonNull(limits);
             this.owner = owner;
             this.pot = pot;
             this.navigation = navigation;
@@ -92,7 +98,14 @@ public final class V3ReadFacadeComposition {
                 Function<RecoveryReadContext, ReadPotV3Result<T>> call) {
             if (!quota.tryAcquire()) return new Unavailable<>();
             try {
-                return owner.read(call);
+                long started = System.nanoTime();
+                var result = owner.read(c -> {
+                    sql.execute("set local statement_timeout = '2s'");
+                    sql.execute("set local transaction_timeout = '3s'");
+                    return call.apply(c);
+                });
+                return System.nanoTime() - started > java.time.Duration.ofSeconds(5).toNanos()
+                        ? new Unavailable<>() : result;
             } catch (RuntimeException technicalFailure) {
                 return new Unavailable<>();
             } finally {
@@ -127,13 +140,14 @@ public final class V3ReadFacadeComposition {
                     || token.isBlank()
                     || id == null
                     || version < 1
-                    || refs == null) return new InvalidInput<>();
-            return query(c -> pot.expenses(eui, token, id, version, refs, c));
+                    || !limits.validBatch(refs)) return new InvalidInput<>();
+            var captured = List.copyOf(refs);
+            return query(c -> pot.expenses(eui, token, id, version, captured, c));
         }
 
         public ReadPotV3Result<List<UUID>> visible(
                 ExternalIdentity eui, String token, UUID after, int limit) {
-            if (eui == null || token == null || token.isBlank()) return new InvalidInput<>();
+            if (eui == null || token == null || token.isBlank() || !limits.validPage(limit)) return new InvalidInput<>();
             return query(c -> navigation.visible(eui, token, after, limit, c));
         }
 

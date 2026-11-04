@@ -14,6 +14,15 @@ import java.util.*;
 
 /** READ-only queries. The composition supplies one caller-owned RR snapshot per invocation. */
 public final class ReadPotV3 {
+    /** Detached query boundary; composition owns snapshot, authority and quota. */
+    public interface Queries {
+        ReadPotV3Result<Pot> current(ExternalIdentity eui, String token, UUID id, long minimum);
+        ReadPotV3Result<Pot> at(ExternalIdentity eui, String token, UUID id, long version);
+        ReadPotV3Result<PotBalance> balance(ExternalIdentity eui, String token, UUID id, long version);
+        ReadPotV3Result<List<Expense>> expenses(ExternalIdentity eui, String token, UUID id, long version, List<ExpenseRef> references);
+        ReadPotV3Result<List<UUID>> visible(ExternalIdentity eui, String token, UUID after, int limit);
+    }
+
     @FunctionalInterface
     public interface BindingReader {
         Optional<ExternalUserIdentity> read(ExternalIdentity eui, RecoveryReadContext context);
@@ -155,11 +164,7 @@ public final class ReadPotV3 {
             RecoveryReadContext c) {
         if (!input(eui, token, pot)
                 || version < 1
-                || requested == null
-                || requested.isEmpty()
-                || requested.size() > limits.expenseBatch()
-                || requested.stream().anyMatch(Objects::isNull)
-                || requested.stream().map(ExpenseRef::id).distinct().count() != requested.size())
+                || !limits.validBatch(requested))
             return new InvalidInput<>();
         requested = List.copyOf(requested);
         var user = user(eui, token, c);

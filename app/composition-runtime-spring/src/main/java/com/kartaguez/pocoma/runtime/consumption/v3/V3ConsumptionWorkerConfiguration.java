@@ -65,6 +65,16 @@ public class V3ConsumptionWorkerConfiguration {
                                 V3ReadFacadeConfiguration.class.getName(),
                                 V3ReadFacadeComposition.Services.class.getName(),
                                 "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
+            if (readMode && Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE))
+                exact.addAll(Set.of(
+                    V3ReadHttpConfiguration.class.getName(),
+                    V3ReadHttpConfiguration.PrincipalResolver.class.getName(),
+                    V3ReadHttpConfiguration.HttpPreflight.class.getName(),
+                    com.kartaguez.pocoma.supra.http.read.v3.V3ReadController.class.getName(),
+                    com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class.getName(),
+                    com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query.class.getName(),
+                    com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query.class.getName(),
+                    com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query.class.getName()));
             for (var name : factory.getBeanDefinitionNames()) {
                 var type = factory.getType(name, false);
                 var definition = factory.getBeanDefinition(name);

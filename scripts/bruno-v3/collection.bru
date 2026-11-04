@@ -1,0 +1,8 @@
+script:pre-request {
+  for (const name of ['bearerOwner','bearerOther','bearerSameUser','bearerInactive','bearerAbsent','bearerForged','bindingOwner','bindingOther']) {
+    const value = process.env['POCOMA_I1_' + name];
+    if (!value) throw new Error('Required B1 process secret missing: ' + name);
+    bru.setVar(name, value);
+  }
+  if (process.env.POCOMA_I1_BASE_URL) bru.setVar('baseUrl', process.env.POCOMA_I1_BASE_URL);
+}

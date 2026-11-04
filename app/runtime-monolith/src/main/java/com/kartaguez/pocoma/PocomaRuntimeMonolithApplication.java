@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication(scanBasePackages = "com.kartaguez.pocoma.runtime.bootstrap")
 @Import({
     PocomaRuntimeMonolithApplication.Legacy.class,
+    com.kartaguez.pocoma.runtime.consumption.v3.V3ReadHttpConfiguration.class,
     com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration.class,
     com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration.class
 })
@@ -25,7 +26,7 @@ public class PocomaRuntimeMonolithApplication {
 
     /** Legacy scanning and processing are mutually exclusive with the inert pilot. */
     @org.springframework.context.annotation.Profile(
-            "!v3-consumption-pilot & !v3-consumption-worker-dev & !v3-read-worker")
+            "!v3-consumption-pilot & !v3-consumption-worker-dev & !v3-read-worker & !v3-http-read")
     @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
     @org.springframework.context.annotation.ComponentScan(
             basePackages = "com.kartaguez.pocoma",
@@ -34,7 +35,7 @@ public class PocomaRuntimeMonolithApplication {
                 @org.springframework.context.annotation.ComponentScan.Filter(
                         type = org.springframework.context.annotation.FilterType.REGEX,
                         pattern =
-                                "com[.]kartaguez[.]pocoma[.]PocomaTaskConsumptionWorkerApplication([$].*)?"),
+                                "com[.]kartaguez[.]pocoma[.](PocomaTaskConsumptionWorkerApplication|PocomaWebApiApplication)([$].*)?"),
                 @org.springframework.context.annotation.ComponentScan.Filter(
                         type = org.springframework.context.annotation.FilterType.CUSTOM,
                         classes = org.springframework.boot.context.TypeExcludeFilter.class),

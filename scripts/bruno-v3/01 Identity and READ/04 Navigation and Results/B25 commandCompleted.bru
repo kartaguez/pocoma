@@ -1,0 +1,32 @@
+meta {
+  name: B25 commandCompleted
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseUrl}}/api/v3/commands/00000000-0000-0000-0000-000000000401/result
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{bearerOwner}}
+}
+
+tests {
+  const base = bru.getVar('baseUrl');
+  const id = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
+  const pot = id(300), deleted = id(302);
+  const header = (who='Owner', token=bru.getVar('bindingOwner')) => ({Authorization:'Bearer '+bru.getVar('bearer'+who), ...(token===null?{}:{'X-Pocoma-Binding-Token':token})});
+  let extraCalls = 0;
+  const call = async (path, options={}) => { extraCalls++; return await bru.sendRequest({method:'GET',url:base+'/api/v3'+path,headers:header(),timeout:5000,validateStatus:()=>true,...options}); };
+  const ref = (n,v=1) => ({id:id(n),headerVersion:v,detailsVersion:v,financialsVersion:v,deleted:false});
+  const error = (response,status) => { expect(response.status).to.equal(status); expect(response.headers['cache-control']).to.equal('no-store'); expect(Object.keys(response.data).sort()).to.deep.equal(['code','message','traceId']); expect(JSON.stringify(response.data).length).to.be.below(1025); };
+  const main = {status:res.status, data:res.body, headers:res.headers};
+  const privateBody = data => { const text=JSON.stringify(data); for(const value of ['userId','authorizedUserIds','attachedActiveUserIds','requesterEui',bru.getVar('bindingOther')]) expect(text.includes(value)).to.equal(false); };
+  expect(res.headers['cache-control']).to.equal('no-store');
+  test('B25 success and no-store', () => expect(main.status).to.equal(200));
+  expect(main.data).to.deep.equal({requestId:id(401),operation:'CreatePot',potId:pot,outcome:'COMPLETED',resultingPotVersion:2,rejection:null}); privateBody(main.data);
+  require('fs').appendFileSync(process.env.POCOMA_I1_REQUEST_RECEIPTS, JSON.stringify({scenario:'B25',requests:1+extraCalls,status:main.status})+'\n');
+}

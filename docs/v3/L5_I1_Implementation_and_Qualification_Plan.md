@@ -1,14 +1,14 @@
 # Pocoma V3 — L5/I1 — Implementation and Qualification Plan
 
-Date : **4 novembre 2026**. Branche : **`feat/v3-architecture`**. Référence publiée lue : **`9dd1c44720af61b66abdfb4fdaa7f3076ced8737`**. **READY WITH EXPLICIT DECISIONS — PLAN PROPOSED, HUMAN APPROVAL AND SEPARATE I1 GO REQUIRED.**
+Date : **4 novembre 2026**. Branche : **`feat/v3-architecture`**. Référence publiée lue : **`9dd1c44720af61b66abdfb4fdaa7f3076ced8737`**. **APPROVED — GO I1 IMPLEMENTATION AUTHORIZED**, par [acte humain du 4 novembre](L5_I1_Human_Ratification_and_GO.md), référence ratifiée `f46d63a9`.
 
-Ce plan est autonome pour la réalisation future d'I1 ; toutes ses commandes applicatives sont **prospectives, non exécutées**. La mission présente est exclusivement documentaire. Les classes, méthodes, fixtures et fichiers Bruno annoncés comme futurs n'existent pas par effet de ce document.
+Ce plan gouverne la réalisation autorisée d'I1. Les noms et commandes restent des obligations à réaliser ; seuls le rapport d'exécution et ses preuves établissent leur état technique. Le §10 conserve le compte rendu historique de la préparation documentaire.
 
 ## 1. Référentiel, décisions et périmètre
 
 Ordre d'autorité : [Canon](V3_Canon_and_Roadmap.md), [SPEC-01](SPEC-01_Pot_Domain.md)/[SPEC-02](SPEC-02_Identity_Domain.md)/[SPEC-04](SPEC-04_Read_Projections.md)/[SPEC-06](SPEC-06_Supra_Contracts.md)/[SPEC-07](SPEC-07_Transverse_Requirements.md)/[SPEC-08](SPEC-08_Observability.md)/[SPEC-09](SPEC-09_Performance.md)/[SPEC-10](SPEC-10_Test_Certification.md), [Reactor Verification Policy](../testing/Reactor_Verification_Policy.md), [Master Plan](V3_Implementation_Master_Plan.md), [plan global L5](L5_Supra_Entry_Audit_and_Implementation_Plan.md), [acte D1/D6](L5_D1_D6_Ratification_and_D4_Calibration_Decision.md). Les [mesures D4](L5_D4_Read_Calibration_Report.md) et [preuves](../testing/evidence/L5-D4/README.md) du SHA publié sont synthétiques Java/Jackson, pas HTTP.
 
-Documents de décision associés : [proposition D4](L5_D4_Read_Limits_Arbitration_Proposal.md), [rapport D6](L5_D6_Gates_Mutualization_Report.md). D1-HTTP/représentation et D6-composition sont enregistrés ; D1-AuthN porte une condition de fournisseur réel ; **D4 numérique et l'allocation définitive D6-gates restent à ratifier**. Le présent plan ne transforme aucune proposition en APPROVED.
+Documents de décision associés : [proposition D4](L5_D4_Read_Limits_Arbitration_Proposal.md), [rapport D6](L5_D6_Gates_Mutualization_Report.md). D1-HTTP/représentation et D6-composition sont enregistrés ; D1-AuthN porte une condition de fournisseur réel ; **D4 numérique et D6-gates sont ratifiés** par l'acte humain I1 ; les conditions physiques et de couverture restent dues.
 
 I1 livre uniquement : composition HTTP V3, AuthN externe, propre CurrentBinding, Pot courant/historique à V, Balance à V, Expenses groupées à V, navigation de l'utilisateur, résultats Command/Identity, erreurs/masquage, prévalidation pure avant quota, sérialisation complète bornée et **Bruno B1 livré et exécuté dès I1**.
 
@@ -33,7 +33,7 @@ Les actes de clôture L1–L4 restent inchangés. Réserves transférées du pla
 | Impact interdit | Admissions, business WRITE depuis HTTP READ, changements domaines/calculs/publication/Consumption/renewal/lease, nouveaux modules/runtimes, SQL de production, routage/participants et configuration Worker pour gagner du temps. |
 | Escalation | Fichier/capacité hors déclaration, contrat partagé changé, nouvelle dépendance/cycle, coût des vues non maîtrisable, besoin de nouveau rôle/migration : isoler le point, suspendre ses écritures et faire revoir impact/gates/budget avant poursuite (§15). Un test en échec ne déclenche pas automatiquement full. |
 
-La présente mission : **slices NONE, DB NONE, aucun impact production**, Architecture/full NOT REQUIRED / NOT RUN. Cette distinction évite de faire passer des lectures de code pour une vérification applicative.
+Déclaration active avant code : **WEB primaire, PROJECTION secondaire, runtime-monolith complémentaire ; DB CURRENT READ/WRITE de fixture**, T1 filtrée et B1. Aucune clôture canonique autonome. Gates canoniques de référence conservées ci-dessus. **Déclencheur effectif déclaré avant code : modification des sélections de racines et allowlists de préflight (règles d’isolation runtime), §17. Architecture globale non filtrée REQUIRED pour cette livraison I1**, commande `./mvnw -pl architecture-tests -am test` depuis `app/`, en plus de T1+B1 ; ce contrôle ne démarre pas Q5. Aucun nouveau module ni restructuration large, full NOT REQUIRED à I1, dû à Q5. Pas d'impact domaine, matérialisation, Consumption/Discovery, leases, migrations ni admission.
 
 ## 3. Réemploi réel et architecture minimale
 
@@ -73,7 +73,7 @@ UUID canoniques ; versions JSON exactes entières non négatives pour minimum et
 
 Erreur commune `{code,message,traceId}`, messages génériques et traceId de format/longueur fixes ; enveloppe cible ≤1 Kio. **404 identique** absence/interdit/token non concordant/terminal/résultat tiers, sans identifiant ni motif interne ; aucune différenciation par en-têtes/cache. `400 INVALID_INPUT`, `401 INVALID_TOKEN`, `404 NOT_FOUND`, `413 PAYLOAD_TOO_LARGE`, `415 UNSUPPORTED_MEDIA_TYPE`, `503 UNAVAILABLE` proposés comme codes stables. Pas de 403 ressource ni 429 implicite. `Cache-Control: no-store` sur succès sensibles et erreurs. Aucun secret/UserId/SQL/reflet arbitraire d'entrée dans logs, URLs, erreurs ou traces. Le seul BindingToken public est celui de la réponse propre active, nécessaire au contrat ; il est expurgé des preuves exportées.
 
-**D4 sous décision** : corps ≤65 536 octets, réponse ≤4 194 304 octets UTF-8 non compressés/enveloppe incluse, batch ≤50, page ≤100 (défaut 20), SQL Q=2 déjà acquis. Entrée dépassée 413 avant parsing coûteux/quota ; média/encodage non supporté 415 ; sortie dépassée/échec tardif 503 **avant tout commit HTTP 200**. Content-Type JSON pour POST ; pas de corps compressé ni compression de réponse I1. Corps GET non vide refusé 400 ; transport serveur peut protéger une taille excessive par 413. Aucun seuil appliqué aux futures admissions I2.
+**D4 ratifié pour I1 avec réserves physiques** : corps ≤65 536 octets, réponse ≤4 194 304 octets UTF-8 non compressés/enveloppe incluse, batch ≤50, page ≤100 (défaut 20), SQL Q=2 déjà acquis. Entrée dépassée 413 avant parsing coûteux/quota ; média/encodage non supporté 415 ; sortie dépassée/échec tardif 503 **avant tout commit HTTP 200**. Content-Type JSON pour POST ; pas de corps compressé ni compression de réponse I1. Corps GET non vide refusé 400 ; transport serveur peut protéger une taille excessive par 413. Aucun seuil appliqué aux futures admissions I2.
 
 ### 4.2 Routes, DTO, autorité et retard READ
 
@@ -285,30 +285,30 @@ Ces oracles qualifient le consommateur HTTP et les ressources. Ils **ne certifie
 Depuis `app/`, après GO et création/revue des 40 méthodes :
 
 ```sh
-./mvnw -pl runtime-web-api,runtime-task-consumption-worker,runtime-monolith -am test -Dtest=V3ReadHttpContractTest,V3ReadQuotaPostgresTest,V3HttpCompositionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+./mvnw -pl runtime-web-api,runtime-task-consumption-worker,runtime-monolith -am test -Dtest=V3ReadHttpContractTest,V3ReadQuotaPostgresTest,V3HttpCompositionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false -DargLine=-Xmx512m
 ```
 
 Commande positive identique à l'ancre du plan global. **Aucun `architecture-tests`, aucun full, aucun `-amd`, `install`, filtre négatif, skip ou extension des quarantaines**. `failIfNoSpecifiedTests=false` permet les modules amont sans classe sélectionnée ; ne permet jamais de manquer une des 40 identités. Les test-compile amont peuvent coûter même si leurs tests ne s'exécutent pas : inclure ce coût dans le budget, et ne pas le présenter comme test historique exécuté.
 
-À la réalisation, déclarer cette sélection dans le registre/collecteur existant `scripts/testing/verification-campaigns.json`/`verify.py`, **sans modifier les anciens oracles/recettes historiques**. La commande ci-dessus fixe la sélection/lifecycle ; le reçu consigne les deux seules propriétés de provenance ajoutées et les rapports isolés par invocation/module/producer. L'implémentation doit rendre les formes JUnit simples supportables par le collecteur ; si refus de découverte, INCONCLUSIVE et décision ciblée, pas de remplacement par anciens XML. Ne pas inventer maintenant une sous-commande de recette non livrée.
+À la réalisation, déclarer cette sélection dans le registre/collecteur existant `scripts/testing/verification-campaigns.json`/`verify.py`, **sans modifier les anciens oracles/recettes historiques**. La commande ci-dessus fixe la sélection/lifecycle ; le reçu consigne les deux propriétés de provenance ajoutées, avec le drapeau explicite de sûreté `-DargLine=-Xmx512m` pour le banc et les rapports isolés par invocation/module/producer. L'implémentation doit rendre les formes JUnit simples supportables par le collecteur ; si refus de découverte, INCONCLUSIVE et décision ciblée, pas de remplacement par anciens XML. Ne pas inventer maintenant une sous-commande de recette non livrée.
 
 Plan réel de campagne : SHA propre testé, dirty state et empreintes application/POM/tests/SQL/scripts/configuration sémantique avant/après, versions JDK/Maven/Bruno/PG/images, JVM et headers/timeouts, commandes argv sans secrets, modèle effectif, inventaire **40 identités nominatives** et 32 scénarios B1. Aucun XML partagé `target/` antérieur n'est preuve. Chaque identité exactement une exécution fraîche réussie, zéro skip/manquant/doublon ; chaque variante et assertion explicitement exécutée. Une exception aval masquée en 503 ne devient pas une preuve PASS du profil nominal. Aucun double lancement T1 par collecte puis commande native nue.
 
 ### 7.4 Budget partagé T1+B1 et arrêt
 
-**Maximum absolu : 900 secondes murales cumulées, une campagne préparée, aucune relance automatique.** Développement du code/tests/fixtures/collection hors temps ; préparation effective d'environnement, découverte, démarrage/chargement, exécution et collecte dedans. Images/dépendances déjà disponibles sont une précondition, pas une raison de sortir le démarrage du compteur. Pas de « répétition de calibration » avant le run pour contourner le plafond.
+**Estimation et seuil d'alerte : 900 secondes murales cumulées**, T1+B1 partagés. Préparation effective, découverte, démarrage, compilation, PostgreSQL, JUnit, Bruno et collecte sont mesurés. Développement hors campagne. Une campagne saine progresse jusqu'à son résultat terminal ; aucun arrêt ni retry à 900 secondes.
 
-| Phase prévue | Allocation d'organisation, non mesurée |
+| Phase prévue | Estimation non mesurée |
 |---|---:|
-| Préflight, modèle/inventaire, autorités et démarrage de fixture | 120 s |
-| T1, compilation/test-compile/exécution sérielle des 40 tests et observations physiques | 420 s |
-| B1, 32 scénarios complets sur un environnement | 180 s |
-| Export expurgé/collecte, arrêt et récolte des processus/transactions | 120 s |
-| **Total plafond partagé** | **900 s** |
+| Préflight, modèle/inventaire, autorités et fixture | 120 s |
+| T1, compilation et 40 tests/observations physiques | 420 s |
+| B1, 32 scénarios sur un environnement | 180 s |
+| Collecte expurgée et terminaison physique | 120 s |
+| **Total indicatif partagé** | **900 s** |
 
-Prévision globale héritée 5–8 min, **non mesurée pour cette sélection** ; allocations sont réservations, pas seuils d'oracle. Le superviseur réserve les **120 dernières secondes** à la collecte/arrêt : ne pas lancer une phase dont l'échéance empiète sur cette réserve. Diagnostic hors campagne séparé jusqu'à 15 min selon plan global, **aucune nouvelle requête/test/relance** sous ce nom. Si le montage/fournisseur ne permet pas 32 scénarios + 40 tests dans le budget, émettre la cause et le coût attendu ; ne pas retirer une méthode pour rendre le compteur vert.
+Au dépassement : laisser poursuivre, conserver les durées effectives par phase, analyser les causes puis proposer les simplifications utiles sans modifier les oracles. Ne pas relancer une campagne inchangée pour dépassement. Correction concrète ou changement d'environnement identifié : rejouer seulement les preuves invalidées et conserver l'initial.
 
-Arrêt immédiat à fuite/violation d'autorité/routeV2, faux 200 partiel ou dépassement physique dangereux. À échéance/incident : TERM puis terminaison forcée si nécessaire sous propriétaire, récolte enfants et observation backend PG/pools/permis avant libérer le checkout. Campagne interrompue **jamais PASS** ; si terminaison physique inconnue, marquer UNKNOWN et interdire campagne dépendante. Conserver sorties partielles, identités non exécutées, timestamps/durées, mémoire/SQL, cause et coût. Demander **décision explicite avant toute nouvelle campagne**, sur correction/environnement identifié et nouveau budget ; aucun retry inchangé ni timeout augmenté. Un test manquant/SKIP/assertion non exécutée n'est jamais PASS, même avec BUILD SUCCESS.
+Arrêt justifié seulement pour risque données/ressources, violation de sûreté/confidentialité, deadlock ou absence de progression constatée, blocage physique durable, processus hors contrôle, borne technique de sûreté indépendante ou échec déterminant rendant la poursuite dangereuse/inutile. Préserver les preuves, terminer/récolter les processus et observer PG/pools/permis. Inconnu physique : UNKNOWN, aucune campagne dépendante avant résolution. Aucun blocage indéfini. Timeouts d'oracle et de sûreté inchangés ; manquant/SKIP/FAIL/timeout ne vaut jamais PASS.
 
 ## 8. Séquencement futur et sorties observables
 
@@ -327,15 +327,15 @@ Sorties de développement ne dispensent pas des tests d'acceptation ; elles évi
 
 ## 9. GO, checkpoint, audit et décisions
 
-### 9.1 GO d'implémentation — décisions non acquises
+### 9.1 GO d'implémentation — décisions acquises
 
-Avant toute écriture applicative, enregistrer : approbation du plan global L5 (maturité d'audit ≠ approbation humaine), D1 déjà enregistré et conditions maintenues, ratification D6 du full unique à Q5 et du report Architecture, ratification séparée des quatre valeurs D4 **ou autorisation conditionnelle explicite du banc**, approbation du présent plan (40 tests, 32 scénarios, budget de 900 s), puis **GO humain explicite I1**. Qualifier les secrets, l'issuer du banc et ses autorités avant exécution ; le choix du fournisseur réel et son acceptation externe ne peuvent être remplacés par une fixture.
+L'[acte humain I1](L5_I1_Human_Ratification_and_GO.md) enregistre les approbations du plan global, de D4, de D6 option B, du présent plan et le **GO I1 explicite**. Aucune nouvelle confirmation nécessaire. Qualifier les secrets et les autorités du banc avant campagne ; fournisseur réel distinct de la fixture locale.
 
 D2/D3/D5, D4-admission, D6-topologie des sept READ et D7 d'admission restent à leur échéance I2–I4. Ils ne deviennent pas des prérequis artificiels de ce sous-ensemble READ. Un problème nouveau est isolé avec sa propriété manquante et une décision ciblée, sans rouvrir le cadrage L5/L1–L4.
 
 ### 9.2 Checkpoint d'exécution I1
 
-Critères cumulés : huit endpoints implémentés, aucun composant V2 sélectionné, pas d'admission nouvelle ; contrats AuthN/READ/erreurs/masquage/exactitude respectés ; pas de fuite de UserId, d'autorité ou de secret dans les DTO et logs observés ; prévalidation avant quota, SQL Q=2 et refus HTTP bornés ; sérialisation complète avant succès ; **Bruno B1 livré et 32 scénarios exécutés**, T1 **40/0/0/0** sur inventaire exact dans les 900 s partagées ; pics, coûts, annulation et JDBC observés et limites exposées. Tout profil nominal non servi ou mesure manquante reste une réserve à décider, pas une acceptation implicite.
+Critères cumulés : huit endpoints implémentés, aucun composant V2 sélectionné, pas d'admission nouvelle ; contrats AuthN/READ/erreurs/masquage/exactitude respectés ; pas de fuite de UserId, d'autorité ou de secret dans les DTO et logs observés ; prévalidation avant quota, SQL Q=2 et refus HTTP bornés ; sérialisation complète avant succès ; **Bruno B1 livré et 32 scénarios exécutés**, T1 **40/0/0/0** sur inventaire exact avec durées réelles consignées et comparaison aux 900 s indicatives ; pics, coûts, annulation et JDBC observés et limites exposées. Tout profil nominal non servi ou mesure manquante reste une réserve à décider, pas une acceptation implicite.
 
 La preuve physique peut confirmer ou infirmer D4 ; les valeurs restent initiales tant que la décision humaine après mesure n'est pas enregistrée. Une condition de sûreté non tenue bloque l'acceptation correspondante et l'exposition, même si d'autres tests passent. Checkpoint interne et **acceptation externe AuthN** sont deux statuts : fournisseur réel non qualifié → acceptation externe **NOT QUALIFIED**. Pas de certification canonique L5 par T1/B1 ; Architecture/full/G5 restent **NOT RUN** jusqu'à Q5.
 
@@ -343,11 +343,11 @@ La preuve physique peut confirmer ou infirmer D4 ; les valeurs restent initiales
 
 À créer seulement après GO : `docs/v3/L5_I1_Execution_Report.md`, `docs/v3/L5_I1_Proof_Manifest.json`, preuves sous `docs/testing/evidence/L5-I1/`. Rapport : SHA/entrées/périmètre du diff, modifications et composants réemployés, commandes effectives, résultats des 40 identités et 32 scénarios avec variantes, durées totales/phases, ressources/autorités physiques, erreurs/annulation, statuts D4/AuthN et réserves. Manifeste : exigence → contrat E1…E8 → H/Q/C/B → commande/invocation → SHA/configuration/SQL → artefact/empreinte → verdict ; chaque attribution doit être vérifiable indépendamment du total.
 
-Le reviewer vérifie notamment : références/soldes attendus indépendants ; droits à V contre navigation, propriété EUI des résultats ; impossibilité d'accéder à WRITE/V2 ; borne de sortie avant commit ; SQL Q/Q+1 distingué de HTTP en vol ; backend/permis réellement libérés ; accès actuel/inactif/historique/terminal ; zéro secret dans les artefacts ; campagne dans 900 s ; aucune acceptation fournisseur déduite des JWT locaux. Audit humain ultérieur distinct de cette auto-vérification documentaire ; aucun audit indépendant fictif créé ici.
+Le reviewer vérifie notamment : références/soldes attendus indépendants ; droits à V contre navigation, propriété EUI des résultats ; impossibilité d'accéder à WRITE/V2 ; borne de sortie avant commit ; SQL Q/Q+1 distingué de HTTP en vol ; backend/permis réellement libérés ; accès actuel/inactif/historique/terminal ; zéro secret dans les artefacts ; campagne menée à son résultat terminal avec dépassement analysé le cas échéant ; aucune acceptation fournisseur déduite des JWT locaux. Audit humain ultérieur distinct de cette auto-vérification documentaire ; aucun audit indépendant fictif créé ici.
 
-Décisions finales à solliciter dans cet ordre : **D4 quatre nombres et banc/conditions**, **D6 allocation B et report Architecture**, **plan opérationnel/périmètre/budget**, **GO I1 séparé**. Le verdict présent est **READY WITH EXPLICIT DECISIONS**, pas APPROVED et pas GO.
+Décisions D4, D6, plan et GO acquises par l'acte humain. Le checkpoint technique ne constitue aucune clôture humaine d'I1.
 
-## 10. Contrôles de la mission documentaire présente
+## 10. Historique — contrôles de la mission documentaire de préparation
 
 Départ vérifié : branche attendue, HEAD=`9dd1c447…` publié, worktree propre, divergence HEAD/suivi local origin **0/0**, cinq autres worktrees recensés/préservés. Aucune interrogation réseau distante fraîche revendiquée ; le SHA de référence fourni est exactement HEAD local. Lectures au SHA publié avant rédaction, empreintes des dix fichiers référencés par `L5-D4/SHA256SUMS.json` concordantes ; la calibration elle-même reste attribuée à `5193c540…` et son commit documentaire `9dd1c447…`.
 

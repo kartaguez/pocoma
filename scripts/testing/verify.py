@@ -527,7 +527,12 @@ def plan(level, scope, config=None, root=ROOT):
                 if not invocations:
                     raise ValueError(f'{fqcn}#{method}: method missing from source inventory')
                 expected[fqcn] += invocations
-            selectors.append(fqcn + '#' + '+'.join(selected))
+            if campaign.get('selection') == 'whole-classes':
+                if set(selected) != set(available):
+                    raise ValueError(f'{fqcn}: whole-class campaign must retain every source method')
+                selectors.append(fqcn.split('.')[-1])
+            else:
+                selectors.append(fqcn + '#' + '+'.join(selected))
         if sum(map(len, expected.values())) != campaign['expected_invocations']:
             raise ValueError('Campaign invocation inventory differs from its adopted manifest')
     elif scope in config['recipes']:
@@ -553,6 +558,11 @@ def plan(level, scope, config=None, root=ROOT):
     command = base + (['-pl', ','.join(modules), '-am'] if modules else [])
     if selectors:
         command += ['-Dtest=' + ','.join(selectors), '-Dsurefire.failIfNoSpecifiedTests=false']
+    if scope in config.get('campaigns', {}) and 'jvm_max_heap_mib' in config['campaigns'][scope]:
+        # Explicit, source-reviewed I1 server safety bound, not an inherited JVM environment flag.
+        if scope != 'l5-i1' or config['campaigns'][scope]['jvm_max_heap_mib'] != 512:
+            raise ValueError('Unreviewed campaign JVM safety bound')
+        command += ['-DargLine=-Xmx512m']
     command += ['test']
     unselected_sources = []
     unselected_methods = {}

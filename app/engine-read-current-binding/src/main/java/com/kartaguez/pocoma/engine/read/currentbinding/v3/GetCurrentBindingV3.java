@@ -5,7 +5,9 @@ import java.util.*;
 import java.util.function.Function;
 /** Inert internal own-EUI reader. Authentication is supplied by the future L5 boundary. */
 public final class GetCurrentBindingV3 {
-    public enum Status { ABSENT, NOT_READY, AVAILABLE }
+    @FunctionalInterface
+    public interface Query { Answer get(ExternalIdentity eui, long minimum); }
+    public enum Status { ABSENT, NOT_READY, AVAILABLE, UNAVAILABLE }
     public record View(long euiVersion,boolean active,String bindingToken) {
         @Override public String toString() { return "BindingView[version="+euiVersion+",active="+active+",token=REDACTED]"; }
     }
