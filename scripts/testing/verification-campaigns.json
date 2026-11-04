@@ -379,16 +379,23 @@
         "runtime-monolith"
       ],
       "tests": {
+        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+          "httpInFlightUntilSendEnds"
+        ],
+        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+          "missingEui",
+          "inputByteBoundaries"
+        ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
           "monolithRoot"
         ]
       },
-      "expected_invocations": 1,
+      "expected_invocations": 4,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "39 exact I1 methods already passed; only C02 new READ+HTTP profile pair invalidated, then first B1",
+        "basis": "C02 late bean allowlist plus completed JWT/framing/write-timeout variants; retain other 36 exact identities",
         "uncertainty": "UNMEASURED"
       }
     }

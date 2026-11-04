@@ -59,6 +59,14 @@ class V3ReadHttpContractTest {
     @Test void missingEui() throws Exception {
         var now = Instant.now(); for (String sub : Arrays.asList(null, "", " ")) unauthorized(f.jwt(sub, f.issuer, "pocoma-i1", now.minusSeconds(1), now.plusSeconds(60), now.minusSeconds(2), f.key, JWSAlgorithm.RS256));
         unauthorized(f.jwt("owner", null, "pocoma-i1", now.minusSeconds(1), now.plusSeconds(60), now.minusSeconds(2), f.key, JWSAlgorithm.RS256));
+        for (String missing : List.of("auth_time", "iat", "exp")) {
+            var claims = new LinkedHashMap<>(com.nimbusds.jwt.SignedJWT.parse(f.jwt("owner")).getJWTClaimsSet().toJSONObject()); claims.remove(missing);
+            var token = new com.nimbusds.jwt.SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("i1-local").build(), com.nimbusds.jwt.JWTClaimsSet.parse(claims)); token.sign(new com.nimbusds.jose.crypto.RSASSASigner(f.key)); unauthorized(token.serialize());
+        }
+        for (Object invalid : List.of("invalid", now.plusSeconds(300).getEpochSecond())) {
+            var claims = new LinkedHashMap<>(com.nimbusds.jwt.SignedJWT.parse(f.jwt("owner")).getJWTClaimsSet().toJSONObject()); claims.put("auth_time", invalid);
+            var token = new com.nimbusds.jwt.SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("i1-local").build(), com.nimbusds.jwt.JWTClaimsSet.parse(claims)); token.sign(new com.nimbusds.jose.crypto.RSASSASigner(f.key)); unauthorized(token.serialize());
+        }
     }
     @Test void ownBindingAndResults() throws Exception {
         var active = bearer("owner", null, "/me/binding"); status(200, active); assertEquals(Set.of("euiVersion", "active", "bindingToken"), names(f.body(active))); assertEquals(TOKEN, f.body(active).get("bindingToken").asText());
@@ -162,10 +170,28 @@ class V3ReadHttpContractTest {
     @Test void inputByteBoundaries() throws Exception {
         f.seed(POT, 1, 1, Set.of(OWNER), false, true, true, "input"); String body = f.batch(1, 1), path = f.path(POT, 1) + "/expenses/query";
         for (int size : List.of(65535, 65536, 65537)) { var response = f.post(path, body + " ".repeat(size - body.getBytes(StandardCharsets.UTF_8).length)); status(size > 65536 ? 413 : 200, response); }
-        // Unknown-length publisher uses HTTP/1.1 chunking and the same received-byte limit.
-        var request = HttpRequest.newBuilder(URI.create(f.baseUrl + "/api/v3" + path)).header("Authorization", "Bearer " + f.jwt("owner")).header("X-Pocoma-Binding-Token", TOKEN).header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> new ByteArrayInputStream((body + " ".repeat(65537 - body.length())).getBytes(StandardCharsets.UTF_8)))).build(); status(413, f.client.send(request, HttpResponse.BodyHandlers.ofByteArray()));
+        // Unknown-length publishers exercise chunked framing at all three byte boundaries.
+        for (int size : List.of(65535, 65536, 65537)) {
+            byte[] chunked = (body + " ".repeat(size-body.length())).getBytes(StandardCharsets.UTF_8);
+            var request = HttpRequest.newBuilder(URI.create(f.baseUrl + "/api/v3" + path)).header("Authorization", "Bearer " + f.jwt("owner")).header("X-Pocoma-Binding-Token", TOKEN).header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> new ByteArrayInputStream(chunked))).build(); status(size > 65536 ? 413 : 200, f.client.send(request, HttpResponse.BodyHandlers.ofByteArray()));
+        }
+        long beforeMalformed = sqlCalls();
+        String headers = "Host: 127.0.0.1\r\nAuthorization: Bearer " + f.jwt("owner") + "\r\nX-Pocoma-Binding-Token: " + TOKEN + "\r\nConnection: close\r\n";
+        assertTrue(raw("POST /api/v3" + path + " HTTP/1.1\r\n" + headers + "Content-Type: application/json\r\nContent-Length: 1\r\n\r\n" + body).startsWith("HTTP/1.1 400"));
+        assertTrue(raw("GET /api/v3/me/binding HTTP/1.1\r\n" + headers + "X-Large: " + "x".repeat(16385) + "\r\n\r\n").startsWith("HTTP/1.1 400"));
+        assertEquals(beforeMalformed, sqlCalls(), "framing/header refusal before READ SQL");
+
         status(400, f.get("/me/binding?padding=" + "x".repeat(2050)));
+    }
+    String raw(String request) throws Exception {
+        var uri = URI.create(f.baseUrl);
+        try (var socket = new java.net.Socket(uri.getHost(), uri.getPort())) {
+            socket.setSoTimeout(6000); socket.getOutputStream().write(request.getBytes(StandardCharsets.US_ASCII)); socket.getOutputStream().flush();
+            var firstLine = new ByteArrayOutputStream(); int value;
+            while ((value=socket.getInputStream().read()) != -1 && value != '\n') firstLine.write(value);
+            return firstLine.toString(StandardCharsets.US_ASCII);
+        }
     }
     static volatile Object boundaryDto;
     @Configuration(proxyBeanMethods = false) static class BoundaryProbe {

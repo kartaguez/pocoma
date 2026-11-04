@@ -135,6 +135,10 @@ class V3ReadQuotaPostgresTest {
             assertEquals("HTTP/1.1 200", readStatus(first)); assertEquals("HTTP/1.1 200", readStatus(second));
             assertEquals(0, f.context.getBean(V3ReadTransport.class).availableCapacity()); long calls = businessCalls(); var refused = f.get("/me/binding");
             assertEquals(503, refused.statusCode()); assertTrue(refused.body().length <= 1024); assertEquals(calls, businessCalls()); assertEquals(0, f.pool().getHikariPoolMXBean().getActiveConnections());
+            // Keep both peers open and unread: server write timeout must physically abort them.
+            long waiting = System.nanoTime();
+            await(() -> f.context.getBean(V3ReadTransport.class).availableCapacity() == 2, Duration.ofSeconds(6));
+            f.evidence("Q07-send-timeout", Map.of("secondsAfterRefusal", (System.nanoTime()-waiting)/1e9, "peersStillOpen", true, "capacityRecovered", 2));
         }
         await(() -> f.context.getBean(V3ReadTransport.class).availableCapacity() == 2, Duration.ofSeconds(6)); assertEquals(200, f.get("/me/binding").statusCode());
     }

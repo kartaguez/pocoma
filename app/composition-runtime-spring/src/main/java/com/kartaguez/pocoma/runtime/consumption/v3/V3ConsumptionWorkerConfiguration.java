@@ -608,6 +608,7 @@ public class V3ConsumptionWorkerConfiguration {
             var actual =
                     Collections.newSetFromMap(new IdentityHashMap<javax.sql.DataSource, Boolean>());
             int capacities = 0;
+            boolean http = Arrays.asList(factory.getBean(Environment.class).getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE);
             for (String name : factory.getSingletonNames()) {
                 Object bean = factory.getSingleton(name);
                 if (bean instanceof javax.sql.DataSource ds) actual.add(ds);
@@ -636,11 +637,21 @@ public class V3ConsumptionWorkerConfiguration {
                                             "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication")
                                     || value.equals(
                                             "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
+                                    || (http && (
+                                        bean instanceof V3ReadHttpConfiguration
+                                        || bean instanceof V3ReadHttpConfiguration.HttpPreflight
+                                        || bean instanceof V3ReadHttpConfiguration.PrincipalResolver
+                                        || bean instanceof com.kartaguez.pocoma.supra.http.read.v3.V3ReadController
+                                        || bean instanceof com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport
+                                        || (name.equals("v3HttpBinding") && bean instanceof com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query)
+                                        || (name.equals("v3HttpCommandResult") && bean instanceof com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query)
+                                        || (name.equals("v3HttpIdentityResult") && bean instanceof com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query)
+                                        || (name.equals("v3HttpServerBounds") && bean instanceof org.springframework.boot.web.server.WebServerFactoryCustomizer)))
                                     || name.equals("v3ResourceValidation")
                                     || (name.equals("v3WorkerHealth")
                                             && bean instanceof HealthIndicator);
                     if (!known)
-                        throw new IllegalStateException("unallocated active singleton in I5");
+                        throw new IllegalStateException("unallocated active singleton in I5: " + name + "/" + value);
                 }
             }
             int expectedCapacities =
