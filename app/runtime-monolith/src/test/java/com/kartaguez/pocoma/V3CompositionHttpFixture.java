@@ -99,6 +99,12 @@ final class V3CompositionHttpFixture implements AutoCloseable {
         properties.put("pocoma.v3.http.read.url", url); properties.put("pocoma.v3.http.read.username", role); properties.put("pocoma.v3.http.read.password", "ephemeral-i1-fixture");
         binding("owner", 1, OWNER, TOKEN); binding("other", 1, OTHER, OTHER_TOKEN); binding("same", 1, OWNER, "I1-SAME-USER-CANARY"); binding("inactive", 2, null, null);
     }
+    static void initializeWorkerDatabase(PostgreSQLContainer pg) {
+        var root = new JdbcTemplate(new DriverManagerDataSource(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword()));
+        root.execute("create extension if not exists pgcrypto with schema public");
+        root.execute("create database i5_read");
+        new JdbcTemplate(new DriverManagerDataSource("jdbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/i5_read", pg.getUsername(), pg.getPassword())).execute("create extension pgcrypto with schema public");
+    }
     void start(Class<?>... roots) {
         var app = new SpringApplication(roots); app.setAdditionalProfiles(V3ReadHttpConfiguration.PROFILE); app.setDefaultProperties(properties);
         app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-isolated-fixture", properties)));
@@ -134,6 +140,11 @@ final class V3CompositionHttpFixture implements AutoCloseable {
     static String ref(long id, long version) { return "{\"id\":\"" + id(id) + "\",\"headerVersion\":" + version + ",\"detailsVersion\":" + version + ",\"financialsVersion\":" + version + ",\"deleted\":false}"; }
     String path(UUID pot, long version) { return "/pots/" + pot + "/versions/" + version; }
     void seed(UUID pot, long version, int expenseCount, int shareholders, Set<UUID> allowed, boolean deleted, boolean withBalance, boolean expenseDetails, String label) {
+        seedProfile(pot, version, expenseCount, shareholders, allowed, deleted, withBalance, expenseDetails, label, 0, false);
+    }
+    void seedProfile(UUID pot, long version, int expenseCount, int shareholders, Set<UUID> allowed, boolean deleted, boolean withBalance, boolean expenseDetails, String label, int digits, boolean expenseRationals) {
+        Fraction rational = digits == 0 ? new Fraction(2, 3) : new Fraction(java.math.BigInteger.TEN.pow(digits-1).add(java.math.BigInteger.ONE), java.math.BigInteger.TEN.pow(digits-1).add(java.math.BigInteger.valueOf(3)));
+
         var shares = new ArrayList<PotVersion.Shareholder>(); var refs = new ArrayList<PotVersion.Expense>(); var parts = new LinkedHashMap<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.v3.Weight>>();
         var values = new ArrayList<SubobjectVersion>(); var vector = new LinkedHashMap<UUID, Fraction>();
         add(values, pot, POT_HEADER, pot, version, new PotHeaderContent(new PotHeader(new PotId(pot), deleted)));
@@ -142,14 +153,14 @@ final class V3CompositionHttpFixture implements AutoCloseable {
             UUID s = id(201 + n); shares.add(new PotVersion.Shareholder(s, version, version, version, false, true));
             add(values, pot, SHAREHOLDER_HEADER, s, version, new ShareholderHeaderContent(new ShareholderHeader(new PotId(pot), new ShareholderId(s), false)));
             add(values, pot, SHAREHOLDER_DETAILS, s, version, new ShareholderDetailsContent(new ShareholderDetails(new PotId(pot), new ShareholderId(s), new Name("share-" + n), Optional.empty())));
-            add(values, pot, SHAREHOLDER_WEIGHT, s, version, new ShareholderWeightContent(new ShareholderWeight(new PotId(pot), new ShareholderId(s), new com.kartaguez.pocoma.domain.pot.v3.Weight(new Fraction(2, 3)))));
-            parts.put(new ShareholderId(s), Optional.empty()); vector.put(s, n == 0 ? new Fraction(1, 3) : n == 1 ? new Fraction(-1, 3) : Fraction.ZERO);
+            add(values, pot, SHAREHOLDER_WEIGHT, s, version, new ShareholderWeightContent(new ShareholderWeight(new PotId(pot), new ShareholderId(s), new com.kartaguez.pocoma.domain.pot.v3.Weight(rational))));
+            parts.put(new ShareholderId(s), expenseRationals ? Optional.of(new com.kartaguez.pocoma.domain.pot.v3.Weight(rational)) : Optional.empty()); vector.put(s, n == 0 ? new Fraction(1, 3) : n == 1 ? new Fraction(-1, 3) : Fraction.ZERO);
         }
         for (int n = 0; n < expenseCount; n++) {
             UUID e = id(1000 + n); refs.add(new PotVersion.Expense(e, version, version, version, false));
             add(values, pot, EXPENSE_HEADER, e, version, new ExpenseHeaderContent(new ExpenseHeader(new PotId(pot), new ExpenseId(e), false)));
             if (expenseDetails) add(values, pot, EXPENSE_DETAILS, e, version, new ExpenseDetailsContent(new ExpenseDetails(new PotId(pot), new ExpenseId(e), new Label("dépense\\\"-" + n), LocalDate.of(2026, 11, 3))));
-            add(values, pot, EXPENSE_FINANCIALS, e, version, new ExpenseFinancialsContent(new ExpenseFinancials(new PotId(pot), new ExpenseId(e), new com.kartaguez.pocoma.domain.pot.v3.Amount(new Fraction(1, 3)), new ShareholderId(S1), parts)));
+            add(values, pot, EXPENSE_FINANCIALS, e, version, new ExpenseFinancialsContent(new ExpenseFinancials(new PotId(pot), new ExpenseId(e), new com.kartaguez.pocoma.domain.pot.v3.Amount(expenseRationals ? rational : new Fraction(1, 3)), new ShareholderId(S1), parts)));
         }
         injector.write(() -> { objects.insertOrVerifyAll(values); pots.insertAndAdvance(new PotVersion(pot, version, version, version, deleted, shares, refs, allowed, Set.of()));
             if (withBalance && !deleted) balances.insertOrVerify(new PotBalance(pot, version, vector)); return null; });

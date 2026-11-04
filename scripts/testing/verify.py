@@ -560,7 +560,7 @@ def plan(level, scope, config=None, root=ROOT):
         command += ['-Dtest=' + ','.join(selectors), '-Dsurefire.failIfNoSpecifiedTests=false']
     if scope in config.get('campaigns', {}) and 'jvm_max_heap_mib' in config['campaigns'][scope]:
         # Explicit, source-reviewed I1 server safety bound, not an inherited JVM environment flag.
-        if scope != 'l5-i1' or config['campaigns'][scope]['jvm_max_heap_mib'] != 512:
+        if scope not in {'l5-i1', 'l5-i1-completion'} or config['campaigns'][scope]['jvm_max_heap_mib'] != 512:
             raise ValueError('Unreviewed campaign JVM safety bound')
         command += ['-DargLine=-Xmx512m']
     command += ['test']

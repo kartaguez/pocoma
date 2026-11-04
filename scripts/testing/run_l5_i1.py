@@ -30,7 +30,7 @@ def main():
         receipt['phases'][name] = dict(command=command, exit_code=code, seconds=time.monotonic()-beginning)
         return code
     try:
-        code = phase('T1', [sys.executable, '-B', 'scripts/testing/verify.py', 'INTEGRATION', 'l5-i1', '--output', str(output/'T1')], ROOT)
+        code = phase('T1', [sys.executable, '-B', 'scripts/testing/verify.py', 'INTEGRATION', sys.argv[2] if len(sys.argv) > 2 else 'l5-i1', '--output', str(output/'T1')], ROOT)
         if code != 0:
             receipt['verdict'] = 'T1_NON_PASS_B1_NOT_RUN'
             return code

@@ -370,6 +370,62 @@
         "basis": "Human-approved shared T1+B1 planning estimate; no temporal interruption",
         "uncertainty": "UNMEASURED"
       }
+    },
+    "l5-i1-completion": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api",
+        "runtime-task-consumption-worker",
+        "runtime-monolith"
+      ],
+      "tests": {
+        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+          "missingBearer",
+          "forgedSignature",
+          "wrongIssuer",
+          "wrongAudience",
+          "expiredJwt",
+          "notYetValidJwt",
+          "missingEui",
+          "ownBindingAndResults",
+          "bindingTokenAndForeignEui",
+          "terminalResultsOwnership",
+          "terminalResultsWithoutBinding",
+          "historicalAccessAndDeletion",
+          "minimumAndReadDependencies",
+          "coherentSnapshotDuringAdvance",
+          "completeManifestAndExactBatches",
+          "batchCardinalityAndMalformedRefs",
+          "foreignRefsAndMissingSubversions",
+          "navigationCursorAndBindingChange",
+          "navigationMutationsAndPlans",
+          "inputByteBoundaries",
+          "outputByteBoundaries",
+          "lateSerializationFailure",
+          "exactDtoAndSecretLogs",
+          "mediaAndUnknownFields"
+        ],
+        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+          "memoryAndCopies",
+          "workersProgressWithoutControlBorrow"
+        ],
+        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+          "webRoot",
+          "monolithRoot",
+          "legacyComponentsRejected",
+          "readOnlyAuthorityAndNoWriteFallback",
+          "typedPortsAndDependencies",
+          "brunoFixtureProvenance"
+        ]
+      },
+      "expected_invocations": 32,
+      "selection": "methods",
+      "jvm_max_heap_mib": 512,
+      "forecast": {
+        "seconds": 900,
+        "basis": "Completion after isolated run: reuse eight successful unaffected Q methods; fresh H24/C6/Q08/Q10, then B1",
+        "uncertainty": "UNMEASURED"
+      }
     }
   },
   "sequences": {

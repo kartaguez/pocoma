@@ -145,7 +145,7 @@ class V3ReadQuotaPostgresTest {
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             var sampler = executor.submit(() -> { while (sampling.get()) { peak.accumulateAndGet(memory.getHeapMemoryUsage().getUsed(), Math::max); samples.incrementAndGet(); try { Thread.sleep(5); } catch (InterruptedException stop) { return; } } });
             try {
-            f.seed(id(777), 1, 2000, 100, Set.of(OWNER), false, true, true, "renforcé-\\\"-" + "é".repeat(100));
+            f.seedProfile(id(777), 1, 2000, 100, Set.of(OWNER), false, true, true, "renforcé-UTF8-é", 1024, false);
             var firstResponse = f.get(f.path(id(777), 1));
             if (firstResponse.statusCode() != 200) {
                 var service = f.services();
@@ -161,6 +161,10 @@ class V3ReadQuotaPostgresTest {
             assertTrue(memory.getHeapMemoryUsage().getMax() - memory.getHeapMemoryUsage().getUsed() > 32L * 1024 * 1024, "headroom before two finite calls");
             var one = executor.submit(() -> f.get(f.path(id(777), 1))); var two = executor.submit(() -> f.get(f.path(id(777), 1)));
             assertEquals(200, one.get(10, TimeUnit.SECONDS).statusCode()); assertEquals(200, two.get(10, TimeUnit.SECONDS).statusCode());
+            f.seedProfile(id(888), 1, 50, 20, Set.of(OWNER), false, true, true, "batch renforcé", 256, true);
+            var reinforced = f.post(f.path(id(888), 1) + "/expenses/query", f.batch(50, 1)); assertEquals(200, reinforced.statusCode()); assertEquals(50, f.body(reinforced).get("expenses").size());
+            f.seedProfile(id(889), 1, 50, 100, Set.of(OWNER), false, true, true, "batch extrême", 1024, true);
+            assertEquals(503, f.post(f.path(id(889), 1) + "/expenses/query", f.batch(50, 1)).statusCode());
             f.seed(id(778), 1, 0, Set.of(OWNER), false, true, true, "x".repeat(4_194_304)); assertEquals(503, f.get("/pots/" + id(778)).statusCode());
             } finally {
                 sampling.set(false); sampler.get(1, TimeUnit.SECONDS);
@@ -182,7 +186,7 @@ class V3ReadQuotaPostgresTest {
     }
     @Test void workersProgressWithoutControlBorrow() throws Exception {
         // Existing I8 worker and physical authorities, no public admission or lease change.
-        ReadRuntimeI8Fixture.initialize(PG);
+        initializeWorkerDatabase(PG);
         try (var workerFixture = new ReadRuntimeI8Fixture(PG)) {
             workerFixture.select(List.of("CurrentBinding"), false); var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null); workerFixture.produce(request);
             var context = workerFixture.start();

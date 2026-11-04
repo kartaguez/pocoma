@@ -42,7 +42,7 @@ class V3HttpCompositionPostgresTest {
             if (method.getBeanType().getName().startsWith("com.kartaguez.pocoma.supra.")) routes.addAll(info.getPatternValues()); })); return routes;
     }
     @Test void monolithRoot() throws Exception {
-        ReadMonolithI8Fixture.initialize(PG);
+        initializeWorkerDatabase(PG);
         try (var fixture = new ReadMonolithI8Fixture(PG); var http = new V3CompositionHttpFixture(PG)) {
             fixture.select(List.of("CurrentBinding"), false);
             var props = new LinkedHashMap<>(fixture.properties); props.putAll(http.properties);
