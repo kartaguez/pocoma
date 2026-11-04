@@ -33,6 +33,6 @@ tests {
   const privateBody = data => { const text=JSON.stringify(data); for(const value of ['userId','authorizedUserIds','attachedActiveUserIds','requesterEui',bru.getVar('bindingOther')]) expect(text.includes(value)).to.equal(false); };
   expect(res.headers['cache-control']).to.equal('no-store');
   test('B19 status, bounded uniform error and no-store', () => error(main,400));
-  
+
   require('fs').appendFileSync(process.env.POCOMA_I1_REQUEST_RECEIPTS, JSON.stringify({scenario:'B19',requests:1+extraCalls,status:main.status})+'\n');
 }
