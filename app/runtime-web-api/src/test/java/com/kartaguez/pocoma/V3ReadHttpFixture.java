@@ -110,6 +110,18 @@ final class V3ReadHttpFixture implements AutoCloseable {
         var app = new SpringApplication(roots); app.setAdditionalProfiles(V3ReadHttpConfiguration.PROFILE); app.setDefaultProperties(properties);
         app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-isolated-fixture", properties)));
         context = app.run(); baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
+        // Both physical connections must finish lazy JDBC initialization before zero-SQL oracles.
+        var before = sqlStats();
+        try (var one = pool().getConnection(); var two = pool().getConnection()) {
+            for (var connection : List.of(one, two)) try (var statement = connection.createStatement(); var result = statement.executeQuery("select 1")) {
+                if (!result.next() || result.getInt(1) != 1) throw new IllegalStateException("READ fixture initialization failed");
+            }
+        } catch (java.sql.SQLException failed) { throw new IllegalStateException("READ fixture pool initialization failed", failed); }
+        if (pool().getHikariPoolMXBean().getTotalConnections() != 2 || pool().getHikariPoolMXBean().getActiveConnections() != 0)
+            throw new IllegalStateException("READ fixture pool not initialized");
+        try { evidence("HTTP-pool-initialization-" + schema, Map.of("before", before, "after", sqlStats(), "physicalConnectionsInitialized", 2)); }
+        catch (IOException failed) { throw new IllegalStateException("READ fixture initialization evidence failed", failed); }
+
     }
     ExternalIdentity eui(String subject) { return new ExternalIdentity(issuer, subject); }
     void binding(String subject, long version, UUID user, String token) {

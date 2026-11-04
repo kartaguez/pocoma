@@ -42,7 +42,7 @@ class V3ReadHttpContractTest {
     @Test void missingBearer() throws Exception {
         for (String path : List.of("/me/binding", "/pots/" + POT, f.path(POT, 1), f.path(POT, 1) + "/balance", f.path(POT, 1) + "/expenses/query", "/me/pots", "/commands/" + id(401) + "/result", "/identity/requests/" + id(403) + "/result"))
             status(401, f.request(path.endsWith("query") ? "POST" : "GET", path, null, TOKEN, null, Map.of()));
-        assertEquals(setupSqlCalls, sqlCalls(), "zero SQL after pool initialization");
+        assertEquals(setupSqlCalls, sqlCalls(), () -> "zero SQL after pool initialization: " + f.sqlStats());
     }
     @Test void forgedSignature() throws Exception {
         var now = Instant.now(); unauthorized(f.jwt("owner", f.issuer, "pocoma-i1", now.minusSeconds(1), now.plusSeconds(60), now.minusSeconds(2), new RSAKeyGenerator(2048).generate(), JWSAlgorithm.RS256));
@@ -152,7 +152,7 @@ class V3ReadHttpContractTest {
     @Test void batchCardinalityAndMalformedRefs() throws Exception {
         String path = f.path(POT, 1) + "/expenses/query";
         for (String body : List.of(f.batch(0, 1), f.batch(51, 1), "null", "{\"references\":null}", "{\"references\":[null]}", "{\"references\":[" + ref(1000, 1) + "," + ref(1000, 1) + "]}", f.batch(1, 0), f.batch(1, 1).replace("\"headerVersion\":1", "\"headerVersion\":9223372036854775808"), f.batch(1, 1).replace("\"headerVersion\":1", "\"headerVersion\":1e0"))) status(400, f.post(path, body));
-        assertEquals(setupSqlCalls, sqlCalls(), "zero SQL after pool initialization");
+        assertEquals(setupSqlCalls, sqlCalls(), () -> "zero SQL after pool initialization: " + f.sqlStats());
     }
     @Test void foreignRefsAndMissingSubversions() throws Exception {
         f.seed(POT, 1, 2, Set.of(OWNER), false, true, false, "missing details"); String path = f.path(POT, 1) + "/expenses/query";
