@@ -47,6 +47,7 @@ class V3HttpCompositionPostgresTest {
             fixture.select(List.of("CurrentBinding"), false);
             var props = new LinkedHashMap<>(fixture.properties); props.putAll(http.properties);
             var app = new SpringApplication(PocomaRuntimeMonolithApplication.class); app.setAdditionalProfiles("v3-read-worker", "v3-http-read"); app.setDefaultProperties(props);
+            app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-monolith-fixture", props)));
             var context = app.run(); fixture.contexts.add(context);
             try {
                 var services = context.getBean(V3ReadFacadeComposition.Services.class);

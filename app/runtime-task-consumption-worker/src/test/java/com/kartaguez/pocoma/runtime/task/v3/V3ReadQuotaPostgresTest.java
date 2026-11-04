@@ -30,7 +30,7 @@ class V3ReadQuotaPostgresTest {
     @SpringBootConfiguration @EnableAutoConfiguration @Import(V3ReadHttpConfiguration.class) static class HttpRoot {}
     V3QuotaHttpFixture f;
     @BeforeEach void fixture() throws Exception { f = new V3QuotaHttpFixture(PG); f.start(HttpRoot.class); f.seed(POT, 1, 50, Set.of(OWNER), false, true, true, "quota"); }
-    @AfterEach void close() throws Exception { try { if (f != null) f.evidence("Quota-" + f.schema, Map.of("sql", f.sqlStats(), "activeBackends", f.activeBackends(), "poolActive", f.pool().getHikariPoolMXBean().getActiveConnections())); } finally { if (f != null) f.close(); } }
+    @AfterEach void close() throws Exception { try { if (f != null && f.context != null) f.evidence("Quota-" + f.schema, Map.of("sql", f.sqlStats(), "activeBackends", f.activeBackends(), "poolActive", f.pool().getHikariPoolMXBean().getActiveConnections())); } finally { if (f != null) f.close(); } }
     static void await(BooleanSupplier predicate, Duration duration) throws Exception {
         long end = System.nanoTime() + duration.toNanos(); while (!predicate.getAsBoolean() && System.nanoTime() < end) Thread.sleep(5); assertTrue(predicate.getAsBoolean(), "physical condition deadline");
     }

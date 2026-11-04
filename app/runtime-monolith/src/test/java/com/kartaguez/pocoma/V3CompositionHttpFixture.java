@@ -101,6 +101,7 @@ final class V3CompositionHttpFixture implements AutoCloseable {
     }
     void start(Class<?>... roots) {
         var app = new SpringApplication(roots); app.setAdditionalProfiles(V3ReadHttpConfiguration.PROFILE); app.setDefaultProperties(properties);
+        app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-isolated-fixture", properties)));
         context = app.run(); baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
     }
     ExternalIdentity eui(String subject) { return new ExternalIdentity(issuer, subject); }
