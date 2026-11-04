@@ -110,7 +110,7 @@ final class V3QuotaHttpFixture implements AutoCloseable {
     void start(Class<?>... roots) {
         var app = new SpringApplication(roots); app.setAdditionalProfiles(V3ReadHttpConfiguration.PROFILE); app.setDefaultProperties(properties);
         app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-isolated-fixture", properties)));
-        context = app.run(); baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
+        context = app.run("--spring.main.web-application-type=servlet"); baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
     }
     ExternalIdentity eui(String subject) { return new ExternalIdentity(issuer, subject); }
     void binding(String subject, long version, UUID user, String token) {
