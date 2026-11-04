@@ -379,29 +379,17 @@
         "runtime-monolith"
       ],
       "tests": {
-        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
-          "missingBearer",
-          "forgedSignature",
-          "wrongIssuer",
-          "wrongAudience",
-          "expiredJwt",
-          "notYetValidJwt",
-          "missingEui",
-          "ownBindingAndResults",
-          "coherentSnapshotDuringAdvance",
-          "completeManifestAndExactBatches",
-          "navigationMutationsAndPlans"
-        ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+          "webRoot",
           "monolithRoot"
         ]
       },
-      "expected_invocations": 12,
+      "expected_invocations": 2,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Raw claim validation correction invalidates H01-H08; complete binding/rational/foreign-cursor variants H14/H15/H19 and C02 outstanding; all other proofs retained",
+        "basis": "Recheck roots with production-owned legacy auto-configuration exclusions, then recursive B1; preserve other 38 exact methods",
         "uncertainty": "UNMEASURED"
       }
     }

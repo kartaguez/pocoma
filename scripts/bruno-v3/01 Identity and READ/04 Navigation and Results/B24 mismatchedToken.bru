@@ -15,6 +15,10 @@ headers {
   X-Pocoma-Binding-Token: {{bindingOther}}
 }
 
+settings {
+  timeout: 5000
+}
+
 tests {
   const base = bru.getVar('baseUrl');
   const id = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');

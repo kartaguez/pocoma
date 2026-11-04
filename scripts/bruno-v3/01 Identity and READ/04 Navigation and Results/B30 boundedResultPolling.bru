@@ -14,6 +14,10 @@ headers {
   Authorization: Bearer {{bearerOwner}}
 }
 
+settings {
+  timeout: 5000
+}
+
 tests {
   const base = bru.getVar('baseUrl');
   const id = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
@@ -27,6 +31,6 @@ tests {
   const privateBody = data => { const text=JSON.stringify(data); for(const value of ['userId','authorizedUserIds','attachedActiveUserIds','requesterEui',bru.getVar('bindingOther')]) expect(text.includes(value)).to.equal(false); };
   expect(res.headers['cache-control']).to.equal('no-store');
   test('B30 status, bounded uniform error and no-store', () => error(main,404));
-  const fs=require('fs'); const signal=process.env.POCOMA_I1_PUBLISH_SIGNAL; if(!signal) throw new Error('Controlled READ publisher missing'); fs.writeFileSync(signal,'first-404-observed'); const started=performance.now(); const states=[]; for(const route of ['/commands/','/identity/requests/']) { let value={status:404}, attempts=1; for(const delay of [1000,2000,4000]) { if(value.status===200) break; if(performance.now()-started+delay+5000>20000) throw new Error('B30 total deadline'); await bru.sleep(delay); value=await call(route+id(route.includes('identity')?406:405)+'/result'); attempts++; states.push(value.status); if([400,401,413,415].includes(value.status)) throw new Error('B30 deterministic refusal'); expect([200,404,503]).to.include(value.status); } expect(value.status).to.equal(200); expect(value.data.outcome).to.equal('COMPLETED'); expect(attempts).to.be.at.most(4); } expect(performance.now()-started).to.be.below(20000); console.log('B30 bounded fixture polling statuses: '+states.join(','));
+  const started=performance.now()-res.responseTime; const initialIdentity=await call('/identity/requests/'+id(406)+'/result'); error(initialIdentity,404); const fs=require('fs'); const signal=process.env.POCOMA_I1_PUBLISH_SIGNAL; if(!signal) throw new Error('Controlled READ publisher missing'); fs.writeFileSync(signal,'first-404-observed'); const states=[404,404]; for(const route of ['/commands/','/identity/requests/']) { let value={status:404}, attempts=1; for(const delay of [1000,2000,4000]) { if(value.status===200) break; if(performance.now()-started+delay+5000>20000) throw new Error('B30 total deadline'); await bru.sleep(delay); value=await call(route+id(route.includes('identity')?406:405)+'/result'); attempts++; states.push(value.status); if([400,401,413,415].includes(value.status)) throw new Error('B30 deterministic refusal'); expect([200,404,503]).to.include(value.status); } expect(value.status).to.equal(200); expect(value.data.outcome).to.equal('COMPLETED'); expect(attempts).to.be.at.most(4); } expect(performance.now()-started).to.be.below(20000); console.log('B30 bounded fixture polling statuses: '+states.join(','));
   require('fs').appendFileSync(process.env.POCOMA_I1_REQUEST_RECEIPTS, JSON.stringify({scenario:'B30',requests:1+extraCalls,status:main.status})+'\n');
 }

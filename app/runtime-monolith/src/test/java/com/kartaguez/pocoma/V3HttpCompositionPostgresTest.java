@@ -31,6 +31,8 @@ class V3HttpCompositionPostgresTest {
             assertEquals(8, routes(f).size()); assertTrue(routes(f).stream().allMatch(p -> p.startsWith("/api/v3/")));
             assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size()); assertEquals(2, f.pool().getMaximumPoolSize());
             assertTrue(f.context.getBeansOfType(V3ConsumptionWorker.class).isEmpty());
+            assertTrue(f.context.getBeansOfType(org.springframework.transaction.PlatformTransactionManager.class).isEmpty(), "no implicit JDBC/JPA owner");
+            assertTrue(f.context.getBeansOfType(jakarta.persistence.EntityManagerFactory.class).isEmpty(), "no implicit legacy JPA assembly");
             assertEquals(1, f.context.getBeansOfType(ReadPotV3.Queries.class).size()); assertEquals(1, f.context.getBeansOfType(GetCurrentBindingV3.Query.class).size());
             assertEquals(200, f.get("/pots/" + POT).statusCode()); assertEquals(200, f.get("/me/binding").statusCode());
             assertTrue(f.context.getBeansOfType(com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandService.class).isEmpty());

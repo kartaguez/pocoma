@@ -20,6 +20,10 @@ body:json {
   {"references":[{"id":"00000000-0000-0000-0000-000000001000","headerVersion":1,"detailsVersion":1,"financialsVersion":1,"deleted":false},{"id":"00000000-0000-0000-0000-000000001000","headerVersion":1,"detailsVersion":1,"financialsVersion":1,"deleted":false}]}
 }
 
+settings {
+  timeout: 5000
+}
+
 tests {
   const base = bru.getVar('baseUrl');
   const id = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');

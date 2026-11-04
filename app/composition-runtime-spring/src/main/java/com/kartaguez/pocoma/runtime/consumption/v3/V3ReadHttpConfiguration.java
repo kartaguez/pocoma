@@ -33,6 +33,12 @@ import java.util.*;
 
 /** Explicit V3 HTTP assembly. Standalone WEB owns only a two-connection READ pool. */
 @Configuration(proxyBeanMethods = false)
+@org.springframework.boot.autoconfigure.EnableAutoConfiguration(excludeName = {
+    "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
+    "org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration",
+    "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration",
+    "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration"
+})
 @Profile(V3ReadHttpConfiguration.PROFILE)
 @Import(V3ReadController.class)
 public class V3ReadHttpConfiguration {
@@ -67,7 +73,7 @@ public class V3ReadHttpConfiguration {
         config.setJdbcUrl(env.getRequiredProperty(p + "url"));
         config.setUsername(env.getRequiredProperty(p + "username"));
         config.setPassword(env.getRequiredProperty(p + "password"));
-        config.setPoolName("v3-http-read"); config.setMaximumPoolSize(2); config.setMinimumIdle(2);
+        config.setPoolName("v3-http-read"); config.setMaximumPoolSize(V3ReadFacadeComposition.Services.SQL_PERMITS); config.setMinimumIdle(V3ReadFacadeComposition.Services.SQL_PERMITS);
         config.setConnectionTimeout(1000); config.setReadOnly(true);
         config.addDataSourceProperty("socketTimeout", "70"); config.addDataSourceProperty("ApplicationName", "v3-http-read");
         return new HikariDataSource(config);

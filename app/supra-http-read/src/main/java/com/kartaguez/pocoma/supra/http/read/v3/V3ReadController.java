@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiFunction;
 
+@org.springframework.context.annotation.Profile("v3-http-read")
 @RestController
 @RequestMapping("/api/v3")
 public final class V3ReadController {
