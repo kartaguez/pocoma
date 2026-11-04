@@ -381,29 +381,7 @@
       "tests": {
         "com.kartaguez.pocoma.V3ReadHttpContractTest": [
           "missingBearer",
-          "forgedSignature",
-          "wrongIssuer",
-          "wrongAudience",
-          "expiredJwt",
-          "notYetValidJwt",
-          "missingEui",
-          "ownBindingAndResults",
-          "bindingTokenAndForeignEui",
-          "terminalResultsOwnership",
-          "terminalResultsWithoutBinding",
-          "historicalAccessAndDeletion",
-          "minimumAndReadDependencies",
-          "coherentSnapshotDuringAdvance",
-          "completeManifestAndExactBatches",
-          "batchCardinalityAndMalformedRefs",
-          "foreignRefsAndMissingSubversions",
-          "navigationCursorAndBindingChange",
-          "navigationMutationsAndPlans",
-          "inputByteBoundaries",
-          "outputByteBoundaries",
-          "lateSerializationFailure",
-          "exactDtoAndSecretLogs",
-          "mediaAndUnknownFields"
+          "batchCardinalityAndMalformedRefs"
         ],
         "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
           "workersProgressWithoutControlBorrow"
@@ -417,12 +395,12 @@
           "brunoFixtureProvenance"
         ]
       },
-      "expected_invocations": 31,
+      "expected_invocations": 9,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Reuse nine Q PASS from isolated-02; fresh Q10/H24/C6 after worker fixture corrections",
+        "basis": "Retain 22 H and nine Q PASS; fresh H01/H16 setup-SQL oracles, stronger Q10 shared-pool protocol, C01-C06 not yet executed",
         "uncertainty": "UNMEASURED"
       }
     }

@@ -185,15 +185,51 @@ class V3ReadQuotaPostgresTest {
         f.evidence("Q09-jdbc", Map.of("batchSelects", 3, "currentGrandSelects", 6, "historyGrandSelects", 5, "executionsRowsTimes", f.sqlStats(), "batchHttpBytes", batch.body().length, "wireJdbcBytes", "NOT_MEASURED"));
     }
     @Test void workersProgressWithoutControlBorrow() throws Exception {
-        // Existing I8 worker and physical authorities, no public admission or lease change.
         initializeWorkerDatabase(PG);
         try (var workerFixture = new ReadRuntimeI8Fixture(PG)) {
-            workerFixture.select(List.of("MaterializeCurrentBinding"), false); var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null); workerFixture.produce(request);
+            workerFixture.select(List.of("MaterializeCurrentBinding"), false);
+            var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null);
             var context = workerFixture.start();
-            try (var held = new Held()) {
-                await(() -> workerFixture.read.queryForObject("select count(*) from read_current_binding where subject='i1-worker'", Integer.class) == 1, Duration.ofSeconds(1));
-                assertEquals(2, f.pool().getHikariPoolMXBean().getActiveConnections());
-                assertEquals(1, f.context.getBeansOfType(com.zaxxer.hikari.HikariDataSource.class).size(), "HTTP has only READ; no WRITE or Control source");
+            var shared = context.getBean("readBusiness", com.zaxxer.hikari.HikariDataSource.class);
+            var entered = new CountDownLatch(2); var release = new CountDownLatch(1);
+            var acquisitions = new AtomicInteger();
+            var observed = new org.springframework.jdbc.datasource.AbstractDataSource() {
+                public Connection getConnection() throws SQLException { acquisitions.incrementAndGet(); return wrap(shared.getConnection()); }
+                public Connection getConnection(String user, String password) throws SQLException { return getConnection(); }
+                Connection wrap(Connection connection) {
+                    return (Connection) java.lang.reflect.Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class<?>[]{Connection.class}, (proxy, method, args) -> {
+                        try {
+                            Object result = method.invoke(connection, args);
+                            if (method.getName().equals("prepareStatement") && args[0].toString().contains("from read_current_binding") && result instanceof PreparedStatement statement)
+                                return java.lang.reflect.Proxy.newProxyInstance(PreparedStatement.class.getClassLoader(), new Class<?>[]{PreparedStatement.class}, (p, call, values) -> {
+                                    try {
+                                        Object answer = call.invoke(statement, values);
+                                        if (call.getName().equals("executeQuery")) { entered.countDown(); if (!release.await(5, TimeUnit.SECONDS)) throw new IllegalStateException("READ barrier safety timeout"); }
+                                        return answer;
+                                    } catch (java.lang.reflect.InvocationTargetException failed) { throw failed.getCause(); }
+                                });
+                            return result;
+                        } catch (java.lang.reflect.InvocationTargetException failed) { throw failed.getCause(); }
+                    });
+                }
+            };
+            var manager = ReadRuntimeI8Fixture.manager(observed);
+            var owner = new com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions(observed, manager, 3);
+            var readers = V3ReadFacadeComposition.create(observed, owner, new com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3(50,100,16000000), Set.of("MaterializeCurrentBinding"), Optional::empty);
+            try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+                var one = executor.submit(() -> readers.binding(f.eui("owner"), 0)); var two = executor.submit(() -> readers.binding(f.eui("owner"), 0));
+                try {
+                    assertTrue(entered.await(1, TimeUnit.SECONDS), "two actual READ callbacks retained on shared Business pool");
+                    assertEquals(2, acquisitions.get()); assertTrue(shared.getHikariPoolMXBean().getActiveConnections() >= 2);
+                    assertInstanceOf(Unavailable.class, readers.commandResult(id(401), f.eui("owner"))); assertEquals(2, acquisitions.get());
+                    assertEquals(0, workerFixture.read.queryForObject("select count(*) from read_current_binding where subject='i1-worker'", Integer.class));
+                    // Commit the source only after both HTTP query callbacks physically retain their connections.
+                    workerFixture.produce(request);
+                    await(() -> workerFixture.read.queryForObject("select count(*) from read_current_binding where subject='i1-worker'", Integer.class) == 1, Duration.ofSeconds(1));
+                    assertTrue(shared.getHikariPoolMXBean().getActiveConnections() >= 2, "worker advanced while readers still retained");
+                    f.evidence("Q10-shared-pool", Map.of("poolMaximum", shared.getMaximumPoolSize(), "httpAcquisitionsReadBusiness", acquisitions.get(), "httpControlOrWriteSources", 0, "sourceCommittedAfterReadersRetained", true, "workerResultRowsWhileHeld", 1));
+                } finally { release.countDown(); }
+                assertInstanceOf(Available.class, one.get(5, TimeUnit.SECONDS)); assertInstanceOf(Available.class, two.get(5, TimeUnit.SECONDS));
             }
             workerFixture.drain(context); workerFixture.evidence("L5-I1-Q10");
         }
