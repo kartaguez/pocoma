@@ -48,7 +48,7 @@ final class V3ReadHttpFixture implements AutoCloseable {
     static final String IMAGE = "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73";
     static PostgreSQLContainer container() { return new PostgreSQLContainer(DockerImageName.parse(IMAGE).asCompatibleSubstituteFor("postgres"))
         .withCommand("postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "track_io_timing=on", "-c", "log_min_error_statement=panic", "-c", "log_line_prefix=%m [%p] xid=%x state=%e "); }
-    static UUID id(long n) { return new UUID(0, n); }
+    static UUID id(long n) { return UUID.fromString("00000000-0000-0000-0000-" + String.format(java.util.Locale.ROOT, "%012d", n)); }
     static final UUID OWNER = id(101), OTHER = id(102), S1 = id(201), S2 = id(202), POT = id(300), FORBIDDEN = id(301), DELETED = id(302), LAG = id(303);
     static final String TOKEN = "I1-OWN-BINDING-CANARY", OTHER_TOKEN = "I1-OTHER-BINDING-CANARY";
     final String schema = "i1_" + UUID.randomUUID().toString().replace("-", ""), role = schema + "_http";

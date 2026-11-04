@@ -146,7 +146,17 @@ class V3ReadQuotaPostgresTest {
             var sampler = executor.submit(() -> { while (sampling.get()) { peak.accumulateAndGet(memory.getHeapMemoryUsage().getUsed(), Math::max); samples.incrementAndGet(); try { Thread.sleep(5); } catch (InterruptedException stop) { return; } } });
             try {
             f.seed(id(777), 1, 2000, 100, Set.of(OWNER), false, true, true, "renforcé-\\\"-" + "é".repeat(100));
-            assertEquals(200, f.get(f.path(id(777), 1)).statusCode());
+            var firstResponse = f.get(f.path(id(777), 1));
+            if (firstResponse.statusCode() != 200) {
+                var service = f.services();
+                var ownerField = service.getClass().getDeclaredField("owner"); ownerField.setAccessible(true);
+                var readerField = service.getClass().getDeclaredField("pot"); readerField.setAccessible(true);
+                var owner = (com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions) ownerField.get(service);
+                var reader = (com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3) readerField.get(service);
+                var direct = owner.read(c -> reader.at(f.eui("owner"), TOKEN, id(777), 1, c));
+                assertEquals(200, firstResponse.statusCode(), "direct READ diagnostic=" + direct.getClass().getSimpleName());
+            }
+            assertEquals(200, firstResponse.statusCode());
             await(() -> f.context.getBean(V3ReadTransport.class).availableCapacity() == 2, Duration.ofSeconds(1));
             assertTrue(memory.getHeapMemoryUsage().getMax() - memory.getHeapMemoryUsage().getUsed() > 32L * 1024 * 1024, "headroom before two finite calls");
             var one = executor.submit(() -> f.get(f.path(id(777), 1))); var two = executor.submit(() -> f.get(f.path(id(777), 1)));
