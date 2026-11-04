@@ -118,6 +118,20 @@ public class V3ReadHttpConfiguration {
     @Bean JwtDecoder v3ReadJwtDecoder(Environment env) {
         var decoder = NimbusJwtDecoder.withJwkSetUri(env.getRequiredProperty("pocoma.v3.http.jwk-set-uri"))
                 .jwsAlgorithm(SignatureAlgorithm.RS256).build();
+        var conversion = MappedJwtClaimSetConverter.withDefaults(Map.of());
+        decoder.setClaimSetConverter(raw -> {
+            // The default converter synthesizes iat from exp. V3 requires attested claims.
+            if (!(raw.get("iss") instanceof String issuer) || issuer.isBlank()
+                    || !(raw.get("sub") instanceof String subject) || subject.isBlank()
+                    || raw.get("iat") == null || raw.get("exp") == null
+                    || !(raw.get("auth_time") instanceof Number auth))
+                throw new BadJwtException("Incomplete authenticated claims");
+            try {
+                if (new java.math.BigDecimal(auth.toString()).longValueExact() < 0)
+                    throw new ArithmeticException("negative auth_time");
+            } catch (ArithmeticException invalid) { throw new BadJwtException("Invalid authenticated claims"); }
+            return conversion.convert(raw);
+        });
         OAuth2TokenValidator<Jwt> claims = jwt -> {
             boolean valid = jwt.getSubject() != null && !jwt.getSubject().isBlank()
                     && jwt.getAudience() != null && jwt.getAudience().contains(env.getRequiredProperty("pocoma.v3.http.audience"))

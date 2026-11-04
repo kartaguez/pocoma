@@ -379,23 +379,29 @@
         "runtime-monolith"
       ],
       "tests": {
-        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
-          "httpInFlightUntilSendEnds"
-        ],
         "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+          "missingBearer",
+          "forgedSignature",
+          "wrongIssuer",
+          "wrongAudience",
+          "expiredJwt",
+          "notYetValidJwt",
           "missingEui",
-          "inputByteBoundaries"
+          "ownBindingAndResults",
+          "coherentSnapshotDuringAdvance",
+          "completeManifestAndExactBatches",
+          "navigationMutationsAndPlans"
         ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
           "monolithRoot"
         ]
       },
-      "expected_invocations": 4,
+      "expected_invocations": 12,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "C02 late bean allowlist plus completed JWT/framing/write-timeout variants; retain other 36 exact identities",
+        "basis": "Raw claim validation correction invalidates H01-H08; complete binding/rational/foreign-cursor variants H14/H15/H19 and C02 outstanding; all other proofs retained",
         "uncertainty": "UNMEASURED"
       }
     }

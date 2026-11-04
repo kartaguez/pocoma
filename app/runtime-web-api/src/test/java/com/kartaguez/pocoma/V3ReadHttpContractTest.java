@@ -125,21 +125,29 @@ class V3ReadHttpContractTest {
                 var response = executor.submit(() -> f.get("/pots/" + POT)); awaitSql(f, "advisory");
                 writer.setAutoCommit(false);
                 try (var statement = writer.prepareStatement("update i1_current_data set pot_version=2 where pot_id=?")) { statement.setObject(1, POT); statement.executeUpdate(); }
+                try (var statement = writer.prepareStatement("update read_current_binding set user_id=?,binding_token='snapshot-new-token' where subject='owner'")) { statement.setObject(1, OTHER); statement.executeUpdate(); }
                 if (commit) writer.commit();
                 gate.commit(); var actual = response.get(5, TimeUnit.SECONDS); status(200, actual);
                 assertEquals(1, f.body(actual).get("potVersion").longValue()); assertEquals("snapshot-1", f.body(actual).get("label").asText()); assertEquals(2, f.body(actual).get("expenses").size());
                 if (!commit) writer.rollback();
             }
+            if (commit) status(404, f.get("/pots/" + POT));
         }
     }
 
     @Test void completeManifestAndExactBatches() throws Exception {
         for (int count : List.of(0, 200, 2000)) {
             UUID pot = id(500 + count); f.seed(pot, 1, count, count == 2000 ? 100 : 20, Set.of(OWNER), false, true, true, "é\\\"-" + count);
-            var response = f.get(f.path(pot, 1)); status(200, response); var body = f.body(response); assertEquals(count, body.get("expenses").size()); assertEquals(count == 2000 ? 100 : 20, body.get("shareholders").size());
+            var response = f.get(f.path(pot, 1)); status(200, response); var body = f.body(response); assertEquals(count, body.get("expenses").size()); assertEquals("é\\\"-" + count, body.get("label").asText()); assertEquals(count == 2000 ? 100 : 20, body.get("shareholders").size());
             for (int n = 0; n < count; n++) assertEquals(id(1000 + n).toString(), body.get("expenses").get(n).get("id").asText());
             if (count > 0) for (int batch : List.of(1, 49, 50)) { var values = f.post(f.path(pot, 1) + "/expenses/query", f.batch(batch, 1)); status(200, values); assertEquals(batch, f.body(values).get("expenses").size()); assertEquals("1", f.body(values).at("/expenses/0/amount/n").asText()); assertEquals("3", f.body(values).at("/expenses/0/amount/d").asText()); }
         }
+        f.seedProfile(id(899), 1, 1, 2, Set.of(OWNER), false, true, true, "rationnels", 1024, true);
+        var exact = f.get(f.path(id(899), 1)); status(200, exact);
+        String numerator = "1" + "0".repeat(1022) + "1", denominator = "1" + "0".repeat(1022) + "3";
+        assertEquals(numerator, f.body(exact).at("/shareholders/0/defaultWeight/n").asText()); assertEquals(denominator, f.body(exact).at("/shareholders/0/defaultWeight/d").asText());
+        var expense = f.post(f.path(id(899), 1) + "/expenses/query", f.batch(1, 1)); status(200, expense);
+        assertEquals(numerator, f.body(expense).at("/expenses/0/amount/n").asText()); assertEquals(denominator, f.body(expense).at("/expenses/0/amount/d").asText());
     }
     @Test void batchCardinalityAndMalformedRefs() throws Exception {
         String path = f.path(POT, 1) + "/expenses/query";
@@ -161,6 +169,9 @@ class V3ReadHttpContractTest {
         f.navigation(2000); for (int n = 1; n <= 2000; n++) f.admin.update("insert into read_user_pot values (?,?,1,true)", OTHER, id(20000 + n));
         var page = f.body(f.get("/me/pots?limit=100")); String cursor = page.get("nextCursor").asText();
         f.admin.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(9999)); f.admin.update("update read_user_pot set visible=false where user_id=? and pot_id=?", OWNER, id(10101));
+        var foreignCursor = bearer("other", OTHER_TOKEN, "/me/pots?limit=100&cursor=" + cursor); status(200, foreignCursor);
+        assertEquals(id(20001).toString(), f.body(foreignCursor).at("/potIds/0").asText());
+        for (var otherId : f.body(foreignCursor).get("potIds")) assertTrue(otherId.asText().compareTo(id(20001).toString()) >= 0);
         var next = f.body(f.get("/me/pots?limit=100&cursor=" + cursor)); assertEquals(id(10102).toString(), next.at("/potIds/0").asText());
         try (var connection = f.pool().getConnection(); var statement = connection.prepareStatement("explain (analyze,buffers,format json) select pot_id from read_user_pot where user_id=? and visible and pot_id>? order by pot_id limit 100")) {
             statement.setObject(1, OWNER); statement.setObject(2, id(10100)); try (var rows = statement.executeQuery()) { assertTrue(rows.next()); String plan = rows.getString(1); assertTrue(plan.contains("Index"), plan); f.evidence("H19-plan", Map.of("plan", plan)); }
