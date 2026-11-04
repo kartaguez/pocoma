@@ -338,3 +338,36 @@ class DiscoveryTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class SiblingExternalInputTests(unittest.TestCase):
+    def trace(self, declarations, duplicate=False):
+        import tempfile
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / 'app/p/src/test/java/FirstTest.java'
+            source.parent.mkdir(parents=True)
+            source.write_text('package p;\nclass FirstTest {}\n' + declarations)
+            sql = root / 'scripts/v3/reviewed.sql'
+            sql.parent.mkdir(parents=True)
+            sql.write_text('select 1;')
+            index = {'FirstTest': [('p.FirstTest', source)]}
+            if duplicate:
+                other = source.with_name('OtherTest.java')
+                other.write_text('package p;\n' + declarations)
+                index['OtherTest'] = [('p.OtherTest', other)]
+            with patch.object(v, 'ROOT', root), patch.object(v, 'sources', return_value=index):
+                return v.external_sql_inputs({'p.SecondaryTest': ['example']})
+
+    def test_secondary_top_level_class_keeps_external_inputs(self):
+        result = self.trace('class SecondaryTest { String root="scripts/v3/"; String sql="reviewed.sql"; }')
+        self.assertEqual(result, ['scripts/v3/reviewed.sql'])
+
+    def test_ambiguous_secondary_class_is_refused(self):
+        with self.assertRaisesRegex(ValueError, 'cannot trace external inputs'):
+            self.trace('class SecondaryTest {}', duplicate=True)
+
+    def test_nested_class_cannot_impersonate_top_level_identity(self):
+        with self.assertRaisesRegex(ValueError, 'cannot trace external inputs'):
+            self.trace('class Outer { class SecondaryTest {} }')

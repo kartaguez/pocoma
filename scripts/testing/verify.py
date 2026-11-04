@@ -409,6 +409,19 @@ def external_sql_inputs(expected):
             continue
         visited.add(fqcn)
         matches = [p for name, p in index.get(fqcn.split('.')[-1], []) if name == fqcn]
+        if not matches:
+            # Effective inventory already supports multiple top-level JUnit classes in one
+            # file. Resolve the same identity here; keep whole-file conservative tracing.
+            package, short = fqcn.rsplit('.', 1)
+            candidates = {path for rows in index.values() for identity, path in rows
+                          if identity.rsplit('.', 1)[0] == package}
+            for path in sorted(candidates):
+                structure = java_structure(path.read_text())
+                for match in re.finditer(r'(?:^|\n)\s*(?:(?:public|final|abstract)\s+)*class\s+'
+                                         + re.escape(short) + r'\b', structure):
+                    prefix = structure[:match.start()]
+                    if prefix.count('{') == prefix.count('}'):
+                        matches.append(path)
         if len(matches) != 1:
             raise ValueError(f'{fqcn}: cannot trace external inputs')
         content = matches[0].read_text()
