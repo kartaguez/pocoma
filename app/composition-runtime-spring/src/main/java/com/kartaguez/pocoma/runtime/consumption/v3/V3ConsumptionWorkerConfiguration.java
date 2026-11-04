@@ -140,6 +140,8 @@ public class V3ConsumptionWorkerConfiguration {
                                                 t.getName()
                                                         .equals(
                                                                 "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
+                if (projection && Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE))
+                    throw new IllegalStateException("HTTP READ requires the WEB or Monolith root");
                 if (projection && (settings.commandEnabled() || settings.identityRequest()))
                     throw new IllegalStateException(
                             "PROJECTION cannot activate WRITE participants");

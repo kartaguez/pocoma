@@ -379,28 +379,16 @@
         "runtime-monolith"
       ],
       "tests": {
-        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
-          "missingBearer",
-          "batchCardinalityAndMalformedRefs"
-        ],
-        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
-          "workersProgressWithoutControlBorrow"
-        ],
         "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
-          "webRoot",
-          "monolithRoot",
-          "legacyComponentsRejected",
-          "readOnlyAuthorityAndNoWriteFallback",
-          "typedPortsAndDependencies",
-          "brunoFixtureProvenance"
+          "monolithRoot"
         ]
       },
-      "expected_invocations": 9,
+      "expected_invocations": 1,
       "selection": "methods",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Retain 22 H and nine Q PASS; fresh H01/H16 setup-SQL oracles, stronger Q10 shared-pool protocol, C01-C06 not yet executed",
+        "basis": "39 exact I1 methods already passed; only C02 new READ+HTTP profile pair invalidated, then first B1",
         "uncertainty": "UNMEASURED"
       }
     }
