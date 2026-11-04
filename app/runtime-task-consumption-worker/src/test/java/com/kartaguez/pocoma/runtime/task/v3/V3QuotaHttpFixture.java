@@ -97,6 +97,7 @@ final class V3QuotaHttpFixture implements AutoCloseable {
         properties.put("spring.main.banner-mode", "off"); properties.put("logging.level.root", "WARN");
         properties.put("spring.flyway.enabled", "false"); properties.put("spring.jpa.open-in-view", "false"); properties.put("management.health.db.enabled", "false");
         properties.put("pocoma.v3.http.issuer", issuer); properties.put("pocoma.v3.http.audience", "pocoma-i1"); properties.put("pocoma.v3.http.jwk-set-uri", issuer + "/jwks");
+        properties.put("spring.main.web-application-type", "servlet");
         properties.put("pocoma.v3.http.read.url", url); properties.put("pocoma.v3.http.read.username", role); properties.put("pocoma.v3.http.read.password", "ephemeral-i1-fixture");
         binding("owner", 1, OWNER, TOKEN); binding("other", 1, OTHER, OTHER_TOKEN); binding("same", 1, OWNER, "I1-SAME-USER-CANARY"); binding("inactive", 2, null, null);
     }

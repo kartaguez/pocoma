@@ -22,6 +22,8 @@ public class PocomaTaskConsumptionWorkerApplication {
     @ComponentScan(
             basePackages = "com.kartaguez.pocoma",
             excludeFilters = {
+                // This runtime never owns HTTP, including on a test classpath containing the adapter.
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.kartaguez\\.pocoma\\.supra\\.http\\..*"),
                 @ComponentScan.Filter(
                         type = FilterType.CUSTOM,
                         classes = org.springframework.boot.context.TypeExcludeFilter.class),

@@ -100,7 +100,7 @@ T1 signe ses JWT avec clefs de test distinctes, puis les altère ; il utilise le
 
 ## 5. D4 : protections avant T1 et mesures pendant T1
 
-Adopter uniquement après décision le [banc D4 §2](L5_D4_Read_Limits_Arbitration_Proposal.md) : quatre candidats, HTTP en vol 2, SQL Q=2, délai logique consultation 5 s/envoi 5 s, statement local 2 s/transaction consultation 3 s, erreur≤1 Kio, JVM serveur `-Xmx512m`, compression désactivée. Les limites SQL sont locales aux consultations, pas aux transactions Worker ; ne pas modifier les timeouts hérités pour faire passer T1. Socket Business 70 s hérité : annulation logique ne prouve pas restitution ; garder les capacités jusqu'à résolution physique, contrôle jusqu'à 80 s puis UNKNOWN/arrêt. Pas d'homologation production, pas de 32 Mio présenté comme borne prouvée.
+Banc initial autorisé par la ratification courante : [banc D4 §2](L5_D4_Read_Limits_Arbitration_Proposal.md) : quatre candidats, HTTP en vol 2, SQL Q=2, délai logique consultation 5 s/envoi 5 s, statement local 2 s/transaction consultation 3 s, erreur≤1 Kio, JVM de mesure `-Xmx512m`, compression désactivée. T1 fixe ce plafond au fork ; si une gate native non filtrée impose un fork plus large, Q08 exécute le même oracle dans un enfant `-Xmx512m`, avec reçu, mesures et terminaison observée ; aucun SKIP ni changement de seuil. Les limites SQL sont locales aux consultations, pas aux transactions Worker ; ne pas modifier les timeouts hérités pour faire passer T1. Socket Business 70 s hérité : annulation logique ne prouve pas restitution ; garder les capacités jusqu'à résolution physique, contrôle jusqu'à 80 s puis UNKNOWN/arrêt. Pas d'homologation production, pas de 32 Mio présenté comme borne prouvée.
 
 Avant exécution : protection transport **entrée finie, profondeur JSON 8 proposée pour la forme DTO fermée**, parser streaming borné ; corps reçu 64 Kio, DTO final 4 Mio, queue applicative nulle, serveur/threads/connexions et tailles de headers finis, corpus contrôlé, propriétaire des enfants/PG et arrêt connus. Profondeur 8 est un paramètre de banc explicite, pas un invariant métier. Bound headers/bearer = limite serveur finie **16 Kio pour le bloc d'en-têtes de test**, URI **2 Kio**, curseur codec **256 octets** ; header trop grand traité par rejet transport 400 avant applicatif, curseur surlong 400. Vérifier la longueur réelle JWT/BindingToken du banc sous ces seuils ; tokens fournisseur réels plus longs imposent décision ciblée avant qualification externe. Ne pas tronquer un token. Ces valeurs de protection de banc sont proposées à approbation, pas mesurées ni imposées à un fournisseur inconnu.
 
@@ -187,16 +187,16 @@ Polling B30 : au plus **4 tentatives par résultat**, délais **1/2/4 s**, déla
 Depuis `scripts/bruno-v3/`, choisir **un** environnement déclaré pour la campagne partagée :
 
 ```sh
-bru run "01 Identity and READ" --env Local
+node_modules/.bin/bru run -r "01 Identity and READ" --env Local --sandbox developer --noproxy --reporter-json /absolute/new/bruno.json --reporter-skip-all-headers --reporter-skip-body
 ```
 
 Mode Qualification (remplace Local, pas seconde exécution systématique) :
 
 ```sh
-bru run "01 Identity and READ" --env Qualification
+node_modules/.bin/bru run -r "01 Identity and READ" --env Qualification --sandbox developer --noproxy --reporter-json /absolute/new/bruno.json --reporter-skip-all-headers --reporter-skip-body
 ```
 
-Parcours autonome : `bru run "01 Identity and READ/01 Own Binding" --env Local`. Le format de rapport disponible dans la version retenue sera figé dans README et le reçu ; conserver commande effective, compteur 32 scénarios, nombre de requêtes/assertions et codes intermédiaires expurgés. Exécution d'un seul parcours ne satisfait pas B1 entier. B1 Local ne vaut pas preuve AuthN externe ; une future campagne fournisseur réclame son mandat/budget, sans forcer deux B1 dans 15 min.
+Parcours autonome : `node_modules/.bin/bru run -r "01 Identity and READ/01 Own Binding" --env Local`. Le format de rapport disponible dans la version retenue sera figé dans README et le reçu ; conserver commande effective, compteur 32 scénarios, nombre de requêtes/assertions et codes intermédiaires expurgés. Exécution d'un seul parcours ne satisfait pas B1 entier. B1 Local ne vaut pas preuve AuthN externe ; une future campagne fournisseur réclame son mandat/budget, sans forcer deux B1 dans 15 min.
 
 ## 7. T1 : tests définis avant implémentation
 

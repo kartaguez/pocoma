@@ -374,26 +374,47 @@
     "l5-i1-completion": {
       "level": "INTEGRATION",
       "modules": [
-        "runtime-web-api",
-        "runtime-task-consumption-worker",
-        "runtime-monolith"
+        "runtime-task-consumption-worker"
       ],
       "tests": {
+        "com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest": [
+          "enabledNonWebRuntimeKeepsTheForkedJvmAliveAfterStartup"
+        ],
+        "com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest": [
+          "publicConsumptionEntrypointsRejectPhysicalAmbientTransaction",
+          "activePollingAuthorityUsesOnlyTheCanonicalProjectionTaskGraph",
+          "allCanonicalProjectionTypesPublishIntoTheCanonicalStore",
+          "authIsDenseAndKeepsOneRelationPerLinkedShareholderAtTheDeletedVersion",
+          "authVersionsMaterializeIndependentlyWhenExecutedNewestFirst",
+          "realPotBalancesTaskRunsThroughLocatorGenericEngineProducerAndFencedFinalization",
+          "realReadPotTasksLoadTheExactHistoricalExpenseDateAtEachVersion",
+          "canonicalProducerPersistsAndExactReadRevalidatesAndInterpretsANonTrivialReadPot",
+          "terminalCanonicalProducerFailurePersistsAndExactReadReturnsFailedForTheSameKey",
+          "historicalExpenseWithoutBusinessDateFailsExplicitlyAndPublishesNothing",
+          "canonicalPublishAndConsumptionFinalizationShareOneLocalTransaction",
+          "canonicalPublishRollsBackWhenFinalizationTransactionFails",
+          "canonicalProjectionFailureAndConsumptionFinalizationShareOneLocalTransaction",
+          "staleProjectionPublishAndFailureRollBackTheirRealSql"
+        ],
         "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
           "invalidInputBeforeQuota",
+          "twoReadersAndImmediateRefusal",
+          "permitsAndConnectionsReleased",
+          "sqlTimeoutPhysicalResolution",
+          "cancellationDuringJdbc",
+          "disconnectDuringEncodingAndSend",
+          "httpInFlightUntilSendEnds",
           "memoryAndCopies",
-          "jdbcCountsAndCosts"
-        ],
-        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
-          "batchCardinalityAndMalformedRefs"
+          "jdbcCountsAndCosts",
+          "workersProgressWithoutControlBorrow"
         ]
       },
-      "expected_invocations": 4,
-      "selection": "methods",
+      "expected_invocations": 25,
+      "selection": "whole-classes",
       "jvm_max_heap_mib": 512,
       "forecast": {
         "seconds": 900,
-        "basis": "Frozen input capture correction and final physical cost collection; recheck only Q01/Q08/Q09/H16, then only expense B15-B20",
+        "basis": "Worker default isolation correction: unchanged two historical classes and Q01-Q10; no unchanged retry",
         "uncertainty": "UNMEASURED"
       }
     }
