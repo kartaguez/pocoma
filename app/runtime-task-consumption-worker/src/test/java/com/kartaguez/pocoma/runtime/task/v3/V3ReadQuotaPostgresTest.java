@@ -149,6 +149,10 @@ class V3ReadQuotaPostgresTest {
         await(() -> f.context.getBean(V3ReadTransport.class).availableCapacity() == 2, Duration.ofSeconds(6)); assertEquals(200, f.get("/me/binding").statusCode());
     }
     @Test void memoryAndCopies() throws Exception {
+        if (Runtime.getRuntime().maxMemory() > 512L * 1024 * 1024) {
+            isolatedMemoryBenchmark();
+            return;
+        }
         assertTrue(Runtime.getRuntime().maxMemory() <= 512L * 1024 * 1024, "isolated qualification JVM must use -Xmx512m");
         var memory = ManagementFactory.getMemoryMXBean(); var peak = new AtomicLong(); var samples = new AtomicLong(); var sampling = new AtomicBoolean(true);
         long before = memory.getHeapMemoryUsage().getUsed();
@@ -196,6 +200,29 @@ class V3ReadQuotaPostgresTest {
         observation.put("copies","detached JDBC view + DTO + bounded 16KiB segments, no complete encoded-array copy; OS/socket/JDBC internal copies not fully quantified");
         observation.put("allocationScope","cumulative live platform-thread counters by ID; virtual-thread allocation and server-only attribution are not claimed; heap/RSS include JUnit/client/injector");
         f.evidence("Q08-memory", observation);
+    }
+    void isolatedMemoryBenchmark() throws Exception {
+        var directory = java.nio.file.Path.of("target/L5-I1-memory-evidence").toAbsolutePath(); java.nio.file.Files.createDirectories(directory);
+        String classpath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
+        var command = List.of(java.nio.file.Path.of(System.getProperty("java.home"),"bin","java").toString(), "-Xmx512m", "-cp", classpath, V3ReadQuotaPostgresTest.class.getName(), "I1_MEMORY_BENCHMARK");
+        var builder = new ProcessBuilder(command).redirectErrorStream(true).redirectOutput(directory.resolve("child.log").toFile());
+        builder.environment().put("POCOMA_I1_PHYSICAL", System.getenv().getOrDefault("POCOMA_I1_PHYSICAL", directory.resolve("physical").toString()));
+        var child = builder.start(); boolean terminal = child.waitFor(80,TimeUnit.SECONDS);
+        if (!terminal) {
+            child.descendants().forEach(ProcessHandle::destroy); child.destroy();
+            if (!child.waitFor(5,TimeUnit.SECONDS)) { child.descendants().forEach(ProcessHandle::destroyForcibly); child.destroyForcibly(); terminal=child.waitFor(5,TimeUnit.SECONDS); }
+            java.nio.file.Files.writeString(directory.resolve("stop.json"), f.json.writeValueAsString(Map.of("reason","independent 80s physical safety bound", "terminationObserved",terminal,"childPid",child.pid())));
+            fail("isolated memory benchmark exceeded physical safety bound; preserve child evidence");
+        }
+        java.nio.file.Files.writeString(directory.resolve("owner.json"), f.json.writeValueAsString(Map.of("childPid",child.pid(),"heapMaximumBytes",512L*1024*1024,"exitCode",child.exitValue(),"command",command,"parentIsJUnitInvocation",true,"childIsDirectOracleExecution",true)));
+        assertEquals(0,child.exitValue(),"isolated 512MiB memory oracle failed: "+directory.resolve("child.log"));
+    }
+    /** The same assertions, not another JUnit invocation, in the bounded physical process. */
+    public static void main(String[] args) throws Exception {
+        if (args.length != 1 || !args[0].equals("I1_MEMORY_BENCHMARK")) throw new IllegalArgumentException("explicit isolated memory benchmark required");
+        PG.start(); var scenario=new V3ReadQuotaPostgresTest();
+        try { scenario.fixture(); scenario.memoryAndCopies(); }
+        finally { try { scenario.close(); } finally { PG.stop(); } }
     }
     Map<String,Object> memoryPoint() throws Exception {
         var bean = ManagementFactory.getPlatformMXBean(com.sun.management.ThreadMXBean.class);
