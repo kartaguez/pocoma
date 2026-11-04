@@ -1,6 +1,10 @@
 # Pocoma V3 — L5/I1 — Rapport d’implémentation et de qualification
 
-Date : 4 novembre 2026. Branche : `feat/v3-architecture`. Départ publié : `f46d63a9bc4505c43610376eeba40a5854431230`. Sources qualifiées : **`46b94ce69a4b0f42474d38ac10b26daa78bb6b23`**. Verdict technique : **I1 IMPLEMENTED — LOCAL BOUNDED PASS WITH RESERVATIONS**. Le commit final de livraison ajoute uniquement les documents et preuves ; sa référence Git publiée est donnée dans la synthèse de livraison. Ce rapport enregistre des résultats techniques ; il ne prononce aucune clôture humaine.
+Date : 4 novembre 2026. Branche : `feat/v3-architecture`. Départ publié : `f46d63a9bc4505c43610376eeba40a5854431230`. Sources qualifiées : **`46b94ce69a4b0f42474d38ac10b26daa78bb6b23`**. Verdict technique : **I1 IMPLEMENTED — LOCAL BOUNDED PASS WITH RESERVATIONS**. Le commit final de livraison ajoute uniquement les documents et preuves ; sa référence Git publiée est donnée dans la synthèse de livraison. Ce rapport de livraison enregistre les résultats techniques historiques ; la décision humaine ultérieure est référencée ci-dessous.
+
+## Clôture humaine du 4 novembre 2026
+
+L’[acte autonome de clôture](L5_I1_Acceptance_and_Closure_Decision.md) enregistre **L5/I1 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS**, sur la livraison publiée `a2c83d3e9ea651b8cb3015692fede6652677ddfd` et les sources qualifiées `46b94ce69a4b0f42474d38ac10b26daa78bb6b23`. Il maintient R-I1-01…04 et toutes les réserves L1–L4. **L5/I2 — ELIGIBLE FOR PLANNING — NOT IMPLEMENTED** ; L5 reste OPEN. Aucun rejeu ni changement de verdict technique, de durée ou de mesure physique. Les mentions d’absence de clôture humaine dans le récit de livraison ci-dessous décrivent son état historique avant cette décision.
 
 ## Décisions et périmètre livré
 

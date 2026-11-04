@@ -1,8 +1,10 @@
 # Pocoma V3 — L5/I1 — Implementation and Qualification Plan
 
-Date : **4 novembre 2026**. Branche : **`feat/v3-architecture`**. Référence publiée lue : **`9dd1c44720af61b66abdfb4fdaa7f3076ced8737`**. **APPROVED — GO I1 IMPLEMENTATION AUTHORIZED**, par [acte humain du 4 novembre](L5_I1_Human_Ratification_and_GO.md), référence ratifiée `f46d63a9`.
+Date : **4 novembre 2026**. Branche : **`feat/v3-architecture`**. Référence publiée lue : **`9dd1c44720af61b66abdfb4fdaa7f3076ced8737`**. Approbation historique : **APPROVED — GO I1 IMPLEMENTATION AUTHORIZED**, par [acte humain du 4 novembre](L5_I1_Human_Ratification_and_GO.md), référence ratifiée `f46d63a9`.
 
-Ce plan gouverne la réalisation autorisée d'I1. Les noms et commandes restent des obligations à réaliser ; seuls le rapport d'exécution et ses preuves établissent leur état technique. Le §10 conserve le compte rendu historique de la préparation documentaire.
+**Statut courant — décision humaine du 4 novembre 2026 : L5/I1 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS**, selon l’[acte autonome](L5_I1_Acceptance_and_Closure_Decision.md), sur la livraison `a2c83d3e9ea651b8cb3015692fede6652677ddfd`. **L5/I2 — ELIGIBLE FOR PLANNING — NOT IMPLEMENTED** ; aucun plan I2 approuvé ni démarrage I2 ; L5 reste OPEN.
+
+Ce plan conserve la préparation et les obligations historiques d’I1. Le [rapport d’exécution](L5_I1_Execution_Report.md) et le [manifeste figé](L5_I1_Proof_Manifest.json) établissent l’état technique : T1 40/40, reprise 63/63, B1 32/32 (66 requêtes), Architecture native non filtrée 2 231 PASS sur `46b94ce6`. Les formulations futures et allocations initiales ci-dessous restent historiques : Architecture a été requise immédiatement par §17 et acquise en I1 ; full natif NOT RUN, dû à Q5 selon D6. R-I1-01…04 et réserves L1–L4 maintenues ; aucune certification globale ni qualification externe AuthN. Le §10 conserve le compte rendu historique de la préparation documentaire.
 
 ## 1. Référentiel, décisions et périmètre
 
