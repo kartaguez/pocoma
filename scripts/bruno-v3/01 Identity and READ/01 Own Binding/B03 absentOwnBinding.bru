@@ -11,6 +11,7 @@ get {
 }
 
 headers {
+  Connection: close
   Authorization: Bearer {{bearerAbsent}}
 }
 
@@ -22,7 +23,7 @@ tests {
   const base = bru.getVar('baseUrl');
   const id = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
   const pot = id(300), deleted = id(302);
-  const header = (who='Owner', token=bru.getVar('bindingOwner')) => ({Authorization:'Bearer '+bru.getVar('bearer'+who), ...(token===null?{}:{'X-Pocoma-Binding-Token':token})});
+  const header = (who='Owner', token=bru.getVar('bindingOwner')) => ({Connection:'close',Authorization:'Bearer '+bru.getVar('bearer'+who), ...(token===null?{}:{'X-Pocoma-Binding-Token':token})});
   let extraCalls = 0;
   const call = async (path, options={}) => { extraCalls++; return await bru.sendRequest({method:'GET',url:base+'/api/v3'+path,headers:header(),timeout:5000,validateStatus:()=>true,...options}); };
   const ref = (n,v=1) => ({id:id(n),headerVersion:v,detailsVersion:v,financialsVersion:v,deleted:false});
