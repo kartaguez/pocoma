@@ -100,6 +100,11 @@ public final class V3ReadFacadeComposition {
             try {
                 long started = System.nanoTime();
                 var result = owner.read(c -> {
+                    // Spring applies its JDBC holder deadline to each statement. Cap that
+                    // deadline as well: otherwise it would overwrite PostgreSQL's 2s setting.
+                    var resource = org.springframework.transaction.support.TransactionSynchronizationManager.getResource(sql.getDataSource());
+                    if (resource instanceof org.springframework.jdbc.datasource.ConnectionHolder holder)
+                        holder.setTimeoutInMillis(Math.min(2000, holder.hasTimeout() ? holder.getTimeToLiveInMillis() : 2000));
                     sql.execute("set local statement_timeout = '2s'");
                     sql.execute("set local transaction_timeout = '3s'");
                     return call.apply(c);

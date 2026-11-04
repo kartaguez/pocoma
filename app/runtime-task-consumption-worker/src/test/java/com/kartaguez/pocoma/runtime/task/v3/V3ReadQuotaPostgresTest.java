@@ -144,13 +144,18 @@ class V3ReadQuotaPostgresTest {
         long before = memory.getHeapMemoryUsage().getUsed();
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             var sampler = executor.submit(() -> { while (sampling.get()) { peak.accumulateAndGet(memory.getHeapMemoryUsage().getUsed(), Math::max); samples.incrementAndGet(); try { Thread.sleep(5); } catch (InterruptedException stop) { return; } } });
+            try {
             f.seed(id(777), 1, 2000, 100, Set.of(OWNER), false, true, true, "renforcé-\\\"-" + "é".repeat(100));
             assertEquals(200, f.get(f.path(id(777), 1)).statusCode());
+            await(() -> f.context.getBean(V3ReadTransport.class).availableCapacity() == 2, Duration.ofSeconds(1));
             assertTrue(memory.getHeapMemoryUsage().getMax() - memory.getHeapMemoryUsage().getUsed() > 32L * 1024 * 1024, "headroom before two finite calls");
             var one = executor.submit(() -> f.get(f.path(id(777), 1))); var two = executor.submit(() -> f.get(f.path(id(777), 1)));
             assertEquals(200, one.get(10, TimeUnit.SECONDS).statusCode()); assertEquals(200, two.get(10, TimeUnit.SECONDS).statusCode());
             f.seed(id(778), 1, 0, Set.of(OWNER), false, true, true, "x".repeat(4_194_304)); assertEquals(503, f.get("/pots/" + id(778)).statusCode());
-            sampling.set(false); sampler.get(1, TimeUnit.SECONDS);
+            } finally {
+                sampling.set(false); sampler.get(1, TimeUnit.SECONDS);
+            }
+
         } finally { sampling.set(false); }
         assertTrue(samples.get() > 0); assertTrue(peak.get() < Runtime.getRuntime().maxMemory());
         var os = new ProcessBuilder("ps", "-o", "rss=", "-p", Long.toString(ProcessHandle.current().pid())).start(); String rss = new String(os.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim(); assertEquals(0, os.waitFor());
