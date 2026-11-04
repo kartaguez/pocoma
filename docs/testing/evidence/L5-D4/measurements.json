@@ -1,0 +1,1010 @@
+{
+  "profiles" : [ {
+    "profile" : "pot-0",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 5192,
+    "construction_wall_ns" : 4163958,
+    "construction_allocated_bytes" : 277816,
+    "serialization_samples" : [ {
+      "wall_ns" : 530417,
+      "cpu_ns" : 431000,
+      "allocated_bytes" : 45568
+    }, {
+      "wall_ns" : 393417,
+      "cpu_ns" : 395000,
+      "allocated_bytes" : 43840
+    }, {
+      "wall_ns" : 386625,
+      "cpu_ns" : 365000,
+      "allocated_bytes" : 41624
+    }, {
+      "wall_ns" : 1142791,
+      "cpu_ns" : 1144000,
+      "allocated_bytes" : 151888
+    }, {
+      "wall_ns" : 297375,
+      "cpu_ns" : 284000,
+      "allocated_bytes" : 43840
+    } ],
+    "capped_bytes_retained" : 5192,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 571209,
+    "capped_allocated_bytes" : 4227344
+  }, {
+    "profile" : "pot-0-wide-utf8-r1024",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 103504,
+    "construction_wall_ns" : 15688000,
+    "construction_allocated_bytes" : 319456,
+    "serialization_samples" : [ {
+      "wall_ns" : 2942542,
+      "cpu_ns" : 1272000,
+      "allocated_bytes" : 898760
+    }, {
+      "wall_ns" : 1161875,
+      "cpu_ns" : 1154000,
+      "allocated_bytes" : 858960
+    }, {
+      "wall_ns" : 928625,
+      "cpu_ns" : 928000,
+      "allocated_bytes" : 885640
+    }, {
+      "wall_ns" : 870083,
+      "cpu_ns" : 870000,
+      "allocated_bytes" : 893800
+    }, {
+      "wall_ns" : 866250,
+      "cpu_ns" : 867000,
+      "allocated_bytes" : 905368
+    } ],
+    "capped_bytes_retained" : 103504,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 934375,
+    "capped_allocated_bytes" : 4891800
+  }, {
+    "profile" : "manifest-0-wide",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 15,
+    "construction_wall_ns" : 2917,
+    "construction_allocated_bytes" : 232,
+    "serialization_samples" : [ {
+      "wall_ns" : 14417,
+      "cpu_ns" : 15000,
+      "allocated_bytes" : 664
+    }, {
+      "wall_ns" : 12000,
+      "cpu_ns" : 12000,
+      "allocated_bytes" : 664
+    }, {
+      "wall_ns" : 11083,
+      "cpu_ns" : 11000,
+      "allocated_bytes" : 664
+    }, {
+      "wall_ns" : 9583,
+      "cpu_ns" : 9000,
+      "allocated_bytes" : 664
+    }, {
+      "wall_ns" : 9042,
+      "cpu_ns" : 10000,
+      "allocated_bytes" : 664
+    } ],
+    "capped_bytes_retained" : 15,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 300958,
+    "capped_allocated_bytes" : 4194792
+  }, {
+    "profile" : "pot-200",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 29391,
+    "construction_wall_ns" : 180292,
+    "construction_allocated_bytes" : 64616,
+    "serialization_samples" : [ {
+      "wall_ns" : 463541,
+      "cpu_ns" : 450000,
+      "allocated_bytes" : 80968
+    }, {
+      "wall_ns" : 274208,
+      "cpu_ns" : 265000,
+      "allocated_bytes" : 80288
+    }, {
+      "wall_ns" : 231167,
+      "cpu_ns" : 230000,
+      "allocated_bytes" : 80168
+    }, {
+      "wall_ns" : 228750,
+      "cpu_ns" : 229000,
+      "allocated_bytes" : 80168
+    }, {
+      "wall_ns" : 261417,
+      "cpu_ns" : 259000,
+      "allocated_bytes" : 80168
+    } ],
+    "capped_bytes_retained" : 29391,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 519000,
+    "capped_allocated_bytes" : 4244920
+  }, {
+    "profile" : "pot-200-wide-utf8-r1024",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 138503,
+    "construction_wall_ns" : 5950125,
+    "construction_allocated_bytes" : 339112,
+    "serialization_samples" : [ {
+      "wall_ns" : 1000917,
+      "cpu_ns" : 1001000,
+      "allocated_bytes" : 980112
+    }, {
+      "wall_ns" : 969500,
+      "cpu_ns" : 970000,
+      "allocated_bytes" : 993328
+    }, {
+      "wall_ns" : 906167,
+      "cpu_ns" : 906000,
+      "allocated_bytes" : 1008952
+    }, {
+      "wall_ns" : 910708,
+      "cpu_ns" : 912000,
+      "allocated_bytes" : 951536
+    }, {
+      "wall_ns" : 898625,
+      "cpu_ns" : 900000,
+      "allocated_bytes" : 986976
+    } ],
+    "capped_bytes_retained" : 138503,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 1154208,
+    "capped_allocated_bytes" : 4923800
+  }, {
+    "profile" : "manifest-200-wide",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 35014,
+    "construction_wall_ns" : 13083,
+    "construction_allocated_bytes" : 19272,
+    "serialization_samples" : [ {
+      "wall_ns" : 167417,
+      "cpu_ns" : 168000,
+      "allocated_bytes" : 67712
+    }, {
+      "wall_ns" : 163417,
+      "cpu_ns" : 164000,
+      "allocated_bytes" : 67712
+    }, {
+      "wall_ns" : 166541,
+      "cpu_ns" : 167000,
+      "allocated_bytes" : 67712
+    }, {
+      "wall_ns" : 159292,
+      "cpu_ns" : 160000,
+      "allocated_bytes" : 67712
+    }, {
+      "wall_ns" : 160167,
+      "cpu_ns" : 161000,
+      "allocated_bytes" : 67712
+    } ],
+    "capped_bytes_retained" : 35014,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 424875,
+    "capped_allocated_bytes" : 4226840
+  }, {
+    "profile" : "pot-2000",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 267231,
+    "construction_wall_ns" : 521875,
+    "construction_allocated_bytes" : 436144,
+    "serialization_samples" : [ {
+      "wall_ns" : 1598000,
+      "cpu_ns" : 1598000,
+      "allocated_bytes" : 755528
+    }, {
+      "wall_ns" : 1492834,
+      "cpu_ns" : 1492000,
+      "allocated_bytes" : 819352
+    }, {
+      "wall_ns" : 1478167,
+      "cpu_ns" : 1479000,
+      "allocated_bytes" : 846088
+    }, {
+      "wall_ns" : 1466834,
+      "cpu_ns" : 1467000,
+      "allocated_bytes" : 876152
+    }, {
+      "wall_ns" : 1470166,
+      "cpu_ns" : 1470000,
+      "allocated_bytes" : 765712
+    } ],
+    "capped_bytes_retained" : 267231,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 2295709,
+    "capped_allocated_bytes" : 4532280
+  }, {
+    "profile" : "pot-2000-wide-utf8-r1024",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 863623,
+    "construction_wall_ns" : 24246750,
+    "construction_allocated_bytes" : 1804400,
+    "serialization_samples" : [ {
+      "wall_ns" : 4085417,
+      "cpu_ns" : 4085000,
+      "allocated_bytes" : 5487640
+    }, {
+      "wall_ns" : 4027500,
+      "cpu_ns" : 4029000,
+      "allocated_bytes" : 5487640
+    }, {
+      "wall_ns" : 4307333,
+      "cpu_ns" : 4303000,
+      "allocated_bytes" : 5487640
+    }, {
+      "wall_ns" : 4239625,
+      "cpu_ns" : 4241000,
+      "allocated_bytes" : 5487640
+    }, {
+      "wall_ns" : 4405458,
+      "cpu_ns" : 4106000,
+      "allocated_bytes" : 5487640
+    } ],
+    "capped_bytes_retained" : 863623,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 4064958,
+    "capped_allocated_bytes" : 7998680
+  }, {
+    "profile" : "manifest-2000-wide",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 350014,
+    "construction_wall_ns" : 82083,
+    "construction_allocated_bytes" : 193776,
+    "serialization_samples" : [ {
+      "wall_ns" : 413333,
+      "cpu_ns" : 412000,
+      "allocated_bytes" : 965744
+    }, {
+      "wall_ns" : 405459,
+      "cpu_ns" : 406000,
+      "allocated_bytes" : 965744
+    }, {
+      "wall_ns" : 397125,
+      "cpu_ns" : 397000,
+      "allocated_bytes" : 965744
+    }, {
+      "wall_ns" : 408250,
+      "cpu_ns" : 409000,
+      "allocated_bytes" : 965744
+    }, {
+      "wall_ns" : 396333,
+      "cpu_ns" : 396000,
+      "allocated_bytes" : 965744
+    } ],
+    "capped_bytes_retained" : 350014,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 520083,
+    "capped_allocated_bytes" : 4514840
+  }, {
+    "profile" : "batch-49-p20-r3",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 110140,
+    "construction_wall_ns" : 1602792,
+    "construction_allocated_bytes" : 1284832,
+    "serialization_samples" : [ {
+      "wall_ns" : 732125,
+      "cpu_ns" : 730000,
+      "allocated_bytes" : 972208
+    }, {
+      "wall_ns" : 714375,
+      "cpu_ns" : 715000,
+      "allocated_bytes" : 972208
+    }, {
+      "wall_ns" : 713167,
+      "cpu_ns" : 714000,
+      "allocated_bytes" : 972208
+    }, {
+      "wall_ns" : 687792,
+      "cpu_ns" : 688000,
+      "allocated_bytes" : 972208
+    }, {
+      "wall_ns" : 744250,
+      "cpu_ns" : 711000,
+      "allocated_bytes" : 972208
+    } ],
+    "capped_bytes_retained" : 110140,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 863208,
+    "capped_allocated_bytes" : 5056208
+  }, {
+    "profile" : "input-batch-49",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 8671,
+    "construction_wall_ns" : 8208,
+    "construction_allocated_bytes" : 5072,
+    "serialization_samples" : [ {
+      "wall_ns" : 18708,
+      "cpu_ns" : 19000,
+      "allocated_bytes" : 17296
+    }, {
+      "wall_ns" : 16042,
+      "cpu_ns" : 15000,
+      "allocated_bytes" : 17296
+    }, {
+      "wall_ns" : 17500,
+      "cpu_ns" : 16000,
+      "allocated_bytes" : 17296
+    }, {
+      "wall_ns" : 15416,
+      "cpu_ns" : 16000,
+      "allocated_bytes" : 17296
+    }, {
+      "wall_ns" : 14917,
+      "cpu_ns" : 14000,
+      "allocated_bytes" : 17296
+    } ],
+    "capped_bytes_retained" : 8671,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 56708,
+    "capped_allocated_bytes" : 4202768
+  }, {
+    "profile" : "batch-50-p20-r3",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 112387,
+    "construction_wall_ns" : 753250,
+    "construction_allocated_bytes" : 1283672,
+    "serialization_samples" : [ {
+      "wall_ns" : 722917,
+      "cpu_ns" : 723000,
+      "allocated_bytes" : 992360
+    }, {
+      "wall_ns" : 707375,
+      "cpu_ns" : 708000,
+      "allocated_bytes" : 992032
+    }, {
+      "wall_ns" : 703458,
+      "cpu_ns" : 704000,
+      "allocated_bytes" : 992032
+    }, {
+      "wall_ns" : 694334,
+      "cpu_ns" : 694000,
+      "allocated_bytes" : 992032
+    }, {
+      "wall_ns" : 687750,
+      "cpu_ns" : 689000,
+      "allocated_bytes" : 992032
+    } ],
+    "capped_bytes_retained" : 112387,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 1200083,
+    "capped_allocated_bytes" : 5073784
+  }, {
+    "profile" : "input-batch-50",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 8846,
+    "construction_wall_ns" : 5292,
+    "construction_allocated_bytes" : 5304,
+    "serialization_samples" : [ {
+      "wall_ns" : 18250,
+      "cpu_ns" : 18000,
+      "allocated_bytes" : 17632
+    }, {
+      "wall_ns" : 16250,
+      "cpu_ns" : 16000,
+      "allocated_bytes" : 17632
+    }, {
+      "wall_ns" : 16833,
+      "cpu_ns" : 17000,
+      "allocated_bytes" : 17632
+    }, {
+      "wall_ns" : 17125,
+      "cpu_ns" : 18000,
+      "allocated_bytes" : 17632
+    }, {
+      "wall_ns" : 24750,
+      "cpu_ns" : 25000,
+      "allocated_bytes" : 18064
+    } ],
+    "capped_bytes_retained" : 8846,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 81750,
+    "capped_allocated_bytes" : 4202928
+  }, {
+    "profile" : "batch-51-p20-r3",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 114634,
+    "construction_wall_ns" : 732750,
+    "construction_allocated_bytes" : 1309496,
+    "serialization_samples" : [ {
+      "wall_ns" : 711459,
+      "cpu_ns" : 712000,
+      "allocated_bytes" : 1011856
+    }, {
+      "wall_ns" : 705167,
+      "cpu_ns" : 706000,
+      "allocated_bytes" : 1011856
+    }, {
+      "wall_ns" : 712083,
+      "cpu_ns" : 713000,
+      "allocated_bytes" : 1011856
+    }, {
+      "wall_ns" : 711583,
+      "cpu_ns" : 712000,
+      "allocated_bytes" : 1011856
+    }, {
+      "wall_ns" : 712083,
+      "cpu_ns" : 712000,
+      "allocated_bytes" : 1011856
+    } ],
+    "capped_bytes_retained" : 114634,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 734875,
+    "capped_allocated_bytes" : 5091360
+  }, {
+    "profile" : "input-batch-51",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 9021,
+    "construction_wall_ns" : 3250,
+    "construction_allocated_bytes" : 5384,
+    "serialization_samples" : [ {
+      "wall_ns" : 21917,
+      "cpu_ns" : 22000,
+      "allocated_bytes" : 17968
+    }, {
+      "wall_ns" : 17250,
+      "cpu_ns" : 17000,
+      "allocated_bytes" : 17968
+    }, {
+      "wall_ns" : 17458,
+      "cpu_ns" : 18000,
+      "allocated_bytes" : 17968
+    }, {
+      "wall_ns" : 16208,
+      "cpu_ns" : 17000,
+      "allocated_bytes" : 17968
+    }, {
+      "wall_ns" : 15959,
+      "cpu_ns" : 17000,
+      "allocated_bytes" : 17968
+    } ],
+    "capped_bytes_retained" : 9021,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 53917,
+    "capped_allocated_bytes" : 4203088
+  }, {
+    "profile" : "batch-85-p20-r3",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 191032,
+    "construction_wall_ns" : 1096334,
+    "construction_allocated_bytes" : 2188424,
+    "serialization_samples" : [ {
+      "wall_ns" : 1181416,
+      "cpu_ns" : 1182000,
+      "allocated_bytes" : 1882944
+    }, {
+      "wall_ns" : 1178625,
+      "cpu_ns" : 1179000,
+      "allocated_bytes" : 1802552
+    }, {
+      "wall_ns" : 1180708,
+      "cpu_ns" : 1181000,
+      "allocated_bytes" : 1852168
+    }, {
+      "wall_ns" : 1219292,
+      "cpu_ns" : 1219000,
+      "allocated_bytes" : 1872952
+    }, {
+      "wall_ns" : 1225125,
+      "cpu_ns" : 1225000,
+      "allocated_bytes" : 1796632
+    } ],
+    "capped_bytes_retained" : 191032,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 1245750,
+    "capped_allocated_bytes" : 5688944
+  }, {
+    "profile" : "input-batch-85",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 14971,
+    "construction_wall_ns" : 4542,
+    "construction_allocated_bytes" : 8560,
+    "serialization_samples" : [ {
+      "wall_ns" : 24167,
+      "cpu_ns" : 24000,
+      "allocated_bytes" : 29360
+    }, {
+      "wall_ns" : 22208,
+      "cpu_ns" : 22000,
+      "allocated_bytes" : 29360
+    }, {
+      "wall_ns" : 22250,
+      "cpu_ns" : 23000,
+      "allocated_bytes" : 29360
+    }, {
+      "wall_ns" : 21542,
+      "cpu_ns" : 21000,
+      "allocated_bytes" : 29360
+    }, {
+      "wall_ns" : 21291,
+      "cpu_ns" : 21000,
+      "allocated_bytes" : 29360
+    } ],
+    "capped_bytes_retained" : 14971,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 398750,
+    "capped_allocated_bytes" : 4208528
+  }, {
+    "profile" : "batch-86-p20-r3",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 193279,
+    "construction_wall_ns" : 1105625,
+    "construction_allocated_bytes" : 2214248,
+    "serialization_samples" : [ {
+      "wall_ns" : 1189334,
+      "cpu_ns" : 1188000,
+      "allocated_bytes" : 1823968
+    }, {
+      "wall_ns" : 1174916,
+      "cpu_ns" : 1175000,
+      "allocated_bytes" : 1874264
+    }, {
+      "wall_ns" : 1176375,
+      "cpu_ns" : 1177000,
+      "allocated_bytes" : 1895312
+    }, {
+      "wall_ns" : 1193042,
+      "cpu_ns" : 1193000,
+      "allocated_bytes" : 1817960
+    }, {
+      "wall_ns" : 1186208,
+      "cpu_ns" : 1187000,
+      "allocated_bytes" : 1865704
+    } ],
+    "capped_bytes_retained" : 193279,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 1221458,
+    "capped_allocated_bytes" : 5706520
+  }, {
+    "profile" : "input-batch-86",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 15146,
+    "construction_wall_ns" : 5666,
+    "construction_allocated_bytes" : 8640,
+    "serialization_samples" : [ {
+      "wall_ns" : 26333,
+      "cpu_ns" : 27000,
+      "allocated_bytes" : 29696
+    }, {
+      "wall_ns" : 23042,
+      "cpu_ns" : 23000,
+      "allocated_bytes" : 29696
+    }, {
+      "wall_ns" : 22833,
+      "cpu_ns" : 23000,
+      "allocated_bytes" : 29696
+    }, {
+      "wall_ns" : 23125,
+      "cpu_ns" : 24000,
+      "allocated_bytes" : 29696
+    }, {
+      "wall_ns" : 39459,
+      "cpu_ns" : 40000,
+      "allocated_bytes" : 29696
+    } ],
+    "capped_bytes_retained" : 15146,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 70250,
+    "capped_allocated_bytes" : 4208688
+  }, {
+    "profile" : "batch-50-p20-r256-utf8",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 683287,
+    "construction_wall_ns" : 12421208,
+    "construction_allocated_bytes" : 3755672,
+    "serialization_samples" : [ {
+      "wall_ns" : 3491084,
+      "cpu_ns" : 3491000,
+      "allocated_bytes" : 10184184
+    }, {
+      "wall_ns" : 3711291,
+      "cpu_ns" : 3711000,
+      "allocated_bytes" : 10184184
+    }, {
+      "wall_ns" : 3893916,
+      "cpu_ns" : 3522000,
+      "allocated_bytes" : 10184184
+    }, {
+      "wall_ns" : 3423833,
+      "cpu_ns" : 3419000,
+      "allocated_bytes" : 10184184
+    }, {
+      "wall_ns" : 3400875,
+      "cpu_ns" : 3401000,
+      "allocated_bytes" : 10184184
+    } ],
+    "capped_bytes_retained" : 683287,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 3647208,
+    "capped_allocated_bytes" : 13137784
+  }, {
+    "profile" : "batch-50-p100-r1024-utf8",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 10848087,
+    "construction_wall_ns" : 423106375,
+    "construction_allocated_bytes" : 35724920,
+    "serialization_samples" : [ {
+      "wall_ns" : 67869750,
+      "cpu_ns" : 65884000,
+      "allocated_bytes" : 107334888
+    }, {
+      "wall_ns" : 67200625,
+      "cpu_ns" : 66031000,
+      "allocated_bytes" : 107334888
+    }, {
+      "wall_ns" : 69337958,
+      "cpu_ns" : 67811000,
+      "allocated_bytes" : 107334888
+    }, {
+      "wall_ns" : 74193500,
+      "cpu_ns" : 72555000,
+      "allocated_bytes" : 107334888
+    }, {
+      "wall_ns" : 71104541,
+      "cpu_ns" : 69407000,
+      "allocated_bytes" : 107334888
+    } ],
+    "capped_bytes_retained" : 4189637,
+    "capped_overflow" : true,
+    "capped_wall_ns" : 27799458,
+    "capped_allocated_bytes" : 37356592
+  }, {
+    "profile" : "balance-100-r1024",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 210351,
+    "construction_wall_ns" : 20007083,
+    "construction_allocated_bytes" : 1476144,
+    "serialization_samples" : [ {
+      "wall_ns" : 1378459,
+      "cpu_ns" : 1377000,
+      "allocated_bytes" : 2108536
+    }, {
+      "wall_ns" : 1376959,
+      "cpu_ns" : 1377000,
+      "allocated_bytes" : 2133160
+    }, {
+      "wall_ns" : 1382334,
+      "cpu_ns" : 1383000,
+      "allocated_bytes" : 2042728
+    }, {
+      "wall_ns" : 1406292,
+      "cpu_ns" : 1404000,
+      "allocated_bytes" : 2098544
+    }, {
+      "wall_ns" : 1328375,
+      "cpu_ns" : 1329000,
+      "allocated_bytes" : 2121912
+    } ],
+    "capped_bytes_retained" : 210351,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 1397125,
+    "capped_allocated_bytes" : 5895216
+  }, {
+    "profile" : "navigation-20",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 874,
+    "construction_wall_ns" : 1322625,
+    "construction_allocated_bytes" : 19864,
+    "serialization_samples" : [ {
+      "wall_ns" : 13708,
+      "cpu_ns" : 13000,
+      "allocated_bytes" : 3288
+    }, {
+      "wall_ns" : 40500,
+      "cpu_ns" : 20000,
+      "allocated_bytes" : 3288
+    }, {
+      "wall_ns" : 23709,
+      "cpu_ns" : 24000,
+      "allocated_bytes" : 3288
+    }, {
+      "wall_ns" : 9959,
+      "cpu_ns" : 11000,
+      "allocated_bytes" : 3288
+    }, {
+      "wall_ns" : 7708,
+      "cpu_ns" : 7000,
+      "allocated_bytes" : 3288
+    } ],
+    "capped_bytes_retained" : 874,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 45541,
+    "capped_allocated_bytes" : 4196552
+  }, {
+    "profile" : "navigation-100",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 3994,
+    "construction_wall_ns" : 18959,
+    "construction_allocated_bytes" : 4296,
+    "serialization_samples" : [ {
+      "wall_ns" : 57750,
+      "cpu_ns" : 39000,
+      "allocated_bytes" : 13448
+    }, {
+      "wall_ns" : 28334,
+      "cpu_ns" : 28000,
+      "allocated_bytes" : 13448
+    }, {
+      "wall_ns" : 19166,
+      "cpu_ns" : 19000,
+      "allocated_bytes" : 13448
+    }, {
+      "wall_ns" : 19209,
+      "cpu_ns" : 19000,
+      "allocated_bytes" : 13448
+    }, {
+      "wall_ns" : 17125,
+      "cpu_ns" : 18000,
+      "allocated_bytes" : 13448
+    } ],
+    "capped_bytes_retained" : 3994,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 52834,
+    "capped_allocated_bytes" : 4203592
+  }, {
+    "profile" : "navigation-101",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 4033,
+    "construction_wall_ns" : 17542,
+    "construction_allocated_bytes" : 4336,
+    "serialization_samples" : [ {
+      "wall_ns" : 17417,
+      "cpu_ns" : 17000,
+      "allocated_bytes" : 13576
+    }, {
+      "wall_ns" : 21875,
+      "cpu_ns" : 23000,
+      "allocated_bytes" : 13576
+    }, {
+      "wall_ns" : 18042,
+      "cpu_ns" : 19000,
+      "allocated_bytes" : 13576
+    }, {
+      "wall_ns" : 16458,
+      "cpu_ns" : 16000,
+      "allocated_bytes" : 13576
+    }, {
+      "wall_ns" : 16625,
+      "cpu_ns" : 16000,
+      "allocated_bytes" : 13576
+    } ],
+    "capped_bytes_retained" : 4033,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 74333,
+    "capped_allocated_bytes" : 4203680
+  }, {
+    "profile" : "binding-own",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 102,
+    "construction_wall_ns" : 2416,
+    "construction_allocated_bytes" : 440,
+    "serialization_samples" : [ {
+      "wall_ns" : 8208,
+      "cpu_ns" : 8000,
+      "allocated_bytes" : 704
+    }, {
+      "wall_ns" : 5958,
+      "cpu_ns" : 6000,
+      "allocated_bytes" : 704
+    }, {
+      "wall_ns" : 5833,
+      "cpu_ns" : 6000,
+      "allocated_bytes" : 704
+    }, {
+      "wall_ns" : 4584,
+      "cpu_ns" : 4000,
+      "allocated_bytes" : 704
+    }, {
+      "wall_ns" : 4417,
+      "cpu_ns" : 5000,
+      "allocated_bytes" : 704
+    } ],
+    "capped_bytes_retained" : 102,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 260583,
+    "capped_allocated_bytes" : 4194744
+  }, {
+    "profile" : "command-result",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 181,
+    "construction_wall_ns" : 1250,
+    "construction_allocated_bytes" : 456,
+    "serialization_samples" : [ {
+      "wall_ns" : 6041,
+      "cpu_ns" : 6000,
+      "allocated_bytes" : 872
+    }, {
+      "wall_ns" : 4916,
+      "cpu_ns" : 4000,
+      "allocated_bytes" : 872
+    }, {
+      "wall_ns" : 4708,
+      "cpu_ns" : 6000,
+      "allocated_bytes" : 872
+    }, {
+      "wall_ns" : 4750,
+      "cpu_ns" : 4000,
+      "allocated_bytes" : 872
+    }, {
+      "wall_ns" : 4792,
+      "cpu_ns" : 4000,
+      "allocated_bytes" : 872
+    } ],
+    "capped_bytes_retained" : 181,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 230417,
+    "capped_allocated_bytes" : 4194832
+  }, {
+    "profile" : "identity-result",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 134,
+    "construction_wall_ns" : 1417,
+    "construction_allocated_bytes" : 408,
+    "serialization_samples" : [ {
+      "wall_ns" : 5625,
+      "cpu_ns" : 5000,
+      "allocated_bytes" : 824
+    }, {
+      "wall_ns" : 5125,
+      "cpu_ns" : 5000,
+      "allocated_bytes" : 824
+    }, {
+      "wall_ns" : 4958,
+      "cpu_ns" : 5000,
+      "allocated_bytes" : 824
+    }, {
+      "wall_ns" : 6250,
+      "cpu_ns" : 7000,
+      "allocated_bytes" : 824
+    }, {
+      "wall_ns" : 4833,
+      "cpu_ns" : 4000,
+      "allocated_bytes" : 824
+    } ],
+    "capped_bytes_retained" : 134,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 241208,
+    "capped_allocated_bytes" : 4194832
+  }, {
+    "profile" : "error",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 81,
+    "construction_wall_ns" : 875,
+    "construction_allocated_bytes" : 288,
+    "serialization_samples" : [ {
+      "wall_ns" : 14750,
+      "cpu_ns" : 15000,
+      "allocated_bytes" : 776
+    }, {
+      "wall_ns" : 6292,
+      "cpu_ns" : 6000,
+      "allocated_bytes" : 776
+    }, {
+      "wall_ns" : 5750,
+      "cpu_ns" : 6000,
+      "allocated_bytes" : 776
+    }, {
+      "wall_ns" : 4584,
+      "cpu_ns" : 4000,
+      "allocated_bytes" : 776
+    }, {
+      "wall_ns" : 4333,
+      "cpu_ns" : 5000,
+      "allocated_bytes" : 776
+    } ],
+    "capped_bytes_retained" : 81,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 236542,
+    "capped_allocated_bytes" : 4194832
+  }, {
+    "profile" : "byte-boundary--1",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 4194303,
+    "construction_wall_ns" : 4773500,
+    "construction_allocated_bytes" : 4194544,
+    "serialization_samples" : [ {
+      "wall_ns" : 2155625,
+      "cpu_ns" : 2154000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2207958,
+      "cpu_ns" : 2208000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2155667,
+      "cpu_ns" : 2157000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2157750,
+      "cpu_ns" : 2158000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2188292,
+      "cpu_ns" : 2188000,
+      "allocated_bytes" : 8292184
+    } ],
+    "capped_bytes_retained" : 4194303,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 2028209,
+    "capped_allocated_bytes" : 4194744
+  }, {
+    "profile" : "byte-boundary-0",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 4194304,
+    "construction_wall_ns" : 4383500,
+    "construction_allocated_bytes" : 4194544,
+    "serialization_samples" : [ {
+      "wall_ns" : 2093292,
+      "cpu_ns" : 2092000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2079083,
+      "cpu_ns" : 2079000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2458791,
+      "cpu_ns" : 2179000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2074458,
+      "cpu_ns" : 2074000,
+      "allocated_bytes" : 8292184
+    }, {
+      "wall_ns" : 2366042,
+      "cpu_ns" : 2104000,
+      "allocated_bytes" : 8292184
+    } ],
+    "capped_bytes_retained" : 4194304,
+    "capped_overflow" : false,
+    "capped_wall_ns" : 2011541,
+    "capped_allocated_bytes" : 4194744
+  }, {
+    "profile" : "byte-boundary-1",
+    "classification" : "MEASURED_SYNTHETIC",
+    "utf8_bytes" : 4194305,
+    "construction_wall_ns" : 3530625,
+    "construction_allocated_bytes" : 4194544,
+    "serialization_samples" : [ {
+      "wall_ns" : 2095792,
+      "cpu_ns" : 2094000,
+      "allocated_bytes" : 8292192
+    }, {
+      "wall_ns" : 2358583,
+      "cpu_ns" : 2104000,
+      "allocated_bytes" : 8292192
+    }, {
+      "wall_ns" : 2023000,
+      "cpu_ns" : 2024000,
+      "allocated_bytes" : 8292192
+    }, {
+      "wall_ns" : 2050166,
+      "cpu_ns" : 2050000,
+      "allocated_bytes" : 8292192
+    }, {
+      "wall_ns" : 2414083,
+      "cpu_ns" : 2111000,
+      "allocated_bytes" : 8292192
+    } ],
+    "capped_bytes_retained" : 4191012,
+    "capped_overflow" : true,
+    "capped_wall_ns" : 1879875,
+    "capped_allocated_bytes" : 4195472
+  }, {
+    "profile" : "two-concurrent-encodings",
+    "classification" : "MEASURED_SYNTHETIC",
+    "threads" : [ {
+      "utf8_bytes" : 863623,
+      "allocated_bytes" : 5512368,
+      "wall_ns" : 3691209
+    }, {
+      "utf8_bytes" : 863623,
+      "allocated_bytes" : 5512368,
+      "wall_ns" : 3694459
+    } ]
+  } ],
+  "heap_max_bytes" : 268435456,
+  "heap_used_at_end_bytes" : 33885232,
+  "caveat" : "Thread allocation is cumulative allocation, not retained/peak heap. No HTTP, SQL, quota or SLO proof."
+}

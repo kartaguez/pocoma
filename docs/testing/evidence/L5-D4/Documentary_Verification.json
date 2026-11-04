@@ -1,0 +1,1078 @@
+{
+  "checked_utc": "2026-11-04T06:56:35.081177+00:00",
+  "head": "5193c540c5be2ea6bf31d4fe159c02490ab352aa",
+  "result": "DOCUMENTARY_CHECKS_COMPLETED — NO APPLICATION PASS",
+  "declared_slices": {
+    "primary": "NONE",
+    "secondary": "NONE"
+  },
+  "commands_actually_executed": [
+    "pwd",
+    "git status --short",
+    "git branch --show-current",
+    "git rev-parse HEAD",
+    "git rev-parse --abbrev-ref --symbolic-full-name @{upstream}",
+    "git rev-parse @{upstream}",
+    "git remote -v",
+    "git log -1 --format=%H %cI %s",
+    "git show -s --format=%H %cI %s 5193c540",
+    "git worktree list --porcelain",
+    "git ls-remote origin refs/heads/feat/v3-architecture (initial sandbox DNS failure; two successful authorized reads)",
+    "git diff 5193c540 -- docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md (empty before edits)",
+    "cat / sed / rg / rg --files (static repository and local JAR/BOM reads)",
+    "java -version; javac -version; python3 --version (preparation)",
+    "ps -axo pid,ppid,comm (sandbox denied; no listing)",
+    "python3 docs/testing/evidence/L5-D4/run_once.py (once; child argv in campaign.json)",
+    "python3 inline static arithmetic, provenance, AST parse, links/anchors/whitespace/hashes and decision-consistency checks",
+    "git diff --check",
+    "git diff --stat",
+    "git diff --name-only",
+    "git diff -- docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md docs/README.md",
+    "git status --porcelain --untracked-files=all -- app scripts",
+    "git ls-files --others --exclude-standard"
+  ],
+  "local_links_checked": 200,
+  "local_link_details": [
+    {
+      "from": "docs/README.md",
+      "target": "v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L5_D4_Read_Calibration_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/L5-D4/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_Read_Closure_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I8_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I8_Implementation_and_Qualification_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I8_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/L4-I8/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I2_Execution_Report.md#clôture-définitive-du-3-novembre-2026",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I2_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_Read_Inventory_and_Implementation_Plan.md#qualification-globale-reportée-à-la-clôture-l4",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I2_WaiterPid_Fix_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I1_Acceptance_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I1_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I1_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_Read_Inventory_and_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L4_I1_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_Identity_Closure.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_Identity_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_Identity_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/L3-I5/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I4_Acceptance_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I4_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I4_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/L3-I4/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Acceptance_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Independent_Reaudit_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Findings_Resolution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/L3-I3-resolution/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Contradictory_Audit_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/L3-I3-CT/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Findings_Resolution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Acceptance_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I3_Identity_Development_Runbook.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I2_Acceptance_Decision_2026-10-30.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I2_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/V3_Implementation_Master_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L3_I1_Arbitration_and_I2_GO.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/V3_Canon_and_Roadmap.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L2_Documentary_Closure.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L2_Design_and_Verification_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L2_I6_I7_Consolidation.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/Evidence_Recovery.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L1_Documentary_Closure.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L1_Design_and_Verification_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L1_E_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "v3/L1_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "product/Functional_Model.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Architecture.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "guarantees/System_Guarantees.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "Documentation_Truth_Validation.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/current/DISCOVERY/Step_Canon.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/current/DISCOVERY/Step_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/current/DISCOVERY/Next_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/current/DISCOVERY/Consolidation_Report_2026-10-20.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "Documentation_Rationalization_Audit.md#15-gouvernance-documentaire",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Architecture.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/completed/ARCHITECTURE/Modularity_Target_Topology.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/completed/ARCHITECTURE/Three_Engine_Families_Revision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/read-side-target.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/authorization-kernel-contracts.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "debts/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/completed/",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "plans/completed/",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "archive/",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "Documentation_Rationalization_Audit.md#8-audit-exhaustif-de-docsplans",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/Reactor_Verification_Policy.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "development/ci.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "operations/cmd-start-runtimes.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/consumption-transactional-execution.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/projection-task-execution.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/pot-historical-reconstruction.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/transactional-protocol-studies.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/Expense_Context_Integration_Report_2026-10-18.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Pot_Command_Versioning_Obsolescence_Design_2026-10-18.md#ag-décision-courante--obsolescence-par-versions-temporelles-18-octobre-2026",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Pot_Command_Obsolescence_Implementation_2026-10-18.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Pot_Command_Cas_Consumption_Step_2B_2026-10-18.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "steps/current/DISCOVERY/Step_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/README.md",
+      "target": "testing/evidence/Git_Consumption_Consolidation_2026-10-18.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L5_D4_Read_Calibration_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../testing/evidence/L5-D4/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "V3_Canon_and_Roadmap.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-01_Pot_Domain.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-02_Identity_Domain.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-03_Events_Requests_Consumables.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-04_Read_Projections.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-05_Consumption_Discovery.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L2_R1_R10_Normative_Consolidation.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-06_Supra_Contracts.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-07_Transverse_Requirements.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-08_Observability.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-09_Performance.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "SPEC-10_Test_Certification.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../testing/Reactor_Verification_Policy.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L1_Documentary_Closure.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L1_F_Closure_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L1_F2_Closure_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L2_Documentary_Closure.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L3_Identity_Closure.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L4_Read_Closure_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "V3_Implementation_Master_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L3_Identity_Inventory_and_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L3_I3_Acceptance_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L4_Read_Inventory_and_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L4_I8_Implementation_and_Qualification_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L4_I8_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L3_Identity_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "L4_I8_Proof_Manifest.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/AsyncCommandController.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/RegistrationController.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/CurrentBindingController.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/web/authentication/WebApiSecurityConfiguration.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/web/authentication/SpringSecurityExternalPrincipalAdapter.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/contracts-authentication/src/main/java/com/kartaguez/pocoma/contracts/authentication/AuthenticatedExternalPrincipal.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/runtime-web-api/src/main/resources/application.properties",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommand.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommand.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandStore.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJson.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/IdentityRequest.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequest.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityRequestStore.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-admit-command/src/main/java/com/kartaguez/pocoma/engine/admit/command/SubmitRecordedCommandService.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/AdmitRegistrationService.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadPotV3.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadNavigationV3.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-read-pot/src/main/java/com/kartaguez/pocoma/engine/read/pot/v3/ReadLimitsV3.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/port-projection/src/main/java/com/kartaguez/pocoma/port/projection/v3/PotVisibilityStore.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeComposition.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeConfiguration.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-read-current-binding/src/main/java/com/kartaguez/pocoma/engine/read/currentbinding/v3/GetCurrentBindingV3.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/v3/CommandTerminalResult.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-read-registration-result/src/main/java/com/kartaguez/pocoma/engine/read/registrationresult/v3/IdentityTerminalResult.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/AttachShareholderViaInvitation.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/ShareholderTransitions.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/domain-projection/src/main/java/com/kartaguez/pocoma/domain/projection/v3/PotVersion.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcEventDiscoveryReferences.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadParticipants.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionCatalogConfiguration.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/runtime-web-api/src/main/java/com/kartaguez/pocoma/PocomaWebApiApplication.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/runtime-monolith/src/main/java/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/PocomaTaskConsumptionWorkerApplication.java",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../testing/evidence/L4-I8/Resource_Observations.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../testing/evidence/L4-I8/Server_Capacity_Observation.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../scripts/testing/verify.py",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../../scripts/testing/verification-campaigns.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../testing/evidence/L4-I8/runs/FULL-04-FAIL/result.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "target": "../testing/evidence/L4-I8/runs/Architecture-correction-PASS/result.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "V3_Canon_and_Roadmap.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "SPEC-06_Supra_Contracts.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "SPEC-09_Performance.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "SPEC-10_Test_Certification.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "V3_Implementation_Master_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "../testing/Reactor_Verification_Policy.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "L4_Read_Closure_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "L4_I8_Implementation_and_Qualification_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "L4_I8_Execution_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "L5_D4_Read_Calibration_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "target": "../testing/evidence/L5-D4/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "SPEC-06_Supra_Contracts.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "SPEC-09_Performance.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "SPEC-10_Test_Certification.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "L5_Supra_Entry_Audit_and_Implementation_Plan.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "../testing/Reactor_Verification_Policy.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "../testing/evidence/L5-D4/README.md",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "../testing/evidence/L5-D4/environment.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "../testing/evidence/L5-D4/campaign.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "../testing/evidence/L5-D4/measurements.json",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "L5_D1_D6_Ratification_and_D4_Calibration_Decision.md#6-d6-gates--approved-with-policy-conditions",
+      "valid": true
+    },
+    {
+      "from": "docs/v3/L5_D4_Read_Calibration_Report.md",
+      "target": "../testing/evidence/L5-D4/Documentary_Verification.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "../../../v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "../../../v3/L5_D4_Read_Calibration_Report.md",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "Calibration.java",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "run_once.py",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "environment.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "Source_Provenance.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "campaign.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "compile.log",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "measurements.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "Calculated_Summary.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "Documentary_Verification.json",
+      "valid": true
+    },
+    {
+      "from": "docs/testing/evidence/L5-D4/README.md",
+      "target": "SHA256SUMS.json",
+      "valid": true
+    }
+  ],
+  "local_link_failures": [],
+  "app_and_sql_tracked_hash_count": 1382,
+  "app_and_sql_changed_inputs": [],
+  "tracked_modified_paths": [
+    "docs/README.md",
+    "docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md"
+  ],
+  "new_documentary_paths": [
+    "docs/testing/evidence/L5-D4/Calculated_Summary.json",
+    "docs/testing/evidence/L5-D4/Calibration.java",
+    "docs/testing/evidence/L5-D4/Documentary_Verification.json",
+    "docs/testing/evidence/L5-D4/README.md",
+    "docs/testing/evidence/L5-D4/SHA256SUMS.json",
+    "docs/testing/evidence/L5-D4/Source_Provenance.json",
+    "docs/testing/evidence/L5-D4/campaign.json",
+    "docs/testing/evidence/L5-D4/environment.json",
+    "docs/testing/evidence/L5-D4/measurements.json",
+    "docs/testing/evidence/L5-D4/run_once.py",
+    "docs/v3/L5_D1_D6_Ratification_and_D4_Calibration_Decision.md",
+    "docs/v3/L5_D4_Read_Calibration_Report.md"
+  ],
+  "untracked_whitespace_failures": [],
+  "archived_harness_and_runner_hashes_match_executed": true,
+  "documentary_scan_corrections": [
+    "Generated final receipts to resolve three initially missing incoming links.",
+    "Case-insensitive no-GO consistency check corrected; documents unchanged."
+  ],
+  "decision_consistency_review": "D1/D6 conditions preserved; all D4 new values PENDING; only Q2 APPROVED IN CURRENT ALLOCATION; policy tension explicit; no GO I1; L1-L4 reserves preserved",
+  "unexpected_slice_crossing": "NONE",
+  "global_gate": "NOT REQUIRED / NOT RUN for current documentary mission",
+  "full_reactor": "NOT REQUIRED / NOT RUN for current documentary mission; Q5 allocation unresolved",
+  "database": "NONE",
+  "maven": "NOT RUN",
+  "canonical_tests_oracles_migrations_modified": false,
+  "application_pass_claimed": false,
+  "spec10_certification_claimed": false,
+  "production_qualification_claimed": false,
+  "commit": "NOT RUN — review required",
+  "push": "NOT RUN — review required",
+  "campaign_seconds": 2.1524632920045406,
+  "experimental_processes_physically_terminated": true
+}
