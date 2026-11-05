@@ -1,0 +1,42 @@
+{
+  "campaign": "L5-Q5B4",
+  "verdict": "READY_FOR_FINAL_CERTIFICATION",
+  "anomalies": {
+    "AUD-Q5B-03-A": {
+      "title": "Conflit d'ordonnancement Flyway V7..V10 dans les fixtures monolithiques",
+      "root_cause_demonstrated": true,
+      "classification": "FIXTURE_DEFECT_RESOLVED",
+      "resolution": "Ajout canonique de db/v3-admission/migration dans ReadMonolithI8Fixture et db/v3-invitation/migration dans V3AdmissionFlowPostgresTest",
+      "reconciled_errors": 24,
+      "test_result": "PASS",
+      "status": "RESOLVED"
+    },
+    "AUD-Q5B-03-B": {
+      "title": "Défaut d'observation concurrente lors de l'acquisition des 28 baux de partition",
+      "root_cause_demonstrated": true,
+      "classification": "TEMPORAL_TEST_FRAGILITY_AND_OBSERVATION_ORACLE_DEFECT_RESOLVED",
+      "resolution": "Remplacement de l'assertion instantanée par await() sur l'état stable des 28 baux de lecture du root monolithique",
+      "test_result": "PASS",
+      "status": "RESOLVED"
+    },
+    "AUD-Q5B-03-C": {
+      "title": "Obsolescence de la cardinalité de l'oracle HTTP (8 routes attendues vs 10 routes publiées)",
+      "root_cause_demonstrated": true,
+      "classification": "TEST_ORACLE_DEFECT_RESOLVED",
+      "resolution": "Alignement de l'oracle de test sur l'ensemble exact des 10 routes HTTP V3 (incluant les deux routes d'invitation L5/I4)",
+      "test_result": "PASS",
+      "status": "RESOLVED"
+    }
+  },
+  "summary": {
+    "total_tests_executed": 8,
+    "total_pass": 8,
+    "total_failures": 0,
+    "total_errors": 0,
+    "total_skipped": 0,
+    "production_files_modified": 0,
+    "production_migrations_modified": 0,
+    "tests_modified": 4,
+    "fixtures_modified": 2
+  }
+}

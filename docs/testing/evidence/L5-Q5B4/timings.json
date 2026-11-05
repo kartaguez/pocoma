@@ -1,0 +1,39 @@
+{
+  "budget_target_seconds": 900,
+  "budget_ceiling_seconds": 1500,
+  "cumulative_dynamic_seconds": 379.9,
+  "budget_remaining_target_seconds": 520.1,
+  "budget_remaining_ceiling_seconds": 1120.1,
+  "target_budget_consumed_percentage": 42.2,
+  "ceiling_budget_consumed_percentage": 25.3,
+  "steps": {
+    "C1_compile": {
+      "maven_seconds": 0.81,
+      "process_seconds": 11.0
+    },
+    "C2_flyway_admission": {
+      "maven_seconds": 25.47,
+      "surefire_seconds": 23.17
+    },
+    "C3_http_monolith": {
+      "maven_seconds": 12.88,
+      "surefire_seconds": 10.62
+    },
+    "C4_roots_coexistence": {
+      "maven_seconds": 268.0,
+      "surefire_seconds": 266.7
+    },
+    "C5_1_invitation_write_read": {
+      "maven_seconds": 28.99,
+      "surefire_seconds": 26.95
+    },
+    "C5_2_invitation_http_topology": {
+      "maven_seconds": 26.18,
+      "surefire_seconds": 23.80
+    },
+    "C5_3_http_web_api": {
+      "maven_seconds": 7.38,
+      "surefire_seconds": 5.14
+    }
+  }
+}

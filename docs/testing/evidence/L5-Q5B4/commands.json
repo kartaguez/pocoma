@@ -1,0 +1,135 @@
+{
+  "campaign": "L5-Q5B4-TARGETED-CORRECTION",
+  "tested_sha_base": "40c318a99479b1979fb65391c49610269f884144",
+  "date": "2026-11-05T20:54:00+01:00",
+  "commands": [
+    {
+      "step": "C1",
+      "command": "cd app && ./mvnw -pl runtime-monolith,runtime-web-api,runtime-task-consumption-worker test-compile",
+      "objective": "Validation de compilation statique des tests et fixtures modifiés",
+      "modules": [
+        "pocoma-runtime-task-consumption-worker",
+        "pocoma-runtime-monolith",
+        "pocoma-runtime-web-api"
+      ],
+      "tests": [],
+      "duration_seconds": 11.0,
+      "maven_build_seconds": 0.808,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "step": "C2",
+      "command": "cd app && ./mvnw -pl runtime-monolith -am -Dtest=V3AdmissionFlowPostgresTest#allElevenPotOperationsThroughWorker -Dsurefire.failIfNoSpecifiedTests=false test",
+      "objective": "Vérification Flyway canonique V1..V10 et flux d'admission (AUD-Q5B-03-A)",
+      "modules": [
+        "pocoma-runtime-monolith"
+      ],
+      "tests": [
+        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest#allElevenPotOperationsThroughWorker"
+      ],
+      "duration_seconds": 25.47,
+      "surefire_seconds": 23.17,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "step": "C3",
+      "command": "cd app && ./mvnw -pl runtime-monolith -am -Dtest=V3MonolithHttpCompositionPostgresTest#monolithRoot -Dsurefire.failIfNoSpecifiedTests=false test",
+      "objective": "Contrôle d'oracle des routes HTTP Monolithe V3 (10 routes dont Invitation) (AUD-Q5B-03-C)",
+      "modules": [
+        "pocoma-runtime-monolith"
+      ],
+      "tests": [
+        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest#monolithRoot"
+      ],
+      "duration_seconds": 12.88,
+      "surefire_seconds": 10.62,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "step": "C4",
+      "command": "cd app && ./mvnw -pl runtime-monolith -am -Dtest=ReadRootsCoexistencePostgresTest#projectionAndMonolithSharePartitionsSafely -Dsurefire.failIfNoSpecifiedTests=false test",
+      "objective": "Vérification de coexistence des 28 baux de partition, overlap et takeover après expiration (AUD-Q5B-03-B)",
+      "modules": [
+        "pocoma-runtime-monolith"
+      ],
+      "tests": [
+        "com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest#projectionAndMonolithSharePartitionsSafely"
+      ],
+      "duration_seconds": 268.0,
+      "surefire_seconds": 266.7,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "step": "C5.1",
+      "command": "cd app && ./mvnw -pl runtime-monolith -am -Dtest=V3InvitationWritePostgresTest#oneGuestCannotTakeTwoPlaces,V3InvitationReadPostgresTest#reconstructOnFreshReadWithoutProducer -Dsurefire.failIfNoSpecifiedTests=false test",
+      "objective": "Validation discriminante des familles Invitation WRITE et Invitation READ sous V3InvitationFixture",
+      "modules": [
+        "pocoma-runtime-monolith"
+      ],
+      "tests": [
+        "com.kartaguez.pocoma.V3InvitationWritePostgresTest#oneGuestCannotTakeTwoPlaces",
+        "com.kartaguez.pocoma.V3InvitationReadPostgresTest#reconstructOnFreshReadWithoutProducer"
+      ],
+      "duration_seconds": 28.99,
+      "surefire_seconds": 26.95,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "step": "C5.2",
+      "command": "cd app && ./mvnw -pl runtime-monolith -am -Dtest=V3InvitationHttpTest#confidentialLinkAndRestrictedPlaces,V3InvitationTopologyPostgresTest#invitationPrivilegePreflightsRejectColumnEscalation -Dsurefire.failIfNoSpecifiedTests=false test",
+      "objective": "Validation discriminante des familles Invitation HTTP et Invitation Topology sous V3InvitationFixture",
+      "modules": [
+        "pocoma-runtime-monolith"
+      ],
+      "tests": [
+        "com.kartaguez.pocoma.V3InvitationHttpTest#confidentialLinkAndRestrictedPlaces",
+        "com.kartaguez.pocoma.V3InvitationTopologyPostgresTest#invitationPrivilegePreflightsRejectColumnEscalation"
+      ],
+      "duration_seconds": 26.18,
+      "surefire_seconds": 23.80,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "step": "C5.3",
+      "command": "cd app && ./mvnw -pl runtime-web-api -am -Dtest=V3HttpCompositionPostgresTest#webRoot -Dsurefire.failIfNoSpecifiedTests=false test",
+      "objective": "Validation de non-régression de l'oracle HTTP V3 (10 routes) sur runtime-web-api autonome",
+      "modules": [
+        "pocoma-runtime-web-api"
+      ],
+      "tests": [
+        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest#webRoot"
+      ],
+      "duration_seconds": 7.38,
+      "surefire_seconds": 5.14,
+      "discriminant": true,
+      "outcome": "SUCCESS",
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}
