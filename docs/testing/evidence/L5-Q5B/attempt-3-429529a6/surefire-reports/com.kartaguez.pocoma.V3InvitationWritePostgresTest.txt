@@ -1,0 +1,118 @@
+-------------------------------------------------------------------------------
+Test set: com.kartaguez.pocoma.V3InvitationWritePostgresTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 6, Skipped: 0, Time elapsed: 7.018 s <<< FAILURE! -- in com.kartaguez.pocoma.V3InvitationWritePostgresTest
+com.kartaguez.pocoma.V3InvitationWritePostgresTest.oneGuestCannotTakeTwoPlaces -- Time elapsed: 1.228 s <<< ERROR!
+org.flywaydb.core.api.exception.FlywayValidateException: 
+Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$3(Flyway.java:199)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:240)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:186)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.setup(V3AdmissionFlowPostgresTest.java:73)
+	at com.kartaguez.pocoma.V3InvitationFixture.setupInvitation(V3InvitationFixture.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kartaguez.pocoma.V3InvitationWritePostgresTest.twoGuestsOnePlaceAndReusableToken -- Time elapsed: 0.748 s <<< ERROR!
+org.flywaydb.core.api.exception.FlywayValidateException: 
+Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$3(Flyway.java:199)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:240)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:186)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.setup(V3AdmissionFlowPostgresTest.java:73)
+	at com.kartaguez.pocoma.V3InvitationFixture.setupInvitation(V3InvitationFixture.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kartaguez.pocoma.V3InvitationWritePostgresTest.creatorOnlyAndExpiredCreation -- Time elapsed: 0.737 s <<< ERROR!
+org.flywaydb.core.api.exception.FlywayValidateException: 
+Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$3(Flyway.java:199)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:240)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:186)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.setup(V3AdmissionFlowPostgresTest.java:73)
+	at com.kartaguez.pocoma.V3InvitationFixture.setupInvitation(V3InvitationFixture.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kartaguez.pocoma.V3InvitationWritePostgresTest.rollbackAfterInvitationPositionKeepsDensePublication -- Time elapsed: 0.788 s <<< ERROR!
+org.flywaydb.core.api.exception.FlywayValidateException: 
+Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$3(Flyway.java:199)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:240)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:186)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.setup(V3AdmissionFlowPostgresTest.java:73)
+	at com.kartaguez.pocoma.V3InvitationFixture.setupInvitation(V3InvitationFixture.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kartaguez.pocoma.V3InvitationWritePostgresTest.expirationAfterPublicationCounterWait -- Time elapsed: 0.755 s <<< ERROR!
+org.flywaydb.core.api.exception.FlywayValidateException: 
+Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$3(Flyway.java:199)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:240)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:186)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.setup(V3AdmissionFlowPostgresTest.java:73)
+	at com.kartaguez.pocoma.V3InvitationFixture.setupInvitation(V3InvitationFixture.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.kartaguez.pocoma.V3InvitationWritePostgresTest.atomicCreationAndIdempotence -- Time elapsed: 0.738 s <<< ERROR!
+org.flywaydb.core.api.exception.FlywayValidateException: 
+Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+	at org.flywaydb.core.Flyway.lambda$migrate$3(Flyway.java:199)
+	at org.flywaydb.core.FlywayExecutor.execute(FlywayExecutor.java:240)
+	at org.flywaydb.core.Flyway.migrate(Flyway.java:186)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.setup(V3AdmissionFlowPostgresTest.java:73)
+	at com.kartaguez.pocoma.V3InvitationFixture.setupInvitation(V3InvitationFixture.java:33)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

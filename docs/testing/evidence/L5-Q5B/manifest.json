@@ -28,13 +28,27 @@
       "failed_module": "pocoma-runtime-task-consumption-worker",
       "skipped_modules": 10,
       "directory": "attempt-2-0e558347"
+    },
+    {
+      "attempt": 3,
+      "sha": "429529a6e17b0c7a7060b3ec45c7d36657b77095",
+      "date": "2026-11-05T19:40:00+01:00",
+      "verdict": "FAIL",
+      "tests_run": 1724,
+      "failures": 2,
+      "errors": 24,
+      "skipped": 0,
+      "passed_modules": 51,
+      "failed_module": "pocoma-runtime-monolith",
+      "skipped_modules": 9,
+      "directory": "attempt-3-429529a6"
     }
   ],
   "files": [
     {
       "path": "README.md",
-      "sha256": "697681d01b4eb7a73b0ad2eb36c89a8edacc45dc356dc6f0e2a6c716ecd6d512",
-      "bytes": 5813
+      "sha256": "09a3b5799127be88952688c836f818cfd9304d72a66358f402f683d571edb3c1",
+      "bytes": 10884
     },
     {
       "path": "attempt-1-ac32a7db/plan.json",
@@ -119,6 +133,111 @@
     {
       "path": "attempt-2-0e558347/timings.json",
       "sha256": "7cf2fecec2415d582f7b261fff269402123fd4f505f0b2b978457e45fbfa37b6",
+      "bytes": 617
+    },
+    {
+      "path": "attempt-3-429529a6/maven-failure.txt",
+      "sha256": "2ab08d479ca7bdb193e9784560d6da5abe8339224403216638f6685e95d64e1f",
+      "bytes": 34112
+    },
+    {
+      "path": "attempt-3-429529a6/plan.json",
+      "sha256": "7bcb35a8a8714e80b3e4c730bc4e4dead893ccc2a2f6ab06fc9ac0f3b19f7854",
+      "bytes": 205873
+    },
+    {
+      "path": "attempt-3-429529a6/provenance.json",
+      "sha256": "9356bae9d62602613e686e6dab257de9e3ffec4be3102f1966c206491f4dac73",
+      "bytes": 276431
+    },
+    {
+      "path": "attempt-3-429529a6/result.json",
+      "sha256": "bf2c1ca98665b164bf957f4d4dc08ff977f6820880a41d1856b3f49e058b16e9",
+      "bytes": 910921
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest.xml",
+      "sha256": "410967cadc7ba8ee835a1b3c30d9a3c67c7c14f455397c78b890acd52575a0bc",
+      "bytes": 95280
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.xml",
+      "sha256": "7bd4c89789118956c87bf478aa0f3e4845fe86aad8e5de9e257b963d7ae36232",
+      "bytes": 128880
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+      "sha256": "f2a7fa3ff9ba4959547e1191c3eb0812cffeb04c89a39d8ed73976b689e4422e",
+      "bytes": 109023
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+      "sha256": "72ad9422b67dc03cdbbb07e85a69936719d76f1aed3f2a44c271d23bddb596af",
+      "bytes": 79736
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.xml",
+      "sha256": "a8fdf696c020ac16dcc5540eea46b341aac7dafae68d171783f7ad1470ce5c95",
+      "bytes": 76395
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationWritePostgresTest.xml",
+      "sha256": "67928486aaf8723a01f3c7053f216ae2d059e3ba3499b6014d5063dde784408b",
+      "bytes": 107867
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3LinkBrunoPostgresTest.xml",
+      "sha256": "5dffca72bece550f9e6b3cc52d0720eac323ae775bd25c79d11c3478b5ee11a1",
+      "bytes": 65259
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/TEST-com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest.xml",
+      "sha256": "49fb421157a3560ebf145c6b3e98498471dabed1e2885c70dd2b20c667d1e665",
+      "bytes": 65029
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest.txt",
+      "sha256": "e852166d494a2edc61edf757c9712b83ad8266572b3f86f00941f33b2a855072",
+      "bytes": 1174
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.txt",
+      "sha256": "d651fe8cb662ecd2482d7b37ffa7073821128ab39ac4688ff5b4e884f5985157",
+      "bytes": 8318
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3InvitationHttpTest.txt",
+      "sha256": "4ed2443608bc5a5239cb3104786366860151cfb9166b509c78c5b81d62daf480",
+      "bytes": 7419
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3InvitationReadPostgresTest.txt",
+      "sha256": "12a1b42b99c586321cbc0737512d26b394fd007ef7c7f17e79b8cd1a85387d90",
+      "bytes": 4614
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.txt",
+      "sha256": "e6cd288623e5ce0bae56ce0dba320d30e6d17869c49edb2ab4ecc7522d02a371",
+      "bytes": 3243
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3InvitationWritePostgresTest.txt",
+      "sha256": "7269f577485bf82dacfecf81ec1c9ceb41c43605bf3cc4e95f498aaf1ce58cc8",
+      "bytes": 8861
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3LinkBrunoPostgresTest.txt",
+      "sha256": "04c67e60a0c21b94d7cba79b735a644d0838a0b4d90a3c22dfa37d7c849f9621",
+      "bytes": 1579
+    },
+    {
+      "path": "attempt-3-429529a6/surefire-reports/com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest.txt",
+      "sha256": "96bb9cb4e408901c76c4e23a6df8b3a3c590b1e9934ab5b8e7c9ca31b36a43e2",
+      "bytes": 1162
+    },
+    {
+      "path": "attempt-3-429529a6/timings.json",
+      "sha256": "5992b345f1f06e30620ef1920642f1a7e2078763e336dc9854e69f39c9e47100",
       "bytes": 617
     }
   ]

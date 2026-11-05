@@ -1,0 +1,350 @@
+2026-11-05T20:12:08.910+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.database.base.Schema   : Creating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" ...
+2026-11-05T20:12:08.911+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "i5_069ec15ca74d4cf48e7b940fcd3226a3"."flyway_schema_history" ...
+2026-11-05T20:12:08.920+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "i5_069ec15ca74d4cf48e7b940fcd3226a3": null
+2026-11-05T20:12:08.921+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "1 - consumption foundation"
+2026-11-05T20:12:08.937+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "2 - subobject version"
+2026-11-05T20:12:08.945+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "3 - pot version"
+2026-11-05T20:12:08.950+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "4 - pot balance"
+2026-11-05T20:12:08.955+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "5 - pot visibility"
+2026-11-05T20:12:08.959+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "6 - current binding"
+2026-11-05T20:12:08.963+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "7 - terminal results"
+2026-11-05T20:12:08.970+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "i5_069ec15ca74d4cf48e7b940fcd3226a3" to version "10 - current invitation"
+2026-11-05T20:12:08.975+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "i5_069ec15ca74d4cf48e7b940fcd3226a3", now at version v10 (execution time 00:00.033s)
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.5)
+
+2026-11-05T20:12:15.725+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.a.maven.surefire.booter.ForkedBooter   : Starting ForkedBooter v3.5.5 using Java 21 with PID 78212 (started by julien.guezennec in /Users/julien.guezennec/Dev/projects/pocoma/app/runtime-monolith)
+2026-11-05T20:12:15.725+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.a.maven.surefire.booter.ForkedBooter   : The following 1 profile is active: "v3-read-worker"
+2026-11-05T20:12:15.927+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-write-business - Starting...
+2026-11-05T20:12:15.930+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.pool.HikariPool        : i5-test-write-business - Added connection org.postgresql.jdbc.PgConnection@660e4fdf
+2026-11-05T20:12:15.930+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-write-business - Start completed.
+2026-11-05T20:12:16.232+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-write-control - Starting...
+2026-11-05T20:12:16.239+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.pool.HikariPool        : i5-test-write-control - Added connection org.postgresql.jdbc.PgConnection@2a66c87c
+2026-11-05T20:12:16.239+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-write-control - Start completed.
+2026-11-05T20:12:16.742+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-read-business - Starting...
+2026-11-05T20:12:16.752+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.pool.HikariPool        : i5-test-read-business - Added connection org.postgresql.jdbc.PgConnection@60d1dbee
+2026-11-05T20:12:16.753+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-read-business - Start completed.
+2026-11-05T20:12:17.075+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-read-control - Starting...
+2026-11-05T20:12:17.085+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.pool.HikariPool        : i5-test-read-control - Added connection org.postgresql.jdbc.PgConnection@3b01f94
+2026-11-05T20:12:17.085+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] com.zaxxer.hikari.HikariDataSource       : i5-test-read-control - Start completed.
+2026-11-05T20:12:17.578+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: v3-write-business]
+2026-11-05T20:12:17.607+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-05T20:12:17.608+01:00  WARN 78212 --- [pocoma-runtime-monolith] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-11-05T20:12:17.608+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [undefined/unknown]
+	Database driver: undefined/unknown
+	Database dialect: PostgreSQLDialect
+	Database version: 13.0
+	Default catalog/schema: unknown/unknown
+	Autocommit mode: undefined/unknown
+	Isolation level: <unknown>
+	JDBC fetch size: undefined/unknown
+	Pool: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-05T20:12:17.623+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-11-05T20:12:17.624+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'v3-write-business'
+2026-11-05T20:12:19.486+01:00  INFO 78212 --- [pocoma-runtime-monolith] [           main] o.a.maven.surefire.booter.ForkedBooter   : Started ForkedBooter in 3.766 seconds (process running for 504.578)
+2026-11-05T20:16:17.412+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'v3-write-business'
+2026-11-05T20:16:17.413+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-write-business - Shutdown initiated...
+2026-11-05T20:16:17.413+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-write-business - Shutdown completed.
+2026-11-05T20:16:17.413+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-read-business - Shutdown initiated...
+2026-11-05T20:16:17.413+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-read-business - Shutdown completed.
+2026-11-05T20:16:17.413+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-write-control - Shutdown initiated...
+2026-11-05T20:16:17.414+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-write-control - Shutdown completed.
+2026-11-05T20:16:17.414+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-read-control - Shutdown initiated...
+2026-11-05T20:16:17.414+01:00  INFO 78212 --- [pocoma-runtime-monolith] [3-maintenance-0] com.zaxxer.hikari.HikariDataSource       : i5-test-read-control - Shutdown completed.
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 593.0 s -- in com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   ReadRootsCoexistencePostgresTest.projectionAndMonolithSharePartitionsSafely:128 first started root owns the shared READ pairs ==> expected: <28> but was: <27>
+[ERROR]   V3MonolithHttpCompositionPostgresTest.monolithRoot:65 expected: <8> but was: <10>
+[ERROR] Errors: 
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3AdmissionFlowPostgresTest.setup:73 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationHttpTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationHttpTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationHttpTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationHttpTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationHttpTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationReadPostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationReadPostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationReadPostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationTopologyPostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationTopologyPostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationWritePostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationWritePostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationWritePostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationWritePostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationWritePostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3InvitationWritePostgresTest>V3InvitationFixture.setupInvitation:33 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[ERROR]   V3LinkBrunoPostgresTest.realKeycloakLinkProtocol:40 » FlywayValidate Validate failed: Migrations have failed validation
+Detected resolved migration not applied to database: 7.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 8.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Detected resolved migration not applied to database: 9.
+To ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.
+Need more flexibility with validation rules? Learn more: https://rd.gt/3AbJUZE
+[INFO] 
+[ERROR] Tests run: 42, Failures: 2, Errors: 24, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO] 
+[INFO] pocoma ............................................. SUCCESS [  0.013 s]
+[INFO] pocoma-domain-authorization ........................ SUCCESS [  0.580 s]
+[INFO] pocoma-domain-event ................................ SUCCESS [  0.274 s]
+[INFO] pocoma-domain-user-identity ........................ SUCCESS [  0.367 s]
+[INFO] pocoma-contracts-authentication .................... SUCCESS [  0.010 s]
+[INFO] pocoma-domain-pot .................................. SUCCESS [  1.352 s]
+[INFO] pocoma-domain-projection ........................... SUCCESS [  0.358 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  0.356 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.005 s]
+[INFO] pocoma-port-binding-authority ...................... SUCCESS [  0.007 s]
+[INFO] pocoma-engine-consumption .......................... SUCCESS [  0.406 s]
+[INFO] pocoma-contracts-command ........................... SUCCESS [  0.005 s]
+[INFO] pocoma-engine-write-pot ............................ SUCCESS [  0.519 s]
+[INFO] pocoma-engine-consume-command ...................... SUCCESS [  0.611 s]
+[INFO] pocoma-orchestrator-consumption .................... SUCCESS [  0.317 s]
+[INFO] pocoma-supra-consume-command ....................... SUCCESS [  0.337 s]
+[INFO] pocoma-engine-read-command-result .................. SUCCESS [  0.007 s]
+[INFO] pocoma-engine-materialize-command-result ........... SUCCESS [  0.323 s]
+[INFO] pocoma-supra-consume-command-result ................ SUCCESS [  0.014 s]
+[INFO] pocoma-contracts-registration ...................... SUCCESS [  0.004 s]
+[INFO] pocoma-engine-admit-registration ................... SUCCESS [  0.346 s]
+[INFO] pocoma-engine-consume-registration ................. SUCCESS [  0.335 s]
+[INFO] pocoma-supra-consume-registration .................. SUCCESS [  0.010 s]
+[INFO] pocoma-engine-read-registration-result ............. SUCCESS [  0.006 s]
+[INFO] pocoma-engine-materialize-registration-result ...... SUCCESS [  0.285 s]
+[INFO] pocoma-supra-consume-registration-result ........... SUCCESS [  0.009 s]
+[INFO] pocoma-port-projection ............................. SUCCESS [  0.007 s]
+[INFO] pocoma-engine-produce-projection-task .............. SUCCESS [  0.308 s]
+[INFO] pocoma-engine-read-projection ...................... SUCCESS [  0.298 s]
+[INFO] pocoma-projector-pot ............................... SUCCESS [  0.296 s]
+[INFO] pocoma-engine-consume-projection-task .............. SUCCESS [  0.360 s]
+[INFO] pocoma-supra-consume-projection-task ............... SUCCESS [  0.012 s]
+[INFO] pocoma-engine-read-current-binding ................. SUCCESS [  0.297 s]
+[INFO] pocoma-engine-read-pot ............................. SUCCESS [  0.366 s]
+[INFO] pocoma-engine-materialize-current-binding .......... SUCCESS [  0.008 s]
+[INFO] pocoma-engine-materialize-latest-known-version ..... SUCCESS [  0.291 s]
+[INFO] pocoma-infra-tx-spring ............................. SUCCESS [ 11.122 s]
+[INFO] pocoma-infra-persistence-projection-jdbc ........... SUCCESS [  0.386 s]
+[INFO] pocoma-infra-persistence-read-jdbc ................. SUCCESS [ 25.476 s]
+[INFO] pocoma-contracts-observability ..................... SUCCESS [  0.360 s]
+[INFO] pocoma-engine-admit-command ........................ SUCCESS [  0.390 s]
+[INFO] pocoma-supra-consume-lkv ........................... SUCCESS [  0.311 s]
+[INFO] pocoma-infra-persistence-primary-jpa ............... SUCCESS [16:31 min]
+[INFO] pocoma-infra-projection-validation-networknt ....... SUCCESS [  0.441 s]
+[INFO] pocoma-orchestrator-poll-consumption ............... SUCCESS [  0.712 s]
+[INFO] pocoma-supra-consume-event ......................... SUCCESS [  0.319 s]
+[INFO] pocoma-supra-consume-binding ....................... SUCCESS [  0.009 s]
+[INFO] pocoma-supra-http-write ............................ SUCCESS [  2.101 s]
+[INFO] pocoma-supra-http-read ............................. SUCCESS [  0.834 s]
+[INFO] pocoma-composition-runtime-spring .................. SUCCESS [  0.078 s]
+[INFO] pocoma-runtime-task-consumption-worker ............. SUCCESS [04:09 min]
+[INFO] pocoma-runtime-monolith ............................ FAILURE [12:23 min]
+[INFO] pocoma-runtime-web-api ............................. SKIPPED
+[INFO] pocoma-runtime-event-consumption-worker ............ SKIPPED
+[INFO] pocoma-runtime-command-result-consumption-worker ... SKIPPED
+[INFO] pocoma-runtime-registration-result-consumption-worker SKIPPED
+[INFO] pocoma-runtime-registration-consumption-worker ..... SKIPPED
+[INFO] pocoma-runtime-latest-known-version-consumption-worker SKIPPED
+[INFO] pocoma-runtime-binding-consumption-worker .......... SKIPPED
+[INFO] pocoma-runtime-command-consumption-worker .......... SKIPPED
+[INFO] pocoma-architecture-tests .......................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  33:56 min
+[INFO] Finished at: 2026-11-05T20:16:18+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.5:test (default-test) on project pocoma-runtime-monolith: There are test failures.
+[ERROR] 
+[ERROR] See /private/tmp/pocoma-q5b3-evidence-20261105/maven-full/reports/pocoma-runtime-monolith/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :pocoma-runtime-monolith
