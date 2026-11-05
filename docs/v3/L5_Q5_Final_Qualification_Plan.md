@@ -183,29 +183,55 @@ Les preuves de B2, B3 et B4 **sont acquises dès la Phase 1**, sous réserve de 
 | **B3 (Link)** | 10 (B301–B313) | Full Maven (`V3LinkBrunoPostgresTest`) | Keycloak 8081 actif, méthode PASS, 10 scénarios, SQL conformes | **Aucun (réutilisation)** ; rejeu ciblé uniquement si artefact manquant |
 | **B4 (Invitations)** | 4 (B401–B404) | Full Maven (`V3InvitationHttpTest`) | Méthode PASS, 4 scénarios dans `requests.jsonl`, lifecycle conforme | **Aucun (réutilisation)** ; rejeu ciblé uniquement si artefact manquant |
 
-### 6.3 Procédure directement exécutable pour le complément B1
+### 6.3 Procédure directement exécutable pour le complément B1 (AUD-Q5A-06)
 
 Le corpus B1 (32 scénarios de consultation READ) repose sur le jeu de données synthétique injecté par `V3ReadHttpFixture` (Pots `...0300`, `...0301`, soldes, navigation de 205 items).
 Sa méthode `main` est conçue pour être invoquée de manière autonome.
+
+#### Gestion stricte de la racine des preuves
+Un répertoire racine unique de qualification doit être alloué pour l'ensemble de la mission (noté `<EVIDENCE_ROOT>`, par exemple `/tmp/pocoma-q5b-evidence/`).
+Tous les chemins de sortie en découlent sans mélange de chemins fixes et horodatés :
+- Campagne Maven full : `<EVIDENCE_ROOT>/maven-full/`
+- Corpus B2 : `<EVIDENCE_ROOT>/maven-full/bruno-b2/`
+- Corpus B3 : `<EVIDENCE_ROOT>/maven-full/bruno-i3/`
+- Corpus B4 : `<EVIDENCE_ROOT>/maven-full/bruno-b4/`
+- Corpus B1 autonome : `<EVIDENCE_ROOT>/bruno-b1/`
+- Manifeste consolidé B5 : `<EVIDENCE_ROOT>/bruno-b5-consolidated.json`
 
 #### Dépendance de classpath et enchaînement
 Lors de la Phase 1, l'exécution du test `V3ReadHttpContractTest` sous Maven écrit automatiquement le classpath de test complet dans le fichier :
 `app/runtime-web-api/target/i1-classpath.txt`
 *(Ligne 31 de `V3ReadHttpContractTest.java` : `@BeforeAll static void retainClasspath()`).*
 
-#### Commande canonique candidate pour B1
-Depuis la racine du dépôt :
+#### Commande canonique pour B1
+La commande doit transmettre le classpath Surefire sous la forme d'un argument unique entre guillemets doubles :
 ```sh
 java -Xmx512m \
-  -cp $(cat app/runtime-web-api/target/i1-classpath.txt) \
+  -cp "$(cat app/runtime-web-api/target/i1-classpath.txt)" \
   com.kartaguez.pocoma.V3ReadHttpFixture \
-  $(pwd) \
-  /tmp/pocoma-q5b-evidence/bruno-b1
+  "$(pwd)" \
+  "<EVIDENCE_ROOT>/bruno-b1"
 ```
 
-*(Si pour une raison exceptionnelle `i1-classpath.txt` était absent à l'issue de Phase 1, la commande de génération de secours est : `./mvnw -pl runtime-web-api dependency:build-classpath -Dmdep.outputFile=target/i1-classpath.txt`).*
+#### Règle en cas d'absence de classpath
+Aucune procédure de secours non équivalente (telle que `dependency:build-classpath`) n'est autorisée.
+Si `i1-classpath.txt` venait à manquer à l'issue du full Maven :
+1. Classer immédiatement le complément B1 comme non prêt (`NOT READY`).
+2. Diagnostiquer la cause exacte de l'absence.
+3. Ne pas relancer une campagne globale Maven de façon automatique.
+4. Ne pas substituer un classpath partiel ou incomplet.
+5. Conserver l'ensemble des preuves déjà acquises et décider d'une éventuelle reprise ciblée.
 
-#### Déroulement et oracles de B1
+#### Artefacts réels et oracles de B1
+Les fichiers réellement produits et requis pour B1 sont strictement :
+- `bruno.json` (rapport d'exécution au format JSON)
+- `bruno.log` (traces d'exécution de Bruno CLI)
+- `requests.jsonl` (32 reçus de requêtes pour les scénarios B01 à B32)
+- `receipt.json` (métadonnées d'exécution, statut du signal B30 et exitCode)
+
+*(Aucun fichier `results.json` n'est attendu de la fixture).*
+
+Déroulement vérifié :
 1. `V3ReadHttpFixture` démarre un conteneur PostgreSQL 17 jetable et une instance `PocomaWebApiApplication`.
 2. Elle peuple les tables `read_pot`, `read_command_result`, `read_identity_request_result` et `read_user_pot`.
 3. Elle lance un thread virtuel d'écoute sur le signal de publication B30 (`POCOMA_I1_PUBLISH_SIGNAL`).
@@ -213,16 +239,26 @@ java -Xmx512m \
 5. Elle vérifie l'exit code 0, les 32 scénarios dans `requests.jsonl`, l'absence de fuite de tokens, et écrit `receipt.json`.
 6. Elle arrête le serveur et détruit le conteneur.
 
-### 6.4 Procédure de consolidation unifiée B5
+### 6.4 Procédure de consolidation unifiée B5 (AUD-Q5A-05)
 
-Une fois le complément B1 exécuté et les artefacts B2, B3, B4 contrôlés dans le dossier de preuves Maven, la consolidation B5 est réalisée par un script Python d'agrégation :
+Une fois le complément B1 exécuté et les artefacts B2, B3, B4 contrôlés dans le dossier de preuves Maven, la consolidation B5 est réalisée par l'outil dédié minimal `scripts/testing/consolidate_bruno_b5.py` :
 
-```python
-# scripts/testing/consolidate_bruno_b5.py
-# Vérifie la présence de bruno-b1, bruno-b2, bruno-i3, bruno-b4
-# Agrège les 70 scénarios attendus, vérifie zéro skip, zéro failure
-# Génère /tmp/pocoma-q5b-evidence/bruno-b5-consolidated.json
+```sh
+python3 -B scripts/testing/consolidate_bruno_b5.py \
+  --evidence-root "<EVIDENCE_ROOT>" \
+  --sha "<SHA_QUALIFIE>" \
+  --output "<EVIDENCE_ROOT>/bruno-b5-consolidated.json"
 ```
+
+Le script fonctionne exclusivement avec la bibliothèque standard Python et remplit les obligations suivantes :
+1. Vérification de la présence effective des 4 répertoires et de leurs artefacts obligatoires (`requests.jsonl`, `receipt.json`, `bruno.json`, `bruno.log`).
+2. Réconciliation stricte avec l'inventaire exact des 70 scénarios attendus (B01–B32, B201–B224, B301–B313, B401–B404).
+3. Rejet formel des doublons, omissions et scénarios inattendus.
+4. Contrôle de zéro failure, zéro error, zéro skip dans les rapports Bruno et reçus.
+5. Contrôle des oracles spécifiques (handshake B30, SQL B2 et B3, absence de fuite dans B4).
+6. Calcul et archivage des empreintes SHA-256 de chaque artefact source.
+7. Contrôle strict de non-prolifération des secrets : aucun token n'est copié dans le manifeste.
+8. Préservation des métadonnées d'infrastructure (bancs et fournisseurs d'identité réels vs locaux).
 
 ### 6.5 Critères normatifs d'acceptation B5
 Le verdict de la qualification B5 est strictement conditionné :
@@ -305,12 +341,12 @@ flowchart TD
    docker compose -p pocoma-functional -f docker-compose.functional.yml up -d postgres keycloak
    ```
 3. Contrôle de santé : Attente de l'état `healthy` sur PostgreSQL (port 5432) et Keycloak (port 8081).
-4. Allocation du dossier de preuves : `/tmp/pocoma-q5b-evidence-<timestamp>/`.
+4. Allocation du dossier unique de preuves : `<EVIDENCE_ROOT>` (ex: `/tmp/pocoma-q5b-evidence/`).
 
 ### Phase 1 — Qualification Maven Unique (Full Natif)
 - **Commande canonique :**
   ```sh
-  python3 -B scripts/testing/verify.py CERTIFICATION --output /tmp/pocoma-q5b-evidence/maven-full/
+  python3 -B scripts/testing/verify.py CERTIFICATION --output "<EVIDENCE_ROOT>/maven-full"
   ```
 - **Couverture dynamique constatée :**
   - Les 60 modules du réacteur sont compilés et testés.
@@ -320,21 +356,28 @@ flowchart TD
 
 ### Phase 2 — Traitement Bruno B5 & Complément autonome B1
 1. **Vérification des preuves B2, B3, B4 produites en Phase 1 :**
-   - Contrôle d'existence et d'intégrité de `/tmp/pocoma-q5b-evidence/maven-full/bruno-b2/receipt.json` (24 scénarios).
-   - Contrôle de `/tmp/pocoma-q5b-evidence/maven-full/bruno-i3/receipt.json` (10 scénarios sous Keycloak réel).
-   - Contrôle de `/tmp/pocoma-q5b-evidence/maven-full/bruno-b4/receipt.json` (4 scénarios).
+   - Contrôle d'existence et d'intégrité de `<EVIDENCE_ROOT>/maven-full/bruno-b2/receipt.json` (24 scénarios).
+   - Contrôle de `<EVIDENCE_ROOT>/maven-full/bruno-i3/receipt.json` (10 scénarios sous Keycloak réel).
+   - Contrôle de `<EVIDENCE_ROOT>/maven-full/bruno-b4/receipt.json` (4 scénarios).
 2. **Exécution du complément autonome B1 :**
    ```sh
    java -Xmx512m \
-     -cp $(cat app/runtime-web-api/target/i1-classpath.txt) \
+     -cp "$(cat app/runtime-web-api/target/i1-classpath.txt)" \
      com.kartaguez.pocoma.V3ReadHttpFixture \
-     $(pwd) \
-     /tmp/pocoma-q5b-evidence/bruno-b1
+     "$(pwd)" \
+     "<EVIDENCE_ROOT>/bruno-b1"
    ```
 3. **Consolidation unifiée B5 :**
-   - Agrégation des 4 sous-campagnes (32 + 24 + 10 + 4 = 70 scénarios).
-   - Production du reçu consolidé `/tmp/pocoma-q5b-evidence/bruno-b5-consolidated.json`.
-   - Contrôle anti-fuite de secrets dans les fichiers d'export Bruno.
+   ```sh
+   python3 -B scripts/testing/consolidate_bruno_b5.py \
+     --evidence-root "<EVIDENCE_ROOT>" \
+     --sha "<SHA_QUALIFIE>" \
+     --output "<EVIDENCE_ROOT>/bruno-b5-consolidated.json"
+   ```
+   - Réconciliation stricte des 70 scénarios (32 + 24 + 10 + 4).
+   - Contrôle d'absence de doublons, omissions et surprises.
+   - Contrôle zéro skip, zéro failure, zéro fuite de secret.
+   - Émission du verdict normatif (`B5 COMPOSITE PASS`).
 
 ### Phase 3 — Contrôle des compléments éventuels
 - Vérification statique des règles d'isolation des POMs et des scripts SQL de migration (V1–V10).

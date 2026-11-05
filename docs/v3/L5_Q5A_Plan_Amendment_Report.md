@@ -19,7 +19,7 @@ L'audit indépendant a confirmé la robustesse de l'approche composite en quatre
 
 ---
 
-## 2. Traitement des observations initiales d'audit (AUD-Q5A-01 à 04)
+## 2. Traitement des observations d'audit (AUD-Q5A-01 à 06)
 
 1. **AUD-Q5A-01 (BLOCKER — Exécutabilité réelle de Bruno B5) :**
    - Établissement de l'incompatibilité absolue d'une instance unique intégrée (conflits dans `collection.bru`, divergence des états de base de données entre B1 lecture seule et B2/B3/B4 transactionnelles, et divergence d'authentification entre clés locales et Keycloak OIDC réel).
@@ -31,6 +31,14 @@ L'audit indépendant a confirmé la robustesse de l'approche composite en quatre
    - Matrice exhaustive des 8 recommandations post-L4 justifiant leur renvoi à Q5-C / L6 / L7 sans risque pour Q5-B.
 4. **AUD-Q5A-04 (MINOR — Statut non fonctionnel des budgets) :**
    - Dissociation formelle entre critères d'acceptation fonctionnelle (oracles satisfaits, 0 échec) et repères budgétaires d'organisation (durées prévisionnelles et seuils de diagnostic d'incident).
+5. **AUD-Q5A-05 (MAJOR — Implémentation du consolidateur minimal B5 sans framework externe) :**
+   - Fourniture de `scripts/testing/consolidate_bruno_b5.py` utilisant strictement la bibliothèque standard Python.
+   - Réconciliation nominative des 70 scénarios, contrôle de zéro failure/skip, exclusion absolue de copies de secrets, calcul des empreintes SHA-256 et distinction explicite de qualification composite.
+6. **AUD-Q5A-06 (MAJOR — Fiabilisation de la procédure B1 et gestion stricte des chemins) :**
+   - Transmission du classpath Surefire comme un argument unique entre guillemets doubles.
+   - Suppression formelle de toute procédure de secours dégradée (`dependency:build-classpath`) ; échec franc si `i1-classpath.txt` manque.
+   - Alignement strict sur les artefacts réellement produits (`bruno.json`, `bruno.log`, `requests.jsonl`, `receipt.json`).
+   - Dérivation de tous les chemins sous un répertoire racine unique `<EVIDENCE_ROOT>`.
 
 ---
 
@@ -67,17 +75,29 @@ L'analyse approfondie du code source dans `app/runtime-monolith/src/test/java/` 
 | **B3** | 10 (B301–B313) | Full Maven (`V3LinkBrunoPostgresTest`) | Keycloak 8081 actif, méthode PASS, 10 scénarios, SQL conformes | **Aucun (réutilisation)** ; complément ciblé uniquement si preuve manquante |
 | **B4** | 4 (B401–B404) | Full Maven (`V3InvitationHttpTest`) | Méthode exécutée PASS, 4 scénarios, reçus et oracles conformes | **Aucun (réutilisation)** ; complément ciblé uniquement si preuve manquante |
 
-### 3.3 Procédure directement exécutable pour le complément B1
+### 3.3 Procédure directement exécutable pour le complément B1 (AUD-Q5A-06)
 1. **Origine du classpath :** Lors de la Phase 1, `V3ReadHttpContractTest` écrit automatiquement le classpath de test complet dans `app/runtime-web-api/target/i1-classpath.txt` (`@BeforeAll static void retainClasspath()`).
-2. **Commande candidate B1 :**
+2. **Commande canonique B1 :**
    ```sh
    java -Xmx512m \
-     -cp $(cat app/runtime-web-api/target/i1-classpath.txt) \
+     -cp "$(cat app/runtime-web-api/target/i1-classpath.txt)" \
      com.kartaguez.pocoma.V3ReadHttpFixture \
-     $(pwd) \
-     /tmp/pocoma-q5b-evidence/bruno-b1
+     "$(pwd)" \
+     "<EVIDENCE_ROOT>/bruno-b1"
    ```
-3. **Oracles :** `V3ReadHttpFixture` démarre son PostgreSQL 17 jetable, peuple le corpus synthétique READ, gère le handshake virtuel B30 (`POCOMA_I1_PUBLISH_SIGNAL`), exécute les 32 scénarios, valide l'absence de fuite de secrets et écrit `receipt.json`.
+3. **Absence de classpath :** Si `i1-classpath.txt` est absent, le complément est classé `NOT READY` et aucun rejeu Maven automatique ou classpath incomplet n'est autorisé.
+4. **Oracles :** `V3ReadHttpFixture` démarre son PostgreSQL 17 jetable, peuple le corpus synthétique READ, gère le handshake virtuel B30 (`POCOMA_I1_PUBLISH_SIGNAL`), exécute les 32 scénarios, valide l'absence de fuite de secrets et écrit `receipt.json`.
+5. **Artefacts B1 :** `bruno.json`, `bruno.log`, `requests.jsonl`, `receipt.json`.
+
+### 3.4 Consolidation B5 et manifeste (AUD-Q5A-05)
+Une fois B1 achevé et B2, B3, B4 contrôlés, le consolidateur minimal est invoqué :
+```sh
+python3 -B scripts/testing/consolidate_bruno_b5.py \
+  --evidence-root "<EVIDENCE_ROOT>" \
+  --sha "<SHA_QUALIFIE>" \
+  --output "<EVIDENCE_ROOT>/bruno-b5-consolidated.json"
+```
+Il vérifie l'intégrité des 70 scénarios, l'absence d'erreurs/skips, l'absence de fuite de secret, et produit le verdict `B5 COMPOSITE PASS`.
 
 ---
 
