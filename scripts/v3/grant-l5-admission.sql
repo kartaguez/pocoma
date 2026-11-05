@@ -1,5 +1,5 @@
 \set ON_ERROR_STOP on
--- Apply as trusted schema administrator AFTER V7. Dedicated LOGIN, no memberships.
+-- Apply as trusted schema administrator AFTER V8. Dedicated LOGIN, no memberships.
 -- Required variables: expected_database, expected_schema, expected_admin, admission_role.
 begin;
 select set_config('pocoma.admission_database', :'expected_database', true);
@@ -25,12 +25,26 @@ begin
  end loop;
  execute format('revoke all on all tables in schema %I from %I',current_schema(),r);
  execute format('revoke all on all sequences in schema %I from %I',current_schema(),r);
+ -- Remove former direct column grants as well, so reapplying the script converges.
+ for item in select format('%I.%I',n.nspname,c.relname) from pg_class c
+     join pg_namespace n on n.oid=c.relnamespace where n.nspname=current_schema() and c.relkind in ('r','p') loop
+   execute (select format('revoke select(%s),insert(%s),update(%s),references(%s) on %s from %I',
+       cols,cols,cols,cols,item,r) from
+       (select string_agg(quote_ident(attname),',') cols from pg_attribute
+        where attrelid=item::regclass and attnum>0 and not attisdropped) a);
+ end loop;
  execute format('grant usage on schema %I to %I',current_schema(),r);
- execute format('grant select,insert on v3_admission_association to %I',r);
- execute format('grant select,insert(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) on v3_command to %I',r);
- execute format('grant select,insert(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at) on v3_identity_request to %I',r);
- -- SECURITY INVOKER deferred PENDING checks, never business-authority reads by the service.
- execute format('grant select on v3_command_result,v3_identity_request_result,v3_identity_event,v3_identity_completion_event,v3_event_position,consumption_slot to %I',r);
+ -- Application reads only the association; request reads belong to invoker constraints.
+ execute format('grant select(request_id,category,operation,canonical_version,lookup_key_id,comparison_key_id,scope_key_fingerprint,intent_fingerprint,created_at),insert on v3_admission_association to %I',r);
+ execute format('grant select(request_id,status,pot_id),insert(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) on v3_command to %I',r);
+ execute format('grant select(request_id,status,operation,target_issuer,target_subject),insert(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at) on v3_identity_request to %I',r);
+ -- Exact prefix reads for deferred PENDING checks; no business-authority reads by the service.
+ execute format('grant select(request_id,outcome,resulting_pot_version) on v3_command_result to %I',r);
+ execute format('grant select(request_id,outcome,target_eui_id,target_version) on v3_identity_request_result to %I',r);
+ execute format('grant select(request_id) on v3_identity_event to %I',r);
+ execute format('grant select(event_id,subject_type,subject_id) on v3_identity_completion_event to %I',r);
+ execute format('grant select(event_id) on v3_event_position to %I',r);
+ execute format('grant select(consumption_id,consumable_id) on consumption_slot to %I',r);
  execute format('grant select(created_request_id) on v3_pocoma_user to %I',r);
  execute format('grant select(request_id) on v3_eui_version to %I',r);
 end $$;

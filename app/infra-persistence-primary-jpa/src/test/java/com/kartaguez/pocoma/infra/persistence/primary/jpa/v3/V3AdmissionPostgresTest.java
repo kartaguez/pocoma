@@ -825,6 +825,230 @@ class V3AdmissionPostgresTest {
     }
 
     @Test
+    void sensitiveRequestReadsDeniedAndPendingAdmissionsCommit() throws Exception {
+        service().admit(principal("subject"), "command", input("subject", "private label"));
+        var identity =
+                new AdmitIdentityRequestV3(store, owner, protection, Clock.systemUTC(), 4096);
+        for (var raw :
+                List.of(
+                        Map.of("operation", "Registration"),
+                        Map.of(
+                                "operation",
+                                "Unlink",
+                                "bindingToken",
+                                "private-token",
+                                "target",
+                                Map.of("issuer", "issuer", "subject", "target")))) {
+            var decoded = IdentityAdmissionInput.decode(raw, principal("subject").identity());
+            var id = identity.admit(principal("subject"), decoded.operation(), decoded);
+            assertEquals(id, identity.admit(principal("subject"), decoded.operation(), decoded));
+        }
+        assertEquals(1, count("v3_command"));
+        assertEquals(2, count("v3_identity_request"));
+        assertEquals(3, count("v3_admission_association"));
+        assertEquals(0, count("v3_command_result"));
+        assertEquals(0, count("v3_identity_request_result"));
+        for (String query :
+                List.of(
+                        "select binding_token from v3_command",
+                        "select payload from v3_command",
+                        "select requester_subject from v3_command",
+                        "select * from v3_command",
+                        "select binding_token from v3_identity_request",
+                        "select admission_context from v3_identity_request",
+                        "select requester_subject from v3_identity_request",
+                        "select * from v3_identity_request")) {
+            try (var c = source.getConnection()) {
+                assertEquals(
+                        "42501",
+                        assertThrows(
+                                        SQLException.class,
+                                        () -> c.createStatement().executeQuery(query))
+                                .getSQLState());
+            }
+        }
+        // Column grants survive a table REVOKE. Reapplying provisioning must remove them too.
+        observer.execute("grant select(binding_token) on v3_command to " + role);
+        assertThrows(
+                IllegalStateException.class,
+                () -> AdmissionSqlAuthority.verify(source, PG.getDatabaseName(), schema, role));
+        script("grant-l5-admission.sql");
+        AdmissionSqlAuthority.verify(source, PG.getDatabaseName(), schema, role);
+        try (var c = source.getConnection()) {
+            assertEquals(
+                    "42501",
+                    assertThrows(
+                                    SQLException.class,
+                                    () ->
+                                            c.createStatement()
+                                                    .executeQuery(
+                                                            "select binding_token from v3_command"))
+                            .getSQLState());
+        }
+        evidence(
+                "column-authority",
+                Map.of(
+                        "commandPending",
+                        1,
+                        "identityPending",
+                        2,
+                        "associations",
+                        3,
+                        "deniedQueries",
+                        8,
+                        "deniedSqlState",
+                        "42501",
+                        "provisioningReapplied",
+                        true));
+    }
+
+    @Test
+    void identityInsertFailureRollsBackAssociation() {
+        var failing =
+                new AdmitIdentityRequestV3.Store() {
+                    public Optional<AdmissionAssociation> find(byte[] scope) {
+                        return store.find(scope);
+                    }
+
+                    public boolean reserve(AdmissionAssociation a) {
+                        return store.reserve(a);
+                    }
+
+                    public void insert(
+                            com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest r) {
+                        store.insert(r);
+                        assertEquals(0, count("v3_identity_request"));
+                        assertEquals(0, count("v3_admission_association"));
+                        throw new IllegalStateException("after Identity insertion, before commit");
+                    }
+                };
+        var service =
+                new AdmitIdentityRequestV3(failing, owner, protection, Clock.systemUTC(), 4096);
+        assertEquals(
+                503,
+                assertThrows(
+                                AdmissionFailure.class,
+                                () ->
+                                        service.admit(
+                                                principal("subject"),
+                                                "identity",
+                                                IdentityAdmissionInput.decode(
+                                                        Map.of("operation", "Registration"),
+                                                        principal("subject").identity())))
+                        .status());
+        assertEquals(0, count("v3_identity_request"));
+        assertEquals(0, count("v3_admission_association"));
+    }
+
+    @Test
+    void deferredPendingChecksStillRejectEffects() throws Exception {
+        var commandId = service().admit(principal("subject"), "command", input("subject", "A"));
+        var identityId =
+                new AdmitIdentityRequestV3(store, owner, protection, Clock.systemUTC(), 4096)
+                        .admit(
+                                principal("subject"),
+                                "identity",
+                                IdentityAdmissionInput.decode(
+                                        Map.of("operation", "Registration"),
+                                        principal("subject").identity()));
+        for (var entry :
+                Map.of(
+                                "insert into v3_command_result(request_id,outcome,rejection) values"
+                                    + " ('"
+                                                + commandId
+                                                + "','REJECTED','INVALID_BINDING')",
+                                        "Pending Command has result",
+                                "insert into"
+                                    + " v3_identity_request_result(request_id,outcome,rejection)"
+                                    + " values ('"
+                                                + identityId
+                                                + "','REJECTED','INVALID_BINDING')",
+                                        "Pending Identity has effects",
+                                "insert into v3_pocoma_user(user_id,created_request_id) values"
+                                    + " (gen_random_uuid(),'"
+                                                + identityId
+                                                + "')",
+                                        "Pending Identity has effects")
+                        .entrySet()) {
+            // Trusted corruption injection is uncommitted; the actual deferred check runs as
+            // admission.
+            try (var c = observer.getDataSource().getConnection()) {
+                c.setAutoCommit(false);
+                try {
+                    c.createStatement().execute(entry.getKey());
+                    assertEquals(0, count("v3_command_result"));
+                    assertEquals(0, count("v3_identity_request_result"));
+                    assertEquals(0, count("v3_pocoma_user"));
+                    c.createStatement().execute("set local role " + role);
+                    var failure =
+                            assertThrows(
+                                    SQLException.class,
+                                    () ->
+                                            c.createStatement()
+                                                    .execute("set constraints all immediate"));
+                    assertEquals("23514", failure.getSQLState());
+                    assertTrue(failure.getMessage().contains(entry.getValue()));
+                } finally {
+                    c.rollback();
+                }
+            }
+        }
+        assertEquals(0, count("v3_command_result"));
+        assertEquals(0, count("v3_identity_request_result"));
+        assertEquals(0, count("v3_pocoma_user"));
+        assertEquals(2, count("v3_admission_association"));
+        evidence(
+                "deferred-integrity",
+                Map.of(
+                        "rejectedEffects",
+                        3,
+                        "sqlState",
+                        "23514",
+                        "observerSawUncommittedEffects",
+                        false,
+                        "durableEffects",
+                        0));
+    }
+
+    @Test
+    void narrowedFunctionsPreserveInheritedIntegrityPredicates() throws Exception {
+        // Compare deployed bodies to the inherited source, permitting only reviewed SELECT
+        // projections.
+        var resources = Path.of("src/main/resources/db");
+        var command =
+                Files.readString(
+                        resources.resolve(
+                                "v3-consumption-write/migration/V5__consumption_foundation.sql"));
+        var identity =
+                Files.readString(
+                        resources.resolve(
+                                "v3-identity/migration/V6__identity_authority_and_requests.sql"));
+        for (var entry :
+                Map.of("v3_require_command_unit", command, "v3_identity_check_unit", identity)
+                        .entrySet()) {
+            var inherited = entry.getValue();
+            int start = inherited.indexOf("function " + entry.getKey() + "(");
+            start = inherited.indexOf("$$", start) + 2;
+            int end = inherited.indexOf("$$;", start);
+            inherited = inherited.substring(start, end);
+            var actual =
+                    observer.queryForObject(
+                            "select prosrc from pg_proc where oid=?::regproc",
+                            String.class,
+                            entry.getKey());
+            // The 5 projections are the sole executable delta. Conditions/order/locks stay
+            // byte-equivalent.
+            String projection =
+                    "select [^;]+ into [^;]+ from"
+                        + " (v3_command|v3_command_result|v3_identity_request|v3_identity_request_result|v3_identity_completion_event)"
+                        + " where ([^;]+);";
+            inherited = inherited.replaceAll(projection, "select PROJECTION from $1 where $2;");
+            actual = actual.replaceAll(projection, "select PROJECTION from $1 where $2;");
+            assertEquals(inherited, actual, entry.getKey());
+        }
+    }
+
+    @Test
     void restoreAndOldKeyCompatibility() {
         var i = input("subject", "historical long label");
         var a = association("restored", i);

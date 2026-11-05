@@ -10,17 +10,43 @@ import javax.sql.DataSource;
 public final class AdmissionSqlAuthority {
     private AdmissionSqlAuthority() {}
 
-    private static final Set<String> SELECT =
-            Set.of(
-                    "v3_admission_association",
-                    "v3_command",
-                    "v3_identity_request",
-                    "v3_command_result",
-                    "v3_identity_request_result",
-                    "v3_identity_event",
-                    "v3_identity_completion_event",
-                    "v3_event_position",
-                    "consumption_slot");
+    private static final Map<String, Set<String>> SELECT =
+            Map.ofEntries(
+                    Map.entry(
+                            "v3_admission_association",
+                            Set.of(
+                                    "request_id",
+                                    "category",
+                                    "operation",
+                                    "canonical_version",
+                                    "lookup_key_id",
+                                    "comparison_key_id",
+                                    "scope_key_fingerprint",
+                                    "intent_fingerprint",
+                                    "created_at")),
+                    Map.entry("v3_command", Set.of("request_id", "status", "pot_id")),
+                    Map.entry(
+                            "v3_identity_request",
+                            Set.of(
+                                    "request_id",
+                                    "status",
+                                    "operation",
+                                    "target_issuer",
+                                    "target_subject")),
+                    Map.entry(
+                            "v3_command_result",
+                            Set.of("request_id", "outcome", "resulting_pot_version")),
+                    Map.entry(
+                            "v3_identity_request_result",
+                            Set.of("request_id", "outcome", "target_eui_id", "target_version")),
+                    Map.entry("v3_identity_event", Set.of("request_id")),
+                    Map.entry(
+                            "v3_identity_completion_event",
+                            Set.of("event_id", "subject_type", "subject_id")),
+                    Map.entry("v3_event_position", Set.of("event_id")),
+                    Map.entry("consumption_slot", Set.of("consumption_id", "consumable_id")),
+                    Map.entry("v3_pocoma_user", Set.of("created_request_id")),
+                    Map.entry("v3_eui_version", Set.of("request_id")));
     private static final Map<String, Set<String>> INSERT =
             Map.of(
                     "v3_admission_association",
@@ -150,19 +176,13 @@ where n.nspname not like 'pg_%' and n.nspname<>'information_schema'
                             && !Boolean.TRUE.equals(r.get("forbidden"))
                             && !Boolean.TRUE.equals(r.get("can_mutate")));
             if (local) present.add(table);
-            boolean select =
-                    local
-                            && (SELECT.contains(table)
-                                    || (table.equals("v3_pocoma_user")
-                                            && column.equals("created_request_id"))
-                                    || (table.equals("v3_eui_version")
-                                            && column.equals("request_id")));
+            boolean select = local && SELECT.getOrDefault(table, Set.of()).contains(column);
             boolean insert = local && INSERT.getOrDefault(table, Set.of()).contains(column);
             require(
                     Boolean.TRUE.equals(r.get("can_select")) == select
                             && Boolean.TRUE.equals(r.get("can_insert")) == insert);
         }
-        require(present.containsAll(SELECT) && present.containsAll(INSERT.keySet()));
+        require(present.containsAll(SELECT.keySet()) && present.containsAll(INSERT.keySet()));
     }
 
     private static void require(boolean value) {
