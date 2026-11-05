@@ -1,11 +1,12 @@
-# Pocoma V3 — L5/Q5 — Plan de qualification finale du lot L5
+# Pocoma V3 — L5/Q5 — Plan de qualification finale du lot L5 (Version amendée)
 
-Date : **5 novembre 2026**  
-Dépôt : **`kartaguez/pocoma`**  
-Branche : **`feat/v3-architecture`**  
-Statut du plan : **SOUMIS À DÉCISION HUMAINE — Q5-A TERMINÉ — Q5-B EN ATTENTE DE GO**  
-Référence Git d'entrée : **`df7a03aedf53ac663de8c65e7c6112e960430b2e`** (`df7a03ae`)  
+Date : **5 novembre 2026**
+Dépôt : **`kartaguez/pocoma`**
+Branche : **`feat/v3-architecture`**
+Statut du plan : **PLAN AMENDÉ SOUMIS À DÉCISION HUMAINE — Q5-A TERMINÉ — Q5-B EN ATTENTE DE GO**
+Référence Git d'entrée : **`a4a92cee482058bdd8e07d551f0346a3c2c2bf16`** (`a4a92cee`)
 Dernier commit productif/test modifié : **`2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2`** (`2b1271d0`)
+Rapport d'amendement associé : [docs/v3/L5_Q5A_Plan_Amendment_Report.md](L5_Q5A_Plan_Amendment_Report.md)
 
 ---
 
@@ -21,20 +22,17 @@ Le lot L5 ("Supras et parcours externes V3") a complété ses quatre incréments
 Le lot **L5 reste formellement OPEN**. Les gates canoniques non filtrées, la gate Architecture globale et la certification d'ensemble ont été explicitement différées à la phase de qualification finale **Q5**.
 
 La gouvernance humaine a découpé la fin de vie du lot L5 en quatre étapes séquentielles strictes :
-1. **Q5-A** : Préparation du plan de qualification finale (la présente mission).
+1. **Q5-A** : Préparation et amendement du plan de qualification finale (la présente mission).
 2. **Q5-B** : Exécution des qualifications après approbation humaine explicite (**STRICTEMENT NO GO** en Q5-A).
 3. **Q5-C** : Audit indépendant de qualité, simplicité, complexité, performances et exhaustivité fonctionnelle.
 4. **Q5-D** : Décision humaine définitive de clôture du lot L5.
 
-### 1.2 Objectif de Q5-A
-Établir un plan de qualification finale de L5 directement exécutable en Q5-B après approbation humaine, respectant simultanément :
-1. La rigueur sur les invariants, les contrats et les spécifications normatives (SPEC-01 à SPEC-10).
-2. L'exhaustivité des obligations applicables à L5.
-3. L'économie des exécutions redondantes conformément à la décision **D6** et au §34 de la *Reactor Verification Policy*.
-4. L'attribution stricte des preuves à des sources et SHAs précis.
-5. Le réalisme budgétaire (70–90 min full natif, 100 min point de décision ; 15–25 min Bruno B5, 40 min plafond).
-6. La distinction nette entre défauts productifs, défauts d'oracles/tests et limites d'environnement.
-7. La compatibilité avec les décisions humaines ratifiées (D1 à D7, H1 à H5, clôtures I1–I4).
+### 1.2 Objectif de Q5-A et prise en compte de l'audit indépendant
+Le présent plan amendé intègre les corrections issues de l'audit indépendant post-Q5-A :
+- **AUD-Q5A-01 (BLOCKER) :** Refonte de la procédure Bruno B5 en une suite composite orchestrée en 4 volets séquentiels, démontrant l'exécutabilité effective des 70 scénarios sur leurs bancs respectifs.
+- **AUD-Q5A-02 (MAJOR) :** Nuance de la couverture du full reactor, distinguant sélection statique des 60 modules et contrôles dynamiques d'exécution post-run.
+- **AUD-Q5A-03 (MAJOR) :** Traçabilité formelle des 8 recommandations issues de l'audit qualité post-L4 et distinction des identifiants normatifs.
+- **AUD-Q5A-04 (MINOR) :** Dissociation stricte entre indicateurs budgétaires de suivi et critères de succès fonctionnel.
 
 ---
 
@@ -42,26 +40,23 @@ La gouvernance humaine a découpé la fin de vie du lot L5 en quatre étapes sé
 
 ### 2.1 État du dépôt à l'entrée de Q5-A
 - **Branche courante :** `feat/v3-architecture`
-- **HEAD local :** `df7a03aedf53ac663de8c65e7c6112e960430b2e` (`df7a03ae`)
-- **HEAD distant (`origin/feat/v3-architecture`) :** `df7a03aedf53ac663de8c65e7c6112e960430b2e`
+- **HEAD de départ de l'amendement :** `a4a92cee482058bdd8e07d551f0346a3c2c2bf16` (`a4a92cee`)
+- **HEAD distant (`origin/feat/v3-architecture`) :** Identique à l'entrée.
 - **Divergence Git :** `0` commit en avance, `0` commit en retard (`up to date`).
 - **État du worktree :** Strictement propre (`working tree clean`).
 
 ### 2.2 Analyse des derniers commits et distinction des SHAs
 L'historique récent depuis la finalisation du code I4 montre :
 1. `d722e9d5` — *feat(v3): finalize invitation and voluntary departure verification (L5/I4)* : introduction du code et des tests I4 initiaux.
-2. `2b1271d0` — *fix(v3): resolve audit observations AUD-I4-01..03 and align invitation routes (L5/I4)* : **dernier commit touchant au code productif et aux tests applicatifs** (rectification des routes `/by-creation-request/{requestId}` et `/available-shareholders/query`, fiabilisation du test d'expiration, alignement des helpers Bruno et assertions).
-3. `a087dd8b` — *docs(v3): add L5/I4 post-audit targeted corrections report* (documentaire seul).
-4. `17129919` — *docs(v3): finalize L5 I4 evidence provenance and SQL audit references* (documentaire et manifestes).
-5. `df7a03ae` — *docs(v3): close L5 I4 with explicit reservations* (clôture humaine I4).
+2. `2b1271d0` — *fix(v3): resolve audit observations AUD-I4-01..03 and align invitation routes (L5/I4)* : **dernier commit touchant au code productif et aux tests applicatifs**.
+3. `a087dd8b`, `17129919`, `df7a03ae` : clôture documentaire et publication des preuves I4.
+4. `a4a92cee` : publication initiale du plan Q5-A.
 
 **Distinction impérative des SHAs :**
 - **SHA du code productif et des tests sous test :** `2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2`
 - **SHA de baseline documentaire I4 :** `df7a03aedf53ac663de8c65e7c6112e960430b2e`
-- **SHA de publication du plan Q5-A :** SHA du commit contenant le présent document.
-- **SHA candidat à la qualification Q5-B :** Le commit intégrant ce plan (le diff vis-à-vis de `2b1271d0` est strictement documentaire sous `docs/`, sans aucun impact sur `app/` ou `scripts/`).
-
-L'inspection statique démontre que **zéro modification de code applicatif, de configuration Maven, de script ou de test n'est intervenue depuis `2b1271d0`**. Aucune propriété démontrée lors des tests post-audit d'I4 n'est invalidée par les commits documentaires subséquents.
+- **SHA de publication initiale Q5-A :** `a4a92cee482058bdd8e07d551f0346a3c2c2bf16`
+- **SHA candidat à la qualification Q5-B :** Le commit intégrant ce plan amendé (le diff vis-à-vis de `2b1271d0` est strictement documentaire sous `docs/`, sans aucun impact sur `app/` ou `scripts/`).
 
 ---
 
@@ -103,57 +98,41 @@ La matrice ci-dessous recense l'ensemble des exigences, invariants et contrats a
 | **REQ-TOPO-01** | Topologie 7 READ (3 Monolithe + 4 PROJECTION) & pool $\le 65$ | D6-topologie ; SPEC-09 §3 | `V3InvitationTopologyPostgresTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | G5 / Full natif | MAJOR |
 | **REQ-ARCH-01** | Isolation hexagonale, absence de cycles, règles de couches | *Reactor Policy* §16, §17 | `architecture-tests` (L4: 167 PASS, I2: 170 PASS) | Différée Q5 | Gate Architecture non filtrée | G5 / Full natif | BLOCKING |
 | **REQ-EXT-01** | Intégration Keycloak OIDC réel (3 sessions E1/E2/E3) | SPEC-10 ID-02 ; R-I1-03 | `V3LinkBrunoPostgresTest` (`0d415a67`) | Partielle (banc I3) | Rejeu sur banc unifié B5 | B5 / Externe | BLOCKING |
-| **REQ-EXT-02** | Collection HTTP Bruno V3 complète (B01–B404) | SPEC-10 ; Plans I1–I4 | B1 (32 PASS), B2 (24 PASS), B3 (10 PASS), B4 (4 PASS) | Morcelée (4 runs séparés) | Campagne B5 unique unifiée | B5 / Externe | MAJOR |
+| **REQ-EXT-02** | Collection HTTP Bruno V3 complète (B01–B404) | SPEC-10 ; Plans I1–I4 | B1 (32 PASS), B2 (24 PASS), B3 (10 PASS), B4 (4 PASS) | Morcelée (4 runs séparés) | Campagne B5 composite consolidée | B5 / Externe | MAJOR |
 
 ---
 
-## 4. Stratégie D6 — Mutualisation des gates
+## 4. Stratégie D6 — Mutualisation des gates et contrôles de couverture
 
 ### 4.1 Justification normative
-La décision **D6** ([Rapport de mutualisation D6](L5_D6_Gates_Mutualization_Report.md)) repose sur les articles §§17, 34 et 35 de la *Reactor Verification Policy* :
+La décision **D6** ([Rapport de mutualisation D6](L5_D6_Gates_Mutualization_Report.md)) s'appuie sur la *Reactor Verification Policy* (§§17, 34 et 35) :
 - Le §35 stipule qu'une clôture de lot requise (*Required lot closure*) déclenche le niveau **CERTIFICATION**, dont l'oracle canonique est un **full reactor natif non filtré** (`./mvnw test`).
 - Le §34 autorise la mutualisation lorsque plusieurs tranches déclarées partagent des modules amont, à la condition expresse que chaque ancre, chaque méthode, chaque variante et chaque exigence de provenance soient effectivement couvertes sans aucune omission.
-- Le §17 impose la gate `architecture-tests` globale dès lors que des frontières architecturales ou des dépendances ont évolué (ce qui est le cas avec l'introduction des supras V3, de l'admission V8 et d'Invitation V10).
+- Le §17 impose la gate `architecture-tests` globale dès lors que des frontières architecturales ou des dépendances ont évolué.
 
-### 4.2 Analyse statique du graphe Maven et du reactor
-L'inspection de `app/pom.xml` confirme la composition du réacteur :
-1. **Modules déclarés :** Exactement **60 modules enfants** plus le parent agrégateur (total 61 projets).
-2. **Couverture des ancres canoniques :**
-   - WEB : `runtime-web-api` (inclus, ligne 89).
-   - COMMAND : `runtime-command-consumption-worker` (inclus, ligne 97).
-   - PROJECTION : `runtime-task-consumption-worker` (inclus, ligne 96).
-   - EVENT : `runtime-event-consumption-worker` (inclus, ligne 90).
-   - BINDING : `runtime-binding-consumption-worker` (inclus, ligne 95).
-   - LKV : `runtime-latest-known-version-consumption-worker` (inclus, ligne 94).
-   - MONOLITHE : `runtime-monolith` (inclus, ligne 88).
-   - ARCHITECTURE : `architecture-tests` (inclus, ligne 98).
-3. **Ordre d'exécution :** `architecture-tests` est situé en 60ème position dans `app/pom.xml`. Le graphe de dépendances place ce module à la fin du réacteur après la compilation de tous les modules productifs et de tous les runtimes.
+### 4.2 Hypothèse statique vs Validation dynamique (AUD-Q5A-02)
+L'inspection de `app/pom.xml` confirme la présence déclarée des **60 modules enfants** (et du module `architecture-tests` en 60ème position).
+Cependant, la présence statique des modules dans le POM n'est qu'une **hypothèse structurelle** : elle garantit que Maven résout le graphe, mais **ne constitue pas une preuve dynamique d'exécution complète**.
 
-### 4.3 Matrice de couverture de la campagne unique proposée
-
-| Obligation différée | Méthode / variante requise | Module responsable | Inclusion dans le full natif | Statut de couverture | Complément nécessaire |
-|---|---|---|:---:|:---:|---|
-| **Fermeture canonique G5** | 60 modules compilés et testés | Tous (parent `app/pom.xml`) | **OUI** | Couverture intégrale | Aucun |
-| **Gate Architecture globale** | 178 tests / oracles ArchUnit | `architecture-tests` | **OUI** (si aucun échec amont) | Couverture intégrale | Aucun (condition : zéro échec amont) |
-| **Tranche WEB (I1, I2, I3, I4)** | Routes REST, transport, sérialisation | `runtime-web-api` | **OUI** | Couverture intégrale | Aucun |
-| **Tranche COMMAND (I2, I3, I4)** | Moteur d'admission & exécution | `runtime-command-consumption-worker` | **OUI** | Couverture intégrale | Aucun |
-| **Tranche PROJECTION (I1, I4)** | Matérialisation Pot, Balance, Invitation | `runtime-task-consumption-worker` | **OUI** | Couverture intégrale | Aucun |
-| **Assemblage MONOLITHE** | Concurrence, flux de bout en bout | `runtime-monolith` | **OUI** | Couverture intégrale | Précondition : Keycloak démarré |
-| **Non-régression historique** | Isolation, L2 Consumption, L3 Identity | `engine-consumption`, `domain-user-identity`, etc. | **OUI** | Couverture intégrale | Quarantaine active : 0 |
-| **Preuve réelle Keycloak** | Authentification OIDC réelle | `V3LinkBrunoPostgresTest` | **OUI** | Couvert sous condition | Dépendance Keycloak localhost:8081 |
-| **Collection Bruno B5 (70 scénarios)** | 70 requêtes HTTP scriptées | `scripts/bruno-v3/` | **NON** (hors Surefire) | **Non couvert par Maven** | **Campagne B5 dédiée obligatoire** |
-
-### 4.4 Conclusion sur la mutualisation
-La mutualisation D6 est **STRICTEMENT VALIDE** sous la commande canonique unique, **à une exception près : la collection externe Bruno B5 (70 scénarios)**, qui relève d'un interpréteur Node.js/CLI externe et d'un environnement HTTP dédié.  
-Il est donc formellement démontré qu'il est inutile et redondant d'exécuter successivement G5, puis Architecture, puis un full reactor. **Une seule campagne Maven native intégrale couvre 100% du périmètre Java/PostgreSQL.**
+Pour que la mutualisation D6 soit formellement certifiée lors de Q5-B, le collecteur et l'auditeur devront valider les **10 contrôles dynamiques post-run** suivants :
+1. **Graphe effectif :** Confirmation que le réacteur a résolu les 61 projets dans l'ordre topologique sans exclusion de projet.
+2. **Exécution des modules :** Vérification dans les logs que chaque module a atteint le statut `SUCCESS`.
+3. **Découverte nominative :** Comparaison stricte entre l'inventaire nominatif des méthodes JUnit découvertes dans les sources et les exécutions réelles (zéro test omis).
+4. **Zéro skip / Zéro exclusion :** Constatation de l'absence totale de tests sautés (`skipped=0`), d'exclusions Surefire dans les POMs, ou d'annotations `@Disabled`.
+5. **Résultats Surefire applicables :** Vérification de l'intégrité de chaque fichier `TEST-*.xml` généré dans les sous-répertoires de build.
+6. **Exécution intégrale d'Architecture :** Vérification que le module `architecture-tests` a exécuté ses **178 oracles** sans court-circuit provoqué par un échec amont.
+7. **Attribution et provenance :** Contrôle des propriétés système `pocoma.verification.id`, `pocoma.verification.module` et `pocoma.verification.producer` dans chaque rapport XML.
+8. **Couverture des obligations différées :** Rapprochement méthode par méthode avec les obligations issues de I1, I2, I3 et I4.
+9. **Non-régression historique :** Absence de régression sur les suites héritées L1–L4 et vérification que les scénarios de quarantaine historique levée (`i5_r05`, `i5_r12`) ont bien été exécutés avec succès.
+10. **Frontière des preuves extérieures :** Traçabilité explicite du fait que les protocoles extérieurs (collection Bruno B5, IdP externe de production) ne sont pas réputés acquis par le seul succès Maven.
 
 ---
 
 ## 5. Réutilisation des preuves historiques et classification
 
 ### 5.1 Règles de classification normative
-Conformément aux directives de la politique Reactor (§34) et aux actes de clôture I1–I4, chaque preuve historique est classée selon l'un des huit statuts normatifs :
-- **`PASS VERIFIED`** : Preuve exécutée avec succès, rapport XML Surefire disponible, empreinte SHA-256 archivée, et code source sous test identique au SHA courant.
+Conformément à la politique Reactor (§34) et aux actes de clôture I1–I4 :
+- **`PASS VERIFIED`** : Preuve exécutée avec succès, rapport XML Surefire disponible, empreinte SHA-256 archivée, code source sous test identique au SHA courant.
 - **`PASS HISTORICAL REUSABLE`** : Preuve réussie lors d'une étape antérieure, documentée dans un manifeste figé, dont les hypothèses et sources restent valides au SHA courant, bien que le run physique date d'un commit amont.
 - **`PASS REPORTED WITHOUT ARCHIVED EVIDENCE`** : Résultat rapporté avec succès par l'agent ou les logs d'exécution, mais dont le fichier XML d'origine est indisponible (notamment les 5 méthodes WRITE I4 écrasées).
 - **`FAIL`** : Échec d'exécution (conservé tel quel, jamais transformé en PASS).
@@ -162,237 +141,172 @@ Conformément aux directives de la politique Reactor (§34) et aux actes de clô
 - **`INCONCLUSIVE`** : Exécution incomplète, interrompue ou dont l'oracle n'a pu statuer.
 - **`INVALIDATED`** : Preuve rendue caduque par une modification ultérieure du code ou de l'environnement.
 
-### 5.2 Tableau de classification des preuves historiques L5
-
-| Ensemble de preuves | SHA testé | Méthodes / Scénarios | Classification Q5-A | Justification & Traitement en Q5-B |
-|---|---|:---:|:---:|---|
-| **L5/I1 — T1 Suite** | `46b94ce6` | 40 méthodes | `PASS HISTORICAL REUSABLE` | Sources stables depuis `46b94ce6`. Sera fraîchement réexécuté dans le full Q5-B. |
-| **L5/I1 — Architecture native** | `46b94ce6` | 2 231 tests (167 arch) | `PASS HISTORICAL REUSABLE` | Preuve historique de la gate I1. Remplacé par la nouvelle gate Q5-B. |
-| **L5/I1 — Bruno B1** | `46b94ce6` | 32 scénarios | `PASS HISTORICAL REUSABLE` | Archivé dans `evidence/L5-I1`. Réexécuté dans la suite B5 unifiée. |
-| **L5/I2 — T2 Suite (C-04)** | `df0c3a22` | 85 identités | `PASS HISTORICAL REUSABLE` | Reçu C-04 archivé. Requalification fraîche dans le full Q5-B. |
-| **L5/I2 — Post-Audit V8** | `1fc07000` | 9 tests PG | `PASS VERIFIED` | XML archivé dans `evidence/L5-I2-post-audit`. Réexécuté dans le full Q5-B. |
-| **L5/I2 — Bruno B2** | `df0c3a22` | 24 scénarios | `PASS HISTORICAL REUSABLE` | Archivé dans `evidence/L5-I2`. Réexécuté dans B5. |
-| **L5/I3 — FAST Suite** | `0d415a67` | 13 tests | `PASS VERIFIED` | XML archivé dans `evidence/L5-I3`. Réexécuté dans le full Q5-B. |
-| **L5/I3 — PG/HTTP Composite** | `0d415a67` | 25 oracles | `PASS VERIFIED` | Run initial 25 tests reste `FAIL` (24/1), 1 oracle corrigé `PASS`. Réexécuté unifié dans le full Q5-B. |
-| **L5/I3 — Bruno Keycloak** | `0d415a67` | 10 scénarios | `PASS VERIFIED` | Reçus et traces archivés dans `evidence/L5-I3`. Réexécuté dans B5. |
-| **L5/I4 — JUnit avec XML** | `2b1271d0` | 17 méthodes | `PASS VERIFIED` | XML archivés sous `evidence/L5-I4/surefire-reports/`. Réexécuté dans le full Q5-B. |
-| **L5/I4 — WRITE (méthodes 1 à 5)** | `7a284405` | 5 méthodes | `PASS REPORTED WITHOUT ARCHIVED EVIDENCE` | **XML écrasés lors du run ciblé de la méthode 6.** Ne pas régénérer en Q5-A. Le full natif Q5-B produira des preuves fraîches natives. |
-| **L5/I4 — Bruno B4** | `2b1271d0` | 4 scénarios | `PASS VERIFIED` | Reçus archivés dans `evidence/L5-I4/bruno-b4/`. Réexécuté dans B5. |
-| **Gates Q5 différées** | - | Full natif / Arch / B5 | `NOT RUN` | **Obligations actives différées à Q5-B.** |
+### 5.2 Traçabilité des cinq méthodes WRITE I4 écrasées
+Lors de la qualification initiale de L5/I4, les cinq premières méthodes de `V3InvitationWritePostgresTest` (`atomicCreationAndIdempotence`, `creatorOnlyAndExpiredCreation`, `twoGuestsOnePlaceAndReusableToken`, `oneGuestCannotTakeTwoPlaces`, `rollbackAfterInvitationPositionKeepsDensePublication`) avaient réussi (run de 14:06 CET). Leurs rapports XML d'origine ont été écrasés lors du rejeu ciblé de la méthode 6 (`expirationAfterPublicationCounterWait`).
+Elles sont formellement répertoriées comme **`PASS REPORTED WITHOUT ARCHIVED EVIDENCE`**.
+Le plan Q5-B prévoit leur réexécution fraîche et intégrale lors du full reactor unique, ce qui produira des rapports XML neufs et traçables sans altération historique.
 
 ---
 
-## 6. Plan de qualification externe Bruno B5
+## 6. Plan de qualification externe Bruno B5 (AUD-Q5A-01)
 
-### 6.1 Inventaire exhaustif des scénarios (70 scénarios)
-La collection versionnée dans `scripts/bruno-v3/` comporte exactement 70 fichiers `.bru` répartis en quatre dossiers fonctionnels :
+### 6.1 Analyse contradictoire des bancs et fixtures existants
+L'examen des 70 scénarios et de leurs lanceurs démontre l'hétérogénéité des préconditions :
 
-1. **`01 Identity and READ` (32 scénarios) :**
-   - *01 Own Binding :* B01 (active), B02 (inactive), B03 (absent), B04 (minVersion), B05 (foreignSelector), B06 (noBearer).
-   - *02 Pot and Balance :* B07 (currentComplete), B08 (exactHistory), B09 (exactBalance), B10 (forbiddenAbsent), B11 (deletedCurrent), B12 (terminalVersion), B13 (historyBeforeDeletion), B14 (authorizedLag).
-   - *03 Expense Batches :* B15 (singleExpense), B16 (fiftyExpenses), B17 (emptyBatch), B18 (oversizedBatch), B19 (duplicateBatch), B20 (foreignReference).
-   - *04 Navigation and Results :* B21 (navigationPages), B22 (invalidCursor), B23 (pageLimits), B24 (mismatchedToken), B25 (commandCompleted), B26 (commandRejected), B27 (identityCompleted), B28 (identityRejected), B29 (foreignAndSameUserResult), B30 (boundedResultPolling), B31 (invalidBearer), B32 (transportAndPrivacy).
-2. **`02 Admission and Commands` (24 scénarios) :**
-   - B201 (RegistrationUnknown), B202 (CreatePot), B203 (UpdatePotDetails), B204 (AddShareholdersSELF), B205 (UpdateShareholderDetailsKEEP), B206 (UpdateShareholderWeights), B207 (CreateExpense), B208 (UpdateExpenseDetails), B209 (UpdateExpenseFinancials), B210 (DeleteExpense), B211 (DeleteShareholder), B212 (DeletePot).
-   - B213 (SameKeyReplayAfterTerminal), B214 (DifferentIntent409), B215 (EquivalentJSON), B216 (IdentityScopeIsolation), B217 (MalformedAndUnauthenticated), B218 (DeferredBusinessRejection), B219 (Atomic101AndRead), B220 (UnlinkOtherSelfAndStaleSELF), B221 (NoPublicLinkOrInvitation), B222 (MediaAndBodyLimits), B223 (RegistrationFree), B224 (ResultsOwnershipAfterUnlink).
-3. **`03 Link Requests` (10 scénarios) :**
-   - B301 (RegistrationE1), B302 (CreateAndSummary), B303 (ThirdIdentityMasked), B304 (InitiatorCannotAccept), B305 (InvalidBearerRefused), B307 (AcceptAndReplay), B308 (ImmutableIntent), B309 (OwnBindingOnly), B310 (ResultBelongsToE1), B313 (CreationIdempotency).
-   - *Note normative :* B306, B311, B312, B314 sont **absents de Bruno** (réserve **R-Q1**) et sont couverts par des oracles PostgreSQL ciblés dans Surefire.
-4. **`04 Invitations` (4 scénarios) :**
-   - B401 (JourneyAndVoluntaryDeparture), B402 (ConfidentialityAndMasking), B403 (ReusableInvitation), B404 (ExpiredCreation).
+| Corpus Bruno | Scénarios | Préconditions d'infrastructure | Données & états requis | Autorité d'authentification | Orchestrateur existant | Oracle indépendant |
+|---|:---:|---|---|---|---|---|
+| **B1 (READ)** | 32 (B01–B32) | PostgreSQL 17 jetable, port HTTP libre | Tables `read_*` pré-peuplées (`read_pot` ...0300/0301/0302/0304, 205 lignes de navigation), thread de signal B30 | RSA local en mémoire (`V3ReadHttpFixture`), 6 porteurs + 2 tokens binding | `V3ReadHttpFixture.main` | Reçu `requests.jsonl` (32 scénarios), scan anti-fuite secrets |
+| **B2 (Commandes)** | 24 (B201–B224) | PostgreSQL V1–V8, worker d'écriture actif | Base initialement propre, création dynamique de Pot et 11 commandes, signal thread L3 (`controlled-internal-link`) | RSA local éphémère (`V3AdmissionFlowPostgresTest`), porteurs `owner`/`other` | `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol` | SQL direct sur `v3_command`, `v3_identity_request`, `v3_admission_association` |
+| **B3 (Link)** | 10 (B301–B313) | PostgreSQL V1–V9, **Keycloak 26.7.0 actif sur port 8081** | Realm `pocoma` importé, utilisateurs `bruno`, `link-e2`, `link-e3`, base propre pour Link | **Vrais JWT Keycloak** émis via OIDC PKCE (`l5-i3-auth.py`) | `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol` | SQL direct sur `v3_link_proposal`, `v3_identity_request`, `v3_identity_request_result` |
+| **B4 (Invitations)** | 4 (B401–B404) | PostgreSQL V1–V10, worker et projections d'invitation | Base propre, cycle de vie invitation, rattachement et désaffiliation volontaire | RSA local éphémère (`V3InvitationHttpTest`), porteurs `owner`, `guest`, `second` | `V3InvitationHttpTest#brunoB4StandaloneCorpus` | Reçu `requests.jsonl` (4 scénarios), non-fuite logs, intégrité inputs |
 
-### 6.2 Dépendances externes et réalité du fournisseur d'identité
-- **Distinction impérative :** Un jeton signé localement par une fixture cryptographique (clé privée éphémère en mémoire) qualifie le Resource Server et les filtres HTTP locaux ; il **ne certifie pas l'intégration avec un fournisseur OIDC externe réel**.
-- **Fournisseur de qualification :** Keycloak 26.7.0 conteneurisé via `docker-compose.functional.yml` (realm `pocoma`, 3 utilisateurs réels : `bruno`, `link-e2`, `link-e3`).
-- **Prérequis pour B5 :**
-  1. Conteneurs `postgres` (port 5432) et `keycloak` (port 8081) actifs et sains (`healthy`).
-  2. Obtention préalable des jetons via `scripts/testing/l5-i3-auth.py` et alimentation du trousseau éphémère.
-  3. Démarrage du runtime monolithique V3 configuré sur l'émetteur `http://localhost:8081/realms/pocoma`.
+### 6.2 Arbitrage stratégique B5 : Option B retenue
+- **Option A (Instance unique intégrée) : REJETÉE.**
+  Une exécution monolithique globale échouerait immédiatement en raison des conflits dans `scripts/bruno-v3/collection.bru` (qui interdit le chargement simultané des variables d'environnement `POCOMA_I1_*` et `POCOMA_I2_*` / `POCOMA_I4_*`) et de l'incompatibilité des états de base (B1 exige une base pré-injectée en lecture seule, B2/B3/B4 exigent une base transactionnelle avec workers).
+- **Option B (Campagne composite orchestrée) : ADOPTÉE.**
+  La campagne B5 est organisée en **quatre volets séquentiels étanches**, exécutant chacun ses scénarios sur son banc dédié, avec consolidation globale dans un rapport de preuves unifié.
 
-### 6.3 Ordre d'exécution et commande candidate B5
-Les scénarios doivent être exécutés dans l'ordre de leurs dépendances d'état :
-`01 Identity and READ` $\rightarrow$ `02 Admission and Commands` $\rightarrow$ `03 Link Requests` $\rightarrow$ `04 Invitations`.
+### 6.3 Procédure opérationnelle d'exécution de B5
 
-**Commande candidate unifiée B5 :**
-```sh
-cd scripts/bruno-v3
-node_modules/.bin/bru run -r \
-  --env Local \
-  --sandbox developer \
-  --noproxy \
-  --reporter-json <evidence-dir>/bruno-b5.json \
-  --reporter-skip-all-headers \
-  --reporter-skip-body
-```
+La campagne B5 se déroule selon la séquence ordonnée :
 
-**Critères de sortie B5 :**
-- 70 scénarios exécutés, **0 échec, 0 erreur**.
-- Absence formelle de fuite de tokens ou secrets dans les logs (`bruno.log`).
-- Temps d'exécution total $\le 25$ minutes (seuil d'alerte à 40 minutes).
-
----
-
-## 7. Budgets, performances et efficacité d'exécution
-
-### 7.1 Analyse des budgets D6 et cohérence historique
-Les données empiriques issues des campagnes antérieures (L4-I8, L5-I1 à I4) établissent la répartition prévisionnelle :
-
-| Poste de qualification | Estimation nominale | Point de décision / Watchdog | Fondement historique |
-|---|:---:|:---:|---|
-| **Compilation du reactor (60 modules)** | 3–5 min | 8 min | Mesuré ~3 min sur reactor incrémental |
-| **Démarrage Spring & Testcontainers** | 8–12 min | 15 min | Multiples conteneurs PostgreSQL 17 éphémères |
-| **Tests unitaires & domaine rapides** | 2–3 min | 5 min | ~350 tests ultra-rapides (<10 ms/test) |
-| **Tests intégration & workers (COMMAND, READ)** | 40–55 min | 65 min | FULL-04-FAIL L4 mesuré à 68,6 min total |
-| **Tests à lease & temporisations (T4-L topologie, etc.)** | 5–8 min | 10 min | T4-L mesuré à 207s ; lease180 renouvelé |
-| **Tests d'Architecture (178 oracles ArchUnit)** | 1–2 min | 3 min | Mesuré à ~47s en ciblé, ~85s en charge |
-| **Collecte des preuves & vérification d'intégrité** | 2–3 min | 5 min | Scan XML et calculs SHA-256 |
-| **TOTAL Full Natif Unique (G5 + Arch + Full)** | **70–90 min** | **100 min** | **Seuil d'alerte D6 confirmé** |
-| **TOTAL Bruno B5 (70 scénarios)** | **15–25 min** | **40 min** | Somme des B1 (2m), B2 (5m), B3 (3m), B4 (1m) + marges |
-
-### 7.2 Critères de détection d'anomalie et d'interruption précoce
-Une campagne saine ne doit pas être interrompue arbitrairement parce qu'elle dépasse de quelques minutes son estimation. En revanche, le superviseur doit identifier immédiatement les états pathologiques :
-1. **Blocage technique / Deadlock :** Aucune nouvelle trace Surefire ou aucun événement Docker pendant plus de 5 minutes consécutives.
-2. **Attente pathologique de lease :** Dépassement anormal d'un timeout de test unitaire au-delà de 300 secondes.
-3. **Défaillance d'environnement :** Crash du démon Docker, épuisement d'espace disque sous `/tmp` ou saturation de la mémoire vive (OOM killer).
-4. **Boucle infinie / Non-terminaison :** Blocage sur un verrou de synchronisation (`v3_event_counter` ou `v3_pot_version`).
-5. **Échec reproductible précoce :** Échec d'un module amont fondamental (ex: `domain-pot` ou `infra-tx-spring`) qui invalidera mécaniquement l'ensemble des modules avals.
-
-En cas de survenance de l'un de ces critères, la campagne doit être arrêtée proprement, les traces préservées, et aucune relance à l'identique ne doit être engagée sans diagnostic.
+1. **Sous-campagne B5-1 (READ — 32 scénarios B01–B32) :**
+   - Démarrage de `V3ReadHttpFixture` (porteur Java dédié).
+   - Exécution de Bruno via CLI :
+     ```sh
+     node_modules/.bin/bru run -r "01 Identity and READ" --env Local --sandbox developer --noproxy \
+       --reporter-json <evidence-dir>/b1/bruno.json --reporter-skip-all-headers --reporter-skip-body
+     ```
+   - Validation de l'oracle de signal B30 et réconciliation des 32 scénarios dans `requests.jsonl`.
+2. **Sous-campagne B5-2 (Admission & Commandes — 24 scénarios B201–B224) :**
+   - Exécution sous l'orchestrateur `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol`.
+   - Exécution de Bruno sur `"02 Admission and Commands"`.
+   - Validation de l'oracle SQL indépendant sur les tables d'admission et de version Pot.
+3. **Sous-campagne B5-3 (Link Keycloak — 10 scénarios B301–B313) :**
+   - Prérequis : Conteneur Keycloak 26.7.0 actif (`http://localhost:8081`).
+   - Obtention des 3 sessions réelles via `scripts/testing/l5-i3-auth.py`.
+   - Exécution sous l'orchestrateur `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol`.
+   - Exécution de Bruno sur `"03 Link Requests"`.
+   - Validation de l'oracle SQL indépendant sur `v3_link_proposal` et `v3_identity_request`.
+4. **Sous-campagne B5-4 (Invitations — 4 scénarios B401–B404) :**
+   - Exécution sous l'orchestrateur `V3InvitationHttpTest#brunoB4StandaloneCorpus`.
+   - Exécution de Bruno sur `"04 Invitations"`.
+   - Contrôle du cycle de vie complet, du secret confidentiel et de la désaffiliation.
+5. **Consolidation B5 :**
+   - Agrégation des quatre reçus `receipt.json` et des fichiers `requests.jsonl`.
+   - Vérification du total cumulé : exactement **70 scénarios exécutés, 0 échec, 0 erreur**.
+   - Scan automatisé des rapports et traces contre toute fuite de secret ou token JWT.
 
 ---
 
-## 8. Préflight des risques issus de l'audit qualité post-L4
+## 7. Budgets, performances et efficacité d'exécution (AUD-Q5A-04)
 
-L'audit qualité indépendant post-L4 a émis huit recommandations techniques. Le tableau ci-dessous effectue le tri préliminaire de leur impact sur la qualification Q5-B :
+### 7.1 Distinction stricte entre critères fonctionnels et indicateurs de suivi
+Le plan établit formellement qu'**une durée d'exécution n'est pas un critère de succès ou d'échec fonctionnel** :
+- **Critères d'acceptation fonctionnelle :** 100% des tests exécutés avec succès, zéro failure, zéro error, zéro skip, oracles indépendants satisfaits, intégrité des preuves archivées.
+- **Prévisions budgétaires :** Repères indicatifs d'organisation basés sur l'historique empirique.
+- **Seuils d'investigation / Watchdog :** Points de contrôle déclenchant l'analyse d'activité, **sans coupure automatique d'une campagne qui progresse normalement**.
 
-| Recommandation L4 | Risque pour l'exécution Q5-B | Décision proposée pour Q5-A / Q5-B | Statut pour la suite |
-|---|---|---|---|
-| **FIND-L4-01** (Quota READ $Q=2$ partagé) | **NON BLOQUANT**. $Q=2$ est un invariant contractuel testé. Risque de saturation uniquement sous charge concurrente artificielle. | Conserver $Q=2$. Vérifier que les fixtures libèrent leurs permis. | Suivi de dimensionnement en L6. |
-| **FIND-L4-02 / AUD-FINAL-I8-01** (Prévalidation pure avant quota) | **NON BLOQUANT**. Entièrement implémenté et validé lors de L5/I1 (`ReadPotV3`, `ReadNavigationV3`). | Vérifié acquis. Aucune action préalable. | Résolu. |
-| **FIND-L2-01** (Lease READ 180s vs défaut 30s) | **NON BLOQUANT POUR LE TEST**. Validé par `V3InvitationTopologyPostgresTest` (T4-L, 207s). | Maintenir la réserve explicite d'homologation hors production. | Audit approfondi en Q5-C / L6. |
-| **FIND-TRANS-01** (60 modules enfants / complexité POM) | **NON BLOQUANT POUR Q5-B**. Complexité de build statique connue et stable. | Ne modifier aucun POM. Conserver le graphe existant. | Rationalisation globale en L7. |
-| **FIND-L1-01** (Requête `openComponent` complexe dans `PotHistoryRows`) | **NON BLOQUANT**. Aucun défaut fonctionnel ou d'intégrité identifié. | Ne pas altérer la requête SQL avant la qualification. | Audit d'optimisation en Q5-C / L6. |
-| **FIND-L4-03** (Recalcul intégral de Balance à chaque version) | **NON BLOQUANT**. Strictement conforme à SPEC-04 §4 (normatif). | Ne pas tenter d'optimisation prématurée. | Mesures de latence sous volume en L6. |
-| **FIND-L2-02** (Branches READ/WRITE de `ConsumptionEngine`) | **NON BLOQUANT**. Architecture stable réemployée avec succès dans les 4 incréments. | Conserver l'implémentation éprouvée. | Examen en Q5-C. |
-| **FIND-L3-01** (Consentement Link sans serveur d'autorisation externe) | **RÉSOLU PAR RATIFICATION H1–H5**. Le POST explicite E2 remplace le serveur externe. | Vérifier la présence du banc Keycloak pour B5. | Validé en I3, réserve de rétention L6. |
+### 7.2 Tableau des prévisions et seuils de diagnostic
 
-**Conclusion de l'audit préliminaire :** Aucune recommandation post-L4 ne constitue un bloqueur technique immédiat pour le lancement de Q5-B, sous réserve du respect scrupuleux des conditions d'environnement (Keycloak actif pour les tests de liaison).
+| Campagne | Estimation nominale | Point de diagnostic (Watchdog) | Seuil de vigilance | Fondement historique |
+|---|:---:|:---:|:---:|---|
+| **Full Natif Unique (G5 + Arch)** | 70–90 min | 100 min | 120 min | FULL-04-FAIL L4 mesuré à 68,6 min ; nouveaux tests L5 ajoutés |
+| **Campagne Bruno B5 (4 volets)** | 15–25 min | 35 min | 45 min | B1 (~3m) + B2 (~5m) + B3 (~3m) + B4 (~1m) + temps d'initialisation |
+| **Consolidation & Manifestes** | 3–5 min | 8 min | 10 min | Scan des 60 modules Surefire et des 70 scénarios Bruno |
+
+### 7.3 Motifs d'interruption technique légitime
+Une campagne ne doit être interrompue avant son terme que sur incident technique avéré :
+1. **Deadlock / Blocage avéré :** Absence totale d'émission de traces (Surefire, logs Docker, pg_stat_activity) pendant plus de 5 minutes consécutives.
+2. **Crash d'infrastructure :** Arrêt inattendu du démon Docker, saturation du disque hôte (`No space left on device`) ou intervention de l'OOM killer du système d'exploitation.
+3. **Boucle infinie :** Répétition indéfinie d'un même appel sans progression de curseur ou de verrou.
+4. **Échec amont critique :** Échec d'un composant de base (`domain-pot`, `infra-tx-spring`) invalidant mécaniquement tous les tests dépendants.
 
 ---
 
-## 9. Plan opérationnel Q5-B proposé
+## 8. Préflight des risques issus de l'audit post-L4 (AUD-Q5A-03)
 
-Le déroulement proposé pour la phase d'exécution Q5-B s'articule en cinq phases séquentielles strictes :
+### 8.1 Traçabilité documentaire des recommandations
+L'audit indépendant de fin de lot L4 a été formellement consigné dans l'acte [docs/v3/L4_Read_Closure_Decision.md](L4_Read_Closure_Decision.md) (§5) et dans [docs/v3/L4_I8_Execution_Report.md](L4_I8_Execution_Report.md).
+Le seul constat ayant fait l'objet d'un identifiant normatif formellement enregistré dans la clôture L4 est **`AUD-FINAL-I8-01`** (prévalidation pure des entrées de `expenses` et `visible` avant acquisition du quota READ).
+Les sept autres recommandations ont été transmises par le mandat de cadrage du lot L5 et instruites dans [docs/v3/L5_Supra_Entry_Audit_and_Implementation_Plan.md](L5_Supra_Entry_Audit_and_Implementation_Plan.md) (§11) sous les identifiants de suivi `FIND-*`.
+
+### 8.2 Matrice détaillée des 8 recommandations
+
+| Identifiant de suivi | Source & Référence d'origine | Constat initial | Recommandation initiale | Situation après L5 (I1–I4) | Risque pour Q5-B | Décision | Justification & Preuve / SHA |
+|---|---|---|---|---|---|:---:|---|
+| **FIND-L4-01** | Mandat L5 / Plan L5 §11 | Sémaphore exact $Q=2$ pour le quota READ | Risque de contention sous charge externe | Maintenu à $Q=2$ ; formalisation de l'allocation et mesure des refus | **Nul** (tests locaux non saturants) | **Reporter à Q5-C / L6** | $Q=2$ est un contrat stable. Suivi de charge à instruire en L6. |
+| **FIND-L4-02 / AUD-FINAL-I8-01** | `L4_Read_Closure_Decision.md` §5 | Validation de cardinalité et pagination après requête SQL | Placer la prévalidation pure avant l'acquisition du quota | **Entièrement corrigé en L5/I1** dans `ReadPotV3` et `ReadNavigationV3` | **Nul** | **Déjà fait** | Preuve acquise au commit `46b94ce6` (tests C01–C06). |
+| **FIND-L2-01** | Mandat L5 / Plan L5 §11 | Lease READ qualifié à 180s vs défaut 30s | Durée de lease non homologuée en production | Réserve d'exploitation maintenue ; topologie 7 READ qualifiée | **Nul** pour le test (T4-L passe en 207s) | **Reporter à Q5-C / L6** | Le lease 180s est couvert par `V3InvitationTopologyPostgresTest` (`2b1271d0`). Homologation hors Q5-B. |
+| **FIND-TRANS-01** | Mandat L5 / Plan L5 §11 | 60 modules reactor et coexistence V2/V3 | Complexité de maintenance et lenteur de build | Coexistence préservée ; zéro nouveau module créé en L5 | **Nul** | **Reporter à Q5-C / L7** | La rationalisation des modules est contractuellement réservée au lot L7. |
+| **FIND-L1-01** | Mandat L5 / Plan L5 §11 | Requête complexe avec EXISTS et LATERAL dans `PotHistoryRows` | Coût d'exécution potentiellement élevé sous grand historique | Aucun défaut fonctionnel constaté ; intégrité préservée | **Nul** | **Reporter à Q5-C / L6** | Aucun problème d'intégrité ou d'oracle. Optimisation prématurée évitée. |
+| **FIND-L4-03** | Mandat L5 / Plan L5 §11 | Recalcul complet de la balance à chaque version | Coût cumulatif sous grand nombre d'Expenses | Maintenu conforme à la norme SPEC-04 §4 | **Nul** | **Reporter à Q5-C / L6** | Strictement conforme à la spécification normative. Pas de refonte en L5. |
+| **FIND-L2-02** | Mandat L5 / Plan L5 §11 | Dualité des branches READ et WRITE dans `ConsumptionEngine` | Abstraction commune envisageable | Moteur réutilisé avec succès pour l'admission et les workers | **Nul** | **Reporter à Q5-C / L7** | Moteur éprouvé sur l'ensemble des 4 incréments. Refonte hors périmètre. |
+| **FIND-L3-01** | Mandat L5 / Plan L5 §11 | Consentement Link sans serveur d'autorisation externe | Nécessité d'une preuve authentifiée anti-rejeu | **Résolu par décision H1–H5** (POST explicite E2 avec Keycloak réel) | **Nul** | **Déjà fait** | Preuve livrée et qualifiée en I3 au commit `0d415a67`. |
+
+**Conclusion de l'audit préliminaire :** Aucune recommandation post-L4 ne constitue un bloqueur pour Q5-B. Les éléments d'architecture globale, d'optimisation de performance et de rationalisation sont légitimement renvoyés à l'audit **Q5-C** et aux lots ultérieurs (**L6/L7**).
+
+---
+
+## 9. Plan opérationnel Q5-B révisé
 
 ```mermaid
 flowchart TD
-    P0["Phase 0 : Préflight & Environnement\n(Git, Docker, PostgreSQL 17, Keycloak 8081)"] --> P1["Phase 1 : Qualification Maven Unique\n(./mvnw test / verify.py CERTIFICATION)"]
-    P1 --> P2["Phase 2 : Qualification Bruno B5\n(70 scénarios HTTP unifiés)"]
-    P2 --> P3["Phase 3 : Vérification des Compléments\n(Oracles hors réacteur)"]
-    P3 --> P4["Phase 4 : Consolidation & Dossier de Preuves\n(Manifeste, matrices, SHAs, passage à Q5-C)"]
+    P0["Phase 0 : Préflight & Environnement\n(Git, Docker, PostgreSQL 17, Keycloak 8081)"] --> P1["Phase 1 : Qualification Maven Unique\n(verify.py CERTIFICATION — 60 modules)"]
+    P1 --> P2["Phase 2 : Qualification Bruno B5 Composite\n(4 volets séquentiels : B5-1 à B5-4 — 70 scénarios)"]
+    P2 --> P3["Phase 3 : Vérification des Compléments & Oracles Statiques"]
+    P3 --> P4["Phase 4 : Consolidation & Dossier de Preuves\n(Manifeste, matrices, passage à Q5-C)"]
 ```
 
-### Phase 0 — Préflight & Validation de l'environnement
-1. Contrôle Git : validation que le HEAD local est propre et correspond exactement au SHA autorisé par l'approbation humaine.
-2. Démarrage des conteneurs d'infrastructure externe :
+### Phase 0 — Préflight & Initialisation
+1. Contrôle Git : Vérification du worktree propre et correspondance exacte avec le SHA approuvé.
+2. Démarrage des conteneurs :
    ```sh
    docker compose -p pocoma-functional -f docker-compose.functional.yml up -d postgres keycloak
    ```
-3. Attente de disponibilité (`healthy`) de PostgreSQL (`5432`) et Keycloak (`8081`).
-4. Vérification de l'absence de processus orphelins ou de verrous résiduels.
-5. Création d'un répertoire neuf et isolé pour les preuves : `/tmp/pocoma-q5b-evidence-<timestamp>/`.
+3. Contrôle de santé : Attente de l'état `healthy` sur PostgreSQL (port 5432) et Keycloak (port 8081).
+4. Allocation du dossier de preuves : `/tmp/pocoma-q5b-evidence-<timestamp>/`.
 
-### Phase 1 — Qualification Maven mutualisée (Full Natif Unique)
-- **Commande canonique exacte :**
+### Phase 1 — Qualification Maven Unique (Full Natif)
+- **Commande canonique :**
   ```sh
   python3 -B scripts/testing/verify.py CERTIFICATION --output /tmp/pocoma-q5b-evidence/maven-full/
   ```
-  *(Équivalent exact à : `./mvnw --batch-mode --no-transfer-progress test` sous le profil de provenance avec injection de `pocoma.verification.id` et reports distincts par module).*
-- **Modules couverts :** L'intégralité des 60 modules du reactor, incluant WEB, COMMAND, PROJECTION, MONOLITH et `architecture-tests`.
-- **Nombre de tests attendus :** Entre 2 350 et 2 420 méthodes de tests JUnit.
-- **Critères de succès :**
-  - Exit code Maven = 0 (`BUILD SUCCESS`).
-  - Zéro failure, zéro error, zéro skip (`0/0/0`).
-  - Module `architecture-tests` intégralement exécuté (178/178 tests PASS).
-  - Présence et validité de l'ensemble des rapports Surefire dans le répertoire de preuves.
+- **Contrôles dynamiques post-run :** Application stricte des 10 contrôles formalisés au §4.2 (zéro skip, 178 oracles Architecture exécutés, 60 modules `SUCCESS`).
 
-### Phase 2 — Qualification Bruno B5
-1. Préparation des sessions d'authentification Keycloak réelles via `scripts/testing/l5-i3-auth.py`.
-2. Démarrage du serveur monolithique V3 en tâche de fond sur le port `8080`.
-3. Exécution séquentielle de la collection HTTP :
-   ```sh
-   cd scripts/bruno-v3
-   node_modules/.bin/bru run -r --env Local --sandbox developer --noproxy \
-     --reporter-json /tmp/pocoma-q5b-evidence/bruno/bruno-b5.json \
-     --reporter-skip-all-headers --reporter-skip-body
-   ```
-4. Arrêt propre du serveur HTTP et purge immédiate des fichiers contenant des jetons éphémères.
-5. **Critères de succès :** 70/70 scénarios PASS, aucun secret dans les logs, intégrité des données observée via oracles SQL indépendants.
+### Phase 2 — Qualification Bruno B5 Composite
+- Exécution séquentielle des quatre volets (§6.3) :
+  1. Volet B5-1 (READ) via `V3ReadHttpFixture.main`.
+  2. Volet B5-2 (Commandes) via `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol`.
+  3. Volet B5-3 (Link Keycloak) via `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol`.
+  4. Volet B5-4 (Invitations) via `V3InvitationHttpTest#brunoB4StandaloneCorpus`.
+- Consolidation des 70 scénarios dans un reçu unifié `bruno-b5-consolidated.json`.
 
 ### Phase 3 — Contrôle des compléments éventuels
-- Vérification qu'aucune exigence n'est restée orpheline en dehors de Phase 1 et Phase 2.
-- Si une obligation exigeait une preuve indépendante (ex: contrôle statique des scripts de migration ou vérification des profils Maven), constatation directe par script d'audit sans nouvelle campagne de test.
+- Vérification statique des règles d'isolation des POMs et des scripts SQL de migration (V1–V10).
 
-### Phase 4 — Consolidation & Manifeste de preuves
-1. Génération du manifeste unifié de preuves `Q5_Proof_Manifest.json`.
-2. Mise à jour de la matrice de conformité SPEC-10.
-3. Enregistrement des mesures de performance et des temps réels observés.
-4. Synthèse des réserves résiduelles pour présentation à l'étape **Q5-C** (Audit qualité indépendant).
+### Phase 4 — Consolidation du dossier de preuves
+- Production du manifeste global `Q5_Proof_Manifest.json`.
+- Émission du rapport d'exécution Q5-B et recommandation pour le passage à l'étape **Q5-C**.
 
 ---
 
 ## 10. Politique de traitement des échecs
 
-En cas d'échec (`FAIL`, `ERROR` ou blocage) lors de Q5-B, la procédure impérative suivante doit être appliquée :
-
-```mermaid
-flowchart TD
-    FAIL["Constat d'échec (FAIL / ERROR)"] --> S1["1. Préservation immédiate de l'artefact brut\n(logs, XML, état base, pg_stat_activity)"]
-    S1 --> S2["2. Identification précise\n(FQCN, méthode, propriété contractuelle)"]
-    S2 --> S3["3. Tri de causalité\n(Défaut code vs Défaut test vs Environnement)"]
-    S3 --> S4["4. Analyse d'impact\n(Hypothèses et sources invalidées)"]
-    S4 --> S5["5. Définition de la correction minimale\n(Aucun contournement ni affaiblissement d'oracle)"]
-    S5 --> S6["6. Requalification strictement bornée\n(Périmètre minimal nécessaire)"]
-    S6 --> S7["7. Double archivage\n(Preuve initiale d'échec + Preuve corrigée)"]
-```
-
-### Interdictions formelles absolues en cas d'échec :
-- **Interdiction de supprimer un test** ou d'ajouter une annotation `@Disabled` pour faire passer la suite.
-- **Interdiction d'augmenter arbitrairement un timeout** sans démonstration causale d'un défaut d'oracle.
-- **Interdiction d'exclure un module** ou de modifier les exclusions Surefire dans un POM.
-- **Interdiction de relancer en boucle** la même campagne sans diagnostic ni modification.
-- **Interdiction de transformer un SKIP en PASS**.
-- **Interdiction d'affirmer un succès** sur la seule base d'une compilation réussie sans exécution des tests.
+En cas d'échec (`FAIL` ou `ERROR`) lors de Q5-B, la procédure impérative suivante s'applique :
+1. **Préservation immédiate** des artefacts bruts (logs Surefire, traces conteneurs, capture de base de données).
+2. **Identification formelle** de la classe, de la méthode et du contrat SPEC enfreint.
+3. **Tri d'imputabilité :** Déterminer si l'anomalie relève du code productif, de l'oracle de test ou de l'environnement matériel.
+4. **Interdictions formelles :** Aucun test supprimé, aucun `@Disabled`, aucun skip, aucune hausse arbitraire de timeout.
+5. **Requalification minimale :** Rejeu strictement borné à l'anomalie après correction, et double archivage de l'échec initial et du succès corrigé.
 
 ---
 
-## 11. Matrice des réserves L5 et décisions soumises à arbitrage humain
-
-### 11.1 Réserves héritées maintenues actives
-1. **L4 Qualification composite :** Rappel que L4 a été clos sur une qualification composite acceptée par dispense humaine ; aucun full natif L4 n'avait fait un 100% PASS. Le full Q5-B sera le premier full natif intégral de l'ère V3.
-2. **Dimensionnement & Lease 180s :** La durée de validité du bail READ à 180 secondes et les mesures sous charge locale ne constituent pas une homologation pour la haute disponibilité de production (reporté à L6).
-3. **Fournisseur d'identité externe :** La qualification Keycloak locale en conteneur prouve le protocole OIDC standard mais ne certifie pas les fournisseurs d'identité infonuagiques tiers ni les topologies multi-tenants complexes.
-4. **Absence de purge des propositions Link :** Aucune purge automatique des anciennes propositions de liaison n'est implémentée dans L5 (suivi en L6/Q5).
-
-### 11.2 Décision soumise au responsable du programme pour Q5-B
-
-Il est recommandé au responsable humain de statuer sur les arbitrages suivants :
-
-1. **Approbation du plan de qualification Q5-B :**
-   - **GO pour la Phase 0 et Phase 1 (Full Natif Unique)** sous le budget indicatif de 70–90 min (décision à 100 min).
-   - **GO pour la Phase 2 (Bruno B5)** sous le budget indicatif de 15–25 min (borne à 40 min).
-2. **Ratification des conditions d'arrêt :** Autorisation d'interrompre immédiatement la campagne en cas de blocage technique avéré (>5 min sans log) ou de défaillance matérielle.
-3. **Maintien du périmètre :** Confirmation qu'aucune modification fonctionnelle ou architecturale n'est autorisée durant Q5-B.
-
----
-
-## 12. Statut terminal de la mission Q5-A
-
-La mission de préparation Q5-A est pleinement achevée. L'ensemble des obligations, dépendances, conditions de mutualisation et critères de gestion des échecs sont établis de façon normative et vérifiable.
+## 11. Statut terminal officiel
 
 ```
 ================================================================================
-Q5-A — PLAN READY FOR HUMAN REVIEW
+Q5-A — AMENDED PLAN READY FOR HUMAN REVIEW
 ================================================================================
 Q5-B — NO GO PENDING HUMAN APPROVAL
 L5 — OPEN — NO GLOBAL CERTIFICATION
