@@ -59,33 +59,33 @@ exports.run = async function (scenario, bru, expect) {
   expect(accepted(await call(owner,'POST','/commands',body,key))).to.equal(id);
   if (expired) {
     expect(result.rejection).to.equal('INVALID_INVITATION');
-    expect((await call(owner,'GET','/invitations/by-request/'+id)).status).to.equal(404);
+    expect((await call(owner,'GET','/invitations/by-creation-request/'+id)).status).to.equal(404);
   } else {
-    const value = await wait(owner,'/invitations/by-request/'+id,r=>typeof r.link==='string');
+    const value = await wait(owner,'/invitations/by-creation-request/'+id,r=>typeof r.link==='string');
     expect(value.link.startsWith('pocoma://invitation/')).to.equal(true);
     const secret = value.link.slice('pocoma://invitation/'.length);
-    const places = await call(guest,'POST','/invitations/places',{token:secret},undefined,guestBinding);
+    const places = await call(guest,'POST','/invitations/available-shareholders/query',{token:secret},undefined,guestBinding);
     expect(places.status).to.equal(200);expect(Object.keys(places.data)).to.deep.equal(['shareholders']);
     expect(places.data.shareholders.length).to.equal(2);
     for (const place of places.data.shareholders) expect(Object.keys(place).sort()).to.deep.equal(['name','shareholderId']);
     expect((await call(guest,'GET','/pots/'+pot,undefined,undefined,guestBinding)).status).to.equal(404);
     if (scenario === 'B402') {
-      const foreign = await call(guest,'GET','/invitations/by-request/'+id);
-      const missing = await call(guest,'GET','/invitations/by-request/'+crypto.randomUUID());
+      const foreign = await call(guest,'GET','/invitations/by-creation-request/'+id);
+      const missing = await call(guest,'GET','/invitations/by-creation-request/'+crypto.randomUUID());
       expect(foreign.status).to.equal(404);expect(missing.status).to.equal(404);
       expect(foreign.data.code).to.equal(missing.data.code);
       expect(JSON.stringify(foreign.data).includes(secret)).to.equal(false);
-      expect((await call(guest,'POST','/invitations/places',{token:secret+'x'},undefined,guestBinding)).status).to.equal(404);
-      expect((await call(guest,'POST','/invitations/places',{token:secret,userId:crypto.randomUUID()},undefined,guestBinding)).status).to.equal(400);
+      expect((await call(guest,'POST','/invitations/available-shareholders/query',{token:secret+'x'},undefined,guestBinding)).status).to.equal(404);
+      expect((await call(guest,'POST','/invitations/available-shareholders/query',{token:secret,userId:crypto.randomUUID()},undefined,guestBinding)).status).to.equal(400);
     } else {
       const attached = await command(guest,guestBinding,'AttachShareholderViaInvitation',{invitationToken:secret,shareholderId:share},0);
       const version = attached.result.resultingPotVersion;
       await wait(guest,'/pots/'+pot,r=>r.potVersion>=version,guestBinding);
       if (scenario === 'B403') {
-        expect((await call(guest,'POST','/invitations/places',{token:secret},undefined,guestBinding)).status).to.equal(404);
+        expect((await call(guest,'POST','/invitations/available-shareholders/query',{token:secret},undefined,guestBinding)).status).to.equal(404);
         const reused = await command(second,secondBinding,'AttachShareholderViaInvitation',{invitationToken:secret,shareholderId:another},0);
         expect(reused.result.outcome).to.equal('COMPLETED');
-        const retained = await call(owner,'GET','/invitations/by-request/'+id);
+        const retained = await call(owner,'GET','/invitations/by-creation-request/'+id);
         expect(retained.data.link === value.link).to.equal(true);
       } else {
         const departed = await command(guest,guestBinding,'UpdateShareholderDetails',{targets:[{id:share,name:'Free',attachment:'DETACH'}]},version);

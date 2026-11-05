@@ -139,7 +139,7 @@ class V3InvitationHttpTest extends V3InvitationFixture {
         var foreign =
                 f.http.request(
                         "GET",
-                        "/invitations/by-request/" + id,
+                        "/invitations/by-creation-request/" + id,
                         f.http.jwt("guest"),
                         null,
                         null,
@@ -147,7 +147,7 @@ class V3InvitationHttpTest extends V3InvitationFixture {
         var absent =
                 f.http.request(
                         "GET",
-                        "/invitations/by-request/" + UUID.randomUUID(),
+                        "/invitations/by-creation-request/" + UUID.randomUUID(),
                         f.http.jwt("guest"),
                         null,
                         null,

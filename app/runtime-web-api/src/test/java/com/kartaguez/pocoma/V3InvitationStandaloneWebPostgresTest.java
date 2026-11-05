@@ -97,14 +97,14 @@ class V3InvitationStandaloneWebPostgresTest {
 
     @Test
     void exactEuiBindingIndependenceAndMissingKey() throws Exception {
-        var own = f.get("/invitations/by-request/" + request);
+        var own = f.get("/invitations/by-creation-request/" + request);
         assertEquals(200, own.statusCode());
         assertTrue(f.body(own).get("link").asText().endsWith(secret));
         assertEquals(
                 404,
                 f.request(
                                 "GET",
-                                "/invitations/by-request/" + request,
+                                "/invitations/by-creation-request/" + request,
                                 f.jwt("same"),
                                 null,
                                 null,
@@ -112,7 +112,7 @@ class V3InvitationStandaloneWebPostgresTest {
                         .statusCode(),
                 "Sharing a User grants no link access");
         f.binding("owner", 2, null, null);
-        assertEquals(200, f.get("/invitations/by-request/" + request).statusCode());
+        assertEquals(200, f.get("/invitations/by-creation-request/" + request).statusCode());
         assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size());
         assertEquals(2, f.context.getBean(HikariDataSource.class).getMaximumPoolSize());
         f.context.close();
@@ -124,11 +124,11 @@ class V3InvitationStandaloneWebPostgresTest {
         f.properties.put(
                 "pocoma.v3.invitation.keys.new", Base64.getEncoder().encodeToString(replacement));
         f.start(PocomaWebApiApplication.class);
-        assertEquals(503, f.get("/invitations/by-request/" + request).statusCode());
+        assertEquals(503, f.get("/invitations/by-creation-request/" + request).statusCode());
         var foreign =
                 f.request(
                         "GET",
-                        "/invitations/by-request/" + request,
+                        "/invitations/by-creation-request/" + request,
                         f.jwt("same"),
                         null,
                         null,
@@ -144,7 +144,7 @@ class V3InvitationStandaloneWebPostgresTest {
         var response =
                 f.request(
                         "POST",
-                        "/invitations/places",
+                        "/invitations/available-shareholders/query",
                         f.jwt("other"),
                         OTHER_TOKEN,
                         f.json.writeValueAsBytes(Map.of("token", secret)),
@@ -158,13 +158,13 @@ class V3InvitationStandaloneWebPostgresTest {
                         .statusCode());
         assertEquals(
                 401,
-                f.request("GET", "/invitations/by-request/" + request, null, null, null, Map.of())
+                f.request("GET", "/invitations/by-creation-request/" + request, null, null, null, Map.of())
                         .statusCode());
         assertEquals(
                 400,
                 f.request(
                                 "POST",
-                                "/invitations/places",
+                                "/invitations/available-shareholders/query",
                                 f.jwt("other"),
                                 OTHER_TOKEN,
                                 f.json.writeValueAsBytes(Map.of("token", secret, "userId", OWNER)),

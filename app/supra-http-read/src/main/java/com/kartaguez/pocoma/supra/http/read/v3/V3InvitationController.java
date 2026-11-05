@@ -21,7 +21,7 @@ public final class V3InvitationController {
         this.transport = transport;
     }
 
-    @GetMapping("/api/v3/invitations/by-request/{requestId}")
+    @GetMapping("/api/v3/invitations/by-creation-request/{requestId}")
     public void link(
             @PathVariable String requestId,
             AuthenticatedExternalPrincipal p,
@@ -53,7 +53,7 @@ public final class V3InvitationController {
         } else error(result);
     }
 
-    @PostMapping("/api/v3/invitations/places")
+    @PostMapping("/api/v3/invitations/available-shareholders/query")
     public void places(
             AuthenticatedExternalPrincipal p,
             HttpServletRequest request,

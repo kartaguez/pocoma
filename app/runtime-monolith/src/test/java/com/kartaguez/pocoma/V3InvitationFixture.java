@@ -158,7 +158,7 @@ abstract class V3InvitationFixture {
     }
 
     JsonNode link(UUID id) throws Exception {
-        return f.poll("/invitations/by-request/" + id, "owner", null);
+        return f.poll("/invitations/by-creation-request/" + id, "owner", null);
     }
 
     String invitationToken(UUID id) throws Exception {
@@ -208,7 +208,7 @@ abstract class V3InvitationFixture {
             throws Exception {
         return f.http.request(
                 "POST",
-                "/invitations/places",
+                "/invitations/available-shareholders/query",
                 f.http.jwt(actor),
                 binding,
                 f.json.writeValueAsBytes(Map.of("token", secret)),

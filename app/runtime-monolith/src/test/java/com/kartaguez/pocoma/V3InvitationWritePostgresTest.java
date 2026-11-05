@@ -310,12 +310,13 @@ class V3InvitationWritePostgresTest extends V3InvitationFixture {
     void expirationAfterPublicationCounterWait() throws Exception {
         startPot();
         String guest = binding("guest");
-        // Expiry is established by the database, with time to finish creation/projection first.
+        // Expiry is established by the database, with ample headroom to complete
+        // admission, initial verification, and enter the lock wait on v3_event_counter.
         Instant expiry =
                 f.worker
                         .write
                         .queryForObject(
-                                "select clock_timestamp()+interval '8 seconds'",
+                                "select clock_timestamp()+interval '4 seconds'",
                                 java.sql.Timestamp.class)
                         .toInstant();
         UUID invitation = create(expiry);
@@ -326,13 +327,6 @@ class V3InvitationWritePostgresTest extends V3InvitationFixture {
                     .execute(
                             "select position from v3_event_counter where"
                                     + " family='COMMAND_COMPLETION' for update");
-            // Fit the adverse wait inside the existing 500 ms lock bound, without raising it.
-            ReadMonolithI8Fixture.await(
-                    () ->
-                            f.worker.write.queryForObject(
-                                    "select clock_timestamp()>=?",
-                                    Boolean.class,
-                                    java.sql.Timestamp.from(expiry.minusMillis(400))));
             UUID id =
                     f.accepted(
                             f.post(
