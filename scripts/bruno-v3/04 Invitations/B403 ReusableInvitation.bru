@@ -1,0 +1,27 @@
+meta {
+  name: B403 ReusableInvitation
+  type: http
+  seq: 403
+}
+
+get {
+  url: {{baseUrl}}/api/v3/me/binding
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerOwner}}
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect([200,404]).to.include(res.status);
+  expect(res.headers['cache-control']).to.equal('no-store');
+  await require(process.env.POCOMA_I4_HELPER || require('path').resolve(process.cwd(),'lib/i4-invitation.js')).run('B403',bru,expect);
+  test('B403 ReusableInvitation',()=>expect(true).to.equal(true));
+}

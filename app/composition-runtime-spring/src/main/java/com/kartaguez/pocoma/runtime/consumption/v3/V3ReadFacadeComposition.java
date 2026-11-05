@@ -35,8 +35,11 @@ public final class V3ReadFacadeComposition {
 
     /** HTTP bounds are opt-in: inherited non-HTTP consultations retain their owner contract. */
     public static Services create(
-            DataSource read, SpringAttemptTransactions owner, ReadLimitsV3 limits,
-            Set<String> active, Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+            DataSource read,
+            SpringAttemptTransactions owner,
+            ReadLimitsV3 limits,
+            Set<String> active,
+            Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
             boolean httpBounds) {
         owner.requireSource(read);
         var binding = new JdbcCurrentBindingStore(read, owner);
@@ -55,7 +58,10 @@ public final class V3ReadFacadeComposition {
                 new GetCommandTerminalResult(new JdbcCommandTerminalResultStore(read, owner)),
                 new GetIdentityTerminalResult(new JdbcIdentityTerminalResultStore(read, owner)),
                 Set.copyOf(active),
-                worker, limits, read, httpBounds);
+                worker,
+                limits,
+                read,
+                httpBounds);
     }
 
     public static final class Services {
@@ -82,7 +88,10 @@ public final class V3ReadFacadeComposition {
                 GetCommandTerminalResult command,
                 GetIdentityTerminalResult identity,
                 Set<String> active,
-                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker, ReadLimitsV3 limits, DataSource source, boolean httpBounds) {
+                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+                ReadLimitsV3 limits,
+                DataSource source,
+                boolean httpBounds) {
             this.httpBounds = httpBounds;
             this.sql = new org.springframework.jdbc.core.JdbcTemplate(source);
             this.limits = Objects.requireNonNull(limits);
@@ -110,18 +119,34 @@ public final class V3ReadFacadeComposition {
             try {
                 if (!httpBounds) return owner.read(call);
                 long started = System.nanoTime();
-                var result = owner.read(c -> {
-                    // Spring applies its JDBC holder deadline to each statement. Cap that
-                    // deadline as well: otherwise it would overwrite PostgreSQL's 2s setting.
-                    var resource = org.springframework.transaction.support.TransactionSynchronizationManager.getResource(sql.getDataSource());
-                    if (resource instanceof org.springframework.jdbc.datasource.ConnectionHolder holder)
-                        holder.setTimeoutInMillis(Math.min(2000, holder.hasTimeout() ? holder.getTimeToLiveInMillis() : 2000));
-                    sql.execute("set local statement_timeout = '2s'");
-                    sql.execute("set local transaction_timeout = '3s'");
-                    return call.apply(c);
-                });
+                var result =
+                        owner.read(
+                                c -> {
+                                    // Spring applies its JDBC holder deadline to each statement.
+                                    // Cap that
+                                    // deadline as well: otherwise it would overwrite PostgreSQL's
+                                    // 2s setting.
+                                    var resource =
+                                            org.springframework.transaction.support
+                                                    .TransactionSynchronizationManager.getResource(
+                                                    sql.getDataSource());
+                                    if (resource
+                                            instanceof
+                                            org.springframework.jdbc.datasource.ConnectionHolder
+                                                            holder)
+                                        holder.setTimeoutInMillis(
+                                                Math.min(
+                                                        2000,
+                                                        holder.hasTimeout()
+                                                                ? holder.getTimeToLiveInMillis()
+                                                                : 2000));
+                                    sql.execute("set local statement_timeout = '2s'");
+                                    sql.execute("set local transaction_timeout = '3s'");
+                                    return call.apply(c);
+                                });
                 return System.nanoTime() - started > java.time.Duration.ofSeconds(5).toNanos()
-                        ? new Unavailable<>() : result;
+                        ? new Unavailable<>()
+                        : result;
             } catch (RuntimeException technicalFailure) {
                 return new Unavailable<>();
             } finally {
@@ -156,17 +181,23 @@ public final class V3ReadFacadeComposition {
                     || token.isBlank()
                     || id == null
                     || version < 1
-                    || refs == null || refs.isEmpty() || refs.size() > limits.expenseBatch()) return new InvalidInput<>();
+                    || refs == null
+                    || refs.isEmpty()
+                    || refs.size() > limits.expenseBatch()) return new InvalidInput<>();
             final List<ExpenseRef> captured;
-            try { captured = List.copyOf(refs); }
-            catch (NullPointerException | ConcurrentModificationException malformedCapture) { return new InvalidInput<>(); }
+            try {
+                captured = List.copyOf(refs);
+            } catch (NullPointerException | ConcurrentModificationException malformedCapture) {
+                return new InvalidInput<>();
+            }
             if (!limits.validBatch(captured)) return new InvalidInput<>();
             return query(c -> pot.expenses(eui, token, id, version, captured, c));
         }
 
         public ReadPotV3Result<List<UUID>> visible(
                 ExternalIdentity eui, String token, UUID after, int limit) {
-            if (eui == null || token == null || token.isBlank() || !limits.validPage(limit)) return new InvalidInput<>();
+            if (eui == null || token == null || token.isBlank() || !limits.validPage(limit))
+                return new InvalidInput<>();
             return query(c -> navigation.visible(eui, token, after, limit, c));
         }
 
@@ -181,6 +212,45 @@ public final class V3ReadFacadeComposition {
                         return new Available<>(
                                 answer, answer.value() == null ? 0 : answer.value().euiVersion());
                     });
+        }
+
+        private ReadInvitation invitations(
+                Function<com.kartaguez.pocoma.domain.pot.v3.Invitation, String> decrypt) {
+            var read = sql.getDataSource();
+            return new ReadInvitation(
+                    new JdbcInvitationStore(read),
+                    new JdbcPotVersionStore(read, owner),
+                    new JdbcSubobjectVersionStore(read, owner),
+                    bindingStore::read,
+                    decrypt,
+                    () ->
+                            sql.queryForObject("select clock_timestamp()", java.sql.Timestamp.class)
+                                    .toInstant());
+        }
+
+        public ReadPotV3Result<ReadInvitation.Link> invitationLink(
+                ExternalIdentity eui,
+                UUID request,
+                Function<com.kartaguez.pocoma.domain.pot.v3.Invitation, String> decrypt) {
+            if (eui == null || request == null) return new InvalidInput<>();
+            return query(c -> invitations(decrypt).link(eui, request, c));
+        }
+
+        public ReadPotV3Result<List<ReadInvitation.Place>> invitationPlaces(
+                ExternalIdentity eui, String binding, String token) {
+            if (eui == null
+                    || binding == null
+                    || binding.isBlank()
+                    || token == null
+                    || token.isBlank()) return new InvalidInput<>();
+            return query(
+                    c ->
+                            invitations(
+                                            i -> {
+                                                throw new IllegalStateException(
+                                                        "Decryption forbidden");
+                                            })
+                                    .places(eui, binding, token, c));
         }
 
         public ReadPotV3Result<Optional<CommandTerminalResult>> commandResult(

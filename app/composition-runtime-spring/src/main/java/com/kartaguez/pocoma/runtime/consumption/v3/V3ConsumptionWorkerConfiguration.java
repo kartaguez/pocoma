@@ -78,18 +78,35 @@ public class V3ConsumptionWorkerConfiguration {
                                 V3ReadFacadeConfiguration.class.getName(),
                                 V3ReadFacadeComposition.Services.class.getName(),
                                 "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
-            if (readMode && Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE))
-                exact.addAll(Set.of(
-                    V3ReadHttpConfiguration.class.getName(),
-                    V3ReadHttpConfiguration.PrincipalResolver.class.getName(),
-                    V3ReadHttpConfiguration.PotQueries.class.getName(),
-                    com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3.Queries.class.getName(),
-                    V3ReadHttpConfiguration.HttpPreflight.class.getName(),
-                    com.kartaguez.pocoma.supra.http.read.v3.V3ReadController.class.getName(),
-                    com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class.getName(),
-                    com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query.class.getName(),
-                    com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query.class.getName(),
-                    com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query.class.getName()));
+            if (readMode
+                    && Arrays.asList(env.getActiveProfiles())
+                            .contains(V3ReadHttpConfiguration.PROFILE))
+                exact.addAll(
+                        Set.of(
+                                V3ReadHttpConfiguration.class.getName(),
+                                V3ReadHttpConfiguration.PrincipalResolver.class.getName(),
+                                V3ReadHttpConfiguration.PotQueries.class.getName(),
+                                com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3.Queries.class
+                                        .getName(),
+                                V3ReadHttpConfiguration.HttpPreflight.class.getName(),
+                                com.kartaguez.pocoma.supra.http.read.v3.V3ReadController.class
+                                        .getName(),
+                                com.kartaguez.pocoma.supra.http.read.v3.V3InvitationController.class
+                                        .getName(),
+                                com.kartaguez.pocoma.engine.read.pot.v3.ReadInvitation.Queries.class
+                                        .getName(),
+                                V3ReadHttpConfiguration.InvitationQueries.class.getName(),
+                                com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class
+                                        .getName(),
+                                com.kartaguez.pocoma.engine.read.currentbinding.v3
+                                        .GetCurrentBindingV3.Query.class
+                                        .getName(),
+                                com.kartaguez.pocoma.engine.read.commandresult.v3
+                                        .GetCommandTerminalResult.Query.class
+                                        .getName(),
+                                com.kartaguez.pocoma.engine.read.registrationresult.v3
+                                        .GetIdentityTerminalResult.Query.class
+                                        .getName()));
             boolean admission =
                     readMode
                             && Arrays.asList(env.getActiveProfiles()).contains("v3-http-read")
@@ -160,7 +177,9 @@ public class V3ConsumptionWorkerConfiguration {
                                                 t.getName()
                                                         .equals(
                                                                 "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
-                if (projection && Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE))
+                if (projection
+                        && Arrays.asList(env.getActiveProfiles())
+                                .contains(V3ReadHttpConfiguration.PROFILE))
                     throw new IllegalStateException("HTTP READ requires the WEB or Monolith root");
                 if (projection && (settings.commandEnabled() || settings.identityRequest()))
                     throw new IllegalStateException(
@@ -221,8 +240,19 @@ public class V3ConsumptionWorkerConfiguration {
     @Profile({V3ConsumptionWorkerSettings.PROFILE, V3ConsumptionWorkerSettings.READ_PROFILE})
     static class Active {
         @Bean(destroyMethod = "closeIfSafe")
-        Resources v3WorkerResources(V3ConsumptionWorkerSettings settings, V3BootstrapGuard guard) {
-            return new Resources(settings, guard);
+        Resources v3WorkerResources(
+                V3ConsumptionWorkerSettings settings, V3BootstrapGuard guard, Environment env) {
+            var resources = new Resources(settings, guard);
+            try {
+                if (settings.readParticipants().contains("MaterializeInvitation")
+                        || env.getProperty("pocoma.v3.invitation.current-key") != null)
+                    V3InvitationConfiguration.requireInstalled(
+                            resources.writeBusiness, resources.readBusiness);
+                return resources;
+            } catch (RuntimeException failure) {
+                resources.closeIfSafe();
+                throw failure;
+            }
         }
 
         @Bean(destroyMethod = "")
@@ -270,7 +300,8 @@ public class V3ConsumptionWorkerConfiguration {
                 V3ConsumptionWorkerSettings settings,
                 V3BootstrapGuard guard,
                 WorkerCapacity capacity,
-                ConsumptionObservation observation) {
+                ConsumptionObservation observation,
+                org.springframework.core.env.Environment env) {
             var bindings = new ArrayList<V3ConsumptionWorker.Binding>();
             var ds =
                     new DiscoveryEngine.Settings(
@@ -338,7 +369,13 @@ public class V3ConsumptionWorkerConfiguration {
                                     guard,
                                     settings.lifecycle(),
                                     capacity,
-                                    observation);
+                                    observation,
+                                    V3InvitationConfiguration.keys(env) == null
+                                            ? null
+                                            : new com.kartaguez.pocoma.infra.persistence.primary.jpa
+                                                    .v3.JdbcInvitationStore(
+                                                    resources.writeBusiness,
+                                                    V3InvitationConfiguration.keys(env)));
                     discovery =
                             V3ConsumptionDiscoveryComposition.requests(
                                     guard,
@@ -349,9 +386,13 @@ public class V3ConsumptionWorkerConfiguration {
                                     V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
                 } else if (V3ConsumptionWorkerSettings.READ_NAMES.contains(name)) {
                     var participant =
-                            reads.get(
-                                    V3ReadParticipants.Name.values()[
-                                            V3ConsumptionWorkerSettings.READ_NAMES.indexOf(name)]);
+                            name.equals("MaterializeInvitation")
+                                    ? V3ReadParticipants.invitation(
+                                            resources.writeBusiness, resources.readBusiness)
+                                    : reads.get(
+                                            V3ReadParticipants.Name.values()[
+                                                    V3ConsumptionWorkerSettings.READ_NAMES.indexOf(
+                                                            name)]);
                     engine =
                             V3ConsumptionLifecycleComposition.assemble(
                                     guard,
@@ -622,10 +663,10 @@ public class V3ConsumptionWorkerConfiguration {
             var expected =
                     new HashSet<javax.sql.DataSource>(
                             Set.of(
-                            resources.writeBusiness,
-                            resources.writeControl,
-                            resources.readBusiness,
-                            resources.readControl));
+                                    resources.writeBusiness,
+                                    resources.writeControl,
+                                    resources.readBusiness,
+                                    resources.readControl));
             boolean admission =
                     Arrays.asList(factory.getBean(Environment.class).getActiveProfiles())
                             .contains("v3-http-admission");
@@ -634,7 +675,9 @@ public class V3ConsumptionWorkerConfiguration {
             var actual =
                     Collections.newSetFromMap(new IdentityHashMap<javax.sql.DataSource, Boolean>());
             int capacities = 0;
-            boolean http = Arrays.asList(factory.getBean(Environment.class).getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE);
+            boolean http =
+                    Arrays.asList(factory.getBean(Environment.class).getActiveProfiles())
+                            .contains(V3ReadHttpConfiguration.PROFILE);
             for (String name : factory.getSingletonNames()) {
                 Object bean = factory.getSingleton(name);
                 if (bean instanceof javax.sql.DataSource ds) actual.add(ds);
@@ -663,23 +706,71 @@ public class V3ConsumptionWorkerConfiguration {
                                             "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication")
                                     || value.equals(
                                             "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
-                                    || (http && (
-                                        bean instanceof V3ReadHttpConfiguration
-                                        || bean instanceof V3ReadHttpConfiguration.HttpPreflight
-                                        || bean instanceof V3ReadHttpConfiguration.PrincipalResolver
-                                        || (name.equals("v3HttpPot") && bean instanceof V3ReadHttpConfiguration.PotQueries)
-                                        || bean instanceof com.kartaguez.pocoma.supra.http.read.v3.V3ReadController
-                                        || bean instanceof com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport
-                                        || (name.equals("v3HttpBinding") && bean instanceof com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query)
-                                        || (name.equals("v3HttpCommandResult") && bean instanceof com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query)
-                                        || (name.equals("v3HttpIdentityResult") && bean instanceof com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query)
-                                        || (name.equals("v3HttpServerBounds") && bean instanceof org.springframework.boot.web.server.WebServerFactoryCustomizer)))
+                                    || (http
+                                            && (bean instanceof V3ReadHttpConfiguration
+                                                    || bean
+                                                            instanceof
+                                                            V3ReadHttpConfiguration.HttpPreflight
+                                                    || bean
+                                                            instanceof
+                                                            V3ReadHttpConfiguration
+                                                                    .PrincipalResolver
+                                                    || (name.equals("v3HttpPot")
+                                                            && bean
+                                                                    instanceof
+                                                                    V3ReadHttpConfiguration
+                                                                            .PotQueries)
+                                                    || (name.equals("v3HttpInvitations")
+                                                            && bean
+                                                                    instanceof
+                                                                    V3ReadHttpConfiguration
+                                                                            .InvitationQueries)
+                                                    || bean
+                                                            instanceof
+                                                            com.kartaguez.pocoma.supra.http.read.v3
+                                                                    .V3InvitationController
+                                                    || bean
+                                                            instanceof
+                                                            com.kartaguez.pocoma.supra.http.read.v3
+                                                                    .V3ReadController
+                                                    || bean
+                                                            instanceof
+                                                            com.kartaguez.pocoma.supra.http.read.v3
+                                                                    .V3ReadTransport
+                                                    || (name.equals("v3HttpBinding")
+                                                            && bean
+                                                                    instanceof
+                                                                    com.kartaguez.pocoma.engine.read
+                                                                            .currentbinding.v3
+                                                                            .GetCurrentBindingV3
+                                                                            .Query)
+                                                    || (name.equals("v3HttpCommandResult")
+                                                            && bean
+                                                                    instanceof
+                                                                    com.kartaguez.pocoma.engine.read
+                                                                            .commandresult.v3
+                                                                            .GetCommandTerminalResult
+                                                                            .Query)
+                                                    || (name.equals("v3HttpIdentityResult")
+                                                            && bean
+                                                                    instanceof
+                                                                    com.kartaguez.pocoma.engine.read
+                                                                            .registrationresult.v3
+                                                                            .GetIdentityTerminalResult
+                                                                            .Query)
+                                                    || (name.equals("v3HttpServerBounds")
+                                                            && bean
+                                                                    instanceof
+                                                                    org.springframework.boot.web
+                                                                            .server
+                                                                            .WebServerFactoryCustomizer)))
                                     || (http && admission && admissionTypes().contains(value))
                                     || name.equals("v3ResourceValidation")
                                     || (name.equals("v3WorkerHealth")
                                             && bean instanceof HealthIndicator);
                     if (!known)
-                        throw new IllegalStateException("unallocated active singleton in I5: " + name + "/" + value);
+                        throw new IllegalStateException(
+                                "unallocated active singleton in I5: " + name + "/" + value);
                 }
             }
             int expectedCapacities =

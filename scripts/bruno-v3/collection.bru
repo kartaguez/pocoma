@@ -1,5 +1,8 @@
 script:pre-request {
-  if (process.env.POCOMA_I2_BASE_URL) {
+  if (process.env.POCOMA_I4_BASE_URL) {
+    bru.setVar('baseUrl',process.env.POCOMA_I4_BASE_URL);
+    bru.setVar('bearerOwner',process.env.POCOMA_I4_BEARER_OWNER);
+  } else if (process.env.POCOMA_I2_BASE_URL) {
     bru.setVar('baseUrl',process.env.POCOMA_I2_BASE_URL);
     bru.setVar('bearerOwner',process.env.POCOMA_I2_bearerOwner);
   } else {

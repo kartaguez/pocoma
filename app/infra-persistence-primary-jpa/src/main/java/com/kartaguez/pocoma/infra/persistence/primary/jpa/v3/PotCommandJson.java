@@ -22,6 +22,11 @@ public final class PotCommandJson {
     public static String encode(Intent intent) {
         var n = JSON.createObjectNode();
         switch (intent) {
+            case CreateInvitation i -> n.put("expiresAt", i.expiresAt().toString());
+            case PotCommand.AttachShareholderViaInvitation i -> {
+                n.put("tokenHash", i.tokenHash());
+                n.put("shareholderId", i.shareholderId().toString());
+            }
             case CreatePot i -> n.put("label", i.label().value());
             case UpdatePotDetails i -> n.put("label", i.label().value());
             case DeletePot i -> {}
@@ -140,6 +145,12 @@ public final class PotCommandJson {
             if (n.has("payloadVersion"))
                 throw new IllegalArgumentException("Envelope requires version-aware consumer");
             return switch (operation) {
+                case "CreateInvitation" ->
+                        new CreateInvitation(java.time.Instant.parse(text(n, "expiresAt")));
+                case "AttachShareholderViaInvitation" ->
+                        new PotCommand.AttachShareholderViaInvitation(
+                                text(n, "tokenHash"),
+                                new ShareholderId(UUID.fromString(text(n, "shareholderId"))));
                 case "CreatePot" -> new CreatePot(new Label(text(n, "label")));
                 case "UpdatePotDetails" -> new UpdatePotDetails(new Label(text(n, "label")));
                 case "DeletePot" -> new DeletePot();

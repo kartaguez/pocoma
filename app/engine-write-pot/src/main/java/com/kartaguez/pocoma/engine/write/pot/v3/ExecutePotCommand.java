@@ -33,6 +33,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     private final PotHistoryPort history;
     private final PotRevisionPort revisions;
     private final Clock clock;
+    private InvitationStore invitations;
 
     public ExecutePotCommand(
             PotCommandStore store,
@@ -49,6 +50,18 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         this.clock = Objects.requireNonNull(clock);
     }
 
+    public ExecutePotCommand(
+            PotCommandStore store,
+            PotCommandObservation observation,
+            PotActorAuthority authority,
+            PotHistoryPort history,
+            PotRevisionPort revisions,
+            Clock clock,
+            InvitationStore invitations) {
+        this(store, observation, authority, history, revisions, clock);
+        this.invitations = Objects.requireNonNull(invitations);
+    }
+
     @Override
     public Optional<ConsumptionParticipant.Prepared> prepare(
             UUID requestId, PreparationReads reads) {
@@ -58,18 +71,20 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     private Optional<ConsumptionParticipant.Prepared> prepareInSnapshot(UUID requestId) {
         var stored = store.load(requestId);
         if (stored.terminal().isPresent()) return Optional.empty();
-        var proposal = prepare(stored);
+        var proposal = new Proposal[] {prepare(stored)};
         return Optional.of(
                 new ConsumptionParticipant.Prepared() {
                     @Override
                     public void finalizeIn(SlotCompletion completion) {
-                        finalizeProposal(proposal, completion);
+                        finalizeProposal(proposal[0], completion, actual -> proposal[0] = actual);
                     }
 
                     @Override
                     public void requireCompletionReady() {
                         store.requireCompletionReady(
-                                proposal.command(), proposal.result(), proposal.components());
+                                proposal[0].command(),
+                                proposal[0].result(),
+                                proposal[0].components());
                     }
                 });
     }
@@ -85,7 +100,8 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                 };
     }
 
-    private void finalizeProposal(Proposal prepared, SlotCompletion completion) {
+    private void finalizeProposal(
+            Proposal prepared, SlotCompletion completion, Consumer<Proposal> actual) {
         var command = prepared.command();
         var durable = store.load(command.requestId());
         if (durable.terminal().isPresent() || !durable.command().equals(command))
@@ -94,6 +110,26 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         if (prepared.actor().actor().isPresent()
                 && !store.protectPot(command.potId(), prepared.workingVersion()))
             throw new Collision();
+        if (prepared.result().outcome() != Outcome.REJECTED) {
+            Instant expiry =
+                    command.intent() instanceof CreateInvitation i
+                            ? i.expiresAt()
+                            : command.intent()
+                                            instanceof PotCommand.AttachShareholderViaInvitation i
+                                    ? requireInvitations()
+                                            .find(i.tokenHash())
+                                            .orElseThrow()
+                                            .expiresAt()
+                                    : null;
+            if (expiry != null && !requireInvitations().unexpired(expiry))
+                prepared =
+                        rejected(
+                                command,
+                                prepared.actor(),
+                                prepared.workingVersion(),
+                                "INVALID_INVITATION");
+        }
+        actual.accept(prepared);
         prepared.apply().run();
         store.finishTerminal(command, prepared.result());
         completion.complete();
@@ -121,6 +157,47 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                                     component("POT_DETAILS", c.potId(), p.details())));
         }
         if (selected.isEmpty()) return rejected(c, actor, 0, "NOT_FOUND");
+        if (c.intent() instanceof CreateInvitation i) {
+            var facts = selected.get().facts();
+            if (facts.header().value().deleted()) return rejected(c, actor, version, "DELETED");
+            if (!facts.authorization().creator()) return rejected(c, actor, version, "FORBIDDEN");
+            var invitation = requireInvitations().prepare(c, i);
+            return new Proposal(
+                    c,
+                    actor,
+                    version,
+                    new Result(Outcome.INVITATION_CREATED, null, null),
+                    () -> requireInvitations().insert(invitation),
+                    List.of());
+        }
+        if (c.intent() instanceof PotCommand.AttachShareholderViaInvitation i) {
+            var invitation = requireInvitations().find(i.tokenHash());
+            if (invitation.isEmpty() || !invitation.get().potId().equals(c.potId().value()))
+                return rejected(c, actor, version, "INVALID_INVITATION");
+            var p = selected.get();
+            var target = p.shareholders().get(i.shareholderId());
+            Versioned<ShareholderDetails> details =
+                    target.details() instanceof ComponentRead.Present<ShareholderDetails> d
+                            ? d.revision()
+                            : null;
+            return decision(
+                    c,
+                    actor,
+                    version,
+                    new com.kartaguez.pocoma.domain.pot.v3.AttachShareholderViaInvitation(
+                                    i.shareholderId())
+                            .decide(p.facts(), target.reference(), details),
+                    r -> revisions.reviseShareholderDetails(c.potId(), r),
+                    values ->
+                            values.entrySet().stream()
+                                    .map(
+                                            e ->
+                                                    component(
+                                                            "SHAREHOLDER_DETAILS",
+                                                            e.getKey(),
+                                                            e.getValue()))
+                                    .toList());
+        }
         return decide(c, actor, selected.get());
     }
 
@@ -134,6 +211,10 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                                 Collectors.toUnmodifiableMap(
                                         Map.Entry::getKey, e -> e.getValue().reference()));
         return switch (c.intent()) {
+            case CreateInvitation i ->
+                    throw new IllegalStateException("Invitation dispatch required");
+            case PotCommand.AttachShareholderViaInvitation i ->
+                    throw new IllegalStateException("Invitation dispatch required");
             case CreatePot ignored ->
                     throw new IllegalStateException("Creation handled separately");
             case UpdatePotDetails i ->
@@ -158,8 +239,11 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                             c,
                             actor,
                             version,
-                            ShareholderTransitions.create(facts, observed,
-                                    creationTargets(c, i, actor.actor().orElseThrow()), refs),
+                            ShareholderTransitions.create(
+                                    facts,
+                                    observed,
+                                    creationTargets(c, i, actor.actor().orElseThrow()),
+                                    refs),
                             r -> revisions.createShareholders(c.potId(), r),
                             states ->
                                     states.stream()
@@ -191,8 +275,11 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                             actor,
                             version,
                             ShareholderTransitions.updateDetails(
-                                    facts, observed,
-                                    detailTargets(c, i, actor.actor().orElseThrow(), p), refs, shareholderDetails(p)),
+                                    facts,
+                                    observed,
+                                    detailTargets(c, i, actor.actor().orElseThrow(), p),
+                                    refs,
+                                    shareholderDetails(p)),
                             r -> revisions.reviseShareholderDetails(c.potId(), r),
                             values ->
                                     values.entrySet().stream()
@@ -450,6 +537,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     private static Selection selection(Intent intent) {
         Set<ShareholderId> shareholders =
                 switch (intent) {
+                    case PotCommand.AttachShareholderViaInvitation i -> Set.of(i.shareholderId());
                     case AddShareholders i ->
                             i.targets().stream()
                                     .map(ShareholderTransitions.Creation::id)
@@ -479,10 +567,17 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                 shareholders,
                 expenses,
                 intent instanceof UpdatePotDetails || intent instanceof CreatePot,
-                intent instanceof UpdateShareholderDetails,
+                intent instanceof UpdateShareholderDetails
+                        || intent instanceof PotCommand.AttachShareholderViaInvitation,
                 intent instanceof UpdateShareholderWeights,
                 intent instanceof UpdateExpenseDetails || intent instanceof DeleteExpense,
                 intent instanceof UpdateExpenseFinancials || intent instanceof DeleteExpense);
+    }
+
+    private InvitationStore requireInvitations() {
+        if (invitations == null)
+            throw new IllegalStateException("Invitation support not configured");
+        return invitations;
     }
 
     private static Set<ShareholderId> referenceIds(ExpenseFinancials f) {

@@ -68,6 +68,22 @@ public final class CommandAdmissionInput {
             Map<String, Object> p;
             Intent intent;
             switch (op) {
+                case "CreateInvitation" -> {
+                    p = object(n.get("payload"), "expiresAt");
+                    var expiresAt = java.time.Instant.parse(text(p, "expiresAt"));
+                    require(text(p, "expiresAt").endsWith("Z"));
+                    require(expiresAt.getNano() % 1000 == 0);
+                    require(java.sql.Timestamp.from(expiresAt).toInstant().equals(expiresAt));
+                    p.put("expiresAt", expiresAt.toString());
+                    intent = new CreateInvitation(expiresAt);
+                }
+                case "AttachShareholderViaInvitation" -> {
+                    p = object(n.get("payload"), "invitationToken", "shareholderId");
+                    intent =
+                            new PotCommand.AttachShareholderViaInvitation(
+                                    InvitationTokenHash.of(nonblank(p, "invitationToken")),
+                                    new ShareholderId(uuid(p, "shareholderId")));
+                }
                 case "CreatePot", "UpdatePotDetails" -> {
                     p = object(n.get("payload"), "label");
                     var label = new Label(text(p, "label"));

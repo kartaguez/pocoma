@@ -58,8 +58,19 @@ public final class JdbcPotCommandObservation implements PotCommandObservation {
                                             + " v3_event_position p on p.family='POT' and"
                                             + " p.event_id=e.event_id where e.request_id=?",
                                     request);
+                    long invitationEffects =
+                            "CreateInvitation".equals(command.get("operation"))
+                                    ? jdbc.queryForObject(
+                                            "select count(*) from v3_invitation where"
+                                                + " creation_request_id=?",
+                                            Long.class,
+                                            request)
+                                    : 0;
                     if ("PENDING".equals(command.get("status")))
-                        return results.isEmpty() && completions.isEmpty() && events.isEmpty()
+                        return results.isEmpty()
+                                        && completions.isEmpty()
+                                        && events.isEmpty()
+                                        && invitationEffects == 0
                                 ? RecoveryObservation.NOT_COMPLETED
                                 : RecoveryObservation.INCONSISTENT;
                     if (!"TERMINAL".equals(command.get("status"))
@@ -73,8 +84,34 @@ public final class JdbcPotCommandObservation implements PotCommandObservation {
                         return result.get("rejection") != null
                                         && result.get("resulting_pot_version") == null
                                         && events.isEmpty()
+                                        && invitationEffects == 0
                                 ? RecoveryObservation.COMPLETED
                                 : RecoveryObservation.INCONSISTENT;
+                    if ("INVITATION_CREATED".equals(outcome)) {
+                        if (!"CreateInvitation".equals(command.get("operation"))
+                                || result.get("resulting_pot_version") != null
+                                || result.get("rejection") != null
+                                || !events.isEmpty()) return RecoveryObservation.INCONSISTENT;
+                        return jdbc.queryForObject(
+                                                "select count(*) from v3_invitation i join"
+                                                    + " v3_invitation_event e"
+                                                    + " using(invitation_id,version) join"
+                                                    + " v3_event_position p on"
+                                                    + " p.event_id=e.event_id and"
+                                                    + " p.family='INVITATION' join v3_event_counter"
+                                                    + " counter on counter.family=p.family and"
+                                                    + " counter.position>=p.position where"
+                                                    + " i.creation_request_id=? and i.pot_id=? and"
+                                                    + " i.creator_issuer=? and i.creator_subject=?",
+                                                Integer.class,
+                                                request,
+                                                command.get("pot_id"),
+                                                command.get("requester_issuer"),
+                                                command.get("requester_subject"))
+                                        == 1
+                                ? RecoveryObservation.COMPLETED
+                                : RecoveryObservation.INCONSISTENT;
+                    }
                     if (!(result.get("resulting_pot_version") instanceof Number version)
                             || version.longValue() < 1
                             || result.get("rejection") != null)

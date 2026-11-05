@@ -4,6 +4,7 @@ import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -67,7 +68,11 @@ public record PotCommand(
         if (bindingToken == null || bindingToken.isBlank())
             throw new IllegalArgumentException("Binding token required");
         if (observedVersion < 0
-                || (intent instanceof CreatePot ? observedVersion != 0 : observedVersion == 0))
+                || (intent instanceof CreatePot
+                                || intent instanceof CreateInvitation
+                                || intent instanceof AttachShareholderViaInvitation
+                        ? observedVersion != 0
+                        : observedVersion == 0))
             throw new IllegalArgumentException("Invalid observation");
     }
 
@@ -84,7 +89,9 @@ public record PotCommand(
     }
 
     public sealed interface Intent
-            permits CreatePot,
+            permits CreateInvitation,
+                    AttachShareholderViaInvitation,
+                    CreatePot,
                     UpdatePotDetails,
                     DeletePot,
                     AddShareholders,
@@ -95,6 +102,36 @@ public record PotCommand(
                     UpdateExpenseDetails,
                     UpdateExpenseFinancials,
                     DeleteExpense {}
+
+    public record CreateInvitation(Instant expiresAt) implements Intent {
+        public CreateInvitation {
+            Objects.requireNonNull(expiresAt);
+            // Finite PostgreSQL timestamps, exact microseconds. Storage bounds, not a business TTL.
+            // PostgreSQL 18 src/include/datatype/timestamp.h MIN_TIMESTAMP/END_TIMESTAMP, epoch
+            // 2000.
+            var minimum = Instant.ofEpochSecond(946684800L - 211813488000L);
+            var maximum = Instant.ofEpochSecond(946684800L + 9223371331200L);
+            if (expiresAt.getNano() % 1000 != 0
+                    || expiresAt.isBefore(minimum)
+                    || !expiresAt.isBefore(maximum))
+                throw new IllegalArgumentException("Unrepresentable Invitation expiration");
+        }
+    }
+
+    public record AttachShareholderViaInvitation(String tokenHash, ShareholderId shareholderId)
+            implements Intent {
+        public AttachShareholderViaInvitation {
+            Objects.requireNonNull(tokenHash);
+            Objects.requireNonNull(shareholderId);
+            if (!tokenHash.matches("[0-9a-f]{64}"))
+                throw new IllegalArgumentException("Invitation token required");
+        }
+
+        @Override
+        public String toString() {
+            return "AttachShareholderViaInvitation[redacted]";
+        }
+    }
 
     public record CreatePot(Label label) implements Intent {
         public CreatePot {

@@ -1,0 +1,27 @@
+meta {
+  name: B402 ConfidentialityAndMasking
+  type: http
+  seq: 402
+}
+
+get {
+  url: {{baseUrl}}/api/v3/me/binding
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerOwner}}
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect([200,404]).to.include(res.status);
+  expect(res.headers['cache-control']).to.equal('no-store');
+  await require(process.env.POCOMA_I4_HELPER || require('path').resolve(process.cwd(),'lib/i4-invitation.js')).run('B402',bru,expect);
+  test('B402 ConfidentialityAndMasking',()=>expect(true).to.equal(true));
+}

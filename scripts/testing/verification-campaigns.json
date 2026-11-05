@@ -947,6 +947,115 @@
         "basis": "Only the corrected lock oracle; charged to remaining PG envelope",
         "blocking": true
       }
+    },
+    "l5-i4-departure": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-monolith"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+          "voluntaryDeparturePreservesHistoryAndIdentity"
+        ]
+      },
+      "forecast": {
+        "seconds": 180,
+        "basis": "Public asynchronous DETACH through existing Worker, independent SQL history and Identity oracles",
+        "blocking": false
+      }
+    },
+    "l5-i4-write": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api",
+        "runtime-command-consumption-worker",
+        "runtime-task-consumption-worker",
+        "runtime-monolith"
+      ],
+      "expected_invocations": 5,
+      "tests": {
+        "com.kartaguez.pocoma.V3InvitationWritePostgresTest": [
+          "atomicCreationAndIdempotence",
+          "creatorOnlyAndExpiredCreation",
+          "twoGuestsOnePlaceAndReusableToken",
+          "oneGuestCannotTakeTwoPlaces"
+        ],
+        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+          "voluntaryDeparturePreservesHistoryAndIdentity"
+        ]
+      },
+      "forecast": {
+        "seconds": 240,
+        "basis": "Checkpoint I4-a/c: fresh CURRENT SQL, real HTTP admission and L2 execution, corrected departure fixture",
+        "blocking": false
+      }
+    },
+    "l5-i4-first-write": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-monolith"
+      ],
+      "expected_invocations": 2,
+      "tests": {
+        "com.kartaguez.pocoma.V3InvitationWritePostgresTest": [
+          "atomicCreationAndIdempotence"
+        ],
+        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+          "voluntaryDeparturePreservesHistoryAndIdentity"
+        ]
+      },
+      "forecast": {
+        "seconds": 150,
+        "basis": "Corrected target 3/4 roots, inherited singleton preflight completed; physical first-path diagnostic",
+        "blocking": false
+      }
+    },
+    "l5-i4": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api",
+        "runtime-command-consumption-worker",
+        "runtime-task-consumption-worker",
+        "runtime-monolith"
+      ],
+      "selection": "whole-classes",
+      "expected_invocations": 18,
+      "tests": {
+        "com.kartaguez.pocoma.V3InvitationWritePostgresTest": [
+          "atomicCreationAndIdempotence",
+          "creatorOnlyAndExpiredCreation",
+          "twoGuestsOnePlaceAndReusableToken",
+          "oneGuestCannotTakeTwoPlaces",
+          "rollbackAfterInvitationPositionKeepsDensePublication",
+          "expirationAfterPublicationCounterWait"
+        ],
+        "com.kartaguez.pocoma.V3InvitationReadPostgresTest": [
+          "authenticatedEncryptionAndOldKeyRestoration",
+          "monotoneDuplicateAndDivergence",
+          "reconstructOnFreshReadWithoutProducer"
+        ],
+        "com.kartaguez.pocoma.V3InvitationHttpTest": [
+          "concurrentUnlinkAndAttachmentSerializeAtIdentity",
+          "unlinkCannotPreserveStaleInvitationAuthority",
+          "confidentialLinkAndRestrictedPlaces",
+          "finalNonCreatorDeparturePreservesOtherPotAndHistoricalReads",
+          "brunoB4StandaloneCorpus"
+        ],
+        "com.kartaguez.pocoma.V3InvitationTopologyPostgresTest": [
+          "invitationPrivilegePreflightsRejectColumnEscalation",
+          "targetThreeFourPartitionsConnectionsRenewalAndRestart"
+        ],
+        "com.kartaguez.pocoma.V3InvitationStandaloneWebPostgresTest": [
+          "exactEuiBindingIndependenceAndMissingKey",
+          "restrictedPlacesWithoutWriteOrDecryption"
+        ]
+      },
+      "forecast": {
+        "seconds": 660,
+        "basis": "One union of all T4 classes plus standalone WEB; B4 included once; unchanged lease 180s and native retry 30s",
+        "blocking": false
+      }
     }
   },
   "sequences": {

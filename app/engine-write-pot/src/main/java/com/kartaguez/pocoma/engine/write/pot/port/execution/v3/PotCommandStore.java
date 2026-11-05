@@ -9,6 +9,7 @@ import java.util.*;
  */
 public interface PotCommandStore {
     enum Outcome {
+        INVITATION_CREATED,
         CHANGED,
         UNCHANGED,
         REJECTED
@@ -19,7 +20,11 @@ public interface PotCommandStore {
             Objects.requireNonNull(outcome);
             if (outcome == Outcome.REJECTED
                     ? rejection == null || resultingPotVersion != null
-                    : rejection != null || resultingPotVersion == null || resultingPotVersion < 1)
+                    : outcome == Outcome.INVITATION_CREATED
+                            ? rejection != null || resultingPotVersion != null
+                            : rejection != null
+                                    || resultingPotVersion == null
+                                    || resultingPotVersion < 1)
                 throw new IllegalArgumentException("Invalid terminal result");
         }
 

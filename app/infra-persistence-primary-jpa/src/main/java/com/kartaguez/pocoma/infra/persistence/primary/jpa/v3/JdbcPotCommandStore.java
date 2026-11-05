@@ -62,7 +62,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                     new PotId((UUID) row.get("pot_id")),
                                     ((Number) row.get("observed_version")).longValue(),
                                     (String) row.get("operation"),
-                                            row.get("payload").toString());
+                                    row.get("payload").toString());
                     boolean terminal = row.get("status").equals("TERMINAL");
                     if (terminal != (row.get("outcome") != null))
                         throw new InconsistentPotFactsException("Terminal/result mismatch");
@@ -152,7 +152,23 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                             || !durable.terminal().equals(Optional.of(result)))
                         throw new InconsistentPotFactsException(
                                 "Completion requires the exact terminal result");
-                    if (result.outcome() == Outcome.CHANGED) {
+                    if (result.outcome() == Outcome.INVITATION_CREATED) {
+                        if (!(command.intent() instanceof PotCommand.CreateInvitation)
+                                || !changed.isEmpty()
+                                || jdbc.queryForObject(
+                                                "select count(*) from v3_invitation where"
+                                                    + " creation_request_id=? and pot_id=? and"
+                                                    + " creator_issuer=? and creator_subject=? and"
+                                                    + " writer_xid=pg_current_xact_id()",
+                                                Integer.class,
+                                                command.requestId(),
+                                                command.potId().value(),
+                                                command.requester().issuer(),
+                                                command.requester().subject())
+                                        != 1)
+                            throw new InconsistentPotFactsException(
+                                    "Invitation completion requires exact owned effect");
+                    } else if (result.outcome() == Outcome.CHANGED) {
                         var actual =
                                 changedComponents(command.potId(), result.resultingPotVersion());
                         if (changed.isEmpty()
@@ -207,6 +223,19 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                                         c.objectId(),
                                                         c.localVersion()));
                     }
+                    UUID invitationEvent = null;
+                    if (result.outcome() == Outcome.INVITATION_CREATED) {
+                        invitationEvent = UUID.randomUUID();
+                        if (jdbc.update(
+                                        "insert into"
+                                            + " v3_invitation_event(event_id,invitation_id,version,recorded_at)"
+                                            + " select ?,invitation_id,version,clock_timestamp()"
+                                            + " from v3_invitation where creation_request_id=?",
+                                        invitationEvent,
+                                        command.requestId())
+                                != 1)
+                            throw new InconsistentPotFactsException("Missing Invitation effect");
+                    }
                     UUID completion = UUID.randomUUID();
                     jdbc.update(
                             "insert into"
@@ -220,6 +249,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     // Closed suffix. Only pre-existing family counters and new publication-position
                     // rows.
                     if (potEvent != null) position("POT", potEvent);
+                    if (invitationEvent != null) position("INVITATION", invitationEvent);
                     position("COMMAND_COMPLETION", completion);
                     return null;
                 });

@@ -44,7 +44,8 @@ public record V3ConsumptionWorkerSettings(
                     "MaterializePotVisibility",
                     "MaterializeCurrentBinding",
                     "MaterializeCommandResult",
-                    "MaterializeIdentityRequestResult");
+                    "MaterializeIdentityRequestResult",
+                    "MaterializeInvitation");
     static final String PREFIX = "pocoma.v3.worker.";
 
     public record DevTarget(
@@ -447,7 +448,7 @@ public record V3ConsumptionWorkerSettings(
                 int index = READ_NAMES.indexOf(name);
                 if (index < 0)
                     throw new IllegalArgumentException("source/participant not delivered");
-                int catalogIndex = index < 3 ? index + 2 : index + 3; // Invitation stays inactive.
+                int catalogIndex = index == 6 ? 5 : index < 3 ? index + 2 : index + 3;
                 yield V3ConsumptionCatalogConfiguration.definitions().get(catalogIndex);
             }
         };

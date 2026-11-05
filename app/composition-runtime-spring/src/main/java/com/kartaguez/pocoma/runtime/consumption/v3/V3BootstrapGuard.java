@@ -121,11 +121,14 @@ public final class V3BootstrapGuard {
                     "read_command_result",
                     Set.of(),
                     "read_identity_request_result",
-                    Set.of());
+                    Set.of(),
+                    "read_current_invitation",
+                    Set.of("version", "expires_at", "protected_link"));
 
     private static void inspectReadBusiness(Statement s) throws SQLException {
         for (var entry : READ_UPDATES.entrySet()) {
             String table = entry.getKey();
+            if (table.equals("read_current_invitation") && !tableExists(s, table)) continue;
             try (var rows =
                     s.executeQuery(
                             "select has_table_privilege('"
@@ -172,7 +175,7 @@ public final class V3BootstrapGuard {
             try (var rows =
                     s.executeQuery(
                             "select exists(select 1 from pg_class c, lateral aclexplode(c.relacl)"
-                                + " acl where c.oid='"
+                                    + " acl where c.oid='"
                                     + table
                                     + "'::regclass and acl.grantee=0) or exists(select 1 from"
                                     + " pg_attribute a, lateral aclexplode(a.attacl) acl where"
@@ -671,27 +674,37 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
         }
     }
 
+    private static boolean tableExists(Statement statement, String table) throws SQLException {
+        try (var rows = statement.executeQuery("select to_regclass('" + table + "') is not null")) {
+            rows.next();
+            return rows.getBoolean(1);
+        }
+    }
+
     private static void inspectDiscoveryWrite(Statement statement) throws SQLException {
         var insertTables =
-                Set.of(
-                        "v3_command_result",
-                        "v3_pot_identity",
-                        "v3_pot_version",
-                        "v3_shareholder_identity",
-                        "v3_expense_identity",
-                        "v3_pot_header",
-                        "v3_pot_details",
-                        "v3_shareholder_header",
-                        "v3_shareholder_details",
-                        "v3_shareholder_weight",
-                        "v3_expense_header",
-                        "v3_expense_details",
-                        "v3_expense_financials",
-                        "v3_expense_participant",
-                        "v3_pot_event",
-                        "v3_pot_event_component",
-                        "v3_command_completion_event",
-                        "v3_event_position");
+                new HashSet<>(
+                        Set.of(
+                                "v3_command_result",
+                                "v3_pot_identity",
+                                "v3_pot_version",
+                                "v3_shareholder_identity",
+                                "v3_expense_identity",
+                                "v3_pot_header",
+                                "v3_pot_details",
+                                "v3_shareholder_header",
+                                "v3_shareholder_details",
+                                "v3_shareholder_weight",
+                                "v3_expense_header",
+                                "v3_expense_details",
+                                "v3_expense_financials",
+                                "v3_expense_participant",
+                                "v3_pot_event",
+                                "v3_pot_event_component",
+                                "v3_command_completion_event",
+                                "v3_event_position"));
+        for (String table : List.of("v3_invitation", "v3_invitation_event"))
+            if (tableExists(statement, table)) insertTables.add(table);
         var tables = new HashSet<>(insertTables);
         tables.addAll(Set.of("v3_command", "v3_event_counter"));
         var history =
@@ -840,6 +853,8 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
                     Set.of(
                             "v3_command",
                             "v3_command_result",
+                            "v3_invitation",
+                            "v3_invitation_event",
                             "v3_pot_identity",
                             "v3_pot_version",
                             "v3_shareholder_identity",

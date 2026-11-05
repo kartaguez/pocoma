@@ -28,6 +28,11 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
         this.settings = Objects.requireNonNull(settings);
         this.family = Objects.requireNonNull(family);
         switch (family) {
+            case INVITATION_EVENT -> {
+                sequence = "INVITATION";
+                table = "v3_invitation_event";
+                subjects = Set.of("INVITATION");
+            }
             case POT_EVENT -> {
                 sequence = "POT";
                 table = "v3_pot_event";

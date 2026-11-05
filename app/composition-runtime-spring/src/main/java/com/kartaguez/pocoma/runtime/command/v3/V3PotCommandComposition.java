@@ -93,6 +93,12 @@ public final class V3PotCommandComposition {
             var next = queue.removeFirst();
             if (!seen.add(next)) continue;
             if (next instanceof ExecutePotCommand.Collision) return FailureKind.COLLISION;
+            if (next instanceof org.postgresql.util.PSQLException sql
+                    && "40001".equals(sql.getSQLState())
+                    && sql.getServerErrorMessage() != null
+                    && "v3_invitation_final_expiry"
+                            .equals(sql.getServerErrorMessage().getConstraint()))
+                return FailureKind.COLLISION;
             if (next instanceof com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException)
                 return FailureKind.INCONSISTENT_FACTS;
             if (next.getCause() != null) queue.add(next.getCause());
@@ -112,6 +118,32 @@ public final class V3PotCommandComposition {
             LifecycleSettings settings,
             WorkerCapacity capacity,
             com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+        return assemble(
+                business,
+                effects,
+                control,
+                technical,
+                identity,
+                clock,
+                guard,
+                settings,
+                capacity,
+                observation,
+                null);
+    }
+
+    public static ConsumptionEngine assemble(
+            com.zaxxer.hikari.HikariDataSource business,
+            SpringAttemptTransactions effects,
+            com.zaxxer.hikari.HikariDataSource control,
+            SpringAttemptTransactions technical,
+            PotActorAuthority identity,
+            Clock clock,
+            V3BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation,
+            com.kartaguez.pocoma.engine.write.pot.port.execution.v3.InvitationStore invitations) {
         effects.requireSource(business);
         var participant =
                 new ExecutePotCommand(
@@ -121,6 +153,16 @@ public final class V3PotCommandComposition {
                         new JdbcPotHistoryAdapter(business),
                         new JdbcPotRevisionAdapter(business),
                         clock);
+        if (invitations != null)
+            participant =
+                    new ExecutePotCommand(
+                            new JdbcPotCommandStore(business, effects),
+                            new JdbcPotCommandObservation(business),
+                            identity,
+                            new JdbcPotHistoryAdapter(business),
+                            new JdbcPotRevisionAdapter(business),
+                            clock,
+                            invitations);
         var definition = V3ConsumptionCatalogConfiguration.definitions().getFirst();
         return V3ConsumptionLifecycleComposition.assemble(
                 guard,

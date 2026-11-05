@@ -71,7 +71,8 @@ public final class V3ConsumptionDiscoveryComposition {
             SpringAttemptTransactions sourceReads,
             DiscoveryEngine.Settings settings,
             V3BootstrapGuard.Privileges privileges) {
-        if (definition.family() != ConsumableFamily.POT_EVENT
+        if (definition.family() != ConsumableFamily.INVITATION_EVENT
+                && definition.family() != ConsumableFamily.POT_EVENT
                 && definition.family() != ConsumableFamily.COMMAND_COMPLETION_EVENT
                 && definition.family() != ConsumableFamily.IDENTITY_EVENT
                 && definition.family() != ConsumableFamily.IDENTITY_COMPLETION_EVENT)

@@ -76,7 +76,11 @@ class V3AdmissionFlowPostgresTest {
         http.grantAdmission(worker.schema, role);
         http.admissionProperties(worker.writeUrl, worker.schema, role);
         http.admissionObserver = worker.write;
-        worker.select(V3ConsumptionWorkerSettings.READ_NAMES, true);
+        worker.select(
+                V3ConsumptionWorkerSettings.READ_NAMES.stream()
+                        .filter(n -> !n.equals("MaterializeInvitation"))
+                        .toList(),
+                true);
     }
 
     void start() {
@@ -334,6 +338,254 @@ class V3AdmissionFlowPostgresTest {
         var store = new JdbcIdentityRequestStore(ds, tx);
         tx.write(() -> store.insertPending(r));
         poll("/identity/requests/" + id + "/result", "owner", null);
+    }
+
+    /** I4: qualify the delivered public DETACH contract, including the final affiliation. */
+    @Test
+    void voluntaryDeparturePreservesHistoryAndIdentity() throws Exception {
+        start();
+        register("owner");
+        String creatorToken = token;
+        execute("CreatePot", Map.of("label", "Departure"));
+        UUID memberShare = UUID.randomUUID();
+        execute(
+                "AddShareholders",
+                Map.of(
+                        "targets",
+                        List.of(
+                                Map.of(
+                                        "id",
+                                        share.toString(),
+                                        "name",
+                                        "Creator",
+                                        "attachment",
+                                        "SELF",
+                                        "weight",
+                                        fraction(1, 1)),
+                                Map.of(
+                                        "id",
+                                        memberShare.toString(),
+                                        "name",
+                                        "Member",
+                                        "attachment",
+                                        "FREE",
+                                        "weight",
+                                        fraction(1, 1)))));
+        register("member");
+        String memberToken = get("/me/binding", "member", null).get("bindingToken").asText();
+        // Controlled historical WRITE fixture only: ordinary SELF cannot admit an outsider.
+        var fixtureSource =
+                new DriverManagerDataSource(worker.writeUrl, PG.getUsername(), PG.getPassword());
+        var fixtureManager = new DataSourceTransactionManager(fixtureSource);
+        fixtureManager.setNestedTransactionAllowed(false);
+        var fixtureOwner = new SpringAttemptTransactions(fixtureSource, fixtureManager, 5);
+        var initialAffiliation =
+                fixtureOwner.read(
+                        context -> {
+                            var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
+                            var shareholderId =
+                                    new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(
+                                            memberShare);
+                            var history =
+                                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                                            .JdbcPotHistoryAdapter(fixtureSource);
+                            var member =
+                                    new com.kartaguez.pocoma.domain.pot.value.UserId(
+                                            worker.write.queryForObject(
+                                                    "select user_id from v3_eui_authority a join"
+                                                        + " v3_eui_version v on a.eui_id=v.eui_id"
+                                                        + " and a.current_version=v.version where"
+                                                        + " a.issuer=? and a.subject=?",
+                                                    UUID.class,
+                                                    http.issuer,
+                                                    "member"));
+                            var selected =
+                                    history.current(
+                                                    potId,
+                                                    member,
+                                                    new com.kartaguez.pocoma.engine.write.pot.port
+                                                            .persistence.v3.PotHistoryPort
+                                                            .Selection(
+                                                            Set.of(shareholderId),
+                                                            Set.of(),
+                                                            false,
+                                                            true,
+                                                            false,
+                                                            false,
+                                                            false))
+                                            .orElseThrow();
+                            var target = selected.shareholders().get(shareholderId);
+                            var details =
+                                    ((com.kartaguez.pocoma.engine.write.pot.port.persistence.v3
+                                                                    .ComponentRead.Present<
+                                                            com.kartaguez.pocoma.domain.pot.v3
+                                                                    .ShareholderDetails>)
+                                                    target.details())
+                                            .revision();
+                            var decision =
+                                    new com.kartaguez.pocoma.domain.pot.v3
+                                                    .AttachShareholderViaInvitation(shareholderId)
+                                            .decide(selected.facts(), target.reference(), details);
+                            var changed =
+                                    (com.kartaguez.pocoma.domain.pot.v3.TransitionResult.Changed<
+                                                    Map<
+                                                            com.kartaguez.pocoma.domain.pot.value.id
+                                                                    .ShareholderId,
+                                                            com.kartaguez.pocoma.domain.pot.v3
+                                                                            .Versioned<
+                                                                    com.kartaguez.pocoma.domain.pot
+                                                                            .v3
+                                                                            .ShareholderDetails>>>)
+                                            decision;
+                            return changed;
+                        });
+        fixtureOwner.write(
+                () -> {
+                    var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
+                    assertTrue(
+                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                                            .JdbcPotCommandStore(fixtureSource, fixtureOwner)
+                                    .protectPot(potId, version));
+                    var revisions =
+                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                                    .JdbcPotRevisionAdapter(fixtureSource);
+                    revisions.recordVersion(potId, version, version + 1, Instant.now());
+                    revisions.reviseShareholderDetails(potId, initialAffiliation);
+                    return null;
+                });
+        version++;
+        token = creatorToken;
+        execute(
+                "CreateExpense",
+                Map.of(
+                        "id",
+                        expense.toString(),
+                        "label",
+                        "History",
+                        "date",
+                        "2026-11-05",
+                        "amount",
+                        fraction(10, 3),
+                        "payerId",
+                        memberShare.toString(),
+                        "participants",
+                        List.of(participant(share), participant(memberShare))));
+        long historicalVersion = version;
+        var identity =
+                worker.write.queryForList("select * from v3_eui_version order by eui_id,version");
+        var expenses =
+                worker.write.queryForList(
+                        "select * from v3_expense_financials order by revision_id");
+        var participants =
+                worker.write.queryForList(
+                        "select * from v3_expense_participant order by"
+                                + " financial_revision_id,shareholder_id");
+        var otherDetails =
+                worker.write.queryForList(
+                        "select * from v3_shareholder_details where object_id=? order by"
+                                + " local_version",
+                        share);
+        token = memberToken;
+        var departure =
+                body(
+                        "UpdateShareholderDetails",
+                        Map.of(
+                                "targets",
+                                List.of(
+                                        Map.of(
+                                                "id",
+                                                memberShare.toString(),
+                                                "name",
+                                                "Member",
+                                                "attachment",
+                                                "DETACH"))));
+        UUID departed = accepted(post("/commands", "member", "member-depart", departure));
+        var result = poll("/commands/" + departed + "/result", "member", null);
+        assertEquals("COMPLETED", result.get("outcome").asText());
+        version = result.get("resultingPotVersion").asLong();
+        assertEquals(historicalVersion + 1, version);
+        assertEquals(departed, accepted(post("/commands", "member", "member-depart", departure)));
+        assertNull(
+                worker.write.queryForObject(
+                        "select user_id from v3_shareholder_details where object_id=? and active_to"
+                                + " is null",
+                        UUID.class,
+                        memberShare));
+        assertEquals(
+                3,
+                worker.write.queryForObject(
+                        "select count(*) from v3_shareholder_details where object_id=?",
+                        Integer.class,
+                        memberShare));
+        assertFalse(
+                worker.write.queryForObject(
+                        "select deleted from v3_shareholder_header where object_id=? and active_to"
+                                + " is null",
+                        Boolean.class,
+                        memberShare));
+        assertEquals(
+                identity,
+                worker.write.queryForList("select * from v3_eui_version order by eui_id,version"));
+        assertEquals(
+                expenses,
+                worker.write.queryForList(
+                        "select * from v3_expense_financials order by revision_id"));
+        assertEquals(
+                participants,
+                worker.write.queryForList(
+                        "select * from v3_expense_participant order by"
+                                + " financial_revision_id,shareholder_id"));
+        assertEquals(
+                otherDetails,
+                worker.write.queryForList(
+                        "select * from v3_shareholder_details where object_id=? order by"
+                                + " local_version",
+                        share));
+        UUID denied =
+                accepted(
+                        post(
+                                "/commands",
+                                "member",
+                                "departed-cannot-mutate",
+                                body("UpdatePotDetails", Map.of("label", "Forbidden"))));
+        assertEquals(
+                "REJECTED",
+                poll("/commands/" + denied + "/result", "member", null).get("outcome").asText());
+
+        // The creator is now the final affiliate; departure preserves independent creator rights.
+        token = creatorToken;
+        execute(
+                "UpdateShareholderDetails",
+                Map.of(
+                        "targets",
+                        List.of(
+                                Map.of(
+                                        "id",
+                                        share.toString(),
+                                        "name",
+                                        "Creator",
+                                        "attachment",
+                                        "DETACH"))));
+        assertEquals(
+                0,
+                worker.write.queryForObject(
+                        "select count(*) from v3_shareholder_details where active_to is null and"
+                                + " user_id is not null",
+                        Integer.class));
+        assertEquals(
+                2,
+                worker.write.queryForObject(
+                        "select count(*) from v3_shareholder_header where active_to is null and not"
+                                + " deleted",
+                        Integer.class));
+        execute("UpdatePotDetails", Map.of("label", "Creator still authorized"));
+        assertEquals(
+                identity,
+                worker.write.queryForList("select * from v3_eui_version order by eui_id,version"));
+        assertEquals(
+                expenses,
+                worker.write.queryForList(
+                        "select * from v3_expense_financials order by revision_id"));
     }
 
     @Test

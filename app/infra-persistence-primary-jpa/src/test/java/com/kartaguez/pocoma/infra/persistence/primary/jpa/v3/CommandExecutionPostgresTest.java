@@ -752,7 +752,7 @@ class CommandExecutionPostgresTest {
             assertEquals(before, tx.read(context -> history.atVersion(p, version).orElseThrow()));
             var refreshed = tx.read(context -> history.current(p, guest, selection).orElseThrow());
             var again =
-                    new AttachShareholderViaInvitation(rightId)
+                    new com.kartaguez.pocoma.domain.pot.v3.AttachShareholderViaInvitation(rightId)
                             .decide(
                                     refreshed.facts(),
                                     refreshed.shareholders().get(rightId).reference(),
@@ -775,7 +775,7 @@ class CommandExecutionPostgresTest {
     TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>> invitationProposal(
             PotHistoryPort.SelectedPot view, ShareholderId id) {
         var result =
-                new AttachShareholderViaInvitation(id)
+                new com.kartaguez.pocoma.domain.pot.v3.AttachShareholderViaInvitation(id)
                         .decide(
                                 view.facts(),
                                 view.shareholders().get(id).reference(),
@@ -1653,7 +1653,7 @@ class CommandExecutionPostgresTest {
                     assertEquals(before, snapshot());
                     jdbc.update(
                             "update consumption_slot set claimed_until=clock_timestamp()-interval"
-                                + " '1 second' where consumable_id=?",
+                                    + " '1 second' where consumable_id=?",
                             command.requestId());
                     assertEquals(
                             3L,
@@ -2313,7 +2313,7 @@ class CommandExecutionPostgresTest {
                 } else
                     jdbc.update(
                             "update consumption_slot set claimed_until=clock_timestamp()-interval"
-                                + " '1 second' where consumable_id=?",
+                                    + " '1 second' where consumable_id=?",
                             command.requestId());
                 assertEquals(
                         Status.COMPLETED,
