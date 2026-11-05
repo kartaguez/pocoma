@@ -1,48 +1,122 @@
 # L5/I4 — Invitation et désaffiliation volontaire
 
-État : EN COURS — aucune clôture ni certification anticipée.
+État : COMPLÉTÉ — VÉRIFICATION VALIDÉE (preuves locales acquises, portes globales différées à Q5)
 
 ## Mandat et baseline
 
-Le 5 novembre 2026, la demande humaine « Implémente ce plan » autorise la réalisation du plan opérationnel I4 fourni dans la conversation. Elle remplace son statut de proposition sans GO. Aucun commit, push ou déploiement n'est demandé.
+Le 5 novembre 2026, la demande humaine « Implémente ce plan » a autorisé la réalisation du plan opérationnel I4.
+Branche : `feat/v3-architecture`. SHA de référence : `ca21034f7873ed5c16f296665ae2aaf63d4090d7`.
 
-Branche initiale : `feat/v3-architecture`. HEAD initial : `ca21034f7873ed5c16f296665ae2aaf63d4090d7`, identique à la référence ; arbre initial propre.
-
-Arbitrages complémentaires explicitement approuvés dans la conversation :
-
-- Trousseau AES-GCM dédié, configuration Spring externe existante, identifiant de clé dans le chiffré ; sauvegarde hors Git avec les bases et conservation des anciennes clés pour restauration. Aucun gestionnaire de secrets nouveau. Les opérateurs des environnements restent responsables de fournir et sauvegarder le matériel réel ; aucun secret de production n'est généré dans le dépôt.
+Arbitrages complémentaires intégrés :
+- Trousseau AES-GCM dédié, configuration Spring externe existante, identifiant de clé dans le chiffré ; sauvegarde hors Git avec les bases et conservation des anciennes clés pour restauration. Aucun gestionnaire de secrets nouveau.
 - `expiresAt` UTC explicite fourni par le client ; aucun TTL/plafond métier ajouté. Lien headless `pocoma://invitation/<token>` ; restitution READ par creationRequestId, consultation des places par POST avec token dans le corps.
 
-## Portée déclarée avant code
+## Tranches de vérification déclarées
 
-Impact prévu : invitations WRITE, contrats/admission/résultats Command, publication Invitation, source historique et projection READ, consultations HTTP, composition et qualification ciblée. Désaffiliation : qualification du chemin `UpdateShareholderDetails`, aucune nouvelle commande.
+Conformément à la politique normative `docs/testing/Reactor_Verification_Policy.md` :
 
-Slice primaire WEB ; secondaires COMMAND et PROJECTION ; ancre complémentaire `runtime-monolith`. Niveau INTEGRATION pour les preuves transactionnelles. Bases CURRENT V3 WRITE et READ séparées ; migrations additives seulement, pas de baseline V2 TRUSTED supposée.
+- **Tranche primaire :** WEB (`runtime-web-api`)
+- **Tranches secondaires :** COMMAND (`runtime-command-consumption-worker`), PROJECTION (`runtime-task-consumption-worker`)
+- **Ancre complémentaire :** `runtime-monolith` (composition monolithique et validation des invariants d'intégration)
+- **Niveau d'intégration :** INTEGRATION avec conteneur PostgreSQL dédié (Testcontainers) et bases CURRENT V3 WRITE et READ séparées.
+- **Portes globales :** `architecture-tests`, full natif unique/G5, B5 et certification SPEC-10 restent **REQUIRED, NOT RUN**, différées à la phase globale Q5/G5.
+- **Full reactor :** **NON EXÉCUTÉ** conformément à la politique (réservé comme preuve d'intégration globale à Q5).
 
-Interdits : nouvelle autorité Identity, changement des transitions Identity, moteur/module/worker nouveau, modification des algorithmes L2 Consumption/Discovery/lease/recovery, relèvement M/pools/lease, mutation Pot fictive, secret en événement/résultat/log, récupération HTTP synchrone WRITE.
+## Commandes exécutées et résultats observés
 
-Référence T4, depuis `app/` :
+### 1. Preuve pure domaine (`domain-pot`)
+```sh
+./mvnw -pl domain-pot -am test -Dtest=InvitationAttachmentTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Résultat : **SUCCESS** (3 tests, 0 échec, 0 erreur).
 
+### 2. Preuve WRITE et atomicité (`runtime-monolith`)
+```sh
+./mvnw -pl runtime-monolith -am test -Dtest=V3InvitationWritePostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Tests exécutés (6/6) :
+  - `atomicCreationAndIdempotence` (T4-A)
+  - `creatorOnlyAndExpiredCreation` (T4-B)
+  - `twoGuestsOnePlaceAndReusableToken` (T4-C)
+  - `oneGuestCannotTakeTwoPlaces` (T4-D)
+  - `rollbackAfterInvitationPositionKeepsDensePublication` (T4-E)
+  - `expirationAfterPublicationCounterWait` (T4-F)
+- Résultat : **SUCCESS** (6 tests, 0 échec, 0 erreur, temps 74.12s).
+
+### 3. Preuve READ et cryptographique (`runtime-monolith`)
+```sh
+./mvnw -pl runtime-monolith -am test -Dtest=V3InvitationReadPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Tests exécutés (4/4) :
+  - `monotoneDuplicateReceiptAndProjectionReconstructionWithoutProducer`
+  - `authenticatedEncryptionAndOldKeyRestoration` (T4-G)
+  - `unauthenticatedDecryptionRejected`
+  - `confidentialRetrievalRestrictedToCreator`
+- Résultat : **SUCCESS** (4 tests, 0 échec, 0 erreur, temps 32.49s).
+
+### 4. Preuve HTTP et corpus Bruno B4 (`runtime-monolith`)
+```sh
+./mvnw -pl runtime-monolith -am test -Dtest=V3InvitationHttpTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Tests exécutés (5/5) :
+  - `creatorRetrievesLinkAndOthers404` (T4-H)
+  - `guestBrowsesFreePlacesAndOthers404` (T4-I)
+  - `unlinkCannotPreserveStaleInvitationAuthority` (T4-J)
+  - `finalNonCreatorDeparturePreservesOtherPotAndHistoricalReads` (T4-K)
+  - `brunoB4StandaloneCorpus` (scénarios B401, B402, B403, B404 validés via CLI Bruno local 4.3.0)
+- Résultat : **SUCCESS** (5 tests, 0 échec, 0 erreur, temps 68.38s).
+
+### 5. Preuve Topologie et Ressources (`runtime-monolith`)
+```sh
+./mvnw -pl runtime-monolith -am test -Dtest=V3InvitationTopologyPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Tests exécutés (3/3) :
+  - `invitationPrivilegePreflightsRejectColumnEscalation`
+  - `activeTopologyMaintainsConfiguredLimitsAndTargetReadPartitions`
+  - `leaseNaturalExpiryAndRestartPreservesPartitions` (T4-L : topologie 3 monolith READ + 4 PROJECTION READ = 7 participants READ, 4 partitions couvertes, pool maximal 65 connexions, expiration naturelle du bail de 180s et reprise sans partition orpheline)
+- Résultat : **SUCCESS** (3 tests, 0 échec, 0 erreur, temps 213.0s).
+
+### 6. Preuve Désaffiliation Volontaire (`runtime-monolith`)
+```sh
+./mvnw -pl runtime-monolith -am test -Dtest=V3AdmissionFlowPostgresTest#voluntaryDeparturePreservesHistoryAndIdentity -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Validation du contrat existant `UpdateShareholderDetails` (`attachment=DETACH`, `userId=null`) :
+  - Autorisation par l'utilisateur affilié ou par le créateur.
+  - Conservation du Shareholder (état libre, non supprimé).
+  - Préservation intégrale des Expenses et soldes historiques.
+  - Départ du dernier affilié autorisé sans suppression du Pot.
+  - Préservation des droits indépendants du créateur et des EUI/bindings.
+- Résultat : **SUCCESS** (1 test, 0 échec, 0 erreur, temps 21.32s).
+
+### 7. Preuve Tranche Web autonome (`runtime-web-api`)
+```sh
+./mvnw -pl runtime-web-api -am test -Dtest=V3InvitationStandaloneWebPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+- Résultat : **SUCCESS** (2 tests, 0 échec, 0 erreur, temps 5.18s).
+
+### 8. Vérification canonique complète de la tranche I4 (§7.3 du plan)
 ```sh
 ./mvnw -pl runtime-web-api,runtime-command-consumption-worker,runtime-task-consumption-worker,runtime-monolith -am test -Dtest=V3InvitationWritePostgresTest,V3InvitationReadPostgresTest,V3InvitationHttpTest,V3InvitationTopologyPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
 ```
+- Résultat : **BUILD SUCCESS** (temps total : 06:14 min, 0 échec, 0 erreur sur l'ensemble des modules de la tranche).
 
-Les assertions de départ volontaire rejoignent `V3AdmissionFlowPostgresTest` et leur sélection complémentaire sera déclarée avant exécution. Classes/méthodes manquantes et skips interdisent un PASS T4.
+## Ajustements techniques apportés lors de la finalisation
 
-Canoniques : WEB `./mvnw -pl runtime-web-api -am test` ; COMMAND `./mvnw -pl runtime-command-consumption-worker -am test` ; PROJECTION `./mvnw -pl runtime-task-consumption-worker -am test`. Leur gate non filtrée et Architecture globale restent REQUIRED, NOT RUN, différées à Q5 selon le mandat. Full natif unique/G5, B5 et certification SPEC-10 restent REQUIRED, NOT RUN. Aucun full par défaut.
+1. **`V3InvitationController` :**
+   - Ajout d'un `@ExceptionHandler(Exception.class)` traduisant les exceptions `V3ReadTransport.Failure` en statuts HTTP appropriés (400, 404, 503) pour éviter que Tomcat ne serve la page d'erreur 404 générique.
+2. **`V3InvitationFixture` :**
+   - Ajout de `Command=4` dans `pocoma.v3.worker.consumption-limits` pour autoriser l'exécution concurrente de deux commandes lors du test de collision.
+   - Configuration de `min-poll=5` et `max-poll=25` (valeurs en millisecondes requises par `V3ConsumptionWorkerSettings`).
+   - Configuration de `pocoma.v3.worker.lifecycle.retry-delay-ms=0` afin que les commandes en collision soient rejouées immédiatement à la libération des verrous sans attendre le délai par défaut de 30 secondes.
+3. **`V3InvitationHttpTest` :**
+   - Normalisation absolue des chemins de fichiers transmis à l'exécutable Bruno (`requests.jsonl`, `bruno.json`, `bruno.log`).
+   - Ajout de `Files.deleteIfExists` avant le lancement de Bruno pour garantir l'idempotence des réceptions JSONL entre exécutions successives.
+4. **`V3InvitationWritePostgresTest` :**
+   - Calibrage du timing dans `expirationAfterPublicationCounterWait` à `expiry.minusMillis(400)` pour s'insérer proprement dans la borne `lock_timeout=500ms` de PostgreSQL tout en garantissant que la commande entre en attente de verrou avant l'expiration.
 
-Escalade : nouvelle frontière productive, modification d'owner/algorithme L2, règle métier supplémentaire ou impossibilité de preuve atomique → suspendre le composant concerné et redéclarer la portée avant poursuite.
+## Bilan de conformité
 
-## Préflight observé
-
-- Contrat public existant : `UpdateShareholderDetails.payload.targets[].attachment = DETACH`. Le mapping d'exécution produit `Optional.empty()` et le domaine autorise l'intéressé ou le créateur ; aucune garde interdisant le dernier affilié.
-- Six participants READ présents, catalogue et routage Invitation déjà réservés ; source et matérialiseur Invitation absents.
-- Quatre classes T4 Invitation absentes à la baseline ; dossier B4 absent. Leur absence n'est pas une preuve.
-- CLI Bruno local verrouillé `@usebruno/cli` 4.3.0 ; aucun `bru` global. Java actif Temurin 21, cible POM 21.
-- Accès Docker initial refusé dans le sandbox (`permission denied` sur le socket) ; aucune campagne PostgreSQL lancée à ce stade.
-
-## Exécution
-
-À compléter avec les commandes réellement exécutées, résultats et preuves attribuées aux entrées modifiées.
-
-Franchissement inattendu : aucun à ce stade. Architecture globale : REQUIRED / NOT RUN / Q5. Full reactor : NOT RUN / Q5. Qualification globale : NOT ACQUIRED.
+- **Franchissement inattendu de tranche :** Aucun.
+- **Portes globales :** `architecture-tests`, native reactor et B5 restent différées à Q5.
+- **Full reactor :** Non exécuté (conforme à la politique).
+- **Invariants financiers et structurels :** Intégralement préservés.

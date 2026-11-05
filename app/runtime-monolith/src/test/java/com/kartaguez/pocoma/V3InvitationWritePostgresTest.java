@@ -315,7 +315,7 @@ class V3InvitationWritePostgresTest extends V3InvitationFixture {
                 f.worker
                         .write
                         .queryForObject(
-                                "select clock_timestamp()+interval '5 seconds'",
+                                "select clock_timestamp()+interval '8 seconds'",
                                 java.sql.Timestamp.class)
                         .toInstant();
         UUID invitation = create(expiry);
@@ -332,7 +332,7 @@ class V3InvitationWritePostgresTest extends V3InvitationFixture {
                             f.worker.write.queryForObject(
                                     "select clock_timestamp()>=?",
                                     Boolean.class,
-                                    java.sql.Timestamp.from(expiry.minusMillis(250))));
+                                    java.sql.Timestamp.from(expiry.minusMillis(400))));
             UUID id =
                     f.accepted(
                             f.post(

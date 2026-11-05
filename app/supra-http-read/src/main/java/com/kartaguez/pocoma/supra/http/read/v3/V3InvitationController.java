@@ -89,4 +89,12 @@ public final class V3InvitationController {
                         ? 404
                         : result instanceof ReadPotV3Result.InvalidInput<?> ? 400 : 503);
     }
+
+    @ExceptionHandler(Exception.class)
+    public void failure(Exception failure, HttpServletResponse response) throws IOException {
+        if (!response.isCommitted())
+            V3ReadTransport.error(
+                    response,
+                    failure instanceof V3ReadTransport.Failure f ? f.status : 503);
+    }
 }

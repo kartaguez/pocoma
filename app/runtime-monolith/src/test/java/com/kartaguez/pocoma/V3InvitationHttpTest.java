@@ -397,8 +397,13 @@ class V3InvitationHttpTest extends V3InvitationFixture {
                 java.nio.file.Path.of(
                                 System.getProperty("pocoma.verification.reports", "target/reports"))
                         .getParent()
-                        .resolve("bruno-b4");
+                        .resolve("bruno-b4")
+                        .toAbsolutePath()
+                        .normalize();
         java.nio.file.Files.createDirectories(output);
+        java.nio.file.Files.deleteIfExists(output.resolve("requests.jsonl"));
+        java.nio.file.Files.deleteIfExists(output.resolve("bruno.json"));
+        java.nio.file.Files.deleteIfExists(output.resolve("bruno.log"));
         var inputs = V3AdmissionFlowPostgresTest.brunoInputs(repo);
         var command =
                 List.of(
@@ -412,7 +417,7 @@ class V3InvitationHttpTest extends V3InvitationFixture {
                         "developer",
                         "--noproxy",
                         "--reporter-json",
-                        output.resolve("bruno.json").toString(),
+                        output.resolve("bruno.json").toAbsolutePath().toString(),
                         "--reporter-skip-all-headers",
                         "--reporter-skip-body");
         var process =
@@ -428,7 +433,7 @@ class V3InvitationHttpTest extends V3InvitationFixture {
         env.put(
                 "POCOMA_I4_HELPER",
                 repo.resolve("scripts/bruno-v3/lib/i4-invitation.js").toString());
-        env.put("POCOMA_I4_RECEIPTS", output.resolve("requests.jsonl").toString());
+        env.put("POCOMA_I4_RECEIPTS", output.resolve("requests.jsonl").toAbsolutePath().toString());
         var running =
                 process.redirectErrorStream(true)
                         .redirectOutput(output.resolve("bruno.log").toFile())

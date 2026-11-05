@@ -81,6 +81,15 @@ abstract class V3InvitationFixture {
         f.http.properties.put(
                 "pocoma.v3.invitation.keys.fixture", Base64.getEncoder().encodeToString(key));
         f.worker.select(V3ConsumptionWorkerSettings.READ_NAMES.subList(0, 3), true);
+        f.worker.properties.put(
+                "pocoma.v3.worker.consumption-limits",
+                V3ConsumptionWorkerSettings.READ_NAMES.subList(0, 3).stream()
+                                .map(n -> n + "=1")
+                                .collect(java.util.stream.Collectors.joining(","))
+                        + ",Command=4,IdentityRequest=1");
+        f.worker.properties.put("pocoma.v3.worker.min-poll", "5");
+        f.worker.properties.put("pocoma.v3.worker.max-poll", "25");
+        f.worker.properties.put("pocoma.v3.worker.lifecycle.retry-delay-ms", "0");
     }
 
     @AfterEach
