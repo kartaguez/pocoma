@@ -1,5 +1,11 @@
 # Pocoma V3 — L5/I2 — Plan opérationnel V2.1
 
+**Statut courant du 5 novembre 2026 : L5/I2 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS**, selon l’[acte humain](L5_I2_Acceptance_and_Closure_Decision.md). [Rapport initial](L5_I2_Execution_Report.md) / livraison `df0c3a221ce20b4eb569616d7df621fa4090a32b` : C-04 2 291 PASS dont 170 Architecture, T2 85 identités, B2 24 scénarios/468 requêtes, onze reçus Pot. [Correctif post-audit](L5_I2_Post_Audit_Correction_Report.md) / livraison `1fc07000e586394298b2f2cf7acbd5e84ff1c5e6` : 9/9 PASS PostgreSQL en 17,252554 s ; aucun rejeu Architecture, terminal complet ou full reactor. Les preuves initiales restent historiques au SHA corrigé, dans leurs hypothèses non invalidées.
+
+R-I2-01 historique et R-CLO-I2-01…04 sont conservées dans l’acte, ainsi que L1–L4/I1. I3 **NON CLOS — À CADRER**, I4 **NON CLOS — ULTÉRIEUR**, Q5 dû, **L5 OPEN**. Pour I3/I4, pas de rejeu automatique Architecture globale : preuve reportée à Q5 par décision humaine ; toute obligation normative déclenchée reste REQUIRED — NOT RUN — DEFERRED TO Q5 BY EXPLICIT HUMAN INSTRUCTION, sans exemption implicite. Aucun GO I3/I4 ici, aucune certification SPEC-10 ou qualification production.
+
+**Actualisation documentaire uniquement — slices NONE**, franchissement NONE ; Architecture/full reactor NOT REQUIRED / NOT RUN, aucun test applicatif. Les statuts, inventaires prévisionnels, décisions et contrôles V2/V2.1 ci-dessous sont historiques ; les résultats exécutés et la clôture sont portés par les références courantes ci-dessus, sans réécriture du plan approuvé ni de ses preuves.
+
 Date : **4 novembre 2026**. Branche : **`feat/v3-architecture`**. V2 auditée : **`36b256cf2457fb1882a8e948e674678703a2c044`**. Référence de l'analyse initiale V2 : **`ad98d690e081bb354662c7a52c5a203778483259`**.
 
 **Statut historique de publication V2.1 : AMENDEMENT DOCUMENTAIRE SOUMIS À APPROBATION — IMPLEMENTATION NOT AUTHORIZED — NO GO.**

@@ -1,5 +1,17 @@
 # L5/I2 — Rapport d’exécution et de qualification
 
+## Clôture humaine du 5 novembre 2026 — statut courant
+
+**L5/I2 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS.** L’[acte autonome](L5_I2_Acceptance_and_Closure_Decision.md) enregistre l’acceptation humaine après audits et correctif SQL. Les preuves initiales C-04 (2 291 PASS dont 170 Architecture, T2 85 identités, B2 24 scénarios/468 requêtes, onze reçus Pot) restent attribuées à la livraison `df0c3a221ce20b4eb569616d7df621fa4090a32b`. Le [correctif post-audit](L5_I2_Post_Audit_Correction_Report.md), publié à `1fc07000e586394298b2f2cf7acbd5e84ff1c5e6`, apporte **9/9 PASS PostgreSQL**, sans rejeu Architecture, terminal complet ou full reactor ; aucune preuve initiale n’est présentée comme fraîche au SHA corrigé.
+
+**R-I2-01 conserve sa formulation historique ci-dessous** ; R-CLO-I2-01…04 dans l’acte portent compatibilité future V1/AUD-I2-01, preuve terminale non fraîche après V8, issue physique indéterminée à A=1 et qualification/environnement bornés. Les réserves L1–L4 et I1 restent visibles dans leurs actes. I3 à cadrer, I4 ultérieur et Q5 restent non clos ; L5 OPEN, aucune certification SPEC-10 globale ni homologation production. Le report humain Architecture I3/I4 à Q5 conserve toute obligation normative différée, sans exemption implicite.
+
+Cette actualisation est **DOCUMENTATION ONLY — SLICES NONE** ; franchissement inattendu NONE ; Architecture et full reactor NOT REQUIRED / NOT RUN ; WEB/COMMAND/Monolithe NOT REQUIRED / NOT RUN ; PostgreSQL et Bruno NOT RUN. Contrôles Git/documentaires et commandes de publication consignés dans l’acte ; aucun changement ni test applicatif.
+
+## Récit historique de livraison initiale — sections A–G conservées
+
+Les verdicts techniques et mentions d’absence de clôture ci-dessous décrivent l’état initial avant correctif et décision humaine ; ils ne révoquent pas le statut courant ci-dessus. Les exécutions dites fraîches dans ce récit sont celles du snapshot initial uniquement.
+
 Date : **5 novembre 2026**. Verdict technique : **IMPLEMENTED WITH RESERVATIONS**. Le mandat est le [GO humain du 4 novembre](L5_I2_Human_GO.md), exécuté sur le [plan V2.1](L5_I2_Operational_Implementation_and_Qualification_Plan_V2.md). **Aucune clôture humaine I2, certification SPEC-10 ou autorisation de production n’est prononcée.**
 
 Les treize intentions publiques sont implémentées. Les **85 identités T2** sont toutes couvertes par des exécutions fraîches réussies dans la gate C-04, les **24 scénarios B2** passent avec **468 requêtes réellement comptées**, et la gate non filtrée passe **2291/2291, zéro failure/error/skip**, dont **170 oracles Architecture**. La même gate conserve les **onze reçus de sous-cas Pot**, sans rejeu supplémentaire du flux. Les FAIL/INCONCLUSIVE antérieurs restent intacts dans leurs archives.
