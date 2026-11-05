@@ -1,6 +1,6 @@
 # Documentation Pocoma
 
-- [Plan de qualification finale L5 amendé (Q5-A)](v3/L5_Q5_Final_Qualification_Plan.md) — **Q5-A — AMENDED PLAN READY FOR HUMAN REVIEW**, 05-11-2026. Stratégie de qualification globale de fin de lot L5 amendée après audit indépendant : suite Bruno B5 composite orchestrée (4 volets, 70 scénarios), mutualisation D6 (full natif unique couvrant G5 et Architecture sous contrôles dynamiques), politique de budgets non fonctionnels et traçabilité post-L4. [Rapport d'amendement Q5-A](v3/L5_Q5A_Plan_Amendment_Report.md). **Q5-B — NO GO PENDING HUMAN APPROVAL ; L5 — OPEN.**
+- [Plan de qualification finale L5 amendé (Q5-A)](v3/L5_Q5_Final_Qualification_Plan.md) — **Q5-A — FINAL AMENDED PLAN READY FOR HUMAN GO REVIEW**, 05-11-2026. Stratégie de qualification globale de fin de lot L5 amendée : mutualisation effective des preuves Bruno B2/B3/B4 au sein du full Maven CERTIFICATION unique (D6), complément autonome B1, consolidation B5 (70 scénarios), oracles stricts et traçabilité post-L4. [Rapport d'amendement Q5-A](v3/L5_Q5A_Plan_Amendment_Report.md). **Q5-B — NO GO PENDING HUMAN APPROVAL ; L5 — OPEN.**
 
 - [Rapport d'amendement Q5-A](v3/L5_Q5A_Plan_Amendment_Report.md) — Traitement exhaustif des observations d'audit indépendant AUD-Q5A-01 (BLOCKER), AUD-Q5A-02 (MAJOR), AUD-Q5A-03 (MAJOR) et AUD-Q5A-04 (MINOR).
 

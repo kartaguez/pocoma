@@ -1,10 +1,10 @@
-# Pocoma V3 — L5/Q5 — Plan de qualification finale du lot L5 (Version amendée)
+# Pocoma V3 — L5/Q5 — Plan de qualification finale du lot L5 (Version amendée définitive)
 
 Date : **5 novembre 2026**
 Dépôt : **`kartaguez/pocoma`**
 Branche : **`feat/v3-architecture`**
-Statut du plan : **PLAN AMENDÉ SOUMIS À DÉCISION HUMAINE — Q5-A TERMINÉ — Q5-B EN ATTENTE DE GO**
-Référence Git d'entrée : **`a4a92cee482058bdd8e07d551f0346a3c2c2bf16`** (`a4a92cee`)
+Statut du plan : **PLAN AMENDÉ DÉFINITIF SOUMIS À DÉCISION HUMAINE — Q5-A ACHEVÉ — Q5-B EN ATTENTE DE GO**
+Référence Git d'entrée : **`65b0fee97cf7ba2c58ca861e687e8346f1ec52c9`** (`65b0fee9`)
 Dernier commit productif/test modifié : **`2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2`** (`2b1271d0`)
 Rapport d'amendement associé : [docs/v3/L5_Q5A_Plan_Amendment_Report.md](L5_Q5A_Plan_Amendment_Report.md)
 
@@ -27,21 +27,22 @@ La gouvernance humaine a découpé la fin de vie du lot L5 en quatre étapes sé
 3. **Q5-C** : Audit indépendant de qualité, simplicité, complexité, performances et exhaustivité fonctionnelle.
 4. **Q5-D** : Décision humaine définitive de clôture du lot L5.
 
-### 1.2 Objectif de Q5-A et prise en compte de l'audit indépendant
-Le présent plan amendé intègre les corrections issues de l'audit indépendant post-Q5-A :
-- **AUD-Q5A-01 (BLOCKER) :** Refonte de la procédure Bruno B5 en une suite composite orchestrée en 4 volets séquentiels, démontrant l'exécutabilité effective des 70 scénarios sur leurs bancs respectifs.
-- **AUD-Q5A-02 (MAJOR) :** Nuance de la couverture du full reactor, distinguant sélection statique des 60 modules et contrôles dynamiques d'exécution post-run.
-- **AUD-Q5A-03 (MAJOR) :** Traçabilité formelle des 8 recommandations issues de l'audit qualité post-L4 et distinction des identifiants normatifs.
-- **AUD-Q5A-04 (MINOR) :** Dissociation stricte entre indicateurs budgétaires de suivi et critères de succès fonctionnel.
+### 1.2 Objectif de l'amendement final Q5-A
+Le présent plan amendé optimise l'exécution de Q5-B en exploitant les synergies réelles entre la campagne Maven et les tests Bruno :
+1. **Mutualisation effective Maven / Bruno :** Constat que le full Maven `verify.py CERTIFICATION` exécute déjà les trois méthodes porteuses JUnit de Bruno B2, B3 et B4 dans `runtime-monolith`.
+2. **Élimination des rejeux redondants :** Réutilisation des preuves Bruno B2, B3 et B4 issues de la campagne Maven, évitant des exécutions physiques en double à oracles identiques.
+3. **Exécution ciblée du complément B1 :** Exécution autonome et rigoureuse du seul corpus B1 (absent du réacteur Surefire par nature) sur sa fixture `V3ReadHttpFixture`.
+4. **Consolidation unifiée B5 :** Réconciliation des 70 scénarios (B01–B404) dans un manifeste consolidé certifiant la conformité de la surface HTTP V3.
+5. **Précision budgétaire sans double comptage :** Évaluation réaliste du temps total d'exécution (~75–95 min).
 
 ---
 
 ## 2. Préflight Git et baseline de qualification
 
-### 2.1 État du dépôt à l'entrée de Q5-A
+### 2.1 État du dépôt à l'entrée de l'amendement
 - **Branche courante :** `feat/v3-architecture`
-- **HEAD de départ de l'amendement :** `a4a92cee482058bdd8e07d551f0346a3c2c2bf16` (`a4a92cee`)
-- **HEAD distant (`origin/feat/v3-architecture`) :** Identique à l'entrée.
+- **HEAD de départ :** `65b0fee97cf7ba2c58ca861e687e8346f1ec52c9` (`65b0fee9`)
+- **HEAD distant (`origin/feat/v3-architecture`) :** Identique (`65b0fee9`).
 - **Divergence Git :** `0` commit en avance, `0` commit en retard (`up to date`).
 - **État du worktree :** Strictement propre (`working tree clean`).
 
@@ -51,11 +52,11 @@ L'historique récent depuis la finalisation du code I4 montre :
 2. `2b1271d0` — *fix(v3): resolve audit observations AUD-I4-01..03 and align invitation routes (L5/I4)* : **dernier commit touchant au code productif et aux tests applicatifs**.
 3. `a087dd8b`, `17129919`, `df7a03ae` : clôture documentaire et publication des preuves I4.
 4. `a4a92cee` : publication initiale du plan Q5-A.
+5. `65b0fee9` : amendement après audit indépendant (AUD-Q5A-01 à 04).
 
 **Distinction impérative des SHAs :**
 - **SHA du code productif et des tests sous test :** `2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2`
 - **SHA de baseline documentaire I4 :** `df7a03aedf53ac663de8c65e7c6112e960430b2e`
-- **SHA de publication initiale Q5-A :** `a4a92cee482058bdd8e07d551f0346a3c2c2bf16`
 - **SHA candidat à la qualification Q5-B :** Le commit intégrant ce plan amendé (le diff vis-à-vis de `2b1271d0` est strictement documentaire sous `docs/`, sans aucun impact sur `app/` ou `scripts/`).
 
 ---
@@ -64,41 +65,41 @@ L'historique récent depuis la finalisation du code I4 montre :
 
 La matrice ci-dessous recense l'ensemble des exigences, invariants et contrats applicables à L5, leur statut probatoire et la couverture prévue en Q5-B :
 
-| Identifiant | Propriété à démontrer | Origine normative | Preuve existante & SHA | Validité | Preuve encore due en Q5 | Gate prévue | Criticité |
+| Identifiant | Propriété à démontrer | Origine normative | Preuve existante & SHA | Validité | Preuve due en Q5 | Acquisition principale | Criticité |
 |---|---|---|---|---|---|---|---|
-| **REQ-READ-01** | Consultation Pot courant & historique à V | SPEC-04 §1 ; SPEC-06 §6 | T1 (`46b94ce6`), B07, B08 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | BLOCKING |
-| **REQ-READ-02** | Droits & balances historiques à V | SPEC-04 §4 ; SPEC-06 §6 | T1 (`46b94ce6`), B09 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | BLOCKING |
-| **REQ-READ-03** | Chargement groupé Expense batch (max 50) | SPEC-04 §5 ; SPEC-06 §6 | T1 (`46b94ce6`), B15, B16 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | MAJOR |
-| **REQ-READ-04** | Navigation keyset (défaut 20, max 100) | SPEC-04 §6 ; SPEC-06 §6 | T1 (`46b94ce6`), B21–B23 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | MAJOR |
-| **REQ-READ-05** | Masquage uniforme (404) & pas de fuite EUI | SPEC-06 §1 ; SPEC-07 §2 | T1 (`46b94ce6`), B10–B12 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | BLOCKING |
-| **REQ-READ-06** | Sérialisation complète bornée (4 Mio, 503 sans troncature) | SPEC-06 §6 ; D4-READ | T1 (`46b94ce6`), B32 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | MAJOR |
-| **REQ-READ-07** | Prévalidation pure avant quota SQL $Q=2$ | AUD-FINAL-I8-01 ; Plan L5 §11 | T1 (`46b94ce6`), B17–B19 | Reusable | Inclusion dans full natif Q5-B | G5 / Full natif | MAJOR |
-| **REQ-CMD-01** | 11 commandes Pot publiques admises asynchrones | SPEC-01 §3 ; SPEC-06 §7 | C-04 (`df0c3a22`), B202–B212 | Reusable | Requalification fraîche sous V8/V10 | G5 / Full natif | BLOCKING |
-| **REQ-CMD-02** | Registration & Unlink publics asynchrones | SPEC-02 §3 ; SPEC-06 §8 | C-04 (`df0c3a22`), B201, B220 | Reusable | Requalification fraîche sous V8/V10 | G5 / Full natif | BLOCKING |
-| **REQ-CMD-03** | Idempotence atomique S-03 (même clé $\rightarrow$ même requestId) | SPEC-06 §7 ; SPEC-10 S-03 | C-04 (`df0c3a22`), B213 | Reusable | Requalification fraîche sous V8/V10 | G5 / Full natif | BLOCKING |
-| **REQ-CMD-04** | Conflit d'intention différente sur même clé (409) | SPEC-06 §7 ; SPEC-10 S-03 | C-04 (`df0c3a22`), B214 | Reusable | Requalification fraîche sous V8/V10 | G5 / Full natif | BLOCKING |
-| **REQ-CMD-05** | Résolution SELF uniquement dans le moteur WRITE | SPEC-06 §7 ; SPEC-07 §3 | C-04 (`df0c3a22`), B204 | Reusable | Requalification fraîche sous V8/V10 | G5 / Full natif | BLOCKING |
-| **REQ-CMD-06** | Rôles SQL distincts & privilèges resserrés V8 | AUD-I2-02 ; L5/I2 Post-Audit | 9/9 PASS (`1fc07000`) | Partielle (ciblée) | Preuve terminale fraîche intégrée | G5 / Full natif | MAJOR |
-| **REQ-LINK-01** | Proposition technique distincte de l'IdentityRequest | SPEC-02 §5 ; H1 A-READ | FAST/PG (`0d415a67`), B302 | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-LINK-02** | Consentement explicite par POST E2 authentifiée | SPEC-02 §5 ; SPEC-10 ID-02 | FAST/PG (`0d415a67`), B307 | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-LINK-03** | E1 propriétaire du résultat, E2 découvre son binding | SPEC-02 §5 ; SPEC-10 ID-02 | FAST/PG (`0d415a67`), B309, B310 | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-LINK-04** | Anti-rejeu & admission atomique V9 après acceptation | SPEC-06 §8 ; SPEC-10 ID-02 | FAST/PG (`0d415a67`), B307, B313 | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-INV-01** | Création invitation réservée au seul créateur | SPEC-06 §13 ; SPEC-10 INV-A | T4-B (`7a284405`), B401 | Partielle (XML écrasé) | Preuve fraîche intégrale | G5 / Full natif | BLOCKING |
-| **REQ-INV-02** | Persistance atomique, version Pot inchangée | SPEC-06 §13 ; SPEC-10 INV-A | T4-A, T4-E (`7a284405`) | Partielle (XML écrasé) | Preuve fraîche intégrale | G5 / Full natif | BLOCKING |
-| **REQ-INV-03** | Chiffrement AES-GCM & lookup par hash | SPEC-06 §13 ; SPEC-10 INV-I | `V3InvitationReadPostgresTest` (`2b1271d0`) | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-INV-04** | Restitution confidentielle par creationRequestId (404 tiers) | SPEC-06 §13 ; SPEC-10 INV-C | `V3InvitationHttpTest` (`2b1271d0`), B402 | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-INV-05** | Consultation des places libres sans fuite de solde/historique | SPEC-06 §14 ; SPEC-10 INV-D | `V3InvitationHttpTest` (`2b1271d0`), B402 | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-INV-06** | Auto-rattachement atomique & revalidation autoritative WRITE | SPEC-06 §14 ; SPEC-10 INV-E/F | `V3InvitationWritePostgresTest` (`2b1271d0`) | Reusable | Requalification intégrée | G5 / Full natif | BLOCKING |
-| **REQ-INV-07** | Concurrence sur même place & réutilisation par tiers | SPEC-06 §14 ; SPEC-10 INV-F | `V3InvitationWritePostgresTest` (`2b1271d0`), B403 | Partielle (XML écrasé T4-C/D) | Preuve fraîche intégrale | G5 / Full natif | BLOCKING |
-| **REQ-INV-08** | Expiration transactionnelle fiable sans faux PASS | SPEC-06 §14 ; AUD-I4-02 | `V3InvitationWritePostgresTest#expiration...` | Reusable (avec réserve) | Preuve fraîche intégrée | G5 / Full natif | MAJOR |
-| **REQ-INV-09** | Matérialisation monotone `read_current_invitation` | SPEC-04 §7 ; SPEC-06 §13 | `V3InvitationReadPostgresTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | G5 / Full natif | MAJOR |
-| **REQ-DEP-01** | Désaffiliation volontaire (`DETACH`, `userId=null`) | SPEC-01 §6 ; SPEC-06 §15 | `V3AdmissionFlowPostgresTest` (`2b1271d0`), B401 | Reusable | Preuve fraîche intégrée | G5 / Full natif | BLOCKING |
-| **REQ-DEP-02** | Conservation intégrale de l'historique financier | SPEC-01 §6 ; SPEC-06 §15 | `InvitationAttachmentTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | G5 / Full natif | BLOCKING |
-| **REQ-DEP-03** | Départ du dernier affilié & indépendance des identités | SPEC-01 §6 ; SPEC-06 §15 | `V3InvitationHttpTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | G5 / Full natif | MAJOR |
-| **REQ-TOPO-01** | Topologie 7 READ (3 Monolithe + 4 PROJECTION) & pool $\le 65$ | D6-topologie ; SPEC-09 §3 | `V3InvitationTopologyPostgresTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | G5 / Full natif | MAJOR |
-| **REQ-ARCH-01** | Isolation hexagonale, absence de cycles, règles de couches | *Reactor Policy* §16, §17 | `architecture-tests` (L4: 167 PASS, I2: 170 PASS) | Différée Q5 | Gate Architecture non filtrée | G5 / Full natif | BLOCKING |
-| **REQ-EXT-01** | Intégration Keycloak OIDC réel (3 sessions E1/E2/E3) | SPEC-10 ID-02 ; R-I1-03 | `V3LinkBrunoPostgresTest` (`0d415a67`) | Partielle (banc I3) | Rejeu sur banc unifié B5 | B5 / Externe | BLOCKING |
-| **REQ-EXT-02** | Collection HTTP Bruno V3 complète (B01–B404) | SPEC-10 ; Plans I1–I4 | B1 (32 PASS), B2 (24 PASS), B3 (10 PASS), B4 (4 PASS) | Morcelée (4 runs séparés) | Campagne B5 composite consolidée | B5 / Externe | MAJOR |
+| **REQ-READ-01** | Consultation Pot courant & historique à V | SPEC-04 §1 ; SPEC-06 §6 | T1 (`46b94ce6`), B07, B08 | Reusable | Inclusion dans full natif Q5-B | Full Maven | BLOCKING |
+| **REQ-READ-02** | Droits & balances historiques à V | SPEC-04 §4 ; SPEC-06 §6 | T1 (`46b94ce6`), B09 | Reusable | Inclusion dans full natif Q5-B | Full Maven | BLOCKING |
+| **REQ-READ-03** | Chargement groupé Expense batch (max 50) | SPEC-04 §5 ; SPEC-06 §6 | T1 (`46b94ce6`), B15, B16 | Reusable | Inclusion dans full natif Q5-B | Full Maven | MAJOR |
+| **REQ-READ-04** | Navigation keyset (défaut 20, max 100) | SPEC-04 §6 ; SPEC-06 §6 | T1 (`46b94ce6`), B21–B23 | Reusable | Inclusion dans full natif Q5-B | Full Maven | MAJOR |
+| **REQ-READ-05** | Masquage uniforme (404) & pas de fuite EUI | SPEC-06 §1 ; SPEC-07 §2 | T1 (`46b94ce6`), B10–B12 | Reusable | Inclusion dans full natif Q5-B | Full Maven | BLOCKING |
+| **REQ-READ-06** | Sortie bornée 4 Mio / 503 | SPEC-06 §6, D4-READ | T1 (`46b94ce6`), B32 | Reusable | Inclusion dans full natif Q5-B | Full Maven | MAJOR |
+| **REQ-READ-07** | Prévalidation pure avant quota SQL $Q=2$ | AUD-FINAL-I8-01 ; Plan L5 §11 | T1 (`46b94ce6`), B17–B19 | Reusable | Inclusion dans full natif Q5-B | Full Maven | MAJOR |
+| **REQ-CMD-01** | 11 commandes Pot publiques admises asynchrones | SPEC-01 §3 ; SPEC-06 §7 | C-04 (`df0c3a22`), B202–B212 | Reusable | Requalification fraîche sous V8/V10 | Full Maven | BLOCKING |
+| **REQ-CMD-02** | Registration & Unlink publics asynchrones | SPEC-02 §3 ; SPEC-06 §8 | C-04 (`df0c3a22`), B201, B220 | Reusable | Requalification fraîche sous V8/V10 | Full Maven | BLOCKING |
+| **REQ-CMD-03** | Idempotence atomique S-03 (même clé $\rightarrow$ même requestId) | SPEC-06 §7 ; SPEC-10 S-03 | C-04 (`df0c3a22`), B213 | Reusable | Requalification fraîche sous V8/V10 | Full Maven | BLOCKING |
+| **REQ-CMD-04** | Conflit d'intention différente sur même clé (409) | SPEC-06 §7 ; SPEC-10 S-03 | C-04 (`df0c3a22`), B214 | Reusable | Requalification fraîche sous V8/V10 | Full Maven | BLOCKING |
+| **REQ-CMD-05** | Résolution SELF uniquement dans le moteur WRITE | SPEC-06 §7 ; SPEC-07 §3 | C-04 (`df0c3a22`), B204 | Reusable | Requalification fraîche sous V8/V10 | Full Maven | BLOCKING |
+| **REQ-CMD-06** | Rôles SQL distincts & privilèges resserrés V8 | AUD-I2-02 ; L5/I2 Post-Audit | 9/9 PASS (`1fc07000`) | Partielle (ciblée) | Preuve terminale fraîche intégrée | Full Maven | MAJOR |
+| **REQ-LINK-01** | Proposition technique distincte de l'IdentityRequest | SPEC-02 §5 ; H1 A-READ | FAST/PG (`0d415a67`), B302 | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-LINK-02** | Consentement explicite par POST E2 authentifiée | SPEC-02 §5 ; SPEC-10 ID-02 | FAST/PG (`0d415a67`), B307 | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-LINK-03** | E1 propriétaire du résultat, E2 découvre son binding | SPEC-02 §5 ; SPEC-10 ID-02 | FAST/PG (`0d415a67`), B309, B310 | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-LINK-04** | Anti-rejeu & admission atomique V9 après acceptation | SPEC-06 §8 ; SPEC-10 ID-02 | FAST/PG (`0d415a67`), B307, B313 | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-INV-01** | Création invitation réservée au seul créateur | SPEC-06 §13 ; SPEC-10 INV-A | T4-B (`7a284405`), B401 | Partielle (XML écrasé) | Preuve fraîche intégrale | Full Maven | BLOCKING |
+| **REQ-INV-02** | Persistance atomique, version Pot inchangée | SPEC-06 §13 ; SPEC-10 INV-A | T4-A, T4-E (`7a284405`) | Partielle (XML écrasé) | Preuve fraîche intégrale | Full Maven | BLOCKING |
+| **REQ-INV-03** | Chiffrement AES-GCM & lookup par hash | SPEC-06 §13 ; SPEC-10 INV-I | `V3InvitationReadPostgresTest` (`2b1271d0`) | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-INV-04** | Restitution confidentielle par creationRequestId (404 tiers) | SPEC-06 §13 ; SPEC-10 INV-C | `V3InvitationHttpTest` (`2b1271d0`), B402 | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-INV-05** | Consultation des places libres sans fuite de solde/historique | SPEC-06 §14 ; SPEC-10 INV-D | `V3InvitationHttpTest` (`2b1271d0`), B402 | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-INV-06** | Auto-rattachement atomique & revalidation autoritative WRITE | SPEC-06 §14 ; SPEC-10 INV-E/F | `V3InvitationWritePostgresTest` (`2b1271d0`) | Reusable | Requalification intégrée | Full Maven | BLOCKING |
+| **REQ-INV-07** | Concurrence sur même place & réutilisation par tiers | SPEC-06 §14 ; SPEC-10 INV-F | `V3InvitationWritePostgresTest` (`2b1271d0`), B403 | Partielle (XML écrasé T4-C/D) | Preuve fraîche intégrale | Full Maven | BLOCKING |
+| **REQ-INV-08** | Expiration transactionnelle fiable sans faux PASS | SPEC-06 §14 ; AUD-I4-02 | `V3InvitationWritePostgresTest#expiration...` | Reusable (avec réserve) | Preuve fraîche intégrée | Full Maven | MAJOR |
+| **REQ-INV-09** | Matérialisation monotone `read_current_invitation` | SPEC-04 §7 ; SPEC-06 §13 | `V3InvitationReadPostgresTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | Full Maven | MAJOR |
+| **REQ-DEP-01** | Désaffiliation volontaire (`DETACH`, `userId=null`) | SPEC-01 §6 ; SPEC-06 §15 | `V3AdmissionFlowPostgresTest` (`2b1271d0`), B401 | Reusable | Preuve fraîche intégrée | Full Maven | BLOCKING |
+| **REQ-DEP-02** | Conservation intégrale de l'historique financier | SPEC-01 §6 ; SPEC-06 §15 | `InvitationAttachmentTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | Full Maven | BLOCKING |
+| **REQ-DEP-03** | Départ du dernier affilié & indépendance des identités | SPEC-01 §6 ; SPEC-06 §15 | `V3InvitationHttpTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | Full Maven | MAJOR |
+| **REQ-TOPO-01** | Topologie 7 READ (3 Monolithe + 4 PROJECTION) & pool $\le 65$ | D6-topologie ; SPEC-09 §3 | `V3InvitationTopologyPostgresTest` (`2b1271d0`) | Reusable | Preuve fraîche intégrée | Full Maven | MAJOR |
+| **REQ-ARCH-01** | Architecture globale (178 oracles) | *Reactor Policy* §16, §17 | `architecture-tests` (L4: 167 PASS, I2: 170 PASS) | Différée Q5 | Gate Architecture non filtrée | Full Maven | BLOCKING |
+| **REQ-EXT-01** | Intégration Keycloak OIDC réel (3 sessions E1/E2/E3) | SPEC-10 ID-02 ; R-I1-03 | `V3LinkBrunoPostgresTest` (`0d415a67`) | Partielle (banc I3) | Rejeu sur Keycloak port 8081 | Full Maven (`runtime-monolith`) | BLOCKING |
+| **REQ-EXT-02** | Surface Bruno B5 consolidée (70 scénarios B01–B404) | SPEC-10 ; Plans I1–I4 | B1 (32 PASS), B2 (24 PASS), B3 (10 PASS), B4 (4 PASS) | Morcelée (4 runs historiques) | Suite B5 composite unifiée | Maven (B2,3,4) + B1 autonome | MAJOR |
 
 ---
 
@@ -124,7 +125,7 @@ Pour que la mutualisation D6 soit formellement certifiée lors de Q5-B, le colle
 7. **Attribution et provenance :** Contrôle des propriétés système `pocoma.verification.id`, `pocoma.verification.module` et `pocoma.verification.producer` dans chaque rapport XML.
 8. **Couverture des obligations différées :** Rapprochement méthode par méthode avec les obligations issues de I1, I2, I3 et I4.
 9. **Non-régression historique :** Absence de régression sur les suites héritées L1–L4 et vérification que les scénarios de quarantaine historique levée (`i5_r05`, `i5_r12`) ont bien été exécutés avec succès.
-10. **Frontière des preuves extérieures :** Traçabilité explicite du fait que les protocoles extérieurs (collection Bruno B5, IdP externe de production) ne sont pas réputés acquis par le seul succès Maven.
+10. **Frontière des preuves extérieures :** Traçabilité explicite de l'exécution des tests porteurs Bruno dans `runtime-monolith` et isolation du complément B1.
 
 ---
 
@@ -148,54 +149,92 @@ Le plan Q5-B prévoit leur réexécution fraîche et intégrale lors du full rea
 
 ---
 
-## 6. Plan de qualification externe Bruno B5 (AUD-Q5A-01)
+## 6. Plan Bruno B5 — Mutualisation effective et complément autonome B1
 
-### 6.1 Analyse contradictoire des bancs et fixtures existants
-L'examen des 70 scénarios et de leurs lanceurs démontre l'hétérogénéité des préconditions :
+### 6.1 Démonstration de la mutualisation Bruno au sein du full Maven
+L'analyse statique des tests de `app/runtime-monolith/src/test/java/` démontre que la campagne Maven `verify.py CERTIFICATION` exécute **trois méthodes JUnit porteuses de sous-processus Bruno CLI** :
 
-| Corpus Bruno | Scénarios | Préconditions d'infrastructure | Données & états requis | Autorité d'authentification | Orchestrateur existant | Oracle indépendant |
-|---|:---:|---|---|---|---|---|
-| **B1 (READ)** | 32 (B01–B32) | PostgreSQL 17 jetable, port HTTP libre | Tables `read_*` pré-peuplées (`read_pot` ...0300/0301/0302/0304, 205 lignes de navigation), thread de signal B30 | RSA local en mémoire (`V3ReadHttpFixture`), 6 porteurs + 2 tokens binding | `V3ReadHttpFixture.main` | Reçu `requests.jsonl` (32 scénarios), scan anti-fuite secrets |
-| **B2 (Commandes)** | 24 (B201–B224) | PostgreSQL V1–V8, worker d'écriture actif | Base initialement propre, création dynamique de Pot et 11 commandes, signal thread L3 (`controlled-internal-link`) | RSA local éphémère (`V3AdmissionFlowPostgresTest`), porteurs `owner`/`other` | `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol` | SQL direct sur `v3_command`, `v3_identity_request`, `v3_admission_association` |
-| **B3 (Link)** | 10 (B301–B313) | PostgreSQL V1–V9, **Keycloak 26.7.0 actif sur port 8081** | Realm `pocoma` importé, utilisateurs `bruno`, `link-e2`, `link-e3`, base propre pour Link | **Vrais JWT Keycloak** émis via OIDC PKCE (`l5-i3-auth.py`) | `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol` | SQL direct sur `v3_link_proposal`, `v3_identity_request`, `v3_identity_request_result` |
-| **B4 (Invitations)** | 4 (B401–B404) | PostgreSQL V1–V10, worker et projections d'invitation | Base propre, cycle de vie invitation, rattachement et désaffiliation volontaire | RSA local éphémère (`V3InvitationHttpTest`), porteurs `owner`, `guest`, `second` | `V3InvitationHttpTest#brunoB4StandaloneCorpus` | Reçu `requests.jsonl` (4 scénarios), non-fuite logs, intégrité inputs |
+1. **Corpus B2 (24 scénarios B201–B224) :**
+   - *Méthode :* `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol`
+   - *Mécanisme :* Démarre une instance HTTP V3 d'admission et PostgreSQL 17, puis invoque `node_modules/.bin/bru run -r "02 Admission and Commands"`.
+   - *Sortie :* Génère directement les rapports dans `${pocoma.verification.reports}/../bruno-b2/` (`bruno.json`, `requests.jsonl`, `receipt.json`).
+   - *Assertions :* Vérifie `running.exitValue() == 0`, compare les 24 scénarios B201–B224, et contrôle par SQL indépendant `v3_command`, `v3_identity_request`, `v3_admission_association`.
+2. **Corpus B3 (10 scénarios B301–B313) :**
+   - *Méthode :* `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol`
+   - *Mécanisme :* Obtient 3 sessions OIDC réelles auprès de Keycloak 26.7.0 (`http://localhost:8081/realms/pocoma`) via `l5-i3-auth.py`, puis lance `node_modules/.bin/bru run -r "03 Link Requests"`.
+   - *Sortie :* Écrit dans `${pocoma.verification.reports}/../bruno-i3/` (`bruno.json`, `requests.jsonl`, `receipt.json`, `real-jwt-claims.json`).
+   - *Assertions :* Vérifie les 10 scénarios B301–B305, B307–B310, B313, scanne `bruno.log` contre toute fuite de token, et valide les oracles SQL indépendants (`v3_link_proposal`, `v3_identity_request`).
+3. **Corpus B4 (4 scénarios B401–B404) :**
+   - *Méthode :* `V3InvitationHttpTest#brunoB4StandaloneCorpus`
+   - *Mécanisme :* Instancie la topologie complète d'invitation V10 et lance `node_modules/.bin/bru run -r "04 Invitations"`.
+   - *Sortie :* Écrit dans `${pocoma.verification.reports}/../bruno-b4/` (`bruno.json`, `requests.jsonl`, `receipt.json`).
+   - *Assertions :* Valide l'exit code 0, les 4 scénarios B401–B404 et la non-régression d'intégrité des fichiers sources Bruno.
 
-### 6.2 Arbitrage stratégique B5 : Option B retenue
-- **Option A (Instance unique intégrée) : REJETÉE.**
-  Une exécution monolithique globale échouerait immédiatement en raison des conflits dans `scripts/bruno-v3/collection.bru` (qui interdit le chargement simultané des variables d'environnement `POCOMA_I1_*` et `POCOMA_I2_*` / `POCOMA_I4_*`) et de l'incompatibilité des états de base (B1 exige une base pré-injectée en lecture seule, B2/B3/B4 exigent une base transactionnelle avec workers).
-- **Option B (Campagne composite orchestrée) : ADOPTÉE.**
-  La campagne B5 est organisée en **quatre volets séquentiels étanches**, exécutant chacun ses scénarios sur son banc dédié, avec consolidation globale dans un rapport de preuves unifié.
+**Conclusion d'optimisation :**
+Lancer une nouvelle campagne Bruno globale pour B2, B3 et B4 après le full Maven constituerait une duplication stricte sans gain probatoire.
+Les preuves de B2, B3 et B4 **sont acquises dès la Phase 1**, sous réserve de la vérification de leurs artefacts.
 
-### 6.3 Procédure opérationnelle d'exécution de B5
+### 6.2 Matrice d'acquisition des preuves Bruno B5
 
-La campagne B5 se déroule selon la séquence ordonnée :
+| Corpus Bruno | Scénarios | Acquisition principale | Condition de réutilisation | Complément en Phase 2 |
+|---|:---:|---|---|---|
+| **B1 (READ)** | 32 (B01–B32) | Fixture autonome `V3ReadHttpFixture.main` | Reçu `requests.jsonl` (32 scénarios) et oracle B30 validés | **Exécution nominale obligatoire** (non couvert par Surefire) |
+| **B2 (Commandes)** | 24 (B201–B224) | Full Maven (`V3AdmissionFlowPostgresTest`) | Méthode PASS, 24 scénarios dans `requests.jsonl`, SQL conformes | **Aucun (réutilisation)** ; rejeu ciblé uniquement si artefact manquant |
+| **B3 (Link)** | 10 (B301–B313) | Full Maven (`V3LinkBrunoPostgresTest`) | Keycloak 8081 actif, méthode PASS, 10 scénarios, SQL conformes | **Aucun (réutilisation)** ; rejeu ciblé uniquement si artefact manquant |
+| **B4 (Invitations)** | 4 (B401–B404) | Full Maven (`V3InvitationHttpTest`) | Méthode PASS, 4 scénarios dans `requests.jsonl`, lifecycle conforme | **Aucun (réutilisation)** ; rejeu ciblé uniquement si artefact manquant |
 
-1. **Sous-campagne B5-1 (READ — 32 scénarios B01–B32) :**
-   - Démarrage de `V3ReadHttpFixture` (porteur Java dédié).
-   - Exécution de Bruno via CLI :
-     ```sh
-     node_modules/.bin/bru run -r "01 Identity and READ" --env Local --sandbox developer --noproxy \
-       --reporter-json <evidence-dir>/b1/bruno.json --reporter-skip-all-headers --reporter-skip-body
-     ```
-   - Validation de l'oracle de signal B30 et réconciliation des 32 scénarios dans `requests.jsonl`.
-2. **Sous-campagne B5-2 (Admission & Commandes — 24 scénarios B201–B224) :**
-   - Exécution sous l'orchestrateur `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol`.
-   - Exécution de Bruno sur `"02 Admission and Commands"`.
-   - Validation de l'oracle SQL indépendant sur les tables d'admission et de version Pot.
-3. **Sous-campagne B5-3 (Link Keycloak — 10 scénarios B301–B313) :**
-   - Prérequis : Conteneur Keycloak 26.7.0 actif (`http://localhost:8081`).
-   - Obtention des 3 sessions réelles via `scripts/testing/l5-i3-auth.py`.
-   - Exécution sous l'orchestrateur `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol`.
-   - Exécution de Bruno sur `"03 Link Requests"`.
-   - Validation de l'oracle SQL indépendant sur `v3_link_proposal` et `v3_identity_request`.
-4. **Sous-campagne B5-4 (Invitations — 4 scénarios B401–B404) :**
-   - Exécution sous l'orchestrateur `V3InvitationHttpTest#brunoB4StandaloneCorpus`.
-   - Exécution de Bruno sur `"04 Invitations"`.
-   - Contrôle du cycle de vie complet, du secret confidentiel et de la désaffiliation.
-5. **Consolidation B5 :**
-   - Agrégation des quatre reçus `receipt.json` et des fichiers `requests.jsonl`.
-   - Vérification du total cumulé : exactement **70 scénarios exécutés, 0 échec, 0 erreur**.
-   - Scan automatisé des rapports et traces contre toute fuite de secret ou token JWT.
+### 6.3 Procédure directement exécutable pour le complément B1
+
+Le corpus B1 (32 scénarios de consultation READ) repose sur le jeu de données synthétique injecté par `V3ReadHttpFixture` (Pots `...0300`, `...0301`, soldes, navigation de 205 items).
+Sa méthode `main` est conçue pour être invoquée de manière autonome.
+
+#### Dépendance de classpath et enchaînement
+Lors de la Phase 1, l'exécution du test `V3ReadHttpContractTest` sous Maven écrit automatiquement le classpath de test complet dans le fichier :
+`app/runtime-web-api/target/i1-classpath.txt`
+*(Ligne 31 de `V3ReadHttpContractTest.java` : `@BeforeAll static void retainClasspath()`).*
+
+#### Commande canonique candidate pour B1
+Depuis la racine du dépôt :
+```sh
+java -Xmx512m \
+  -cp $(cat app/runtime-web-api/target/i1-classpath.txt) \
+  com.kartaguez.pocoma.V3ReadHttpFixture \
+  $(pwd) \
+  /tmp/pocoma-q5b-evidence/bruno-b1
+```
+
+*(Si pour une raison exceptionnelle `i1-classpath.txt` était absent à l'issue de Phase 1, la commande de génération de secours est : `./mvnw -pl runtime-web-api dependency:build-classpath -Dmdep.outputFile=target/i1-classpath.txt`).*
+
+#### Déroulement et oracles de B1
+1. `V3ReadHttpFixture` démarre un conteneur PostgreSQL 17 jetable et une instance `PocomaWebApiApplication`.
+2. Elle peuple les tables `read_pot`, `read_command_result`, `read_identity_request_result` et `read_user_pot`.
+3. Elle lance un thread virtuel d'écoute sur le signal de publication B30 (`POCOMA_I1_PUBLISH_SIGNAL`).
+4. Elle invoque le CLI Bruno sur `"01 Identity and READ"`.
+5. Elle vérifie l'exit code 0, les 32 scénarios dans `requests.jsonl`, l'absence de fuite de tokens, et écrit `receipt.json`.
+6. Elle arrête le serveur et détruit le conteneur.
+
+### 6.4 Procédure de consolidation unifiée B5
+
+Une fois le complément B1 exécuté et les artefacts B2, B3, B4 contrôlés dans le dossier de preuves Maven, la consolidation B5 est réalisée par un script Python d'agrégation :
+
+```python
+# scripts/testing/consolidate_bruno_b5.py
+# Vérifie la présence de bruno-b1, bruno-b2, bruno-i3, bruno-b4
+# Agrège les 70 scénarios attendus, vérifie zéro skip, zéro failure
+# Génère /tmp/pocoma-q5b-evidence/bruno-b5-consolidated.json
+```
+
+### 6.5 Critères normatifs d'acceptation B5
+Le verdict de la qualification B5 est strictement conditionné :
+- **`B5 COMPOSITE PASS`** :
+  1. Exactement 70 scénarios distincts exécutés avec succès (B01–B32, B201–B224, B301–B313, B401–B404).
+  2. Zéro échec, zéro erreur (`0 failure, 0 error`).
+  3. Preuves et rapports Surefire/Bruno attribués à leurs invocations d'origine sans falsification.
+  4. Oracles indépendants satisfaits (handshake B30, oracles SQL de B2 et B3).
+  5. Absence de secrets/tokens dans les logs.
+  6. Distinction explicite : qualification composite sur bancs dédiés étanches, sans prétention d'un état persistant partagé universel.
+- **`B5 INCOMPLETE / INCONCLUSIVE`** : Un scénario manquant ou un rapport manquant dans l'un des 4 répertoires.
+- **`B5 FAIL`** : Échec HTTP ou violation d'un oracle SQL.
 
 ---
 
@@ -207,13 +246,14 @@ Le plan établit formellement qu'**une durée d'exécution n'est pas un critère
 - **Prévisions budgétaires :** Repères indicatifs d'organisation basés sur l'historique empirique.
 - **Seuils d'investigation / Watchdog :** Points de contrôle déclenchant l'analyse d'activité, **sans coupure automatique d'une campagne qui progresse normalement**.
 
-### 7.2 Tableau des prévisions et seuils de diagnostic
+### 7.2 Budget recalculé sans double comptage
 
-| Campagne | Estimation nominale | Point de diagnostic (Watchdog) | Seuil de vigilance | Fondement historique |
+| Phase / Poste | Estimation nominale | Point de diagnostic (Watchdog) | Seuil de vigilance | Justification empirique |
 |---|:---:|:---:|:---:|---|
-| **Full Natif Unique (G5 + Arch)** | 70–90 min | 100 min | 120 min | FULL-04-FAIL L4 mesuré à 68,6 min ; nouveaux tests L5 ajoutés |
-| **Campagne Bruno B5 (4 volets)** | 15–25 min | 35 min | 45 min | B1 (~3m) + B2 (~5m) + B3 (~3m) + B4 (~1m) + temps d'initialisation |
-| **Consolidation & Manifestes** | 3–5 min | 8 min | 10 min | Scan des 60 modules Surefire et des 70 scénarios Bruno |
+| **Phase 1 — Full Maven (G5 + Arch + Bruno B2, B3, B4)** | 70–90 min | 100 min | 120 min | FULL-04-FAIL L4 mesuré à 68,6 min ; intègre les 2 350+ tests JUnit et les 3 sous-processus Bruno B2, B3, B4. |
+| **Phase 2 — Complément autonome B1** | 3–5 min | 8 min | 10 min | Mesuré historiquement à ~2 min 15 s lors de L5/I1 (fixture + 32 requêtes). |
+| **Phase 2 — Consolidation B5 & Manifeste** | 1–2 min | 3 min | 5 min | Scan statique des 4 répertoires et génération du JSON consolidé. |
+| **TOTAL QUALIFICATION Q5-B CONSOLIDÉ** | **75–95 min** | **105 min** | **130 min** | **Aucun double comptage des suites B2, B3, B4.** |
 
 ### 7.3 Motifs d'interruption technique légitime
 Une campagne ne doit être interrompue avant son terme que sur incident technique avéré :
@@ -252,10 +292,10 @@ Les sept autres recommandations ont été transmises par le mandat de cadrage du
 
 ```mermaid
 flowchart TD
-    P0["Phase 0 : Préflight & Environnement\n(Git, Docker, PostgreSQL 17, Keycloak 8081)"] --> P1["Phase 1 : Qualification Maven Unique\n(verify.py CERTIFICATION — 60 modules)"]
-    P1 --> P2["Phase 2 : Qualification Bruno B5 Composite\n(4 volets séquentiels : B5-1 à B5-4 — 70 scénarios)"]
-    P2 --> P3["Phase 3 : Vérification des Compléments & Oracles Statiques"]
-    P3 --> P4["Phase 4 : Consolidation & Dossier de Preuves\n(Manifeste, matrices, passage à Q5-C)"]
+    P0["Phase 0 : Préflight & Environnement\n(Git, Docker, PostgreSQL 17, Keycloak 8081)"] --> P1["Phase 1 : Qualification Maven Unique (Full Natif)\n(verify.py CERTIFICATION — 60 modules)\n[Exécute Surefire + ArchUnit + Bruno B2, B3, B4]"]
+    P1 --> P2["Phase 2 : Traitement Bruno B5\n[1. Contrôle B2, B3, B4 issus du full]\n[2. Exécution autonome complément B1]\n[3. Consolidation unifiée 70 scénarios]"]
+    P2 --> P3["Phase 3 : Vérification des Compléments & Oracles Statiques\n(Audit scripts SQL V1–V10, vérification POM)"]
+    P3 --> P4["Phase 4 : Consolidation & Dossier de Preuves\n(Manifeste Q5, matrices SPEC-10, passage à Q5-C)"]
 ```
 
 ### Phase 0 — Préflight & Initialisation
@@ -272,22 +312,37 @@ flowchart TD
   ```sh
   python3 -B scripts/testing/verify.py CERTIFICATION --output /tmp/pocoma-q5b-evidence/maven-full/
   ```
-- **Contrôles dynamiques post-run :** Application stricte des 10 contrôles formalisés au §4.2 (zéro skip, 178 oracles Architecture exécutés, 60 modules `SUCCESS`).
+- **Couverture dynamique constatée :**
+  - Les 60 modules du réacteur sont compilés et testés.
+  - Le module `architecture-tests` exécute ses 178 oracles.
+  - Les méthodes porteuses Bruno `brunoB2PublicProtocol` (B2), `realKeycloakLinkProtocol` (B3) et `brunoB4StandaloneCorpus` (B4) sont exécutées dans `runtime-monolith`.
+  - Le fichier de classpath `app/runtime-web-api/target/i1-classpath.txt` est généré par `V3ReadHttpContractTest`.
 
-### Phase 2 — Qualification Bruno B5 Composite
-- Exécution séquentielle des quatre volets (§6.3) :
-  1. Volet B5-1 (READ) via `V3ReadHttpFixture.main`.
-  2. Volet B5-2 (Commandes) via `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol`.
-  3. Volet B5-3 (Link Keycloak) via `V3LinkBrunoPostgresTest#realKeycloakLinkProtocol`.
-  4. Volet B5-4 (Invitations) via `V3InvitationHttpTest#brunoB4StandaloneCorpus`.
-- Consolidation des 70 scénarios dans un reçu unifié `bruno-b5-consolidated.json`.
+### Phase 2 — Traitement Bruno B5 & Complément autonome B1
+1. **Vérification des preuves B2, B3, B4 produites en Phase 1 :**
+   - Contrôle d'existence et d'intégrité de `/tmp/pocoma-q5b-evidence/maven-full/bruno-b2/receipt.json` (24 scénarios).
+   - Contrôle de `/tmp/pocoma-q5b-evidence/maven-full/bruno-i3/receipt.json` (10 scénarios sous Keycloak réel).
+   - Contrôle de `/tmp/pocoma-q5b-evidence/maven-full/bruno-b4/receipt.json` (4 scénarios).
+2. **Exécution du complément autonome B1 :**
+   ```sh
+   java -Xmx512m \
+     -cp $(cat app/runtime-web-api/target/i1-classpath.txt) \
+     com.kartaguez.pocoma.V3ReadHttpFixture \
+     $(pwd) \
+     /tmp/pocoma-q5b-evidence/bruno-b1
+   ```
+3. **Consolidation unifiée B5 :**
+   - Agrégation des 4 sous-campagnes (32 + 24 + 10 + 4 = 70 scénarios).
+   - Production du reçu consolidé `/tmp/pocoma-q5b-evidence/bruno-b5-consolidated.json`.
+   - Contrôle anti-fuite de secrets dans les fichiers d'export Bruno.
 
 ### Phase 3 — Contrôle des compléments éventuels
 - Vérification statique des règles d'isolation des POMs et des scripts SQL de migration (V1–V10).
+- Si une preuve B2, B3 ou B4 manquait en Phase 1 (ex: Keycloak non démarré à temps), exécution du seul sous-test défaillant à titre de reprise ciblée.
 
 ### Phase 4 — Consolidation du dossier de preuves
 - Production du manifeste global `Q5_Proof_Manifest.json`.
-- Émission du rapport d'exécution Q5-B et recommandation pour le passage à l'étape **Q5-C**.
+- Émission du rapport d'exécution Q5-B et recommandation pour le passage à l'étape **Q5-C** (Audit qualité indépendant).
 
 ---
 
@@ -306,7 +361,7 @@ En cas d'échec (`FAIL` ou `ERROR`) lors de Q5-B, la procédure impérative suiv
 
 ```
 ================================================================================
-Q5-A — AMENDED PLAN READY FOR HUMAN REVIEW
+Q5-A — FINAL AMENDED PLAN READY FOR HUMAN GO REVIEW
 ================================================================================
 Q5-B — NO GO PENDING HUMAN APPROVAL
 L5 — OPEN — NO GLOBAL CERTIFICATION
