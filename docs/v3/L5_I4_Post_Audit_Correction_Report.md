@@ -11,10 +11,10 @@
 - **Commit initial audité :** `d722e9d5858c9e4eba5aa1883cf72988b463d780`
 - **SHA des corrections techniques post-audit :** `2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2`
 - **SHA de publication du rapport post-audit :** `a087dd8b3f07e2c6116533f98b597f78080da5eb`
-- **Mode de mission :** `DOCUMENTATION-ONLY — NO IMPLEMENTATION — NO TEST REPLAY — NO CLOSURE`
+- **Statut :** Clos avec réserves explicites le 5 novembre 2026 (cf. [L5_I4_Acceptance_and_Closure_Decision.md](L5_I4_Acceptance_and_Closure_Decision.md))
 - **Statut terminal exact :**
   ```
-  L5/I4 — POST-AUDIT DOCUMENTATION FINALIZED — READY FOR HUMAN CLOSURE REVIEW
+  L5/I4 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS
   ```
 
 ---
@@ -174,6 +174,12 @@ La relecture directe au HEAD des migrations `V10__invitation_history.sql`, `V10_
 
 ## 7. Statut terminal
 
-```
-L5/I4 — POST-AUDIT DOCUMENTATION FINALIZED — READY FOR HUMAN CLOSURE REVIEW
-```
+- **Décision humaine de clôture :** Actée le 5 novembre 2026 dans [`L5_I4_Acceptance_and_Closure_Decision.md`](L5_I4_Acceptance_and_Closure_Decision.md).
+- **Statut de l'incrément I4 :**
+  ```
+  L5/I4 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS
+  ```
+- **Statut du lot L5 :**
+  ```
+  L5 — OPEN — Q5/G5 STILL REQUIRED
+  ```

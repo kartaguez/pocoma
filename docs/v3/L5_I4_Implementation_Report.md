@@ -1,6 +1,6 @@
 # L5/I4 — Invitation et désaffiliation volontaire
 
-État : L5/I4 — POST-AUDIT DOCUMENTATION FINALIZED — READY FOR HUMAN CLOSURE REVIEW
+État : L5/I4 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS (décision humaine du 5 novembre 2026, cf. [L5_I4_Acceptance_and_Closure_Decision.md](L5_I4_Acceptance_and_Closure_Decision.md))
 
 ## 1. Mandat et baseline
 
@@ -134,7 +134,12 @@ La revue statique et dynamique des migrations `V10__invitation_history.sql`, `V1
 - **Franchissement inattendu de tranche :** Aucun.
 - **Portes globales :** `architecture-tests`, native reactor et B5 restent différées à Q5.
 - **Full reactor :** Non exécuté (conforme à la politique).
-- **Statut terminal de la mission :**
+- **Décision humaine de clôture :** Actée le 5 novembre 2026 dans [`L5_I4_Acceptance_and_Closure_Decision.md`](L5_I4_Acceptance_and_Closure_Decision.md).
+- **Statut terminal de l'incrément I4 :**
   ```
-  L5/I4 — POST-AUDIT DOCUMENTATION FINALIZED — READY FOR HUMAN CLOSURE REVIEW
+  L5/I4 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS
+  ```
+- **Statut du lot L5 :**
+  ```
+  L5 — OPEN — Q5/G5 STILL REQUIRED
   ```
