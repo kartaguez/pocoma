@@ -4,12 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Test;
 
 /** Guards the phase ownership of durable intake, execution, and published Results. */
 class PostWp4OwnershipArchitectureTest {
@@ -25,7 +26,11 @@ class PostWp4OwnershipArchitectureTest {
     @Test void durableContractsContainOnlyIntakeLanguage() throws IOException {
         try (var files = Files.walk(app().resolve("contracts-command/src/main/java"))) {
             assertEquals(Set.of("CommandId.java", "CommandType.java", "RecordedCommand.java",
-                    "TargetCommandEnvelope.java", "CommandAuthenticationEvidence.java"),
+                    "TargetCommandEnvelope.java", "CommandAuthenticationEvidence.java",
+                            "AdmissionAssociation.java",
+                            "AdmissionFailure.java",
+                            "AdmissionProtection.java",
+                            "AdmissionFields.java"),
                     files.filter(path -> path.toString().endsWith(".java"))
                             .map(path -> path.getFileName().toString()).collect(Collectors.toSet()));
         }

@@ -122,8 +122,14 @@ public record V3ConsumptionWorkerSettings(
                         || env.containsProperty(PREFIX + "identity-request")
                         || env.containsProperty(PREFIX + "read-participants");
         if (!any) return false;
-        boolean readHttp = Set.copyOf(Arrays.asList(env.getActiveProfiles()))
-                .equals(Set.of(READ_PROFILE, V3ReadHttpConfiguration.PROFILE));
+        var profiles = Set.copyOf(Arrays.asList(env.getActiveProfiles()));
+        boolean readHttp =
+                profiles.equals(Set.of(READ_PROFILE, V3ReadHttpConfiguration.PROFILE))
+                        || profiles.equals(
+                                Set.of(
+                                        READ_PROFILE,
+                                        V3ReadHttpConfiguration.PROFILE,
+                                        "v3-http-admission"));
         if (!profile
                 || (env.getActiveProfiles().length != 1 && !readHttp)
                 || !flag(env, "enabled")

@@ -95,6 +95,63 @@
         "V3TransactionFoundationPostgresTest"
       ],
       "INTEGRATION": []
+    },
+    "l5-i2-fast": {
+      "anchor": "WEB",
+      "FAST": [
+        "V3AdmissionCanonicalizationTest",
+        "V3AdmissionInputTest",
+        "V3IdentityAdmissionInputTest",
+        "PotCommandIntentTest",
+        "ExecutePotCommandTest",
+        "IdentityRequestContractTest"
+      ],
+      "CHANGE": [],
+      "INTEGRATION": [],
+      "fast_modules": [
+        "engine-admit-command",
+        "engine-admit-registration",
+        "engine-write-pot",
+        "engine-consume-registration"
+      ]
+    },
+    "l5-i2-codec": {
+      "anchor": "WEB",
+      "FAST": [
+        "PotCommandJsonTest"
+      ],
+      "CHANGE": [],
+      "INTEGRATION": [],
+      "fast_modules": [
+        "infra-persistence-primary-jpa"
+      ]
+    },
+    "l5-i2-sql": {
+      "anchor": "WEB",
+      "FAST": [],
+      "CHANGE": [],
+      "INTEGRATION": [
+        "V3AdmissionPostgresTest",
+        "PotCommandJsonTest"
+      ],
+      "integration_extra_modules": [
+        "infra-persistence-primary-jpa"
+      ]
+    },
+    "l5-i2-http": {
+      "anchor": "WEB",
+      "FAST": [],
+      "CHANGE": [],
+      "INTEGRATION": [
+        "V3AdmissionHttpTest",
+        "V3AdmissionFlowPostgresTest",
+        "V3HttpCompositionPostgresTest",
+        "V3MonolithHttpCompositionPostgresTest",
+        "V3AdmissionTransportTest"
+      ],
+      "integration_extra_modules": [
+        "runtime-monolith"
+      ]
     }
   },
   "campaigns": {
@@ -474,6 +531,302 @@
         "basis": "Keep optional READ port linkage in HTTP assembly: all40 I1 + 23 exact Command startup errors, then full B1. No unchanged replay or oracle relaxation.",
         "uncertainty": "UNMEASURED"
       }
+    },
+    "l5-i2-d4": {
+      "level": "FAST",
+      "modules": [
+        "supra-http-write"
+      ],
+      "expected_invocations": 1,
+      "jvm_max_heap_mib": 512,
+      "tests": {
+        "com.kartaguez.pocoma.supra.http.write.v3.D4AdmissionCalibrationTest": [
+          "finiteInputCorpusCpuAllocationAndHeap"
+        ]
+      },
+      "forecast": {
+        "seconds": 60,
+        "basis": "finite 22-profile input-only corpus; 512 MiB fork; indicative",
+        "blocking": false
+      }
+    },
+    "l5-i2": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api",
+        "runtime-command-consumption-worker",
+        "runtime-monolith"
+      ],
+      "tests": {
+        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest": [
+          "equivalentObjectsAndExactRationals",
+          "orderedAndUnorderedCollections",
+          "canonicalFramingCannotAlias",
+          "scopeSeparatesIdentityOperationAndClient",
+          "bindingAndAttachmentAreIntent",
+          "oldIntentAfterRuleChange",
+          "currentAndHistoricalValidationStaySeparate",
+          "keyRotationAndMissingKeyFailClosed"
+        ],
+        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionInputTest": [
+          "allElevenOperationsMapExactly",
+          "malformedTargetsRejectedBeforeStore",
+          "exactFractionsAndPublicIds",
+          "clientCannotChooseRequesterOrUser",
+          "validationFailureDoesNotCallStore"
+        ],
+        "com.kartaguez.pocoma.engine.admit.registration.v3.V3IdentityAdmissionInputTest": [
+          "registrationHasNoTokenOrClientEui",
+          "unlinkNeedsInitiatorTokenOnly",
+          "linkIsNotPublic",
+          "attestationsAreServerOwned"
+        ],
+        "com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest": [
+          "attachmentModesAreImmutableAndScoped",
+          "legacyIntentRemainsValid",
+          "additionsValidateStructureAndCopy",
+          "detailsValidateStructureAndCopy",
+          "weightsValidateStructureAndCopy"
+        ],
+        "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest": [
+          "selfUsesProtectedWriteActor",
+          "keepAndDetachUseWriteFacts",
+          "u01ChangedUsesOneOrderedFinalUnit",
+          "u02NoopAndBusinessRejectionNeverWriteRevisions",
+          "u03CollisionNeverRetriesWithinClaimOrPretendsBusinessRejection",
+          "u04LostClaimIsEngineResponsibilityAndCannotReachThisParticipant",
+          "u05TechnicalAndInconsistentFactsRemainDistinct",
+          "u06TerminalReplaySkipsPreparationAndAllWrites",
+          "f02InvalidBindingNeverReadsOrProtectsPotAndStillFencesIdentity"
+        ],
+        "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest": [
+          "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken",
+          "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf",
+          "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter",
+          "immutableAdmissionCapturesProvenanceAndMustMatchBothIdentities",
+          "missingIntentionAndProvenanceAreInvalid",
+          "exactIntentionEqualityIncludesOperationTokenTargetAndAdmission",
+          "publicResultExposesOnlyChangedTargetAndVersionOrClosedRejection",
+          "storedRequestDistinguishesPendingAndTerminalAndRequiresExactResultPresence",
+          "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser",
+          "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJsonTest": [
+          "attachmentModesRoundTripWithoutResolvedUser",
+          "unknownPayloadVersionIsTechnical",
+          "allThreeTargetListsRoundTripAndDurableCorruptionIsExplicitlyTechnical"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.V3AdmissionPostgresTest": [
+          "firstAndReplay",
+          "differentIntentConflicts",
+          "scopeIsolation",
+          "concurrentSameKeySameIntent",
+          "concurrentSameKeyDifferentIntent",
+          "distinctKeysProgressIndependently",
+          "rollbackAndOwnerBoundaries",
+          "lostCommitAcknowledgement",
+          "unknownCommitDoesNotCreateReplacement",
+          "unavailablePhysicalObserverFailsClosed",
+          "invalidLeavesNoDurable",
+          "admissionNeverReadsBusinessTables",
+          "associationForeignKeysAndImmutability",
+          "admissionRoleAndIndirectPrivileges",
+          "restoreAndOldKeyCompatibility"
+        ],
+        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+          "commandRegistrationUnlinkAccepted",
+          "sameIdAnd409",
+          "authenticationAndCapturedRequester",
+          "bodyKeyDepthTextBoundaries",
+          "mediaDuplicateUnknownAndForbiddenFields",
+          "limitsChangedReplayOldContract",
+          "overloadAndPhysicalTimeoutRelease",
+          "noSecretOrWriteFallback",
+          "linkAndInvitationNotExposed"
+        ],
+        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+          "allElevenPotOperationsThroughWorker",
+          "registrationAndUnlinkThroughWorker",
+          "invalidBusinessIntentsAreAdmittedThenRejected",
+          "selfUsesWriteAndSurvivesBindingChange",
+          "resultsAndReadProgressIndependently",
+          "brunoB2PublicProtocol"
+        ],
+        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+          "webRoot",
+          "legacyComponentsRejected",
+          "readOnlyAuthorityAndNoWriteFallback",
+          "typedPortsAndDependencies",
+          "brunoFixtureProvenance"
+        ],
+        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+          "monolithRoot"
+        ],
+        "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransportTest": [
+          "unresolvedPhysicalTerminationRetainsCapacity",
+          "observedPhysicalTerminationReleasesCapacity"
+        ],
+        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+          "inputByteBoundaries",
+          "mediaAndUnknownFields",
+          "terminalResultsOwnership"
+        ]
+      },
+      "expected_invocations": 85,
+      "forecast": {
+        "seconds": 600,
+        "basis": "T2 real admissions, PostgreSQL and B2; indicator only",
+        "blocking": false
+      }
+    },
+    "l5-i2-http-fix": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api"
+      ],
+      "tests": {
+        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+          "commandRegistrationUnlinkAccepted",
+          "sameIdAnd409",
+          "authenticationAndCapturedRequester",
+          "bodyKeyDepthTextBoundaries",
+          "mediaDuplicateUnknownAndForbiddenFields",
+          "limitsChangedReplayOldContract",
+          "overloadAndPhysicalTimeoutRelease",
+          "noSecretOrWriteFallback",
+          "linkAndInvitationNotExposed"
+        ],
+        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest": [
+          "equivalentObjectsAndExactRationals",
+          "orderedAndUnorderedCollections",
+          "canonicalFramingCannotAlias",
+          "scopeSeparatesIdentityOperationAndClient",
+          "bindingAndAttachmentAreIntent",
+          "oldIntentAfterRuleChange",
+          "currentAndHistoricalValidationStaySeparate",
+          "keyRotationAndMissingKeyFailClosed"
+        ],
+        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionInputTest": [
+          "allElevenOperationsMapExactly",
+          "malformedTargetsRejectedBeforeStore",
+          "exactFractionsAndPublicIds",
+          "clientCannotChooseRequesterOrUser",
+          "validationFailureDoesNotCallStore"
+        ]
+      },
+      "expected_invocations": 22
+    },
+    "l5-i2-acl-final": {
+      "level": "INTEGRATION",
+      "modules": [
+        "infra-persistence-primary-jpa"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.V3AdmissionPostgresTest": [
+          "admissionRoleAndIndirectPrivileges"
+        ]
+      }
+    },
+    "l5-i2-legacy-profile-fix": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api"
+      ],
+      "expected_invocations": 2,
+      "tests": {
+        "com.kartaguez.pocoma.WriteSideHttpClosureTest": [
+          "openApiExposesAsyncAdmissionAndNoLegacyQueryOrMutationOperation"
+        ],
+        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+          "commandRegistrationUnlinkAccepted"
+        ]
+      }
+    },
+    "l5-i2-flow-receipts": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-monolith"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+          "allElevenPotOperationsThroughWorker"
+        ]
+      },
+      "forecast": {
+        "seconds": 90,
+        "basis": "One existing flow method, with existing physical-evidence output enabled; no new business oracle",
+        "blocking": false
+      }
+    },
+    "l5-i2-worker-await": {
+      "level": "FAST",
+      "modules": [
+        "runtime-command-consumption-worker"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerAwaitTest": [
+          "preservesSuccessfulObservationAndTimeout"
+        ]
+      },
+      "forecast": {
+        "seconds": 30,
+        "basis": "Pure deterministic observation-helper regression, no Spring/PG start",
+        "blocking": false
+      }
+    },
+    "l5-i2-worker-w17": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-command-consumption-worker"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest": [
+          "i5_w17"
+        ]
+      },
+      "forecast": {
+        "seconds": 100,
+        "basis": "Causal minimal reproduction after preserving the successful predicate observation; same physical Worker oracle and deadlines",
+        "blocking": false
+      }
+    },
+    "l5-i2-unicode-fast": {
+      "level": "FAST",
+      "modules": [
+        "engine-admit-command"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest": [
+          "canonicalFramingCannotAlias"
+        ]
+      },
+      "forecast": {
+        "seconds": 15,
+        "basis": "Causal Unicode scalar regression; no lossy UTF-8 intent/scope alias; HTTP refusal without durable",
+        "blocking": false
+      }
+    },
+    "l5-i2-unicode-http": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+          "mediaDuplicateUnknownAndForbiddenFields"
+        ]
+      },
+      "forecast": {
+        "seconds": 40,
+        "basis": "Causal Unicode scalar regression; no lossy UTF-8 intent/scope alias; HTTP refusal without durable",
+        "blocking": false
+      }
     }
   },
   "sequences": {
@@ -487,6 +840,12 @@
       "READ-CHANGE-4",
       "READ-CHANGE-5",
       "READ-INTEGRATION-1"
+    ]
+  },
+  "gates": {
+    "ARCHITECTURE": [
+      "architecture-tests",
+      "runtime-monolith"
     ]
   }
 }

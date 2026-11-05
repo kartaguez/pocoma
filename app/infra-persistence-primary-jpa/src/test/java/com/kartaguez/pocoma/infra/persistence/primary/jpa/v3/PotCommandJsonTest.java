@@ -13,6 +13,58 @@ import java.util.*;
 
 class PotCommandJsonTest {
     @Test
+    void attachmentModesRoundTripWithoutResolvedUser() {
+        var id = new ShareholderId(UUID.randomUUID());
+        var intent =
+                new UpdateShareholderDetails(
+                        List.of(
+                                new ShareholderTransitions.DetailsIntent(
+                                        id, new Name("A"), Optional.empty())));
+        for (var mode : List.of(Attachment.SELF, Attachment.KEEP, Attachment.DETACH)) {
+            var c =
+                    new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                            UUID.randomUUID(),
+                            new Eui("i", "s"),
+                            "token",
+                            new com.kartaguez.pocoma.domain.pot.value.id.PotId(UUID.randomUUID()),
+                            1,
+                            intent,
+                            Map.of(id, mode));
+            var json = PotCommandJson.encode(c);
+            assertEquals(
+                    c,
+                    PotCommandJson.decodeCommand(
+                            c.requestId(),
+                            c.requester(),
+                            c.bindingToken(),
+                            c.potId(),
+                            c.observedVersion(),
+                            "UpdateShareholderDetails",
+                            json));
+            assertTrue(json.contains("\"userId\":null"));
+            assertThrows(
+                    InconsistentPotFactsException.class,
+                    () -> PotCommandJson.decode("UpdateShareholderDetails", json));
+        }
+    }
+
+    @Test
+    void unknownPayloadVersionIsTechnical() {
+        assertThrows(
+                InconsistentPotFactsException.class,
+                () ->
+                        PotCommandJson.decodeCommand(
+                                UUID.randomUUID(),
+                                new Eui("i", "s"),
+                                "token",
+                                new com.kartaguez.pocoma.domain.pot.value.id.PotId(
+                                        UUID.randomUUID()),
+                                1,
+                                "DeletePot",
+                                "{\"payloadVersion\":99,\"intention\":{},\"attachments\":{}}"));
+    }
+
+    @Test
     void allThreeTargetListsRoundTripAndDurableCorruptionIsExplicitlyTechnical() {
         var id = new ShareholderId(UUID.randomUUID());
         var valid =

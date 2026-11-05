@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.engine.write.pot.v3;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
@@ -157,7 +158,8 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                             c,
                             actor,
                             version,
-                            ShareholderTransitions.create(facts, observed, i.targets(), refs),
+                            ShareholderTransitions.create(facts, observed,
+                                    creationTargets(c, i, actor.actor().orElseThrow()), refs),
                             r -> revisions.createShareholders(c.potId(), r),
                             states ->
                                     states.stream()
@@ -189,7 +191,8 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                             actor,
                             version,
                             ShareholderTransitions.updateDetails(
-                                    facts, observed, i.targets(), refs, shareholderDetails(p)),
+                                    facts, observed,
+                                    detailTargets(c, i, actor.actor().orElseThrow(), p), refs, shareholderDetails(p)),
                             r -> revisions.reviseShareholderDetails(c.potId(), r),
                             values ->
                                     values.entrySet().stream()
@@ -316,6 +319,51 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                                     r -> revisions.reviseExpenseHeader(c.potId(), r),
                                     v -> List.of(component("EXPENSE_HEADER", i.id(), v)));
         };
+    }
+
+    private static List<ShareholderTransitions.Creation> creationTargets(
+            PotCommand c, AddShareholders i, UserId actor) {
+        if (c.attachments().isEmpty()) return i.targets();
+        return i.targets().stream()
+                .map(
+                        t ->
+                                new ShareholderTransitions.Creation(
+                                        t.id(),
+                                        t.name(),
+                                        c.attachments().get(t.id()) == Attachment.SELF
+                                                ? Optional.of(actor)
+                                                : Optional.empty(),
+                                        t.defaultWeight()))
+                .toList();
+    }
+
+    private static List<ShareholderTransitions.DetailsIntent> detailTargets(
+            PotCommand c, UpdateShareholderDetails i, UserId actor, SelectedPot p) {
+        if (c.attachments().isEmpty()) return i.targets();
+        return i.targets().stream()
+                .map(
+                        t -> {
+                            Optional<UserId> user =
+                                    switch (c.attachments().get(t.id())) {
+                                        case SELF -> Optional.of(actor);
+                                        case DETACH -> Optional.empty();
+                                        case KEEP -> {
+                                            var details = p.shareholders().get(t.id()).details();
+                                            yield details
+                                                            instanceof
+                                                            ComponentRead.Present<
+                                                                                    ShareholderDetails>
+                                                                            v
+                                                    ? v.revision().value().userId()
+                                                    : Optional.empty();
+                                        }
+                                        default ->
+                                                throw new InconsistentPotFactsException(
+                                                        "Invalid durable attachment");
+                                    };
+                            return new ShareholderTransitions.DetailsIntent(t.id(), t.name(), user);
+                        })
+                .toList();
     }
 
     private <T> Proposal decision(

@@ -2,7 +2,9 @@
 
 Date : **4 novembre 2026**. Branche : **`feat/v3-architecture`**. V2 auditée : **`36b256cf2457fb1882a8e948e674678703a2c044`**. Référence de l'analyse initiale V2 : **`ad98d690e081bb354662c7a52c5a203778483259`**.
 
-**V2.1 — AMENDEMENT DOCUMENTAIRE SOUMIS À APPROBATION. IMPLEMENTATION NOT AUTHORIZED — NO GO.**
+**Statut historique de publication V2.1 : AMENDEMENT DOCUMENTAIRE SOUMIS À APPROBATION — IMPLEMENTATION NOT AUTHORIZED — NO GO.**
+
+**Actualisation du 4 novembre 2026 : [GO humain distinct enregistré](L5_I2_Human_GO.md), IMPLEMENTATION AUTHORIZED.** Les formulations de non-autorisation et décisions résiduelles ci-dessous décrivent la publication documentaire antérieure ; elles ne sont pas réécrites comme des preuves exécutées. La livraison technique et sa qualification sont consignées séparément dans le rapport et le manifeste I2. Aucune clôture humaine ni certification globale n’en découle.
 
 Historique conservé : la V2, publiée au SHA `36b256cf…` après le mandat « Push le plan », présentait le cadrage issu de l'analyse en lecture seule. Son audit indépendant a conclu **READY WITH RESERVATIONS — TARGETED AMENDMENT REQUIRED BEFORE GO**. La mission V2.1 autorise uniquement la résolution ciblée de AUD-I2-V2-01 à 05 et le commit/push documentaire. Elle ne ratifie ni V2 ni V2.1 et ne donne aucun GO. Le fichier conserve son nom V2 pour préserver ses liens ; les dispositions amendées ci-dessous remplacent les propositions V2 correspondantes. Aucun autre document de programme, SPEC, politique ou preuve historique n'est actualisé.
 

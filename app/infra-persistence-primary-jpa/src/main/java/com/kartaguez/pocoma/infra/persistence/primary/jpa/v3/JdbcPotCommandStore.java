@@ -53,7 +53,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                         throw new InconsistentPotFactsException("Durable Command missing");
                     var row = rows.getFirst();
                     var command =
-                            new PotCommand(
+                            PotCommandJson.decodeCommand(
                                     requestId,
                                     new PotCommand.Eui(
                                             (String) row.get("requester_issuer"),
@@ -61,9 +61,8 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                     (String) row.get("binding_token"),
                                     new PotId((UUID) row.get("pot_id")),
                                     ((Number) row.get("observed_version")).longValue(),
-                                    PotCommandJson.decode(
-                                            (String) row.get("operation"),
-                                            row.get("payload").toString()));
+                                    (String) row.get("operation"),
+                                            row.get("payload").toString());
                     boolean terminal = row.get("status").equals("TERMINAL");
                     if (terminal != (row.get("outcome") != null))
                         throw new InconsistentPotFactsException("Terminal/result mismatch");

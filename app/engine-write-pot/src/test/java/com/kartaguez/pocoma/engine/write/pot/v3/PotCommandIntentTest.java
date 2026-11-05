@@ -36,6 +36,66 @@ class PotCommandIntentTest {
     }
 
     @Test
+    void attachmentModesAreImmutableAndScoped() {
+        var modes = new HashMap<ShareholderId, Attachment>();
+        modes.put(id, Attachment.SELF);
+        var intent =
+                new AddShareholders(
+                        List.of(
+                                new ShareholderTransitions.Creation(
+                                        id,
+                                        new Name("A"),
+                                        Optional.empty(),
+                                        new Weight(Fraction.ONE))));
+        var c =
+                new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                        UUID.randomUUID(),
+                        new Eui("i", "s"),
+                        "token",
+                        new PotId(UUID.randomUUID()),
+                        1,
+                        intent,
+                        modes);
+        modes.clear();
+        assertEquals(Attachment.SELF, c.attachments().get(id));
+        assertThrows(UnsupportedOperationException.class, () -> c.attachments().clear());
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                                c.requestId(),
+                                c.requester(),
+                                c.bindingToken(),
+                                c.potId(),
+                                1,
+                                intent,
+                                Map.of(id, Attachment.KEEP)));
+    }
+
+    @Test
+    void legacyIntentRemainsValid() {
+        var intent =
+                new UpdateShareholderDetails(
+                        List.of(
+                                new ShareholderTransitions.DetailsIntent(
+                                        id,
+                                        new Name("A"),
+                                        Optional.of(
+                                                new com.kartaguez.pocoma.domain.pot.value.UserId(
+                                                        UUID.randomUUID())))));
+        var c =
+                new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                        UUID.randomUUID(),
+                        new Eui("i", "s"),
+                        "token",
+                        new PotId(UUID.randomUUID()),
+                        1,
+                        intent);
+        assertTrue(c.attachments().isEmpty());
+        assertEquals(intent, c.intent());
+    }
+
+    @Test
     void additionsValidateStructureAndCopy() {
         check(
                 new ShareholderTransitions.Creation(

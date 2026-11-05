@@ -1,0 +1,8 @@
+{
+  "post_gate_registry_unchanged": true,
+  "reason": "All observational and causal diagnostic recipes were declared before C-04; gate anchors/oracles retained",
+  "anchors_unchanged": true,
+  "gates_unchanged": true,
+  "all_other_campaigns_unchanged": true,
+  "selector_unchanged": true
+}

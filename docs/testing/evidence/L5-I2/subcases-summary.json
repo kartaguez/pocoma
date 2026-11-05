@@ -1,0 +1,32 @@
+{
+  "expected": [
+    "AddShareholders",
+    "CreateExpense",
+    "CreatePot",
+    "DeleteExpense",
+    "DeletePot",
+    "DeleteShareholder",
+    "UpdateExpenseDetails",
+    "UpdateExpenseFinancials",
+    "UpdatePotDetails",
+    "UpdateShareholderDetails",
+    "UpdateShareholderWeights"
+  ],
+  "actual": [
+    "AddShareholders",
+    "CreateExpense",
+    "CreatePot",
+    "DeleteExpense",
+    "DeletePot",
+    "DeleteShareholder",
+    "UpdateExpenseDetails",
+    "UpdateExpenseFinancials",
+    "UpdatePotDetails",
+    "UpdateShareholderDetails",
+    "UpdateShareholderWeights"
+  ],
+  "receipts": 11,
+  "unique_request_ids": 11,
+  "emitted_in_C04": true,
+  "sourcing": "Existing evidence sink, scoped by actual JUnit method name, in the same gate JVM execution"
+}

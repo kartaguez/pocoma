@@ -76,8 +76,12 @@ class V3WorkerPostgresTest {
 
     static void await(BooleanSupplier predicate, Duration timeout) throws Exception {
         long end = System.nanoTime() + timeout.toNanos();
-        while (!predicate.getAsBoolean() && System.nanoTime() < end) Thread.sleep(5);
-        assertTrue(predicate.getAsBoolean(), "runtime condition deadline");
+        boolean observed = predicate.getAsBoolean();
+        while (!observed && System.nanoTime() < end) {
+            Thread.sleep(5);
+            observed = predicate.getAsBoolean();
+        }
+        assertTrue(observed, "runtime condition deadline");
     }
 
     static final class Fixture implements AutoCloseable {

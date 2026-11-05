@@ -14,12 +14,56 @@ public record PotCommand(
         String bindingToken,
         PotId potId,
         long observedVersion,
-        Intent intent) {
+        Intent intent,
+        Map<ShareholderId, Attachment> attachments) {
+    public enum Attachment {
+        FREE,
+        SELF,
+        KEEP,
+        DETACH
+    }
+
+    /** Historical internal callers keep their concrete attachment intentions. */
+    public PotCommand(
+            UUID requestId,
+            Eui requester,
+            String bindingToken,
+            PotId potId,
+            long observedVersion,
+            Intent intent) {
+        this(requestId, requester, bindingToken, potId, observedVersion, intent, Map.of());
+    }
+
     public PotCommand {
         Objects.requireNonNull(requestId);
         Objects.requireNonNull(requester);
         Objects.requireNonNull(potId);
         Objects.requireNonNull(intent);
+        attachments = Map.copyOf(attachments);
+        if (!attachments.isEmpty()) {
+            Set<ShareholderId> ids;
+            if (intent instanceof AddShareholders additions) {
+                ids = new HashSet<>();
+                for (var t : additions.targets()) {
+                    ids.add(t.id());
+                    if (t.userId().isPresent()
+                            || !Set.of(Attachment.FREE, Attachment.SELF)
+                                    .contains(attachments.get(t.id())))
+                        throw new IllegalArgumentException("Invalid creation attachment");
+                }
+            } else if (intent instanceof UpdateShareholderDetails details) {
+                ids = new HashSet<>();
+                for (var t : details.targets()) {
+                    ids.add(t.id());
+                    if (t.userId().isPresent()
+                            || !Set.of(Attachment.KEEP, Attachment.SELF, Attachment.DETACH)
+                                    .contains(attachments.get(t.id())))
+                        throw new IllegalArgumentException("Invalid details attachment");
+                }
+            } else throw new IllegalArgumentException("Attachments outside shareholder intention");
+            if (!ids.equals(attachments.keySet()))
+                throw new IllegalArgumentException("Attachment targets differ");
+        }
         if (bindingToken == null || bindingToken.isBlank())
             throw new IllegalArgumentException("Binding token required");
         if (observedVersion < 0

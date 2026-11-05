@@ -1,0 +1,81 @@
+{
+  "historical_head": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "output": "46b94ce69a4b0f42474d38ac10b26daa78bb6b23\n"
+  },
+  "historical_archive": "docs/testing/evidence/L5-I1/archives/pocoma-l5-i1-architecture-08.tar.gz",
+  "historical_archive_sha256": "424c65eaaf1a12d8f2e8d8243f9aa8dd663b2fc3827af02ad693aa0c214f5bd5",
+  "current_preflight_head": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "output": "6a27abeade86c7b9a0f3f6430685daf9d819fc73\n"
+  },
+  "same_java": true,
+  "same_maven": true,
+  "same_maven_settings_hash": true,
+  "groups": [
+    {
+      "property": "Pot domain",
+      "files_compared": 137,
+      "changed": [],
+      "byte_identical": true,
+      "attribution": "historical I1 source; no fresh PASS inferred; new boundary proofs and mandatory C remain due"
+    },
+    {
+      "property": "Identity domain",
+      "files_compared": 24,
+      "changed": [],
+      "byte_identical": true,
+      "attribution": "historical I1 source; no fresh PASS inferred; new boundary proofs and mandatory C remain due"
+    },
+    {
+      "property": "Consumption algorithms",
+      "files_compared": 79,
+      "changed": [],
+      "byte_identical": true,
+      "attribution": "historical I1 source; no fresh PASS inferred; new boundary proofs and mandatory C remain due"
+    },
+    {
+      "property": "Shared physical owner",
+      "files_compared": 21,
+      "changed": [],
+      "byte_identical": true,
+      "attribution": "historical I1 source; no fresh PASS inferred; new boundary proofs and mandatory C remain due"
+    },
+    {
+      "property": "READ producers and stores",
+      "files_compared": 131,
+      "changed": [],
+      "byte_identical": true,
+      "attribution": "historical I1 source; no fresh PASS inferred; new boundary proofs and mandatory C remain due"
+    },
+    {
+      "property": "CURRENT V3 SQL V1-V6",
+      "files_compared": 6,
+      "changed": [],
+      "byte_identical": true,
+      "attribution": "historical I1 source; no fresh PASS inferred; new boundary proofs and mandatory C remain due"
+    }
+  ],
+  "changed_contracts": [
+    "PotCommand modes and codec",
+    "ExecutePotCommand SELF/KEEP/DETACH resolution",
+    "IdentityRequest AUTHENTICATED_HTTP origin and additive V7 CHECK",
+    "HTTP filters/composition/pools",
+    "new admission owner adapter and SQL privileges"
+  ],
+  "not_reused_as_fresh": [
+    "historical Architecture gate",
+    "AuthN real provider qualification",
+    "L1-L4 reservations or absent SPEC-10 variants"
+  ]
+}

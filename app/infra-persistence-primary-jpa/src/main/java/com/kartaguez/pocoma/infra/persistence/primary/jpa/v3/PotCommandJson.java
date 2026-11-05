@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.*;
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
 
 import java.math.BigInteger;
@@ -80,9 +81,64 @@ public final class PotCommandJson {
         return n.toString();
     }
 
+    /**
+     * New envelopes are deliberately unreadable by old workers. Upgrade consumers before
+     * activation.
+     */
+    public static String encode(PotCommand command) {
+        if (command.attachments().isEmpty()) return encode(command.intent());
+        var n = JSON.createObjectNode().put("payloadVersion", 2);
+        try {
+            n.set("intention", JSON.readTree(encode(command.intent())));
+        } catch (java.io.IOException failure) {
+            throw new InconsistentPotFactsException("Invalid Command encoding");
+        }
+        var modes = n.putObject("attachments");
+        command.attachments().entrySet().stream()
+                .sorted(Comparator.comparing(e -> e.getKey().toString()))
+                .forEach(e -> modes.put(e.getKey().toString(), e.getValue().name()));
+        return n.toString();
+    }
+
+    public static PotCommand decodeCommand(
+            UUID id,
+            PotCommand.Eui eui,
+            String token,
+            PotId pot,
+            long observed,
+            String operation,
+            String payload) {
+        try {
+            var n = JSON.readTree(payload);
+            var modes = new HashMap<ShareholderId, Attachment>();
+            if (n.has("payloadVersion")) {
+                if (!n.required("payloadVersion").isIntegralNumber()
+                        || !n.required("payloadVersion").canConvertToInt()
+                        || n.required("payloadVersion").intValue() != 2
+                        || n.size() != 3
+                        || !n.required("attachments").isObject())
+                    throw new IllegalArgumentException();
+                n.required("attachments")
+                        .fields()
+                        .forEachRemaining(
+                                e ->
+                                        modes.put(
+                                                new ShareholderId(UUID.fromString(e.getKey())),
+                                                Attachment.valueOf(e.getValue().textValue())));
+                if (modes.isEmpty()) throw new IllegalArgumentException();
+                payload = n.required("intention").toString();
+            }
+            return new PotCommand(id, eui, token, pot, observed, decode(operation, payload), modes);
+        } catch (Exception invalid) {
+            throw new InconsistentPotFactsException("Invalid durable Command envelope");
+        }
+    }
+
     public static Intent decode(String operation, String payload) {
         try {
             var n = JSON.readTree(payload);
+            if (n.has("payloadVersion"))
+                throw new IllegalArgumentException("Envelope requires version-aware consumer");
             return switch (operation) {
                 case "CreatePot" -> new CreatePot(new Label(text(n, "label")));
                 case "UpdatePotDetails" -> new UpdatePotDetails(new Label(text(n, "label")));

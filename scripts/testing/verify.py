@@ -565,15 +565,17 @@ def plan(level, scope, config=None, root=ROOT):
         if level == 'FAST':
             raise ValueError('FAST requires an explicit source-reviewed recipe')
         scopes = (scope or '').split(',')
-        if any(s not in config['anchors'] for s in scopes):
-            raise ValueError('Use a registered recipe or comma-separated canonical slice identifiers')
-        modules = [config['anchors'][s] for s in scopes]
+        gates = config.get('gates', {})
+        if any(s not in config['anchors'] and s not in gates for s in scopes):
+            raise ValueError('Use a registered recipe, canonical slice or explicit gate identifier')
+        modules = list(dict.fromkeys(module for scope in scopes for module in
+                                    ([config['anchors'][scope]] if scope in config['anchors'] else gates[scope])))
     command = base + (['-pl', ','.join(modules), '-am'] if modules else [])
     if selectors:
         command += ['-Dtest=' + ','.join(selectors), '-Dsurefire.failIfNoSpecifiedTests=false']
     if scope in config.get('campaigns', {}) and 'jvm_max_heap_mib' in config['campaigns'][scope]:
         # Explicit, source-reviewed I1 server safety bound, not an inherited JVM environment flag.
-        if scope not in {'l5-i1', 'l5-i1-completion'} or config['campaigns'][scope]['jvm_max_heap_mib'] != 512:
+        if scope not in {'l5-i1', 'l5-i1-completion', 'l5-i2-d4'} or config['campaigns'][scope]['jvm_max_heap_mib'] != 512:
             raise ValueError('Unreviewed campaign JVM safety bound')
         command += ['-DargLine=-Xmx512m']
     command += ['test']

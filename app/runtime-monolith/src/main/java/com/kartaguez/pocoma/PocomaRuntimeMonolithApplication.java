@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 @Import({
     PocomaRuntimeMonolithApplication.Legacy.class,
     com.kartaguez.pocoma.runtime.consumption.v3.V3ReadHttpConfiguration.class,
+    com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration.class,
     com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration.class,
     com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration.class
 })

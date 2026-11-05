@@ -37,6 +37,9 @@ class ExecutePotCommandTest {
     RuntimeException historyFailure;
     int preparations;
     Result finished;
+    Map<com.kartaguez.pocoma.domain.pot.value.id.ShareholderId, PotHistoryPort.SelectedShareholder>
+            selectedShares = Map.of();
+    Object revisionChange;
 
     Result execute() {
         var prepared = engine().prepare(request, inSnapshot(() -> {})).orElseThrow();
@@ -121,7 +124,7 @@ class ExecutePotCommandTest {
                                                             1,
                                                             new PotDetails(
                                                                     pot, new Label("old"), actor))),
-                                            Map.of(),
+                                            selectedShares,
                                             Map.of()));
                         });
         var revisions =
@@ -129,6 +132,7 @@ class ExecutePotCommandTest {
                         PotRevisionPort.class,
                         (method, args) -> {
                             calls.add(method.getName());
+                            if (args != null && args.length > 1) revisionChange = args[1];
                             return null;
                         });
         return new ExecutePotCommand(
@@ -139,6 +143,107 @@ class ExecutePotCommandTest {
                 history,
                 revisions,
                 Clock.fixed(Instant.EPOCH, ZoneOffset.UTC));
+    }
+
+    @Test
+    void selfUsesProtectedWriteActor() {
+        var id = new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(UUID.randomUUID());
+        selectedShares =
+                Map.of(
+                        id,
+                        new PotHistoryPort.SelectedShareholder(
+                                new ShareholderReference(pot, 2, id, 0, Optional.empty()),
+                                new ComponentRead.Absent<>(),
+                                new ComponentRead.Absent<>()));
+        var intent =
+                new PotCommand.AddShareholders(
+                        List.of(
+                                new ShareholderTransitions.Creation(
+                                        id,
+                                        new com.kartaguez.pocoma.domain.pot.value.Name("A"),
+                                        Optional.empty(),
+                                        new Weight(Fraction.ONE))));
+        command =
+                new PotCommand(
+                        request,
+                        command.requester(),
+                        command.bindingToken(),
+                        pot,
+                        2,
+                        intent,
+                        Map.of(id, PotCommand.Attachment.SELF));
+        assertEquals(Outcome.CHANGED, execute().outcome());
+        @SuppressWarnings("unchecked")
+        var changed = (TransitionResult.Changed<List<ShareholderState>>) revisionChange;
+        assertEquals(Optional.of(actor), changed.changes().getFirst().details().value().userId());
+        assertTrue(intent.targets().getFirst().userId().isEmpty());
+        calls.clear();
+        finished = null;
+        actorValid = false;
+        assertThrows(Collision.class, this::execute);
+        assertNull(finished);
+        assertFalse(calls.contains("createShareholders"));
+    }
+
+    @Test
+    void keepAndDetachUseWriteFacts() {
+        var id = new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(UUID.randomUUID());
+        var linked = new UserId(UUID.randomUUID());
+        var name = new com.kartaguez.pocoma.domain.pot.value.Name("A");
+        selectedShares =
+                Map.of(
+                        id,
+                        new PotHistoryPort.SelectedShareholder(
+                                new ShareholderReference(
+                                        pot,
+                                        2,
+                                        id,
+                                        1,
+                                        Optional.of(
+                                                new Versioned<>(
+                                                        1,
+                                                        1,
+                                                        new ShareholderHeader(pot, id, false)))),
+                                new ComponentRead.Present<>(
+                                        new Versioned<>(
+                                                1,
+                                                1,
+                                                new ShareholderDetails(
+                                                        pot, id, name, Optional.of(linked)))),
+                                new ComponentRead.NotLoaded<>()));
+        var intent =
+                new PotCommand.UpdateShareholderDetails(
+                        List.of(
+                                new ShareholderTransitions.DetailsIntent(
+                                        id, name, Optional.empty())));
+        command =
+                new PotCommand(
+                        request,
+                        command.requester(),
+                        command.bindingToken(),
+                        pot,
+                        2,
+                        intent,
+                        Map.of(id, PotCommand.Attachment.KEEP));
+        assertEquals(Outcome.UNCHANGED, execute().outcome());
+        command =
+                new PotCommand(
+                        request,
+                        command.requester(),
+                        command.bindingToken(),
+                        pot,
+                        2,
+                        intent,
+                        Map.of(id, PotCommand.Attachment.DETACH));
+        assertEquals(Outcome.CHANGED, execute().outcome());
+        @SuppressWarnings("unchecked")
+        var changed =
+                (TransitionResult.Changed<
+                                Map<
+                                        com.kartaguez.pocoma.domain.pot.value.id.ShareholderId,
+                                        Versioned<ShareholderDetails>>>)
+                        revisionChange;
+        assertTrue(changed.changes().get(id).value().userId().isEmpty());
     }
 
     @Test

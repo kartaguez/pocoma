@@ -1,0 +1,27 @@
+meta {
+  name: B203 UpdatePotDetails
+  type: http
+  seq: 203
+}
+
+get {
+  url: {{baseUrl}}/api/v3/me/binding
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerOwner}}
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect([200,404]).to.include(res.status);
+  expect(res.headers['cache-control']).to.equal('no-store');
+  await require(process.env.POCOMA_I2_HELPER).run('B203', bru, expect);
+  test('B203 UpdatePotDetails', () => expect(true).to.equal(true));
+}

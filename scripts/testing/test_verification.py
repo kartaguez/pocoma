@@ -46,6 +46,16 @@ class SelectionTests(unittest.TestCase):
             self.assertEqual(plan['command'][3:], ['-pl', 'runtime-command-consumption-worker,runtime-event-consumption-worker', '-am', 'test'])
             self.assertFalse(plan['filtered'])
 
+    def test_explicit_architecture_gate_adds_monolith_and_never_filters(self):
+        plan = v.plan('INTEGRATION', 'WEB,COMMAND,ARCHITECTURE')
+        self.assertEqual(plan['command'][3:], ['-pl', 'runtime-web-api,runtime-command-consumption-worker,architecture-tests,runtime-monolith', '-am', 'test'])
+        self.assertFalse(plan['filtered'])
+        self.assertNotIn('architecture-tests', v.plan('CHANGE', 'WEB,COMMAND')['command'][4])
+        with self.assertRaises(ValueError):
+            v.plan('FAST', 'ARCHITECTURE')
+        with self.assertRaises(ValueError):
+            v.plan('INTEGRATION', 'IMPLICIT_ARCHITECTURE')
+
     def test_quarantine_is_method_precise_and_no_sibling_exclusion(self):
         for name in ['i5_r05', 'i5_r12']:
             plan = v.plan('QUARANTINE', name)

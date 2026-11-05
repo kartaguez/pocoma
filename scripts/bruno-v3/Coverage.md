@@ -36,3 +36,9 @@
 | B30 boundedResultPolling | `/commands/00000000-0000-0000-0000-000000000405/result` → 404 | Plan I1 §6.2 ; H01–H24, Q01–Q10, C01–C06 ; assertions dans le fichier et appels secondaires |
 | B31 invalidBearer | `/me/binding` → 401 | Plan I1 §6.2 ; H01–H24, Q01–Q10, C01–C06 ; assertions dans le fichier et appels secondaires |
 | B32 transportAndPrivacy | `/pots/00000000-0000-0000-0000-000000000304` → 503 | Plan I1 §6.2 ; H01–H24, Q01–Q10, C01–C06 ; assertions dans le fichier et appels secondaires |
+
+## B2 — L5/I2 admissions publiques
+
+Dossier `02 Admission and Commands`, B201–B224. B201 et B223 couvrent Registration inconnue/libre ; B202–B212 les onze commandes ; B213–B216 reprise terminale, conflit, JSON équivalent et portées ; B217–B218 refus sans admission et rejet métier différé ; B219 le lot atomique SELF de 101 ; B220 Unlink autre EUI/soi, autorité périmée et propriété des résultats ; B221 ferme Link/Invitation ; B222 média/corps ; B224 ownership READ après Unlink/re-Registration.
+
+Fixture exécutable : `V3AdmissionFlowPostgresTest#brunoB2PublicProtocol`, dans T2. JWT/JWKS locaux signés ; fournisseur AuthN réel non qualifié. Le seul Link est interne contrôlé L3, jamais une admission publique ou une preuve I3. Le helper `lib/i2-admission.js` conserve un reçu par scénario et compte les appels de polling réels. Les oracles SQL de T2 restent indépendants. Sources et package-lock empreintés avant/après ; reporters sans corps/en-têtes et scan des exports. Modalités et limites : [recette I2](../../docs/v3/L5_I2_Admission_Operations.md).

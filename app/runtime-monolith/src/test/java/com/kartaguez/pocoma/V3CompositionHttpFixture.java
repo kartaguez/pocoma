@@ -5,7 +5,6 @@ import static com.kartaguez.pocoma.domain.projection.v3.SubobjectKind.*;
 import com.fasterxml.jackson.databind.*;
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.v3.Fraction;
-import java.util.Date;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.projection.v3.*;
@@ -40,6 +39,7 @@ import java.nio.file.*;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
@@ -79,7 +79,8 @@ final class V3CompositionHttpFixture implements AutoCloseable {
             .locations("classpath:db/v3-consumption-read/migration", "classpath:db/v3-read-business/migration")
             .placeholders(Map.of("expectedDatabase", "i1_read", "expectedSchema", schema, "expectedAdmin", pg.getUsername(), "expectedRuntime", role)).load().migrate();
         var ds = new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword()); admin = new JdbcTemplate(ds);
-        // Fixture HTTP role can only SELECT; injector and independent observer retain separate authority.
+        // Fixture HTTP role can only SELECT; injector and independent observer retain separate
+        // authority.
         admin.execute("revoke all on all tables in schema " + schema + " from " + role);
         admin.execute("grant usage on schema " + schema + " to " + role);
         admin.execute("grant select on all tables in schema " + schema + " to " + role);
@@ -106,8 +107,98 @@ final class V3CompositionHttpFixture implements AutoCloseable {
         root.execute("create database i5_read");
         new JdbcTemplate(new DriverManagerDataSource("jdbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/i5_read", pg.getUsername(), pg.getPassword())).execute("create extension pgcrypto with schema public");
     }
+
+    JdbcTemplate admissionObserver;
+    String admissionUrl, admissionRole, admissionSchema;
+
+    void enableAdmission() throws Exception {
+        admissionSchema = schema + "_w";
+        admissionRole = schema + "_admission";
+        String worker = schema + "_w_worker";
+        admissionUrl = pg.getJdbcUrl() + "&currentSchema=" + admissionSchema + ",public";
+        var ds = new DriverManagerDataSource(admissionUrl, pg.getUsername(), pg.getPassword());
+        admissionObserver = new JdbcTemplate(ds);
+        admissionObserver.execute("create extension if not exists pgcrypto with schema public");
+        admissionObserver.execute("create role " + worker + " nologin");
+        admissionObserver.execute(
+                "create role " + admissionRole + " login password 'ephemeral-i2'");
+        Flyway.configure()
+                .dataSource(ds)
+                .schemas(admissionSchema)
+                .defaultSchema(admissionSchema)
+                .locations(
+                        "classpath:db/v3-pot/migration",
+                        "classpath:db/v3-pot-execution/migration",
+                        "classpath:db/v3-consumption-write/migration",
+                        "classpath:db/v3-identity/migration",
+                        "classpath:db/v3-admission/migration")
+                .placeholders(
+                        Map.of(
+                                "expectedDatabase",
+                                pg.getDatabaseName(),
+                                "expectedSchema",
+                                admissionSchema,
+                                "expectedAdmin",
+                                pg.getUsername(),
+                                "expectedRuntime",
+                                worker))
+                .load()
+                .migrate();
+        grantAdmission(admissionSchema, admissionRole);
+        admissionProperties(admissionUrl, admissionSchema, admissionRole);
+    }
+
+    void grantAdmission(String targetSchema, String targetRole) throws Exception {
+        String script = "grant-l5-admission.sql", destination = "/tmp/" + schema + script;
+        pg.copyFileToContainer(
+                org.testcontainers.utility.MountableFile.forHostPath(
+                        Path.of("../../scripts/v3/" + script).toAbsolutePath()),
+                destination);
+        var grant =
+                pg.execInContainer(
+                        "env",
+                        "PGOPTIONS=-c search_path=" + targetSchema,
+                        "psql",
+                        "-X",
+                        "-U",
+                        pg.getUsername(),
+                        "-d",
+                        pg.getDatabaseName(),
+                        "-v",
+                        "ON_ERROR_STOP=1",
+                        "-v",
+                        "expected_database=" + pg.getDatabaseName(),
+                        "-v",
+                        "expected_schema=" + targetSchema,
+                        "-v",
+                        "expected_admin=" + pg.getUsername(),
+                        "-v",
+                        "admission_role=" + targetRole,
+                        "-f",
+                        destination);
+        if (grant.getExitCode() != 0)
+            throw new IllegalStateException("Admission grant failed: " + grant.getStderr());
+    }
+
+    void admissionProperties(String targetUrl, String targetSchema, String targetRole) {
+        String p = "pocoma.v3.http.admission.";
+        properties.put(p + "url", targetUrl);
+        properties.put(p + "username", targetRole);
+        properties.put(p + "password", "ephemeral-i2");
+        properties.put(p + "database", pg.getDatabaseName());
+        properties.put(p + "schema", targetSchema);
+        properties.put(p + "lookup-key-id", "stable");
+        properties.put(p + "lookup-key", Base64.getEncoder().encodeToString(new byte[32]));
+        properties.put(p + "comparison-current", "k1");
+        properties.put(p + "comparison-key-ids", "k1");
+        properties.put(p + "comparison-keys.k1", Base64.getEncoder().encodeToString(new byte[32]));
+    }
+
     void start(Class<?>... roots) {
-        var app = new SpringApplication(roots); app.setAdditionalProfiles(V3ReadHttpConfiguration.PROFILE); app.setDefaultProperties(properties);
+        var app = new SpringApplication(roots); app.setAdditionalProfiles(
+                properties.containsKey("pocoma.v3.http.admission.url")
+                        ? new String[] {V3ReadHttpConfiguration.PROFILE, "v3-http-admission"}
+                        : new String[] {V3ReadHttpConfiguration.PROFILE}); app.setDefaultProperties(properties);
         app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-isolated-fixture", properties)));
         context = app.run(); baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
     }
@@ -171,7 +262,9 @@ final class V3CompositionHttpFixture implements AutoCloseable {
     void results() {
         for (boolean rejected : List.of(false, true)) {
             admin.update("insert into read_command_result values (?,'CreatePot',?,?,?, ?,?,?)", id(rejected ? 402 : 401), issuer, "owner", POT, rejected ? "REJECTED" : "CHANGED", rejected ? null : 2L, rejected ? "INVALID_BINDING" : null);
-            admin.update("insert into read_identity_request_result values (?,'REGISTRATION',?,?,?, ?,?,?,?)", id(rejected ? 404 : 403), issuer, "owner", rejected ? "REJECTED" : "CHANGED", rejected ? null : issuer, rejected ? null : "owner", rejected ? null : 1L, rejected ? "INVALID_BINDING" : null);
+            admin.update(
+                    "insert into read_identity_request_result values (?,'REGISTRATION',?,?,?,"
+                            + " ?,?,?,?)", id(rejected ? 404 : 403), issuer, "owner", rejected ? "REJECTED" : "CHANGED", rejected ? null : issuer, rejected ? null : "owner", rejected ? null : 1L, rejected ? "INVALID_BINDING" : null);
         }
     }
     void navigation(int count) { for (int n = 1; n <= count; n++) admin.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(10000 + n)); }
@@ -182,12 +275,16 @@ final class V3CompositionHttpFixture implements AutoCloseable {
         seed(LAG, 1, 0, Set.of(OWNER), false, false, true, "lag"); results(); navigation(205);
         seed(id(10001), 1, 0, Set.of(OWNER), false, true, true, "navigation-open");
         seed(id(304), 1, 0, Set.of(OWNER), false, true, true, "x".repeat(4_194_304));
-        admin.update("insert into read_identity_request_result values (?,'UNLINK',?,?,'CHANGED',?,?,2,null)", id(407), issuer, "owner", issuer, "owner");
+        admin.update(
+                "insert into read_identity_request_result values"
+                        + " (?,'UNLINK',?,?,'CHANGED',?,?,2,null)", id(407), issuer, "owner", issuer, "owner");
     }
     HikariDataSource pool() { return context.getBean(HikariDataSource.class); }
     V3ReadFacadeComposition.Services services() { return context.getBean(V3ReadFacadeComposition.Services.class); }
     long activeBackends() { return admin.queryForObject("select count(*) from pg_stat_activity where usename=? and state<>'idle'", Long.class, role); }
-    List<Map<String, Object>> sqlStats() { return admin.queryForList("select query,calls,rows,total_exec_time from public.pg_stat_statements where userid=(select oid from pg_roles where rolname=?) order by query", role); }
+    List<Map<String, Object>> sqlStats() { return admin.queryForList(
+                "select query,calls,rows,total_exec_time from public.pg_stat_statements where"
+                        + " userid=(select oid from pg_roles where rolname=?) order by query", role); }
     void evidence(String name, Object observation) throws IOException {
         String destination = System.getenv("POCOMA_I1_PHYSICAL"); if (destination == null) return;
         Path dir = Path.of(destination); Files.createDirectories(dir);

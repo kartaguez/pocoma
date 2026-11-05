@@ -1,12 +1,14 @@
 package com.kartaguez.pocoma;
 
+import com.kartaguez.pocoma.runtime.consumption.v3.V3ReadHttpConfiguration;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.*;
-import com.kartaguez.pocoma.runtime.consumption.v3.V3ReadHttpConfiguration;
 
 @SpringBootApplication(scanBasePackages = "com.kartaguez.pocoma.runtime.bootstrap")
-@Import({PocomaWebApiApplication.Legacy.class, V3ReadHttpConfiguration.class})
+@Import({PocomaWebApiApplication.Legacy.class, V3ReadHttpConfiguration.class,
+    com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration.class})
 public class PocomaWebApiApplication {
     public static void main(String[] args) { SpringApplication.run(PocomaWebApiApplication.class, args); }
     @Configuration(proxyBeanMethods = false)

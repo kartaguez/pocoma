@@ -16,10 +16,17 @@ public final class V3ReadTransport extends OncePerRequestFilter {
     public static final String BODY = V3ReadTransport.class.getName() + ".body";
     private final Semaphore capacity = new Semaphore(HTTP_PERMITS);
     private final ObjectMapper mapper;
+    private boolean admissionActive;
+
     public V3ReadTransport() {
         this(new ObjectMapper(JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(8).build())
                 .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
+    }
+
+    public V3ReadTransport(boolean admissionActive) {
+        this();
+        this.admissionActive = admissionActive;
     }
     public V3ReadTransport(ObjectMapper mapper) { this.mapper = Objects.requireNonNull(mapper); }
     public ObjectMapper mapper() { return mapper; }
@@ -30,7 +37,10 @@ public final class V3ReadTransport extends OncePerRequestFilter {
     }
     public static void require(boolean condition) { if (!condition) throw new Failure(400); }
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getRequestURI().startsWith("/api/v3/");
+        return !request.getRequestURI().startsWith("/api/v3/")
+                || (admissionActive
+                        && Set.of("/api/v3/commands", "/api/v3/identity/requests")
+                                .contains(request.getRequestURI()));
     }
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws ServletException, IOException {

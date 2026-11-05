@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-/** Immutable admitted intention. No destination UserId, WRITE lookup or provider validation here. */
+/**
+ * Immutable admitted intention. No destination UserId, WRITE lookup or provider validation here.
+ */
 public record IdentityRequest(
         UUID requestId,
         ExternalIdentity requesterEui,
@@ -66,8 +68,8 @@ public record IdentityRequest(
     }
 
     /**
-     * Captured validator provenance, not a Consent entity. The trusted admission boundary binds
-     * the fingerprint to operation, E1/E2, declared token and request correlation. Provider proof
+     * Captured validator provenance, not a Consent entity. The trusted admission boundary binds the
+     * fingerprint to operation, E1/E2, declared token and request correlation. Provider proof
      * formats/verification and external admission are L5; retry never revalidates that grant.
      */
     public record AdmissionContext(
@@ -98,6 +100,7 @@ public record IdentityRequest(
     }
 
     public enum Origin {
+        AUTHENTICATED_HTTP,
         CONTROLLED_INTERNAL,
         EXTERNAL_AUTHORIZATION_SERVER
     }

@@ -1,20 +1,21 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
-import com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult;
+import com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
+import com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.supra.http.read.v3.*;
 import com.zaxxer.hikari.*;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,11 +26,10 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.method.support.*;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.*;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.core.MethodParameter;
 import java.time.*;
 import java.util.*;
 
@@ -58,10 +58,19 @@ public class V3ReadHttpConfiguration {
                 Class<?> type = factory.getType(name, false);
                 if (type == null) continue;
                 String value = type.getName();
-                if ((value.startsWith("com.kartaguez.pocoma.supra.http.") && !value.contains(".read.v3."))
+                boolean admission =
+                        Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission")
+                                && Set.of(
+                                                "com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3",
+                                                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3",
+                                                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionController",
+                                                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransport")
+                                        .contains(value);
+                if (!admission
+                        && ((value.startsWith("com.kartaguez.pocoma.supra.http.") && !value.contains(".read.v3."))
                         || value.startsWith("com.kartaguez.pocoma.engine.admit.")
                         || value.equals("com.kartaguez.pocoma.PocomaWebRuntimeConfiguration")
-                        || value.equals("com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfiguration"))
+                        || value.equals("com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfiguration")))
                     throw new IllegalStateException("legacy HTTP/admission component refused in V3");
             }
             env.getRequiredProperty("pocoma.v3.http.issuer");
@@ -120,7 +129,8 @@ public class V3ReadHttpConfiguration {
             throw new V3ReadTransport.Failure(503);
         };
     }
-    @Bean V3ReadTransport v3ReadTransport() { return new V3ReadTransport(); }
+    @Bean V3ReadTransport v3ReadTransport(Environment env) { return new V3ReadTransport(
+                Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission")); }
     @Bean FilterRegistrationBean<V3ReadTransport> v3ReadFilter(V3ReadTransport transport) {
         var registration = new FilterRegistrationBean<>(transport); registration.setOrder(-90); registration.addUrlPatterns("/api/v3/*"); return registration;
     }

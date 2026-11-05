@@ -36,6 +36,17 @@ public class V3ConsumptionWorkerConfiguration {
         return new Preflight(env);
     }
 
+    private static Set<String> admissionTypes() {
+        return Set.of(
+                "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration",
+                "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration$Resources",
+                "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration$Preflight",
+                "com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3",
+                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3",
+                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionController",
+                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransport");
+    }
+
     private record Preflight(Environment env) implements BeanFactoryPostProcessor {
         @Override
         public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) {
@@ -77,6 +88,11 @@ public class V3ConsumptionWorkerConfiguration {
                     com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3.Query.class.getName(),
                     com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query.class.getName(),
                     com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query.class.getName()));
+            boolean admission =
+                    readMode
+                            && Arrays.asList(env.getActiveProfiles()).contains("v3-http-read")
+                            && Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission");
+            if (admission) exact.addAll(admissionTypes());
             for (var name : factory.getBeanDefinitionNames()) {
                 var type = factory.getType(name, false);
                 var definition = factory.getBeanDefinition(name);
@@ -602,11 +618,17 @@ public class V3ConsumptionWorkerConfiguration {
             // Validate actual singleton identities after construction, before Worker threads or
             // DML.
             var expected =
-                    Set.of(
+                    new HashSet<javax.sql.DataSource>(
+                            Set.of(
                             resources.writeBusiness,
                             resources.writeControl,
                             resources.readBusiness,
-                            resources.readControl);
+                            resources.readControl));
+            boolean admission =
+                    Arrays.asList(factory.getBean(Environment.class).getActiveProfiles())
+                            .contains("v3-http-admission");
+            if (admission)
+                expected.add(factory.getBean("v3AdmissionPool", javax.sql.DataSource.class));
             var actual =
                     Collections.newSetFromMap(new IdentityHashMap<javax.sql.DataSource, Boolean>());
             int capacities = 0;
@@ -650,6 +672,7 @@ public class V3ConsumptionWorkerConfiguration {
                                         || (name.equals("v3HttpCommandResult") && bean instanceof com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult.Query)
                                         || (name.equals("v3HttpIdentityResult") && bean instanceof com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult.Query)
                                         || (name.equals("v3HttpServerBounds") && bean instanceof org.springframework.boot.web.server.WebServerFactoryCustomizer)))
+                                    || (http && admission && admissionTypes().contains(value))
                                     || name.equals("v3ResourceValidation")
                                     || (name.equals("v3WorkerHealth")
                                             && bean instanceof HealthIndicator);
