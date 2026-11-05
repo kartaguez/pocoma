@@ -134,6 +134,7 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
                                         "classpath:db/v3-pot-execution/migration",
                                         "classpath:db/v3-consumption-write/migration",
                                         "classpath:db/v3-identity/migration",
+                                        "classpath:db/v3-admission/migration",
                                         "classpath:db/v3-invitation/migration"
                                     }
                                     : new String[] {

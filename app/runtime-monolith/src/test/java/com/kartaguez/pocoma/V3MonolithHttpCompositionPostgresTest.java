@@ -62,8 +62,23 @@ class V3MonolithHttpCompositionPostgresTest {
                     gate.rollback();
                 }
                 assertEquals(200, http.get("/me/binding").statusCode());
-                assertEquals(8, routes(http).size());
-                assertEquals(1, context.getBeansOfType(V3ReadController.class).size()); assertEquals(1, context.getBeansOfType(V3ConsumptionWorker.class).size());
+                var expectedRoutes =
+                        Set.of(
+                                "/api/v3/me/binding",
+                                "/api/v3/pots/{potId}",
+                                "/api/v3/pots/{potId}/versions/{version}",
+                                "/api/v3/pots/{potId}/versions/{version}/balance",
+                                "/api/v3/pots/{potId}/versions/{version}/expenses/query",
+                                "/api/v3/me/pots",
+                                "/api/v3/commands/{requestId}/result",
+                                "/api/v3/identity/requests/{requestId}/result",
+                                "/api/v3/invitations/by-creation-request/{requestId}",
+                                "/api/v3/invitations/available-shareholders/query");
+                assertEquals(expectedRoutes, routes(http));
+                assertEquals(10, routes(http).size());
+                assertEquals(1, context.getBeansOfType(V3ReadController.class).size());
+                assertEquals(1, context.getBeansOfType(V3InvitationController.class).size());
+                assertEquals(1, context.getBeansOfType(V3ConsumptionWorker.class).size());
                 assertTrue(context.getBeansOfType(CurrentBindingController.class).isEmpty());
                 http.evidence("C02-monolith", Map.of("root", PocomaRuntimeMonolithApplication.class.getName(), "pools", 4, "httpSharesReadOwnerAndQuota", true, "participants", services.activeParticipants()));
                 fixture.drain(context);

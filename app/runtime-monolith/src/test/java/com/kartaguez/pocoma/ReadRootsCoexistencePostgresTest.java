@@ -121,11 +121,18 @@ class ReadRootsCoexistencePostgresTest {
                             Integer.class,
                             pot.value()),
                     "one immutable effect under overlap");
-            long owned =
+            await(
+                    () ->
+                            f.worker(monolith)
+                                            .localLeases()
+                                            .getOrDefault(ConsumptionDefinition.Authority.READ, 0L)
+                                    == 28);
+            assertEquals(
+                    28,
                     f.worker(monolith)
                             .localLeases()
-                            .getOrDefault(ConsumptionDefinition.Authority.READ, 0L);
-            assertEquals(28, owned, "first started root owns the shared READ pairs");
+                            .getOrDefault(ConsumptionDefinition.Authority.READ, 0L),
+                    "first started root owns the shared READ pairs");
             f.drain(monolith);
             long remaining =
                     f.read.queryForObject(

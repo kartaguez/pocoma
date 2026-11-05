@@ -28,7 +28,21 @@ class V3HttpCompositionPostgresTest {
     @Test void webRoot() throws Exception {
         try (var f = new V3ReadHttpFixture(PG)) {
             f.start(PocomaWebApiApplication.class); f.corpus();
-            assertEquals(8, routes(f).size()); assertTrue(routes(f).stream().allMatch(p -> p.startsWith("/api/v3/")));
+            var expectedRoutes =
+                    Set.of(
+                            "/api/v3/me/binding",
+                            "/api/v3/pots/{potId}",
+                            "/api/v3/pots/{potId}/versions/{version}",
+                            "/api/v3/pots/{potId}/versions/{version}/balance",
+                            "/api/v3/pots/{potId}/versions/{version}/expenses/query",
+                            "/api/v3/me/pots",
+                            "/api/v3/commands/{requestId}/result",
+                            "/api/v3/identity/requests/{requestId}/result",
+                            "/api/v3/invitations/by-creation-request/{requestId}",
+                            "/api/v3/invitations/available-shareholders/query");
+            assertEquals(expectedRoutes, routes(f));
+            assertEquals(10, routes(f).size());
+            assertTrue(routes(f).stream().allMatch(p -> p.startsWith("/api/v3/")));
             assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size()); assertEquals(2, f.pool().getMaximumPoolSize());
             assertTrue(f.context.getBeansOfType(V3ConsumptionWorker.class).isEmpty());
             assertTrue(f.context.getBeansOfType(org.springframework.transaction.PlatformTransactionManager.class).isEmpty(), "no implicit JDBC/JPA owner");

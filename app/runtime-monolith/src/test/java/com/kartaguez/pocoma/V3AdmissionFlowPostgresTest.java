@@ -58,7 +58,8 @@ class V3AdmissionFlowPostgresTest {
                         "classpath:db/v3-pot-execution/migration",
                         "classpath:db/v3-consumption-write/migration",
                         "classpath:db/v3-identity/migration",
-                        "classpath:db/v3-admission/migration")
+                        "classpath:db/v3-admission/migration",
+                        "classpath:db/v3-invitation/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",
