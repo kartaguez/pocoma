@@ -10,8 +10,20 @@ import javax.sql.DataSource;
 public final class AdmissionSqlAuthority {
     private AdmissionSqlAuthority() {}
 
+    private static final Set<String> PROPOSAL = Set.of("link_request_id", "initiator_issuer", "initiator_subject",
+            "target_issuer", "target_subject", "binding_token", "authenticated_at", "issued_at", "principal_expires_at",
+            "created_at", "expires_at", "canonical_version", "lookup_key_id", "comparison_key_id",
+            "scope_key_fingerprint", "intent_fingerprint", "accepted_at", "identity_request_id");
+    private static final Set<String> PROPOSAL_SELECT;
+    static {
+        var columns = new HashSet<>(PROPOSAL);
+        columns.addAll(Set.of("admission_category", "admission_operation"));
+        PROPOSAL_SELECT = Set.copyOf(columns);
+    }
+
     private static final Map<String, Set<String>> SELECT =
             Map.ofEntries(
+                    Map.entry("v3_link_proposal", PROPOSAL_SELECT),
                     Map.entry(
                             "v3_admission_association",
                             Set.of(
@@ -49,6 +61,7 @@ public final class AdmissionSqlAuthority {
                     Map.entry("v3_eui_version", Set.of("request_id")));
     private static final Map<String, Set<String>> INSERT =
             Map.of(
+                    "v3_link_proposal", PROPOSAL,
                     "v3_admission_association",
                             Set.of(
                                     "request_id",
@@ -82,6 +95,7 @@ public final class AdmissionSqlAuthority {
                                     "target_issuer",
                                     "target_subject",
                                     "admission_context",
+                                    "link_proposal_id",
                                     "created_at"));
 
     public static void verify(DataSource source, String database, String schema, String role) {
@@ -162,7 +176,8 @@ select c.relname,n.nspname,c.relkind,a.attname,
        else has_table_privilege(current_user,c.oid,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN') end forbidden,
   case when c.relkind<>'S' then has_column_privilege(current_user,c.oid,a.attnum,'SELECT') else false end can_select,
   case when c.relkind<>'S' then has_column_privilege(current_user,c.oid,a.attnum,'INSERT') else false end can_insert,
-  case when c.relkind<>'S' then has_column_privilege(current_user,c.oid,a.attnum,'UPDATE,REFERENCES') else false end can_mutate
+  case when c.relkind<>'S' then has_column_privilege(current_user,c.oid,a.attnum,'REFERENCES') else false end can_reference,
+  case when c.relkind<>'S' then has_column_privilege(current_user,c.oid,a.attnum,'UPDATE') else false end can_update
 from pg_class c join pg_namespace n on n.oid=c.relnamespace
   join pg_attribute a on a.attrelid=c.oid and a.attnum>0 and not a.attisdropped
 where n.nspname not like 'pg_%' and n.nspname<>'information_schema'
@@ -174,13 +189,16 @@ where n.nspname not like 'pg_%' and n.nspname<>'information_schema'
             require(
                     !Boolean.TRUE.equals(r.get("owned"))
                             && !Boolean.TRUE.equals(r.get("forbidden"))
-                            && !Boolean.TRUE.equals(r.get("can_mutate")));
+                            && !Boolean.TRUE.equals(r.get("can_reference")));
             if (local) present.add(table);
             boolean select = local && SELECT.getOrDefault(table, Set.of()).contains(column);
             boolean insert = local && INSERT.getOrDefault(table, Set.of()).contains(column);
+            boolean update = local && table.equals("v3_link_proposal")
+                    && Set.of("accepted_at", "identity_request_id").contains(column);
             require(
                     Boolean.TRUE.equals(r.get("can_select")) == select
-                            && Boolean.TRUE.equals(r.get("can_insert")) == insert);
+                            && Boolean.TRUE.equals(r.get("can_insert")) == insert
+                            && Boolean.TRUE.equals(r.get("can_update")) == update);
         }
         require(present.containsAll(SELECT.keySet()) && present.containsAll(INSERT.keySet()));
     }

@@ -827,6 +827,126 @@
         "basis": "Causal Unicode scalar regression; no lossy UTF-8 intent/scope alias; HTTP refusal without durable",
         "blocking": false
       }
+    },
+    "L5-I3-FAST": {
+      "level": "FAST",
+      "modules": [
+        "engine-admit-registration",
+        "engine-consume-registration"
+      ],
+      "expected_invocations": 13,
+      "tests": {
+        "com.kartaguez.pocoma.engine.admit.registration.v3.V3LinkConsentContractTest": [
+          "exactIssuerSubjectAndSelfRefused",
+          "closedCreationAndDirectLinkRefused",
+          "getAndLoginDoNotAdmit",
+          "onlyExactTargetAcceptsAndMaskingPrecedesState",
+          "immutableTwoActorProvenance",
+          "expiryAndAdmittedReplayOrdering",
+          "canonicalReplayAndConflict",
+          "invalidAuthenticationNeverReadsProposal",
+          "publicViewsAndLogsExcludeSecrets",
+          "admissionHasOnlyTechnicalPortsAndHistoricalInputUnchanged"
+        ],
+        "com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest": [
+          "l3_participant_order",
+          "l3_technical_not_rejected",
+          "l3_rejection_terminal"
+        ]
+      },
+      "forecast": {
+        "seconds": 120,
+        "basis": "Strict human I3 campaign envelope; not a measured duration",
+        "blocking": true
+      }
+    },
+    "L5-I3-PG": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api",
+        "runtime-monolith"
+      ],
+      "expected_invocations": 25,
+      "tests": {
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.V3LinkAdmissionPostgresTest": [
+          "proposalCreateReplayAndOwnership",
+          "proposalAndAdmissionIntegrity",
+          "deferredGuardRejectsSubstitutedIntention",
+          "expiryAfterLockWait",
+          "jwtExpiryAfterLockWait",
+          "simultaneousAcceptance",
+          "rollbackAtEveryAdmissionBoundary",
+          "lostCommitAndRetryDoNotInventResult",
+          "unavailablePhysicalObserverFailsClosed",
+          "effectiveAclAndSecretChannels",
+          "longOpaqueIntentionDoesNotRequireWideIndex"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.V3LinkExecutionPostgresTest": [
+          "acceptedLinkReplayAfterTerminalAndUnlink",
+          "staleInitiatorAtCreateAfterCreateAndAfterAdmission",
+          "targetBecomesBoundBeforeExecution",
+          "distinctProposalsSameTargetAdmitOnlyOneMutation"
+        ],
+        "com.kartaguez.pocoma.V3LinkRequestHttpTest": [
+          "jwtValidationAndTargetMasking",
+          "missingExpiredAndForbiddenProposal",
+          "summaryAndAcceptedOwnership",
+          "boundedTransportAndNoSynchronousLink"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.V3AdmissionPostgresTest": [
+          "associationForeignKeysAndImmutability",
+          "admissionRoleAndIndirectPrivileges"
+        ],
+        "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest": [
+          "l3_atomic_link_unlink",
+          "l3_unknown_commit"
+        ],
+        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+          "webRoot"
+        ],
+        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+          "monolithRoot"
+        ]
+      },
+      "forecast": {
+        "seconds": 480,
+        "basis": "Strict human I3 campaign envelope; not a measured duration",
+        "blocking": true
+      }
+    },
+    "L5-I3-BRUNO": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-monolith"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.V3LinkBrunoPostgresTest": [
+          "realKeycloakLinkProtocol"
+        ]
+      },
+      "forecast": {
+        "seconds": 600,
+        "basis": "Strict human I3 Bruno envelope including launcher",
+        "blocking": true
+      }
+    },
+    "L5-I3-HTTP-CORRECTION": {
+      "level": "INTEGRATION",
+      "modules": [
+        "runtime-web-api"
+      ],
+      "expected_invocations": 1,
+      "tests": {
+        "com.kartaguez.pocoma.V3LinkRequestHttpTest": [
+          "boundedTransportAndNoSynchronousLink"
+        ]
+      },
+      "forecast": {
+        "seconds": 30,
+        "basis": "Only the corrected lock oracle; charged to remaining PG envelope",
+        "blocking": true
+      }
     }
   },
   "sequences": {

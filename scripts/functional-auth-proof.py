@@ -47,7 +47,7 @@ def require(condition, message):
         raise RuntimeError(message)
 
 
-def authorize(requested_scopes, use_pkce=True, method="S256"):
+def authorize(requested_scopes, use_pkce=True, method="S256", username="bruno", password="bruno-local-only"):
     """Return callback parameters, or a Keycloak HTTP 400 without exposing secrets."""
     verifier = secrets.token_urlsafe(48)
     state = secrets.token_urlsafe(20)
@@ -76,7 +76,7 @@ def authorize(requested_scopes, use_pkce=True, method="S256"):
         require(form.action, "Keycloak login form was not found")
         action = urllib.parse.urljoin(login_url, form.action)
         require(urllib.parse.urlparse(action).netloc == "localhost:8081", "Unexpected Keycloak login origin")
-        credentials = urllib.parse.urlencode({"username": "bruno", "password": "bruno-local-only"}).encode()
+        credentials = urllib.parse.urlencode({"username": username, "password": password}).encode()
         try:
             cookie_header = "; ".join(f"{cookie.name}={cookie.value}" for cookie in cookie_jar)
             opener.open(urllib.request.Request(action, data=credentials,

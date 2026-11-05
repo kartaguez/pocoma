@@ -77,6 +77,8 @@
       "emailVerified": true,
       "requiredActions": [],
       "credentials": [{ "type": "password", "value": "bruno-local-only", "temporary": false }]
-    }
+    },
+    {"username": "link-e2", "enabled": true, "firstName": "Link", "lastName": "link-e2", "email": "link-e2@pocoma.local", "emailVerified": true, "requiredActions": [], "credentials": [{"type": "password", "value": "link-e2-local-only", "temporary": false}]},
+    {"username": "link-e3", "enabled": true, "firstName": "Link", "lastName": "link-e3", "email": "link-e3@pocoma.local", "emailVerified": true, "requiredActions": [], "credentials": [{"type": "password", "value": "link-e3-local-only", "temporary": false}]}
   ]
 }

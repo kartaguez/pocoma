@@ -83,7 +83,13 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest r) {
-        return !Set.of("/api/v3/commands", "/api/v3/identity/requests").contains(r.getRequestURI());
+        return !Set.of("/api/v3/commands", "/api/v3/identity/requests").contains(r.getRequestURI())
+                && !linkRoute(r.getRequestURI());
+    }
+
+    public static boolean linkRoute(String uri) {
+        return uri.equals("/api/v3/identity/link-requests")
+                || uri.startsWith("/api/v3/identity/link-requests/");
     }
 
     @Override
@@ -96,12 +102,14 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
             return;
         }
         try {
-            AdmissionFailure.require(r.getMethod().equals("POST") && r.getQueryString() == null);
+            boolean link = linkRoute(r.getRequestURI());
+            AdmissionFailure.require((r.getMethod().equals("POST") || (link && r.getMethod().equals("GET")))
+                    && r.getQueryString() == null && r.getRequestURI().length() <= 2048);
             if (r.getHeader("Content-Encoding") != null) throw new AdmissionFailure(415);
             String media = r.getContentType();
-            if (media == null
+            if (r.getMethod().equals("POST") && !r.getRequestURI().endsWith("/accept") && (media == null
                     || !media.toLowerCase(Locale.ROOT)
-                            .matches("application/json(?:\\s*;\\s*charset=utf-8)?"))
+                            .matches("application/json(?:\\s*;\\s*charset=utf-8)?")))
                 throw new AdmissionFailure(415);
             int max =
                     r.getRequestURI().equals("/api/v3/commands")
@@ -126,7 +134,9 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
                 switch (status) {
                     case 400 -> "INVALID_INPUT";
                     case 401 -> "INVALID_TOKEN";
+                    case 404 -> "NOT_FOUND";
                     case 409 -> "IDEMPOTENCY_CONFLICT";
+                    case 410 -> "EXPIRED";
                     case 413 -> "PAYLOAD_TOO_LARGE";
                     case 415 -> "UNSUPPORTED_MEDIA_TYPE";
                     default -> "UNAVAILABLE";

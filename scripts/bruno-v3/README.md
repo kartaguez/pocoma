@@ -31,3 +31,23 @@ WEB autonome : activer uniquement `v3-http-read`, désactiver Flyway, OSIV et DB
 Le banc B1 ferme chaque connexion HTTP (`Connection: close`, requêtes principales et secondaires). Cela évite que les agents distincts des appels scriptés retiennent les 16 connexions transport en idle. Ce réglage de client ne relève aucune borne serveur et ne modifie pas le timeout de 5 s.
 
 L5/I2 ajoute `02 Admission and Commands` (B201–B224). La fixture complète est lancée par `python3 -B scripts/testing/verify.py INTEGRATION l5-i2` depuis la racine, après son dry-run ; elle fournit JWT/JWKS, autorités SQL distinctes et le handshake interne L3. Les résultats publics ne sont pas injectés. Voir la [recette d’admission](../../docs/v3/L5_I2_Admission_Operations.md) et [Coverage](Coverage.md). B1 conserve sa fixture et ses variables existantes ; les variables I2 ne sont activées que pour B2.
+
+
+## L5/I3 — Link minimal, qualification ciblée
+
+`03 Link Requests` contient B301/B302/B303/B304/B305/B307/B308/B309/B310/B313 : création E1, résumé, masquage E3, POST E2 explicite, négatifs bearer/altération, résultat E1, binding propre E2 et S-03. Le [rapport I3](../../docs/v3/L5_I3_Execution_Report.md) distingue cette preuve ciblée des variantes NOT RUN et des gates Q5.
+
+Premier IdP : configuration existante `docker/keycloak/pocoma-realm.json`, trois utilisateurs locaux de qualification (`bruno`, `link-e2`, `link-e3`) sans rôle métier spécifique. Préparer le banc jetable isolé, sans lancer l'ancien runtime compose :
+
+```sh
+docker compose -p pocoma-l5-i3 -f docker-compose.functional.yml up -d postgres keycloak
+python3 -B scripts/testing/verify.py INTEGRATION L5-I3-BRUNO --output /absolute/new/evidence-directory
+```
+
+Depuis la racine du dépôt. Laisser Keycloak prêt avant le lanceur ; utiliser une base d'import jetable neuve pour disposer des trois utilisateurs. Le lanceur réemploie le PKCE S256 existant, contrôle issuer/audience/claims et trois couples exacts distincts, configure le Resource Server sur le vrai JWKS Keycloak, puis démarre le monolithe V3 avec Worker/READ. Il n'injecte ni Link ni résultat. `Local` désigne l'HTTP vers le monolithe jetable, sans remplacer l'IdP réel. Les bearers vivent dans un fichier temporaire mode 0600 supprimé après parcours ; aucune clé ni bearer dans les arguments CLI/Git/rapports. Le helper n'enregistre que méthode/route/statut ; polling borné et oracle SQL indépendant final. Les campagnes restent sérielles et soumises au budget humain cumulé ; ce lancement ne donne aucun budget de reprise implicite.
+
+Nettoyage du seul projet de qualification créé pour I3 :
+
+```sh
+docker compose -p pocoma-l5-i3 -f docker-compose.functional.yml down -v
+```

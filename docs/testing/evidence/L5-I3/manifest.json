@@ -1,0 +1,347 @@
+{
+  "initialHead": "8ff6722220049f3ce537b2f4aeeb2ffa725f4619",
+  "branch": "feat/v3-architecture",
+  "status": "IMPLEMENTED — TARGETED QUALIFICATION PASS — CANONICAL QUALIFICATION DEFERRED",
+  "campaigns": [
+    {
+      "kind": "FAST",
+      "campaign": "L5-I3-FAST",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "FAST",
+        "L5-I3-FAST",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-fast"
+      ],
+      "seconds": 4.149570042034611,
+      "exit": 0,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-fast",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": "l5-i3-fast.tar.gz",
+      "sha256": "572bd088256260a40eb2ac2a1ce950919dd096c5f64f9f0464e80a8b3506c54b",
+      "applicationDeltaSinceExecution": [
+        "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitLinkProposal.java",
+        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
+        "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/V3LinkAdmissionPostgresTest.java",
+        "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/V3LinkExecutionPostgresTest.java",
+        "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3LinkRequestHttpTest.java",
+        "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+        "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/AdmissionSqlAuthority.java",
+        "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcAdmissionStore.java"
+      ]
+    },
+    {
+      "kind": "PG",
+      "campaign": "L5-I3-PG",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "L5-I3-PG",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-pg"
+      ],
+      "seconds": 21.62772791698808,
+      "exit": 1,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-pg",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 18,
+        "failures": 1,
+        "errors": 1,
+        "skipped": 0
+      },
+      "archive": "l5-i3-pg.tar.gz",
+      "sha256": "5b2af0c945b82ba13d251aaf3efa7371d4f03bf8b72fa179b2dd3189acbff7db",
+      "applicationDeltaSinceExecution": [
+        "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitLinkProposal.java",
+        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
+        "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/V3LinkAdmissionPostgresTest.java",
+        "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/V3LinkExecutionPostgresTest.java",
+        "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java",
+        "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3LinkRequestHttpTest.java",
+        "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+        "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/AdmissionSqlAuthority.java",
+        "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcAdmissionStore.java"
+      ]
+    },
+    {
+      "kind": "PG",
+      "campaign": "L5-I3-PG",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "L5-I3-PG",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-pg-corrected"
+      ],
+      "seconds": 35.9829072910361,
+      "exit": 1,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-pg-corrected",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 19,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "archive": "l5-i3-pg-corrected.tar.gz",
+      "sha256": "48586eb140424c719445e8029a4c0b4c39795990f90d07677b9b3daac00cddaf",
+      "applicationDeltaSinceExecution": [
+        "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitLinkProposal.java",
+        "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/V3LinkAdmissionPostgresTest.java",
+        "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java",
+        "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3LinkRequestHttpTest.java",
+        "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java"
+      ]
+    },
+    {
+      "kind": "FAST",
+      "campaign": "L5-I3-FAST",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "FAST",
+        "L5-I3-FAST",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-fast-final"
+      ],
+      "seconds": 4.300984207948204,
+      "exit": 0,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-fast-final",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": "l5-i3-fast-final.tar.gz",
+      "sha256": "a6c807620714e717f81f4169a0ed0571845c7520ce957c0dd849a26e9463538a",
+      "applicationDeltaSinceExecution": [
+        "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java",
+        "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3LinkRequestHttpTest.java"
+      ]
+    },
+    {
+      "kind": "PG",
+      "campaign": "L5-I3-PG",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "L5-I3-PG",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-pg-fresh"
+      ],
+      "seconds": 53.42264641699148,
+      "exit": 1,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-pg-fresh",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 25,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": "l5-i3-pg-fresh.tar.gz",
+      "sha256": "421096600e4b04f7c02e8a72d8281c81bd66e55c9b160b6d0d3b244f23526b3a",
+      "applicationDeltaSinceExecution": [
+        "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java",
+        "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3LinkRequestHttpTest.java"
+      ]
+    },
+    {
+      "kind": "PG",
+      "campaign": "L5-I3-HTTP-CORRECTION",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "L5-I3-HTTP-CORRECTION",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-http-correction"
+      ],
+      "seconds": 13.093015625025146,
+      "exit": 0,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-http-correction",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": "l5-i3-http-correction.tar.gz",
+      "sha256": "bcda93a4e295bafbf2cf5b83198c17d67f3097bc1b2e9fc60c2414cfcc480d5b",
+      "applicationDeltaSinceExecution": [
+        "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java"
+      ]
+    },
+    {
+      "kind": "BRUNO",
+      "campaign": "L5-I3-BRUNO",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "L5-I3-BRUNO",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-bruno"
+      ],
+      "seconds": 10.740756541956216,
+      "exit": 1,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-bruno",
+      "verdict": "FAIL",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": "l5-i3-bruno.tar.gz",
+      "sha256": "799131e785e146517a534dd0386ffc00191d0c490d6bc7a7b936b8c87e82471d",
+      "applicationDeltaSinceExecution": [
+        "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java"
+      ]
+    },
+    {
+      "kind": "BRUNO",
+      "campaign": "L5-I3-BRUNO",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "L5-I3-BRUNO",
+        "--output",
+        "/tmp/pocoma-l5-i3-l5-i3-bruno-corrected"
+      ],
+      "seconds": 22.36911779199727,
+      "exit": 0,
+      "output": "/tmp/pocoma-l5-i3-l5-i3-bruno-corrected",
+      "verdict": "PASS",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive": "l5-i3-bruno-corrected.tar.gz",
+      "sha256": "0f8c03c52bb1c74a94fb3df3ab60da9a0b871f302f72424c34df29db7def61bd",
+      "applicationDeltaSinceExecution": []
+    }
+  ],
+  "productionUnchangedSinceFinalFast": true,
+  "globalGates": "NOT RUN / DEFERRED TO Q5",
+  "fullReactorRun": false,
+  "secondsByKind": {
+    "FAST": 8.450554249982815,
+    "PG": 124.1262972500408,
+    "BRUNO": 33.109874333953485
+  },
+  "totalSeconds": 165.6867258339771,
+  "bruno": {
+    "issuer": "http://localhost:8081/realms/pocoma",
+    "independentSql": {
+      "proposals": 1,
+      "links": 1,
+      "associations": 1,
+      "changed": 2,
+      "versions": 2
+    },
+    "brunoSeconds": 3.689362,
+    "helperRequests": 60,
+    "scenarios": [
+      "B301",
+      "B302",
+      "B303",
+      "B304",
+      "B305",
+      "B307",
+      "B308",
+      "B309",
+      "B310",
+      "B313"
+    ],
+    "primaryRequests": 10,
+    "realIdp": true
+  },
+  "finalJunitCoverage": {
+    "FAST": 13,
+    "PG": 25,
+    "BrunoLauncher": 1,
+    "PGProof": "24 PASS at pg-fresh + corrected single HTTP PASS; no application production delta"
+  },
+  "allJunitExecutions": {
+    "tests": 91,
+    "failures": 3,
+    "errors": 2,
+    "skipped": 0
+  },
+  "qualifiedSourceHashes": {
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3AdmissionHttpConfiguration.java": "8d01d6a3eed8092da975a89f12ab31500e6b457e1e8e025db6fd2dc0e792f8fa",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java": "2b6a647ee2ade6220c4c2a7c4881bfc3fb51b7b5dc8bbe98a43f39b2910e4d07",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadHttpConfiguration.java": "b85125667cac246d54b2f36725362b8998c2e72b247360e66fbb61aacb89611b",
+    "app/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/LinkProposal.java": "e8be785b8f7f4ec8da89eabb5b568e1ef74bafaab7c5c4d11ac0b6dba6db93af",
+    "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitLinkProposal.java": "dd03641c728dc2e7de4e1dc9297f076ffbe12e84bc43fee3a5c0b9b17fef0ff1",
+    "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/LinkProposalInput.java": "19960b9361e9980bbda0e3afee3702b0d89d9a204f0e13a2bdff3ff799623c8a",
+    "app/engine-admit-registration/src/test/java/com/kartaguez/pocoma/engine/admit/registration/v3/V3LinkConsentContractTest.java": "cbaae66f7b1109eb43f0eac43d165350617ca599b3b2caed4d2d70f9a6180cac",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/AdmissionSqlAuthority.java": "59199edaa52610775dbb374486a9d0c7caa3cc451ccebc5cea15611f9da938b2",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcAdmissionStore.java": "6c418b40d53d6a81f7d43ebc66a4d974b3635de370fd489668dd01df0076ed53",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql": "a5cd55a5c335eed45094a16e335a1ca2bbd9393487ca251f84c043b148319535",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/V3LinkAdmissionPostgresTest.java": "fca7963c0bf180f41d717a439d24364bdf14ce1bd6fd8e9b4a5d382245f67d7f",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/V3LinkExecutionPostgresTest.java": "4a87ccc303e96824b0bc009797535cbad6074b6b3210883c138e9cc644f66556",
+    "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3LinkBrunoPostgresTest.java": "47cb05d9ec610daef811e274c8baf7f7186283c239b48438626fffd436855f91",
+    "app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3LinkRequestHttpTest.java": "f1f5d6ab214f44737b01ced3c843847f35735ea0fdd1c31848324da54ee56566",
+    "app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadTransport.java": "d0bcd36d8dec1ac66b0edd759abb5d34b31bc1a66ba2ac29111dd71f2b78de64",
+    "app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java": "59d43c9aaada900d2598d5a80c862cebb3f551be49b0c245d7751ac53fdbfb1e",
+    "app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3LinkProposalController.java": "408201329e3f18085acd7a88666b006a3599e0c1f2afce1aeac6bf5538257103",
+    "docker/keycloak/pocoma-realm.json": "a29c2d5d48c94c58fdd87edc13c95c17385cbf926961913a4ced9bfa7ce0bfc7",
+    "scripts/bruno-v3/03 Link Requests/B301 RegistrationE1.bru": "86418611026d39014ade75611a5f151b8dd0caeffa799362edbb5701b31120e2",
+    "scripts/bruno-v3/03 Link Requests/B302 CreateAndSummary.bru": "4fb331508728f0e8e59ee9bd40e13a1aa34d91ee89f2a2f994783116da77df80",
+    "scripts/bruno-v3/03 Link Requests/B303 ThirdIdentityMasked.bru": "94c77e8fc6cf19940edf2b61f9e1ef8f61e2be41a3b2289993376af4270ebac1",
+    "scripts/bruno-v3/03 Link Requests/B304 InitiatorCannotAccept.bru": "4cfb0d8e657ce147742fa8f53fee2c22732ce57e6e0e96ddd378d55c392887f1",
+    "scripts/bruno-v3/03 Link Requests/B305 InvalidBearerRefused.bru": "27c9797049751f804d41811b54a221be11c043e5046e7e920b3d24dbf319f51a",
+    "scripts/bruno-v3/03 Link Requests/B307 AcceptAndReplay.bru": "dd4f087753c9ae4e99d919be3e0814c053b2f3b445f1d8962738f41c48c141c6",
+    "scripts/bruno-v3/03 Link Requests/B308 ImmutableIntent.bru": "b957b6454776121edf2a1aca826083142ef8c839626246d7a750ddcf1f679ad7",
+    "scripts/bruno-v3/03 Link Requests/B309 OwnBindingOnly.bru": "ea18230a0849996d54f2504250ff49392d660e4a794b729ffe625809f466428a",
+    "scripts/bruno-v3/03 Link Requests/B310 ResultBelongsToE1.bru": "5e5dbee6fc0dd1c09328d7220253ff0fe7f83ff199522f4adf9544f6dff3d5f7",
+    "scripts/bruno-v3/03 Link Requests/B313 CreationIdempotency.bru": "e96df890b676f48c6f614c3558bca76eeb28a80fc896417ab1b6bd89f212a279",
+    "scripts/bruno-v3/lib/i3-link.js": "c33f9955e8f8f1fca61aba08165b16988535fbf92279b9d51c06983b49bfe741",
+    "scripts/functional-auth-proof.py": "51a001f784556f8a1bc055582c1148e3f8492ffb73b769df01aca00e9d2d54e4",
+    "scripts/testing/l5-i3-auth.py": "af9f992031b4e820c2d33c6879aa7900f477c4984d21d978c339852065fdce2e",
+    "scripts/testing/verification-campaigns.json": "a9ed22f1a71d96b555fd572d83f15f4976ef3c037fd2490d7eb29ba2a543848e",
+    "scripts/v3/grant-l5-admission.sql": "7f09f5424a67349d8ece50e7e28a4e41eb1bb6aa5947c85d85184fa5fb9505a7"
+  },
+  "productionFiles": [
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3AdmissionHttpConfiguration.java",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadHttpConfiguration.java",
+    "app/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/LinkProposal.java",
+    "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitLinkProposal.java",
+    "app/engine-admit-registration/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/LinkProposalInput.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/AdmissionSqlAuthority.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcAdmissionStore.java",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
+    "app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadTransport.java",
+    "app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java",
+    "app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3LinkProposalController.java"
+  ],
+  "preparationSha256": "5556fae57f73a6f476093c78d7e7482333b7e0a81a8527cf7cdd94e88318ce6d"
+}

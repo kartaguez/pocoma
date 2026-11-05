@@ -7,7 +7,7 @@
 
 ## 1. Frontières des Supras
 
-Les Supras sont des frontières API d'authentification, validation de forme, admission durable et lecture des projections, non une seconde autorité métier. Les lectures HTTP ne consultent jamais WRITE de manière synchrone ; l'admission ne lit pas le modèle métier WRITE pour deviner disponibilité, droits ou résultat final. Les décisions de domaine et d'exécution résident dans SPEC-01/02/05 ; les projections dans SPEC-04. Un refus pré-admission ne crée aucune demande ni résultat terminal.
+Les Supras sont des frontières API d'authentification, validation de forme, admission durable et lecture des projections, non une seconde autorité métier. Les lectures métier HTTP ne consultent jamais WRITE de manière synchrone ; le GET d'une proposition Link consulte sa propre autorité technique de pré-admission, sans lecture du modèle métier WRITE ; l'admission ne lit pas le modèle métier WRITE pour deviner disponibilité, droits ou résultat final. Les décisions de domaine et d'exécution résident dans SPEC-01/02/05 ; les projections dans SPEC-04. Un refus pré-admission ne crée aucune demande ni résultat terminal.
 
 ## 2. Admission, provenance et idempotence
 
@@ -17,7 +17,7 @@ Les Supras sont des frontières API d'authentification, validation de forme, adm
 |---|---|---|
 | Transport / désérialisation | taille maximale des octets reçus et décompressés, profondeur JSON, champs/types requis, nombres finis, format des identifiants, champs inconnus selon contrat | existence de Pot, Expense, Shareholder ou EUI en état courant |
 | Forme de l'opération | type de commande reconnu, nombre maximum de cibles et de participants, longueur de textes, bornes numériques intrinsèques, cohérence interne entre champs d'un même payload | droits sur Pot, référence de version observée, compatibilité avec les versions actuelles et transitions métier |
-| Identité / protocole | authentification réelle, audience, identité EUI, présence et forme du bindingToken, pour Link preuve externe d'accord transactionnel valide et non rejouée | lien EUI/bindingToken **courant**, permission effective et effets de Registration/Link/Unlink à l'exécution |
+| Identité / protocole | authentification réelle, audience, identité EUI, présence et forme du bindingToken, pour Link POST explicite E2 authentifiée sur proposition immuable, non expirée et non substituable | lien EUI/bindingToken **courant**, permission effective et effets de Registration/Link/Unlink à l'exécution |
 | Admission durable | anti-rejeu, corrélation, idempotence et création **unique** de la demande lorsqu'elle est valide | succès/rejet métier terminal et événements de complétion |
 
 **Précisions :**
@@ -32,14 +32,14 @@ Les Supras sont des frontières API d'authentification, validation de forme, adm
 
 **À décider ensuite :** limites numériques par type, conventions d'erreurs, politique pour champs inconnus, syntaxe des identifiants publics, corps compressés et traitement HTTP précis des répétitions. **Le principe et le périmètre sont définis ; la matrice de seuils n'est pas validée.** 
 
-**DÉCISION :** une Command ou IdentityRequest soumise par un client possède une **clé d'idempotence fournie par le client**, liée à une portée d'identité authentifiée et à une **intention canonique** de la demande. L'admission réserve durablement cette association **atomiquement avec la création de la demande**, sans consultation de l'état métier courant WRITE.
+**DÉCISION :** hors acceptation Link par identifiant de ressource définie ci-dessous, une Command ou IdentityRequest soumise par un client possède une **clé d'idempotence fournie par le client**, liée à une portée d'identité authentifiée et à une **intention canonique** de la demande. L'admission réserve durablement cette association **atomiquement avec la création de la demande**, sans consultation de l'état métier courant WRITE.
 
 - **Première soumission** : contrôler le contrat d'admission et les preuves exigées (notamment consentement transactionnel pour Link), puis créer une unique demande durable et son association d'idempotence dans la même transaction physique.
 - **Répétition, même clé et même intention dans la même portée** : retrouver la **même demande durable et son identifiant**, sans recréer de demande ni réévaluer rétroactivement de nouvelles limites structurelles. La relecture peut indiquer son statut actuel sans inventer de nouvel événement métier.
 - **Même clé, intention différente dans la même portée** : **409 Conflict**, sans nouvelle admission ni fuite du contenu de l'intention antérieure.
 - **Même clé dans une portée distincte** : ne pas permettre l'accès à la demande de l'autre identité ; définir la portée via l'identité authentifiée, l'opération et le client appelant, sans s'appuyer sur un simple bindingToken non authentifiant. Une clé seule n'est ni une capacité d'accès ni un identifiant métier global.
 - **Concurrence** : deux requêtes simultanées ne peuvent créer deux demandes pour la même paire portée/clé. Contrainte durable d'unicité et transaction atomique, avec issue déterministe après commit connu, rollback ou réponse perdue.
-- **Link** : une clé d'idempotence ne remplace **jamais** l'attestation externe de consentement de E2. Un retour de demande déjà admise n'autorise pas une nouvelle intention Link ; l'association doit rester liée à la preuve et à sa cible non substituable.
+- **Link** : une clé d'idempotence ne remplace **jamais** le POST explicite de consentement de E2 authentifiée. Un retour de demande déjà admise n'autorise pas une nouvelle intention Link ; l'association doit rester liée à la preuve et à sa cible non substituable.
 - **Canonicalisation** : comparer les intentions métier (type d'opération, cible, payload pertinent, contexte d'identité) de façon déterministe, sans dépendre d'ordre arbitraire JSON ni de champs purement techniques. Le format/digest précis reste un détail à spécifier avant implémentation.
 - **Durée de rétention** : conserver l'association au moins pendant toute la durée où une répétition est supportée. **Ne pas annoncer une idempotence illimitée** sans politique de rétention ; durée contractuelle et purge éventuelle restent à fixer avant activation. Tant qu'une association est conservée, aucune nouvelle demande n'est créée avec cette paire portée/clé.
 - **Admission invalide** : une requête refusée avant admission ne crée ni Command/IdentityRequest, ni association durable d'idempotence ; ne pas transformer une erreur HTTP préalable en résultat métier terminal.
@@ -50,9 +50,23 @@ Les Supras sont des frontières API d'authentification, validation de forme, adm
 
 L'EUI initiatrice authentifiée est capturée immuablement en `requesterEui` dès admission ; toute Command/IdentityRequest sauf Registration transporte un `bindingToken` explicite. La Supra ne crée pas de slot : Discovery asynchrone en SPEC-05. La revalidation du Binding et des droits courants demeure en WRITE lors de l'exécution.
 
+**Amendement ratifié L5/I3 — protocole HTTP minimal :**
+
+| Route | Contrat |
+|---|---|
+| `POST /api/v3/identity/link-requests` | E1 authentifiée ; `Idempotency-Key` S-03 ; `{bindingToken,target:{issuer,subject}}` fermé ; 201 `{linkRequestId,expiresAt}` et Location proposition |
+| `GET /api/v3/identity/link-requests/{id}` | E1 ou E2 exacte uniquement ; 200 résumé allowlist sans token/UserId/provenance ; `potCount` et date null autorisés |
+| `POST /api/v3/identity/link-requests/{id}/accept` | E2 exacte uniquement ; corps strictement vide et aucune clé client libre ; 202 `{linkRequestId,requestId}` après commit confirmé ; Location proposition |
+
+401 JWT invalide ; 400 entrée/UUID/champs altérés ; 404 uniforme inconnu/non-partie (dont E1 sur accept) ; 410 proposition non acceptée expirée aux seules parties ; 409 clé de création réutilisée pour autre intention ; 413/415 transport ; 503 indisponibilité ou issue physique inconnue. Toutes les réponses sont `no-store`. L'id seul n'autorise rien. L'expiration est vérifiée après verrou technique avec l'heure DB courante, ainsi que la validité restante du JWT E2. Rejeu après admission : mêmes ids, sans réappliquer le TTL ni les nouvelles règles métier.
+
+La proposition est durable technique pré-admission, sans slot, événement ni résultat Identity. La création capture E1 authentifiée, token et cible exacts ; aucune autorité métier WRITE ni verrou métier, READ éventuellement indicatif et périmé accepté. L'acceptation constate E2 et conserve `requesterEui=E1` sans principal synthétique ; proposition acceptée, association S-03 et IdentityRequest sont une unité physique indivisible. Un refus d'acceptation ne supprime pas la proposition existante et crée zéro **nouvelle** IdentityRequest/association/effet. Commit incertain : 503 sans résultat inventé, retry même identifiant ; les protections physiques I2 restent applicables.
+
+TTL initial 600 s configurable (`pocoma.v3.http.admission.link-proposal-ttl-seconds`, 1–86400 s), rétention sans purge dans I3 ; future rétention à décider en conservant anti-rejeu et restauration. Unicité de création E1/LinkProposal/clé et intention HMAC versionnée ; accept idempotent naturellement par ressource, association serveur E1/IDENTITY/Link/id. Les résultats restent ceux d'E1 et les tokens ceux de leur propre EUI. Les garanties S-03 et A10-D demeurent exigibles, sans certification globale acquise.
+
 ## 3. Authentification et attestation
 
-Toute lecture Pot ou Expense exige EUI authentifiée, bindingToken concordant et CurrentBinding actif en READ. Le token seul n'est jamais une authentification. La consultation de son propre CurrentBinding et celle de ses résultats terminalisés sont deux exceptions explicites à l'obligation d'un bindingToken entrant, pas à l'authentification. Link exige un accord actif, explicite et vérifiable de E2, lié à l'intention précise, audience, expiration et anti-rejeu ; le serveur d'autorisation peut être co-opéré avec l'IdP ou séparé. Pocoma ne fournit pas d'interface de consentement ; Keycloak et RAR RFC9396 ne sont pas des obligations de produit ou de protocole.
+Toute lecture Pot ou Expense exige EUI authentifiée, bindingToken concordant et CurrentBinding actif en READ. Le token seul n'est jamais une authentification. La consultation de son propre CurrentBinding et celle de ses résultats terminalisés sont deux exceptions explicites à l'obligation d'un bindingToken entrant, pas à l'authentification. Link exige un accord actif, explicite et vérifiable de E2, lié à l'intention précise, audience, expiration et anti-rejeu. Depuis la décision humaine L5/I3 du 5 novembre 2026, cet accord est constaté par le POST explicite d'E2 authentifiée sur une proposition immuable ; aucun serveur d'autorisation externe ou JWT d'octroi Link n'est requis. Le futur client présente le récapitulatif ; Pocoma reste headless. Keycloak est le premier IdP, sans dépendance métier obligatoire.
 
 ## 4. Lecture courante et historique du Pot
 
@@ -165,7 +179,7 @@ Contrôles transport/configuration : octets bruts et décompressés, profondeur 
 
 ## 12. Garanties, paramètres et qualification
 
-Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement externe Link (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification du serveur d'autorisation et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10](SPEC-10_Test_Certification.md).
+Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement Link par POST E2 authentifiée (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification des JWT IdP et du POST E2 et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10](SPEC-10_Test_Certification.md).
 
 ## 13. Contrats Invitation
 

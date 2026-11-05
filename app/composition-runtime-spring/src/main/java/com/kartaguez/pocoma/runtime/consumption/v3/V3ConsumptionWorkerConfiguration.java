@@ -43,6 +43,8 @@ public class V3ConsumptionWorkerConfiguration {
                 "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration$Preflight",
                 "com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3",
                 "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3",
+                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal",
+                "com.kartaguez.pocoma.supra.http.write.v3.V3LinkProposalController",
                 "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionController",
                 "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransport");
     }

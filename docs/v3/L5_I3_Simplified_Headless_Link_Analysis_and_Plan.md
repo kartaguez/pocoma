@@ -1,5 +1,14 @@
 # Pocoma V3 — L5/I3 — Link headless simplifié : analyse et plan soumis
 
+> **Actualisation du 5 novembre 2026 — GO I3 IMPLEMENTATION ACCORDÉ, H1–H5 RATIFIÉES.** La mission humaine « TARGETED TESTS ONLY — NO BROAD GATES » remplace les attentes d'approbation ci-dessous. Le corps initial reste la preuve historique du plan et de sa révision H1 ; ses mentions NO GO / H2–H5 à ratifier ne gouvernent plus l'exécution. [Rapport et reçus I3](L5_I3_Execution_Report.md). Aucune nouvelle étude Keycloak ni serveur d'autorisation externe. Aucune clôture I3 définitive implicite.
+>
+> **Scope déclaré avant code :** primaire WEB, secondaire COMMAND ; monolithe racine d'assemblage ciblé ; DB CURRENT V3 additive V9. Aucun impact métier L2/L3/PROJECTION/BINDING/Pot ni dépendance Maven nouvelle. L'extension de contrat technique/ACL conserve l'obligation globale §17 **REQUIRED — NOT RUN — DEFERRED TO Q5**. WEB+COMMAND canonique non filtré, Architecture et full expressément interdits pendant la mission ; Q5 conserve ses obligations.
+>
+> **Budget strict supersédant le §11 :** FAST ≤120 s, PostgreSQL/intégration ≤480 s, Bruno ≤600 s et cumul ≤1200 s, corrections comprises. Arrêter les lancements suivants si une enveloppe est dépassée. Sélections exactes réelles dans `scripts/testing/verification-campaigns.json` : `L5-I3-FAST`, `L5-I3-PG`, `L5-I3-BRUNO`. Pas de relance inchangée ni d'extension implicite.
+>
+> **Revue R1–R4 et décisions concrètes :** aucun contrôle READ métier bloquant ; stockage des intentions/token déclarés et revalidation L3 seulement. Croissance des propositions acceptée sans purge, rétention future à décider en préservant anti-rejeu/restauration. FK/unique/CHECK standards et deux triggers restants (immutabilité/expiration puis intégrité inverse HTTP), sans trigger de cohérence redondant côté proposition. Correction SQL technique : colonne nullable `v3_identity_request.link_proposal_id` et FK UUID, pour éviter un index portant les tokens/EUI longs ; l'intention exacte est contrôlée au commit par trigger sur INSERT Link HTTP. Aucun changement des records/opérations/transitions L3. Les tests ciblés remplacent les anciennes enveloppes T3/B3, sans constituer une clôture canonique.
+
+
 Date : **5 novembre 2026**. Dépôt : `kartaguez/pocoma`. Branche vérifiée : `feat/v3-architecture`.
 
 **ANALYSIS + PLANNING ONLY — NO IMPLEMENTATION — NO GO I3.**

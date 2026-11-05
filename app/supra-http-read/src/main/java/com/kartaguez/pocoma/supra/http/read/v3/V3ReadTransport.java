@@ -39,8 +39,10 @@ public final class V3ReadTransport extends OncePerRequestFilter {
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI().startsWith("/api/v3/")
                 || (admissionActive
-                        && Set.of("/api/v3/commands", "/api/v3/identity/requests")
-                                .contains(request.getRequestURI()));
+                        && (Set.of("/api/v3/commands", "/api/v3/identity/requests")
+                                .contains(request.getRequestURI())
+                            || request.getRequestURI().equals("/api/v3/identity/link-requests")
+                            || request.getRequestURI().startsWith("/api/v3/identity/link-requests/")));
     }
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws ServletException, IOException {
