@@ -1,5 +1,11 @@
 # Pocoma V3 — L5/I3 — Link headless simplifié : analyse et plan soumis
 
+> **Clôture humaine du 5 novembre 2026 : L5/I3 — CLOSED — TARGETED LOCAL PASS WITH EXPLICIT RESERVATIONS.** L’[acte autonome](L5_I3_Acceptance_and_Closure_Decision.md) fixe le statut courant et conserve AUD-I3-01/02/03, R-Q1…R-Q5 et les réserves héritées. **L5 OPEN ; I4 ELIGIBLE FOR FRAMING, NO GO ; Q5 DÛ.** Aucun lancement I4/Q5, aucun code ni test exécuté pour cette clôture.
+>
+> **Clarification du réalisé — AUD-I3-02 :** création sans consultation `CurrentBinding` READ, capture de E1 authentifiée et du bindingToken déclaré ; obsolescence acceptée, autorité métier exclusivement Identity WRITE L3. Aucun défaut d’autorisation métier retenu, aucune réouverture H1 ni contrôle WRITE synchrone. Les anciennes formulations de contrôle READ et l’oracle prévisionnel F02 du §11 restent historiques ; ils ne décrivent pas le test livré et n’imposent aucun ajout de READ. [Réalisation et preuves](L5_I3_Execution_Report.md).
+>
+> **Historique du plan et du GO conservé ci-dessous :** ses attentes de ratification, NO GO et clôture attendue sont supersédées par les décisions datées, sans réécriture des exigences ni des preuves.
+
 > **Actualisation du 5 novembre 2026 — GO I3 IMPLEMENTATION ACCORDÉ, H1–H5 RATIFIÉES.** La mission humaine « TARGETED TESTS ONLY — NO BROAD GATES » remplace les attentes d'approbation ci-dessous. Le corps initial reste la preuve historique du plan et de sa révision H1 ; ses mentions NO GO / H2–H5 à ratifier ne gouvernent plus l'exécution. [Rapport et reçus I3](L5_I3_Execution_Report.md). Aucune nouvelle étude Keycloak ni serveur d'autorisation externe. Aucune clôture I3 définitive implicite.
 >
 > **Scope déclaré avant code :** primaire WEB, secondaire COMMAND ; monolithe racine d'assemblage ciblé ; DB CURRENT V3 additive V9. Aucun impact métier L2/L3/PROJECTION/BINDING/Pot ni dépendance Maven nouvelle. L'extension de contrat technique/ACL conserve l'obligation globale §17 **REQUIRED — NOT RUN — DEFERRED TO Q5**. WEB+COMMAND canonique non filtré, Architecture et full expressément interdits pendant la mission ; Q5 conserve ses obligations.

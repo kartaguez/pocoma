@@ -1,5 +1,9 @@
 # Pocoma V3 — L5/I3 — Rapport d'exécution
 
+> **Clôture humaine du 5 novembre 2026 : L5/I3 — CLOSED — TARGETED LOCAL PASS WITH EXPLICIT RESERVATIONS.** L’[acte autonome](L5_I3_Acceptance_and_Closure_Decision.md) accepte exclusivement les preuves ciblées historiques de ce rapport : FAST 13/13 PASS ; PostgreSQL/HTTP 25/25 oracles par preuve composite, jamais une campagne intégrale 25/25 PASS ; Bruno Keycloak réel 10/10, 70 requêtes ; 165,687 s cumulées. AUD-I3-01/02/03, R-Q1…R-Q5 et réserves héritées maintenues. Gates WEB+COMMAND non filtrée, Architecture et full **NOT RUN / DEFERRED**, obligations non acquittées. **L5 OPEN ; I4 ELIGIBLE FOR FRAMING, NO GO.** Aucun rejeu ni qualification au SHA documentaire.
+>
+> **Rapport historique inchangé ci-dessous :** les mentions I3 NON CLOSED et de décision attendue décrivent l’état avant cet acte ; elles ne sont plus le statut courant. Les résultats FAIL, diagnostics, corrections et provenance restent intacts.
+
 5 novembre 2026. **IMPLEMENTED — TARGETED QUALIFICATION PASS — QUALIFICATION CANONIQUE INCOMPLETE.** I3 **NON CLOSED** ; décision humaine distincte de clôture attendue, L5 OPEN. Aucun certificat SPEC-10 global.
 
 ## Mandat et Git
