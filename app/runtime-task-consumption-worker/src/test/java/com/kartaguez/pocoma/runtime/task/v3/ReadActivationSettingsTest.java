@@ -35,7 +35,7 @@ class ReadActivationSettingsTest {
                         "command-enabled",
                         "false",
                         "lifecycle.lease-duration-ms",
-                        "180000")
+                        "240000")
                 .forEach((k, v) -> env.setProperty(P + k, v));
         env.setProperty(
                 P + "dev-targets",
@@ -79,7 +79,8 @@ class ReadActivationSettingsTest {
                         "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
                         "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
                         "63664303-d33e-5d42-8cce-c4dae8023311",
-                        "1d8ff246-358f-5ddd-a7f5-416efcfd7445");
+                        "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+                        "924cd9e3-435d-5804-9d1e-c6aecadb9ab4");
         for (int i = 0; i < names.size(); i++)
             assertEquals(
                     ids.get(i),
@@ -115,10 +116,10 @@ class ReadActivationSettingsTest {
         for (String batch : List.of("1", "32")) {
             var good = env(names).withProperty(P + "lifecycle.batch-size", batch);
             assertEquals(
-                    180000,
+                    240000,
                     V3ConsumptionWorkerSettings.from(good).lifecycle().leaseDuration().toMillis(),
                     "batch=" + batch);
-            for (String lease : List.of("30000", "164240")) {
+            for (String lease : List.of("30000", "180000")) {
                 var bad =
                         env(names)
                                 .withProperty(P + "lifecycle.batch-size", batch)

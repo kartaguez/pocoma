@@ -362,7 +362,7 @@ class ReadWorkerResourcesPostgresTest {
                         f.read.queryForList(
                                 "select consumption_id,partition_id,owned_until,owner_token from"
                                         + " partition_ownership where owner_token is not null");
-                assertEquals(24, leases.size(), "six READ/four partitions before crash");
+                assertEquals(28, leases.size(), "seven READ/four partitions before crash");
                 child.crash();
                 await(
                         () ->
@@ -393,7 +393,7 @@ class ReadWorkerResourcesPostgresTest {
                                                 .localLeases()
                                                 .getOrDefault(
                                                         ConsumptionDefinition.Authority.READ, 0L)
-                                        == 24,
+                                        == 28,
                         Duration.ofMillis(remaining + 20000));
                 await(
                         () ->
@@ -407,7 +407,7 @@ class ReadWorkerResourcesPostgresTest {
                 for (var prior : leases) {
                     var actual =
                             f.read.queryForMap(
-                                    "select owned_until-interval '180 seconds'"
+                                    "select owned_until-interval '240 seconds'"
                                         + " acquired_at,owner_token<>? changed from"
                                         + " partition_ownership where consumption_id=? and"
                                         + " partition_id=?",
@@ -448,7 +448,7 @@ class ReadWorkerResourcesPostgresTest {
                                 + root.getSimpleName()
                                 + " child_pid="
                                 + child.process.pid()
-                                + " lease=180000ms PG remaining="
+                                + " lease=240000ms PG remaining="
                                 + remaining
                                 + " takeover_ms="
                                 + takeover);
@@ -559,9 +559,9 @@ class ReadWorkerResourcesPostgresTest {
                 var capacity = ctx.getBean(WorkerCapacity.class);
                 var pot = baseline(f, ctx, true);
                 assertEquals(
-                        8,
+                        9,
                         bindings(worker).size(),
-                        "batch=" + batch + " six READ plus two WRITE in one Worker");
+                        "batch=" + batch + " seven READ plus two WRITE in one Worker");
                 await(
                         () ->
                                 worker.localLeases()
@@ -569,7 +569,7 @@ class ReadWorkerResourcesPostgresTest {
                                                                 ConsumptionDefinition.Authority
                                                                         .READ,
                                                                 0L)
-                                                == 24
+                                                == 28
                                         && worker.localLeases()
                                                         .getOrDefault(
                                                                 ConsumptionDefinition.Authority

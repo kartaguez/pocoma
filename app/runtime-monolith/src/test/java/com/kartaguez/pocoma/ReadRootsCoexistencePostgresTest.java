@@ -57,6 +57,12 @@ class ReadRootsCoexistencePostgresTest {
                     "grant update(eui_version,user_id,binding_token) on read_current_binding to "
                             + f.readRole);
             var monolith = f.start(Map.of("pocoma.v3.worker.worker-name", "i8-monolith"));
+            await(
+                    () ->
+                            f.worker(monolith)
+                                            .localLeases()
+                                            .getOrDefault(ConsumptionDefinition.Authority.READ, 0L)
+                                    == 28);
             f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
             f.root = PocomaTaskConsumptionWorkerApplication.class;
             var projection = f.start(Map.of("pocoma.v3.worker.worker-name", "i8-projection"));
@@ -76,13 +82,12 @@ class ReadRootsCoexistencePostgresTest {
                                                     .getOrDefault(
                                                             ConsumptionDefinition.Authority.READ,
                                                             0L)
-                                    == 24);
+                                    == 28);
             var pot = ReadWorkerResourcesPostgresTest.baseline(f, monolith, true);
             assertEquals(
-                    24,
+                    28,
                     f.read.queryForObject(
-                            "select count(*) from partition_ownership where owner_token is not null"
-                                + " and consumption_id<>'924cd9e3-435d-5804-9d1e-c6aecadb9ab4'",
+                            "select count(*) from partition_ownership where owner_token is not null",
                             Integer.class),
                     "one effective durable owner per READ pair");
             assertEquals(
@@ -120,7 +125,7 @@ class ReadRootsCoexistencePostgresTest {
                     f.worker(monolith)
                             .localLeases()
                             .getOrDefault(ConsumptionDefinition.Authority.READ, 0L);
-            assertEquals(24, owned, "first started root owns the shared READ pairs");
+            assertEquals(28, owned, "first started root owns the shared READ pairs");
             f.drain(monolith);
             long remaining =
                     f.read.queryForObject(
@@ -134,7 +139,7 @@ class ReadRootsCoexistencePostgresTest {
                             f.worker(projection)
                                             .localLeases()
                                             .getOrDefault(ConsumptionDefinition.Authority.READ, 0L)
-                                    == 24,
+                                    == 28,
                     Duration.ofMillis(remaining + 20000));
             long takeover = Duration.between(start, Instant.now()).toMillis();
             assertTrue(
@@ -165,7 +170,7 @@ class ReadRootsCoexistencePostgresTest {
                             pot.value()),
                     "history retained through ownership change");
             f.trace.add(
-                    "T11 overlap: effective READ pairs=24, server connections=64, lease=180000ms,"
+                    "T11 overlap: effective READ pairs=28, server connections=64, lease=240000ms,"
                         + " PG remaining="
                             + remaining
                             + " takeover_ms="
@@ -215,13 +220,13 @@ class ReadRootsCoexistencePostgresTest {
                                                     .getOrDefault(
                                                             ConsumptionDefinition.Authority.READ,
                                                             0L)
-                                            == 12
+                                            == 14
                                     && f.worker(projection)
                                                     .localLeases()
                                                     .getOrDefault(
                                                             ConsumptionDefinition.Authority.READ,
                                                             0L)
-                                            == 12);
+                                            == 14);
             var pot = ReadWorkerResourcesPostgresTest.baseline(f, monolith, true);
             assertEquals(
                     1,
@@ -230,7 +235,7 @@ class ReadRootsCoexistencePostgresTest {
                             Integer.class,
                             pot.value()));
             f.trace.add(
-                    "T11 disjoint: monolith READ pairs 0|1=12, projection READ pairs 2|3=12, one"
+                    "T11 disjoint: monolith READ pairs 0|1=14, projection READ pairs 2|3=14, one"
                         + " unchanged canonical destination");
             f.physical("T11-disjoint");
             f.drain(projection);

@@ -133,11 +133,13 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
                                         "classpath:db/v3-pot/migration",
                                         "classpath:db/v3-pot-execution/migration",
                                         "classpath:db/v3-consumption-write/migration",
-                                        "classpath:db/v3-identity/migration"
+                                        "classpath:db/v3-identity/migration",
+                                        "classpath:db/v3-invitation/migration"
                                     }
                                     : new String[] {
                                         "classpath:db/v3-consumption-read/migration",
-                                        "classpath:db/v3-read-business/migration"
+                                        "classpath:db/v3-read-business/migration",
+                                        "classpath:db/v3-read-invitation/migration"
                                     })
                     .placeholders(
                             Map.of(
@@ -172,7 +174,7 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
         properties.put(prefix + "consumption-limits", "");
         properties.put(prefix + "partitions", "");
         properties.put(prefix + "read-participants", "");
-        properties.put(prefix + "lifecycle.lease-duration-ms", "180000");
+        properties.put(prefix + "lifecycle.lease-duration-ms", "240000");
         properties.put(prefix + "read-limits.expense-batch", "50");
         properties.put(prefix + "read-limits.navigation-page", "20");
         properties.put(prefix + "read-limits.response-budget", "16000000");

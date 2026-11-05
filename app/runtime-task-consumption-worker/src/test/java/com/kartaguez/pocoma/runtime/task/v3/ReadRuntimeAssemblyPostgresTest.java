@@ -280,9 +280,13 @@ class ReadRuntimeAssemblyPostgresTest {
                             0,
                             new PotCommand.CreatePot(new Label("V1")));
             f.produce(create);
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
+            var participants =
+                    V3ConsumptionWorkerSettings.READ_NAMES.stream()
+                            .filter(n -> !n.equals("MaterializeInvitation"))
+                            .toList();
+            f.select(participants, false);
             var ctx = f.start();
-            for (String name : V3ConsumptionWorkerSettings.READ_NAMES)
+            for (String name : participants)
                 await(
                         () ->
                                 projected(
@@ -297,7 +301,7 @@ class ReadRuntimeAssemblyPostgresTest {
             var gates = new HashMap<String, AtomicReference<Barrier>>();
             for (var binding : bindings(f.worker(ctx))) {
                 String name =
-                        V3ConsumptionWorkerSettings.READ_NAMES.stream()
+                        participants.stream()
                                 .filter(
                                         n ->
                                                 V3ConsumptionWorkerSettings.definition(n)
@@ -309,7 +313,7 @@ class ReadRuntimeAssemblyPostgresTest {
                 intercept(binding, gate);
             }
             long version = 1;
-            for (String held : V3ConsumptionWorkerSettings.READ_NAMES) {
+            for (String held : participants) {
                 var gate = new Barrier();
                 gates.get(held).set(gate);
                 version++;
@@ -329,7 +333,7 @@ class ReadRuntimeAssemblyPostgresTest {
                             gate.entered.await(15, TimeUnit.SECONDS),
                             held + " finalization entered");
                     final long expectedVersion = version;
-                    for (String progressing : V3ConsumptionWorkerSettings.READ_NAMES)
+                    for (String progressing : participants)
                         if (!progressing.equals(held)) {
                             await(
                                     () ->
