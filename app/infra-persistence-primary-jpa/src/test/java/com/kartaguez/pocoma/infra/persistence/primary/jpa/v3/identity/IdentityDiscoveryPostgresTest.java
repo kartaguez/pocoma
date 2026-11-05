@@ -95,10 +95,14 @@ class IdentityDiscoveryPostgresTest extends IdentityEngineFixture {
                 tx.read(c -> completions.window(0, 3, c)).references().stream()
                         .map(x -> x.subjectType())
                         .toList());
+        var invitations =
+                new JdbcEventDiscoveryReferences(
+                        source, ConsumableFamily.INVITATION_EVENT, discoverySettings);
+        assertEquals(ConsumableFamily.INVITATION_EVENT, invitations.family());
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
                         new JdbcEventDiscoveryReferences(
-                                source, ConsumableFamily.INVITATION_EVENT, discoverySettings));
+                                source, ConsumableFamily.COMMAND, discoverySettings));
     }
 }
