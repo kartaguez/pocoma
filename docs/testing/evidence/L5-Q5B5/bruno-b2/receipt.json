@@ -1,0 +1,12 @@
+{
+  "provenance" : "PUBLIC_ADMISSION_I2; internal Link fixture remains L3 only",
+  "requests" : 443,
+  "command" : [ "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/.bin/bru", "run", "-r", "02 Admission and Commands", "--env", "Local", "--sandbox", "developer", "--noproxy", "--reporter-json", "/private/tmp/pocoma-q5b5-evidence-20261105/maven-full/bruno-b2/bruno.json", "--reporter-skip-all-headers", "--reporter-skip-body" ],
+  "actual" : [ "B201", "B202", "B203", "B204", "B205", "B206", "B207", "B208", "B209", "B210", "B211", "B212", "B213", "B214", "B215", "B216", "B217", "B218", "B219", "B220", "B221", "B222", "B223", "B224" ],
+  "monotonicSeconds" : 22.725208209,
+  "expected" : [ "B201", "B202", "B203", "B204", "B205", "B206", "B207", "B208", "B209", "B210", "B211", "B212", "B213", "B214", "B215", "B216", "B217", "B218", "B219", "B220", "B221", "B222", "B223", "B224" ],
+  "finishedAt" : "2026-11-05T20:36:58.177368Z",
+  "cliVersion" : "4.3.0",
+  "startedAt" : "2026-11-05T20:36:35.452076Z",
+  "exit" : 0
+}

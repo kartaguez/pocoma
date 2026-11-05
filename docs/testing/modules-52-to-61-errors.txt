@@ -1,0 +1,674 @@
+================================================================================
+JOURNAL D'EXÉCUTION ET DES ERREURS — MODULES 52 À 61
+Campagne non bloquante (-Dmaven.test.failure.ignore=true -rf :pocoma-runtime-monolith)
+Date : 2026-11-05T23:19:00.293355
+================================================================================
+
+1. TABLEAU RÉCAPITULATIF PAR MODULE
+--------------------------------------------------------------------------------
+Module                                             | Tests |  PASS |  FAIL |   ERR |  SKIP
+--------------------------------------------------------------------------------
+runtime-monolith                                   |    42 |    39 |     3 |     0 |     0
+runtime-web-api                                    |    65 |    65 |     0 |     0 |     0
+runtime-event-consumption-worker                   |    30 |    30 |     0 |     0 |     0
+runtime-command-result-consumption-worker          |     5 |     5 |     0 |     0 |     0
+runtime-registration-result-consumption-worker     |     4 |     4 |     0 |     0 |     0
+runtime-registration-consumption-worker            |     7 |     7 |     0 |     0 |     0
+runtime-latest-known-version-consumption-worker    |    11 |    11 |     0 |     0 |     0
+runtime-binding-consumption-worker                 |     7 |     7 |     0 |     0 |     0
+runtime-command-consumption-worker                 |   321 |   284 |     2 |    35 |     0
+architecture-tests                                 |   170 |   167 |     3 |     0 |     0
+--------------------------------------------------------------------------------
+TOTAL                                              |   662 |   619 |     8 |    35 |     0
+================================================================================
+
+2. INVENTAIRE EXHAUSTIF DES ANOMALIES ENCONTRÉES (43 ANOMALIES)
+
+--- Anomalie #01 [FAILURE] ---
+Module : runtime-monolith
+Test   : com.kartaguez.pocoma.V3AdmissionFlowPostgresTest#brunoB2PublicProtocol
+Durée  : 24.242 s
+Message: B2 failed or incomplete; inspect retained reports
+Détail :
+org.opentest4j.AssertionFailedError: B2 failed or incomplete; inspect retained reports
+	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:42)
+	at org.junit.jupiter.api.Assertions.fail(Assertions.java:143)
+	at com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.brunoB2PublicProtocol(V3AdmissionFlowPostgresTest.java:910)
+
+--- Anomalie #02 [FAILURE] ---
+Module : runtime-monolith
+Test   : com.kartaguez.pocoma.V3InvitationTopologyPostgresTest#targetThreeFourPartitionsConnectionsRenewalAndRestart
+Durée  : 11.503 s
+Message: expected: <PT3M> but was: <PT4M>
+Détail :
+org.opentest4j.AssertionFailedError: expected: <PT3M> but was: <PT4M>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:179)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1188)
+	at com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.targetThreeFourPartitionsConnectionsRenewalAndRestart(V3InvitationTopologyPostgresTest.java:90)
+
+--- Anomalie #03 [FAILURE] ---
+Module : runtime-monolith
+Test   : com.kartaguez.pocoma.V3LinkBrunoPostgresTest#realKeycloakLinkProtocol
+Durée  : 7.23 s
+Message: Bruno failed: see retained output ==> expected: <0> but was: <2>
+Détail :
+org.opentest4j.AssertionFailedError: Bruno failed: see retained output ==> expected: <0> but was: <2>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:152)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:590)
+	at com.kartaguez.pocoma.V3LinkBrunoPostgresTest.realKeycloakLinkProtocol(V3LinkBrunoPostgresTest.java:58)
+
+--- Anomalie #04 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest#i5_m01
+Durée  : 6.788 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest.i5_m01(V3WorkerMetricsTest.java:164)
+
+--- Anomalie #05 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest#i5_m02
+Durée  : 2.415 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest.i5_m02(V3WorkerMetricsTest.java:191)
+
+--- Anomalie #06 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest#i5_m03
+Durée  : 2.38 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest.i5_m03(V3WorkerMetricsTest.java:260)
+
+--- Anomalie #07 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w01
+Durée  : 2.405 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w01(V3WorkerPostgresTest.java:609)
+
+--- Anomalie #08 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w02
+Durée  : 2.394 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w02(V3WorkerPostgresTest.java:654)
+
+--- Anomalie #09 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w03
+Durée  : 1.816 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w03(V3WorkerPostgresTest.java:791)
+
+--- Anomalie #10 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w04
+Durée  : 11.474 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w04(V3WorkerPostgresTest.java:825)
+
+--- Anomalie #11 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w05
+Durée  : 11.562 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w05(V3WorkerPostgresTest.java:3500)
+
+--- Anomalie #12 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w06
+Durée  : 11.581 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w06(V3WorkerPostgresTest.java:3245)
+
+--- Anomalie #13 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w07
+Durée  : 11.582 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w07(V3WorkerPostgresTest.java:877)
+
+--- Anomalie #14 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w08
+Durée  : 6.434 s
+Message: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+Détail :
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:610)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:597)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:80)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:607)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:519)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+
+--- Anomalie #15 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w09
+Durée  : 11.527 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w09(V3WorkerPostgresTest.java:972)
+
+--- Anomalie #16 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w10
+Durée  : 11.528 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w10(V3WorkerPostgresTest.java:1601)
+
+--- Anomalie #17 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w11
+Durée  : 11.561 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.unresolvedPhysical(V3WorkerPostgresTest.java:1857)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.unresolvedPhysical(V3WorkerPostgresTest.java:1837)
+
+--- Anomalie #18 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w12
+Durée  : 11.569 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w12(V3WorkerPostgresTest.java:1050)
+
+--- Anomalie #19 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w13
+Durée  : 6.402 s
+Message: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+Détail :
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:610)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:597)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:80)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:607)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:519)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+
+--- Anomalie #20 [FAILURE] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w14
+Durée  : 6.794 s
+Message: child did not reach CRASH_BOUNDARY admission; exit=1 ==> expected: <true> but was: <false>
+Détail :
+org.opentest4j.AssertionFailedError: child did not reach CRASH_BOUNDARY admission; exit=1 ==> expected: <true> but was: <false>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:69)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:41)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:228)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Child.stage(V3WorkerPostgresTest.java:2144)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w14(V3WorkerPostgresTest.java:2870)
+
+--- Anomalie #21 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w15
+Durée  : 11.688 s
+Message: Error creating bean with name 'v3WorkerResources' defined in com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active: Failed to instantiate [com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources]: Factory method 'v3WorkerResources' threw exception with message: physical pool reserve not established
+Détail :
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'v3WorkerResources' defined in com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active: Failed to instantiate [com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources]: Factory method 'v3WorkerResources' threw exception with message: physical pool reserve not established
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:657)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:645)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1362)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1194)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:565)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+
+--- Anomalie #22 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w16
+Durée  : 11.495 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w16(V3WorkerPostgresTest.java:2948)
+
+--- Anomalie #23 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w17
+Durée  : 11.561 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w17(V3WorkerPostgresTest.java:1098)
+
+--- Anomalie #24 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w18
+Durée  : 11.564 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:517)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w18(V3WorkerPostgresTest.java:1470)
+
+--- Anomalie #25 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w19
+Durée  : 6.463 s
+Message: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+Détail :
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:610)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:597)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:80)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:607)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:519)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+
+--- Anomalie #26 [FAILURE] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w20
+Durée  : 6.859 s
+Message: child did not reach CONTROL_OPERATION_UNKNOWN; exit=1 ==> expected: <true> but was: <false>
+Détail :
+org.opentest4j.AssertionFailedError: child did not reach CONTROL_OPERATION_UNKNOWN; exit=1 ==> expected: <true> but was: <false>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:69)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:41)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:228)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Child.stage(V3WorkerPostgresTest.java:2144)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.i5_w20(V3WorkerPostgresTest.java:2709)
+
+--- Anomalie #27 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest#i5_w21
+Durée  : 6.42 s
+Message: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+Détail :
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: FATAL: remaining connection slots are reserved for roles with the SUPERUSER attribute
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:610)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:597)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:80)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:607)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:519)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+
+--- Anomalie #28 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r01
+Durée  : 2.371 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r01(V3WorkerResourcesPostgresTest.java:1103)
+
+--- Anomalie #29 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r02
+Durée  : 2.344 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.controlStress(V3WorkerResourcesPostgresTest.java:1587)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r02(V3WorkerResourcesPostgresTest.java:1710)
+
+--- Anomalie #30 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r03
+Durée  : 2.38 s
+Message: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+Détail :
+java.lang.NoSuchMethodException: com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active.v3ConsumptionWorker(com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources,com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings,com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard,com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity,com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation)
+	at java.base/java.lang.Class.getDeclaredMethod(Class.java:2848)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:531)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r03(V3WorkerResourcesPostgresTest.java:1862)
+
+--- Anomalie #31 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r04
+Durée  : 10.928 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r04(V3WorkerResourcesPostgresTest.java:1932)
+
+--- Anomalie #32 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r05
+Durée  : 10.962 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:599)
+	at com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:592)
+
+--- Anomalie #33 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r06
+Durée  : 10.993 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r06(V3WorkerResourcesPostgresTest.java:2645)
+
+--- Anomalie #34 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r07
+Durée  : 10.885 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r07(V3WorkerResourcesPostgresTest.java:2365)
+
+--- Anomalie #35 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r08
+Durée  : 10.914 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r08(V3WorkerResourcesPostgresTest.java:2422)
+
+--- Anomalie #36 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r09
+Durée  : 10.97 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r09(V3WorkerResourcesPostgresTest.java:2759)
+
+--- Anomalie #37 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r10
+Durée  : 11.013 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r10(V3WorkerResourcesPostgresTest.java:2244)
+
+--- Anomalie #38 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r11
+Durée  : 10.971 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r11(V3WorkerResourcesPostgresTest.java:931)
+
+--- Anomalie #39 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r12
+Durée  : 10.982 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:599)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r12(V3WorkerResourcesPostgresTest.java:910)
+
+--- Anomalie #40 [ERROR] ---
+Module : runtime-command-consumption-worker
+Test   : com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r05_discovery_skip_locked_interleaving
+Durée  : 10.976 s
+Message: physical pool reserve not established
+Détail :
+java.lang.IllegalStateException: physical pool reserve not established
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.open(V3ConsumptionWorkerConfiguration.java:620)
+	at com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Resources.<init>(V3ConsumptionWorkerConfiguration.java:516)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:523)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.<init>(V3WorkerPostgresTest.java:485)
+	at com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r05_discovery_skip_locked_interleaving(V3WorkerResourcesPostgresTest.java:1991)
+
+--- Anomalie #41 [FAILURE] ---
+Module : architecture-tests
+Test   : com.kartaguez.pocoma.architecture.HexagonalArchitectureTest#projectionContractsEngineDependsOnlyOnTheJdkAndProjectionDomain
+Durée  : 0.003 s
+Message: engine-projection-contracts must depend only on the JDK and domain-projection ==> expected: <[]> but was: <[com.kartaguez.pocoma.domain.pot.v3.Invitation]>
+Détail :
+org.opentest4j.AssertionFailedError: engine-projection-contracts must depend only on the JDK and domain-projection ==> expected: <[]> but was: <[com.kartaguez.pocoma.domain.pot.v3.Invitation]>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+	at com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.projectionContractsEngineDependsOnlyOnTheJdkAndProjectionDomain(HexagonalArchitectureTest.java:364)
+
+--- Anomalie #42 [FAILURE] ---
+Module : architecture-tests
+Test   : com.kartaguez.pocoma.architecture.HexagonalArchitectureTest#potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts
+Durée  : 0.001 s
+Message: engine-read-pot must depend only on the JDK, authorization and Pot domains, domain-projection, engine-projection-read and the exact V3 READ ports ==> expected: <[]> but was: <[com.kartaguez.pocoma.port.projection.v3.InvitationStore]>
+Détail :
+org.opentest4j.AssertionFailedError: engine-read-pot must depend only on the JDK, authorization and Pot domains, domain-projection, engine-projection-read and the exact V3 READ ports ==> expected: <[]> but was: <[com.kartaguez.pocoma.port.projection.v3.InvitationStore]>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1199)
+	at com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts(HexagonalArchitectureTest.java:435)
+
+--- Anomalie #43 [FAILURE] ---
+Module : architecture-tests
+Test   : com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest#admissionHasNoBusinessAuthorityOrFramework
+Durée  : 0.002 s
+Message: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in any package ['com.kartaguez.pocoma.engine.admit.command.v3..', 'com.kartaguez.pocoma.engine.admit.registration.v3..'] should depend on classes that reside in any package ['com.kartaguez.pocoma.infra..', 'com.kartaguez.pocoma.runtime..', 'com.kartaguez.pocoma.supra..', 'com.kartaguez.pocoma.engine.read..', 'org.springframework..', 'java.sql..', 'javax.sql..']' was violated (2 times):
+Method <com.kartaguez.pocoma.engine.admit.command.v3.CommandAdmissionInput.decode(java.lang.Object, com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand$Eui, int)> calls method <java.sql.Timestamp.from(java.time.Instant)> in (CommandAdmissionInput.java:76)
+Method <com.kartaguez.pocoma.engine.admit.command.v3.CommandAdmissionInput.decode(java.lang.Object, com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand$Eui, int)> calls method <java.sql.Timestamp.toInstant()> in (CommandAdmissionInput.java:76)
+Détail :
+java.lang.AssertionError:
+Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in any package ['com.kartaguez.pocoma.engine.admit.command.v3..', 'com.kartaguez.pocoma.engine.admit.registration.v3..'] should depend on classes that reside in any package ['com.kartaguez.pocoma.infra..', 'com.kartaguez.pocoma.runtime..', 'com.kartaguez.pocoma.supra..', 'com.kartaguez.pocoma.engine.read..', 'org.springframework..', 'java.sql..', 'javax.sql..']' was violated (2 times):
+Method <com.kartaguez.pocoma.engine.admit.command.v3.CommandAdmissionInput.decode(java.lang.Object, com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand$Eui, int)> calls method <java.sql.Timestamp.from(java.time.Instant)> in (CommandAdmissionInput.java:76)
+Method <com.kartaguez.pocoma.engine.admit.command.v3.CommandAdmissionInput.decode(java.lang.Object, com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand$Eui, int)> calls method <java.sql.Timestamp.toInstant()> in (CommandAdmissionInput.java:76)
+	at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+	at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+	at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+	at com.tngtech.archunit.lang.syntax.ObjectsShouldInternal.check(ObjectsShouldInternal.java:81)
+	at com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest.admissionHasNoBusinessAuthorityOrFramework(V3AdmissionArchitectureTest.java:39)
