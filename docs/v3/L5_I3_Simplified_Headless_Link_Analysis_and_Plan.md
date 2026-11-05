@@ -4,7 +4,7 @@ Date : **5 novembre 2026**. Dépôt : `kartaguez/pocoma`. Branche vérifiée : `
 
 **ANALYSIS + PLANNING ONLY — NO IMPLEMENTATION — NO GO I3.**
 
-HEAD effectivement inspecté : **`2a775a414637684d77485ff3fe1b9c5bf92e8f56`**, identique à la référence initiale fournie ; arbre initial propre. Les constats de code ci-dessous portent sur ce SHA. Le commit documentaire futur ne sera pas un SHA applicatif qualifié.
+HEAD effectivement inspecté : **`2a775a414637684d77485ff3fe1b9c5bf92e8f56`**, identique à la référence initiale fournie ; arbre initial propre. Les constats de code ci-dessous portent sur ce SHA. Le plan initial a été publié au commit documentaire `0b1e8be7dc5e7417ff7fc2d9f10cd001aeb4d760`, également HEAD vérifié au début de la révision H1, avec arbre propre. Cette révision reste documentaire et ne produit aucun SHA applicatif qualifié.
 
 ## 1. Synthèse et verdict
 
@@ -12,9 +12,11 @@ Retenir **une proposition persistée distincte d'IdentityRequest** : une table n
 
 E1 demeure l'initiatrice et la propriétaire du résultat. E2 est l'actrice de l'acceptation, exclusivement identifiée par son JWT validé ; elle ne remplace jamais `requesterEui=E1` dans IdentityRequest. L'admission conserve séparément ces deux provenances. E1 n'intervient plus après l'acceptation. Un `202` signifie uniquement une admission durable ; le succès métier est `CHANGED` dans le résultat terminal projeté.
 
-**Verdict : BLOCKED pour approbation d'un plan exécutable en l'état**, pour une tension précise à arbitrer, en plus de la ratification normative requise : « Binding actif dès la création » peut signifier actif dans READ ou réellement actif dans WRITE. Le premier est compatible avec l'admission déclarative actuelle, mais ne garantit pas le second. Ne pas présenter une projection potentiellement périmée comme preuve d'activité WRITE. La mission n'autorise pas à affaiblir cette garantie.
+**Décision humaine H1 — A-READ APPROUVÉ.** Source : instruction explicite du responsable dans la conversation « Décision humaine L5/I3 — H1 : A-READ approuvé ». L'autorité métier est évaluée exclusivement au traitement effectif dans **Identity WRITE**, jamais à la création ou à l'admission d'une intention. Le contrôle READ éventuel du Binding E1 est indicatif ; son obsolescence est acceptée. Cette décision réaffirme la séparation admission/exécution, sans créer d'exception architecturale.
 
-Le dossier propose donc un chemin minimal **A-READ** entièrement décrit, mais **conditionnel et non retenu comme satisfaisant la lecture stricte de cette garantie** ; il décrit aussi le chemin **A-STRICT** nécessaire si l'exigence est littérale (§7.4). La représentation recommandée reste A dans les deux cas. Avant GO, le responsable doit choisir explicitement la sémantique et approuver son impact normatif/transactionnel. Aucun blocage technique n'est allégué sur Link L3 lui-même. Le présent document est prêt à la revue humaine ; il n'est ni une SPEC publiée ni une autorisation de réalisation.
+**Verdict réévalué : READY FOR PLAN APPROVAL.** Le blocage H1 est levé ; aucun contrôle WRITE à la création n'est requis. A-READ est le chemin retenu du plan. WEB n'accède pas synchroniquement à l'autorité métier Identity WRITE, ne prend aucun verrou métier à la création et n'introduit aucun port d'autorité WRITE. Si E1 perd son autorité avant l'exécution, L3 rejette normalement Link. Les transactions et verrous techniques de proposition/admission restent nécessaires à l'atomicité et à l'anti-rejeu.
+
+Le plan reste soumis à validation humaine globale ; **H2 à H5 demeurent à ratifier séparément**, notamment les amendements de consentement, le contrat HTTP et le GO d'exécution. L'approbation de H1 ne ratifie pas ces autres décisions, ne publie aucune SPEC et ne constitue **aucun GO d'implémentation**.
 
 ## 2. Autorités et frontière de vérification
 
@@ -31,17 +33,17 @@ Références lues : [SPEC-02](SPEC-02_Identity_Domain.md), [SPEC-06](SPEC-06_Sup
 | Slice secondaire | **COMMAND** — admission et consommation Identity, interaction avec autorité L3 ; pas le runtime BINDING historique |
 | PROJECTION | Aucun comportement modifié prévu : CurrentBinding et IdentityResult existants ; ajouter PROJECTION seulement si leur matérialisation change effectivement |
 | Monolithe | Racine d'assemblage à vérifier par quelques méthodes ciblées, pas une nouvelle slice ni motif d'ajouter tous ses tests à chaque feedback |
-| Interdit | Nouveau moteur/worker, changement L2 claims/lease/routing, nouvelle transition Identity, modifications Pot, Invitation, LKV, publication/suffixe partagés, POM/module nouveau sans redéclaration |
+| Interdit | Accès synchrone WEB à l'autorité métier Identity WRITE, verrou métier à la création, nouveau port d'autorité WRITE, exception admission/exécution ; nouveau moteur/worker, changement L2 claims/lease/routing, nouvelle transition Identity, modifications Pot, Invitation, LKV, publication/suffixe partagés, POM/module nouveau sans redéclaration |
 | DB | **CURRENT V3**, migration additive après V8 ; aucune baseline TRUSTED supposée |
-| Architecture | Lecture de provenance à deux acteurs et nouvelle frontière de proposition ; tests structurels locaux ciblés. Toute frontière/ACL d'autorité modifiée, notamment A-STRICT, déclenche §17 : **REQUIRED — NOT RUN — DEFERRED TO Q5 BY EXPLICIT HUMAN INSTRUCTION** selon clôture I2 §5 |
+| Architecture | Lecture de provenance à deux acteurs et nouvelle frontière de proposition ; tests structurels locaux ciblés. Toute modification de frontière architecturale ou d'ACL relevant de §17 déclenche la gate globale ; H1 n'introduit aucune exception d'autorité. Statut des obligations ainsi déclenchées : **REQUIRED — NOT RUN — DEFERRED TO Q5 BY EXPLICIT HUMAN INSTRUCTION** selon clôture I2 §5 |
 | Full | Aucun full en I3 ; full natif unique à **Q5**, D6, sous couverture effective. Pas de dispense acquise pour une nouvelle restructuration large |
-| Escalade | Dépendance/POM nouveau, transaction partagée modifiée, lecture WRITE ajoutée, traitement READ/projection nouveau, changement de contrat L3 : arrêter, expliquer et redéclarer avant code concerné |
+| Escalade | Dépendance/POM nouveau, transaction partagée modifiée, traitement READ/projection nouveau, changement de contrat L3 : arrêter, expliquer et redéclarer avant code concerné. Un accès WEB à l'autorité métier WRITE contreviendrait à H1 et ne peut être introduit par simple extension du scope |
 
 Les obligations canoniques et filtrées sont distinguées au §11. Il n'est proposé **aucun rejeu de tous les modules amont d'Architecture en I3**.
 
 ## 3. Décision fonctionnelle proposée et limites
 
-1. E1 authentifiée propose de rattacher E2 au compte que désigne **son occurrence de Binding**, jamais à un UserId choisi par le client.
+1. E1 authentifiée propose de rattacher E2 au compte que désigne **son occurrence de Binding déclarée**, jamais à un UserId choisi par le client. Le contrôle READ de cette occurrence reste indicatif ; seule l'exécution Identity WRITE vérifie l'autorité métier courante et résout U pour effectuer Link. La création ou l'admission ne garantit jamais que le Link sera autorisé à l'exécution.
 2. La proposition n'est pas une demande métier déjà admise : ni slot, ni événement, ni résultat Identity avant acceptation.
 3. E2 s'authentifie chez son propre IdP ; le client affiche le récapitulatif puis envoie le POST d'acceptation. La possession du lien/UUID ou un login/GET seul ne vaut pas accord.
 4. Pocoma constate cette action HTTP explicite de l'EUI cible et en conserve la provenance serveur. Un JWT ordinaire sert à AuthN, pas à porter un octroi Link autonome.
@@ -68,7 +70,7 @@ Chemins relatifs au dépôt ; classes Java sous `src/main/java/com/kartaguez/poc
 | Même module, `AdmissionSqlTransactions.java` / `AdmissionSqlAuthority.java` | Observation physique des issues incertaines, propriétaire de transaction, contrôles effectifs de privilèges/logs par colonne. Étendre seulement l'inventaire nécessaire, jamais rétablir SELECT global sur les demandes ou tokens d'autorité |
 | `engine-consume-registration/.../v3/ExecuteIdentityRequest.java` | Link existe, intention rechargée/immuable, E1/E2 verrouillées en ordre canonique, autorité courante, résultat/completion/publication. Réemploi sans nouveau participant ni traitement dans HTTP |
 | `domain-user-identity/.../v3/IdentityTransitions.java` | `link` contrôle token E1 courant et E2 non liée, déduit U de E1, token neuf ; rejet strict même si E2 déjà au même U. Aucune modification fonctionnelle prévue |
-| Persistence `.../v3/identity/JdbcIdentityAuthority.java`, `JdbcIdentityRequestStore.java`, `IdentityRequestJson.java` | Autorité/histoire/token et sérialisation d'admission existants. `lockInCanonicalOrder` peut insérer une ancre : **ne pas le réutiliser naïvement** pour une simple vérification pré-proposition absente (§7.4) |
+| Persistence `.../v3/identity/JdbcIdentityAuthority.java`, `JdbcIdentityRequestStore.java`, `IdentityRequestJson.java` | Autorité/histoire/token conservés exclusivement dans le traitement WRITE existant ; aucune de ces capacités d'autorité n'est appelée à la création/admission WEB. Réutiliser la sérialisation d'admission sans exposer le port d'autorité (§7.4) |
 | `supra-http-write/.../v3/V3AdmissionController.java`, `V3AdmissionTransport.java` | Bearer, corps borné, champs fermés, médias, quotas jusqu'à issue physique et envoi. Étendre à routes Link : patterns de filtre et `shouldNotFilter` sont tous deux actuellement limités aux deux POST I2 |
 | `composition-runtime-spring/.../v3/V3AdmissionHttpConfiguration.java`, `V3ReadHttpConfiguration.java` | Assemblage WEB/Monolithe explicite, pools séparés, préflight, JWT RS256, signature/JWKS, issuer exact, audience, temps et claims requis ; `/api/v3/**` authentifié. Ne pas réutiliser la configuration V1 historique |
 | `engine-read-current-binding/.../v3/GetCurrentBindingV3.java` et `supra-http-read/.../v3/V3ReadController.java` | Binding propre sans token entrant ; résultat Identity propriété E1, 404 avant projection/non-autorisé et 503 de disponibilité ; réemploi |
@@ -80,14 +82,14 @@ Chemins relatifs au dépôt ; classes Java sous `src/main/java/com/kartaguez/poc
 
 Aucune simple présence de JSONB de provenance ne prouve AuthN ou consentement. `AdmissionContext.attestations` est une map générique, pas un validateur. La nouvelle provenance doit être produite uniquement par le service d'acceptation et testée avec le véritable Resource Server.
 
-## 5. Écarts normatifs et projets d'amendements — NON APPLIQUÉS
+## 5. Clarification H1 et amendements SPEC proposés — NON APPLIQUÉS AUX SPEC
 
-Ces textes sont des propositions de remplacement ciblé. Le mandat fonctionnel oriente le travail, mais **ne publie pas les amendements aux SPEC**. L'ancien contrat reste normatif jusqu'à ratification/publication distincte.
+**H1 est approuvée comme invariant explicite de ce plan** : les formulations ambiguës sur « Binding actif à la création » se lisent comme un contrôle READ indicatif, sans autorisation métier préalable. Cette clarification réaffirme la séparation déjà prescrite par SPEC-02 §5 et SPEC-06 §§1–2. Les autres textes ci-dessous restent des propositions de remplacement ciblé, **non ratifiées et non publiées dans les SPEC** ; leurs exigences actuelles, notamment d'attestation externe de consentement, restent à amender séparément.
 
-| Référence précise | Incompatibilité / conservation | Amendement à soumettre |
+| Référence précise | Incompatibilité / conservation | Clarification approuvée ou amendement à soumettre |
 |---|---|---|
 | SPEC-02 §4 dernier tiret, §5 « Décision validée » et « Contrat maintenu » | Exige serveur d'autorisation qualifié délivrant une preuve ; RAR déjà facultatif. Nouvelle action directement sur Pocoma | « Pour ce protocole, le consentement est constaté par un POST explicite de l'EUI cible authentifiée sur une proposition immuable, expirante et identifiée. L'IdP authentifie ; aucun serveur d'autorisation ni octroi JWT spécifique n'est requis. » Conserver intégrité, audience JWT, expiration, anti-rejeu, admission unique et revalidation L3 |
-| SPEC-02 §5 admission déclarative sans lecture WRITE ; SPEC-06 §§1–2 | A-READ ne prouve pas activité WRITE à création ; A-STRICT requiert exception nouvelle | Arbitrage H1 obligatoire (§7.4). Pour A-STRICT : exception limitée **avant admission Identity**, à la seule vérification E1/token dans une transaction de création de proposition ; aucun contrôle E2 ni exécution Link anticipée. Ne pas étendre cette exception aux admissions I2 ou à `accept` |
+| SPEC-02 §4 précondition E1 liée, §5 admission déclarative sans lecture WRITE ; SPEC-06 §§1–2 | La précondition métier E1 active s'applique à l'exécution ; ne pas la transformer en contrôle WRITE à la création/admission | **H1 APPROUVÉE — clarification du plan, aucune exception à proposer.** « La création peut contrôler indicativement le Binding E1 depuis READ, avec obsolescence acceptée. Seul Identity WRITE vérifie l'autorité métier lors du traitement effectif et rejette Link si E1 a perdu son autorité. » Aucun accès synchrone WEB à l'autorité WRITE, verrou métier ou nouveau port d'autorité |
 | SPEC-02 §5 récapitulatif | Identité E1 et nombre indicatif de Pots par CurrentUserPotList ; source existante mais count non fourni | Conserver identité E1/action/E2/expiration ; autoriser explicitement `potCount=null` et date/source lorsque compteur indisponible, conformément à la nouvelle décision « lorsque disponible ». Pas de liste de Pots ni UserId ; absence du compteur n'invalide pas le consentement |
 | SPEC-06 §2 tableau Identité/protocole, ADM-01(H), premier dépôt et paragraphe Link S-03, §3 | Attestation **externe** non rejouée obligatoire ; « aucune admission sans preuve » reste essentiel | Remplacer la nature de preuve par action E2 authentifiée liée à proposition ; distinguer création de proposition (durable technique) et admission Identity. Refus d'acceptation = zéro **nouvelle** IdentityRequest/association/événement, pas forcément zéro proposition déjà existante |
 | SPEC-06 §2 S-03 / §7 binding propre / §8 résultats | S-03 exige clé client ; résultat appartient à E1, binding à E2 | Conserver S-03 client à création ; préciser idempotence naturelle de `accept` par linkRequestId et association interne (§7.2), sans nouvelle clé libre. Conserver propriété résultat E1 et impossibilité E1→token E2 |
@@ -139,7 +141,7 @@ Toutes les réponses `Cache-Control: no-store`, JSON borné, erreurs générique
 | Tables/migrations | 1 table + 1 migration additive ; association d'admission réutilisée | 0 table avant acceptation, mais anti-rejeu durable à acceptation ; table/contrainte de grant ou adaptation association existante ; migration probable |
 | États | Non acceptée/acceptée ; expiration dérivée | Pas d'état avant acceptation ; état durable consommé malgré tout nécessaire après |
 | Confidentialité | Token E1 stocké avec ACL/logs protégés, jamais sorti | Signature seule laisse token E1 lisible par E2/client : chiffrement authentifié ou référence protégée supplémentaire nécessaire |
-| Intention/autorité E1 | Capture durable d'AuthN E1 + occurrence/token, indépendante de validité future de JWT | Contexte E1 signé et éventuellement chiffré à conserver ; JWT E1 ordinaire expiré ne suffit pas ; nouvelle responsabilité cryptographique |
+| Intention/occurrence de Binding E1 | Capture durable d'AuthN E1 + occurrence/token, indépendante de validité future de JWT | Contexte E1 signé et éventuellement chiffré à conserver ; JWT E1 ordinaire expiré ne suffit pas ; nouvelle responsabilité cryptographique |
 | Concurrence/anti-rejeu | Verrou de ligne, FK/unique, même id ; admission indivisible | Vérification signature ne consomme rien ; unique digest/jti durable atomique avec admission toujours nécessaire |
 | Idempotence create | Clé E1 + empreinte dans même ligne ; retrouve id après réponse perdue | Sans persistance, retry doit redonner même id/intent/expiration ou retourner un autre grant : dérivation déterministe, fenêtre de clés et règles supplémentaires |
 | Expiration | Heure DB après verrou, pas de tâche | Heure serveur à vérifier avant insertion durable ; expiration de blob vs replay consommé à ordonner |
@@ -185,15 +187,17 @@ Rollback avant commit : proposition non acceptée, aucune nouvelle association/d
 
 Aucune nouvelle fenêtre entre « acceptée » et « admise » ; les deux sont committées ensemble. La réussite métier et sa publication restent dans une **autre transaction L2/L3**, entièrement autoritative et inchangée.
 
-### 7.4 Création : conflit de garantie à arbitrer H1
+### 7.4 Création : invariant H1 approuvé — A-READ
 
-**A-READ, coût minimal compatible avec l'architecture actuelle :** E1 validée, token obligatoire ; contrôler son propre CurrentBinding READ actif/token concordant par port typé, avant création de proposition. Ne jamais utiliser le UserId client ni un Binding tiers. Pas de lecture WRITE ; E1 peut avoir perdu son Binding dans WRITE alors que READ est en retard. L3 rejettera ensuite et aucun Link indu n'aura lieu. Cette garantie est « création réservée à une EUI avec Binding actif **selon READ** », pas la garantie stricte formulée dans la mission. Le contrôle READ n'est pas une certification métier.
+**L'autorité métier est évaluée exclusivement au traitement effectif dans Identity WRITE.** La création et l'admission capturent une intention ; elles ne certifient ni le Binding WRITE courant de E1, ni la disponibilité de E2, ni l'autorisation métier future du Link. Un contrôle READ ne devient jamais une seconde autorité métier.
 
-**A-STRICT, nécessaire si activité WRITE à création est impérative :** ajouter une exception normative circonscrite et un port de vérification d'autorité E1 à la création. Il doit verrouiller l'ancre E1 existante, vérifier version courante liée et token exact, puis insérer la proposition **dans la même transaction physique**, verrou E1 conservé jusqu'au commit. Aucun insert d'ancre pour une E1 absente, aucun contrôle de disponibilité E2, aucun effet Identity. Un Unlink concurrent est ordonné avant ou après cette création ; un Unlink ultérieur reste libre de rendre la demande inexécutable.
+Le chemin A-READ du plan utilise le propre CurrentBinding READ de E1 pour un contrôle indicatif actif/token concordant, par port typé ; E1 reste déduite du principal et le token déclaré est conservé immuable. Une incohérence visible dans READ peut entraîner un refus de création, une indisponibilité READ une réponse technique, sans recherche de confirmation dans WRITE. Rechercher d'abord une proposition déjà créée sous la même clé S-03 : sa répétition conserve l'id et l'intention initiaux sans refaire ce contrôle indicatif contre des projections nouvelles. AuthN et comparaison de l'intention restent exigées pour le replay.
 
-Ce port n'existe pas sous cette forme aujourd'hui. Ne pas passer par `JdbcIdentityAuthority.lockInCanonicalOrder` qui peut insérer une ancre, ne pas imbriquer les transactions d'admission et WRITE, ne pas exposer le WRITE métier au rôle admission I2 par un SELECT global. Le futur plan STRICT doit isoler une autorité de création adaptée, avec droits de colonnes minimaux et préflight/logs propres, ou une capacité d'autorité équivalente revue ; vérifier la compatibilité avec le propriétaire physique/JPA qualifié L3. L'ajout d'un pool/role WEB et son allocation de capacité ne sont **pas** déjà budgétés ni approuvés. Aucun SECURITY DEFINER de commodité pour contourner le préflight existant.
+**Obsolescence READ acceptée :** E1 peut déjà avoir perdu son Binding dans WRITE alors que READ le présente encore actif. La proposition peut alors être créée puis admise après acceptation E2 ; cela n'autorise aucun effet Identity. Au traitement, L3 vérifie son autorité courante et le token d'occurrence initial sous ses protections transactionnelles normales, puis rejette Link si E1 n'a plus cette autorité. Une perte après création ou admission suit la même règle ; aucun rejet anticipé WRITE n'est requis.
 
-**Recommandation fonctionnelle : conserver la lecture stricte tant qu'une décision humaine ne l'a pas amendée.** Par conséquent le plan A-READ reste une alternative de simplification, et le plan d'exécution STRICT doit être complété/revu avant approbation exécutable. Ce point est une vraie frontière d'autorité, pas un test à supprimer ni un détail laissé à l'implémentation. `accept` reste déclaratif et sans traitement métier synchrone dans les deux variantes.
+**Interdictions invariantes :** aucun accès synchrone à l'autorité Identity WRITE depuis WEB, aucun verrou métier à la création, aucun nouveau port d'autorité WRITE et aucune exception à la séparation admission/exécution. Les verrous techniques de proposition/admission nécessaires à l'unicité et à l'atomicité (§7.3) ne sont pas des verrous d'autorité métier EUI. Les verrous métier L3 existants restent exclusivement dans le traitement effectif.
+
+La variante de contrôle WRITE à la création précédemment envisagée est retirée du plan. Aucun complément de source/owner/role/pool d'autorité ni preuve de sérialisation métier create/Unlink n'est nécessaire. **L'absence de vérification WRITE à la création ne bloque pas I3.** Les tests prouvent à la place l'obsolescence READ acceptée, l'absence de consultation d'autorité WRITE par WEB et le rejet métier normal par L3.
 
 ## 8. Garanties : propriétaires et preuves
 
@@ -201,7 +205,7 @@ Les identifiants de tests futurs sont définis au §11 ; ce tableau n'affirme au
 
 | Invariant / risque | Garantie proposée et propriétaire | Preuve décisive |
 |---|---|---|
-| 1. Création E1 authentifiée/Binding actif | HTTP AuthN + token ; activité READ en A-READ, WRITE atomique **non résolue** en A-STRICT | F01/F02, P01 ; preuve race create/Unlink à ajouter pour STRICT ; H1 bloquant |
+| 1. Création E1 authentifiée / contrôle READ indicatif | HTTP AuthN + token déclaré ; contrôle READ sans autorisation métier, obsolescence acceptée (**H1 APPROUVÉE**). Seul L3 vérifie le Binding WRITE courant | F01/F02, P01/P10, H04 ; READ périmé peut permettre la proposition/admission, puis rejet WRITE sans effet E2 |
 | 2–4. E2 propre IdP, couple exact, aucune sélection client | Resource Server vérifie signature, trust, audience/temps ; principal E2 confronté à cible immuable ; accept sans EUI entrante | F03/F04, H01/H02 ; B302/B303/B304/B305 |
 | 5. Intention immuable | Service + PG colonnes/triggers, occurrence E1 conservée ; aucun PATCH ; données serveur | F05, P02, B308 ; aucune substitution requester=E2 |
 | 6. Expiration serveur | Heure DB après verrou ; date initiale inchangée ; replay déjà admis avant contrôle d'expiration | F06, P03, B306/B307 |
@@ -230,11 +234,10 @@ L'anti-rejeu ne dépend pas du seul fait qu'E2 reste liée : rejouer après un U
 | SQL adapter | `infra-persistence-primary-jpa/.../v3/JdbcLinkProposalStore.java`, chemin Link dédié de `JdbcAdmissionStore.java` ou adapter dédié utilisant la même source/owner ; `AdmissionSqlAuthority.java` |
 | Migration | **Une** migration additive proposée `db/v3-admission/migration/V9__link_proposals.sql`, numéro à revérifier au GO. Table, checks/indexes/immutabilité/liaison différée ; aucune modification V6/V7/V8, aucune migration READ par défaut |
 | Grants/runtime | `scripts/v3/grant-l5-admission.sql`, `V3AdmissionHttpConfiguration.java`, préflights/allowlists des racines V3 affectés. Pas d'ouverture Link brute dans `IdentityAdmissionInput.decode` |
-| READ optionnel | Si compteur exigé : `PotVisibilityStore`, adapter JDBC, contrat READ spécialisé et façade typée ; delta partagé à redéclarer. Si A-READ : adaptation typée du contrôle de propre Binding existant, sans fuite du token dans réponse |
-| Variante STRICT | Port/adapter vérification E1 + isolation de source/role/capacité et grants spécifiques, tests de création contre Unlink ; **inventaire exact complémentaire requis avant GO**, pas ajout silencieux au scope A-READ |
+| READ | A-READ retenu : adaptation typée du contrôle indicatif de propre Binding existant, sans fuite du token dans réponse ni accès à l'autorité WRITE. Si compteur exigé : `PotVisibilityStore`, adapter JDBC, contrat READ spécialisé et façade typée ; delta partagé à redéclarer |
 | Tests | Classes et méthodes futures §11 ; adaptations ciblées B221, `linkIsNotPublic`, `linkAndInvitationNotExposed`, tests de transport/allowlists et fixtures de composition |
 | Bruno/outillage | `scripts/bruno-v3/03 Link Requests/`, Coverage/README/environnements sans secrets ; recettes `l5-i3-fast`, `l5-i3-integration` dans `scripts/testing/verification-campaigns.json` après revue du collecteur |
-| Normatif, mission distincte | Amendements SPEC-02/06/10, synchronisation plan global L5/Master/index et décisions H1…H5 ; préserver clôtures/manifestes/archives |
+| Normatif, mission distincte | Amendements SPEC-02/06/10, synchronisation plan global L5/Master/index, reprise de H1 approuvée et ratification distincte de H2…H5 ; préserver clôtures/manifestes/archives |
 
 La migration CURRENT devra s'appliquer au V3 actuel V1…V8 par les loaders V3 réellement utilisés, puis V9 ; cette chaîne courte V3 n'est pas une baseline certifiée. La politique indique **Trusted baseline NONE** : ne pas inventer un snapshot de confiance. Pas de campagne des migrations historiques V2 V1…V23 par défaut ; si une commande canonique les entraîne effectivement, les compter et les rapporter, sans prétendre les avoir exclues.
 
@@ -242,9 +245,9 @@ La migration CURRENT devra s'appliquer au V3 actuel V1…V8 par les loaders V3 r
 
 | Étape | Sortie attendue / condition de passage |
 |---|---|
-| 0 — revue du présent cadrage | H1 fixe activité Binding ; choisir A, protocole, compte nullable et rétention ; aucun code |
-| 1 — ratification normative distincte | Publier amendements ciblés §5 et synchroniser D3/T3/B3 du plan L5 ; inscrire la frontière éventuelle A-STRICT, sans réécrire les clôtures. **Pas de GO implicite par approbation documentaire** |
-| 2 — complément si STRICT | Concevoir source/owner/role/port et allocation bornée sans relâcher ACL I2, inventaire exact et preuve race création/Unlink ; réviser FAST/PG et budget. Tant que non approuvé, pas d'implémentation de création |
+| 0 — revue du présent cadrage | **H1 acquise : A-READ**, contrôle indicatif et autorité métier exclusivement à l'exécution. Soumettre le reste du plan, le protocole, le compte nullable et la rétention ; aucun code |
+| 1 — ratification normative distincte | Publier les amendements restant à ratifier au §5 et synchroniser D3/T3/B3 du plan L5 ; reprendre H1 sans exception à la séparation admission/exécution et sans réécrire les clôtures. **Pas de GO implicite par approbation documentaire** |
+| 2 — préparation des preuves A-READ | Figer les oracles de READ périmé à la création/admission puis rejet par L3 ; vérifier l'absence d'accès WEB à l'autorité WRITE et préserver les ACL I2. Aucun port d'autorité, pool ou rôle métier ajouté |
 | 3 — préparation GO I3 | Revérifier HEAD/diff et hypothèses ; figer JWT issuer/audience/claims, identités E1/E2/E3 et banc réel disponible ; recenser méthodes attendues, commandes/closure, approbation plan puis **GO I3 explicite** |
 | 4 — proposition + contraintes | Implémenter dans modules existants, migration additive/grants/préflight, création/get bornés ; FAST puis PG ciblé ; aucun Link admis automatiquement |
 | 5 — acceptation/admission | Un seul owner, checks E2/heure/immutabilité, association et request ; tests concurrence/rollback/commit incertain avant ouverture HTTP |
@@ -253,17 +256,17 @@ La migration CURRENT devra s'appliquer au V3 actuel V1…V8 par les loaders V3 r
 | 8 — preuve locale et revue | Compléter gates canoniques locales requises, rapport exact par invariant/SHA ; audit/revue, réserves ; aucun claim SPEC-10 global ni production |
 | 9 — jalon Q5 | Full natif unique selon D6 + couverture Architecture effective et B5/fournisseur/variantes dus ; obligations reportées explicitement non acquittées jusque-là |
 
-Décisions humaines encore nécessaires :
+Décision acquise et décisions humaines restant à ratifier séparément :
 
-- **H1 — bloquante :** « Binding actif » est-il une condition READ d'entrée avec autorité WRITE à exécution (A-READ, amendment fonctionnel explicite), ou une garantie WRITE dès création (A-STRICT, maintien strict de la mission, complément d'architecture nécessaire) ? Recommandation : maintenir strict tant qu'aucune décision ne l'a changé.
-- **H2 — bloquante normative :** ratifier le remplacement de l'attestation externe par POST E2 et la proposition durable technique, les deux provenances, l'exception de lecture éventuelle, le compteur nullable et l'idempotence naturelle d'acceptation. Pas de ratification supposée par ce plan.
+- **H1 — APPROUVÉE : A-READ.** Autorité métier exclusivement au traitement Identity WRITE ; contrôle READ de création indicatif, obsolescence acceptée. Aucun accès synchrone WEB à l'autorité WRITE, verrou métier de création, port d'autorité supplémentaire ou exception admission/exécution. **Ancien blocage H1 levé**, aucun complément de vérification WRITE à fournir.
+- **H2 — bloquante normative :** ratifier le remplacement de l'attestation externe par POST E2 et la proposition durable technique, les deux provenances, la consultation technique de proposition sur le stockage primaire (sans accès au domaine métier WRITE), le compteur nullable et l'idempotence naturelle d'acceptation. Pas de ratification supposée par ce plan.
 - **H3 — contrat :** approuver routes, 201/202/404/410, durée initiale 10 min, égalité des UUID, aucune purge V3 et compte null initialement. Si compte réel exigé, approuver son delta READ/budget avant code.
 - **H4 — environnement :** désigner banc Keycloak réel et configuration de confiance/audience/claims, deux comptes distincts et E3, injections de secrets hors Git ; owner de qualification externe. Ni valeur d'issuer ni disponibilité du banc inventées.
-- **H5 — exécution :** approuver sélection/budgets, compléter STRICT le cas échéant, puis donner un GO I3 séparé. Report Architecture Q5 déjà autorisé dans clôture I2, mais déclencheurs nouveaux doivent y être tracés ; aucune reconduction automatique d'un budget échoué.
+- **H5 — exécution :** approuver le plan, la sélection et les budgets, puis donner un GO I3 séparé. Report Architecture Q5 déjà autorisé dans clôture I2, mais déclencheurs nouveaux doivent y être tracés ; aucune reconduction automatique d'un budget échoué.
 
 ## 11. Tests courts, discriminants et budgets — trois niveaux maximum
 
-**Plan de base A-READ conditionnel ; ne certifie pas H1 strict.** A-STRICT doit ajouter les preuves du §7.4 avant approbation, avec inventaire et budget révisés. Les noms suivants sont **proposés et absents du dépôt aujourd'hui**. Chaque méthode désigne un scénario JUnit non paramétré pour rendre les comptes explicites ; le collecteur vérifiera les identités réelles, pas seulement les totaux. Aucun `PASS` n'est annoncé ici.
+**Plan A-READ retenu conformément à H1 approuvée.** Les preuves distinguent contrôle READ indicatif, obsolescence acceptée et décision métier au seul traitement WRITE. Aucune preuve d'activité WRITE à la création n'est exigée. Les noms suivants sont **proposés et absents du dépôt aujourd'hui**. Chaque méthode désigne un scénario JUnit non paramétré pour rendre les comptes explicites ; le collecteur vérifiera les identités réelles, pas seulement les totaux. Aucun `PASS` n'est annoncé ici.
 
 ### FAST — 10 scénarios futurs + 3 existants = 13
 
@@ -272,7 +275,7 @@ Classe future `V3LinkConsentContractTest` dans `engine-admit-registration` :
 | ID / méthode future | Oracle |
 |---|---|
 | F01 `creationBindsAuthenticatedInitiator` | E1 du principal, token requis, aucun UserId/requester client |
-| F02 `creationRequiresOwnActiveBinding` | contrôle de Binding typé, token tiers/stale refusé selon variante H1 ; unit seul ne prouve pas WRITE courant |
+| F02 `creationChecksBindingReadIndicatively` | contrôle typé du propre Binding READ : incohérence détectable refusée sans accès WRITE ; projection active périmée non traitée comme autorisation métier ; replay S-03 existant conservé |
 | F03 `acceptanceUsesExactTargetPrincipal` | même sub autre issuer, E1/E3, différences de casse/Unicode ne correspondent pas |
 | F04 `acceptanceHasNoClientSelectedIdentity` | corps cible/token/consent/admission_context rejeté |
 | F05 `immutableTwoActorProvenance` | E1 conservée, E2 accepteur, token initial ; expiration JWT E1 ultérieure ne transforme pas l'initiateur |
@@ -280,7 +283,7 @@ Classe future `V3LinkConsentContractTest` dans `engine-admit-registration` :
 | F07 `proposalCanonicalIntentAndScope` | équivalences JSON, nouvelle cible/token sous même clé 409, scopes E1 séparées |
 | F08 `historicalAdmissionCompatibility` | aucun changement aux octets/constructeurs V1, contrat Link séparé ; ancienne clé/intention originale retrouve id |
 | F09 `publicViewsExcludeSecrets` | seulement allowlist, token E2/JWT/UserId jamais sortis |
-| F10 `acceptanceCannotExecuteIdentity` | dépendances locales du service accept limitées aux ports admission/proposition, sans port moteur/autorité métier |
+| F10 `httpIntentsCannotAccessIdentityWriteAuthority` | dépendances locales de création/admission limitées aux ports READ et techniques de proposition/admission, aucun port d'autorité métier WRITE ni moteur d'exécution |
 
 Réexécuter les **3 méthodes existantes** de `ExecuteIdentityRequestTest` : `l3_participant_order`, `l3_technical_not_rejected`, `l3_rejection_terminal`, car la nouvelle provenance ne doit pas changer le participant.
 
@@ -307,11 +310,11 @@ Classe future `V3LinkAdmissionPostgresTest` dans `infra-persistence-primary-jpa`
 | P07 `rollbackAtEveryAdmissionBoundary` | injection réserve/insert/marque/commit : zéro demi-acceptation et aucun slot manuel |
 | P08 `unknownCommitAndObserverUnavailable` | commit perdu puis lecture indépendante/retry, aucun remplacement ; observer indisponible garde permis, issue non inventée |
 | P09 `effectiveAclAndSecretChannels` | ACL colonnes, PUBLIC/indirect, SQL logs/app logs/DTO ; pas d'accès token d'autorité par admission ordinaire |
-| P10 `initiatorBindingLostBeforeExecution` | après création puis après admission, E1 Unlink/re-Link : token initial invalide, rejet sans effet E2 ; l'authentification E1 reste capturée, pas de renouvellement JWT E1 imposé |
+| P10 `initiatorBindingLostBeforeExecution` | READ volontairement périmé à la création/admission après perte d'autorité E1, puis variantes de perte après création et après admission ; proposition/admission possibles, Link REJECTED par L3, zéro effet E2. Un re-Link ne réhabilite pas le token initial ; pas de renouvellement JWT E1 imposé |
 | P11 `targetBoundBeforeExecution` | E2 Registration/Link gagnant ; rejet tardif sans token/état partiel |
 | P12 `proposalCanonicalHistoryAndRestore` | ancienne intention/clé, JSON équivalent, scopes, restauration proposition+association/demande, ancienne clé comparaison ; pas de nouvelle demande |
 
-Classe future `V3LinkRequestHttpTest` dans `runtime-web-api` : H01 `jwtValidationAndTargetMasking` ; H02 `missingExpiredAndForbiddenProposal` ; H03 `ownBindingAndResultOwnership` ; H04 `boundedTransportAndNoSynchronousLink`. Chaque méthode couvre les entrées indiquées, avec JWT signés/falsifiés réels du banc, sans remplacer le contrôle cryptographique par un mock d'AuthN.
+Classe future `V3LinkRequestHttpTest` dans `runtime-web-api` : H01 `jwtValidationAndTargetMasking` ; H02 `missingExpiredAndForbiddenProposal` ; H03 `ownBindingAndResultOwnership` ; H04 `boundedTransportAndNoSynchronousLink`. H04 vérifie aussi que création/admission n'accèdent pas à l'autorité métier WRITE et ne prennent pas de verrou métier, sans confondre ceux-ci avec les verrous techniques de proposition/admission. Chaque méthode couvre les entrées indiquées, avec JWT signés/falsifiés réels du banc, sans remplacer le contrôle cryptographique par un mock d'AuthN.
 
 Régressions exactes existantes, à exécuter dans le même feedback ciblé :
 
@@ -353,7 +356,7 @@ Dossier futur `03 Link Requests`, réutilisant CLI **4.3.0** et helpers de polli
 | B308 | Altérer cible/E1/token/expiration dans create/accept, champ interdit : 400 ou 409 sur même clé différente, aucune substitution |
 | B309 | E1 tente sélection E2 sur `/me/binding` et résultat/accept pour obtenir token E2 : refus/DTO sans token tiers |
 | B310 | E2 tente résultat E1 : 404 ; E1 retrouve résultat même après perte Binding ; E2 découvre son seul token dans sa session |
-| B311 | E1 perd Binding entre accept et exécution : REJECTED terminal et zéro effet E2 |
+| B311 | E1 perd Binding avant exécution : variantes READ encore actif à création/admission et perte entre accept/exécution ; proposition/admission possibles, REJECTED terminal par L3 et zéro effet E2 |
 | B312 | E2 devient liée ailleurs avant exécution : REJECTED terminal, binding gagnant préservé |
 | B313 | Id inconnu, non autorisé, S-03 create identique/JSON équivalent/différent : codes et absence de nouveaux durables |
 | B314 | Deux acceptations en parallèle par deux clients du banc + commit/réponse perdue : même id, zéro doublon ; contrôle PG indépendant. Oracle profond de commit incertain reste P08 |
@@ -378,10 +381,12 @@ Garder notamment les réserves I1 R-I1-01…04, I2 R-I2-01 et R-CLO-I2-01…04, 
 
 ## 12. Reçu documentaire de la présente mission
 
-Livrable unique : ce plan, comprenant décisions proposées, inventaire, écarts/amendements non appliqués, protocole, comparaison A/B, architecture recommandée et blocage H1, fichiers prévisionnels, matrice d'invariants, séquence et stratégie de preuve avec budgets.
+Livrable unique : ce plan, comprenant décisions proposées, inventaire, écarts/amendements non appliqués, protocole, comparaison A/B, architecture recommandée, décision H1 approuvée et blocage correspondant levé, fichiers prévisionnels, matrice d'invariants, séquence et stratégie de preuve avec budgets.
 
 Commandes réellement exécutées pour l'analyse : `pwd`, `git status --short`, `git branch --show-current`, `git rev-parse HEAD`, `git remote -v`, `git ls-remote origin refs/heads/feat/v3-architecture`, recherches `rg`/`rg --files`, lectures `cat`/`sed`/`head` et `wc -l`, vérification statique par `python3 -B`. Contrôles documentaires de livraison : contrôle des références locales et des identités existantes, revue du seul diff de ce fichier, `git diff --check`, inspection du staging et comparaison finale des chemins modifiés. Le contrôle statique initial a validé les huit liens locaux, les tableaux et neuf méthodes existantes citées ; les noms de tests futurs restent des propositions. Publication autorisée : ajout explicite de ce seul fichier, commit documentaire et `git push origin feat/v3-architecture` sans force, puis contrôle distant/état. Le distant a été vérifié avant publication au même HEAD initial `2a775a414637684d77485ff3fe1b9c5bf92e8f56`. Le reçu de conversation donnera le SHA effectif et le résultat du push ; aucun SHA autoréférent inventé ici.
 
-Slices présentes : **NONE**. Franchissement inattendu présent : **NONE** (H1 est un risque futur explicitement identifié). Global gate présent : **NOT REQUIRED / NOT RUN**. Full reactor présent : **NOT REQUIRED / NOT RUN**, mission documentaire. DB : **NONE**. Qualification applicative/SPEC-10 : **NOT RUN**. Les commandes de tests du §11 sont exclusivement envisagées, aucune n'a été exécutée.
+Révision H1 : enregistrement de la seule décision humaine A-READ, retrait du blocage et de la variante WRITE à la création, correction des formulations ambiguës du plan et des oracles futurs. H2 à H5, les budgets et les commandes applicatives envisagées restent à approuver ; aucune SPEC, aucun code, migration ou historique de preuve modifié. Contrôles de cette révision : état/HEAD Git, lectures et recherches documentaires, comparaison des blocs de commandes et budgets avec le plan initial, vérification Python des liens/tableaux/statuts et `git diff --check`, puis inspection du seul fichier indexé. Publication du seul plan par commit/push normaux dans la continuité du mandat initial, sans GO d'implémentation.
 
-**NO IMPLEMENTATION — NO GO I3 — amendements non ratifiés — verdict BLOCKED jusqu'à arbitrage H1 et approbation du complément correspondant.**
+Slices présentes : **NONE**. Franchissement inattendu présent : **NONE**. H1 maintient la séparation admission/exécution et interdit un accès WEB à l'autorité métier WRITE. Global gate présent : **NOT REQUIRED / NOT RUN**. Full reactor présent : **NOT REQUIRED / NOT RUN**, mission documentaire. DB : **NONE**. Qualification applicative/SPEC-10 : **NOT RUN**. Les commandes de tests du §11 sont exclusivement envisagées, aucune n'a été exécutée.
+
+**READY FOR PLAN APPROVAL — H1 A-READ APPROUVÉE — H2 À H5 À RATIFIER SÉPARÉMENT — NO IMPLEMENTATION — NO GO I3.**
