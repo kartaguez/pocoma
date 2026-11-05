@@ -1,0 +1,64 @@
+{
+  "manifest_type": "POCOMA_V3_L5_Q5B_QUALIFICATION_EVIDENCE_MANIFEST",
+  "standard": "SPEC-10 / Reactor Verification Policy / L5 Q5 Qualification Plan",
+  "qualified_sha": "ac32a7db58545bf147b244a2fe528636b4bb464f",
+  "status": "QUALIFICATION FAILED \u2014 DIAGNOSIS RECORDED",
+  "execution_date": "2026-11-05",
+  "campaign": "verify.py CERTIFICATION",
+  "invocation_id": "61160296705d42239d26995b8fb5c0b6",
+  "total_tests_executed": 1532,
+  "total_failures": 1,
+  "total_errors": 0,
+  "total_skipped": 0,
+  "expected_tests": 2344,
+  "unexecuted_tests": 812,
+  "failing_test": {
+    "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest",
+    "method": "l3_identity_windows",
+    "module": "pocoma-infra-persistence-primary-jpa",
+    "assertion_failed": "Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown.",
+    "root_cause": "INVITATION_EVENT supported in JdbcEventDiscoveryReferences since L5/I4, invalidating obsolete L3 rejection assertion"
+  },
+  "architecture_gate": {
+    "status": "NOT_RUN",
+    "reason": "Maven halted at module 24, architecture-tests (module 43) skipped"
+  },
+  "bruno_b2_b3_b4": {
+    "status": "NOT_RUN",
+    "reason": "runtime-monolith (module 34) skipped"
+  },
+  "bruno_b1": {
+    "status": "NOT_READY",
+    "reason": "runtime-web-api (module 35) skipped, i1-classpath.txt not generated"
+  },
+  "files": {
+    "README.md": {
+      "sha256": "e2c49d668b84d05ad5b748fe2a2f6fa0e29bcb11d5f28ed291ee27b24de9a264",
+      "bytes": 3284
+    },
+    "plan.json": {
+      "sha256": "67a0ef4916d273f3e9f768cd70ec0b31ac7189b1908b4735dde0437fc1d6993a",
+      "bytes": 205871
+    },
+    "provenance.json": {
+      "sha256": "0374a9f019e3c5c5dbf1c85c60f84216823e46a739cf945213b2dddb54371ab8",
+      "bytes": 276403
+    },
+    "result.json": {
+      "sha256": "e256f0dfcb9e4d254b6fa07fee8819a50801e2e52dc487bb93b7b74d0e79feaa",
+      "bytes": 777777
+    },
+    "surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml": {
+      "sha256": "dc786dbec126af9ad2c6e33d2ef67b77fd558504902a885b7f58743f2d51211a",
+      "bytes": 44781
+    },
+    "surefire-reports/com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.txt": {
+      "sha256": "28e8b974067e66528be48e3b7041ca5cd5695475a1a846be7aa157763f07398f",
+      "bytes": 1184
+    },
+    "timings.json": {
+      "sha256": "b5f06386895c9897ab1d1edfb5a3392e6e5bdfa6782e0f2641665b06cd3084ee",
+      "bytes": 617
+    }
+  }
+}

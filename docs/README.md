@@ -1,6 +1,8 @@
 # Documentation Pocoma
 
-- [Plan de qualification finale L5 amendé (Q5-A)](v3/L5_Q5_Final_Qualification_Plan.md) — **Q5-A — FINAL AMENDED PLAN READY FOR HUMAN GO REVIEW**, 05-11-2026. Stratégie de qualification globale de fin de lot L5 amendée : mutualisation effective des preuves Bruno B2/B3/B4 au sein du full Maven CERTIFICATION unique (D6), complément autonome B1, consolidation B5 (70 scénarios), oracles stricts et traçabilité post-L4. [Rapport d'amendement Q5-A](v3/L5_Q5A_Plan_Amendment_Report.md). **Q5-B — NO GO PENDING HUMAN APPROVAL ; L5 — OPEN.**
+- [Rapport de qualification finale L5 (Q5-B)](v3/L5_Q5B_Qualification_Execution_Report.md) — **Q5-B — QUALIFICATION FAILED — DIAGNOSIS RECORDED**, 05-11-2026. Rapport complet d'exécution de la campagne globale CERTIFICATION : 1 531 tests PASS, 1 échec d'assertion de test historique L3 dans `IdentityDiscoveryPostgresTest#l3_identity_windows` (support légitime de `INVITATION_EVENT` en I4), arrêt au module 24/61, 812 tests non exécutés (Architecture, Bruno B2/B3/B4 et B1 non atteints). Preuves archivées dans [docs/testing/evidence/L5-Q5B/](testing/evidence/L5-Q5B/README.md). **L5 — OPEN ; AUCUNE CLÔTURE AVANT DÉCISION HUMAINE Q5-D.**
+
+- [Plan de qualification finale L5 amendé (Q5-A)](v3/L5_Q5_Final_Qualification_Plan.md) — **Q5-A — FINAL AMENDED PLAN DELIVERED**, 05-11-2026. Stratégie de qualification globale de fin de lot L5 amendée : mutualisation effective des preuves Bruno B2/B3/B4 au sein du full Maven CERTIFICATION unique (D6), complément autonome B1, consolidation B5 (70 scénarios), oracles stricts et traçabilité post-L4. [Rapport d'amendement Q5-A](v3/L5_Q5A_Plan_Amendment_Report.md).
 
 - [Rapport d'amendement Q5-A](v3/L5_Q5A_Plan_Amendment_Report.md) — Traitement exhaustif des observations d'audit indépendant AUD-Q5A-01 (BLOCKER), AUD-Q5A-02 (MAJOR), AUD-Q5A-03 (MAJOR) et AUD-Q5A-04 (MINOR).
 
