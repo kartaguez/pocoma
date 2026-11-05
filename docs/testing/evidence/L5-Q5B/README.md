@@ -1,42 +1,74 @@
 # Dossier de preuves de qualification L5/Q5-B
 
-Date : **5 novembre 2026**  
-Dépôt : **`kartaguez/pocoma`**  
-Branche : **`feat/v3-architecture`**  
-SHA qualifié : **`ac32a7db58545bf147b244a2fe528636b4bb464f`** (`ac32a7db`)  
-Statut : **QUALIFICATION FAILED — DIAGNOSIS RECORDED**  
-Invocation ID : **`61160296705d42239d26995b8fb5c0b6`**  
+Date : **5 novembre 2026**
+Dépôt : **`kartaguez/pocoma`**
+Branche : **`feat/v3-architecture`**
+Statut global : **QUALIFICATION FAILED — REPETITION LIMIT REACHED — LOT L5 OPEN**
 
 ---
 
-## 1. Contenu du dossier
+## 1. Vue d'ensemble des campagnes
 
-Le présent dossier contient les artefacts d'exécution de la campagne Maven CERTIFICATION globale lancée dans le cadre de la mission L5/Q5-B :
+Le mandat Q5-B a encadré l'exécution de la qualification finale mutualisée en autorisant au maximum deux campagnes globales Maven CERTIFICATION (la tentative initiale, puis une reprise unique après correction ciblée du test défaillant).
 
-| Fichier | Description | Empreinte SHA-256 |
-|---|---|---|
-| `manifest.json` | Manifeste d'intégrité et inventaire des preuves | *Voir ci-dessous* |
-| `result.json` | Synthèse terminale du collecteur `verify.py` (1 532 tests, 1 failure, 0 error, 0 skip) | `9eefee0396fd0a4f5cb13ef419cb7d4eb832962eb7dd826f04646700df13d508` |
-| `plan.json` | Plan de run et commande canonique exécutée | `8ee75b8ba1704e6c99c9da6060c5a3597d83dd27ce5b7d60f9ef465c4ecab9f9` |
-| `provenance.json` | Empreintes Git, versions Java/Maven/Docker et inventaire des inputs | `e358bfa79fe5fc5b3511eb9bc76317bc2d44fc3777d5ea8c919d7d242ef99827` |
-| `timings.json` | Chronométrie détaillée des phases de collecte et d'exécution | `b99d6350f555c82ff2f61a1532f7823f668270529d892e850b5514f04c6d2fe2` |
-| `surefire-reports/TEST-*.xml` | Rapport Surefire XML du test défaillant `IdentityDiscoveryPostgresTest` | `105a3068e547342fb882193b0b561c92ba1ca1b69850e05697669d0d9370732b` |
-| `surefire-reports/*.txt` | Traces Surefire d'exécution | `739a8c7929d20c52bbcb391e0a84e27f4d8a1be573a6976b29f03222dc23e660` |
+| Campagne | SHA | Date / Heure | Durée | Tests | Statut | Module d'arrêt | Issue |
+|---|---|---|---|---|---|---|---|
+| **Tentative 1** | `ac32a7db58545bf147b244a2fe528636b4bb464f` | 05/11/2026 16:29 | 1 051 s | 1 532 (1 531 PASS, 1 FAIL, 0 ERROR) | **FAIL** | `pocoma-infra-persistence-primary-jpa` (24/61) | AUD-Q5B-01 |
+| **Tentative 2 (reprise)** | `0e5583478fa5a2b5da3028671e4a2ad7ee1412de` | 05/11/2026 16:59 | 1 276 s | 1 682 (1 678 PASS, 0 FAIL, 4 ERROR) | **FAIL** | `pocoma-runtime-task-consumption-worker` (51/61) | AUD-Q5B-02 |
 
 ---
 
-## 2. Résumé de l'incident de qualification
+## 2. Analyse détaillée des deux tentatives
 
-La campagne Maven CERTIFICATION a exécuté avec succès 1 531 tests à travers les 23 premiers modules du réacteur.
-Au module 24 (`pocoma-infra-persistence-primary-jpa`), le test d'intégration PostgreSQL suivant a échoué :
-- **Classe** : `com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest`
-- **Méthode** : `l3_identity_windows` (ligne 98)
-- **Erreur** : `org.opentest4j.AssertionFailedError: Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown.`
+### 2.1. Tentative 1 (`ac32a7db`) — Incident AUD-Q5B-01
+- **Échec** : `IdentityDiscoveryPostgresTest#l3_identity_windows` (assertThrows IllegalArgumentException attendue sur `ConsumableFamily.INVITATION_EVENT`).
+- **Cause** : Assertion historique L3 devenue obsolète suite à l'introduction légitime de la famille `INVITATION_EVENT` en L5/I4.
+- **Traitement** : Correction ciblée du test par commit `0e558347` : oracle positif vérifiant l'acceptation de `INVITATION_EVENT`, oracle négatif repositionné sur `ConsumableFamily.COMMAND`.
+- **Preuve locale** : 3/3 tests PASS sur `IdentityDiscoveryPostgresTest`.
 
-### Diagnostic
-- **Origine** : Test unitaire/intégration rédigé lors du lot L3 (`f905a3c9`), époque où `ConsumableFamily.INVITATION_EVENT` n'était pas supporté par `JdbcEventDiscoveryReferences`.
-- **Évolution légitime** : L'incrément L5/I4 (`d722e9d5`) a implémenté le protocole d'invitation et ajouté le support complet de `INVITATION_EVENT` dans `JdbcEventDiscoveryReferences`.
-- **Cause de l'échec** : L'oracle du test de L3 exigeait une exception qui n'a plus lieu d'être depuis l'introduction de la fonctionnalité d'invitation.
-- **Conséquence** : Maven a interrompu le réacteur au module 24, empêchant l'exécution des modules avals (`pocoma-runtime-monolith`, `pocoma-runtime-web-api`, `pocoma-architecture-tests`).
+### 2.2. Tentative 2 (`0e558347`) — Progression et Incident AUD-Q5B-02
+- **Validation AUD-Q5B-01** : Le module `pocoma-infra-persistence-primary-jpa` s'est exécuté intégralement avec succès en 16 min 38 s (0 failure, 0 error). Les modules 44 à 50 ont également tous réussi.
+- **Nouvel arrêt** : Arrêt au module 51 (`pocoma-runtime-task-consumption-worker`) avec 4 erreurs sur 104 tests du module :
+  1. `ReadActivationSettingsTest#independentSelectionAndTemporalPreflight` :
+     `java.lang.ArrayIndexOutOfBoundsException: Index 6 out of bounds for length 6`
+     *Origine* : `V3ConsumptionWorkerSettings.READ_NAMES` contient 7 participants de lecture (incluant les évolutions L5), mais la liste locale des identifiants attendus `ids` dans le test ne compte que 6 entrées fixes.
+  2. `ReadFacadesPostgresTest#bindingAndResultsKeepTheirOwnAuthorities` (via `realUnlinkPropagationWindow`) :
+     `java.lang.IllegalArgumentException: renewal budget exceeds pilot margins; explicit requalification required`
+     *Origine* : Garde temporelle stricte dans `V3ConsumptionWorkerSettings.java:316` déclenchée lors de la configuration de l'environnement multi-participants sous `ReadRuntimeI8Fixture`.
+  3. `ReadRuntimeAssemblyPostgresTest#sixParticipantsProgressThroughWorkers` :
+     `java.lang.IllegalArgumentException: renewal budget exceeds pilot margins; explicit requalification required`
+  4. `ReadRuntimeAssemblyPostgresTest#rootsAndPrivilegesAreClosed` :
+     `java.lang.IllegalArgumentException: renewal budget exceeds pilot margins; explicit requalification required`
+- **Conséquence** : 10 modules avals non exécutés (`pocoma-runtime-monolith`, `pocoma-runtime-web-api`, et 8 autres modules dont `architecture-tests`).
+- **Application du mandat** : Conformément à l'interdiction stricte de boucle automatique de reprise, aucun troisième run n'a été engagé. Le complément B1 et la consolidation B5 n'ont pas été lancés.
 
-Conformément à la politique d'audit et aux consignes impératives de Q5-B, aucune modification opportuniste de test n'a été effectuée. Le statut de qualification est formellement consigné comme **FAILED** avec diagnostic complet dans le rapport [`docs/v3/L5_Q5B_Qualification_Execution_Report.md`](../../v3/L5_Q5B_Qualification_Execution_Report.md).
+---
+
+## 3. Structure du dossier de preuves
+
+```
+docs/testing/evidence/L5-Q5B/
+├── README.md                           # Présente synthèse
+├── manifest.json                       # Inventaire complet et empreintes SHA-256
+├── attempt-1-ac32a7db/                 # Artefacts de la première tentative
+│   ├── plan.json                       # Plan de vérification CERTIFICATION
+│   ├── provenance.json                 # Environnement, Git SHA, versions
+│   ├── result.json                     # Résultat collecteur (1 532 tests, 1 FAIL)
+│   ├── timings.json                    # Chronométrie des phases (1 051 s)
+│   └── surefire-reports/               # Rapports Surefire du test défaillant
+│       ├── TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml
+│       └── com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.txt
+└── attempt-2-0e558347/                 # Artefacts de la reprise bornée
+    ├── plan.json                       # Plan de vérification CERTIFICATION
+    ├── provenance.json                 # Environnement, Git SHA, versions
+    ├── result.json                     # Résultat collecteur (1 682 tests, 4 ERRORS)
+    ├── timings.json                    # Chronométrie des phases (1 276 s)
+    ├── maven-failure.txt               # Trace terminale de l'arrêt au module 51
+    └── surefire-reports/               # Rapports Surefire des 3 classes en erreur
+        ├── TEST-com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest.xml
+        ├── com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest.txt
+        ├── TEST-com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest.xml
+        ├── com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest.txt
+        ├── TEST-com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest.xml
+        └── com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest.txt
+```

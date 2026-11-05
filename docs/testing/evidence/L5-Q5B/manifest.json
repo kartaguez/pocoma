@@ -1,64 +1,125 @@
 {
-  "manifest_type": "POCOMA_V3_L5_Q5B_QUALIFICATION_EVIDENCE_MANIFEST",
-  "standard": "SPEC-10 / Reactor Verification Policy / L5 Q5 Qualification Plan",
-  "qualified_sha": "ac32a7db58545bf147b244a2fe528636b4bb464f",
-  "status": "QUALIFICATION FAILED \u2014 DIAGNOSIS RECORDED",
-  "execution_date": "2026-11-05",
-  "campaign": "verify.py CERTIFICATION",
-  "invocation_id": "61160296705d42239d26995b8fb5c0b6",
-  "total_tests_executed": 1532,
-  "total_failures": 1,
-  "total_errors": 0,
-  "total_skipped": 0,
-  "expected_tests": 2344,
-  "unexecuted_tests": 812,
-  "failing_test": {
-    "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest",
-    "method": "l3_identity_windows",
-    "module": "pocoma-infra-persistence-primary-jpa",
-    "assertion_failed": "Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown.",
-    "root_cause": "INVITATION_EVENT supported in JdbcEventDiscoveryReferences since L5/I4, invalidating obsolete L3 rejection assertion"
-  },
-  "architecture_gate": {
-    "status": "NOT_RUN",
-    "reason": "Maven halted at module 24, architecture-tests (module 43) skipped"
-  },
-  "bruno_b2_b3_b4": {
-    "status": "NOT_RUN",
-    "reason": "runtime-monolith (module 34) skipped"
-  },
-  "bruno_b1": {
-    "status": "NOT_READY",
-    "reason": "runtime-web-api (module 35) skipped, i1-classpath.txt not generated"
-  },
-  "files": {
-    "README.md": {
-      "sha256": "e2c49d668b84d05ad5b748fe2a2f6fa0e29bcb11d5f28ed291ee27b24de9a264",
-      "bytes": 3284
+  "manifest_version": "1.0.0",
+  "campaign": "L5-Q5B-QUALIFICATION",
+  "status": "QUALIFICATION_FAILED",
+  "attempts": [
+    {
+      "attempt": 1,
+      "sha": "ac32a7db58545bf147b244a2fe528636b4bb464f",
+      "date": "2026-11-05T16:29:43+01:00",
+      "verdict": "FAIL",
+      "tests_run": 1532,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "failed_module": "pocoma-infra-persistence-primary-jpa",
+      "directory": "attempt-1-ac32a7db"
     },
-    "plan.json": {
+    {
+      "attempt": 2,
+      "sha": "0e5583478fa5a2b5da3028671e4a2ad7ee1412de",
+      "date": "2026-11-05T16:59:05+01:00",
+      "verdict": "FAIL",
+      "tests_run": 1682,
+      "failures": 0,
+      "errors": 4,
+      "skipped": 0,
+      "passed_modules": 50,
+      "failed_module": "pocoma-runtime-task-consumption-worker",
+      "skipped_modules": 10,
+      "directory": "attempt-2-0e558347"
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "697681d01b4eb7a73b0ad2eb36c89a8edacc45dc356dc6f0e2a6c716ecd6d512",
+      "bytes": 5813
+    },
+    {
+      "path": "attempt-1-ac32a7db/plan.json",
       "sha256": "67a0ef4916d273f3e9f768cd70ec0b31ac7189b1908b4735dde0437fc1d6993a",
       "bytes": 205871
     },
-    "provenance.json": {
+    {
+      "path": "attempt-1-ac32a7db/provenance.json",
       "sha256": "0374a9f019e3c5c5dbf1c85c60f84216823e46a739cf945213b2dddb54371ab8",
       "bytes": 276403
     },
-    "result.json": {
+    {
+      "path": "attempt-1-ac32a7db/result.json",
       "sha256": "e256f0dfcb9e4d254b6fa07fee8819a50801e2e52dc487bb93b7b74d0e79feaa",
       "bytes": 777777
     },
-    "surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml": {
+    {
+      "path": "attempt-1-ac32a7db/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml",
       "sha256": "dc786dbec126af9ad2c6e33d2ef67b77fd558504902a885b7f58743f2d51211a",
       "bytes": 44781
     },
-    "surefire-reports/com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.txt": {
+    {
+      "path": "attempt-1-ac32a7db/surefire-reports/com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.txt",
       "sha256": "28e8b974067e66528be48e3b7041ca5cd5695475a1a846be7aa157763f07398f",
       "bytes": 1184
     },
-    "timings.json": {
+    {
+      "path": "attempt-1-ac32a7db/timings.json",
       "sha256": "b5f06386895c9897ab1d1edfb5a3392e6e5bdfa6782e0f2641665b06cd3084ee",
       "bytes": 617
+    },
+    {
+      "path": "attempt-2-0e558347/maven-failure.txt",
+      "sha256": "a3cfac4dc7ca5e3965e7409c81fad30f003f4883cf4212ff0a1cc998358dbe01",
+      "bytes": 43068
+    },
+    {
+      "path": "attempt-2-0e558347/plan.json",
+      "sha256": "9815b2e12ce84b3bc426ee7df928208b7d2d9558895acd844f0f9749e2f5a0fb",
+      "bytes": 205883
+    },
+    {
+      "path": "attempt-2-0e558347/provenance.json",
+      "sha256": "d29a9c0f23ac2a016a609ae3c4e6568050c6af6f4a4390a5c62a499a1d45ef62",
+      "bytes": 276403
+    },
+    {
+      "path": "attempt-2-0e558347/result.json",
+      "sha256": "926bebe8104f20bc777a3db3f147c8853a4356e01f373d325ca827a337c74c90",
+      "bytes": 883177
+    },
+    {
+      "path": "attempt-2-0e558347/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest.xml",
+      "sha256": "a2e109a9c2901551396c71d7335f626f19745c8161b3c355eeca7b351993d491",
+      "bytes": 51022
+    },
+    {
+      "path": "attempt-2-0e558347/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest.xml",
+      "sha256": "15d164019dceddb8d2328c5c798c6609be769c473b9ecf159e20563d22c7e38b",
+      "bytes": 122032
+    },
+    {
+      "path": "attempt-2-0e558347/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest.xml",
+      "sha256": "033c48bbcd6d433f9d9e2bd4e4a639c378b4b574b2c79f4fa57c40998eed033e",
+      "bytes": 262368
+    },
+    {
+      "path": "attempt-2-0e558347/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.ReadActivationSettingsTest.txt",
+      "sha256": "e9df212c06dd3b2d2c624d02f394041f642bba40910db4be18a8123cd166e711",
+      "bytes": 839
+    },
+    {
+      "path": "attempt-2-0e558347/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.ReadFacadesPostgresTest.txt",
+      "sha256": "9c23e95dfd2401310637e7e43edf7f17256409d1687ec2ee87e8ade34d85cbc3",
+      "bytes": 3052
+    },
+    {
+      "path": "attempt-2-0e558347/surefire-reports/com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeAssemblyPostgresTest.txt",
+      "sha256": "cfa3197815fd82bdabf68db4c45d8bda87daaca7d0d25bc3792768c60071b4c3",
+      "bytes": 5499
+    },
+    {
+      "path": "attempt-2-0e558347/timings.json",
+      "sha256": "7cf2fecec2415d582f7b261fff269402123fd4f505f0b2b978457e45fbfa37b6",
+      "bytes": 617
     }
-  }
+  ]
 }
