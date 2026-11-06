@@ -1,8 +1,8 @@
 # Pocoma V3 — L6/I3 — Rapport de cadrage et conception métrologique
 
-**Date :** 2026-11-06  
-**Référence :** `a24cd37255486481a4f11d4b81ab7895f470b223`  
-**Mandat :** `GO_L6_I3_SCOPING` — DOCUMENTATION ONLY  
+**Date :** 2026-11-06
+**Référence :** `a24cd37255486481a4f11d4b81ab7895f470b223`
+**Mandat :** `GO_L6_I3_SCOPING` — DOCUMENTATION ONLY
 **État :** `L6_I3_DESIGN_READY_FOR_HUMAN_APPROVAL` sous arbitrages explicités ; **aucune campagne exécutée**.
 
 ## 1. Autorité et limites
