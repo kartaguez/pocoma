@@ -3,7 +3,7 @@
 Date : **5 novembre 2026**
 Dépôt : **`kartaguez/pocoma`**
 Branche : **`feat/v3-architecture`**
-Statut du plan : **PLAN AMENDÉ DÉFINITIF SOUMIS À DÉCISION HUMAINE — Q5-A ACHEVÉ — Q5-B EN ATTENTE DE GO**
+Statut du plan : **CYCLE Q5 ACHEVÉ — QUALIFIÉ ET FORMELLEMENT CLOS PAR DÉCISION HUMAINE Q5-D (L5 CLOSED WITH EXPLICIT RESERVATIONS)**
 Référence Git d'entrée : **`65b0fee97cf7ba2c58ca861e687e8346f1ec52c9`** (`65b0fee9`)
 Dernier commit productif/test modifié : **`2b1271d0ca3db6c6e9dfddd74f2b877cf4631dd2`** (`2b1271d0`)
 Rapport d'amendement associé : [docs/v3/L5_Q5A_Plan_Amendment_Report.md](L5_Q5A_Plan_Amendment_Report.md)
@@ -404,9 +404,13 @@ En cas d'échec (`FAIL` ou `ERROR`) lors de Q5-B, la procédure impérative suiv
 
 ```
 ================================================================================
-Q5-A — FINAL AMENDED PLAN READY FOR HUMAN GO REVIEW
+L5/Q5 — CYCLE DE QUALIFICATION GLOBALE ACHEVÉ ET CLOS (Q5-A → Q5-B → Q5-C → Q5-D)
 ================================================================================
-Q5-B — NO GO PENDING HUMAN APPROVAL
-L5 — OPEN — NO GLOBAL CERTIFICATION
+Q5-A : PLAN AMENDÉ APPROUVÉ (docs/v3/L5_Q5A_Plan_Amendment_Report.md)
+Q5-B : CERTIFICATION GLOBALE PASS (docs/v3/L5_Q5B6_Final_Certification_Execution_Report.md, 2890d88f)
+Q5-C : AUDIT INDÉPENDANT ACCEPTÉ (docs/v3/L5_Q5C_Quality_Performance_and_Restructuring_Audit.md, f4f5d973)
+Q5-D : DÉCISION HUMAINE DE CLÔTURE FORMELLE AVEC RÉSERVES (docs/v3/L5_Q5D_Formal_Closure_Decision.md)
+Statut officiel du lot L5 :
+L5 — CLOSED WITH EXPLICIT RESERVATIONS — GLOBAL CERTIFICATION PASS, Q5-C AUDIT ACCEPTED, OPTIMIZATIONS DEFERRED UNTIL AFTER L6
 ================================================================================
 ```
