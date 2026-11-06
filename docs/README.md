@@ -1,5 +1,7 @@
 # Documentation Pocoma
 
+- [L6 — Acceptation du cadrage et GO I1](v3/L6_Scoping_Acceptance_and_I1_Authorization.md) — **L6 OPEN ; I1 observabilité autorisé uniquement**, 06-11-2026. [Plan consolidé L6](v3/L6_Design_and_Verification_Plan.md). Pas encore de preuve ou de qualification I1 ; I2/I3 restent sans GO.
+
 - [Décision humaine de clôture formelle L5 (Q5-D)](v3/L5_Q5D_Formal_Closure_Decision.md) — **L5 — CLOSED WITH EXPLICIT RESERVATIONS — GLOBAL CERTIFICATION PASS, Q5-C AUDIT ACCEPTED, OPTIMIZATIONS DEFERRED UNTIL AFTER L6**, 06-11-2026. Acte officiel de clôture formelle du lot L5 après certification globale Q5-B6 (61/61 modules SUCCESS, 2 344/2 344 tests PASS, 170/170 Architecture PASS, Bruno B5 70/70 PASS sur SHA immuable `2890d88f`) et audit indépendant Q5-C. Arbitrages enregistrés : toutes les restructurations et optimisations architecturales de Q5-C sont différées après L6 ; L6 est prioritairement dédié à l'observabilité et aux mesures métrologiques du socle V3 ; les réserves (FIND-L4-01, FIND-L2-01, FIND-L4-03, FIND-L1-01, RES-ENV-01, FIND-TRANS-01, FIND-L2-02) sont conservées et attribuées ; L6 éligible au cadrage.
 
 - [Audit indépendant qualité, performances et restructuration L5 (Q5-C)](v3/L5_Q5C_Quality_Performance_and_Restructuring_Audit.md) — **Q5-C — AUDIT COMPLETED AND PUBLISHED**, 06-11-2026. Audit statique approfondi, réconciliation documentaire (écart 170 vs 178 élucidé en DOCUMENTARY_ERROR, traçabilité des SHAs) et plan de restructuration (différé après L6).
