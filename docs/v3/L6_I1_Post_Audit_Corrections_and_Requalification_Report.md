@@ -65,8 +65,11 @@ Conformément à la politique normative `docs/testing/Reactor_Verification_Polic
 | **AUD-L6-I1-04** | **MAJOR** | Réconciliation obligatoire | Mise à jour intégrale de `docs/v3/L6_I1_Implementation_and_Qualification_Report.md` et rédaction du présent rapport d'accompagnement post-audit. | **CORRIGÉ** |
 | **AUD-L6-I1-05** | **MINOR** | Correction dans cette passe | Attribution d'unités Grafana rigoureusement typées sur les 18 panneaux (`reqps`, `s`, `ops`, `short`, `percent`). | **CORRIGÉ** |
 | **AUD-L6-I1-06** | **MINOR** | Correction proportionnée | Panneau 16 renommé en `HikariCP Connection Acquire Mean Duration (s)` avec PromQL mathématiquement exacte : `rate(sum[1m]) / rate(count[1m])`. | **CORRIGÉ** |
-| **AUD-L6-I1-07** | **IMPROVEMENT** | Report sauf nécessité | Séparation physique multi-conteneurs des runtimes de production : reporté à L6/I2 (le monolithe multi-profils satisfait pleinement l'isolation requise pour I1). | **REPORTÉ** |
-| **AUD-L6-I1-08** | **IMPROVEMENT** | Report sauf nécessité | Dérivation automatique de scripts Bruno depuis les specs OpenAPI : reporté. La collection Bruno V3 est maintenue manuellement et qualifiée avec succès. | **REPORTÉ** |
+| **AUD-L6-I1-07** | **IMPROVEMENT** | Report sauf nécessité | Allocations superflues sur les chemins chauds (`Timer.builder`, `Tags.of`, `Duration.ofNanos`) dans `V3AdmissionHttpConfiguration`, `V3ReadHttpConfiguration` et `V3ReadFacadeComposition`. Risque d'impact mémoire/GC circonscrit et négligeable sous charge locale. Optimisation différée à la phase d'optimisation post-L6. | **REPORTÉ** |
+| **AUD-L6-I1-08** | **IMPROVEMENT** | Report sauf nécessité | Compteur d'admission potentiellement redondant (`pocoma.v3.admission.requests` vs `pocoma.v3.admission.http.duration_count`). Cardinalité strictement bornée, aucune duplication d'événements. Maintien des deux métriques pour alignement opérationnel et dashboards. | **REPORTÉ** |
+
+> [!NOTE]
+> Les perspectives d'évolution relatives au découpage multi-conteneurs de production et à la dérivation de collections Bruno depuis OpenAPI demeurent des pistes de travail pour les phases ultérieures de l'architecture, mais sont formellement dissociées des anomalies AUD-L6-I1-07 et AUD-L6-I1-08.
 
 ---
 
@@ -173,6 +176,9 @@ sequenceDiagram
 | `pocoma_v3_read_queries_total` | `96.0` | `109.0` | **+13.0** | Consultations effectives de la façade READ V3 (bindings, résultats de commande, restitution du Pot). |
 | `hikaricp_connections_acquire_seconds_count` | `63495.0` | `66005.0` | **+2510.0** | Emprunts de connexions aux pools HikariCP V3 instrumentés via `MicrometerMetricsTrackerFactory`. |
 
+- **Portée des mesures et qualification sincère :**
+  > La campagne prouve l'exécution réussie du parcours métier V3 et, indépendamment, la progression des métriques V3 sur le runtime observé. Les deltas globaux Workers ne constituent pas une attribution exhaustive des tentatives au seul parcours exécuté.
+
 - **Verdict normatif :**
   ```json
   {
@@ -218,9 +224,11 @@ sequenceDiagram
 
 ---
 
-## 8. Verdict Final
+## 8. Verdict Final et Clôture
 
-Toutes les anomalies bloquantes, majeures et mineures identifiées par l'audit indépendant (AUD-L6-I1-01 à AUD-L6-I1-06) ont été traitées, vérifiées et prouvées en une passe unique. Les améliorations non bloquantes AUD-L6-I1-07 et AUD-L6-I1-08 sont reportées conformément à la décision de cadrage.
+Toutes les anomalies bloquantes, majeures et mineures identifiées par l'audit indépendant (AUD-L6-I1-01 à AUD-L6-I1-06) ont été traitées, vérifiées et prouvées en une passe unique. Les améliorations non bloquantes AUD-L6-I1-07 et AUD-L6-I1-08 sont formellement réconciliées et reportées.
+
+L'incrément L6/I1 a fait l'objet d'une décision d'acceptation et de clôture formelle : [`docs/v3/L6_I1_Acceptance_and_Closure_Decision.md`](L6_I1_Acceptance_and_Closure_Decision.md).
 
 ```
 ================================================================================
@@ -229,7 +237,7 @@ Statut : TARGETED CORRECTIONS COMPLETED — OPERATIONAL DEMONSTRATION VERIFIED
 Dépôt : kartaguez/pocoma
 Branche : feat/v3-architecture
 Décision : GO_L6_I1_TARGETED_CORRECTIONS
-Anomalies traitées : 6/6 obligatoires (AUD-L6-I1-01..06 résolues, 07..08 reportées)
+Anomalies traitées : 6/6 obligatoires résolues (AUD-01..06), 2/2 améliorations réconciliées et reportées (AUD-07..08)
 Runtime V3 : OPÉRATIONNEL (Monolith Spring Boot V3 + PostgreSQL 17 + Keycloak)
 Métriques V3 : DÉMONTRÉES (pocoma_v3_* et HikariCP en progression avérée)
 Tableau de Bord : VALIDÉ (18 panneaux, zéro fallback V2, unités typées)
@@ -237,6 +245,7 @@ Gate A (Automated) : PASS (41/41 tests, 1m46s <= 240s)
 Gate B (Operational) : PASS (Delta Admission +3, Delta Attempts +12, Delta Read +13, Delta Hikari +2510, 45s <= 180s)
 Full Reactor : NON EXÉCUTÉ (Reactor Policy respectée)
 
-VERDICT : L6_I1_CORRECTED_READY_FOR_HUMAN_CLOSURE_REVIEW
+DÉCISION : L6/I1 — CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS
+(cf. docs/v3/L6_I1_Acceptance_and_Closure_Decision.md)
 ================================================================================
 ```

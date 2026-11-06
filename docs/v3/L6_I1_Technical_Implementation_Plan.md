@@ -4,9 +4,9 @@
 **Dépôt :** `kartaguez/pocoma`
 **Branche :** `feat/v3-architecture`
 **Référence Git d'entrée :** `f0186ae881db2418e2447953258c35cb58d11dcf` (`f0186ae8`)
-**Autorisation :** `GO_L6_I1_PLAN_AMENDMENT_ONLY` puis `GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS`
-**Statut du document :** `IMPLEMENTED — READY FOR HUMAN REVIEW`
-**Verdict :** `L6_I1_IMPLEMENTED_READY_FOR_HUMAN_REVIEW` (cf. [Rapport d'Implémentation](L6_I1_Implementation_and_Qualification_Report.md))
+**Autorisation :** `GO_L6_I1_PLAN_AMENDMENT_ONLY` puis `GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS` et `GO_L6_I1_FINAL_RECONCILIATION_AND_CONDITIONAL_CLOSURE`
+**Statut du document :** `CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS`
+**Verdict :** `L6/I1 — CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS` (cf. [Décision de Clôture](L6_I1_Acceptance_and_Closure_Decision.md) et [Rapport d'Implémentation](L6_I1_Implementation_and_Qualification_Report.md))
 
 ---
 

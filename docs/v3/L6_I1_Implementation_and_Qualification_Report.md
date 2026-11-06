@@ -289,15 +289,17 @@ La commande d'exécution ciblée a été éprouvée sur le graphe Maven réel :
 
 L'implémentation et les corrections ciblées de l'incrément L6/I1 sont achevées. L'ensemble des exigences du mandat, des corrections techniques obligatoires et des directives de vérification sont validées par preuves formelles.
 
+L'incrément L6/I1 a fait l'objet d'une décision d'acceptation et de clôture formelle : [`docs/v3/L6_I1_Acceptance_and_Closure_Decision.md`](L6_I1_Acceptance_and_Closure_Decision.md).
+
 ```
 ================================================================================
-POCOMA V3 — LOT L6 / INCRÉMENT I1 : VERDICT FINAL D'IMPLÉMENTATION
-Statut : IMPLEMENTED — TARGETED AND OPERATIONAL PASS — READY FOR HUMAN REVIEW
+POCOMA V3 — LOT L6 / INCRÉMENT I1 : VERDICT FINAL D'IMPLÉMENTATION ET CLÔTURE
+Statut : L6/I1 — CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS
 Dépôt : kartaguez/pocoma
 Branche : feat/v3-architecture
-Décision : GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS
+Décision : GO_L6_I1_FINAL_RECONCILIATION_AND_CONDITIONAL_CLOSURE
 Volet A (Instrumentation)   : COMPLET (HTTP Admission, HTTP Read, Facade Q=2, HikariCP)
-Volet B (Stack Locale)      : OPERATIONNEL (Prometheus 5s + Grafana provisionné)
+Volet B (Stack Locale)      : OPÉRATIONNEL (Prometheus 5s + Grafana provisionné)
 Volet C (Dashboard)         : VALIDÉ (18 panneaux, PromQL qualifiées, 0 fuite PII)
 Volet D (Démonstration)     : VALIDÉ (Bruno 8/8 PASS, progression métrique démontrée)
 Gate A (G-OBS-AUTOMATED)    : PASS (41/41 tests, 1m46s <= 240s)
@@ -305,6 +307,7 @@ Gate B (G-OBS-OPERATIONAL)  : PASS (Delta Admission +3, Delta Attempts +12, Delt
 Environnement DEMO          : PERSISTANT & ACTIF (http://localhost:3000)
 Full Reactor                : NON EXÉCUTÉ (Politique de vérification ciblée respectée)
 
-VERDICT : L6_I1_IMPLEMENTED_READY_FOR_HUMAN_REVIEW
+DÉCISION : L6/I1 — CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS
+(cf. docs/v3/L6_I1_Acceptance_and_Closure_Decision.md)
 ================================================================================
 ```
