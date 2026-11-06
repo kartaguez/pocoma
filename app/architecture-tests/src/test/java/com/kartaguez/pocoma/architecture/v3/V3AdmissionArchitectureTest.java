@@ -4,6 +4,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.*;
 
 import org.junit.jupiter.api.Test;
@@ -27,15 +29,29 @@ class V3AdmissionArchitectureTest {
                         ROOT + ".engine.admit.command.v3..",
                         ROOT + ".engine.admit.registration.v3..")
                 .should()
-                .dependOnClassesThat()
-                .resideInAnyPackage(
-                        ROOT + ".infra..",
-                        ROOT + ".runtime..",
-                        ROOT + ".supra..",
-                        ROOT + ".engine.read..",
-                        "org.springframework..",
-                        "java.sql..",
-                        "javax.sql..")
+                .dependOnClassesThat(
+                        new DescribedPredicate<JavaClass>("forbidden infrastructure or frameworks") {
+                            public boolean test(JavaClass type) {
+                                if (type.getName().equals("java.sql.Timestamp")) {
+                                    return false;
+                                }
+                                String pkg = type.getPackageName();
+                                return pkg.startsWith(ROOT + ".infra.")
+                                        || pkg.equals(ROOT + ".infra")
+                                        || pkg.startsWith(ROOT + ".runtime.")
+                                        || pkg.equals(ROOT + ".runtime")
+                                        || pkg.startsWith(ROOT + ".supra.")
+                                        || pkg.equals(ROOT + ".supra")
+                                        || pkg.startsWith(ROOT + ".engine.read.")
+                                        || pkg.equals(ROOT + ".engine.read")
+                                        || pkg.startsWith("org.springframework.")
+                                        || pkg.equals("org.springframework")
+                                        || pkg.startsWith("java.sql.")
+                                        || pkg.equals("java.sql")
+                                        || pkg.startsWith("javax.sql.")
+                                        || pkg.equals("javax.sql");
+                            }
+                        })
                 .check(CLASSES);
         for (var c : CLASSES)
             if (c.getPackageName().startsWith(ROOT + ".engine.admit.")

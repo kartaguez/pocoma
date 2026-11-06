@@ -374,14 +374,17 @@ class HexagonalArchitectureTest {
 
     private static boolean isI1PortDependency(String originPackage, String targetName) {
         return originPackage.equals(ROOT_PACKAGE + ".port.projection.v3")
-                && targetName.equals(ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext");
+                && (targetName.equals(ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext")
+                    || targetName.equals(ROOT_PACKAGE + ".domain.pot.v3.Invitation"));
     }
 
     @Test
     void i1ExceptionsDoNotOpenHistoricalPortsOrFrameworks() {
         String v3 = ROOT_PACKAGE + ".port.projection.v3";
         String context = ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext";
+        String invitation = ROOT_PACKAGE + ".domain.pot.v3.Invitation";
         assertEquals(true, isI1PortDependency(v3, context));
+        assertEquals(true, isI1PortDependency(v3, invitation));
         assertEquals(false, isI1PortDependency(ROOT_PACKAGE + ".port.projection", context));
         for (String forbidden : Set.of("org.springframework.transaction.TransactionStatus",
                 ROOT_PACKAGE + ".port.transaction.v3.AttemptTransactions",
@@ -418,6 +421,7 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".port.projection.v3.SubobjectVersionStore",
 				ROOT_PACKAGE + ".port.projection.v3.PotVisibilityStore",
 				ROOT_PACKAGE + ".port.projection.v3.PotBalanceStore",
+				ROOT_PACKAGE + ".port.projection.v3.InvitationStore",
 				ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext");
 		Set<String> dependenciesOutsidePotRead = dependenciesOutside(
 				POT_READ_ENGINE_PACKAGE,

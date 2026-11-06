@@ -521,35 +521,47 @@ class V3WorkerPostgresTest {
                             V3ConsumptionWorkerSettings.class, V3BootstrapGuard.class);
             constructor.setAccessible(true);
             resources = constructor.newInstance(settings, guard);
-            var active =
-                    Class.forName(
-                            "com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active");
-            var factoryConstructor = active.getDeclaredConstructor();
-            factoryConstructor.setAccessible(true);
-            var configuration = factoryConstructor.newInstance();
-            var factory =
-                    active.getDeclaredMethod(
-                            "v3ConsumptionWorker",
-                            type,
-                            V3ConsumptionWorkerSettings.class,
-                            V3BootstrapGuard.class,
-                            WorkerCapacity.class,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
-                                    .class);
-            factory.setAccessible(true);
-            capacity =
-                    new WorkerCapacity(
-                            settings.workerLimit(), settings.capacityLimits(), observation);
-            worker =
-                    (V3ConsumptionWorker)
-                            factory.invoke(
-                                    configuration,
-                                    resources,
-                                    settings,
-                                    guard,
-                                    capacity,
-                                    observation);
-            bindings = (List<V3ConsumptionWorker.Binding>) field(worker, "bindings");
+            try {
+                var active =
+                        Class.forName(
+                                "com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration$Active");
+                var factoryConstructor = active.getDeclaredConstructor();
+                factoryConstructor.setAccessible(true);
+                var configuration = factoryConstructor.newInstance();
+                var factory =
+                        active.getDeclaredMethod(
+                                "v3ConsumptionWorker",
+                                type,
+                                V3ConsumptionWorkerSettings.class,
+                                V3BootstrapGuard.class,
+                                WorkerCapacity.class,
+                                com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                        .class,
+                                org.springframework.core.env.Environment.class);
+                factory.setAccessible(true);
+                capacity =
+                        new WorkerCapacity(
+                                settings.workerLimit(), settings.capacityLimits(), observation);
+                worker =
+                        (V3ConsumptionWorker)
+                                factory.invoke(
+                                        configuration,
+                                        resources,
+                                        settings,
+                                        guard,
+                                        capacity,
+                                        observation,
+                                        env);
+                bindings = (List<V3ConsumptionWorker.Binding>) field(worker, "bindings");
+            } catch (Throwable t) {
+                try {
+                    var closeMethod = resources.getClass().getDeclaredMethod("close");
+                    closeMethod.setAccessible(true);
+                    closeMethod.invoke(resources);
+                } catch (Throwable ignored) {
+                }
+                throw t;
+            }
         }
 
         void prepareBarrier(int index, Runnable barrier) throws Exception {
@@ -585,12 +597,22 @@ class V3WorkerPostgresTest {
         }
 
         public void close() throws Exception {
-            if (worker.snapshot().state() == V3ConsumptionWorker.State.STARTING) {
+            if (worker != null) {
+                if (worker.snapshot().state() == V3ConsumptionWorker.State.STARTING) {
+                    worker.requestDrain();
+                    worker.start();
+                }
                 worker.requestDrain();
-                worker.start();
+                await(() -> worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
             }
-            worker.requestDrain();
-            await(() -> worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
+            if (resources != null) {
+                try {
+                    var closeMethod = resources.getClass().getDeclaredMethod("close");
+                    closeMethod.setAccessible(true);
+                    closeMethod.invoke(resources);
+                } catch (Throwable ignored) {
+                }
+            }
         }
     }
 

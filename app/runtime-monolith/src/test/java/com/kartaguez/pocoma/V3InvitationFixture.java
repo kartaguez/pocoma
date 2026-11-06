@@ -90,6 +90,7 @@ abstract class V3InvitationFixture {
         f.worker.properties.put("pocoma.v3.worker.min-poll", "5");
         f.worker.properties.put("pocoma.v3.worker.max-poll", "25");
         f.worker.properties.put("pocoma.v3.worker.lifecycle.retry-delay-ms", "0");
+        f.worker.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "180000");
     }
 
     @AfterEach

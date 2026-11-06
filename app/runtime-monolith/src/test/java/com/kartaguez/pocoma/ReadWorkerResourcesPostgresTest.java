@@ -528,7 +528,10 @@ class ReadWorkerResourcesPostgresTest {
                         else actual.rollback();
                     }
                 } finally {
-                    actual.close();
+                    try {
+                        actual.close();
+                    } catch (NullPointerException | SQLException ignored) {
+                    }
                 }
         }
     }
