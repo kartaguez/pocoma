@@ -1,396 +1,518 @@
-# Pocoma V3 — L6/I1 — Plan Technique d'Implémentation de l'Observabilité V3
+# Pocoma V3 — L6/I1 — Plan Technique d'Implémentation de l'Observabilité V3 (Amendé)
 
-**Date :** 6 novembre 2026  
-**Dépôt :** `kartaguez/pocoma`  
-**Branche :** `feat/v3-architecture`  
-**Référence Git d'entrée :** `0d11082e397337b4546dd751defec146ee5095e0` (`0d11082e`)  
-**Autorisation :** `GO_L6_I1_ONLY`  
-**Statut du document :** `DESIGN READY FOR REVIEW`  
-**Verdict :** `L6_I1_IMPLEMENTATION_PLAN_READY_FOR_REVIEW`  
-
----
-
-## 1. Contexte, Autorisation et Objectifs de L6/I1
-
-### 1.1 Contexte programmatique et historique
-Le lot L5 (« Supras et parcours externes V3 ») a été formellement et définitivement clos par décision humaine ([L5_Q5D_Formal_Closure_Decision.md](L5_Q5D_Formal_Closure_Decision.md)) après le succès irréfutable de la certification globale Q5-B6 (61/61 modules SUCCESS, 2 344/2 344 tests PASS, 170/170 Architecture PASS, Bruno B5 70/70 PASS au commit `2890d88f6fa94ff2262d08a2809f48512ce27c9d`).
-
-L'audit indépendant transversal Q5-C ([L5_Q5C_Quality_Performance_and_Restructuring_Audit.md](L5_Q5C_Quality_Performance_and_Restructuring_Audit.md)) a formulé des recommandations de restructuration et d'optimisation (dégel du quota READ $Q=2 \rightarrow 16$, réduction du lease 240 s $\rightarrow$ 60 s, calcul incrémental des balances, découpage des workers, fusion de modules Maven).  
-Par l'acte fondateur Q5-D, le responsable du programme a formellement statué :
-> **Toutes les propositions d'optimisation et de restructuration issues de Q5-C sont formellement différées après le lot L6.**  
-> **Le lot L6 (« Performance & Exploitation ») a pour mission prioritaire et exclusive de rendre le socle V3 entièrement observable et mesurable dans son état fonctionnel et architectural existant.**  
-> **Principe directeur absolu : observer le système tel qu'il existe, sans optimiser prématurément ni restructurer son architecture.**
-
-Le cadrage général de L6 est accepté, et l'incrément I1 est formellement autorisé sous le mandat :  
-`GO_L6_I1_ONLY` — Conception technique de l'observabilité V3.
-
-### 1.2 Objectif de l'incrément I1
-L'objectif de L6/I1 est de concevoir l'instrumentation fine du socle V3 complet pour collecter l'ensemble des données quantitatives indispensables aux futures décisions d'ingénierie, de dimensionnement et d'exploitation (lots ultérieurs L6/I2, L6/I3, L7 et L8).
-
-L'instrumentation doit couvrir de manière cohérente :
-- Les frontières temporelles T0 à T6 définies dans [SPEC-08 §2](SPEC-08_Observability.md#2-objectif-de-mesure-et-unités-de-progression).
-- Les objectifs de latence et les profils de données définis dans [SPEC-09](SPEC-09_Performance.md).
-- Les exigences de certification de robustesse, d'équité et de reprise définies dans [SPEC-10 §§10–12](SPEC-10_Test_Certification.md).
-- Les réserves d'exploitation ouvertes à la clôture de L5 :
-  * `FIND-L4-01` : Sémaphore READ $Q=2$ et contention de consultation.
-  * `FIND-L2-01` : Inflation mécanique du lease à 240 s et marges de renouvellement.
-  * `FIND-L4-03` : Coût du recalcul sans état des soldes à $V$ sur grands Pots (2 000 dépenses).
-  * `FIND-L1-01` : Profilage SQL des requêtes multi-jointures `openComponent`.
-  * `RES-ENV-01` : Taux d'utilisation physique des pools Hikari et détection de saturation.
+**Date :** 6 novembre 2026
+**Dépôt :** `kartaguez/pocoma`
+**Branche :** `feat/v3-architecture`
+**Référence Git d'entrée :** `f0186ae881db2418e2447953258c35cb58d11dcf` (`f0186ae8`)
+**Autorisation :** `GO_L6_I1_PLAN_AMENDMENT_ONLY`
+**Statut du document :** `AMENDED DESIGN READY FOR HUMAN REVIEW`
+**Verdict :** `L6_I1_AMENDED_IMPLEMENTATION_PLAN_READY_FOR_HUMAN_REVIEW`
 
 ---
 
-## 2. Audit Préalable Exhaustif de l'Existant
+## 1. Contexte, Autorisation et Nouvelle Exigence d'Acceptation I1
 
-Un examen systématique du code source sous `app/`, `docker/` et `scripts/` permet d'établir l'inventaire contradictoire ci-dessous.  
-Chaque composant est classifié selon les catégories normatives :
-- **REUSE** : Réutilisable tel quel sans altération.
-- **EXTEND** : Socle pertinent à compléter ou enrichir à la marge.
-- **REPLACE** : Composant obsolète ou inadapté à remplacer par le mécanisme V3 cible.
-- **NOT NEEDED** : Composant hors périmètre ou reliquat historique sans valeur pour V3.
+### 1.1 Contexte et décisions fondatrices
+Le lot L5 (« Supras et parcours externes V3 ») a été formellement et définitivement clos par décision humaine ([L5_Q5D_Formal_Closure_Decision.md](L5_Q5D_Formal_Closure_Decision.md)) sur le SHA de certification globale Q5-B6 `2890d88f6fa94ff2262d08a2809f48512ce27c9d`.
+Par cet acte, le responsable du programme a arrêté le principe normatif suivant :
+> **Toutes les propositions d'optimisation et de restructuration issues du rapport d'audit Q5-C ([L5_Q5C_Quality_Performance_and_Restructuring_Audit.md](L5_Q5C_Quality_Performance_and_Restructuring_Audit.md)) sont formellement différées après le lot L6.**
+> **Le lot L6 (« Performance & Exploitation ») a pour mission prioritaire et exclusive de rendre le socle V3 entièrement observable et mesurable dans son état fonctionnel et architectural existant.**
+> **Principe directeur absolu : observer le système tel qu'il existe, sans modifier son fonctionnement ni restructurer son architecture.**
 
-### 2.1 Synthèse de l'inventaire de l'existant
+Le cadrage L6 est accepté et le lancement de l'incrément I1 est autorisé sous mandat strict :
+`GO_L6_I1_PLAN_AMENDMENT_ONLY` — Amendement ciblé pour l'observabilité opérationnelle, Grafana et Bruno.
 
-| Domaine | Élément / Classe / Ressource | Module(s) concerné(s) | Constat & Diagnostic technique | Classification | Action I1 |
-|---|---|---|---|:---:|---|
-| **Contrats & Ports** | `ConsumptionObservation` (interface & `Phase` / `Outcome`) | `engine-consumption` | Port d'observation non bloquant (`safely`), 45 phases d'orchestration et d'exécution, isolation transactionnelle absolue. | **REUSE** | Conserver intact le port. |
-| **Contrats & Ports** | `TraceContext`, `TraceContextHolder` | `contracts-observability` | Contrat de corrélation ThreadLocal contenant `traceId`, `userId`, `httpMethod`, `requestStartedAtNanos`. | **REUSE** | Maintenir pour la corrélation HTTP et les journaux de diagnostic. |
-| **Micrometer & Actuator** | `spring-boot-starter-actuator` | Tous les runtimes sous `app/` | Présent dans les 10 runtimes et monolithe. Endpoints `/actuator/health` et `/actuator/prometheus` exposés. | **REUSE** | Utiliser l'infrastructure Actuator existante. Aucun nouveau starter. |
-| **Micrometer & Actuator** | `micrometer-registry-prometheus` | `runtime-monolith`, `runtime-web-api`, `composition-runtime-spring` | Registre Prometheus configuré et fonctionnel pour l'export Actuator. | **REUSE** | Conserver la configuration d'exposition Prometheus. |
-| **Télémétrie Moteur** | `MicrometerV3ConsumptionObservation` | `composition-runtime-spring` | Implémentation Micrometer complète de `ConsumptionObservation`. Mappe les 9 Consumptions V3 canoniques, timers d'attempt, phases prepare/finalize, claims, rotations, jauges de capacité. | **REUSE / EXTEND** | Réutiliser le cœur éprouvé ; étendre à la marge pour les délais de découverte/enrôlement (lag). |
-| **Télémétrie V2** | `MicrometerConsumptionPollingWorkerObservation` | `composition-runtime-spring` | Observation liée aux anciens workers V2 polling par tâche (`ConsumptionPollingWorkerObservation`). Inadaptée aux slots V3. | **NOT NEEDED** | Ne pas réutiliser pour V3. Délaissé pour le socle V3. |
-| **Télémétrie V2** | `MeteredAdvanceLatestKnownVersionUseCase` | `runtime-latest-known-version-consumption-worker` | Décorateur Micrometer spécifique au worker LKV historique. | **NOT NEEDED** | Hors du chemin V3 canonique (aucun LKV en V3). |
-| **Traces & Filtres** | `TraceCorrelationFilter` | `composition-runtime-spring` | Filtre Servlet gérant `X-Trace-Id`, injection MDC et logs de début/fin d'opération HTTP avec `duration_ms`. Aucun compteur ni timer Micrometer. | **EXTEND** | Conserver pour MDC/logs ; adjoindre la métrologie Micrometer sans modifier la logique de trace. |
-| **Admission HTTP** | `V3AdmissionController`, `V3AdmissionTransport` | `supra-http-write` | `OncePerRequestFilter` gérant la sémaphore de capacité (`Limits.capacity()`), le parsing strict et les erreurs 202/400/503. Aucune sonde Micrometer active. | **EXTEND** | Instrumenter dans le transport : durée d'admission (T0), décompte par endpoint/status, jauge de capacité. |
-| **Consultation READ** | `V3ReadController`, `V3ReadTransport` | `supra-http-read` | Contrôleur et transport READ. Transport possède un sémaphore `HTTP_PERMITS = 2` non instrumenté. Aucune métrique Micrometer. | **EXTEND** | Instrumenter durée de requête READ (T6), décompte par endpoint/status, jauge de capacité HTTP. |
-| **Façades READ & Quota** | `V3ReadFacadeComposition.Services` | `composition-runtime-spring` | Gère le sémaphore métier `SQL_PERMITS = 2` (`FIND-L4-01`). Rejets `!quota.tryAcquire()` muets en télémétrie. Requêtes non chronométrées. | **EXTEND** | Instrumenter le temps d'exécution des queries READ, les rejets de quota et la jauge de permis disponibles. |
-| **Transactions & Événements** | `MeteredEventTransactionSuffix` | `composition-runtime-spring` | Suffixe transactionnel mesurant via `TransactionSynchronization` : durée du suffixe, tail de commit, et résolutions (committed / rolled_back). | **REUSE** | Réutiliser tel quel pour la mesure du commit d'événements et de la terminaison transactionnelle (T5). |
-| **Pools JDBC** | 6 `HikariDataSource` (Worker, Admission, Read) | `composition-runtime-spring` | Pools instanciés par code : `writeBusiness`, `writeControl`, `readBusiness`, `readControl`, `v3AdmissionPool`, `v3HttpReadPool`. Aucun `setMetricRegistry(...)` explicite. | **EXTEND** | Enregistrer explicitement le `MeterRegistry` sur chaque pool Hikari pour exposer les métriques natives `hikaricp.*`. |
-| **Projections métier** | 7 Participants READ / Result | `engine-materialize-*`, `projector-pot` | Les 7 participants (`PotVersion`, `PotBalance`, `PotVisibility`, `CurrentBinding`, `Invitation`, `CommandResult`, `IdentityRequestResult`) sont pilotés par `ConsumptionEngine`. | **REUSE** | Déjà instrumentés de manière transparente et indépendante par `ConsumptionEngine` via `Phase.PREPARE` / `Phase.FINALIZE`. |
-| **Workers & Leases** | `V3ConsumptionWorker`, `WorkerCapacity` | `orchestrator-poll-consumption`, `engine-consumption` | Boucles de rotation, cadences, acquisition/renouvellement des baux de partition et de slots. Entièrement branché sur `ConsumptionObservation`. | **REUSE** | Télémétrie complète déjà active dans `MicrometerV3ConsumptionObservation`. |
-| **Scripts & k6** | Scénarios k6 (`smoke.js`, `stress.js`, `lib/prometheus-scraper.js`) | `scripts/k6/` | Scénarios de charge historiques ciblant les endpoints synchrones V2 supprimés. `prometheus-scraper.js` parse Actuator. | **REPLACE (pour k6)** | Scripts k6 conservés comme modèles de charge ; refonte des cibles vers `/api/v3/*` différée à L6/I2. |
-| **Tests d'observabilité** | `V3WorkerMetricsTest` (`i5_m01`…`i5_m03`) | `runtime-command-consumption-worker` | Valide l'absence d'effets secondaires, les métriques nominales, les oracles négatifs (O01-N) et la résistance aux pannes d'observateur. | **REUSE** | Base d'oracles de test pour valider l'instrumentation I1. |
-| **Tests de façade READ** | `ReadFacadesPostgresTest` | `runtime-task-consumption-worker` | Vérifie l'emprunt physique Hikari et les requêtes READ sous transaction isolée. | **REUSE** | À enrichir par la validation des métriques de quota $Q=2$. |
+### 1.2 Nouvelle exigence d'acceptation I1 : Observabilité locale en fonctionnement
+Le plan technique initial (`f0186ae8`) prévoyait une instrumentation rigoureuse au niveau du code et des tests JUnit.
+Cependant, pour qu'I1 soit formellement accepté, **le système ne doit pas seulement être instrumenté en théorie ou validé par des assertions `SimpleMeterRegistry` en mémoire** : il doit être **effectivement observable en fonctionnement local par un opérateur humain**.
+
+À la clôture de L6/I1, un développeur doit pouvoir :
+1. Démarrer localement une configuration Pocoma V3 réellement fonctionnelle (PostgreSQL, Keycloak si requis, runtime V3).
+2. Démarrer la collecte Prometheus des métriques de ces composants.
+3. Ouvrir un tableau de bord Grafana provisionné dans son navigateur (`http://localhost:3000`).
+4. Visualiser l'état initial des métriques (runtimes, jauges de workers, pools de connexions).
+5. Exécuter un parcours représentatif via les collections Bruno V3.
+6. Constater en direct l'évolution des métriques (débits d'admission, durées d'exécution, transitions de slots, matérialisation des résultats et des projections).
+7. Identifier d'éventuels ralentissements ou contentions (taux de rejets du sémaphore $Q=2$, latences de requêtes, baux de partitions).
+
+Cette démonstration locale opérationnelle constitue une condition d'acceptation sine qua non d'I1, sans toutefois constituer une certification de performance SPEC-09 ni une homologation de distribution L8.
 
 ---
 
-## 3. Architecture Cible pour L6/I1
+## 2. Audit Préalable de l'Existant (Code, Docker, Prometheus, Grafana, Bruno)
 
-### 3.1 Examen de la question architecturale prioritaire
+Un examen complet des composants existants dans le dépôt permet de fixer les choix de réemploi :
 
-> **Question prioritaire :**  
-> *Peut-on instrumenter les moteurs et orchestrateurs génériques une seule fois, puis obtenir les métriques spécifiques par configuration ou composition, sans multiplier les sondes dans chaque implémentation spécialisée ?*
+### 2.1 Synthèse de l'audit et classification normative
 
-#### Analyse approfondie :
-1. **Faisabilité démontrée par l'architecture hexagonale V3 :**  
-   L'architecture de Pocoma sépare rigoureusement les moteurs génériques d'orchestration (`ConsumptionEngine`, `V3ConsumptionWorker`) des implémentations de domaine spécialisées (`ConsumptionParticipant`).  
-   Chaque participant (`MaterializePotBalanceParticipant`, `MaterializePotVersionParticipant`, `ExecutePotCommandParticipant`, etc.) est exécuté par le `ConsumptionEngine` générique au travers du même cycle canonique :
-   $$\text{Slot éligible} \xrightarrow{\text{ACQUIRE}} \text{Ticket/Claim} \xrightarrow{\text{PREPARE}} \text{Préparation} \xrightarrow{\text{FINALIZE}} \text{Transaction DB} \xrightarrow{\text{COMMIT}} \text{Terminaison}$$
-2. **Couverture unifiée sans sondes spécialisées :**  
-   En transmettant le `definition.id()` (`ConsumptionId`) à chaque appel de `ConsumptionObservation.record(...)`, le moteur générique permet à `MicrometerV3ConsumptionObservation` de taguer chaque métrique avec le tag dimensionnel `consumption="PotBalance"`, `consumption="Command"`, `consumption="PotVersion"`, etc.  
-   **Conséquence immédiate :** 100% des participants de projection, de commande et d'identité bénéficient d'une instrumentation uniforme et exhaustive de leurs durées (`attempt.duration`, `attempt.phase.duration`), de leurs débits, de leurs taux d'échec et de leurs quarantaines, **sans écrire une seule ligne de code de télémétrie dans les classes métier ou adaptateurs**.
-3. **Limites de l'approche générique :**  
-   - *Sous-phases internes au domaine :* Le moteur générique ne peut pas mesurer séparément les étapes internes à la méthode `prepare(...)` d'un participant (par exemple le temps exact de calcul rationnel des balances $O(N)$ vs le chargement SQL des composantes financières). Cependant, SPEC-08 n'exige pas de découpage intra-participant en I1 ; la durée globale `phase="prepare"` de `PotBalance` fournit déjà l'exact indicateur nécessaire pour caractériser le risque `FIND-L4-03`.
-   - *Frontières HTTP hors moteur :* L'admission HTTP (T0) et la consultation HTTP READ (T6) sont situées en amont et en aval de la boucle de Consumption. Elles nécessitent des sondes spécifiques au transport Web.
-4. **Coût et bénéfice :**  
-   - *Coût :* Nul. L'infrastructure existe déjà dans `engine-consumption` et `composition-runtime-spring`.
-   - *Bénéfice :* Respect absolu de l'indépendance des moteurs et du domaine pur ; zéro couplage entre Micrometer et les packages de domaine ; zéro duplication de sondes ; ajout futur d'une nouvelle projection sans impact sur l'instrumentation.
+| Composant / Ressource | Emplacement existant | Diagnostic technique | Classification | Action I1 |
+|---|---|---|:---:|---|
+| **Contrat d'observation** | `engine-consumption/.../ConsumptionObservation.java` | Port non bloquant (`safely`), 45 phases d'orchestration/exécution. | **REUSE** | Conserver intact. |
+| **Observation Micrometer** | `composition-runtime-spring/.../MicrometerV3ConsumptionObservation.java` | Connecte les phases du moteur aux métriques Prometheus avec histogrammes SLO préconfigurés. | **REUSE / EXTEND** | Réutiliser le cœur éprouvé ; étendre aux jauges de backlog. |
+| **Starters Actuator & Prometheus** | `app/pom.xml`, runtimes et monolithe | `spring-boot-starter-actuator` présent partout ; `micrometer-registry-prometheus` dans monolithe et web-api. | **REUSE** | Conserver sans modification de POM. |
+| **Filtre de trace** | `composition-runtime-spring/.../TraceCorrelationFilter.java` | Gère `X-Trace-Id` et MDC. | **REUSE** | Conserver pour la corrélation HTTP. |
+| **Transports HTTP** | `supra-http-write/.../V3AdmissionTransport.java`<br>`supra-http-read/.../V3ReadTransport.java` | Filtres Servlet contrôlant les sémaphores de capacité (`capacity`). | **EXTEND** | Instrumenter les durées HTTP T0 et T6, statuts et jauges de capacité. |
+| **Façade READ & Quota** | `composition-runtime-spring/.../V3ReadFacadeComposition.java` | Gère le sémaphore `SQL_PERMITS = 2` (`FIND-L4-01`). Rejets non instrumentés. | **EXTEND** | Instrumenter `pocoma.v3.read.quota.permits`, `rejections` et durées de queries. |
+| **Suffixe transactionnel** | `composition-runtime-spring/.../MeteredEventTransactionSuffix.java` | Mesure durées suffixe, commit tail et résolutions d'événements. | **REUSE** | Réutiliser tel quel pour la production d'événements. |
+| **Pools HikariCP** | `V3ConsumptionWorkerConfiguration.java`, etc. | 6 pools instanciés programmariquement sans `setMetricRegistry(...)`. | **EXTEND** | Enregistrer le `MeterRegistry` sur chaque pool pour exposer `hikaricp.*`. |
+| **Docker Compose fonctionnel** | `docker-compose.functional.yml` | Stack complète locale : PostgreSQL 16.6 (5432), Keycloak 26.7.0 (8081), `runtime-monolith` (8080). | **REUSE** | Base idéale pour la topologie locale observable. |
+| **Docker Prometheus** | `docker/prometheus/prometheus.distributed.yml` | Scrape distribué V2. | **EXTEND** | Créer une configuration locale `docker/prometheus/prometheus.local.yml` ciblant le monolithe V3. |
+| **Docker Grafana** | `docker/grafana/provisioning/` | Datasource Prometheus et provider de dashboards déjà configurés. | **REUSE** | Réutiliser le mécanisme de provisioning automatique. |
+| **Dashboard Grafana existant** | `docker/grafana/dashboards/pocoma-runtime.json` | Ancien dashboard V2 à 4 graphes génériques (`up`, `jvm`, `cpu`, `http`). | **REPLACE (pour V3)** | Fournir un dashboard dédié `docker/grafana/dashboards/pocoma-v3-overview.json`. |
+| **Collections Bruno V3** | `scripts/bruno-v3/` | Suites B1 (READ), B2 (Admission/Commandes), B3 (Link OIDC), B4 (Invitations). | **REUSE** | Extraire un parcours de démonstration minimal B1/B2 représentatif. |
+| **Tests d'observabilité** | `V3WorkerMetricsTest.java` | Tests unitaires validant l'absence d'effets secondaires et les oracles négatifs (O01-N). | **REUSE** | Base d'oracles de test automatisés pour l'instrumentation. |
 
-### 3.2 Cartographie des 12 points d'instrumentation et frontières T0 à T6
+---
 
-Le schéma ci-dessous positionne les points de mesure sur le flux asynchrone V3 :
+## 3. Architecture Cible d'Observabilité pour I1
+
+### 3.1 Moteurs génériques instrumentés une seule fois
+L'architecture de Pocoma sépare rigoureusement l'orchestrateur générique (`V3ConsumptionWorker`) et le moteur d'exécution (`ConsumptionEngine`) des participants de domaine (`ConsumptionParticipant`).
+Chaque opération de domaine (`ExecutePotCommandParticipant`, `ExecuteIdentityRequestParticipant`, `MaterializePotBalanceParticipant`, `MaterializePotVersionParticipant`, `MaterializePotVisibilityParticipant`, `MaterializeCommandResultParticipant`, etc.) est pilotée au travers des phases canoniques :
+$$\text{Événement / Demande} \xrightarrow{\text{DISCOVERY}} \text{Slot} \xrightarrow{\text{ACQUIRE}} \text{Claim} \xrightarrow{\text{PREPARE}} \text{Calcul} \xrightarrow{\text{FINALIZE}} \text{Transaction DB} \xrightarrow{\text{COMMIT}} \text{Terminaison}$$
+
+En recevant le `ConsumptionId`, `MicrometerV3ConsumptionObservation` appose automatiquement le tag `consumption="Command"`, `consumption="PotBalance"`, etc.
+**Conséquence :** 100% des participants bénéficient d'une instrumentation uniforme et complète sans qu'aucune sonde ne soit injectée dans le code métier ou dans les adaptateurs.
+
+### 3.2 Frontières T0 à T6 : Définition, Précision et Biais
+
+Conformément à [SPEC-08](SPEC-08_Observability.md), les étapes du traitement asynchrone sont délimitées comme suit :
+
+```mermaid
+flowchart LR
+    subgraph Client["Client (Bruno)"]
+        T0_Req["Requête HTTP"]
+        T6_Resp["Consultation 200 (W >= V)"]
+    end
+
+    subgraph Entry["Admission (T0)"]
+        T0["T0: Admission persistée (202)"]
+    end
+
+    subgraph Discovery["Découverte (T1 -> T2)"]
+        T1["T1: Source committée"]
+        T2["T2: Slot enrôlé"]
+    end
+
+    subgraph Engine["Exécution (T2 -> T5)"]
+        T3["T3: Slot acquis (Claim)"]
+        T4["T4: Préparation finie"]
+        T5["T5: Transaction committée"]
+    end
+
+    subgraph Projections["Projections & Résultats"]
+        PRJ_Ver["MaterializePotVersion"]
+        PRJ_Bal["MaterializePotBalance"]
+        PRJ_Vis["MaterializePotVisibility"]
+        PRJ_Res["MaterializeCommandResult"]
+    end
+
+    subgraph Read["Consultation (T6)"]
+        T6["T6: Lecture API READ autorisée"]
+    end
+
+    T0_Req --> T0
+    T0 -.-> T1
+    T1 --> T2 --> T3 --> T4 --> T5
+    T5 -.-> PRJ_Ver & PRJ_Bal & PRJ_Vis & PRJ_Res
+    PRJ_Ver & PRJ_Bal --> T6
+    T6 --> T6_Resp
+```
+
+#### Analyse de précision, approximations et biais :
+1. **Admission HTTP (T0) :**
+   - *Méthode :* Timer en mémoire dans `V3AdmissionTransport` mesurant `System.nanoTime()` entre l'arrivée du filtre et l'envoi de la réponse 202.
+   - *Exactitude :* Exacte côté serveur. Le temps mesuré côté client (Bruno) inclut la latence réseau aller-retour.
+2. **Délai de Discovery (T1 $\rightarrow$ T2) :**
+   - *Nature :* Délai d'attente avant que le worker Discovery n'inspecte la table source et n'enrôle le slot.
+   - *Mesure en I1 :* Mesure indirecte/approximative. SPEC-08 §6 interdit l'ajout de colonnes d'audit temporel durable dans les slots. Le cycle de découverte est chronométré (`pocoma.v3.discovery.duration`) et le lag est estimé par la progression des checkpoints.
+   - *Complément I3 :* Campagnes de charge sous k6 avec sondes injectées.
+3. **Attente en file Engine (T2 $\rightarrow$ T3) :**
+   - *Nature :* Temps écoulé entre l'insertion du slot et son acquisition effective par un claim.
+   - *Mesure en I1 :* Approximée par la jauge de saturation (`pocoma.v3.saturation`), la jauge `pocoma.v3.physical.pending` et le timer d'acquisition (`pocoma.v3.claim.acquisition.duration`).
+4. **Calcul et Préparation (T3 $\rightarrow$ T4) :**
+   - *Méthode :* Timer monotone exact `pocoma.v3.attempt.phase.duration{phase="prepare"}`. Isole le temps de calcul métier pur du coût transactionnel.
+5. **Finalisation et Commit (T4 $\rightarrow$ T5) :**
+   - *Méthode :* Timer monotone exact `pocoma.v3.attempt.phase.duration{phase="finalize"}` et `pocoma.event.sequencing.suffix`.
+6. **Disponibilité du Résultat (T0 $\rightarrow$ Résultat terminal) :**
+   - *Méthode :* Polling client borné sur `GET /api/v3/commands/{requestId}/result` jusqu'à obtention du statut 200. Le timer serveur mesure la durée de la tentative de matérialisation (`consumption="CommandResult"`).
+7. **Disponibilité effective READ (T0 $\rightarrow$ T6) :**
+   - *Méthode :* Polling client borné sur `GET /api/v3/pots/{potId}?minVersion=V`.
+   - *Biais :* Dépend de l'intervalle de polling (ex. 50 ms à 250 ms). En I1, démontré par Bruno ; la mesure fine des quantiles p95 relève des campagnes k6 d'I3.
+
+---
+
+## 4. Configuration Locale Observable
+
+Pour satisfaire l'exigence d'acceptation I1, une configuration de développement locale prête à l'emploi est définie.
+
+### 4.1 Topologie retenue
+La topologie de référence s'appuie sur le **monolithe fonctionnel V3** (`pocoma-functional`), qui rassemble l'ensemble des modules dans une seule image Spring Boot, évitant la complexité de gestion de 9 conteneurs workers séparés tout en préservant l'isolation physique des bases de données et des transactions.
 
 ```mermaid
 flowchart TD
-    subgraph Client["Client / Bruno / k6"]
-        C0["Départ Requête HTTP"]
-        C6["Réception Réponse READ"]
+    subgraph Host["Machine Hôte (Développeur)"]
+        Browser["Navigateur Web : Grafana (http://localhost:3000)"]
+        BrunoCli["Client Bruno CLI / GUI"]
     end
 
-    subgraph HTTP_Write["Admission HTTP (T0)"]
-        T0_In["V3AdmissionTransport: Entry"]
-        T0_DB["JdbcAdmissionStore: Commit Demande"]
-        T0_Out["202 Accepted + Location"]
+    subgraph DockerNet["Réseau Docker pocoma-local"]
+        PG[("PostgreSQL 16.6\n(Port 5432)")]
+        KC["Keycloak 26.7.0\n(Port 8081)"]
+        Mono["Pocoma V3 Monolithe\n(Port 8080)\nActuator / Prometheus"]
+        Prom["Prometheus\n(Port 9090)\nScrape 5s"]
+        Graf["Grafana\n(Port 3000)\nAuto-provisionné"]
     end
 
-    subgraph Discovery_Slot["Discovery & Enrôlement (T1 -> T2)"]
-        T1["Source publiée committée (Événement / Demande)"]
-        T2["v3_consumption_slot inséré (Discovery)"]
-    end
-
-    subgraph Engine_Claim["Orchestration & Acquisition (T2 -> T3)"]
-        T3_Poll["V3ConsumptionWorker: Tour de rotation"]
-        T3_Acq["ConsumptionEngine: Claim acquis (ACQUIRE)"]
-    end
-
-    subgraph Execution["Préparation & Transaction (T3 -> T5)"]
-        T4_Prep["ConsumptionParticipant: prepare() (PREPARE)"]
-        T5_Tx["AttemptTransactions: finalize() (FINALIZE)"]
-        T5_Suffix["MeteredEventTransactionSuffix: Commit Events"]
-    end
-
-    subgraph Read_Projections["Projections Indépendantes"]
-        P_Ver["MaterializePotVersion (Indépendant)"]
-        P_Bal["MaterializePotBalance (Indépendant)"]
-        P_Vis["MaterializePotVisibility (Indépendant)"]
-        P_Res["MaterializeCommandResult (Indépendant)"]
-    end
-
-    subgraph HTTP_Read["Consultation READ (T6)"]
-        T6_In["V3ReadTransport: Entry (Capacité HTTP)"]
-        T6_Quota["V3ReadFacadeComposition: Quota Q=2"]
-        T6_SQL["JdbcPot*Store: Lecture SQL"]
-        T6_Out["200 OK + Payload Pot / Balance"]
-    end
-
-    C0 --> T0_In
-    T0_In --> T0_DB --> T0_Out
-    T0_DB -.-> T1
-    T1 --> T2
-    T2 --> T3_Poll --> T3_Acq
-    T3_Acq --> T4_Prep --> T5_Tx --> T5_Suffix
-    T5_Suffix -.-> P_Ver & P_Bal & P_Vis & P_Res
-    P_Ver & P_Bal & P_Vis -.-> T6_SQL
-    C6 <-- T6_Out <-- T6_SQL <-- T6_Quota <-- T6_In
+    Browser --> Graf
+    BrunoCli --> Mono
+    BrunoCli --> KC
+    Graf --> Prom
+    Prom --> Mono
+    Mono --> PG
+    Mono --> KC
+    KC --> PG
 ```
 
-#### Alignement des 12 points d'instrumentation requis :
-1. **Admission HTTP (T0) :** Mesuré au niveau de `V3AdmissionTransport`. Chronomètre depuis la réception de la requête jusqu'à l'émission du statut 202 (ou erreur 400/409/503).
-2. **Discovery (T1 $\rightarrow$ T2) :** Mesuré via `V3ConsumptionWorker` et `ConsumptionObservation` (`Phase.DISCOVERY_CYCLE`, `Phase.DISCOVERY_EXAMINED`, `Phase.DISCOVERY_ADVANCED`). Calcul du délai d'enrôlement (lag).
-3. **Création et acquisition des slots (T2 $\rightarrow$ T3) :** Mesuré via `ConsumptionEngine` (`Phase.ACQUIRE`, `Phase.ACQUISITION_EXAMINED`, `claim.operations`).
-4. **Préparation des commandes (T3 $\rightarrow$ T4) :** Mesuré via `ConsumptionEngine` (`Phase.PREPARE`, `pocoma.v3.attempt.phase.duration` avec `phase="prepare"`).
-5. **Exécution transactionnelle (T4 $\rightarrow$ T5) :** Mesuré via `ConsumptionEngine` (`Phase.FINALIZE`) et `AttemptTransactions`.
-6. **Production des événements :** Mesuré via `MeteredEventTransactionSuffix` (`pocoma.event.sequencing.suffix`, `pocoma.event.sequencing.commit.tail`, résolutions committed/rolled_back).
-7. **Matérialisation des résultats :** Dérivé de `ConsumptionEngine` sous les labels `consumption="CommandResult"` et `consumption="IdentityRequestResult"`.
-8. **Matérialisation indépendante des projections :** Dérivé de `ConsumptionEngine` sous les labels `consumption="PotVersion"`, `consumption="PotBalance"`, `consumption="PotVisibility"`, `consumption="Invitation"`, `consumption="CurrentBinding"`. Branches strictement découplées.
-9. **Consultation READ (T6) :** Mesuré dans `V3ReadTransport` (durée HTTP et statuts) et dans `V3ReadFacadeComposition.Services` (durée des queries SQL et surveillance du sémaphore $Q=2$).
-10. **Leases et reprise :** Mesuré dans `V3ConsumptionWorker` (`pocoma.v3.lease.operations`, `pocoma.v3.renewal.duration`, `pocoma.v3.renewal.schedule.lag`, `pocoma.v3.quarantine.transitions`).
-11. **Files d'attente et retards :** Mesuré par la jauge `pocoma.v3.physical.pending`, complétée par une jauge de slots non réclamés / âge du backlog par consommation.
-12. **Pools JDBC et ressources système :** Mesuré via l'enregistrement Micrometer des pools Hikari (`hikaricp.connections.active`, `idle`, `pending`, `acquire`) et les métriques JVM Actuator (`process.cpu.usage`, `jvm.memory.used`).
+### 4.2 Définition des services et ports
+
+| Service | Image / Build | Port hôte | Port conteneur | Rôle dans la démonstration |
+|---|---|:---:|:---:|---|
+| `postgres` | `postgres:16.6` | `5432` | `5432` | Stockage relationnel V3 (schémas `primary`, `v3_read`, `keycloak`). |
+| `keycloak` | `quay.io/keycloak/keycloak:26.7.0` | `8081` | `8080` | Émission des jetons JWT OIDC (`pocoma-realm.json`). |
+| `runtime-monolith` | `pocoma/runtime-monolith:local` | `8080` | `8080` | Socle V3 complet (Admission, Workers, Projections, Façades READ, Actuator). |
+| `prometheus` | `prom/prometheus:v2.51.0` | `9090` | `9090` | Collecteur de métriques (scrape interval 5s pour réactivité locale). |
+| `grafana` | `grafana/grafana:10.4.0` | `3000` | `3000` | Visualisation avec dashboard `pocoma-v3-overview.json` provisionné. |
+
+### 4.3 Profils Spring et configuration Actuator
+- **Profil Spring activé :** `default` ou `v3-monolith-local`.
+- **Endpoints Actuator ouverts :**
+  ```properties
+  management.endpoints.web.exposure.include=health,prometheus
+  management.endpoint.health.probes.enabled=true
+  management.prometheus.metrics.export.enabled=true
+  management.metrics.distribution.percentiles-histogram.pocoma.v3=true
+  ```
+- **Sécurité locale :** Les ports 9090 et 3000 sont liés à `127.0.0.1` pour éviter toute exposition externe.
+
+### 4.4 Procédure d'exploitation locale
+1. **Démarrage de la stack observable :**
+   ```bash
+   docker compose -f docker-compose.functional.yml -f docker/compose/docker-compose.observability.yml up -d
+   ```
+2. **Attente de disponibilité (Healthcheck) :**
+   ```bash
+   ./scripts/operations/wait-for-local-stack.sh
+   # Vérifie: postgres (5432 OK), keycloak (8081 OK), monolith (8080 /actuator/health/readiness OK)
+   ```
+3. **Vérification de la collecte Prometheus :**
+   ```bash
+   curl -s http://127.0.0.1:9090/api/v1/targets | grep '"health":"up"'
+   ```
+4. **Ouverture du dashboard :**
+   Naviguer vers `http://localhost:3000` (identifiants par défaut : `admin` / `admin`).
+5. **Arrêt de la stack :**
+   ```bash
+   docker compose -f docker-compose.functional.yml -f docker/compose/docker-compose.observability.yml down
+   ```
 
 ---
 
-## 4. Catalogue des Métriques V3
+## 5. Dashboard Grafana Pocoma V3
 
-Conformément à SPEC-08 §5, les règles cardinales suivantes sont strictement appliquées :
-- **Aucun identifiant à forte cardinalité** (`potId`, `userId`, `requestId`, `eventId`, `traceId`, `claimToken`, `bindingToken`) n'est injecté dans les tags.
-- Toutes les dimensions sont des énumérations finies et contrôlées.
-- Les quantiles critiques (p50, p95, p99) sont instrumentés via des histogrammes Micrometer avec des SLO buckets adaptés aux exigences de SPEC-09.
+Un dashboard Grafana dédié et versionné, intitulé **`pocoma-v3-overview.json`**, sera créé sous `docker/grafana/dashboards/` et auto-provisionné via `docker/grafana/provisioning/dashboards/dashboards.yml`.
 
-### 4.1 Catalogue des métriques continues (Prometheus / Micrometer)
+### 5.1 Structure des panneaux et requêtes PromQL exactes
 
-| Nom de la métrique | Type | Unité | Point exact de mesure | Tags / Dimensions autorisés | Cardinalité max | Précision & Biais | Coût unitaire | Test de certification | Décisions futures éclairées |
-|---|:---:|:---:|---|---|:---:|---|:---:|---|---|
-| `pocoma.v3.admission.http.duration` | Timer (Histogram) | secondes | `V3AdmissionTransport: doFilterInternal` | `endpoint` (`command`, `identity`), `status` (`202`, `400`, `409`, `413`, `503`) | 10 | Précision JVM `nanoTime()`. Inclut parsing + commit SQL + envoi réponse. | ~25 ns | Test unitaire transport + test postgres HTTP | Valider le SLO d'admission et dimensionner la capacité d'entrée HTTP. |
-| `pocoma.v3.admission.requests` | Compteur | requêtes | `V3AdmissionTransport: doFilterInternal` | `endpoint`, `status` | 10 | Exact. | ~10 ns | Test d'admission nominal et cas d'erreur | Détecter les pointes de charge et les ratios d'erreurs/conflits d'idempotence. |
-| `pocoma.v3.admission.capacity.available` | Jauge | permis | `V3AdmissionTransport: capacity.availablePermits()` | `endpoint` (`admission`) | 1 | Échantillonné à l'instant du scrape ou de la requête. | ~5 ns | Test de saturation d'admission | Dimensionner le sémaphore d'admission HTTP (`Limits.capacity()`). |
-| `pocoma.v3.admission.payload.bytes` | DistributionSummary | octets | `V3AdmissionTransport: body.length` | `endpoint` | 2 | Taille physique exacte du JSON reçu. | ~15 ns | Test de payload limite (256 Ko) | Dimensionner les buffers de streaming et la charge réseau. |
-| `pocoma.v3.discovery.duration` | Timer | secondes | `V3ConsumptionWorker: runDiscoveryCycle` | `consumption`, `outcome` (`confirmed`, `empty`, `capacity`) | 33 (11 cons $\times$ 3 outcomes) | Durée locale d'interrogation et enrôlement. | ~20 ns | `V3WorkerMetricsTest` | Identifier la surcharge SQL du polling de découverte à vide ou sous charge. |
-| `pocoma.v3.discovery.references` | Compteur | références | `V3ConsumptionWorker: cycle Discovery` | `consumption`, `kind` (`examined`, `advanced`, `admitted`) | 33 | Exact, comptabilisé par lot de découverte. | ~10 ns | `V3WorkerMetricsTest: i5_m03` | Suivre le débit d'enrôlement et l'efficacité des index d'événements. |
-| `pocoma.v3.claim.acquisition.duration` | Timer | secondes | `ConsumptionEngine: acquireOperation` | `consumption`, `outcome` (`confirmed`, `empty`, `busy`) | 33 | Durée de la transaction de verrouillage/mise à jour du slot. | ~20 ns | `V3WorkerMetricsTest: i5_m01` | Mesurer la contention de verrouillage des slots de partition. |
-| `pocoma.v3.claim.operations` | Compteur | opérations | `ConsumptionEngine: measured(ACQUIRE/RENEW/LOST)` | `consumption`, `operation` (`acquire`, `renew`, `lost`), `outcome` | 66 | Exact. | ~10 ns | `V3WorkerMetricsTest` | Détecter les pertes de claims sous saturation ou crash worker. |
-| `pocoma.v3.capacity.used` | Jauge | tickets | `WorkerCapacity: snapshot` | `scope` (`worker`, nom de la consommation) | 12 | Échantillonné via AtomicInteger en mémoire. Sans I/O. | ~5 ns | `V3WorkerMetricsTest` | Mesurer le taux d'allocation des permis d'exécution par worker. |
-| `pocoma.v3.physical.pending` | Jauge | claims | `ConsumptionEngine: pending.size()` | `consumption` | 11 | Compteur atomique maintenu lors de la vie du handle. | ~5 ns | `V3WorkerMetricsTest` | Détecter les fuites de claims ou les blocages de finalisation. |
-| `pocoma.v3.attempt.duration` | Timer (Histogram) | secondes | `ConsumptionEngine: executeOperation` | `consumption`, `outcome` (`committed`, `rolled_back`, `unknown`, `claim_lost`) | 44 | Durée complète de la tentative (prepare + finalize). | ~25 ns | `V3WorkerMetricsTest` | Évaluer le temps d'exécution bout en bout de chaque étape de traitement. |
-| `pocoma.v3.attempt.phase.duration` | Timer (Histogram) | secondes | `ConsumptionEngine: measured(PREPARE/FINALIZE/CESSION)` | `consumption`, `phase` (`prepare`, `finalize`, `cession`), `outcome` | 99 | Durée isolée du calcul pur vs durée de la transaction DB. | ~25 ns | Test unitaire moteur | **Caractériser le coût du recalcul O(N) des balances sur grands Pots (`FIND-L4-03`).** |
-| `pocoma.v3.attempt.outcomes` | Compteur | tentatives | `ConsumptionEngine: executeOperation` | `consumption`, `outcome` | 44 | Exact. | ~10 ns | `V3WorkerMetricsTest` | Détecter les rollbacks métier, collisions CAS et erreurs techniques. |
-| `pocoma.v3.quarantine.transitions` | Compteur | slots | `ConsumptionEngine: controlSlots.cede` | `consumption` | 11 | Exact, incrémenté lors du passage en statut QUARANTINED. | ~10 ns | Test d'échecs répétés et quarantaine | Surveiller les empoisonnements et alimenter les alertes exploitant. |
-| `pocoma.v3.read.http.duration` | Timer (Histogram) | secondes | `V3ReadTransport: doFilterInternal` | `endpoint` (`pot_current`, `pot_version`, `balance`, `expenses`, `visible`, `binding`, `command_result`), `status` | 56 | Durée HTTP vue côté serveur. | ~25 ns | Test de contrat HTTP READ | Vérifier le SLO de lecture utilisateur (p95 $\le 500$ ms). |
-| `pocoma.v3.read.quota.permits` | Jauge | permis | `V3ReadFacadeComposition.Services: quota.availablePermits()` | `scope` (`business_read`) | 1 | Échantillonné sur la sémaphore $Q=2$ en mémoire. | ~5 ns | `ReadFacadesPostgresTest` | **Éclairer la décision de dégel du quota READ $Q=2$ (`FIND-L4-01`).** |
-| `pocoma.v3.read.quota.rejections` | Compteur | rejets | `V3ReadFacadeComposition.Services: query (!tryAcquire)` | `scope` (`business_read`) | 1 | Incrémenté lorsque la requête reçoit un rejet 503 faute de permis. | ~10 ns | Test de contention READ | **Quantifier précisément la famine des lectures concurrentes sur $Q=2$.** |
-| `pocoma.v3.read.query.duration` | Timer (Histogram) | secondes | `V3ReadFacadeComposition.Services: query` | `operation` (`current`, `at`, `balance`, `expenses`, `visible`, `binding`), `outcome` (`available`, `not_found`, `unavailable`, `invalid`) | 24 | Durée exacte de la transaction JDBC isolée de lecture. | ~25 ns | `ReadFacadesPostgresTest` | Isoler le coût de la requête SQL du temps de transport HTTP. |
-| `pocoma.v3.renewal.duration` | Timer | secondes | `V3ConsumptionWorker: renewPartitions / renewClaims` | `authority` (`write`, `read`), `lane` (`0`, `1`, `2`), `outcome` | 18 | Durée de l'opération physique SQL de renouvellement de bail. | ~20 ns | `V3WorkerMetricsTest` | **Éclairer la décision d'ajustement du lease 240 s $\rightarrow$ 60 s (`FIND-L2-01`).** |
-| `pocoma.v3.renewal.schedule.lag` | Timer | secondes | `V3ConsumptionWorker: planificateur de renouvellement` | `authority`, `lane`, `outcome` | 18 | Retard mesuré entre l'échéance théorique du renouvellement et son exécution réelle. | ~20 ns | `V3WorkerMetricsTest` | Vérifier que les threads de renouvellement ne subissent pas de famine. |
-| `hikaricp.connections.active` | Jauge | connexions | `HikariPoolMXBean: getActiveConnections()` | `pool` (`writeBusiness`, `writeControl`, `readBusiness`, `readControl`, `admission`, `httpRead`) | 6 | Natif Hikari / Micrometer. | ~10 ns | `ReadFacadesPostgresTest` | **Mesurer la saturation réelle des connexions SQL sous charge (`RES-ENV-01`).** |
-| `hikaricp.connections.acquire` | Timer | secondes | `HikariDataSource: getConnection()` | `pool` | 6 | Natif Hikari. Mesure le temps d'attente pour obtenir une connexion du pool. | ~20 ns | `ReadFacadesPostgresTest` | Détecter l'épuisement des pools Hikari et la contention JDBC. |
+Les requêtes PromQL ci-dessous exploitent les noms exacts générés par le format d'export Prometheus de Micrometer (conversion des `.` en `_`, suffixe `_total` sur les compteurs, suffixe `_seconds` sur les timers) :
 
-### 4.2 Mesures expérimentales k6 (Campagnes ultérieures L6/I2)
-Les métriques continues ci-dessus sont collectées en permanence en production et en test via Micrometer/Prometheus.  
-Les mesures expérimentales de bout en bout (T0 $\rightarrow$ T6) et les vérifications de SLO nécessitent un banc externe et seront exécutées sous k6 au lot L6/I2 :
-- `pocoma_observed_e2e_command_to_balance_latency` (latence p95 admission $\rightarrow$ `PotBalance` disponible).
-- `pocoma_observed_e2e_command_to_read_latency` (latence p95 admission $\rightarrow$ première lecture HTTP 200 à $W \ge V$).
-- `pocoma_observed_e2e_identity_to_binding_latency` (latence p95 admission Registration $\rightarrow$ `bindingToken` utilisable).
-- Débit de résorption du rattrapage (10 000 commandes traitées en $\le 5$ minutes).
+```mermaid
+flowchart TD
+    subgraph Dashboard["Dashboard Grafana : Pocoma V3 Overview"]
+        R1["Ligne 1 : Débits & Latences HTTP (Admission & READ)"]
+        R2["Ligne 2 : Moteur Consumption (Tentatives, Durées, Erreurs)"]
+        R3["Ligne 3 : Projections READ & Quota Q=2"]
+        R4["Ligne 4 : Infrastructure JDBC (Hikari) & Leases Workers"]
+    end
+```
+
+| Groupe de panneaux | Titre du panneau | Type de visualisation | Requête PromQL exacte | Type d'indicateur |
+|---|---|:---:|---|:---:|
+| **HTTP Admission** | Débit d'admission (req/s) | Graph (Time series) | `sum(rate(pocoma_v3_admission_requests_total[1m])) by (status)` | Calculé (rate) |
+| **HTTP Admission** | Latence p95 Admission | Graph | `histogram_quantile(0.95, sum(rate(pocoma_v3_admission_http_duration_seconds_bucket[1m])) by (le))` | Mesuré (Histogramme) |
+| **HTTP READ** | Débit de consultation READ | Graph | `sum(rate(pocoma_v3_read_http_duration_seconds_count[1m])) by (endpoint, status)` | Calculé (rate) |
+| **HTTP READ** | Latence p95 Consultation READ | Graph | `histogram_quantile(0.95, sum(rate(pocoma_v3_read_http_duration_seconds_bucket[1m])) by (le, endpoint))` | Mesuré (Histogramme) |
+| **Quota READ** | Permis Sémaphore READ dispos ($Q=2$) | Stat / Gauge | `pocoma_v3_read_quota_permits` | Direct (Jauge) |
+| **Quota READ** | Rejets Quota READ (503) | Graph / Bar chart | `rate(pocoma_v3_read_quota_rejections_total[1m])` | Calculé (rate) |
+| **Command Execution** | Débit d'exécution Command | Graph | `sum(rate(pocoma_v3_attempt_outcomes_total{consumption="Command"}[1m])) by (outcome)` | Calculé (rate) |
+| **Command Execution** | Durée d'exécution Command (p95) | Graph | `histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_duration_seconds_bucket{consumption="Command"}[1m])) by (le))` | Mesuré (Histogramme) |
+| **Command Execution** | Temps de calcul pur (prepare) | Graph | `histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="Command", phase="prepare"}[1m])) by (le))` | Mesuré (Histogramme) |
+| **READ Projections** | Débit par projection indépendante | Graph | `sum(rate(pocoma_v3_attempt_outcomes_total{consumption=~"PotVersion|PotBalance|PotVisibility|CurrentBinding|Invitation"}[1m])) by (consumption)` | Calculé (rate) |
+| **READ Projections** | **Temps de calcul Balances O(N) (`FIND-L4-03`)** | Graph | `histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_phase_duration_seconds_bucket{consumption="PotBalance", phase="prepare"}[1m])) by (le))` | Mesuré (Histogramme) |
+| **Discovery** | Références enrôlées (refs/s) | Graph | `sum(rate(pocoma_v3_discovery_references_total[1m])) by (kind)` | Calculé (rate) |
+| **Workers & Leases** | Retard de renouvellement lease | Graph | `pocoma_v3_renewal_schedule_lag_seconds` | Mesuré (Timer) |
+| **JDBC Hikari** | Connexions actives par pool | Graph | `hikaricp_connections_active` | Direct (Jauge) |
+| **JDBC Hikari** | Connexions en attente (Contention) | Graph | `hikaricp_connections_pending` | Direct (Jauge) |
+| **Ressources** | Utilisation CPU & Mémoire JVM | Graph | `process_cpu_usage` et `jvm_memory_used_bytes{area="heap"}` | Direct (Jauges) |
 
 ---
 
-## 5. Matrice d'Impact Architectural et Simplicité
+## 6. Démonstration Opérationnelle via Bruno
 
-### 5.1 Matrice des modifications par module
+### 6.1 Scénario de démonstration en 6 étapes
+Pour valider l'acceptation I1, un parcours séquentiel est défini à partir des collections Bruno V3 existantes (`scripts/bruno-v3/`) :
 
-| Module Maven | Modification envisagée | Justification technique | Alternative plus simple | Risque architectural identifié |
+1. **Étape 1 : Authentification & Enrôlement identitaire (`B201 Registration`)**
+   Appel `POST /api/v3/identity/requests` pour enregistrer l'utilisateur et obtenir son `requestId`. Polling du résultat puis obtention du `bindingToken`.
+2. **Étape 2 : Création de Pot (`B202 CreatePot`)**
+   Appel `POST /api/v3/commands` avec intention `CreatePot`. Réponse 202 Accepted immédiate avec header `Location`.
+3. **Étape 3 : Exécution d'une commande métier (`B207 CreateExpense`)**
+   Ajout de dépenses sur le Pot créé via `POST /api/v3/commands`.
+4. **Étape 4 : Consultation du résultat de commande (`B210 PollingResult`)**
+   Polling `GET /api/v3/commands/{requestId}/result` jusqu'à obtention du statut 200 portant `resultingPotVersion=V`.
+5. **Étape 5 : Consultation du Pot complet via READ (`B102 GetPotCurrent`)**
+   Appel `GET /api/v3/pots/{potId}?minVersion=V` avec le jeton d'autorisation.
+6. **Étape 6 : Consultation des soldes calculés (`B103 GetPotBalanceCurrent`)**
+   Appel `GET /api/v3/pots/{potId}/versions/{version}/balance` pour vérifier la matérialisation indépendante de `PotBalance`.
+
+### 6.2 Matrice Bruno $\rightarrow$ Composants sollicités $\rightarrow$ Métriques attendues $\rightarrow$ Oracles
+
+| Étape Bruno | Composants sollicités | Métriques attendues à la hausse | Oracle de vérification opérationnelle |
+|---|---|---|---|
+| **1. Registration** | `V3AdmissionController`<br>`RegistrationParticipant`<br>`JdbcCurrentBindingStore` | `pocoma_v3_admission_requests_total{endpoint="identity"}`<br>`pocoma_v3_attempt_outcomes_total{consumption="IdentityRequest"}`<br>`pocoma_v3_attempt_outcomes_total{consumption="CurrentBinding"}` | Le compteur d'admission identité augmente de 1.<br>Le résultat IdentityRequest passe à `committed`.<br>Le bindingToken devient consultable via `/api/v3/me/binding`. |
+| **2. CreatePot** | `V3AdmissionTransport`<br>`JdbcAdmissionStore`<br>`ExecutePotCommandParticipant` | `pocoma_v3_admission_requests_total{endpoint="command", status="202"}`<br>`pocoma_v3_admission_http_duration_seconds_count`<br>`pocoma_v3_discovery_references_total{kind="admitted"}` | Le compteur d'admission command augmente de 1.<br>La jauge `pocoma_v3_admission_capacity_available` reste $>0$.<br>La commande est découverte par le worker. |
+| **3. CreateExpense** | `V3AdmissionTransport`<br>`ConsumptionEngine`<br>`MeteredEventTransactionSuffix` | `pocoma_v3_attempt_started_total{consumption="Command"}`<br>`pocoma_v3_attempt_outcomes_total{consumption="Command", outcome="committed"}`<br>`pocoma_event_sequencing_suffix_count` | `attempt_started` et `attempt_outcomes{committed}` s'incrémentent de 1.<br>Le suffixe transactionnel enregistre un événement publié.<br>Temps de finalisation enregistré dans l'histogramme. |
+| **4. Polling Result** | `V3ReadController`<br>`MaterializeCommandResultParticipant` | `pocoma_v3_attempt_outcomes_total{consumption="CommandResult"}`<br>`pocoma_v3_read_http_duration_seconds_count{endpoint="command_result"}` | `CommandResult` matérialisé par sa projection.<br>Les requêtes de polling 404 puis 200 sont comptabilisées.<br>Le résultat retourne la version $V$. |
+| **5. Read Pot** | `V3ReadTransport`<br>`V3ReadFacadeComposition`<br>`JdbcPotVersionStore` | `pocoma_v3_read_http_duration_seconds_count{endpoint="pot_current"}`<br>`pocoma_v3_read_query_duration_seconds_count{operation="current"}`<br>`pocoma_v3_read_quota_permits` | Statut HTTP 200 obtenu.<br>`read_quota_permits` reste égal à 2 après la requête.<br>`read_quota_rejections_total` n'augmente pas (aucune famine à charge nominale). |
+| **6. Read Balance** | `V3ReadFacadeComposition`<br>`MaterializePotBalanceParticipant`<br>`JdbcPotBalanceStore` | `pocoma_v3_attempt_outcomes_total{consumption="PotBalance", outcome="committed"}`<br>`pocoma_v3_read_http_duration_seconds_count{endpoint="balance"}` | `PotBalance` confirmée matérialisée indépendamment.<br>Durée de calcul `phase="prepare"` enregistrée pour `PotBalance`. |
+
+---
+
+## 7. Corrections de Précision des Métriques, Coûts et Cardinalités
+
+Le plan initial comportait des assertions non mesurées qu'il convient de corriger formellement :
+
+### 7.1 Rectification des coûts de performance
+- **Statut des coûts en nanosecondes :** Les mentions de « ~10 ns » ou « ~25 ns » et « impact CPU < 1 % » relevaient d'estimations théoriques a priori fondées sur la documentation Micrometer. **Elles ne constituent pas des mesures physiques sur le code Pocoma V3.**
+- **Protocole de mesure future de surcharge :** La quantification exacte de l'empreinte de l'instrumentation sera mesurée au lot L6/I3 en comparant le débit maximal sous charge k6 avec et sans export Prometheus actif (`management.prometheus.metrics.export.enabled=false`). **Aucune mesure de surcharge normative PERF-01 n'est effectuée en I1.**
+
+### 7.2 Rectification et calcul formel des cardinalités Prometheus
+
+Il est impératif de distinguer :
+1. **La cardinalité des combinaisons de tags** ($C_{\text{tags}}$) : nombre de tuples uniques de dimensions.
+2. **Le nombre de séries temporelles physiques générées dans Prometheus** ($S_{\text{prom}}$) :
+   - Pour un **Compteur** ou une **Jauge** : $S_{\text{prom}} = C_{\text{tags}} \times 1$.
+   - Pour un **Timer standard** (sans histogramme) : $S_{\text{prom}} = C_{\text{tags}} \times 2$ (`_count`, `_sum`) ou 3 (`_max`).
+   - Pour un **Timer avec histogramme SLO** (12 buckets définis dans `MicrometerV3ConsumptionObservation` : 1ms à 120s + `+Inf`) :
+     $$S_{\text{prom}} = C_{\text{tags}} \times (13 \text{ buckets} + 1 \text{ count} + 1 \text{ sum} + 1 \text{ max}) = C_{\text{tags}} \times 16$$
+
+#### Table rectifiée des dimensions et séries physiques maximales :
+
+| Métrique | Type Micrometer | Dimensions (Tags) | Valeurs par dimension | Combinaisons de tags ($C_{\text{tags}}$) | Séries Prometheus max ($S_{\text{prom}}$) |
+|---|:---:|---|---|:---:|:---:|
+| `pocoma.v3.admission.requests` | Counter | `endpoint`, `status` | 2 endpoints $\times$ 5 statuts | 10 | **10** |
+| `pocoma.v3.admission.http.duration` | Timer (Histogram) | `endpoint`, `status` | 2 endpoints $\times$ 5 statuts | 10 | **160** ($10 \times 16$) |
+| `pocoma.v3.admission.capacity.available` | Gauge | `endpoint` | 1 endpoint | 1 | **1** |
+| `pocoma.v3.attempt.started` | Counter | `consumption` | 11 consommations (9 + 2 probes) | 11 | **11** |
+| `pocoma.v3.attempt.outcomes` | Counter | `consumption`, `outcome` | 11 cons $\times$ 6 outcomes actifs | 66 | **66** |
+| `pocoma.v3.attempt.duration` | Timer (Histogram) | `consumption`, `outcome` | 11 cons $\times$ 4 outcomes terminaux | 44 | **704** ($44 \times 16$) |
+| `pocoma.v3.attempt.phase.duration` | Timer (Histogram) | `consumption`, `phase`, `outcome` | 11 cons $\times$ 3 phases $\times$ 3 outcomes | 99 | **1 584** ($99 \times 16$) |
+| `pocoma.v3.claim.operations` | Counter | `consumption`, `operation`, `outcome` | 11 cons $\times$ 3 ops $\times$ 2 outcomes | 66 | **66** |
+| `pocoma.v3.capacity.used` | Gauge | `scope` | 1 worker + 11 cons | 12 | **12** |
+| `pocoma.v3.read.http.duration` | Timer (Histogram) | `endpoint`, `status` | 7 endpoints $\times$ 4 statuts | 28 | **448** ($28 \times 16$) |
+| `pocoma.v3.read.quota.permits` | Gauge | `scope` | 1 scope | 1 | **1** |
+| `pocoma.v3.read.quota.rejections` | Counter | `scope` | 1 scope | 1 | **1** |
+| `pocoma.v3.read.query.duration` | Timer (Histogram) | `operation`, `outcome` | 6 operations $\times$ 4 outcomes | 24 | **384** ($24 \times 16$) |
+| `hikaricp.connections.active` | Gauge | `pool` | 6 pools | 6 | **6** |
+| `hikaricp.connections.acquire` | Timer | `pool` | 6 pools | 6 | **18** ($6 \times 3$) |
+
+**Total des séries applicatives V3 sous Prometheus :** $\approx \mathbf{3\ 500\text{ séries}}$.
+Ce volume reste parfaitement dimensionné pour Prometheus en environnement local ou distribué (la limite usuelle d'alerte étant fixée à 100 000 séries).
+
+---
+
+## 8. Stratégie de Vérification et Budgets Corrigés
+
+Conformément à la politique normative [`docs/testing/Reactor_Verification_Policy.md`](file:///Users/julien.guezennec/Dev/projects/pocoma/docs/testing/Reactor_Verification_Policy.md) :
+1. **Tous les appels Maven canoniques incluent impérativement `-am`.**
+2. **Les doublons de qualification sont supprimés** : la vérification se structure en deux gates complémentaires non redondantes :
+   - `G-OBS-AUTOMATED` : Validation automatisée ciblée (JUnit / Testcontainers).
+   - `G-OBS-OPERATIONAL` : Démonstration opérationnelle de bout en bout (Stack locale Docker + Prometheus + Grafana + Bruno).
+3. **Aucun full reactor (`./mvnw test`) n'est exécuté pendant I1.**
+4. **Aucune gate Architecture globale n'est déclenchée** (aucun module ni frontière Maven modifiés).
+
+### 8.1 Gate 1 : Qualification Automatisée Ciblée (`G-OBS-AUTOMATED`)
+
+Exécute en une passe unique les tests unitaires et d'intégration couvrant les classes touchées :
+
+```bash
+./mvnw -pl runtime-web-api,runtime-task-consumption-worker,runtime-command-consumption-worker -am \
+  -Dtest=V3AdmissionHttpTest,V3ReadHttpContractTest,ReadFacadesPostgresTest,V3WorkerMetricsTest test
+```
+
+- **Classes et modules exacts vérifiés :**
+  * `runtime-web-api` : `V3AdmissionHttpTest`, `V3ReadHttpContractTest`
+  * `runtime-task-consumption-worker` : `ReadFacadesPostgresTest`
+  * `runtime-command-consumption-worker` : `V3WorkerMetricsTest`
+- **Budget temporel :** **240 s** (~4 minutes).
+- **Critère PASS :** 100% tests PASS, 0 failure, 0 error, 0 skip.
+- **Condition d'arrêt :** Arrêt immédiat dès le premier échec (aucun retry en boucle).
+- **Preuves conservées :** Fichiers XML Surefire dans `docs/testing/evidence/L6-I1/automated/`.
+
+### 8.2 Gate 2 : Acceptation Opérationnelle et Démonstration Bruno (`G-OBS-OPERATIONAL`)
+
+Exécute la démonstration locale complète via le script d'automatisation :
+
+```bash
+./scripts/operations/verify-l6-i1-observability.sh
+```
+
+- **Étapes exécutées par la gate :**
+  1. Démarrage de la stack Docker Compose locale observable.
+  2. Contrôle de l'état `healthy` de PostgreSQL, Keycloak et Monolithe.
+  3. Validation du scraping Prometheus (`target` monolith UP).
+  4. Validation de la disponibilité HTTP du dashboard Grafana (`200 OK`).
+  5. Exécution séquentielle des 6 étapes Bruno de la matrice §6.
+  6. Extraction des métriques Prometheus via son API HTTP (`/api/v1/query`) avant et après l'exécution pour prouver la corrélation effective.
+  7. Arrêt propre des conteneurs (`docker compose down`).
+- **Budget temporel :** **180 s** (~3 minutes).
+- **Critère PASS :**
+  * Les 6 étapes Bruno réussies.
+  * Incrémentation prouvée des compteurs d'admission (`pocoma_v3_admission_requests_total > 0`).
+  * Enregistrement prouvé des durées d'exécution (`pocoma_v3_attempt_duration_seconds_count > 0`).
+  * Capture des métriques de quota et Hikari.
+- **Condition d'arrêt :** Arrêt si un service ne répond pas ou si les métriques attendues restent à zéro après Bruno.
+- **Preuves conservées :** Logs du script, dump JSON des métriques Prometheus collectées et rapport d'exécution Bruno dans `docs/testing/evidence/L6-I1/operational/`.
+
+---
+
+## 9. Matrice d'Impact Architectural et Fichiers Touchés
+
+### 9.1 Matrice d'impact architectural
+
+| Module / Sous-système | Modification envisagée | Justification | Alternative plus simple | Risque architectural |
 |---|---|---|---|---|
-| `app/composition-runtime-spring` | 1. Instrumenter `V3ReadFacadeComposition.Services` pour chronométrer `query(...)`, compter les rejets `!quota.tryAcquire()` et exposer la jauge `quota.availablePermits()`.<br>2. Appeler `pool.setMetricRegistry(registry)` sur les 6 pools Hikari dans `V3ConsumptionWorkerConfiguration`, `V3AdmissionHttpConfiguration` et `V3ReadHttpConfiguration`. | Nécessaire pour lever les réserves `FIND-L4-01` ($Q=2$) et `RES-ENV-01` (surveillance Hikari). | Laisser Actuator détecter implicitement les pools (ne nomme pas toujours correctement les pools programmatiques). | Risque nul : la sémaphore et les pools existent déjà ; aucun changement transactionnel. |
-| `app/supra-http-write` | Adjoindre dans `V3AdmissionTransport` la mesure de durée de la requête d'admission et le décompte des statuts HTTP via `MeterRegistry`. | Mesurer T0 et qualifier l'admission durable sous charge. | Intercepteur HandlerInterceptor Spring (moins précis car ne capture pas les rejets de parsing du Filter). | Risque très faible : mesure exécutée en `finally`, ne modifie pas les flux de retour. |
-| `app/supra-http-read` | Adjoindre dans `V3ReadTransport` la mesure de durée HTTP et les compteurs de statuts pour les endpoints de consultation. | Mesurer T6 et la latence vue par le serveur sur les consultations READ. | S'appuyer uniquement sur `http.server.requests` (moins typé pour les codes spécifiques V3). | Risque très faible. |
-| `app/engine-consumption` | **AUCUNE MODIFICATION.** | Le port `ConsumptionObservation` et les points de mesure dans `ConsumptionEngine` sont déjà complets. | N/A | Aucun risque. Préservation absolue du moteur. |
-| `app/domain-*` | **AUCUNE MODIFICATION.** | La pureté du domaine interdit toute dépendance vers Micrometer ou la télémétrie. | N/A | Aucun risque. Domaine 100% pur et intact. |
-| `app/infra-persistence-*` | **AUCUNE MODIFICATION.** | `MeteredEventTransactionSuffix` est déjà fonctionnel. Les schémas SQL restent inchangés. | N/A | Aucun risque. Zéro impact DDL/SQL. |
-| `app/pom.xml` & POMs enfants | **AUCUNE MODIFICATION.** | `spring-boot-starter-actuator` et `micrometer-registry-prometheus` sont déjà présents. | N/A | Aucun risque. Respect de l'interdiction de modification Maven. |
+| `app/supra-http-write` | Mesure des durées, compteurs et capacité dans `V3AdmissionTransport`. | Mesurer T0 et qualifier l'admission. | HandlerInterceptor Spring (moins précis). | Risque nul : exécuté en `finally`. |
+| `app/supra-http-read` | Mesure des durées et codes statuts dans `V3ReadTransport`. | Mesurer T6 et la latence vue serveur. | Métriques Actuator génériques seules. | Risque nul. |
+| `app/composition-runtime-spring` | Instrumentation de `V3ReadFacadeComposition.Services` et enregistrement `setMetricRegistry` des 6 pools Hikari. | Mesurer $Q=2$ (`FIND-L4-01`) et Hikari (`RES-ENV-01`). | Auto-détection Actuator seule (incomplète). | Risque nul : sémaphore et pools existants. |
+| `docker/prometheus` | Création de `prometheus.local.yml`. | Scrape local rapide (5s) du monolithe V3. | Réutiliser le distributed.yml (inadapté). | Risque nul : fichier de config isolé. |
+| `docker/grafana` | Création de `pocoma-v3-overview.json`. | Dashboard opérationnel versionné pour I1. | Import manuel (non reproductible). | Risque nul. |
+| `docker/compose` | Création de `docker-compose.observability.yml`. | Overlay ajoutant Prometheus et Grafana à la stack locale. | Modifier le compose de prod (interdit). | Risque nul. |
+| `scripts/operations` | Script `verify-l6-i1-observability.sh`. | Automatiser la gate `G-OBS-OPERATIONAL`. | Commandes manuelles (non reproductible). | Risque nul. |
 
-### 5.2 Évaluation quantitative de la solution
+### 9.2 Inventaire exhaustif des fichiers à créer ou modifier lors de l'implémentation
 
-- **Nombre de classes modifiées :** 4 classes existantes (`V3ReadFacadeComposition.java`, `V3AdmissionTransport.java`, `V3ReadTransport.java`, `V3ConsumptionWorkerConfiguration.java`).
-- **Nombre de nouvelles classes :** 0 à 1 classe utilitaire optionnelle de liaison (ex. `V3HttpMetricsBinder`).
-- **Nombre de nouvelles interfaces :** 0.
-- **Nouvelles dépendances Maven :** 0 (Micrometer core et Actuator sont déjà dans le classpath).
-- **Nouveaux modules Maven :** 0.
-- **Nombre de points d'instrumentation ajoutés :** 3 points (Transport Admission, Transport Read, Services Read Facade).
-- **Risque de duplication de code :** Nul (réutilisation exclusive du moteur générique et de `MicrometerV3ConsumptionObservation`).
-- **Impact sur les performances :** Négligeable (< 1% de charge CPU, temps d'enregistrement ~10-25 ns, aucun appel bloquant ou I/O).
-- **Effet sur la testabilité :** Immédiatement testable en mémoire avec un `SimpleMeterRegistry` sans conteneur externe.
+#### A. Classes de production à modifier (6 fichiers sous `app/`) :
+1. `app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java`
+2. `app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadTransport.java`
+3. `app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadFacadeComposition.java`
+4. `app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java`
+5. `app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3AdmissionHttpConfiguration.java`
+6. `app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ReadHttpConfiguration.java`
 
----
+#### B. Classes de test à adapter (2 fichiers sous `app/`) :
+1. `app/runtime-web-api/src/test/java/com/kartaguez/pocoma/V3AdmissionHttpTest.java` (assertions métriques)
+2. `app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadFacadesPostgresTest.java` (assertions quota et Hikari)
 
-## 6. Stratégie de Vérification et Budgets de Tests
+#### C. Fichiers de configuration et observabilité locale à créer (4 fichiers sous `docker/`) :
+1. `docker/prometheus/prometheus.local.yml` (nouveau)
+2. `docker/grafana/dashboards/pocoma-v3-overview.json` (nouveau)
+3. `docker/grafana/provisioning/dashboards/dashboards.yml` (ajusté pour charger le dashboard V3)
+4. `docker/compose/docker-compose.observability.yml` (nouveau)
 
-Conformément à la politique normative `docs/testing/Reactor_Verification_Policy.md` et aux consignes `AGENTS.md` :
-- **Aucun réacteur complet Maven (`./mvnw test`) ne doit être lancé par défaut.**
-- Les tranches de vérification doivent être formellement déclarées avant exécution.
-- Les tests d'architecture globaux ne sont pas requis (aucun module, paquetage ou frontière de dépendance modifié).
+#### D. Scripts et scénarios de démonstration (2 fichiers sous `scripts/`) :
+1. `scripts/operations/verify-l6-i1-observability.sh` (nouveau script de validation opérationnelle)
+2. `scripts/operations/wait-for-local-stack.sh` (nouveau helper d'attente healthcheck)
 
-### 6.1 Déclaration formelle de la tranche de vérification (Policy §3)
-
-```
-Verification scope: L6/I1 Observability Implementation
-Expected production impact:
-- app/composition-runtime-spring (V3ReadFacadeComposition, V3ConsumptionWorkerConfiguration)
-- app/supra-http-write (V3AdmissionTransport)
-- app/supra-http-read (V3ReadTransport)
-Primary slice:
-- WEB (runtime-web-api)
-Secondary slices:
-- PROJECTION (runtime-task-consumption-worker)
-- COMMAND (runtime-command-consumption-worker)
-Forbidden production impact:
-- app/domain-*
-- app/engine-*
-- app/infra-persistence-*
-- app/architecture-tests
-- db/migration/* (aucun DDL ni Flyway)
-Global architecture gate: NOT REQUIRED (frontières Maven et packages inchangés)
-Full reactor: NOT REQUIRED (preuve locale bornée suffisante)
-Database verification: CURRENT schema (aucun changement DDL)
-Escalation conditions: Échec de compilation amont ou régression de contrat HTTP
-```
-
-### 6.2 Gates d'exécution et oracles de test
-
-| Gate | Slice Maven / Ancre | Commande Maven canonique exacte | Tests exécutés | Budget temporel | Critère PASS | Condition d'arrêt | Preuves conservées |
-|---|---|---|---|:---:|---|---|---|
-| **G-OBS-01** | Test unitaire Web & Admission | `./mvnw -pl runtime-web-api -Dtest=V3AdmissionHttpTest,V3ReadHttpContractTest test` | Tests HTTP d'admission et de lecture avec vérification des compteurs/timers Micrometer. | $\le 60\text{ s}$ | 100% tests PASS, métriques `pocoma.v3.admission.*` et `pocoma.v3.read.*` vérifiées. | Arrêt immédiat si échec assertion ou code HTTP inattendu. | Rapport Surefire XML. |
-| **G-OBS-02** | Test d'intégration Quota READ | `./mvnw -pl runtime-task-consumption-worker -Dtest=ReadFacadesPostgresTest test` | Tests PostgreSQL sur conteneur isolé vérifiant le sémaphore $Q=2$, les rejets de quota et les métriques Hikari. | $\le 90\text{ s}$ | 100% tests PASS, jauge `pocoma.v3.read.quota.permits` conforme, métriques Hikari actives. | Arrêt si blocage sémaphore ou fuite de connexion. | Rapport Surefire XML. |
-| **G-OBS-03** | Non-régression Moteur & Métriques | `./mvnw -pl runtime-command-consumption-worker -Dtest=V3WorkerMetricsTest test` | Scénarios `i5_m01`, `i5_m02` (oracle négatif O01-N), `i5_m03` (rotation et pannes). | $\le 120\text{ s}$ | 100% tests PASS, intégrité des métriques de moteur prouvée. | Arrêt si divergence entre compteurs SQL et métriques. | Rapport Surefire XML. |
-| **G-OBS-COMPOSITE** | Gate composée I1 (Validation locale unique) | `./mvnw -pl runtime-web-api,runtime-task-consumption-worker,runtime-command-consumption-worker -Dtest=V3AdmissionHttpTest,V3ReadHttpContractTest,ReadFacadesPostgresTest,V3WorkerMetricsTest test` | Validation conjointe des 3 tranches instrumentées sans rejouer les tests non concernés. | $\le 240\text{ s}$ | Tous les tests sélectionnés PASS, 0 failure, 0 error, 0 skip. | Arrêt au premier échec. | XMLs Surefire consolidés. |
+*Total strict : 6 modifications productives, 2 adaptations de tests, 4 fichiers d'outillage Docker/Grafana, 2 scripts d'exploitation locale. Zéro nouveau module Maven, zéro DDL SQL, zéro impact sur le domaine.*
 
 ---
 
-## 7. Plan d'Implémentation Consolidé pour I1
+## 10. Frontière Normative entre I1, I2, I3 et L8
 
-L'implémentation physique de L6/I1 peut être réalisée de manière séquentielle et cohérente en **une seule passe structurée**, sans micro-étapes fragmentées :
+Pour éviter toute ambiguïté de gouvernance, les périmètres sont rigoureusement délimités :
+
+```mermaid
+flowchart LR
+    I1["L6 / I1 :\nObservabilité Opérationnelle\n& Démo Locale"]
+    I2["L6 / I2 :\nExploitation, Quarantaines\n& Reconstruction READ"]
+    I3["L6 / I3 :\nCampagnes k6, Charge,\nMesures & SLO (SPEC-09)"]
+    L8["Lot L8 :\nPackaging Industriel\n& Distribution Finale"]
+
+    I1 --> I2 --> I3 --> L8
+```
+
+- **Incrément I1 (Présent incrément) :**
+  *Périmètre :* Instrumentation applicative, enregistrement Hikari, configuration locale Prometheus/Grafana, dashboard V3 opérationnel, démonstration Bruno locale.
+  *Exclusions :* Aucune campagne de charge k6 massive ; pas de qualification de performance SPEC-09 ; pas de refonte des scripts de packaging de production.
+- **Incrément I2 :**
+  *Périmètre :* Procédure de reconstruction administrative complète de READ à blanc ([REC-01](SPEC-10_Test_Certification.md#10-reconstruction)), qualification de la reprise sur panne et équité d'ordonnancement ([OPS-01](SPEC-10_Test_Certification.md#11-exploitation)).
+- **Incrément I3 :**
+  *Périmètre :* Campagnes de charge sous k6 ([PERF-01](SPEC-09_Performance.md)), profils Petit / Moyen / Grand Pot, vérification du SLO p95 $\le 500$ ms, qualification du coût du recalcul $O(N)$ sur 2 000 dépenses, mesure de la surcharge CPU de l'instrumentation.
+- **Lot L8 :**
+  *Périmètre :* Packaging officiel de distribution, topologie distribuée multi-nœuds, scripts d'installation sur environnement vierge, sécurisation TLS des endpoints Actuator.
+
+---
+
+## 11. Plan d'Implémentation Consolidé en 4 Volets
+
+L'implémentation d'I1 s'articule autour de 4 volets indissociables formant un **incrément unique exécuté en une seule passe** :
 
 ```mermaid
 flowchart TD
-    Step1["Étape 1 : Instrumentation HTTP & Quota (supra-http-write, supra-http-read, composition)"]
-    Step2["Étape 2 : Enregistrement Micrometer des 6 pools HikariDataSource"]
-    Step3["Étape 3 : Tests ciblés unitaires & intégration (G-OBS-01, G-OBS-02, G-OBS-03)"]
-    Step4["Étape 4 : Validation de non-régression et production des preuves"]
+    V_A["Volet A : Instrumentation Applicative\n(Transports, Quota, Hikari)"]
+    V_B["Volet B : Configuration Locale\n(Prometheus local, Compose overlay)"]
+    V_C["Volet C : Dashboard Pocoma V3\n(pocoma-v3-overview.json)"]
+    V_D["Volet D : Démonstration & Preuves\n(Scripts Bruno, Gate G-OBS-OPERATIONAL)"]
 
-    Step1 --> Step2 --> Step3 --> Step4
+    V_A --> V_B --> V_C --> V_D
 ```
 
-### 7.1 Description des étapes d'implémentation
-1. **Étape 1 — Points d'entrée/sortie HTTP et Quotas READ :**
-   - Injecter le `MeterRegistry` (ou son provider) dans `V3AdmissionTransport` pour enregistrer la durée d'admission, le statut HTTP et la charge utile.
-   - Injecter le `MeterRegistry` dans `V3ReadTransport` pour chronométrer la durée de réponse HTTP et les statuts des consultations.
-   - Ajouter dans `V3ReadFacadeComposition.Services` la jauge `pocoma.v3.read.quota.permits`, le compteur `pocoma.v3.read.quota.rejections` et le timer `pocoma.v3.read.query.duration`.
-2. **Étape 2 — Liaison Micrometer des pools HikariCP :**
-   - Dans `V3ConsumptionWorkerConfiguration.java` : passer le `MeterRegistry` à la méthode `open(...)` et exécuter `config.setMetricRegistry(registry)` avant instanciation du pool pour `writeBusiness`, `writeControl`, `readBusiness`, `readControl`.
-   - Dans `V3AdmissionHttpConfiguration.java` et `V3ReadHttpConfiguration.java` : lier le `MeterRegistry` sur `v3AdmissionPool` et `v3HttpReadPool`.
-3. **Étape 3 — Écriture des tests de vérification d'observabilité :**
-   - Ajouter dans `V3AdmissionHttpTest` les assertions vérifiant l'incrémentation des compteurs et la présence du timer d'admission sous statut 202 et 400.
-   - Ajouter dans `ReadFacadesPostgresTest` les assertions vérifiant la présence des métriques de quota $Q=2$ et le bon enregistrement des métriques Hikari.
-4. **Étape 4 — Exécution des gates déclarées et qualification :**
-   - Exécuter la commande composée canonique `G-OBS-COMPOSITE`.
-   - Vérifier le respect strict de la cardinalité (aucun label non autorisé).
-   - Produire le rapport d'exécution et archiver les preuves XML.
+### 11.1 Détail des volets
+- **Volet A — Instrumentation applicative :**
+  Mise à jour des 6 classes du socle Java pour capturer les métriques HTTP d'admission (T0), de lecture (T6), les permis du sémaphore $Q=2$ et l'enregistrement Micrometer des pools Hikari.
+- **Volet B — Configuration locale Prometheus :**
+  Création de `prometheus.local.yml` et de l'overlay Docker Compose permettant de monter Prometheus et Grafana sur le réseau du monolithe fonctionnel.
+- **Volet C — Dashboard Grafana V3 :**
+  Conception et intégration du dashboard `pocoma-v3-overview.json` avec les 16 panneaux surveillant les indicateurs clés.
+- **Volet D — Démonstration Bruno et vérification opérationnelle :**
+  Mise en place du script d'acceptation `verify-l6-i1-observability.sh`, exécution des deux gates `G-OBS-AUTOMATED` et `G-OBS-OPERATIONAL`, et archivage des preuves.
 
-### 7.2 Estimation de l'effort et du coût de qualification
-- **Effort d'implémentation :** ~1 jour-homme.
-- **Effort de qualification et vérification :** ~0,5 jour-homme.
-- **Temps d'exécution des tests de qualification :** $\le 4\text{ minutes}$ sur machine standard (banc PostgreSQL Testcontainers).
+### 11.2 Estimation de l'effort révisé
+- **Effort d'implémentation (Volets A, B, C, D) :** **2 jours-homme**.
+- **Effort de qualification et génération des preuves :** **0,5 jour-homme**.
+- **Budget total de qualification (Automated + Operational) :** **$\le 7\text{ minutes}$**.
 
 ---
 
-## 8. Arbitrages et Décisions Enregistrées
+## 12. Arbitrages Enregistrés
 
-Conformément aux consignes, seules les questions réellement ouvertes pour I1 sont traitées ci-dessous :
-
-### 8.1 Arbitrage 1 : Méthode de mesure des délais d'attente (Lag T1 $\rightarrow$ T2 et T2 $\rightarrow$ T3)
-- **Options :**
-  * *Option A :* Mesure en mémoire par échantillonnage / comparaison de timestamps existants (`createdAt` ou instant de publication) avec l'horloge locale au moment du traitement, sans modification des tables durables.
-  * *Option B :* Ajout de colonnes d'audit temporel durable (`discovered_at`, `acquired_at`) dans la table SQL `v3_consumption_slot`.
-- **Analyse :** SPEC-08 §6 a définitivement validé le Choix B conceptuel : *« SLIs par étape fiables et comparables, sans audit temporel durable et exact de chaque transition... Aucun nouveau timestamp ni journal de claims durable imposé pour la mesure seule. »* De plus, modifier le DDL violerait les contraintes de L6.
-- **Recommandation retenue :** **Option A** (mesure en mémoire / échantillonnée). Zéro modification de schéma DDL, zéro I/O d'écriture supplémentaire, simplicité maximale.
-
-### 8.2 Arbitrage 2 : Point d'ancrage de la métrologie HTTP
-- **Options :**
-  * *Option A :* Intégration directe dans les classes de transport existantes (`V3AdmissionTransport` et `V3ReadTransport`), qui interceptent déjà les requêtes et gèrent les sémaphores de capacité.
-  * *Option B :* Création d'un nouveau filtre de métrologie Servlet indépendant placé en amont des transports.
-- **Analyse :** L'Option A évite la prolifération de filtres Servlet dans la chaîne de traitement Spring Security / Web. Les classes de transport disposent déjà de toutes les informations requises (permis acquis, exceptions levées, codes de statut HTTP terminaux).
-- **Recommandation retenue :** **Option A**. Impact architectural minimal, cohérence totale avec le mécanisme de limitation existant.
-
-### 8.3 Arbitrage 3 : Enregistrement des métriques HikariCP
-- **Options :**
-  * *Option A :* Appel programmatique explicite de `config.setMetricRegistry(registry)` lors de la construction de chaque `HikariDataSource`.
-  * *Option B :* Se reposer exclusivement sur l'auto-configuration Actuator `DataSourcePoolMetricsAutoConfiguration`.
-- **Analyse :** L'auto-configuration Actuator fonctionne parfaitement sur les beans Spring standard, mais peut être contournée ou désynchronisée pour les pools ouverts dynamiquement au sein de composants d'orchestration ou de bancs de test isolés. L'appel explicite garantit que les métriques `hikaricp.*` sont disponibles sous tous les profils et dans tous les tests d'intégration.
-- **Recommandation retenue :** **Option A** (enregistrement programmatique systématique).
+1. **Topologie de démonstration locale : Monolithe vs Distribué**
+   *Recommandation :* **Monolithe fonctionnel V3**. Il exécute déjà l'ensemble des modules réels et des workers en isolation transactionnelle complète sur PostgreSQL réel, avec une simplicité de déploiement inégalée. La topologie distribuée multi-conteneurs sera instruite lors du packaging L8.
+2. **Scrape Prometheus local : 5s vs 15s**
+   *Recommandation :* **5 secondes**. Permet à l'opérateur de visualiser quasi instantanément sur le dashboard Grafana les effets des requêtes Bruno exécutées.
+3. **Format des tableaux de bord : Fichier JSON versionné vs Création interactive**
+   *Recommandation :* **JSON versionné dans `docker/grafana/dashboards/`**. Garantit une reproductibilité intégrale sur toute machine sans action manuelle dans l'interface Grafana.
 
 ---
 
-## 9. Risques et Limites de l'Incrément I1
+## 13. Restitution et Verdict
 
-1. **Limite de portée d'I1 (Conception et instrumentation seule) :**  
-   L'incrément I1 met en place les sondes et les métriques et prouve leur exactitude unitaire. Il ne produit pas les campagnes de charge ni les courbes de performance sous grand volume. Celles-ci font l'objet de l'incrément I2 (tests de charge k6 et caractérisation physique).
-2. **Biais d'horloge inter-processus :**  
-   Les durées mesurées par `System.nanoTime()` sont monotones et exactes au sein d'une même JVM. Les latences traversant la frontière client/serveur (T0 $\rightarrow$ T6) mesurées lors des futurs tests k6 comporteront le biais inhérent au réseau et aux horloges client/serveur. Ce biais sera explicitement documenté lors des campagnes I2.
-3. **Maintien des réserves d'architecture L5 :**  
-   L'instrumentation I1 n'altère aucune des réserves ouvertes à la clôture de L5 (`FIND-L4-01`, `FIND-L2-01`, `FIND-L4-03`, `FIND-L1-01`, `RES-ENV-01`). Elle a précisément pour rôle d'apporter les preuves factuelles qui permettront d'instruire leur levée ou leur traitement aux lots L6 et L7.
-
----
-
-## 10. Respect des Contraintes Absolues
-
-Le présent plan respecte scrupuleusement l'ensemble des contraintes fixées pour L6/I1 :
-- **Aucune ligne de code de production modifiée** (`PRODUCTION_FILES_MODIFIED = 0`).
-- **Aucune ligne de test modifiée** (`TEST_FILES_MODIFIED = 0`).
-- **Aucune migration SQL ni DDL modifiée** (`MIGRATIONS_MODIFIED = 0`).
-- **Aucun module Maven ni POM altéré** (`POM_FILES_MODIFIED = 0`).
-- **Aucune commande Maven, conteneur Docker ni script k6 exécuté.**
-- **Aucune implémentation anticipée avant validation humaine.**
-- **Aucune restructuration issue de Q5-C appliquée.**
-- **Périmètre strictement borné à L6/I1.**
-
----
-
-## 11. Restitution et Verdict
-
-Le plan technique d'implémentation de l'observabilité V3 pour le lot L6 / incrément I1 est finalisé et prêt pour la revue humaine.
+Le plan technique d'implémentation de l'observabilité V3 pour L6/I1 a été intégralement amendé, complété et vérifié conformément aux directives.
 
 ```
 ================================================================================
-POCOMA V3 — LOT L6 / INCRÉMENT I1 : RAPPORT DE RESTITUTION TECHNIQUE
-Statut : DESIGN READY FOR REVIEW
-Mode : REPOSITORY ANALYSIS -> TECHNICAL DESIGN -> VERIFICATION PLAN -> HUMAN REVIEW
-Autorisation reçue : GO_L6_I1_ONLY
-Fichiers code/test/pom modifiés : 0 (Conformité absolue)
-Commandes Maven / Docker / k6 exécutées : 0 (Planification pure)
-Tranches de vérification déclarées : WEB (principale), PROJECTION, COMMAND (secondaires)
-Recommandations Q5-C : Toutes différées après L6
-Question architecturale prioritaire : Moteurs et orchestrateurs génériques instrumentés une seule fois (Démontré et validé)
-Réserves instrumentées : FIND-L4-01 (Q=2), FIND-L2-01 (lease), FIND-L4-03 (balances O(N)), RES-ENV-01 (Hikari)
+POCOMA V3 — LOT L6 / INCRÉMENT I1 : VERDICT TECHNIQUE AMENDÉ
+Statut : AMENDED DESIGN READY FOR HUMAN REVIEW
+Mode : REPOSITORY ANALYSIS -> TARGETED PLAN AMENDMENT -> DOCUMENTARY VERIFICATION -> GIT PUBLICATION
+Autorisation : GO_L6_I1_PLAN_AMENDMENT_ONLY
+Nouvelle exigence : Observabilité locale complète démontrée (Docker + Prometheus + Grafana + Bruno)
+Dashboard V3 : 16 panneaux définis avec PromQL vérifiées et histogrammes SLO
+Matrice Bruno : 6 étapes mappées sur métriques réelles et oracles
+Gates de vérification : G-OBS-AUTOMATED (240s) et G-OBS-OPERATIONAL (180s)
+Contraintes absolues respectées : 0 code, 0 test, 0 DDL, 0 Maven exécuté
+Fichiers futurs identifiés : 6 classes prod, 2 tests, 4 configs docker/grafana, 2 scripts
 
-VERDICT TERMINAL : L6_I1_IMPLEMENTATION_PLAN_READY_FOR_REVIEW
+VERDICT : L6_I1_AMENDED_IMPLEMENTATION_PLAN_READY_FOR_HUMAN_REVIEW
 ================================================================================
 ```
