@@ -1,7 +1,10 @@
 # Pocoma V3 — L6/I2 — Rapport d'Implémentation et de Vérification de l'Exploitation et Reconstruction READ
 
-> [!NOTE] Suivi post-audit
-> Suite à l'audit indépendant ayant relevé des constats bloquants (AUD-L6-I2-01 à 03) et complémentaires (AUD-L6-I2-04 à 12), des corrections ciblées et une requalification complète ont été exécutées sous le mandat `GO_L6_I2_POST_AUDIT_CORRECTIONS`. Voir le rapport dédié : [Rapport de corrections post-audit et requalification ciblée L6/I2](L6_I2_Post_Audit_Corrections_and_Requalification_Report.md).
+> [!NOTE] Clôture formelle
+> Suite aux corrections post-audit et aux correctifs finaux de sûreté, l'incrément L6/I2 a été formellement clos sous mandat `GO_L6_I2_FORMAL_CLOSURE`. Voir l'[Acte d'acceptation et de clôture formelle L6/I2](L6_I2_Acceptance_and_Closure_Decision.md) (**L6/I2 — CLOSED — LOCAL TARGETED PASS WITH EXPLICIT RESERVATIONS**).
+
+> [!NOTE] Suivi post-audit et sûreté finale
+> Suite à l'audit indépendant ayant relevé des constats bloquants (AUD-L6-I2-01 à 03) et complémentaires (AUD-L6-I2-04 à 12), des corrections ciblées et une requalification complète ont été exécutées sous le mandat `GO_L6_I2_POST_AUDIT_CORRECTIONS` (voir [Rapport post-audit](L6_I2_Post_Audit_Corrections_and_Requalification_Report.md)), puis finalisées sous le mandat `GO_L6_I2_FINAL_SAFETY_CORRECTIONS` pour AUD-L6-I2-13 à 19 (voir [Rapport correctifs finaux de sûreté](L6_I2_Final_Safety_Corrections_and_Requalification_Report.md)).
 
 **Date :** 6 novembre 2026  
 **Dépôt :** `kartaguez/pocoma`  
@@ -255,6 +258,8 @@ Gate C (G-REBUILD-OPERATIONAL) : PASS (7/7 étapes en 34,00s <= 180s)
 Budget Global Constaté         : 59,28 s <= 480 s plafond
 Full Reactor                   : NON EXÉCUTÉ (Politique de vérification ciblée respectée)
 
-VERDICT : L6_I2_IMPLEMENTED_TARGETED_PASS — READY FOR HUMAN REVIEW
+VERDICT INITIAL : L6_I2_IMPLEMENTED_TARGETED_PASS — READY FOR HUMAN REVIEW
+STATUT FINAL : L6/I2 — CLOSED — LOCAL TARGETED PASS WITH EXPLICIT RESERVATIONS
+(cf. Acte d'acceptation et de clôture formelle L6/I2 : docs/v3/L6_I2_Acceptance_and_Closure_Decision.md)
 ================================================================================
 ```

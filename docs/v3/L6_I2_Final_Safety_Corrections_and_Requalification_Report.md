@@ -1,5 +1,8 @@
 # Pocoma V3 — L6/I2 — Rapport des Correctifs Finaux de Sûreté et de Requalification Ciblée
 
+> [!NOTE] Clôture formelle
+> Suite à la validation de ce rapport et à la revue humaine finale, l'incrément L6/I2 a été formellement et définitivement clos sous mandat `GO_L6_I2_FORMAL_CLOSURE`. Voir l'[Acte d'acceptation et de clôture formelle L6/I2](L6_I2_Acceptance_and_Closure_Decision.md) (**L6/I2 — CLOSED — LOCAL TARGETED PASS WITH EXPLICIT RESERVATIONS**).
+
 **Date :** 6 novembre 2026  
 **Dépôt :** `kartaguez/pocoma`  
 **Branche :** `feat/v3-architecture`  
@@ -187,8 +190,8 @@ VERDICT : L6_I2_FINAL_SAFETY_CORRECTED_TARGETED_PASS — READY FOR HUMAN REVIEW
 
 ## 10. Rappels de Gouvernance
 
-> [!IMPORTANT]
-> **La clôture formelle de l'incrément L6/I2 n'est pas prononcée.** Conformément aux règles de gouvernance Pocoma, la clôture définitive relève exclusivement d'un arbitrage humain.
+> [!NOTE] Clôture formelle prononcée
+> L'arbitrage humain final a été rendu sous la décision `GO_L6_I2_FORMAL_CLOSURE`. L'incrément L6/I2 est officiellement clos avec réserves explicites dans l'[Acte d'acceptation et de clôture formelle L6/I2](L6_I2_Acceptance_and_Closure_Decision.md) (**L6/I2 — CLOSED — LOCAL TARGETED PASS WITH EXPLICIT RESERVATIONS**).
 
 > [!WARNING]
 > **Aucune certification globale SPEC-10 n'est déclarée.** Le périmètre validé est strictement borné à l'exploitation et la reconstruction du domaine READ pour l'incrément L6/I2.

@@ -1,6 +1,9 @@
 # Pocoma V3 — L6/I2 — Plan Technique d'Implémentation Consolidé
 ## Exploitation & Reconstruction READ — Protocole Final Consolidé
 
+> [!NOTE] Clôture formelle
+> Ce plan a été intégralement implémenté (`3fed1b5d`), corrigé post-audit (`71597c14`), fiabilisé lors des correctifs finaux de sûreté (`fb543e92`), et formellement clos sous mandat `GO_L6_I2_FORMAL_CLOSURE`. Voir l'[Acte d'acceptation et de clôture formelle L6/I2](L6_I2_Acceptance_and_Closure_Decision.md) (**L6/I2 — CLOSED — LOCAL TARGETED PASS WITH EXPLICIT RESERVATIONS**).
+
 **Date :** 6 novembre 2026
 **Dépôt :** `kartaguez/pocoma`
 **Branche :** `feat/v3-architecture`
@@ -8,8 +11,8 @@
 **Autorisation humaine :** Mandat de correction finale des blocages du protocole de reconstruction READ
 **Mode de mission :** `TARGETED DESIGN CORRECTION — DOCUMENTATION ONLY — NO IMPLEMENTATION — NO TEST EXECUTION`
 **Statut L6/I1 :** `CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS`
-**Statut L6/I2 :** `DESIGN FINAL CONSOLIDATED — READY FOR IMPLEMENTATION GO — IMPLEMENTATION NOT AUTHORIZED`
-**Verdict formel :** `L6_I2_DESIGN_FINAL_READY_FOR_GO`
+**Statut L6/I2 :** `CLOSED — LOCAL TARGETED PASS WITH EXPLICIT RESERVATIONS` (cf. [Acte de clôture L6/I2](L6_I2_Acceptance_and_Closure_Decision.md))
+**Verdict formel :** `L6_I2_DESIGN_FINAL_READY_FOR_GO` (Conception initiale ratifiée et désormais close)
 
 ---
 
