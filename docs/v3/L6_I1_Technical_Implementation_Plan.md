@@ -4,9 +4,9 @@
 **Dépôt :** `kartaguez/pocoma`
 **Branche :** `feat/v3-architecture`
 **Référence Git d'entrée :** `f0186ae881db2418e2447953258c35cb58d11dcf` (`f0186ae8`)
-**Autorisation :** `GO_L6_I1_PLAN_AMENDMENT_ONLY`
-**Statut du document :** `AMENDED DESIGN READY FOR HUMAN REVIEW`
-**Verdict :** `L6_I1_AMENDED_IMPLEMENTATION_PLAN_READY_FOR_HUMAN_REVIEW`
+**Autorisation :** `GO_L6_I1_PLAN_AMENDMENT_ONLY` puis `GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS`
+**Statut du document :** `IMPLEMENTED — READY FOR HUMAN REVIEW`
+**Verdict :** `L6_I1_IMPLEMENTED_READY_FOR_HUMAN_REVIEW` (cf. [Rapport d'Implémentation](L6_I1_Implementation_and_Qualification_Report.md))
 
 ---
 
@@ -516,3 +516,18 @@ Fichiers futurs identifiés : 6 classes prod, 2 tests, 4 configs docker/grafana,
 VERDICT : L6_I1_AMENDED_IMPLEMENTATION_PLAN_READY_FOR_HUMAN_REVIEW
 ================================================================================
 ```
+
+---
+
+## 14. Addendum d'Exécution et Qualification Réelle (6 novembre 2026)
+
+L'implémentation complète des volets A, B, C, D autorisée sous le mandat `GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS` a été menée et qualifiée avec succès :
+- **Volet A (Instrumentation) :** Raccordements HTTP Admission/Read instrumentés, jauges sémaphores et rejets $Q=2$ branchés, HikariCP lié à Micrometer via `MicrometerMetricsTrackerFactory`.
+- **Volet B & C (Observabilité locale & Grafana) :** Prometheus 5s scrape configuré, Grafana provisionné avec datasource et dashboard complet 18 panneaux.
+- **Volet D (Démonstration & Bruno) :** Parcours Bruno 7/7 exécuté sans erreur, progression métrique vérifiée sur Prometheus.
+- **Gate A (G-OBS-AUTOMATED) :** PASS (41/41 tests, 1m48s).
+- **Gate B (G-OBS-OPERATIONAL) :** PASS (progression HTTP et Hikari vérifiée, 45s).
+- **Environnement DEMO :** Persistant et actif à disposition de l'opérateur humain.
+
+Pour le détail complet des preuves, de l'inventaire et des métriques validées, se référer au rapport officiel :
+[L6_I1_Implementation_and_Qualification_Report.md](L6_I1_Implementation_and_Qualification_Report.md).

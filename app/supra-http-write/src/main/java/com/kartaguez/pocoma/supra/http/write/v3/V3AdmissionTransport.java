@@ -41,12 +41,23 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
         }
     }
 
+    @FunctionalInterface
+    public interface Telemetry {
+        void record(String endpoint, int status, long durationNanos);
+    }
+
     private final Limits limits;
     private final Semaphore capacity;
     private final ObjectMapper parser;
+    private final Telemetry telemetry;
 
     public V3AdmissionTransport(Limits limits) {
+        this(limits, (endpoint, status, durationNanos) -> {});
+    }
+
+    public V3AdmissionTransport(Limits limits, Telemetry telemetry) {
         this.limits = limits;
+        this.telemetry = telemetry != null ? telemetry : (endpoint, status, durationNanos) -> {};
         capacity = new Semaphore(limits.capacity());
         parser =
                 new ObjectMapper(
@@ -92,12 +103,23 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
                 || uri.startsWith("/api/v3/identity/link-requests/");
     }
 
+    public static String classify(String uri) {
+        if (uri == null) return "other";
+        if (uri.equals("/api/v3/commands")) return "command";
+        if (uri.equals("/api/v3/identity/requests")) return "identity";
+        if (linkRoute(uri)) return "link";
+        return "other";
+    }
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest r, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         response.setHeader("Cache-Control", "no-store");
+        long startNanos = System.nanoTime();
+        String endpoint = classify(r.getRequestURI());
         if (!capacity.tryAcquire()) {
+            telemetry.record(endpoint, 503, System.nanoTime() - startNanos);
             error(response, 503);
             return;
         }
@@ -126,6 +148,7 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
             r.removeAttribute(BODY);
             if (!Boolean.TRUE.equals(r.getAttribute(UNRESOLVED))) capacity.release();
             r.removeAttribute(UNRESOLVED);
+            telemetry.record(endpoint, response.getStatus(), System.nanoTime() - startNanos);
         }
     }
 

@@ -94,6 +94,21 @@ class V3AdmissionHttpTest {
                         .statusCode());
         assertEquals(3, count("v3_admission_association"));
         assertEquals(0, count("consumption_slot"));
+        var registry = f.context.getBean(io.micrometer.core.instrument.MeterRegistry.class);
+        var cmdCounter = registry.find("pocoma.v3.admission.requests").tag("endpoint", "command").tag("status", "202").counter();
+        assertNotNull(cmdCounter, "command admission counter must exist");
+        assertEquals(1.0, cmdCounter.count());
+        var idCounter = registry.find("pocoma.v3.admission.requests").tag("endpoint", "identity").tag("status", "202").counter();
+        assertNotNull(idCounter, "identity admission counter must exist");
+        assertEquals(2.0, idCounter.count());
+        var cmdTimer = registry.find("pocoma.v3.admission.http.duration").tag("endpoint", "command").tag("status", "202").timer();
+        assertNotNull(cmdTimer, "command admission timer must exist");
+        assertEquals(1, cmdTimer.count());
+        var capGauge = registry.find("pocoma.v3.admission.capacity.available").tag("endpoint", "admission").gauge();
+        assertNotNull(capGauge, "admission capacity gauge must exist");
+        assertTrue(capGauge.value() >= 0);
+        var poolTimer = registry.find("hikaricp.connections.acquire").tag("pool", "v3-http-admission").timer();
+        assertNotNull(poolTimer, "hikari admission pool acquire timer must exist");
     }
 
     @Test

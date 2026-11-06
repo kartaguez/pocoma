@@ -14,6 +14,10 @@ import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
+import io.micrometer.core.instrument.*;
+import io.micrometer.core.instrument.Timer;
+
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.function.*;
@@ -30,7 +34,7 @@ public final class V3ReadFacadeComposition {
             ReadLimitsV3 limits,
             Set<String> active,
             Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker) {
-        return create(read, owner, limits, active, worker, false);
+        return create(read, owner, limits, active, worker, false, null);
     }
 
     /** HTTP bounds are opt-in: inherited non-HTTP consultations retain their owner contract. */
@@ -41,6 +45,17 @@ public final class V3ReadFacadeComposition {
             Set<String> active,
             Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
             boolean httpBounds) {
+        return create(read, owner, limits, active, worker, httpBounds, null);
+    }
+
+    public static Services create(
+            DataSource read,
+            SpringAttemptTransactions owner,
+            ReadLimitsV3 limits,
+            Set<String> active,
+            Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+            boolean httpBounds,
+            MeterRegistry registry) {
         owner.requireSource(read);
         var binding = new JdbcCurrentBindingStore(read, owner);
         var pot =
@@ -61,7 +76,8 @@ public final class V3ReadFacadeComposition {
                 worker,
                 limits,
                 read,
-                httpBounds);
+                httpBounds,
+                registry);
     }
 
     public static final class Services {
@@ -79,6 +95,23 @@ public final class V3ReadFacadeComposition {
         private final ReadLimitsV3 limits;
         private final boolean httpBounds;
         private final org.springframework.jdbc.core.JdbcTemplate sql;
+        private final MeterRegistry registry;
+        private final Counter rejectionsCounter;
+
+        private static final Duration[] BUCKETS = {
+            Duration.ofMillis(1),
+            Duration.ofMillis(5),
+            Duration.ofMillis(10),
+            Duration.ofMillis(50),
+            Duration.ofMillis(100),
+            Duration.ofMillis(500),
+            Duration.ofSeconds(1),
+            Duration.ofSeconds(2),
+            Duration.ofSeconds(5),
+            Duration.ofSeconds(30),
+            Duration.ofSeconds(60),
+            Duration.ofSeconds(120)
+        };
 
         private Services(
                 SpringAttemptTransactions owner,
@@ -91,7 +124,8 @@ public final class V3ReadFacadeComposition {
                 Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
                 ReadLimitsV3 limits,
                 DataSource source,
-                boolean httpBounds) {
+                boolean httpBounds,
+                MeterRegistry registry) {
             this.httpBounds = httpBounds;
             this.sql = new org.springframework.jdbc.core.JdbcTemplate(source);
             this.limits = Objects.requireNonNull(limits);
@@ -103,6 +137,15 @@ public final class V3ReadFacadeComposition {
             this.identityReader = identity;
             this.active = Set.copyOf(active);
             this.worker = worker;
+            this.registry = registry;
+            if (registry != null) {
+                Gauge.builder("pocoma.v3.read.quota.permits", quota, Semaphore::availablePermits)
+                        .tag("scope", "sql")
+                        .register(registry);
+                this.rejectionsCounter = registry.counter("pocoma.v3.read.quota.rejections", "scope", "sql");
+            } else {
+                this.rejectionsCounter = null;
+            }
         }
 
         public Set<String> activeParticipants() {
@@ -113,12 +156,40 @@ public final class V3ReadFacadeComposition {
             return worker.get();
         }
 
+        private void record(String operation, String outcome, long durationNanos) {
+            if (registry != null) {
+                Timer.builder("pocoma.v3.read.query.duration")
+                        .tags("operation", operation, "outcome", outcome)
+                        .publishPercentileHistogram()
+                        .serviceLevelObjectives(BUCKETS)
+                        .register(registry)
+                        .record(Duration.ofNanos(durationNanos));
+            }
+        }
+
+        private static <T> String classifyResult(ReadPotV3Result<T> result) {
+            if (result instanceof Available) return "available";
+            if (result instanceof Unavailable) return "unavailable";
+            if (result instanceof InvalidInput) return "invalid_input";
+            return "other";
+        }
+
         private <T> ReadPotV3Result<T> query(
+                String operation,
                 Function<RecoveryReadContext, ReadPotV3Result<T>> call) {
-            if (!quota.tryAcquire()) return new Unavailable<>();
+            long startNanos = System.nanoTime();
+            if (!quota.tryAcquire()) {
+                if (rejectionsCounter != null) rejectionsCounter.increment();
+                record(operation, "rejected", System.nanoTime() - startNanos);
+                return new Unavailable<>();
+            }
+            String outcome = "unavailable";
             try {
-                if (!httpBounds) return owner.read(call);
-                long started = System.nanoTime();
+                if (!httpBounds) {
+                    var res = owner.read(call);
+                    outcome = classifyResult(res);
+                    return res;
+                }
                 var result =
                         owner.read(
                                 c -> {
@@ -144,34 +215,45 @@ public final class V3ReadFacadeComposition {
                                     sql.execute("set local transaction_timeout = '3s'");
                                     return call.apply(c);
                                 });
-                return System.nanoTime() - started > java.time.Duration.ofSeconds(5).toNanos()
-                        ? new Unavailable<>()
-                        : result;
+                if (System.nanoTime() - startNanos > java.time.Duration.ofSeconds(5).toNanos()) {
+                    outcome = "unavailable";
+                    return new Unavailable<>();
+                }
+                outcome = classifyResult(result);
+                return result;
             } catch (RuntimeException technicalFailure) {
+                outcome = "technical_failure";
                 return new Unavailable<>();
             } finally {
                 quota.release();
+                record(operation, outcome, System.nanoTime() - startNanos);
             }
         }
 
         public ReadPotV3Result<Pot> current(
                 ExternalIdentity eui, String token, UUID id, long minimum) {
-            if (eui == null || token == null || token.isBlank() || id == null || minimum < 0)
+            if (eui == null || token == null || token.isBlank() || id == null || minimum < 0) {
+                record("current", "invalid_input", 0L);
                 return new InvalidInput<>();
-            return query(c -> pot.current(eui, token, id, minimum, c));
+            }
+            return query("current", c -> pot.current(eui, token, id, minimum, c));
         }
 
         public ReadPotV3Result<Pot> at(ExternalIdentity eui, String token, UUID id, long version) {
-            if (eui == null || token == null || token.isBlank() || id == null || version < 1)
+            if (eui == null || token == null || token.isBlank() || id == null || version < 1) {
+                record("at", "invalid_input", 0L);
                 return new InvalidInput<>();
-            return query(c -> pot.at(eui, token, id, version, c));
+            }
+            return query("at", c -> pot.at(eui, token, id, version, c));
         }
 
         public ReadPotV3Result<PotBalance> balance(
                 ExternalIdentity eui, String token, UUID id, long version) {
-            if (eui == null || token == null || token.isBlank() || id == null || version < 1)
+            if (eui == null || token == null || token.isBlank() || id == null || version < 1) {
+                record("balance", "invalid_input", 0L);
                 return new InvalidInput<>();
-            return query(c -> pot.balance(eui, token, id, version, c));
+            }
+            return query("balance", c -> pot.balance(eui, token, id, version, c));
         }
 
         public ReadPotV3Result<List<Expense>> expenses(
@@ -183,28 +265,41 @@ public final class V3ReadFacadeComposition {
                     || version < 1
                     || refs == null
                     || refs.isEmpty()
-                    || refs.size() > limits.expenseBatch()) return new InvalidInput<>();
+                    || refs.size() > limits.expenseBatch()) {
+                record("expenses", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
             final List<ExpenseRef> captured;
             try {
                 captured = List.copyOf(refs);
             } catch (NullPointerException | ConcurrentModificationException malformedCapture) {
+                record("expenses", "invalid_input", 0L);
                 return new InvalidInput<>();
             }
-            if (!limits.validBatch(captured)) return new InvalidInput<>();
-            return query(c -> pot.expenses(eui, token, id, version, captured, c));
+            if (!limits.validBatch(captured)) {
+                record("expenses", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
+            return query("expenses", c -> pot.expenses(eui, token, id, version, captured, c));
         }
 
         public ReadPotV3Result<List<UUID>> visible(
                 ExternalIdentity eui, String token, UUID after, int limit) {
-            if (eui == null || token == null || token.isBlank() || !limits.validPage(limit))
+            if (eui == null || token == null || token.isBlank() || !limits.validPage(limit)) {
+                record("visible", "invalid_input", 0L);
                 return new InvalidInput<>();
-            return query(c -> navigation.visible(eui, token, after, limit, c));
+            }
+            return query("visible", c -> navigation.visible(eui, token, after, limit, c));
         }
 
         public ReadPotV3Result<GetCurrentBindingV3.Answer> binding(
                 ExternalIdentity eui, long minimum) {
-            if (eui == null || minimum < 0) return new InvalidInput<>();
+            if (eui == null || minimum < 0) {
+                record("binding", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
             return query(
+                    "binding",
                     c -> {
                         var answer =
                                 new GetCurrentBindingV3(key -> bindingStore.read(key, c))
@@ -232,8 +327,11 @@ public final class V3ReadFacadeComposition {
                 ExternalIdentity eui,
                 UUID request,
                 Function<com.kartaguez.pocoma.domain.pot.v3.Invitation, String> decrypt) {
-            if (eui == null || request == null) return new InvalidInput<>();
-            return query(c -> invitations(decrypt).link(eui, request, c));
+            if (eui == null || request == null) {
+                record("invitation_link", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
+            return query("invitation_link", c -> invitations(decrypt).link(eui, request, c));
         }
 
         public ReadPotV3Result<List<ReadInvitation.Place>> invitationPlaces(
@@ -242,8 +340,12 @@ public final class V3ReadFacadeComposition {
                     || binding == null
                     || binding.isBlank()
                     || token == null
-                    || token.isBlank()) return new InvalidInput<>();
+                    || token.isBlank()) {
+                record("invitation_places", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
             return query(
+                    "invitation_places",
                     c ->
                             invitations(
                                             i -> {
@@ -255,14 +357,20 @@ public final class V3ReadFacadeComposition {
 
         public ReadPotV3Result<Optional<CommandTerminalResult>> commandResult(
                 UUID request, ExternalIdentity eui) {
-            if (request == null || eui == null) return new InvalidInput<>();
-            return query(c -> new Available<>(commandReader.get(request, eui), 0));
+            if (request == null || eui == null) {
+                record("command_result", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
+            return query("command_result", c -> new Available<>(commandReader.get(request, eui), 0));
         }
 
         public ReadPotV3Result<Optional<IdentityTerminalResult>> identityResult(
                 UUID request, ExternalIdentity eui) {
-            if (request == null || eui == null) return new InvalidInput<>();
-            return query(c -> new Available<>(identityReader.get(request, eui), 0));
+            if (request == null || eui == null) {
+                record("identity_result", "invalid_input", 0L);
+                return new InvalidInput<>();
+            }
+            return query("identity_result", c -> new Available<>(identityReader.get(request, eui), 0));
         }
     }
 }

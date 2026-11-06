@@ -160,7 +160,8 @@ class ReadFacadesPostgresTest {
         }
 
         V3ReadFacadeComposition.Services withLimits(ReadLimitsV3 limits) {
-            return V3ReadFacadeComposition.create(read, owner, limits, Set.of(), Optional::empty);
+            var registry = ctx.getBean(io.micrometer.core.instrument.MeterRegistry.class);
+            return V3ReadFacadeComposition.create(read, owner, limits, Set.of(), Optional::empty, false, registry);
         }
 
         void binding(ExternalIdentity eui, long version, UUID user, String token) {
@@ -443,6 +444,18 @@ class ReadFacadesPostgresTest {
                         q.services.current(EUI, "token-a", pot, 2),
                         "minimum after authorization");
                 assertInstanceOf(Available.class, q.services.current(EUI, "token-a", pot, 1));
+            }
+            var registry = q.ctx.getBean(io.micrometer.core.instrument.MeterRegistry.class);
+            var permits = registry.find("pocoma.v3.read.quota.permits").tag("scope", "sql").gauge();
+            assertNotNull(permits, "quota permits gauge must exist");
+            assertEquals(2.0, permits.value());
+            var queryTimer = registry.find("pocoma.v3.read.query.duration").tag("operation", "current").tag("outcome", "available").timer();
+            assertNotNull(queryTimer, "read query duration timer must exist");
+            assertTrue(queryTimer.count() >= 3);
+            for (String name : List.of("writeBusiness", "writeControl", "readBusiness", "readControl")) {
+                var pool = q.ctx.getBean(name, HikariDataSource.class);
+                assertNotNull(registry.find("hikaricp.connections.active").tag("pool", pool.getPoolName()).gauge(), "active pool gauge: " + name);
+                assertNotNull(registry.find("hikaricp.connections.pending").tag("pool", pool.getPoolName()).gauge(), "pending pool gauge: " + name);
             }
             UUID pot = UUID.randomUUID();
             q.seed(pot, 1, 2, Set.of(OWNER), false, true, true, "before");

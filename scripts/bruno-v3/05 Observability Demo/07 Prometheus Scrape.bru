@@ -1,0 +1,24 @@
+meta {
+  name: 07 Prometheus Scrape
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/actuator/prometheus
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect(res.status).to.equal(200);
+  expect(res.body).to.include('http_server_requests_seconds');
+}

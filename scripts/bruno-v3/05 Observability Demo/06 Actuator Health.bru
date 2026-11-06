@@ -1,0 +1,24 @@
+meta {
+  name: 06 Actuator Health
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/actuator/health
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect(res.status).to.equal(200);
+  expect(res.body.status).to.equal('UP');
+}

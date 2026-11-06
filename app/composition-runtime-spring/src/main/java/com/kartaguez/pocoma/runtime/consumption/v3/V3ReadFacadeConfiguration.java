@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.runtime.consumption.v3;
 
 import com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3;
 
+import io.micrometer.core.instrument.MeterRegistry;
+
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 
@@ -26,13 +28,15 @@ public class V3ReadFacadeConfiguration {
     V3ReadFacadeComposition.Services v3ReadServices(
             V3ConsumptionWorkerConfiguration.Resources resources,
             V3ConsumptionWorkerSettings settings,
-            Environment env) {
+            Environment env,
+            Optional<MeterRegistry> meterRegistry) {
         return V3ReadFacadeComposition.create(
                 resources.readBusiness,
                 resources.readEffects,
                 limits(env),
                 new HashSet<>(settings.readParticipants()),
                 () -> Optional.ofNullable(resources.worker).map(w -> w.snapshot()),
-                Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE));
+                Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE),
+                meterRegistry.orElse(null));
     }
 }

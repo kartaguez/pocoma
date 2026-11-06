@@ -14,21 +14,48 @@ import java.util.concurrent.Semaphore;
 public final class V3ReadTransport extends OncePerRequestFilter {
     public static final int INPUT_BYTES = 65_536, OUTPUT_BYTES = 4_194_304, HTTP_PERMITS = 2;
     public static final String BODY = V3ReadTransport.class.getName() + ".body";
+
+    @FunctionalInterface
+    public interface Telemetry {
+        void record(String endpoint, int status, long durationNanos);
+    }
+
     private final Semaphore capacity = new Semaphore(HTTP_PERMITS);
     private final ObjectMapper mapper;
+    private final Telemetry telemetry;
     private boolean admissionActive;
 
     public V3ReadTransport() {
-        this(new ObjectMapper(JsonFactory.builder()
-                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(8).build())
-                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
+        this(false, (endpoint, status, durationNanos) -> {});
     }
 
     public V3ReadTransport(boolean admissionActive) {
-        this();
-        this.admissionActive = admissionActive;
+        this(admissionActive, (endpoint, status, durationNanos) -> {});
     }
-    public V3ReadTransport(ObjectMapper mapper) { this.mapper = Objects.requireNonNull(mapper); }
+
+    public V3ReadTransport(boolean admissionActive, Telemetry telemetry) {
+        this(
+                new ObjectMapper(
+                                JsonFactory.builder()
+                                        .streamReadConstraints(
+                                                StreamReadConstraints.builder().maxNestingDepth(8).build())
+                                        .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                                        .build())
+                        .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS),
+                admissionActive,
+                telemetry);
+    }
+
+    public V3ReadTransport(ObjectMapper mapper) {
+        this(mapper, false, (endpoint, status, durationNanos) -> {});
+    }
+
+    public V3ReadTransport(ObjectMapper mapper, boolean admissionActive, Telemetry telemetry) {
+        this.mapper = Objects.requireNonNull(mapper);
+        this.admissionActive = admissionActive;
+        this.telemetry = telemetry != null ? telemetry : (endpoint, status, durationNanos) -> {};
+    }
+
     public ObjectMapper mapper() { return mapper; }
     public int availableCapacity() { return capacity.availablePermits(); }
     public static final class Failure extends RuntimeException {
@@ -36,6 +63,23 @@ public final class V3ReadTransport extends OncePerRequestFilter {
         public Failure(int status) { super("READ request refused", null, false, false); this.status = status; }
     }
     public static void require(boolean condition) { if (!condition) throw new Failure(400); }
+
+    public static String classify(String uri) {
+        if (uri == null) return "other";
+        if (uri.startsWith("/api/v3/pots/")) {
+            if (uri.endsWith("/balance")) return "balance";
+            if (uri.endsWith("/expenses/query")) return "expenses";
+            if (uri.contains("/versions/")) return "pot_version";
+            return "pot_current";
+        }
+        if (uri.equals("/api/v3/me/pots")) return "pots_visible";
+        if (uri.equals("/api/v3/me/binding")) return "binding";
+        if (uri.startsWith("/api/v3/commands/") && uri.endsWith("/result")) return "command_result";
+        if (uri.startsWith("/api/v3/identity/requests/") && uri.endsWith("/result")) return "identity_result";
+        if (uri.startsWith("/api/v3/invitations")) return "invitation";
+        return "other";
+    }
+
     @Override protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI().startsWith("/api/v3/")
                 || (admissionActive
@@ -47,7 +91,13 @@ public final class V3ReadTransport extends OncePerRequestFilter {
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws ServletException, IOException {
         response.setHeader("Cache-Control", "no-store");
-        if (!capacity.tryAcquire()) { error(response, 503); return; }
+        long startNanos = System.nanoTime();
+        String endpoint = classify(request.getRequestURI());
+        if (!capacity.tryAcquire()) {
+            telemetry.record(endpoint, 503, System.nanoTime() - startNanos);
+            error(response, 503);
+            return;
+        }
         try {
             require(request.getRequestURI().length() + (request.getQueryString() == null ? 0 : 1 + request.getQueryString().length()) <= 2048);
             if (request.getHeader("Content-Encoding") != null) throw new Failure(415);
@@ -68,6 +118,7 @@ public final class V3ReadTransport extends OncePerRequestFilter {
         } finally {
             request.removeAttribute(BODY);
             capacity.release();
+            telemetry.record(endpoint, response.getStatus(), System.nanoTime() - startNanos);
         }
     }
     public void write(HttpServletResponse response, Object dto) throws IOException {

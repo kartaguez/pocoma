@@ -241,8 +241,11 @@ public class V3ConsumptionWorkerConfiguration {
     static class Active {
         @Bean(destroyMethod = "closeIfSafe")
         Resources v3WorkerResources(
-                V3ConsumptionWorkerSettings settings, V3BootstrapGuard guard, Environment env) {
-            var resources = new Resources(settings, guard);
+                V3ConsumptionWorkerSettings settings,
+                V3BootstrapGuard guard,
+                Environment env,
+                Optional<MeterRegistry> meterRegistry) {
+            var resources = new Resources(settings, guard, meterRegistry.orElse(null));
             try {
                 if (settings.readParticipants().contains("MaterializeInvitation")
                         || env.getProperty("pocoma.v3.invitation.current-key") != null)
@@ -510,13 +513,17 @@ public class V3ConsumptionWorkerConfiguration {
         private boolean closed;
 
         Resources(V3ConsumptionWorkerSettings settings, V3BootstrapGuard guard) {
+            this(settings, guard, null);
+        }
+
+        Resources(V3ConsumptionWorkerSettings settings, V3BootstrapGuard guard, MeterRegistry registry) {
             var opened = new ArrayList<HikariDataSource>();
             LocalContainerEntityManagerFactoryBean initialized = null;
             try {
-                writeBusiness = open(settings, settings.writeBusiness(), opened);
-                writeControl = open(settings, settings.writeControl(), opened);
-                readBusiness = open(settings, settings.readBusiness(), opened);
-                readControl = open(settings, settings.readControl(), opened);
+                writeBusiness = open(settings, settings.writeBusiness(), opened, registry);
+                writeControl = open(settings, settings.writeControl(), opened, registry);
+                readBusiness = open(settings, settings.readBusiness(), opened, registry);
+                readControl = open(settings, settings.readControl(), opened, registry);
                 emf = new LocalContainerEntityManagerFactoryBean();
                 initialized = emf;
                 emf.setDataSource(writeBusiness);
@@ -584,7 +591,8 @@ public class V3ConsumptionWorkerConfiguration {
         private static HikariDataSource open(
                 V3ConsumptionWorkerSettings settings,
                 V3ConsumptionWorkerSettings.Pool spec,
-                List<HikariDataSource> opened) {
+                List<HikariDataSource> opened,
+                MeterRegistry registry) {
             var config = new HikariConfig();
             config.setPoolName(settings.workerName() + "-" + spec.name());
             config.setJdbcUrl(spec.url());
@@ -605,6 +613,10 @@ public class V3ConsumptionWorkerConfiguration {
                             : "-c lock_timeout=500 -c statement_timeout=2000 -c"
                                     + " transaction_timeout=3000");
             var pool = new HikariDataSource(config);
+            if (registry != null) {
+                pool.setMetricsTrackerFactory(
+                        new com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory(registry));
+            }
             opened.add(pool);
             long deadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
             while (pool.getHikariPoolMXBean().getIdleConnections() != spec.maximum()

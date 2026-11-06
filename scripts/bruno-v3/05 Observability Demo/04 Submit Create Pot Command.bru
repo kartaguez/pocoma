@@ -1,0 +1,37 @@
+meta {
+  name: 04 Submit Create Pot Command
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "commandType": "CreatePot",
+    "bindingId": "{{bindingId}}",
+    "payload": {
+      "label": "Demo Pot {{timestamp}}"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect(res.status).to.equal(202);
+  expect(res.body).to.have.property('commandId');
+  bru.setVar('commandId', res.body.commandId);
+}

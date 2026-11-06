@@ -74,6 +74,10 @@ class V3ReadHttpContractTest {
         status(404, bearer("absent", null, "/me/binding?minVersion=999")); status(503, f.get("/me/binding?minVersion=2"));
         status(400, f.get("/me/binding?eui=other")); status(400, f.get("/me/binding?userId=" + OWNER));
         f.results(); status(200, f.get("/commands/" + id(401) + "/result"));
+        var registry = f.context.getBean(io.micrometer.core.instrument.MeterRegistry.class);
+        var readTimer = registry.find("pocoma.v3.read.http.duration").tag("endpoint", "binding").tag("status", "200").timer();
+        assertNotNull(readTimer, "read http duration timer for binding must exist");
+        assertTrue(readTimer.count() >= 1);
     }
     @Test void bindingTokenAndForeignEui() throws Exception {
         f.seed(POT, 1, 0, Set.of(OWNER), false, true, true, "private");

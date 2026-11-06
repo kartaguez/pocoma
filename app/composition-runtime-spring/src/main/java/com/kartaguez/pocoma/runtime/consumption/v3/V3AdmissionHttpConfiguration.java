@@ -8,6 +8,10 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.supra.http.write.v3.*;
 import com.zaxxer.hikari.*;
+import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
+
+import io.micrometer.core.instrument.*;
+import io.micrometer.core.instrument.Timer;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -16,6 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.util.*;
 
 /** Explicit HTTP-only activation. No admission allocation on COMMAND or READ-only roots. */
@@ -107,8 +112,23 @@ public class V3AdmissionHttpConfiguration {
         return java.time.Duration.ofSeconds(seconds);
     }
 
+    private static final Duration[] BUCKETS = {
+        Duration.ofMillis(1),
+        Duration.ofMillis(5),
+        Duration.ofMillis(10),
+        Duration.ofMillis(50),
+        Duration.ofMillis(100),
+        Duration.ofMillis(500),
+        Duration.ofSeconds(1),
+        Duration.ofSeconds(2),
+        Duration.ofSeconds(5),
+        Duration.ofSeconds(30),
+        Duration.ofSeconds(60),
+        Duration.ofSeconds(120)
+    };
+
     @Bean(destroyMethod = "close")
-    HikariDataSource v3AdmissionPool(Environment env) {
+    HikariDataSource v3AdmissionPool(Environment env, Optional<MeterRegistry> meterRegistry) {
         var c = new HikariConfig();
         var l = limits(env);
         c.setJdbcUrl(env.getRequiredProperty(PREFIX + "url"));
@@ -126,6 +146,7 @@ public class V3AdmissionHttpConfiguration {
                 "options",
                 "-c statement_timeout=2000 -c lock_timeout=500 -c transaction_timeout=3000");
         var pool = new HikariDataSource(c);
+        meterRegistry.ifPresent(r -> pool.setMetricsTrackerFactory(new MicrometerMetricsTrackerFactory(r)));
         try {
             AdmissionSqlAuthority.verify(
                     pool,
@@ -177,8 +198,28 @@ public class V3AdmissionHttpConfiguration {
     }
 
     @Bean
-    V3AdmissionTransport v3AdmissionTransport(Environment env) {
-        return new V3AdmissionTransport(limits(env));
+    V3AdmissionTransport v3AdmissionTransport(Environment env, Optional<MeterRegistry> meterRegistry) {
+        var limits = limits(env);
+        var registry = meterRegistry.orElse(null);
+        V3AdmissionTransport.Telemetry telemetry = (endpoint, status, durationNanos) -> {
+            if (registry != null) {
+                Tags tags = Tags.of("endpoint", endpoint, "status", String.valueOf(status));
+                registry.counter("pocoma.v3.admission.requests", tags).increment();
+                Timer.builder("pocoma.v3.admission.http.duration")
+                        .tags(tags)
+                        .publishPercentileHistogram()
+                        .serviceLevelObjectives(BUCKETS)
+                        .register(registry)
+                        .record(Duration.ofNanos(durationNanos));
+            }
+        };
+        var transport = new V3AdmissionTransport(limits, telemetry);
+        if (registry != null) {
+            Gauge.builder("pocoma.v3.admission.capacity.available", transport, V3AdmissionTransport::availableCapacity)
+                    .tag("endpoint", "admission")
+                    .register(registry);
+        }
+        return transport;
     }
 
     @Bean

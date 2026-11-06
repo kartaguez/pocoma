@@ -1,0 +1,30 @@
+meta {
+  name: 03 Poll Registration Result
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/registrations/{{regRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerToken}}
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect([200, 404]).to.include(res.status);
+  if (res.status === 200) {
+    expect(res.body).to.have.property('status');
+    if (res.body.bindingId) {
+      bru.setVar('bindingId', res.body.bindingId);
+    }
+  }
+}
