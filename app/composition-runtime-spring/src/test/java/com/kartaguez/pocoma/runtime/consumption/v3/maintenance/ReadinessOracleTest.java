@@ -13,6 +13,14 @@ class ReadinessOracleTest {
     private final Map<String, UUID> canonicalConsumptions = new LinkedHashMap<>();
     private final Map<String, String> consumptionFamilies = new LinkedHashMap<>();
 
+    private final Map<String, Long> standardTargetPrefix = Map.of(
+            "POT", 100L,
+            "IDENTITY", 50L,
+            "COMMAND_COMPLETION", 20L,
+            "IDENTITY_COMPLETION", 10L,
+            "INVITATION", 5L
+    );
+
     @BeforeEach
     void setUp() {
         oracle = new ReadinessOracle();
@@ -53,26 +61,18 @@ class ReadinessOracleTest {
 
     @Test
     void whenAllCheckpointsCompleteAndNoSlotsAndNoIntegrityErrors_returnsReady() {
-        Map<String, Long> targetPrefix = Map.of(
-                "POT", 100L,
-                "IDENTITY", 50L,
-                "COMMAND_COMPLETION", 20L,
-                "IDENTITY_COMPLETION", 10L,
-                "INVITATION", 5L
-        );
-
         List<ReadinessOracle.CheckpointEntry> checkpoints = new ArrayList<>();
         for (var entry : canonicalConsumptions.entrySet()) {
             UUID cid = entry.getValue();
             String family = consumptionFamilies.get(entry.getKey());
             String writeFam = ReadinessOracle.toWriteFamily(family);
-            long pos = targetPrefix.get(writeFam) + 5; // Beyond target
+            long pos = standardTargetPrefix.get(writeFam) + 5; // Beyond target
             for (int p = 0; p < 4; p++) {
                 checkpoints.add(new ReadinessOracle.CheckpointEntry(cid, family, p, pos));
             }
         }
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, List.of(), List.of());
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, List.of(), List.of());
 
         assertTrue(eval.ready(), "Must be READY when all 3 conditions are satisfied");
         assertTrue(eval.checkpointsSatisfied());
@@ -84,14 +84,12 @@ class ReadinessOracleTest {
 
     @Test
     void whenEvenOneCheckpointIsBelowTarget_readyIsRefused() {
-        Map<String, Long> targetPrefix = Map.of("POT", 100L, "IDENTITY", 50L, "COMMAND_COMPLETION", 20L, "IDENTITY_COMPLETION", 10L, "INVITATION", 5L);
-
         List<ReadinessOracle.CheckpointEntry> checkpoints = new ArrayList<>();
         for (var entry : canonicalConsumptions.entrySet()) {
             UUID cid = entry.getValue();
             String family = consumptionFamilies.get(entry.getKey());
             String writeFam = ReadinessOracle.toWriteFamily(family);
-            long pos = targetPrefix.get(writeFam);
+            long pos = standardTargetPrefix.get(writeFam);
             for (int p = 0; p < 4; p++) {
                 // One partition lags behind: partition 3 of PotBalance at 99 instead of 100
                 if (entry.getKey().equals("MaterializePotBalance") && p == 3) {
@@ -102,30 +100,91 @@ class ReadinessOracleTest {
             }
         }
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, List.of(), List.of());
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, List.of(), List.of());
 
         assertFalse(eval.ready());
         assertFalse(eval.checkpointsSatisfied());
         assertEquals(27, eval.satisfiedCheckpointsCount());
-        assertTrue(eval.diagnostic().contains("MaterializePotBalance") || eval.diagnostic().contains("POT_EVENT p3 at 99 < target 100"));
+        assertTrue(eval.diagnostic().contains("p3 at 99 < target 100"));
     }
 
     @Test
     void whenCheckpointIsMissing_readyIsRefused() {
-        Map<String, Long> targetPrefix = Map.of("POT", 100L);
         List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(100L);
         checkpoints.removeLast(); // Only 27 checkpoints
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, List.of(), List.of());
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, List.of(), List.of());
 
         assertFalse(eval.ready());
         assertFalse(eval.checkpointsSatisfied());
         assertEquals(27, eval.satisfiedCheckpointsCount());
+        assertTrue(eval.diagnostic().contains("Missing checkpoints: 1"));
+    }
+
+    @Test
+    void whenTargetPrefixMissingExpectedFamily_readyIsRefused() {
+        // Missing INVITATION, IDENTITY, COMMAND_COMPLETION, IDENTITY_COMPLETION
+        Map<String, Long> incompleteTarget = Map.of("POT", 100L);
+        List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
+
+        var eval = oracle.evaluatePure(incompleteTarget, checkpoints, List.of(), List.of());
+
+        assertFalse(eval.ready(), "Target prefix missing required write families must block READY");
+        assertFalse(eval.checkpointsSatisfied());
+        assertTrue(eval.diagnostic().contains("missing expected families"));
+    }
+
+    @Test
+    void whenUnexpectedCheckpointAppears_readyIsRefused() {
+        List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
+        // Add unexpected checkpoint with unknown consumption ID
+        checkpoints.add(new ReadinessOracle.CheckpointEntry(UUID.randomUUID(), "POT_EVENT", 0, 200L));
+
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, List.of(), List.of());
+
+        assertFalse(eval.ready(), "Unknown/unexpected checkpoint must block READY");
+        assertFalse(eval.checkpointsSatisfied());
+        assertTrue(eval.diagnostic().contains("Unexpected checkpoint"));
+    }
+
+    @Test
+    void whenDuplicateCheckpointAppears_readyIsRefused() {
+        List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
+        // Duplicate the first checkpoint
+        checkpoints.add(checkpoints.getFirst());
+
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, List.of(), List.of());
+
+        assertFalse(eval.ready(), "Duplicate checkpoint must block READY");
+        assertFalse(eval.checkpointsSatisfied());
+        assertTrue(eval.diagnostic().contains("Duplicate checkpoint"));
+    }
+
+    @Test
+    void whenSlotPositionUnresolvedInWrite_readyIsRefused() {
+        List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
+
+        // Slot with unresolved position (-1L)
+        List<ReadinessOracle.SlotEntry> slots = List.of(
+                new ReadinessOracle.SlotEntry(
+                        canonicalConsumptions.get("MaterializePotVersion"),
+                        "POT_EVENT",
+                        UUID.randomUUID(),
+                        -1L,
+                        "AVAILABLE"
+                )
+        );
+
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, slots, List.of());
+
+        assertFalse(eval.ready(), "Unresolved slot position in WRITE must block READY");
+        assertFalse(eval.slotsSatisfied());
+        assertEquals(1, eval.residualSlotsCount());
+        assertTrue(eval.diagnostic().contains("UNRESOLVED in WRITE"));
     }
 
     @Test
     void whenSlotExistsBelowTarget_readyIsRefused() {
-        Map<String, Long> targetPrefix = Map.of("POT", 100L, "IDENTITY", 50L, "COMMAND_COMPLETION", 20L, "IDENTITY_COMPLETION", 10L, "INVITATION", 5L);
         List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
 
         // One slot at position 80 <= 100 in AVAILABLE state
@@ -139,7 +198,7 @@ class ReadinessOracleTest {
                 )
         );
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, slots, List.of());
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, slots, List.of());
 
         assertFalse(eval.ready());
         assertTrue(eval.checkpointsSatisfied());
@@ -150,7 +209,6 @@ class ReadinessOracleTest {
 
     @Test
     void whenSlotIsQuarantinedBelowTarget_readyIsRefused() {
-        Map<String, Long> targetPrefix = Map.of("POT", 100L, "IDENTITY", 50L, "COMMAND_COMPLETION", 20L, "IDENTITY_COMPLETION", 10L, "INVITATION", 5L);
         List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
 
         // One quarantined slot at position 50 <= 100
@@ -164,7 +222,7 @@ class ReadinessOracleTest {
                 )
         );
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, slots, List.of());
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, slots, List.of());
 
         assertFalse(eval.ready());
         assertFalse(eval.slotsSatisfied());
@@ -175,7 +233,6 @@ class ReadinessOracleTest {
 
     @Test
     void whenSlotExistsAboveTarget_doesNotBlockReady() {
-        Map<String, Long> targetPrefix = Map.of("POT", 100L, "IDENTITY", 50L, "COMMAND_COMPLETION", 20L, "IDENTITY_COMPLETION", 10L, "INVITATION", 5L);
         List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(200L);
 
         // One slot at position 105 > 100 (new WRITE event during replay)
@@ -189,7 +246,7 @@ class ReadinessOracleTest {
                 )
         );
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, slots, List.of());
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, slots, List.of());
 
         assertTrue(eval.ready(), "Events > B must not block READY");
         assertTrue(eval.slotsSatisfied());
@@ -198,12 +255,11 @@ class ReadinessOracleTest {
 
     @Test
     void whenRelationalIntegrityViolated_readyIsRefused() {
-        Map<String, Long> targetPrefix = Map.of("POT", 100L);
         List<ReadinessOracle.CheckpointEntry> checkpoints = generate28Checkpoints(100L);
 
         List<String> integrityViolations = List.of("read_current_pot has 2 dangling version references");
 
-        var eval = oracle.evaluatePure(targetPrefix, checkpoints, List.of(), integrityViolations);
+        var eval = oracle.evaluatePure(standardTargetPrefix, checkpoints, List.of(), integrityViolations);
 
         assertFalse(eval.ready());
         assertTrue(eval.checkpointsSatisfied());

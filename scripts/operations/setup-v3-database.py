@@ -112,6 +112,9 @@ def apply_migrations(db, schema, admin, runtime, migration_files):
 def initialize_v3_write():
     reg = psql("pocoma_write", "SELECT to_regclass('v3_write.v3_command')::text;")
     if reg and reg != "":
+        # Ensure isolated read permissions on WRITE for pocoma_read (idempotent)
+        psql("pocoma_write", "GRANT USAGE ON SCHEMA v3_write TO pocoma_read;", check=False)
+        psql("pocoma_write", "GRANT SELECT ON v3_write.v3_event_counter, v3_write.v3_event_position TO pocoma_read;", check=False)
         print("  ✓ Schema v3_write already initialized.")
         return
 
@@ -175,6 +178,10 @@ def initialize_v3_write():
     for script_file, variables in scripts:
         content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
         psql_script("pocoma_write", "v3_write", content, variables=variables)
+
+    # Isolated read permissions on WRITE event streams for READ reconstruction authority
+    psql("pocoma_write", "GRANT USAGE ON SCHEMA v3_write TO pocoma_read;")
+    psql("pocoma_write", "GRANT SELECT ON v3_write.v3_event_counter, v3_write.v3_event_position TO pocoma_read;")
 
     print("  ✓ Schema v3_write successfully provisioned and secured.")
 

@@ -36,7 +36,7 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
 
     @Override
     public ReadMaintenanceState currentState() {
-        String sql = "SELECT state, phase, target_prefix::text AS target_prefix_text, operator_id, "
+        String sql = "SELECT state, phase, target_prefix::text AS target_prefix_text, operator_id, operation_id, "
                 + "started_at, updated_at, error_detail "
                 + "FROM public.read_maintenance_state WHERE id = 1";
 
@@ -48,27 +48,32 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
     }
 
     @Override
-    public boolean tryAcquireMaintenance(String operatorId) {
+    public boolean tryAcquireMaintenance(String operatorId, UUID operationId) {
+        Objects.requireNonNull(operatorId, "operatorId cannot be null");
+        Objects.requireNonNull(operationId, "operationId cannot be null");
         String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'MAINTENANCE', phase = 'DRAINING', operator_id = ?, "
+                + "SET state = 'MAINTENANCE', phase = 'DRAINING', operator_id = ?, operation_id = ?, "
                 + "started_at = clock_timestamp(), updated_at = clock_timestamp(), error_detail = NULL "
-                + "WHERE id = 1 AND state = 'READY'";
-        int rows = jdbc.update(sql, operatorId);
+                + "WHERE id = 1 AND state = 'READY' AND phase = 'IDLE'";
+        int rows = jdbc.update(sql, operatorId, operationId);
         return rows == 1;
     }
 
     @Override
-    public boolean updatePhase(ReadMaintenanceState.Phase phase) {
+    public boolean updatePhase(ReadMaintenanceState.Phase phase, UUID operationId) {
         Objects.requireNonNull(phase, "phase cannot be null");
         String sql = "UPDATE public.read_maintenance_state "
                 + "SET phase = ?, updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING')";
-        int rows = jdbc.update(sql, phase.name());
+                + "WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING')"
+                + (operationId != null ? " AND operation_id = ?" : "");
+        int rows = operationId != null
+                ? jdbc.update(sql, phase.name(), operationId)
+                : jdbc.update(sql, phase.name());
         return rows == 1;
     }
 
     @Override
-    public boolean startRebuilding(Map<String, Long> targetPrefix) {
+    public boolean startRebuilding(Map<String, Long> targetPrefix, UUID operationId) {
         Objects.requireNonNull(targetPrefix, "targetPrefix cannot be null");
         String json;
         try {
@@ -80,36 +85,59 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
         String sql = "UPDATE public.read_maintenance_state "
                 + "SET state = 'REBUILDING', phase = 'REPLAYING', target_prefix = ?::jsonb, "
                 + "updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state = 'MAINTENANCE'";
-        int rows = jdbc.update(sql, json);
+                + "WHERE id = 1 AND state = 'MAINTENANCE'"
+                + (operationId != null ? " AND operation_id = ?" : "");
+        int rows = operationId != null
+                ? jdbc.update(sql, json, operationId)
+                : jdbc.update(sql, json);
         return rows == 1;
     }
 
     @Override
-    public boolean markConverged() {
+    public boolean markConverged(UUID operationId) {
         String sql = "UPDATE public.read_maintenance_state "
                 + "SET phase = 'CONVERGED', updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state = 'REBUILDING'";
-        int rows = jdbc.update(sql);
+                + "WHERE id = 1 AND state = 'REBUILDING'"
+                + (operationId != null ? " AND operation_id = ?" : "");
+        int rows = operationId != null
+                ? jdbc.update(sql, operationId)
+                : jdbc.update(sql);
         return rows == 1;
     }
 
     @Override
-    public boolean markReady() {
+    public boolean markReady(UUID operationId) {
         String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'READY', phase = 'IDLE', operator_id = NULL, "
+                + "SET state = 'READY', phase = 'IDLE', operator_id = NULL, operation_id = NULL, "
                 + "updated_at = clock_timestamp(), error_detail = NULL "
-                + "WHERE id = 1 AND state IN ('REBUILDING', 'MAINTENANCE')";
-        int rows = jdbc.update(sql);
+                + "WHERE id = 1 AND state IN ('REBUILDING', 'MAINTENANCE')"
+                + (operationId != null ? " AND operation_id = ?" : "");
+        int rows = operationId != null
+                ? jdbc.update(sql, operationId)
+                : jdbc.update(sql);
         return rows == 1;
     }
 
     @Override
-    public boolean markFailed(String errorDetail) {
+    public boolean markFailed(String errorDetail, UUID operationId) {
         String sql = "UPDATE public.read_maintenance_state "
                 + "SET state = 'FAILED', updated_at = clock_timestamp(), error_detail = ? "
-                + "WHERE id = 1";
-        int rows = jdbc.update(sql, errorDetail);
+                + "WHERE id = 1"
+                + (operationId != null ? " AND operation_id = ?" : "");
+        int rows = operationId != null
+                ? jdbc.update(sql, errorDetail, operationId)
+                : jdbc.update(sql, errorDetail);
+        return rows == 1;
+    }
+
+    @Override
+    public boolean resetFailed(String operatorId) {
+        String sql = "UPDATE public.read_maintenance_state "
+                + "SET state = 'READY', phase = 'IDLE', operator_id = NULL, operation_id = NULL, "
+                + "target_prefix = NULL, started_at = NULL, error_detail = NULL, "
+                + "updated_at = clock_timestamp() "
+                + "WHERE id = 1 AND state = 'FAILED'";
+        int rows = jdbc.update(sql);
         return rows == 1;
     }
 
@@ -124,10 +152,12 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
                 )),
                 target_prefix JSONB NULL,
                 operator_id VARCHAR(64) NULL,
+                operation_id UUID NULL,
                 started_at TIMESTAMPTZ NULL,
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
                 error_detail TEXT NULL
             );
+            ALTER TABLE public.read_maintenance_state ADD COLUMN IF NOT EXISTS operation_id UUID NULL;
             INSERT INTO public.read_maintenance_state (id, state, phase, updated_at)
             VALUES (1, 'READY', 'IDLE', clock_timestamp())
             ON CONFLICT (id) DO NOTHING;
@@ -142,6 +172,7 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
             String phaseStr = rs.getString("phase");
             String prefixJson = rs.getString("target_prefix_text");
             String operatorId = rs.getString("operator_id");
+            UUID operationId = (UUID) rs.getObject("operation_id");
             Timestamp startedAtTs = rs.getTimestamp("started_at");
             Timestamp updatedAtTs = rs.getTimestamp("updated_at");
             String errorDetail = rs.getString("error_detail");
@@ -176,6 +207,7 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
                     phase,
                     prefix,
                     operatorId,
+                    operationId,
                     startedAt,
                     updatedAt,
                     errorDetail);

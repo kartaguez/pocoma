@@ -53,10 +53,12 @@ class V3ReadReconstructionPostgresTest {
                 )),
                 target_prefix JSONB NULL,
                 operator_id VARCHAR(64) NULL,
+                operation_id UUID NULL,
                 started_at TIMESTAMPTZ NULL,
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
                 error_detail TEXT NULL
             );
+            ALTER TABLE public.read_maintenance_state ADD COLUMN IF NOT EXISTS operation_id UUID NULL;
             ALTER TABLE public.read_maintenance_state OWNER TO %s;
             REVOKE ALL ON public.read_maintenance_state FROM PUBLIC;
             REVOKE ALL ON public.read_maintenance_state FROM %s;
@@ -64,7 +66,7 @@ class V3ReadReconstructionPostgresTest {
             INSERT INTO public.read_maintenance_state (id, state, phase, updated_at)
             VALUES (1, 'READY', 'IDLE', clock_timestamp())
             ON CONFLICT (id) DO UPDATE SET
-                state = 'READY', phase = 'IDLE', target_prefix = NULL, operator_id = NULL,
+                state = 'READY', phase = 'IDLE', target_prefix = NULL, operator_id = NULL, operation_id = NULL,
                 started_at = NULL, error_detail = NULL, updated_at = clock_timestamp();
             """, PG.getUsername(), readRole, readRole);
         readAdmin.execute(sql);
@@ -376,12 +378,111 @@ class V3ReadReconstructionPostgresTest {
                     potConsumptionId, potEventId, potEventId
             );
 
-            // Target B set to 10 (so slot at position <= 10 is considered residual)
-            Map<String, Long> targetBHigh = Map.of("POT", 100L);
+            // Target B set with all canonical families (POT at 100L)
+            Map<String, Long> targetBHigh = Map.of(
+                    "POT", 100L,
+                    "IDENTITY", 0L,
+                    "COMMAND_COMPLETION", 0L,
+                    "IDENTITY_COMPLETION", 0L,
+                    "INVITATION", 0L
+            );
             var quarantinedEval = oracle.evaluate(f.read, f.write, targetBHigh);
             assertFalse(quarantinedEval.ready(), "Quarantined slot <= B must block READY");
             assertFalse(quarantinedEval.slotsSatisfied());
             assertEquals(1, quarantinedEval.quarantinedSlotsCount());
+        }
+    }
+
+    @Test
+    void rcv01I_concurrentAcquisitionExclusion() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            var readAdmin = new JdbcTemplate(new DriverManagerDataSource(f.readUrl, PG.getUsername(), PG.getPassword()));
+            ensureMaintenanceTable(readAdmin, f.readRole);
+            var authority1 = new JdbcReadMaintenanceAuthority(readAdmin);
+            var authority2 = new JdbcReadMaintenanceAuthority(readAdmin);
+
+            UUID opId1 = UUID.randomUUID();
+            UUID opId2 = UUID.randomUUID();
+
+            // First operator acquires
+            assertTrue(authority1.tryAcquireMaintenance("operator-1", opId1));
+
+            // Second operator attempt must be refused by atomic CAS
+            assertFalse(authority2.tryAcquireMaintenance("operator-2", opId2));
+
+            // Fencing: operator-2 cannot transition operator-1's operation
+            assertFalse(authority2.updatePhase(ReadMaintenanceState.Phase.MIGRATED, opId2));
+
+            // Operator-1 can transition
+            assertTrue(authority1.updatePhase(ReadMaintenanceState.Phase.MIGRATED, opId1));
+
+            // Failed state fencing: marking failed prevents new rebuild until reset
+            assertTrue(authority1.markFailed("Simulated error", opId1));
+            assertFalse(authority2.tryAcquireMaintenance("operator-2", UUID.randomUUID()),
+                    "Cannot acquire maintenance when in FAILED state without explicit reset");
+
+            // Explicit reset restores READY
+            assertTrue(authority1.resetFailed("operator-1"));
+            assertEquals(ReadMaintenanceState.State.READY, authority1.currentState().state());
+        }
+    }
+
+    @Test
+    void rcv01J_writePermissionIsolation() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            // Give pocoma_read (f.readRole) USAGE on write schema and SELECT on v3_event_counter, but NO write privileges
+            f.write.execute("GRANT USAGE ON SCHEMA " + f.schema + " TO " + f.readRole);
+            f.write.execute("GRANT SELECT ON " + f.schema + ".v3_event_counter, " + f.schema + ".v3_event_position TO " + f.readRole);
+
+            var readRoleOnWriteSource = new DriverManagerDataSource(f.writeUrl, f.readRole, "i5-fixture");
+            var readRoleJdbc = new JdbcTemplate(readRoleOnWriteSource);
+
+            // 1. SELECT succeeds
+            assertDoesNotThrow(() -> readRoleJdbc.queryForList("SELECT * FROM " + f.schema + ".v3_event_counter"));
+
+            // 2. UPDATE fails with permission denied
+            assertThrows(Exception.class, () -> readRoleJdbc.update(
+                    "UPDATE " + f.schema + ".v3_event_counter SET position = 999 WHERE family = 'POT'"
+            ));
+
+            // 3. INSERT fails with permission denied
+            assertThrows(Exception.class, () -> readRoleJdbc.update(
+                    "INSERT INTO " + f.schema + ".v3_event_counter (family, position) VALUES ('ROGUE', 1)"
+            ));
+        }
+    }
+
+    @Test
+    void rcv01K_crashDuringDdl_safeResumeWithoutDestruction() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            setupFixture(f);
+            var readAdmin = new JdbcTemplate(new DriverManagerDataSource(f.readUrl, PG.getUsername(), PG.getPassword()));
+            ensureMaintenanceTable(readAdmin, f.readRole);
+            var authority = new JdbcReadMaintenanceAuthority(readAdmin);
+
+            UUID opId = UUID.randomUUID();
+            assertTrue(authority.tryAcquireMaintenance("resume-op", opId));
+
+            // DDL executes: schema created, migrated, routed
+            performRebuildDdl(f, readAdmin);
+            authority.updatePhase(ReadMaintenanceState.Phase.ROUTED, opId);
+
+            // Crash happens! In-memory state lost. Authority is in ROUTED phase.
+            ReadMaintenanceState stateAfterCrash = authority.currentState();
+            assertEquals(ReadMaintenanceState.State.MAINTENANCE, stateAfterCrash.state());
+            assertEquals(ReadMaintenanceState.Phase.ROUTED, stateAfterCrash.phase());
+
+            // Resume protocol: verify physical state without dropping schema!
+            Integer contractCount = f.read.queryForObject("SELECT count(*) FROM " + f.schema + ".consumption_routing_contract", Integer.class);
+            assertEquals(7, contractCount, "Resume revalidates physical contracts are intact");
+
+            // Replay starts directly from existing routed state without destruction
+            Map<String, Long> targetB = Map.of(
+                    "POT", 0L, "IDENTITY", 0L, "COMMAND_COMPLETION", 0L, "IDENTITY_COMPLETION", 0L, "INVITATION", 0L
+            );
+            assertTrue(authority.startRebuilding(targetB, opId));
+            assertEquals(ReadMaintenanceState.State.REBUILDING, authority.currentState().state());
+            assertEquals(ReadMaintenanceState.Phase.REPLAYING, authority.currentState().phase());
         }
     }
 }

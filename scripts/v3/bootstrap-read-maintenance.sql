@@ -11,11 +11,13 @@ CREATE TABLE IF NOT EXISTS public.read_maintenance_state (
     )),
     target_prefix JSONB NULL,
     operator_id VARCHAR(64) NULL,
+    operation_id UUID NULL,
     started_at TIMESTAMPTZ NULL,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
     error_detail TEXT NULL
 );
 
+ALTER TABLE public.read_maintenance_state ADD COLUMN IF NOT EXISTS operation_id UUID NULL;
 ALTER TABLE public.read_maintenance_state OWNER TO pocoma;
 REVOKE ALL ON public.read_maintenance_state FROM PUBLIC;
 REVOKE ALL ON public.read_maintenance_state FROM pocoma_read;

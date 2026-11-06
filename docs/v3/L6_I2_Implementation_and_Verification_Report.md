@@ -1,5 +1,8 @@
 # Pocoma V3 — L6/I2 — Rapport d'Implémentation et de Vérification de l'Exploitation et Reconstruction READ
 
+> [!NOTE] Suivi post-audit
+> Suite à l'audit indépendant ayant relevé des constats bloquants (AUD-L6-I2-01 à 03) et complémentaires (AUD-L6-I2-04 à 12), des corrections ciblées et une requalification complète ont été exécutées sous le mandat `GO_L6_I2_POST_AUDIT_CORRECTIONS`. Voir le rapport dédié : [Rapport de corrections post-audit et requalification ciblée L6/I2](L6_I2_Post_Audit_Corrections_and_Requalification_Report.md).
+
 **Date :** 6 novembre 2026  
 **Dépôt :** `kartaguez/pocoma`  
 **Branche :** `feat/v3-architecture`  

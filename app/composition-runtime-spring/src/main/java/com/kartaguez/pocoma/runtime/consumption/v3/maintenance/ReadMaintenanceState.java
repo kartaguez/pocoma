@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Immutable representation of the durable READ maintenance and rebuild state.
@@ -14,6 +15,7 @@ public record ReadMaintenanceState(
         Phase phase,
         Map<String, Long> targetPrefix,
         String operatorId,
+        UUID operationId,
         Instant startedAt,
         Instant updatedAt,
         String errorDetail) {
@@ -43,6 +45,17 @@ public record ReadMaintenanceState(
         targetPrefix = targetPrefix == null ? Map.of() : Collections.unmodifiableMap(Map.copyOf(targetPrefix));
     }
 
+    public ReadMaintenanceState(
+            State state,
+            Phase phase,
+            Map<String, Long> targetPrefix,
+            String operatorId,
+            Instant startedAt,
+            Instant updatedAt,
+            String errorDetail) {
+        this(state, phase, targetPrefix, operatorId, null, startedAt, updatedAt, errorDetail);
+    }
+
     public boolean isReady() {
         return state == State.READY;
     }
@@ -58,6 +71,7 @@ public record ReadMaintenanceState(
                 Map.of(),
                 null,
                 null,
+                null,
                 Instant.now(),
                 null);
     }
@@ -67,6 +81,7 @@ public record ReadMaintenanceState(
                 State.FAILED,
                 Phase.IDLE,
                 Map.of(),
+                null,
                 null,
                 null,
                 Instant.now(),

@@ -300,4 +300,45 @@ class ReadMaintenanceBarrierTest {
             pool.shutdownNow();
         }
     }
+
+    @Test
+    void jdbcAuthority_tryAcquireMaintenance_usesCasConditioningOnReadyAndIdle() {
+        org.springframework.jdbc.core.JdbcTemplate mockJdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        java.util.UUID opId = java.util.UUID.randomUUID();
+        when(mockJdbc.update(contains("WHERE id = 1 AND state = 'READY' AND phase = 'IDLE'"), eq("operator-1"), eq(opId)))
+                .thenReturn(1);
+
+        JdbcReadMaintenanceAuthority jdbcAuth = new JdbcReadMaintenanceAuthority(mockJdbc);
+        assertTrue(jdbcAuth.tryAcquireMaintenance("operator-1", opId));
+
+        // When another operator tries or state is not READY, update returns 0
+        when(mockJdbc.update(contains("WHERE id = 1 AND state = 'READY' AND phase = 'IDLE'"), eq("operator-2"), any(java.util.UUID.class)))
+                .thenReturn(0);
+        assertFalse(jdbcAuth.tryAcquireMaintenance("operator-2", java.util.UUID.randomUUID()));
+    }
+
+    @Test
+    void jdbcAuthority_operationFencing_conditionsOnOperationId() {
+        org.springframework.jdbc.core.JdbcTemplate mockJdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        java.util.UUID activeOpId = java.util.UUID.randomUUID();
+        java.util.UUID rogueOpId = java.util.UUID.randomUUID();
+
+        when(mockJdbc.update(contains("operation_id = ?"), eq("MIGRATED"), eq(activeOpId)))
+                .thenReturn(1);
+        when(mockJdbc.update(contains("operation_id = ?"), eq("MIGRATED"), eq(rogueOpId)))
+                .thenReturn(0);
+
+        JdbcReadMaintenanceAuthority jdbcAuth = new JdbcReadMaintenanceAuthority(mockJdbc);
+        assertTrue(jdbcAuth.updatePhase(ReadMaintenanceState.Phase.MIGRATED, activeOpId));
+        assertFalse(jdbcAuth.updatePhase(ReadMaintenanceState.Phase.MIGRATED, rogueOpId));
+    }
+
+    @Test
+    void jdbcAuthority_resetFailed_requiresStateFailed() {
+        org.springframework.jdbc.core.JdbcTemplate mockJdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        when(mockJdbc.update(contains("WHERE id = 1 AND state = 'FAILED'"))).thenReturn(1);
+
+        JdbcReadMaintenanceAuthority jdbcAuth = new JdbcReadMaintenanceAuthority(mockJdbc);
+        assertTrue(jdbcAuth.resetFailed("operator-1"));
+    }
 }
