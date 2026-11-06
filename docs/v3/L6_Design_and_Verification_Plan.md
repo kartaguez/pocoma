@@ -4,7 +4,7 @@
 **Branche :** `feat/v3-architecture`  
 **SHA de cadrage initial :** `0d11082e397337b4546dd751defec146ee5095e0`  
 **Autorisation :** `GO_L6_SCOPING_ONLY` puis `GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS`
-**État :** `SCOPING ACCEPTED — I1 CLOSED (LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS) — I2 ELIGIBLE FOR FRAMING — I3/G6 PENDING`
+**État :** `SCOPING ACCEPTED — I1 CLOSED (LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS) — I2 SCOPING COMPLETE (DESIGN READY FOR HUMAN REVIEW) — I3/G6 PENDING`
 
 ## 1. Autorité, statut et interdictions
 
@@ -33,7 +33,7 @@ Réutiliser et vérifier **avant de compléter** l'existant : `contracts-observa
 | Incrément | Objectif / modules pressentis (à confirmer par inventaire de code) | Dépendances | Livrables / critère d'acceptation | Effort indicatif |
 |---|---|---|---|---|
 | **I1 — Instrumentation & preuve des métriques** | `contracts-observability`, HTTP/WEB, compos Spring, Consumption Discovery/Engine, infra JDBC/READ ; adapters de monitoring | L5 clos ; configuration métrique existante auditée | **CLOSED (LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS)** — Catalogue O-01, timers/compteurs/histogrammes, stack locale Prometheus/Grafana provisionnée, Bruno 8/8 et progression démontrée, cf. [Décision I1](L6_I1_Acceptance_and_Closure_Decision.md) | 2 j dev + 0.5 j qualif |
-| **I2 — Exploitation & reconstruction READ** | compositions workers READ, persistence READ, lifecycle, commandes opératoires sans DDL imposé | I1 pour observer ; contrat REC-01 | Barrière exclusive réelle ; reset coordonné projections/slots/claims/checkpoints ; mêmes IDs, cinq flux WRITE immuables ; sept Consumptions rattrapées jusqu'aux préfixes B avec tous slots ≤ B achevés ; READ indisponible jusqu'à READY ; RCV01-A…N et O01 ciblés | 4–7 j dev |
+| **I2 — Exploitation & reconstruction READ** | compositions workers READ, persistence READ, lifecycle, commandes opératoires sans DDL imposé | I1 pour observer ; contrat REC-01 | **CADRAGE FINALISÉ (DESIGN READY FOR HUMAN REVIEW)** — Barrière exclusive réelle ; reset coordonné projections/slots/claims/checkpoints ; mêmes IDs, cinq flux WRITE immuables ; sept Consumptions rattrapées jusqu'aux préfixes B avec tous slots ≤ B achevés ; READ indisponible jusqu'à READY ; RCV01-A…N et O01 ciblés. [Plan technique I2](L6_I2_Technical_Implementation_Plan.md), [Rapport de cadrage](L6_I2_Scoping_and_Design_Report.md) | 4–7 j dev |
 | **I3 — Bancs & qualification de performance** | k6/Bruno, runtime-web-api/monolith, workers, PostgreSQL, observabilité | I1, I2 ; configuration A/B et protocole ratifiés | Seeds reproductibles, campagnes SPEC-09 et PERF-01 F01-A…J, RAW data, SLI et SLO comparés ; OPS-01 O01-A…N consolidés ; constat de charge et réserves | 4–7 j dev + durée physique des campagnes |
 | **G6 — Qualification et clôture** | preuves, rapports et gates selon politique | I1–I3 et arbitrages | Conformité O-01/REC-01/OPS-01/PERF-01 documentée, audit contradictoire, gates majeures requises, décision humaine distincte | 1–2 j hors campagnes |
 
