@@ -1,5 +1,8 @@
 # Pocoma V3 — L6 — Plan consolidé de conception, observabilité, exploitation et vérification
 
+> **L6/I3 — cadrage documentaire du 6 novembre 2026 :** [Rapport de conception I3](L6_I3_Scoping_and_Design_Report.md) et [Plan technique I3](L6_I3_Technical_Implementation_and_Verification_Plan.md). Mandat `GO_L6_I3_SCOPING` ; verdict `L6_I3_DESIGN_READY_FOR_HUMAN_APPROVAL` sous arbitrages D1–D6. Aucun GO de construction ou de charge ; aucune mesure nouvelle. Les fenêtres 15–20 min, trois répétitions et échantillons SPEC-10 restent des exigences/propositions à ratifier pour la certification ; le smoke exploratoire court ne vaut pas PASS PERF-01. I1 et I2 restent clos avec réserves ; G6 reste en attente.
+
+
 **Date :** 6 novembre 2026
 **Branche :** `feat/v3-architecture`
 **SHA de cadrage initial :** `0d11082e397337b4546dd751defec146ee5095e0`
