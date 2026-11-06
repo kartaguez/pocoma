@@ -1,5 +1,8 @@
 # Pocoma V3 — L6/I2 Post-Audit Corrections & Targeted Requalification Report
 
+> [!NOTE] Suivi des correctifs finaux de sûreté
+> Une revue de sûreté finale a identifié des anomalies résiduelles (AUD-L6-I2-13 à 19). Celles-ci ont été intégralement traitées et requalifiées sous le mandat `GO_L6_I2_FINAL_SAFETY_CORRECTIONS`. Voir le rapport dédié : [Rapport des correctifs finaux de sûreté et requalification ciblée L6/I2](L6_I2_Final_Safety_Corrections_and_Requalification_Report.md).
+
 **Status :** L6_I2_POST_AUDIT_CORRECTED_TARGETED_PASS — READY FOR HUMAN REVIEW  
 **Date :** 2026-11-06  
 **Audited Reference Commit :** `3fed1b5d529d8246be942d2bdb809968be9bc3f3`  

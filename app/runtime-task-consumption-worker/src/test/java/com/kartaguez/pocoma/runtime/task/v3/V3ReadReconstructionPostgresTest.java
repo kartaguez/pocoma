@@ -485,4 +485,97 @@ class V3ReadReconstructionPostgresTest {
             assertEquals(ReadMaintenanceState.Phase.REPLAYING, authority.currentState().phase());
         }
     }
+
+    @Test
+    void rcv01L_sessionAdvisoryLockExclusion() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            long lockKey = 3847291054321L;
+            try (var conn1 = java.sql.DriverManager.getConnection(f.readUrl, PG.getUsername(), PG.getPassword())) {
+                try (var stmt1 = conn1.createStatement()) {
+                    var rs1 = stmt1.executeQuery("SELECT pg_try_advisory_lock(" + lockKey + ")");
+                    assertTrue(rs1.next());
+                    assertTrue(rs1.getBoolean(1), "First session must acquire advisory lock");
+                }
+
+                // Second session on separate connection must be refused
+                try (var conn2 = java.sql.DriverManager.getConnection(f.readUrl, PG.getUsername(), PG.getPassword())) {
+                    try (var stmt2 = conn2.createStatement()) {
+                        var rs2 = stmt2.executeQuery("SELECT pg_try_advisory_lock(" + lockKey + ")");
+                        assertTrue(rs2.next());
+                        assertFalse(rs2.getBoolean(1), "Concurrent session must be refused advisory lock");
+                    }
+                }
+            }
+
+            // After conn1 closes (simulating process exit or crash), conn3 can acquire
+            try (var conn3 = java.sql.DriverManager.getConnection(f.readUrl, PG.getUsername(), PG.getPassword())) {
+                try (var stmt3 = conn3.createStatement()) {
+                    var rs3 = stmt3.executeQuery("SELECT pg_try_advisory_lock(" + lockKey + ")");
+                    assertTrue(rs3.next());
+                    assertTrue(rs3.getBoolean(1), "Lock must be released automatically after connection close/crash");
+                    stmt3.execute("SELECT pg_advisory_unlock(" + lockKey + ")");
+                }
+            }
+        }
+    }
+
+    @Test
+    void rcv01M_resumeFromConvergedRequiresValidOracle() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            setupFixture(f);
+            var readAdmin = new JdbcTemplate(new DriverManagerDataSource(f.readUrl, PG.getUsername(), PG.getPassword()));
+            ensureMaintenanceTable(readAdmin, f.readRole);
+            var authority = new JdbcReadMaintenanceAuthority(readAdmin);
+
+            UUID opId = UUID.randomUUID();
+            assertTrue(authority.tryAcquireMaintenance("resume-converged", opId));
+
+            // Perform DDL
+            performRebuildDdl(f, readAdmin);
+            authority.updatePhase(ReadMaintenanceState.Phase.ROUTED, opId);
+
+            Map<String, Long> targetB = Map.of(
+                    "POT", 10L, "IDENTITY", 0L, "COMMAND_COMPLETION", 0L, "IDENTITY_COMPLETION", 0L, "INVITATION", 0L
+            );
+            assertTrue(authority.startRebuilding(targetB, opId));
+            assertTrue(authority.markConverged(opId));
+
+            // Authority says CONVERGED
+            assertEquals(ReadMaintenanceState.Phase.CONVERGED, authority.currentState().phase());
+
+            // But checkpoints are at 0, target is at 10!
+            var oracle = new ReadinessOracle();
+            var eval = oracle.evaluate(f.read, f.write, targetB);
+
+            // Oracle MUST be false, proving CONVERGED alone is not sufficient to declare READY
+            assertFalse(eval.ready(), "CONVERGED state with lagging checkpoints must NOT evaluate to READY");
+            assertFalse(eval.checkpointsSatisfied());
+        }
+    }
+
+    @Test
+    void rcv01N_destructiveRecoveryFromFailed() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            var readAdmin = new JdbcTemplate(new DriverManagerDataSource(f.readUrl, PG.getUsername(), PG.getPassword()));
+            ensureMaintenanceTable(readAdmin, f.readRole);
+            var authority = new JdbcReadMaintenanceAuthority(readAdmin);
+
+            UUID oldOpId = UUID.randomUUID();
+            assertTrue(authority.tryAcquireMaintenance("failed-op", oldOpId));
+            assertTrue(authority.markFailed("Ddl crash during rebuild", oldOpId));
+
+            // Standard acquisition is rejected
+            UUID newOpId = UUID.randomUUID();
+            assertFalse(authority.tryAcquireMaintenance("recovery-op", newOpId),
+                    "Standard acquisition must be refused when in FAILED state");
+
+            // Destructive recovery acquisition succeeds
+            assertTrue(authority.tryAcquireRecovery("recovery-op", newOpId),
+                    "tryAcquireRecovery must succeed from FAILED state");
+
+            assertEquals(ReadMaintenanceState.State.MAINTENANCE, authority.currentState().state());
+            assertEquals(ReadMaintenanceState.Phase.DRAINING, authority.currentState().phase());
+            assertEquals(newOpId, authority.currentState().operationId());
+        }
+    }
 }

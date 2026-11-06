@@ -141,6 +141,18 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
         return rows == 1;
     }
 
+    @Override
+    public boolean tryAcquireRecovery(String operatorId, UUID operationId) {
+        Objects.requireNonNull(operatorId, "operatorId cannot be null");
+        Objects.requireNonNull(operationId, "operationId cannot be null");
+        String sql = "UPDATE public.read_maintenance_state "
+                + "SET state = 'MAINTENANCE', phase = 'DRAINING', operator_id = ?, operation_id = ?, "
+                + "started_at = clock_timestamp(), updated_at = clock_timestamp(), error_detail = NULL "
+                + "WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING', 'FAILED')";
+        int rows = jdbc.update(sql, operatorId, operationId);
+        return rows == 1;
+    }
+
     public void ensureInitialized() {
         String ddl = """
             CREATE TABLE IF NOT EXISTS public.read_maintenance_state (

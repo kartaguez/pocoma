@@ -104,4 +104,10 @@ public interface ReadMaintenanceAuthority {
      * Required before any new rebuild can be acquired after failure.
      */
     boolean resetFailed(String operatorId);
+
+    /**
+     * Attempts to acquire maintenance for destructive recovery from an interrupted or FAILED state.
+     * Transitions state from MAINTENANCE, REBUILDING, or FAILED to MAINTENANCE (phase DRAINING).
+     */
+    boolean tryAcquireRecovery(String operatorId, UUID operationId);
 }

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -340,5 +341,25 @@ class ReadMaintenanceBarrierTest {
 
         JdbcReadMaintenanceAuthority jdbcAuth = new JdbcReadMaintenanceAuthority(mockJdbc);
         assertTrue(jdbcAuth.resetFailed("operator-1"));
+    }
+
+    @Test
+    void jdbcAuthority_tryAcquireRecovery_acceptsInterruptedOrFailed() {
+        org.springframework.jdbc.core.JdbcTemplate mockJdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        when(mockJdbc.update(contains("WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING', 'FAILED')"), eq("operator-1"), any(UUID.class)))
+                .thenReturn(1);
+
+        JdbcReadMaintenanceAuthority jdbcAuth = new JdbcReadMaintenanceAuthority(mockJdbc);
+        assertTrue(jdbcAuth.tryAcquireRecovery("operator-1", UUID.randomUUID()));
+    }
+
+    @Test
+    void jdbcAuthority_tryAcquireRecovery_rejectsReadyState() {
+        org.springframework.jdbc.core.JdbcTemplate mockJdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        when(mockJdbc.update(contains("WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING', 'FAILED')"), eq("operator-1"), any(UUID.class)))
+                .thenReturn(0);
+
+        JdbcReadMaintenanceAuthority jdbcAuth = new JdbcReadMaintenanceAuthority(mockJdbc);
+        assertFalse(jdbcAuth.tryAcquireRecovery("operator-1", UUID.randomUUID()));
     }
 }
