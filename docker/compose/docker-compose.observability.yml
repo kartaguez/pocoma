@@ -1,6 +1,29 @@
 name: pocoma-functional
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    volumes:
+      - postgres-v3-data:/var/lib/postgresql/data
+      - ./docker/postgres/functional-init.sql:/docker-entrypoint-initdb.d/functional-init.sql:ro
+
+  runtime-monolith:
+    environment:
+      SPRING_PROFILES_ACTIVE: v3-read-worker,v3-http-read,v3-http-admission
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/application-v3.properties
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:18081:18081"
+    volumes:
+      - ./app/runtime-monolith/target/pocoma-runtime-monolith-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
+      - ./docker/monolith/application-v3.properties:/app/config/application-v3.properties:ro
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/18081; printf 'GET /actuator/health/readiness HTTP/1.0\\r\\n\\r\\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
   prometheus:
     image: prom/prometheus:latest
     command:
@@ -31,3 +54,6 @@ services:
       - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+
+volumes:
+  postgres-v3-data:

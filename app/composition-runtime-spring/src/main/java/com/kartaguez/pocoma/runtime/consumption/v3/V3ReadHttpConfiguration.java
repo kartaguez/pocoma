@@ -368,7 +368,13 @@ public class V3ReadHttpConfiguration {
         http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests(
-                        a -> a.requestMatchers("/api/v3/**").authenticated().anyRequest().denyAll())
+                        a ->
+                                a.requestMatchers("/actuator/**")
+                                        .permitAll()
+                                        .requestMatchers("/api/v3/**")
+                                        .authenticated()
+                                        .anyRequest()
+                                        .denyAll())
                 .oauth2ResourceServer(
                         o ->
                                 o.jwt(j -> j.decoder(v3ReadJwtDecoder))

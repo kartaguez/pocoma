@@ -1,0 +1,31 @@
+meta {
+  name: 06 Consult Pot Read Facade
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v3/pots/{{potId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  Authorization: Bearer {{bearerToken}}
+  X-Pocoma-Binding-Token: {{bindingToken}}
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  expect([200, 404]).to.include(res.status);
+  if (res.status === 200) {
+    expect(res.body).to.have.property('id');
+    expect(res.body.id).to.equal(bru.getVar('potId'));
+    expect(res.body.label).to.equal('Demo Pot ' + bru.getVar('timestamp'));
+    expect(res.body.potVersion).to.be.at.least(1);
+  }
+}

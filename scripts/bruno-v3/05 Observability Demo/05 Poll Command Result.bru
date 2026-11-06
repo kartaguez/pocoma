@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/v1/commands/{{commandId}}/result
+  url: {{baseUrl}}/api/v3/commands/{{cmdRequestId}}/result
   body: none
   auth: none
 }
@@ -22,6 +22,8 @@ settings {
 tests {
   expect([200, 404]).to.include(res.status);
   if (res.status === 200) {
-    expect(res.body).to.have.property('status');
+    expect(res.body).to.have.property('outcome');
+    expect(res.body.outcome).to.equal('COMPLETED');
+    expect(res.body.resultingPotVersion).to.be.at.least(1);
   }
 }

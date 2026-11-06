@@ -102,7 +102,7 @@ L'instrumentation a été réalisée de manière strictement non intrusive, sans
 ### 4.1 Configuration Prometheus (`docker/prometheus/prometheus.local.yml`)
 - **Intervalle de Scrape :** 5 secondes (`scrape_interval: 5s`, `evaluation_interval: 5s`).
 - **Targets configurées :**
-  - `pocoma-v3-monolith` (`runtime-monolith:8080/actuator/prometheus`)
+  - `pocoma-v3-monolith` (`runtime-monolith:18081/actuator/prometheus` sur le port de management Actuator dédié)
   - `prometheus` (`localhost:9090`)
 
 ### 4.2 Configuration Docker Compose (`docker/compose/docker-compose.observability.yml`)
@@ -115,31 +115,31 @@ L'instrumentation a été réalisée de manière strictement non intrusive, sans
   - Mode d'authentification anonymous Viewer activé avec droits Admin (`admin:admin`).
 
 ### 4.3 Tableau de bord Grafana Versionné (`docker/grafana/dashboards/pocoma-v3-overview.json`)
-Le dashboard comporte 18 panneaux répartis sur 6 lignes thématiques :
+Le dashboard comporte 18 panneaux répartis sur 6 lignes thématiques, sans aucun repli trompeur vers V2 (`or ...` supprimés) et avec des unités d'affichage Grafana rigoureusement typées (`reqps`, `s`, `ops`, `short`, `percent`) :
 1. **Header & Health Overview :**
-   - Monolith Health Status (`pocoma.v3.*` / Actuator health)
-   - Prometheus Scrape Availability (`up{job="pocoma-v3-monolith"}`)
-   - Total HTTP Requests Count
-   - Active DB Connections Across Pools
+   - Panel 1 : Monolith Health Status (`pocoma.v3.*` / Actuator health)
+   - Panel 2 : Prometheus Scrape Availability (`up{job="pocoma-v3-monolith"}`)
+   - Panel 3 : Total HTTP Requests Count (`sum(http_server_requests_seconds_count)`) [unit: `short`]
+   - Panel 4 : Active DB Connections Across Pools (`sum(hikaricp_connections_active)`) [unit: `short`]
 2. **HTTP Admission Layer :**
-   - HTTP Admission Rate by Classification (`rate(http_server_requests_seconds_count{uri=~".*admission.*|.*command.*"}[1m])`)
-   - HTTP Admission Latencies p50, p95, p99 (Histogram quantiles & fallbacks)
-   - Admission Semaphore Available Capacity (`pocoma_v3_admission_capacity_available`)
+   - Panel 5 : HTTP Admission Rate by Classification (`sum by (classification) (rate(pocoma_v3_admission_requests_total[1m]))`) [unit: `reqps`]
+   - Panel 6 : HTTP Admission Latencies p50, p95, p99 (`histogram_quantile(..., sum by (le) (rate(pocoma_v3_admission_http_duration_seconds_bucket[5m])))`) [unit: `s`]
+   - Panel 7 : Admission Semaphore Available Capacity (`pocoma_v3_admission_capacity_available`) [unit: `short`]
 3. **HTTP Read Layer :**
-   - HTTP Read Rate by Classification (`rate(http_server_requests_seconds_count{uri=~".*api/v3/(pots|read|bindings|invitations).*"}[1m])`)
-   - HTTP Read Latency SLO Distribution (SLO buckets 5ms, 15ms, 50ms)
+   - Panel 8 : HTTP Read Rate by Classification (`sum by (classification) (rate(pocoma_v3_read_http_duration_seconds_count[1m]))`) [unit: `reqps`]
+   - Panel 9 : HTTP Read Latency SLO Distribution (`sum by (le) (rate(pocoma_v3_read_http_duration_seconds_bucket[5m]))`) [unit: `ops`]
 4. **READ Facades & Quota :**
-   - READ Facade Semaphore Permits Available ($Q=2$ gauge `pocoma_v3_read_quota_permits`)
-   - READ Facade Rejections Count (`pocoma_v3_read_quota_rejections_total`)
-   - READ Internal Query Latencies
+   - Panel 10 : READ Facade Semaphore Permits Available ($Q=2$ gauge `pocoma_v3_read_quota_permits`) [unit: `short`]
+   - Panel 11 : READ Facade Rejections Count (`rate(pocoma_v3_read_quota_rejections_total[1m])`) [unit: `ops`]
+   - Panel 12 : READ Internal Query Latencies (`histogram_quantile(..., sum by (le) (rate(pocoma_v3_read_query_duration_seconds_bucket[5m])))`) [unit: `s`]
 5. **Consumption Workers Engine :**
-   - Worker Poll Cycles Rate (`rate(pocoma_v3_worker_poll_cycles_total[1m])`)
-   - Worker Claims & Task Execution Latency p50, p95 (`pocoma_v3_consumption_observation_task_claim_success_duration_seconds`)
-   - Materialization Rate (Results vs Projections)
+   - Panel 13 : Worker Poll Cycles Rate (`sum by (stage) (rate(pocoma_v3_worker_poll_cycles_total[1m]))`) [unit: `ops`]
+   - Panel 14 : Worker Claims & Task Execution Latency p50, p95 (`histogram_quantile(..., sum by (le) (rate(pocoma_v3_consumption_observation_task_claim_success_duration_seconds_bucket[5m])))`) [unit: `s`]
+   - Panel 15 : Materialization & Attempt Outcomes Rate (`sum by (phase, outcome) (rate(pocoma_v3_attempt_outcomes_total[1m]))`) [unit: `ops`]
 6. **HikariCP Connection Pools :**
-   - Connections State by Pool (Active vs Idle for Admission, Read, Workers)
-   - Connection Acquisition Wait Times p95 (`hikaricp_connections_acquire_seconds`)
-   - Pool Saturation / Pending Threads
+   - Panel 16 : HikariCP Connection Acquire Mean Duration (s) (`rate(hikaricp_connections_acquire_seconds_sum[1m]) / rate(hikaricp_connections_acquire_seconds_count[1m])`) [unit: `s`]
+   - Panel 17 : Active Connections per Pool (`hikaricp_connections_active`) [unit: `short`]
+   - Panel 18 : Pool Saturation / Pending Threads (`hikaricp_connections_pending`) [unit: `short`]
 
 ### 4.4 Validation Réelle des Métriques et Cardinalité (Correction Obligatoire n°4)
 - **Validation PromQL :** Toutes les requêtes PromQL ont été testées et validées contre Prometheus en cours d'exécution.
@@ -151,24 +151,26 @@ Le dashboard comporte 18 panneaux répartis sur 6 lignes thématiques :
 ## 5. Volet D — Démonstration Opérationnelle et Bruno
 
 ### 5.1 Parcours Démonstration Automatisé (`scripts/operations/run-demo-journey.py`)
-Ce script Python autonome réalise le cycle opérationnel complet :
-1. Authentification PKCE auprès de Keycloak (`127.0.0.1:8081/realms/pocoma`), génération du jeton JWT porteur.
-2. Vérification / enregistrement de la liaison d'identité utilisateur (`GET /api/v3/read/bindings/current`).
-3. Soumission d'une commande `CreatePot` (`POST /api/v3/admission/commands`), obtention d'un `202 Accepted` avec `commandId`.
-4. Polling borné de l'acquittement transactionnel de la commande.
-5. Déclenchement de la collection Bruno CLI `05 Observability Demo`.
-6. Attente du cycle de scrape Prometheus (5-6 secondes).
-7. Requêtes de comparaison avant/après sur Prometheus (`http://127.0.0.1:9090/api/v1/query`) attestant de la progression effective des métriques.
+Ce script Python autonome réalise le cycle opérationnel V3 complet avec oracles stricts :
+1. Authentification PKCE (S256) auprès de Keycloak (`127.0.0.1:8081/realms/pocoma`), génération du jeton JWT porteur.
+2. Vérification / enregistrement de la liaison d'identité utilisateur (`GET /api/v3/me/binding`). Si aucun binding n'est actif, soumission d'une requête d'enregistrement (`POST /api/v3/identity/requests`), polling borné du résultat (`GET /api/v3/identity/requests/{id}/result`) avec oracle strict `outcome == 'CHANGED'`, puis ré-obtention du `bindingToken`.
+3. Soumission d'une commande métier `CreatePot` (`POST /api/v3/commands` avec `operation: CreatePot`, `potId`, `observedVersion: 0`, `bindingToken`, payload `label`), obtention immédiate d'un HTTP `202 Accepted` avec `requestId`.
+4. Polling borné du résultat de commande (`GET /api/v3/commands/{id}/result`) avec oracle fonctionnel strict vérifiant que `outcome == 'COMPLETED'` et `resultingPotVersion >= 1` (tout `REJECTED` ou non-terminal à échéance déclenche un échec immédiat).
+5. Consultation du Pot créé via la façade READ V3 (`GET /api/v3/pots/{potId}` avec en-tête `X-Pocoma-Binding-Token`), validant la cohérence métier stricte (`id`, `label`, `potVersion`).
+6. Déclenchement de la collection Bruno CLI `05 Observability Demo` (8 requêtes).
+7. Attente du cycle de scrape Prometheus (6 secondes).
+8. Requêtes de comparaison avant/après sur Prometheus (`http://127.0.0.1:9090/api/v1/query`) attestant de la progression effective des métriques authentiques `pocoma_v3_*` et HikariCP.
 
 ### 5.2 Collection Bruno Démonstration (`scripts/bruno-v3/05 Observability Demo`)
-Comprend 7 requêtes de validation opérationnelle :
-- `01 - Check Binding` : Consultation du binding utilisateur.
-- `02 - Register Identity` : Enregistrement de l'identité si absente.
-- `03 - Poll Registration Result` : Polling du résultat d'identité.
-- `04 - Submit Create Pot Command` : Admission HTTP de commande métier.
-- `05 - Poll Command Result` : Polling de la matérialisation du résultat de commande.
-- `06 - Actuator Health Check` : Vérification du statut UP du runtime.
-- `07 - Prometheus Monolith Scrape` : Vérification du scrape `/actuator/prometheus`.
+Comprend 8 requêtes de validation opérationnelle avec oracles stricts :
+- `01 Check Binding` : Consultation du binding utilisateur (`GET /api/v3/me/binding`), capture du `bindingToken`.
+- `02 Register Identity` : Enregistrement de l'identité idempotente (`POST /api/v3/identity/requests`), capture de `regRequestId`.
+- `03 Poll Registration Result` : Polling du résultat d'identité (`GET /api/v3/identity/requests/{{regRequestId}}/result`), assertion stricte `outcome == 'CHANGED'`.
+- `04 Submit Create Pot Command` : Admission HTTP de commande métier (`POST /api/v3/commands`), capture de `cmdRequestId`.
+- `05 Poll Command Result` : Polling du résultat (`GET /api/v3/commands/{{cmdRequestId}}/result`), assertions strictes `outcome == 'COMPLETED'`, `resultingPotVersion >= 1`.
+- `06 Consult Pot Read Facade` : Restitution READ V3 (`GET /api/v3/pots/{{potId}}`), assertions d'intégrité métier `id`, `label`, `potVersion`.
+- `07 Actuator Health` : Vérification du statut UP du runtime (`GET {{managementUrl}}/actuator/health`).
+- `08 Prometheus Scrape` : Vérification du scrape Actuator (`GET {{managementUrl}}/actuator/prometheus`) contenant les métriques `pocoma_v3_admission_capacity_available` et `pocoma_v3_attempt_outcomes_total`.
 
 ---
 
@@ -224,16 +226,19 @@ La commande d'exécution ciblée a été éprouvée sur le graphe Maven réel :
 ### 7.2 Gate B (`G-OBS-OPERATIONAL`) — Verdict : PASS
 - **Durée d'exécution :** 45s.
 - **Progression des compteurs constatée :**
-  - Requêtes HTTP totales : `442` $\rightarrow$ `460` ($\Delta = +18$ requêtes).
-  - Emprunts de connexions HikariCP : `7228` $\rightarrow$ `7332` ($\Delta = +104$ acquisitions).
-  - Cycles de polling Workers : `1022` $\rightarrow$ `1032` ($\Delta = +10$ cycles).
-  - Bruno CLI suite `05 Observability Demo` : 7/7 passés, 0 erreur.
+  - Requêtes V3 Admission (`pocoma_v3_admission_requests_total`) : `8` $\rightarrow$ `11` ($\Delta = +3$ requêtes).
+  - Tentatives Workers V3 (`pocoma_v3_attempt_outcomes_total`) : `34` $\rightarrow$ `46` ($\Delta = +12$ tentatives).
+  - Requêtes V3 Read (`pocoma_v3_read_queries_total`) : `96` $\rightarrow$ `109` ($\Delta = +13$ requêtes).
+  - Emprunts de connexions HikariCP (`hikaricp_connections_acquire_seconds_count`) : `63495` $\rightarrow$ `66005` ($\Delta = +2510$ acquisitions).
+  - Bruno CLI suite `05 Observability Demo` : 8/8 requêtes passées, 0 erreur.
 - **Preuves archivées dans `docs/testing/evidence/L6-I1/operational/` :**
   - `gate-b-verdict.json` : Résultat normatif JSON horodaté.
   - `journey-execution.log` : Journal complet de l'exécution Bruno & Keycloak.
-  - `metrics-http-before.json` & `metrics-http-after.json` : Snapshots API Prometheus.
-  - `metrics-hikari-before.json` & `metrics-hikari-after.json` : Snapshots HikariCP API Prometheus.
-  - `actuator-prometheus-baseline.txt` & `actuator-prometheus-post.txt` : Scrapes Actuator complets.
+  - `metrics-v3-admission-before.json` & `metrics-v3-admission-after.json` : Snapshots API Prometheus de la métrique d'admission.
+  - `metrics-v3-attempts-before.json` & `metrics-v3-attempts-after.json` : Snapshots API Prometheus des tentatives workers.
+  - `metrics-v3-read-before.json` & `metrics-v3-read-after.json` : Snapshots API Prometheus des requêtes READ.
+  - `metrics-hikari-before.json` & `metrics-hikari-after.json` : Snapshots API Prometheus des acquisitions HikariCP.
+  - `actuator-prometheus-baseline.txt` & `actuator-prometheus-post.txt` : Scrapes Actuator complets (port 18081).
 
 ---
 
@@ -257,7 +262,7 @@ La commande d'exécution ciblée a été éprouvée sur le graphe Maven réel :
 - `app/supra-http-write/.../V3AdmissionTransport.java` : Interface `Telemetry` non intrusive, mesure de latence et statut.
 - `app/composition-runtime-spring/.../V3AdmissionHttpConfiguration.java` : Bindings Micrometer admission, métriques HikariCP.
 - `app/supra-http-read/.../V3ReadTransport.java` : Interface `Telemetry` non intrusive, mesure de latence et classification.
-- `app/composition-runtime-spring/.../V3ReadHttpConfiguration.java` : Bindings Micrometer read HTTP, métriques HikariCP.
+- `app/composition-runtime-spring/.../V3ReadHttpConfiguration.java` : Bindings Micrometer read HTTP, métriques HikariCP, exposition autorisée `/actuator/**` sans authentification JWT.
 - `app/composition-runtime-spring/.../V3ReadFacadeComposition.java` : Jauge de permis $Q=2$, compteur de rejets et timer d'interrogation.
 - `app/composition-runtime-spring/.../V3ReadFacadeConfiguration.java` : Injection de `MeterRegistry` optionnel vers la façade read.
 - `app/composition-runtime-spring/.../V3ConsumptionWorkerConfiguration.java` : Attachement `MicrometerMetricsTrackerFactory` sur les 4 pools du worker.
@@ -266,20 +271,23 @@ La commande d'exécution ciblée a été éprouvée sur le graphe Maven réel :
 - `app/runtime-web-api/.../V3AdmissionHttpTest.java` : Vérification du compteur de requêtes et du timer d'admission.
 - `app/runtime-web-api/.../V3ReadHttpContractTest.java` : Vérification du timer de consultation HTTP.
 - `app/runtime-task-consumption-worker/.../ReadFacadesPostgresTest.java` : Vérification de la métrologie de la façade READ et de la jauge de permis.
+- `app/runtime-command-consumption-worker/.../V3WorkerMetricsTest.java` : Vérification de la métrologie d'observation des workers.
 
-### Fichiers de Déploiement et d'Exploitation Créés
-- `docker/prometheus/prometheus.local.yml` : Configuration du scrape local 5s vers le monolithe V3.
-- `docker/compose/docker-compose.observability.yml` : Compose Prometheus & Grafana avec volumes relatifs portables.
-- `docker/grafana/dashboards/pocoma-v3-overview.json` : Tableau de bord Grafana versionné complet (18 panneaux).
-- `scripts/operations/run-demo-journey.py` : Script d'orchestration de parcours Bruno et de validation des métriques.
+### Fichiers de Déploiement et d'Exploitation Créés et Mis à Jour
+- `docker/prometheus/prometheus.local.yml` : Configuration du scrape local 5s vers le monolithe V3 (port 18081).
+- `docker/compose/docker-compose.observability.yml` : Compose Prometheus, Grafana et overlay Monolith V3 + PostgreSQL 17 avec volume isolé `postgres-v3-data`.
+- `docker/monolith/application-v3.properties` : Propriétés Spring Boot pour profils `v3-read-worker,v3-http-read,v3-http-admission`, pools HikariCP et Actuator (8080 / 18081).
+- `docker/grafana/dashboards/pocoma-v3-overview.json` : Tableau de bord Grafana versionné complet (18 panneaux, unités typées, zéro fallback V2).
+- `scripts/operations/setup-v3-database.py` : Script d'initialisation PostgreSQL 17, bases physiques `pocoma_write` et `pocoma_read`, migrations Flyway et scripts de découverte L2/L3.
+- `scripts/operations/run-demo-journey.py` : Script d'orchestration de parcours Bruno et de validation des métriques V3 avec oracles stricts.
 - `scripts/operations/verify-l6-i1-observability.sh` : Script maître de gate et de démonstration (`--mode=verify`, `--mode=demo`, `--stop`).
-- `scripts/bruno-v3/05 Observability Demo/` : Collection de 7 requêtes Bruno de démonstration.
+- `scripts/bruno-v3/05 Observability Demo/` : Collection de 8 requêtes Bruno de démonstration (binding, registration, polling, command, result, read facade, health, prometheus).
 
 ---
 
 ## 10. Restitution et Verdict
 
-L'implémentation de l'incrément L6/I1 est achevée. L'ensemble des exigences du mandat, des corrections techniques obligatoires et des directives de vérification sont validées par preuves formelles.
+L'implémentation et les corrections ciblées de l'incrément L6/I1 sont achevées. L'ensemble des exigences du mandat, des corrections techniques obligatoires et des directives de vérification sont validées par preuves formelles.
 
 ```
 ================================================================================
@@ -291,9 +299,9 @@ Décision : GO_L6_I1_IMPLEMENTATION_WITH_TARGETED_CORRECTIONS
 Volet A (Instrumentation)   : COMPLET (HTTP Admission, HTTP Read, Facade Q=2, HikariCP)
 Volet B (Stack Locale)      : OPERATIONNEL (Prometheus 5s + Grafana provisionné)
 Volet C (Dashboard)         : VALIDÉ (18 panneaux, PromQL qualifiées, 0 fuite PII)
-Volet D (Démonstration)     : VALIDÉ (Bruno 7/7 PASS, progression métrique démontrée)
-Gate A (G-OBS-AUTOMATED)    : PASS (41/41 tests, 1m48s <= 240s)
-Gate B (G-OBS-OPERATIONAL)  : PASS (Delta HTTP +18, Delta Hikari +104, 45s <= 180s)
+Volet D (Démonstration)     : VALIDÉ (Bruno 8/8 PASS, progression métrique démontrée)
+Gate A (G-OBS-AUTOMATED)    : PASS (41/41 tests, 1m46s <= 240s)
+Gate B (G-OBS-OPERATIONAL)  : PASS (Delta Admission +3, Delta Attempts +12, Delta Read +13, Delta Hikari +2510, 45s <= 180s)
 Environnement DEMO          : PERSISTANT & ACTIF (http://localhost:3000)
 Full Reactor                : NON EXÉCUTÉ (Politique de vérification ciblée respectée)
 

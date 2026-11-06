@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/api/v1/commands
+  url: {{baseUrl}}/api/v3/commands
   body: json
   auth: none
 }
@@ -13,13 +13,16 @@ post {
 headers {
   Connection: close
   Authorization: Bearer {{bearerToken}}
+  Idempotency-Key: cmd-demo-{{timestamp}}
   Content-Type: application/json
 }
 
 body:json {
   {
-    "commandType": "CreatePot",
-    "bindingId": "{{bindingId}}",
+    "operation": "CreatePot",
+    "potId": "{{potId}}",
+    "observedVersion": 0,
+    "bindingToken": "{{bindingToken}}",
     "payload": {
       "label": "Demo Pot {{timestamp}}"
     }
@@ -32,6 +35,6 @@ settings {
 
 tests {
   expect(res.status).to.equal(202);
-  expect(res.body).to.have.property('commandId');
-  bru.setVar('commandId', res.body.commandId);
+  expect(res.body).to.have.property('requestId');
+  bru.setVar('cmdRequestId', res.body.requestId);
 }

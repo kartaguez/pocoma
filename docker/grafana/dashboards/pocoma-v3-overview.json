@@ -13,364 +13,622 @@
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "title": "Admission HTTP Throughput (req/s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_admission_requests_total[1m])) by (endpoint, status) or sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*/commands|/api/.*/registrations|/api/.*/identity/.*\"}[1m])) by (uri, status)",
-          "legendFormat": "{{endpoint}}{{uri}} (HTTP {{status}})",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_admission_requests_total[1m])) by (endpoint, status)",
+          "refId": "A",
+          "legendFormat": "{{endpoint}} - {{status}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 8, "x": 12, "y": 0 },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 12,
+        "y": 0
+      },
       "id": 2,
       "title": "Admission HTTP Latency p95 (s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_admission_http_duration_seconds_bucket[1m])) by (le, endpoint)) or (rate(http_server_requests_seconds_sum{uri=~\"/api/.*/commands|/api/.*/registrations\"}[1m]) / rate(http_server_requests_seconds_count{uri=~\"/api/.*/commands|/api/.*/registrations\"}[1m]))",
-          "legendFormat": "p95 {{endpoint}}{{uri}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_admission_http_duration_seconds_bucket[1m])) by (le, endpoint))",
+          "refId": "A",
+          "legendFormat": "{{endpoint}} p95"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 4, "x": 20, "y": 0 },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
       "id": 3,
       "title": "Admission Capacity Available",
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "pocoma_v3_admission_capacity_available or (10 - sum(hikaricp_connections_active))",
-          "legendFormat": "capacity",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "pocoma_v3_admission_capacity_available",
+          "refId": "A",
+          "legendFormat": "available capacity"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 7 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
       "id": 4,
       "title": "READ HTTP Throughput (req/s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_read_http_duration_seconds_count[1m])) by (endpoint, status) or sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*/pots.*|/api/.*/me/binding|/api/.*/result.*\"}[1m])) by (uri, status)",
-          "legendFormat": "{{endpoint}}{{uri}} (HTTP {{status}})",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_read_http_duration_seconds_count[1m])) by (endpoint, status)",
+          "refId": "A",
+          "legendFormat": "{{endpoint}} - {{status}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 7 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
       "id": 5,
       "title": "READ HTTP Latency p95 (s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_read_http_duration_seconds_bucket[1m])) by (le, endpoint)) or (rate(http_server_requests_seconds_sum{uri=~\"/api/.*/pots.*|/api/.*/me/binding\"}[1m]) / rate(http_server_requests_seconds_count{uri=~\"/api/.*/pots.*|/api/.*/me/binding\"}[1m]))",
-          "legendFormat": "p95 {{endpoint}}{{uri}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_read_http_duration_seconds_bucket[1m])) by (le, endpoint))",
+          "refId": "A",
+          "legendFormat": "{{endpoint}} p95"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 14 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
       "id": 6,
       "title": "Command Execution Throughput (attempts/s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_consumption_attempts_total{lane=\"command\"}[1m])) by (outcome) or sum(rate(pocoma_consumption_poll_executions_total{family=\"command\"}[1m])) by (family)",
-          "legendFormat": "command outcome={{outcome}}{{family}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_attempt_outcomes_total{consumption=\"Command\"}[1m])) by (outcome)",
+          "refId": "A",
+          "legendFormat": "{{outcome}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 14 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
       "id": 7,
       "title": "Command Execution & Prepare Duration p95 (s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_consumption_duration_seconds_bucket{lane=\"command\"}[1m])) by (le)) or (rate(pocoma_consumption_poll_cycle_duration_seconds_sum[1m]) / rate(pocoma_consumption_poll_cycle_duration_seconds_count[1m]))",
-          "legendFormat": "p95 execution duration",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_duration_seconds_bucket{consumption=\"Command\"}[1m])) by (le))",
+          "refId": "A",
+          "legendFormat": "execution p95"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_consumption_phase_duration_seconds_bucket{lane=\"command\",phase=\"prepare\"}[1m])) by (le))",
-          "legendFormat": "p95 prepare phase",
-          "refId": "B"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_phase_duration_seconds_bucket{consumption=\"Command\",phase=\"prepare\"}[1m])) by (le))",
+          "refId": "B",
+          "legendFormat": "prepare p95"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 21 },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      },
       "id": 8,
       "title": "Discovery References Rate (/s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_consumption_discovery_references_total[1m])) by (lane) or sum(rate(pocoma_consumption_poll_candidates_total[1m])) by (family)",
-          "legendFormat": "lane={{lane}}{{family}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_discovery_references_total[1m])) by (consumption, kind)",
+          "refId": "A",
+          "legendFormat": "{{consumption}} - {{kind}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 10, "x": 8, "y": 21 },
+      "gridPos": {
+        "h": 7,
+        "w": 10,
+        "x": 8,
+        "y": 21
+      },
       "id": 9,
       "title": "Claim Operations Rate (/s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_consumption_claims_total[1m])) by (lane) or sum(rate(pocoma_consumption_poll_cycles_total[1m])) by (family)",
-          "legendFormat": "claims lane={{lane}}{{family}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_claim_operations_total[1m])) by (consumption, operation)",
+          "refId": "A",
+          "legendFormat": "{{consumption}} - {{operation}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 21 },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 21
+      },
       "id": 10,
       "title": "Claim Capacity Used",
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "pocoma_v3_consumption_claim_capacity_used or pocoma_consumption_worker_running",
-          "legendFormat": "used",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "pocoma_v3_capacity_used{scope=\"worker\"}",
+          "refId": "A",
+          "legendFormat": "worker capacity used"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 28 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
       "id": 11,
       "title": "Projection Throughput (tasks/s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_consumption_attempts_total{lane=\"task\"}[1m])) by (kind, outcome) or sum(rate(pocoma_event_sequencing_spring_resolutions_total[1m])) by (outcome)",
-          "legendFormat": "projection {{kind}}{{outcome}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_attempt_outcomes_total{consumption=~\"MaterializePotVersion|MaterializePotBalance|MaterializePotVisibility|MaterializeCurrentBinding|MaterializeCommandResult|MaterializeIdentityRequestResult\"}[1m])) by (consumption, outcome)",
+          "refId": "A",
+          "legendFormat": "{{consumption}} - {{outcome}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 28 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
       "id": 12,
       "title": "PotBalance Prepare Duration p95 - FIND-L4-03 (s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_consumption_phase_duration_seconds_bucket{lane=\"task\",phase=\"prepare\"}[1m])) by (le)) or (rate(pocoma_event_sequencing_commit_tail_seconds_sum[1m]) / rate(pocoma_event_sequencing_commit_tail_seconds_count[1m]))",
-          "legendFormat": "p95 task prepare",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_attempt_phase_duration_seconds_bucket{consumption=\"PotBalance\",phase=\"prepare\"}[1m])) by (le))",
+          "refId": "A",
+          "legendFormat": "PotBalance prepare p95"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 35 },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 35
+      },
       "id": 13,
       "title": "READ Quota (Q=2) Permits & Rejections",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "pocoma_v3_read_quota_permits{scope=\"sql\"} or (2 - hikaricp_connections_active{pool=~\"v3-http-read|HikariPool-1\"})",
-          "legendFormat": "available permits (Q=2)",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "pocoma_v3_read_quota_permits{scope=\"sql\"}",
+          "refId": "A",
+          "legendFormat": "permits available"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "sum(rate(pocoma_v3_read_quota_rejections_total[1m])) or sum(rate(hikaricp_connections_timeout_total[1m]))",
-          "legendFormat": "quota rejections/s",
-          "refId": "B"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(rate(pocoma_v3_read_quota_rejections_total{scope=\"sql\"}[1m]))",
+          "refId": "B",
+          "legendFormat": "rejections/s"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 16, "x": 8, "y": 35 },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 35
+      },
       "id": 14,
       "title": "READ SQL Facade Query Duration p95 (s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_read_query_duration_seconds_bucket[1m])) by (le, operation)) or (rate(hikaricp_connections_usage_seconds_sum[1m]) / rate(hikaricp_connections_usage_seconds_count[1m]))",
-          "legendFormat": "p95 query {{operation}}{{pool}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(pocoma_v3_read_query_duration_seconds_bucket[1m])) by (le, operation))",
+          "refId": "A",
+          "legendFormat": "{{operation}} p95"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 42 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 42
+      },
       "id": 15,
       "title": "HikariCP Pool Connections (Active & Pending)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "expr": "hikaricp_connections_active",
-          "legendFormat": "active {{pool}}",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "active - {{pool}}"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "expr": "hikaricp_connections_pending",
-          "legendFormat": "pending {{pool}}",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "pending - {{pool}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 42 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 42
+      },
       "id": 16,
-      "title": "HikariCP Connection Acquire Duration p95 (s)",
+      "title": "HikariCP Connection Acquire Mean Duration (s)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "histogram_quantile(0.95, sum(rate(hikaricp_connections_acquire_seconds_bucket[1m])) by (le, pool)) or (rate(hikaricp_connections_acquire_seconds_sum[1m]) / rate(hikaricp_connections_acquire_seconds_count[1m]))",
-          "legendFormat": "p95 acquire {{pool}}",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "rate(hikaricp_connections_acquire_seconds_sum[1m]) / rate(hikaricp_connections_acquire_seconds_count[1m])",
+          "refId": "A",
+          "legendFormat": "mean acquire - {{pool}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 49 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 49
+      },
       "id": 17,
       "title": "Consumption Leases & Renewals Inflight",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "pocoma_v3_consumption_local_leases or pocoma_consumption_worker_running",
-          "legendFormat": "local leases",
-          "refId": "A"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(pocoma_v3_lease_local) by (authority)",
+          "refId": "A",
+          "legendFormat": "local lease - {{authority}}"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
-          "expr": "pocoma_v3_consumption_renewals_inflight or rate(pocoma_event_sequencing_suffix_seconds_count[1m])",
-          "legendFormat": "renewals inflight",
-          "refId": "B"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(pocoma_v3_renewal_inflight) by (authority, kind)",
+          "refId": "B",
+          "legendFormat": "renewal inflight - {{authority}} - {{kind}}"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 49 },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
       "id": 18,
       "title": "JVM CPU & Heap Memory Utilization (%)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "expr": "process_cpu_usage * 100",
-          "legendFormat": "CPU Process (%)",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "CPU %"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "expr": "(jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"}) * 100",
-          "legendFormat": "Heap Memory Used (%)",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "Heap Memory %"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        }
+      }
     }
   ],
   "schemaVersion": 39,
-  "tags": ["pocoma", "v3", "observability"],
+  "tags": [
+    "pocoma",
+    "v3",
+    "observability"
+  ],
   "time": {
     "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
-    "refresh_intervals": ["5s", "10s", "30s", "1m"]
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m"
+    ]
   },
   "timezone": "browser",
   "title": "Pocoma V3 - Architecture & Observability Overview",

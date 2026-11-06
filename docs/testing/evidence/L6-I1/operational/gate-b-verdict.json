@@ -1,8 +1,16 @@
 {
   "gate": "G-OBS-OPERATIONAL",
   "verdict": "PASS",
-  "http_requests_before": 481.0,
-  "http_requests_after": 497.0,
-  "delta_http_requests": 16,
-  "timestamp": "2026-11-06T12:56:26Z"
+  "v3_admission_requests_before": 8.0,
+  "v3_admission_requests_after": 11.0,
+  "delta_v3_admission_requests": 3.0,
+  "v3_worker_attempts_before": 34.0,
+  "v3_worker_attempts_after": 46.0,
+  "delta_v3_worker_attempts": 12.0,
+  "v3_read_queries_before": 96.0,
+  "v3_read_queries_after": 109.0,
+  "delta_v3_read_queries": 13.0,
+  "hikari_acquires_before": 63495.0,
+  "hikari_acquires_after": 66005.0,
+  "delta_hikari_acquires": 2510.0
 }
