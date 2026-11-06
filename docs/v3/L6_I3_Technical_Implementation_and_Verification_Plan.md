@@ -1,7 +1,7 @@
 # Pocoma V3 — L6/I3 — Plan technique d'implémentation et de vérification
 
-**Date :** 2026-11-06  
-**Mandat :** `GO_L6_I3_SCOPING` ; plan uniquement, **pas de GO d'implémentation**.  
+**Date :** 2026-11-06
+**Mandat :** `GO_L6_I3_SCOPING` ; plan uniquement, **pas de GO d'implémentation**.
 **Référence normative :** [rapport de cadrage I3](L6_I3_Scoping_and_Design_Report.md), [SPEC-09](SPEC-09_Performance.md), [SPEC-10](SPEC-10_Test_Certification.md), [politique de vérification](../testing/Reactor_Verification_Policy.md).
 
 ## 1. Contrat de livraison
