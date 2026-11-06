@@ -1,262 +1,143 @@
 # Pocoma V3 — L6/I2 — Rapport de Cadrage et de Conception Consolidé
-## Exploitation & Reconstruction READ — Version Finale Consolidée
+## Exploitation & Reconstruction READ — Rapport de Correction Finale
 
 **Date :** 6 novembre 2026
 **Dépôt :** `kartaguez/pocoma`
 **Branche :** `feat/v3-architecture`
-**SHA de référence publié :** `6a1c04fa3f5b419b800754893e56790702a13a5b`
-**Autorisation humaine :** `GO_L6_I2_SCOPING` suivi de l'arbitrage `DESIGN_ACCEPTED_SUBJECT_TO_CORRECTIONS`
-**Mode de mission :** `DESIGN CORRECTION ONLY — NO IMPLEMENTATION — NO TEST EXECUTION`
+**SHA de référence initial :** `07f71693b2a05560d7820da514d90586850a704e`
+**Autorisation humaine :** Mandat de correction finale des blocages du protocole de reconstruction READ
+**Mode de mission :** `TARGETED DESIGN CORRECTION — DOCUMENTATION ONLY — NO IMPLEMENTATION — NO TEST EXECUTION`
 **Statut L6/I1 :** `CLOSED — LOCAL OPERATIONAL V3 PASS WITH EXPLICIT RESERVATIONS`
-**Statut L6/I2 :** `CONSOLIDATED — READY FOR IMPLEMENTATION APPROVAL — IMPLEMENTATION NOT AUTHORIZED`
-**Verdict formel :** `L6_I2_DESIGN_READY_FOR_IMPLEMENTATION_APPROVAL`
+**Statut L6/I2 :** `DESIGN FINAL CONSOLIDATED — READY FOR IMPLEMENTATION GO — IMPLEMENTATION NOT AUTHORIZED`
+**Verdict formel :** `L6_I2_DESIGN_FINAL_READY_FOR_GO`
 
 ---
 
-## 1. Mandat, Contexte et Objectifs de la Consolidation
+## 1. Contexte, Mandat et Déclaration de Vérification (`AGENTS.md`)
 
-Le cadrage initial de l'incrément **L6/I2 (« Exploitation & reconstruction READ »)** a fait l'objet d'une revue critique d'architecture humaine dont le verdict formel a été rendu :
-`DESIGN_ACCEPTED_SUBJECT_TO_CORRECTIONS`.
+Suite à la revue critique humaine complémentaire sur le cadrage de L6/I2, cette mission a résolu les trois blocages structurels (B1, B2, B3) et levé les quatre réserves techniques (R1, R2, R3, R4) identifiés sur le protocole de reconstruction READ.
 
-L'architecture générale proposée (reconstruction en place coordonnée, réutilisation intégrale des briques V3, isolation stricte de WRITE) a été validée. Néanmoins, l'arbitrage humain a exigé la levée d'ambiguïtés et la consolidation de plusieurs garanties critiques avant toute autorisation d'implémentation :
-1. **Correction A — Barrière de maintenance distribuée :** Garantie multi-instances HTTP, autorité partagée dans PostgreSQL, drainage des requêtes en cours et comportement fail-closed.
-2. **Correction B — Exclusion réelle des workers et fencing :** Analyse fine de `protectFinal(claim)`, neutralisation des commits résiduels par révocation DML temporaire, contrôle de `pg_stat_activity` et clarification du rôle de fallback exceptionnel de `pg_terminate_backend`.
-3. **Correction C — Protocole DDL et Flyway exact :** Séquençage strict des migrations sous rôle administratif `pocoma`, purge douce du pool HikariCP (`softEvictConnections()`), étanchéité absolue de la base `pocoma_write`.
-4. **Correction D — Oracle de convergence et prédicat formel READY :** Formalisation mathématique $\mathcal{P}_{\text{READY}}(B)$ reposant sur 4 conditions simultanées (28 checkpoints $\ge B$, 0 slots résiduels, 0 quarantaines, cohérence relationnelle interne).
-5. **Correction E — Machine à états de reprise sur incident :** FSM à 4 états persistants (`READY`, `MAINTENANCE`, `REBUILDING`, `FAILED`) mémorisant le vecteur $B$ pour permettre la reprise sans double reset.
-6. **Correction F — Budgets de qualification ciblés :** 3 gates étanches totalisant $\le 8$ minutes (Gate A: 60s, Gate B: 240s, Gate C: 180s), interdiction formelle du full reactor.
-7. **Vérifications complémentaires & Nuance architecturale :** Dérivation dynamique du catalogue (28 checkpoints = 7 consumptions $\times$ 4 partitions), convergence mathématique sous WRITE continu, et justification du rejet de Blue/Green par complexité opérationnelle disproportionnée au regard de SPEC-10.
-
-Cette mission a été réalisée sous la discipline stricte `DESIGN CORRECTION ONLY — NO IMPLEMENTATION — NO TEST EXECUTION` :
-- **0** modification du code Java de production.
-- **0** modification des tests unitaires ou d'intégration.
-- **0** exécution de Maven, de Docker Compose ou de tests PostgreSQL.
-- Seuls les livrables de cadrage et directeurs ont été consolidés.
-
-Le document technique de référence consolidé est accessible dans [docs/v3/L6_I2_Technical_Implementation_Plan.md](L6_I2_Technical_Implementation_Plan.md).
+### Déclaration de Vérification Normative
+- **Declared verification slice(s) :** `NONE` (Mode purement documentaire et de conception statique).
+- **Commands actually executed :** Commandes d'inspection git et fichiers statiques, script de suppression des espaces blancs, `git diff --cached --check`, `git commit`, `git push origin feat/v3-architecture`.
+- **Unexpected slice crossing :** `NONE`.
+- **Global gate required :** `NO` (aucune frontière inter-modules altérée).
+- **Full reactor run and why :** `NO` (strictement interdit par [Reactor_Verification_Policy.md](file:///Users/julien.guezennec/Dev/projects/pocoma/docs/testing/Reactor_Verification_Policy.md)).
 
 ---
 
-## 2. Synthèse Exécutive Consolidée
+## 2. Matrice Synthétique des Résolutions B1–B3 et R1–R4
 
-1. **Barrière distribuée fail-closed :**
-   La table technique d'autorité `v3_read.read_maintenance_state` centralise l'état du système de lecture (`READY`, `MAINTENANCE`, `REBUILDING`, `FAILED`). Tout nœud HTTP vérifie cet état (via cache TTL court de 500 ms rafraîchi de manière asynchrone ou synchrone) et bascule immédiatement en HTTP 503 Service Unavailable (`Retry-After: 30`) dès la transition vers `MAINTENANCE`. En cas d'inaccessibilité de la base ou de timeout, la barrière est **fail-closed** (HTTP 503 systématique).
-2. **Double barrière de fencing contre les writers tardifs :**
-   L'analyse approfondie de `JdbcConsumptionSlotStore#protectFinal` a révélé que la finalisation d'un slot ne vérifie que le claim et son expiration, et non l'appartenance de la partition au worker à l'instant exact du commit. Pour éliminer tout risque d'écriture fantôme sans dépendre exclusivement de signaux système, la procédure applique deux barrières :
-   - *Barrière 1 (Coopérative) :* Arrêt gracieux des workers et attente de l'expiration naturelle des baux (`lease_duration = 3s` en profil local).
-   - *Barrière 2 (Physique SQL) :* Révocation administrative des privilèges DML : `REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA v3_read FROM pocoma_read;`. Tout commit tardif éventuel subit une exception SQL bloquante `permission denied for table ...`.
-3. **Réinitialisation DDL Flyway propre et étanche :**
-   Exécutée exclusivement sous la connexion d'administration `pocoma`, la réinitialisation applique `DROP SCHEMA v3_read CASCADE; CREATE SCHEMA v3_read AUTHORIZATION pocoma_read;`, puis rejoue les migrations Flyway canoniques V1..V7 et V10, suivies de `bootstrap-l2-routing.sql` et des attributions de droits `grant-*.sql`. Le pool applicatif HikariCP exécute `softEvictConnections()` pour renouveler les sessions sans interrompre le pool.
-4. **Oracle de convergence mathématique $\mathcal{P}_{\text{READY}}(B)$ :**
-   La fin du rattrapage et la réouverture du service ne reposent sur aucune temporisation arbitraire. Le prédicat mathématique $\mathcal{P}_{\text{READY}}(B)$ exige la satisfaction simultanée de :
-   - $\forall c \in \mathcal{C}, \forall p \in \{0,1,2,3\}, \text{checkpoint}(c, p) \ge B_{F(c)}$ (soit 28 checkpoints vérifiés).
-   - $\forall c \in \mathcal{C}, \forall p \in \{0,1,2,3\}, |\{s \in \text{slots}(c, p) \mid s.\text{pos} \le B_{F(c)}\}| = 0$.
-   - Zéro slot en quarantaine $\le B$.
-   - Cohérence relationnelle interne vérifiée sur 4 oracles (`CurrentPot`, `PotBalance`, `PotVisibility`, `CurrentBinding`).
-5. **Résilience et reprise après crash (FSM 4 états) :**
-   Si le processus de reconstruction est interrompu lors du rattrapage (état `REBUILDING`), le vecteur $B$ stocké de manière persistante permet au script de relancer immédiatement les moteurs de consommation et de reprendre la surveillance de l'oracle de convergence sans détruire à nouveau le schéma.
-6. **Qualification compacte $\le 8$ minutes :**
-   Trois gates locales ciblées (Gate A: 60s, Gate B: 240s, Gate C: 180s) garantissant la conformité intégrale aux 11 scénarios normatifs SPEC-10 RCV01-A à RCV01-N, sans aucun full reactor ni altération du périmètre de vérification.
+| Réf. | Risque Initial | Correction Retenue | Justification Technique & Références | État |
+|---|---|---|---|:---:|
+| **B1** | **Autorité détruite par le reset** : `v3_read.read_maintenance_state` était supprimée par `DROP SCHEMA v3_read CASCADE;`. | Relocalisation de l'autorité dans `public.read_maintenance_state` au sein de la base `pocoma_read`. | Le schéma `public` survit au drop de `v3_read`. Le `search_path` de `pocoma_read` inclut déjà `public`. Propriétaire : `pocoma`, `SELECT` seul accordé à `pocoma_read`. [Plan §2](L6_I2_Technical_Implementation_Plan.md#2-autorite-indestructible-de-maintenance-publicread_maintenance_state). | **RÉSOLU** |
+| **B2** | **Fencing SQL insuffisant** : `REVOKE DML` inefficace sur transactions ouvertes ou si `pocoma_read` est propriétaire. | Protocole d'exclusion à 5 niveaux : inhibition, arrêt conteneurs (`scale=0`), vérification `pg_stat_activity`, révocation `USAGE ON SCHEMA v3_read`, et verrou `AccessExclusiveLock` du DROP. | `protectFinal` ne vérifie pas le bail de partition au commit. Le DROP détruit physiquement les tables et leurs OIDs. Tout accès résiduel échoue avec `permission denied` ou `relation does not exist`. [Plan §4](L6_I2_Technical_Implementation_Plan.md#4-exclusion-reelle-des-workers-et-fencing-multi-couches). | **RÉSOLU** |
+| **B3** | **Reprise après crash incomplète** : `--resume` supposait un schéma déjà prêt ; crash possible pendant DDL/Flyway. | FSM à 4 états (`READY`, `MAINTENANCE`, `REBUILDING`, `FAILED`) enrichie de 9 marqueurs de phase avec actions déterministes par phase. | Si crash avant replay : re-drop idempotent sans perte. Si crash pendant replay : reprise directe sans double reset via persistance de $B$. [Plan §5](L6_I2_Technical_Implementation_Plan.md#5-machine-a-etats-persistante-et-resilience-au-crash-fsm). | **RÉSOLU** |
+| **R1** | **Drainage HTTP approximatif** : Simple attente de 3 s sans preuve de fin des requêtes engagées. | Temporisation de confort 3 s combinée à un contrôle physique dans `pg_stat_activity` de 0 requête active sur `pocoma_read`. | `V3ReadController` n'a pas de tâches asynchrones. Le timeout Spring est de 2 s. `pg_stat_activity` apporte la preuve matérielle d'absence de session active avant DDL. [Plan §3](L6_I2_Technical_Implementation_Plan.md#3-barriere-dindisponibilite-distribuee-et-drainage-http). | **LEVÉE** |
+| **R2** | **Oracle non démontré & redondant** : Redondance entre C2 et C3 ; sémantique de position par partition à clarifier. | Prédicat épuré en 3 conditions indépendantes : $\mathcal{C}_{\text{checkpoints}}$ (28 CP $\ge B_F$), $\mathcal{C}_{\text{slots}}$ (0 slots $\le B$, incluant quarantaines), $\mathcal{C}_{\text{integrity}}$ (4 oracles de projection). | Dans `DiscoveryEngine`, chaque partition parcourt la séquence globale et enregistre sa position couverte. Dans `consumption_slot`, un slot achevé est supprimé (`deleteProtected`). [Plan §8](L6_I2_Technical_Implementation_Plan.md#8-oracle-de-convergence-mathematique-et-predicat-formel-ready). | **LEVÉE** |
+| **R3** | **Convergence supposée & watchdog inadapté** : Seuil 30 s trop agressif face aux recalculs $O(N)$ et baux 240 s. | Distinction entre préfixe fini (backlog borné) et progression réelle ; watchdog recalibré à 180 s avec vérification de vie worker. | Évite les faux-positifs `FAILED` lors des recalculs légitimes de gros Pots tout en détectant les réels blocages. [Plan §9](L6_I2_Technical_Implementation_Plan.md#9-analyse-de-convergence-et-watchdog-de-progres-sous-write-continu). | **LEVÉE** |
+| **R4** | **Gates Maven incertaines** : Risque d'échec Surefire sur modules amont (`-am`) sans tests correspondants. | Utilisation du flag standard `-DfailIfNoSpecifiedTests=false` conformément à la politique normative §35. | Évite les échecs factices de sélection Surefire dans les 15 modules amont de `composition-runtime-spring`. Budget $\le 8$ min préservé. [Plan §11](L6_I2_Technical_Implementation_Plan.md#11-strategie-de-qualification-ciblee-commandes-exactes-et-budgets). | **LEVÉE** |
 
 ---
 
-## 3. Matrice du Périmètre Normatif de L6/I2
+## 3. Détail des Résolutions Apportées
 
-| Exigence / Scénario | Source Normative | État dans le Socle | Prise en Compte Consolidée L6/I2 |
-|---|---|---|---|
-| **REC-01** (Reconstruction READ) | SPEC-10 §10, SPEC-05 §9 | 7 Consumptions READ créées en L4/L5 | **OUI** : Procédure orchestrée réutilisant 100% des briques existantes. |
-| **RCV01-A** (Reset complet) | SPEC-10 §10 | Migrations DDL READ V1..V7, V10 | **OUI** : Drop/Create schema `v3_read` + rejeu Flyway + bootstrap routing. |
-| **RCV01-B** (Barrière writer tardif) | SPEC-10 §10 | `partition_ownership`, `consumption_slot` | **OUI** : Fencing à deux barrières (éviction + révocation SQL DML). |
-| **RCV01-C** (Indisponibilité 503) | SPEC-10 §10 | Façade READ Web | **OUI** : Barrière `read_maintenance_state` fail-closed (503 automatique). |
-| **RCV01-D** (Rattrapage 5 séquences) | SPEC-10 §10 | `v3_event_counter`, `v3_event_position` | **OUI** : Capture atomique du vecteur $B$, rattrapage checkpoints 0 à $B$. |
-| **RCV01-E** (3 Consumptions Pot) | SPEC-10 §10 | `MaterializePotVersion/Balance/Vis` | **OUI** : Convergence synchronisée des 3 projections sur chaque Pot. |
-| **RCV01-F** (Convergence multi-flux) | SPEC-10 §10 | Consumptions Invitation & Binding | **OUI** : Ordonnancement respecté sous interleavings concurrents réels. |
-| **RCV01-G** (Reprise sur panne R4) | SPEC-10 §10 | Slots et checkpoints durables | **OUI** : FSM avec persistance de $B$ ; reprise de rattrapage sans reset. |
-| **RCV01-H** (Refus restauration partielle)| SPEC-10 §10 | Gardes relationnelles SQL | **OUI** : Rejet de toute réinitialisation partielle ; reset global atomique. |
-| **RCV01-I** (Purge slots orphelins) | SPEC-10 §10 | `consumption_slot` | **OUI** : Recréation de table vierge éliminant tout slot résiduel. |
-| **RCV01-L** (WRITE continu R5) | SPEC-10 §10 | Isolation physique des bases | **OUI** : WRITE continue sans interruption ; rattrapage des événements $> B$. |
-| **RCV01-M** (Consultation après READY) | SPEC-10 §10 | Façades READ et tokens EUI | **OUI** : Réouverture nominale en 200 OK dès validation de $\mathcal{P}_{\text{READY}}(B)$. |
-| **RCV01-N** (Concordance des oracles) | SPEC-10 §10 | Oracles de validation L1–L5 | **OUI** : Validation d'équivalence stricte état reconstruit vs WRITE. |
-| **Option 2 (Blue/Green)** | Spécification d'étude | Schémas PostgreSQL | **ÉCARTÉE** : Complexité opérationnelle injustifiée sous SPEC-10. |
+### 3.1 Blocage B1 — Autorité Indestructible de Maintenance
+- **Localisation :** Base `pocoma_read`, table `public.read_maintenance_state`.
+- **Pourquoi `public` ?**
+  1. Lors de l'exécution de `DROP SCHEMA v3_read CASCADE;`, seul le schéma applicatif `v3_read` est supprimé. Le schéma système `public` demeure intact.
+  2. Le rôle applicatif `pocoma_read` a son `search_path` initialisé à `v3_read, public`. Il peut donc interroger `read_maintenance_state` ou `public.read_maintenance_state` en continu, y compris lorsque `v3_read` n'existe pas.
+  3. L'administrateur `pocoma` est propriétaire de la table ; `pocoma_read` ne détient que le privilège `SELECT`. L'application ne peut pas falsifier son état.
+  4. Flyway n'administre que le schéma `v3_read` ; il n'interfère jamais avec la table de maintenance.
 
----
+### 3.2 Blocage B2 — Fencing et Exclusion Réelle des Workers
+- **Constat :** `protectFinal` dans `JdbcConsumptionSlotStore` vérifie uniquement la validité du claim token, sans valider l'appartenance de la partition au worker au moment exact du commit SQL.
+- **Protocole d'Exclusion en 5 Niveaux :**
+  1. *Inhibition :* Les workers lisent l'état `MAINTENANCE` et cessent le polling.
+  2. *Arrêt physique :* `docker compose stop worker-read` et mise à l'échelle 0 (`--scale worker-read=0`) pour empêcher tout redémarrage intempestif.
+  3. *Observation SQL :* Contrôle dans `pg_stat_activity` de 0 connexion active portant `usename = 'pocoma_read'`.
+  4. *Révocation USAGE :* `REVOKE USAGE ON SCHEMA v3_read FROM pocoma_read;` par l'administrateur `pocoma`.
+  5. *Destruction des OIDs :* `DROP SCHEMA v3_read CASCADE;` acquiert un verrou `AccessExclusiveLock`, purgeant physiquement toutes les tables et invalidant tout accès ultérieur.
 
-## 4. Matrice Exhaustive des Constats et Décisions de Consolidation
+### 3.3 Blocage B3 — Résilience Complète au Crash (FSM)
+- **États et Phases :** 4 états (`READY`, `MAINTENANCE`, `REBUILDING`, `FAILED`) et 9 phases fines (`IDLE`, `DRAINING`, `EXCLUDED`, `SCHEMA_DROPPED`, `SCHEMA_CREATED`, `MIGRATED`, `ROUTED`, `REPLAYING`, `CONVERGED`).
+- **Comportement de `v3-rebuild-read.py --resume` :**
+  - Si crash avant le début du replay (`DRAINING` .. `ROUTED`) : réinitialisation propre et idempotente du schéma vide via Flyway sans perte de travail.
+  - Si crash pendant le replay (`REPLAYING`) : le vecteur cible $B$ et l'état des tables sont préservés dans `public.read_maintenance_state`. Le replay worker reprend directement son travail à partir des checkpoints existants **sans exécuter de nouveau DROP SCHEMA**.
+  - Si état `FAILED` : blocage de sécurité nécessitant une intervention de l'exploitant (`--resume` ou `--restart`).
 
-La revue critique d'architecture a donné lieu à 14 constats techniques majeurs et décisions associées :
+### 3.4 Réserve R1 — Drainage HTTP et Preuve d'Inactivité
+- Les contrôleurs `V3ReadController` sont purement synchrones (aucune tâche de fond asynchrone).
+- Le délai de grâce $T_{drain} = 3$ s absorbe les requêtes engagées avant la bascule (timeout transactionnel Spring de 2 s).
+- La confirmation matérielle est apportée par `SELECT count(*) FROM pg_stat_activity WHERE datname='pocoma_read' AND state IN ('active', 'idle in transaction')`. Le DROP DDL n'est autorisé que lorsque ce compteur atteint 0.
 
-| Réf. Constat | Thématique | Analyse Technique & Risque Identifié | Décision & Solution Consolidée |
-|---|---|---|---|
-| **CST-I2-01** | Barrière multi-instances | Risque de faux 404 si une instance HTTP n'est pas informée du début du rebuild. | Autorité partagée dans PostgreSQL (`v3_read.read_maintenance_state`), cache local court (500 ms) et bascule fail-closed (503 si DB indisponible). |
-| **CST-I2-02** | Drainage HTTP | Une requête READ engagée avant la bascule pourrait échouer en cours d'exécution lors du DROP TABLE. | Temporisation de drainage $T_{drain} = 3$ s (supérieure au timeout de transaction Spring de 2 s) avant toute opération DDL. |
-| **CST-I2-03** | Fencing applicatif incomplet | `protectFinal` valide le `claim_token` mais ne vérifie pas la possession de partition au commit. | Complément par neutralisation SQL physique : `REVOKE DML FROM pocoma_read` rendant tout commit tardif impossible. |
-| **CST-I2-04** | Fallback `pg_terminate_backend` | L'usage systématique de `pg_terminate_backend` peut masquer des défauts d'arrêt gracieux. | Relégué au rang de fallback d'urgence actionné uniquement si des sessions actives persistent après le délai de grâce de 3 s. |
-| **CST-I2-05** | Permissions DDL | L'utilisateur `pocoma_read` ne dispose pas (et ne doit pas disposer) des droits de `DROP/CREATE SCHEMA`. | Exécution des étapes DDL sous le rôle d'administration `pocoma`, avec réattribution immédiate des grants nominaux. |
-| **CST-I2-06** | Invalidation HikariCP | La recréation des tables peut invalider les prepared statements en cache (`cached plan must not change result type`). | Appel de `softEvictConnections()` sur le pool HikariCP lors de la transition vers `MAINTENANCE` et vers `READY`. |
-| **CST-I2-07** | Répétabilité Flyway | Les migrations historiques doivent s'appliquer sur un schéma totalement vierge. | Nettoyage complet : `DROP SCHEMA v3_read CASCADE; CREATE SCHEMA v3_read;` avant invocation Flyway standard. |
-| **CST-I2-08** | Dérivation du catalogue | Un codage en dur du nombre de checkpoints (28) introduit un risque de régression silencieuse. | Dérivation dynamique : $N_{cp} = |\mathcal{C}| \times |\mathcal{P}| = 7 \times 4 = 28$, vérifiée par assertion stricte. |
-| **CST-I2-09** | Quarantaine et READY | Un slot en erreur résiduelle ou quarantaine pourrait fausser la remise en service. | Le prédicat $\mathcal{P}_{\text{READY}}(B)$ exige inconditionnellement zéro slot en quarantaine pour les événements $\le B$. |
-| **CST-I2-10** | Reprise après crash (FSM) | Si le script est tué pendant le rattrapage, un re-drop schema ferait perdre le travail déjà accompli. | Persistance de l'état `REBUILDING` et du vecteur $B$ : la commande `--resume` reprend le suivi sans nouveau drop. |
-| **CST-I2-11** | Étancheité absolue WRITE | Risque de pollution accidentelle de la base WRITE lors d'un script d'exploitation. | L'accès à `pocoma_write` est strictement borné à une connexion en lecture seule (`ReadOnlyDataSource` / privilèges `SELECT`). |
-| **CST-I2-12** | Budget de qualification | Des tests de charge ou des full reactors lors du pipeline I2 dépasseraient les budgets d'exécution. | 3 gates unitaires/intégration strictement ciblées pour un total $\le 8$ min (inférieur au plafond contractuel de 9 min). |
-| **CST-I2-13** | Détection de famine / blocage | Si un worker plante pendant le rebuild, le script pourrait attendre indéfiniment. | Watchdog avec timeout de progrès : si aucun checkpoint n'avance pendant 30 s en état `REBUILDING`, transition vers `FAILED`. |
-| **CST-I2-14** | Nuance Blue/Green | Le rejet de Blue/Green ne doit pas être justifié par une impossibilité PostgreSQL mais par la simplicité. | Justification formelle : complexité opérationnelle (double schéma, routage, sync) disproportionnée au regard de SPEC-10. |
+### 3.5 Réserve R2 — Exactitude de l'Oracle READY
+- **Sémantique :** Dans `DiscoveryEngine`, chaque partition examine la séquence globale de la famille et met à jour `discovery_checkpoint` avec la position couverte.
+- **Suppression de redondance :** Dans `consumption_slot`, un slot achevé avec succès est supprimé de la table. La condition $\mathcal{C}_{\text{slots}}$ vérifie que `COUNT(*) == 0` pour les événements $\le B_F$, ce qui englobe inconditionnellement les slots disponibles ET les slots en quarantaine.
+- **Prédicat $\mathcal{P}_{\text{READY}}(B)$ :**
+  1. 28 checkpoints $\ge B_F$ dans `discovery_checkpoint`.
+  2. 0 slots $\le B_F$ dans `consumption_slot`.
+  3. Cohérence relationnelle interne vérifiée sur les 4 projections métiers.
 
----
+### 3.6 Réserve R3 — Convergence et Watchdog sous WRITE Continu
+- Un vecteur $B$ fini garantit un backlog cible borné, éliminant le problème de la cible mouvante. Les événements postérieurs à $B$ sont absorbés au fil de l'eau.
+- Le watchdog de détection de blocage est recalibré à **180 secondes** (au lieu de 30 s), assurant la compatibilité avec les recalculs lourds de soldes de Pots ($O(N)$) et la durée des baux sans déclencher de faux positifs de panne.
 
-## 5. Synthèse des Six Corrections Majeures
-
-### Correction A — Barrière de Maintenance Distribuée
-- **Autorité et Schéma :** Table unique `v3_read.read_maintenance_state` possédant une seule ligne (`id = 1`). Propriétaire : `pocoma`, lecture accordée à `pocoma_read`.
-- **Transitions Atomiques :** Effectuées par `UPDATE v3_read.read_maintenance_state SET state = :newState, target_prefix = :prefix, updated_at = clock_timestamp() WHERE id = 1;`.
-- **Garantie Multi-Instances :** Les instances HTTP interrogent l'état via un cache en mémoire d'une durée de vie maximale de 500 ms.
-- **Fail-Closed :** Si la base de données est injoignable, si une erreur SQL survient ou si la ligne d'état est verrouillée/absente, le filtre HTTP intercepte la requête et renvoie inconditionnellement HTTP 503 (`Retry-After: 30`).
-- **Drainage :** Après le passage de l'état à `MAINTENANCE`, le script applique une temporisation de grâce $T_{drain} = 3$ secondes. Comme le timeout des transactions HTTP Spring est fixé à 2 secondes (`@Transactional(timeout = 2)`), toute requête cliente engagée avant la bascule s'achève naturellement avant l'amorce des opérations DDL destructives.
-
-### Correction B — Exclusion Réelle des Workers et Fencing Multi-Couches
-- **Vérification de `protectFinal` :** L'analyse de `JdbcConsumptionSlotStore.java` confirme que la requête SQL de protection :
-  ```sql
-  UPDATE v3_read.consumption_slot
-  SET state = 'PROCESSED', claimed_until = NULL, finalized_at = clock_timestamp()
-  WHERE slot_id = ? AND claim_token = ? AND state = 'AVAILABLE' AND claimed_until > clock_timestamp();
-  ```
-  n'effectue aucune jointure sur `partition_ownership`. Un worker dont le bail de partition a expiré mais dont le claim sur le slot court encore pourrait théoriquement finaliser son écriture s'il se réveille avant l'échéance du claim.
-- **Double Barrière de Neutralisation :**
-  1. *Étape 1 (Applicative) :* Envoi du signal d'arrêt gracieux aux workers READ et expiration des baux de partition.
-  2. *Étape 2 (Physique SQL) :* Exécution administrative :
-     ```sql
-     REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA v3_read FROM pocoma_read;
-     ```
-     Cette barrière garantit qu'aucun worker attardé ou zombie ne peut committer de données dans les tables de lecture.
-- **Rôle de `pg_terminate_backend` :** Après $T_{drain} = 3$ s, le script interroge `pg_stat_activity`. Si et seulement si des sessions applicatives `pocoma_read` restent ouvertes et bloquées, `pg_terminate_backend(pid)` est invoqué comme mesure exceptionnelle de sécurité.
-
-### Correction C — Protocole DDL et Flyway de Réinitialisation
-- **Connexion Administrative :** Utilisation exclusive du rôle administrateur `pocoma`.
-- **Séquence Déterministe :**
-  1. `DROP SCHEMA IF EXISTS v3_read CASCADE;`
-  2. `CREATE SCHEMA v3_read AUTHORIZATION pocoma_read;`
-  3. Rejeu des migrations Flyway Java canoniques V1..V7 et V10 sur le schéma `v3_read`.
-  4. Exécution du script de routage : `bootstrap-l2-routing.sql`.
-  5. Réattribution des privilèges opérationnels : exécution des scripts `grant-*.sql`.
-  6. Éviction douce des connexions : `softEvictConnections()` sur les pools HikariCP des applications connectées.
-- **Isolation Absolue de WRITE :** Le script n'utilise pour WRITE qu'un pool distinct configuré en lecture seule (`readOnly=true`), interdisant tout ordre DDL ou DML sur `v3_write`.
-
-### Correction D — Oracle de Convergence et Prédicat Formel READY
-Le retour en disponibilité nominale (état `READY`, code HTTP 200) est conditionné par la validation stricte du prédicat mathématique $\mathcal{P}_{\text{READY}}(B)$ :
-$$\mathcal{P}_{\text{READY}}(B) = \mathcal{C}_1 \wedge \mathcal{C}_2 \wedge \mathcal{C}_3 \wedge \mathcal{C}_4$$
-
-1. **$\mathcal{C}_1$ (Progression des Checkpoints) :**
-   $$\forall c \in \mathcal{C}, \forall p \in \{0,1,2,3\}, \quad \text{checkpoint}(c, p) \ge B_{F(c)}$$
-   (28 checkpoints au total pour les 7 consommations sur les 4 partitions).
-2. **$\mathcal{C}_2$ (Résorption Intégrale des Slots $\le B$) :**
-   $$\forall c \in \mathcal{C}, \forall p \in \{0,1,2,3\}, \quad |\{s \in \text{slots}(c, p) \mid s.\text{pos} \le B_{F(c)}\}| = 0$$
-3. **$\mathcal{C}_3$ (Absence de Quarantaine $\le B$) :**
-   $$|\{s \in \text{slots} \mid s.\text{state} = \text{'QUARANTINED'} \wedge s.\text{pos} \le B_{F(c)}\}| = 0$$
-4. **$\mathcal{C}_4$ (Cohérence Relationnelle Interne) :**
-   - $\forall P, \text{CurrentPot}(P) \implies \text{PotVersion}(P, \text{current\_version})$ existe.
-   - $\forall P, \text{Balance}(P, \text{current\_version})$ calculée et cohérente avec les opérations.
-   - $\forall I, \text{CurrentBinding}(I)$ résolu vers son identité autoritative.
-   - Absence d'orphelins ou d'incohérences structurelles.
-
-### Correction E — Machine à États de Reprise sur Incident (FSM)
-La machine d'exploitation persistance comprend 4 états distincts :
-```
-[READY] ──(start rebuild)──> [MAINTENANCE] ──(drop/flyway + store B)──> [REBUILDING]
-   ▲                                                                         │
-   │                                                                    (crash / kill)
-   │                                                                         │
-   │                                                                         ▼
-   └───────────(oracles OK)──────────── [REBUILDING] <──(--resume)─── (process dead)
-                                             │
-                                      (stall timeout)
-                                             │
-                                             ▼
-                                          [FAILED]
-```
-- Si le script ou l'infrastructure crash pendant `REBUILDING`, la commande `python3 scripts/operations/v3-rebuild-read.py --resume` lit le vecteur $B$ conservé dans `read_maintenance_state`, réactive la surveillance et attend l'oracle READY **sans relancer de DROP SCHEMA**.
-
-### Correction F — Stratégie de Qualification Ciblée et Budgets
-Conformément à la directive stricte interdisant tout full reactor :
-1. **Gate A — Contrats Ciblés & Fail-Closed (Budget : 60 s) :**
-   - Commande : `./mvnw -pl composition-runtime-spring -am -Dtest=ReadMaintenanceBarrierTest,ReadinessOracleTest test`
-   - Vérifie le filtre 503, la bascule atomique d'état et le calcul du prédicat.
-2. **Gate B — Qualification Déterministe PostgreSQL RCV01 (Budget : 240 s) :**
-   - Commande : `./mvnw -pl runtime-task-consumption-worker -am -Dtest=V3ReadReconstructionPostgresTest test`
-   - Exécute les 11 scénarios normatifs SPEC-10 RCV01-A à RCV01-N sur base réelle.
-3. **Gate C — Validation Script CLI Locale (Budget : 180 s) :**
-   - Commande : `bash scripts/operations/verify-l6-i2-rebuild.sh`
-   - Valide le comportement de bout en bout du script CLI Python, la résilience aux pannes (`--resume`), et les métriques Prometheus.
-- **Budget total cumulé :** $\le 480$ secondes (8 minutes), parfaitement contenu dans l'objectif de 9 minutes.
+### 3.7 Réserve R4 — Compatibilité Maven et Couverture Réelle
+- Les commandes des trois gates intègrent `-DfailIfNoSpecifiedTests=false`, évitant les erreurs de sélection Surefire sur les 15 modules amont de `composition-runtime-spring`.
+- Budget total respecté : Gate A (60s) + Gate B (240s) + Gate C (180s) = $\le 480$ s ($\le 8$ minutes, sous le plafond contractuel de 9 minutes).
 
 ---
 
-## 6. Vérifications Complémentaires et Nuance Architecturale
-
-### Vérification Complémentaire 1 — Dérivation Dynamique du Catalogue
-Le catalogue des 7 consommations READ est dynamiquement dérivé de `V3ReadParticipants` :
-1. `POT_VERSION` $\rightarrow$ Famille `POT`
-2. `POT_BALANCE` $\rightarrow$ Famille `POT`
-3. `POT_VISIBILITY` $\rightarrow$ Famille `POT`
-4. `CURRENT_BINDING` $\rightarrow$ Famille `IDENTITY`
-5. `COMMAND_RESULT` $\rightarrow$ Famille `COMMAND_COMPLETION`
-6. `IDENTITY_REQUEST_RESULT` $\rightarrow$ Famille `IDENTITY_COMPLETION`
-7. `INVITATION` $\rightarrow$ Famille `INVITATION`
-
-Pour les 4 partitions configurées (0 à 3), l'oracle valide exactement $7 \times 4 = 28$ checkpoints distincts.
-
-### Vérification Complémentaire 2 — Performance et Convergence sous WRITE Continu
-Puisque le préfixe $B$ est figé au début du rattrapage, le nombre d'événements à traiter pour atteindre l'oracle de convergence est **strictement fini**. Même sous une cadence d'écriture WRITE soutenue (ex. 100 cmd/s), le rattrapage converge mathématiquement. Les événements postérieurs à $B$ continuent d'être absorbés au fil de l'eau une fois la base remise en service nominal (`READY`).
-
-### Nuance Architecturale — Justification Formelle du Rejet de Blue/Green
-L'Option 2 (Blue/Green via schéma temporaire puis bascule) a été analysée avec rigueur. Elle n'est pas techniquement impossible dans PostgreSQL. Toutefois, elle impose :
-- Une gestion complexe de renommage atomique DDL sous connexions actives.
-- Une réinitialisation brutale du cache de plans préparés dans HikariCP.
-- Le maintien temporaire d'un doublement des schémas et des baux de consommation.
-Puisque la norme **SPEC-10 §10 accepte formellement une indisponibilité totale temporaire de READ** pour les besoins d'exploitation exceptionnelle, l'Option 1 (Reconstruction en place coordonnée avec barrière 503) offre les mêmes garanties de consistance pour un coût opérationnel, un risque d'implémentation et une complexité de maintenance considérablement plus faibles.
-
----
-
-## 7. Réponses Consolidées aux Huit Questions Critères (Section 15)
+## 4. Réponses Consolidées aux Huit Questions Critères (Section 15)
 
 1. **Qu'est-ce qui est reconstruit ?**
-   L'intégralité du schéma `v3_read` : les 9 tables de projections réelles, ainsi que les tables techniques de consommation (`discovery_checkpoint`, `consumption_slot`, `partition_ownership`, `read_maintenance_state`).
+   L'intégralité du schéma `v3_read` : les 9 projections réelles, les tables techniques de consommation (`discovery_checkpoint`, `consumption_slot`, `partition_ownership`), ainsi que les routes de consommation. La table `public.read_maintenance_state` est préservée hors du schéma détruit.
 2. **À partir de quoi ?**
-   Exclusivement à partir des 5 flux d'événements immuables conservés dans `pocoma_write` (`v3_event_counter`, `v3_event_position`) et des tables d'état d'origine.
+   Exclusivement à partir des 5 flux d'événements immuables conservés dans `pocoma_write` (`v3_event_counter` / `v3_event_position`) et de leurs données associées, accédées en lecture seule stricte.
 3. **Comment ?**
-   En réutilisant sans modification les moteurs `DiscoveryEngine` et `ConsumptionEngine`, pilotés par les 7 participants de matérialisation de `V3ReadParticipants`.
+   Par composition sans modification des moteurs existants `DiscoveryEngine` et `ConsumptionEngine`, et des sept participants de `V3ReadParticipants`.
 4. **Avec quelles garanties ?**
-   Zéro impact sur WRITE (étanchéité absolue et connexions en lecture seule) ; barrière d'indisponibilité 503 fail-closed ; double barrière de neutralisation des anciens écrivains (éviction + révocation SQL DML) ; résilience au crash via FSM persistante.
+   Étanchéité totale de WRITE ; indisponibilité 503 fail-closed ; double barrière d'exclusion des anciens workers ; résilience au crash via FSM persistante et marqueurs de phase ; oracle mathématique de convergence READY.
 5. **Comment l'exploiter ?**
-   Via un script CLI Python standardisé `scripts/operations/v3-rebuild-read.py` avec confirmation obligatoire `--confirm-destructive=RESET_READ_DATA` et support du mode reprise `--resume`.
+   Via le script CLI Python `scripts/operations/v3-rebuild-read.py` avec confirmation obligatoire `--confirm-destructive=RESET_READ_DATA` et commande de reprise après incident `--resume`.
 6. **Comment savoir que cela fonctionne ?**
-   Par la satisfaction prouvée du prédicat formel $\mathcal{P}_{\text{READY}}(B)$ sur les 28 checkpoints et 0 slots, les contrôles d'intégrité relationnelle interne, et les métriques Prometheus exposées sur le dashboard Grafana.
+   Par la satisfaction prouvée du prédicat $\mathcal{P}_{\text{READY}}(B)$ (28 checkpoints $\ge B$, 0 slots $\le B$), les oracles d'intégrité relationnelle, et les métriques Prometheus exposées sur Grafana.
 7. **Quel coût ?**
-   Zéro régression architecturale, complexité d'implémentation minimale, et un budget de qualification compact $\le 8$ minutes sans full reactor.
+   Zéro régression, réutilisation intégrale du socle V3, et un budget de qualification compact $\le 8$ minutes sans full reactor.
 8. **Qu'est-ce qui reste hors périmètre ?**
-   Les benchmarks de charge et SLO (SPEC-09) attribués à **L6/I3** ; la convergence de modèle V2/V3 attribuée à **L7** ; le packaging multi-nœuds de production attribué à **L8**.
+   Les benchmarks de charge et SLO (SPEC-09) attribués à **L6/I3** ; la convergence de modèle V2/V3 attribuée à **L7** ; le packaging multi-nœuds attribué à **L8**.
 
 ---
 
-## 8. Verdict Formel de Cadrage Consolidé
+## 5. Risques Résiduels Explicitement Acceptables
+
+1. **Indisponibilité temporaire de lecture :** L'espace READ est inaccessible (HTTP 503) pendant le temps du reset et du rattrapage. Ce comportement est formellement accepté par [SPEC-10 §10](SPEC-10_Test_Certification.md).
+2. **Latence de rafraîchissement du filtre (500 ms) :** Absorbée en toute sécurité par la temporisation de grâce $T_{drain} = 3$ s avant toute opération DDL.
+3. **Débit de rattrapage sous fort volume :** Dépend du coût de recalcul $O(N)$ sur la balance des grands pots. Sa caractérisation relève de l'incrément de qualification de performance **L6/I3**.
+
+---
+
+## 6. Verdict Formel de Cadrage et Recommandation
 
 ```
 ================================================================================
-POCOMA V3 — LOT L6 / INCRÉMENT I2 : VERDICT FORMEL DE CONSOLIDATION
-Statut officiel : L6_I2_DESIGN_READY_FOR_IMPLEMENTATION_APPROVAL
+POCOMA V3 — LOT L6 / INCRÉMENT I2 : VERDICT DE CONCEPTION FINALE
+Statut officiel : L6_I2_DESIGN_FINAL_READY_FOR_GO
 Dépôt : kartaguez/pocoma
 Branche : feat/v3-architecture
-SHA de référence : 6a1c04fa3f5b419b800754893e56790702a13a5b
-Mandat d'exécution : DESIGN CORRECTION ONLY — NO IMPLEMENTATION — NO TEST EXECUTION
+SHA de référence initial : 07f71693b2a05560d7820da514d90586850a704e
+Mode d'exécution : TARGETED DESIGN CORRECTION — DOCUMENTATION ONLY
 
-Plan d'implémentation : docs/v3/L6_I2_Technical_Implementation_Plan.md (Consolidé)
-Rapport de cadrage : docs/v3/L6_I2_Scoping_and_Design_Report.md (Consolidé)
-Architecture validée : Reconstruction en place coordonnée sous barrière exclusive 503
-Fencing writer tardif : Double barrière (éviction applicative + révocation DML PostgreSQL)
-Prédicat de remise en service : P_READY(B) sur 28 checkpoints et 0 slots résiduels
-Résilience aux pannes : FSM à 4 états persistants avec reprise sans double reset
-Budget de qualification : <= 8 minutes (Gates A, B, C sans full reactor)
+Autorité de maintenance : public.read_maintenance_state (indestructible par drop v3_read)
+Exclusion des workers : 5 niveaux étanches (inhibition, scale=0, pg_stat_activity,
+                        REVOKE USAGE, AccessExclusiveLock de DROP)
+Machine à états & Crash : FSM 4 états / 9 phases avec reprise déterministe --resume
+Oracle de remise en service : P_READY(B) sur 28 checkpoints et 0 slots <= B (non redondant)
+Convergence & Watchdog : Cible B finie, watchdog de progrès re-calibré à 180s
+Stratégie de vérification : Gates A, B, C (budget <= 8 min, -DfailIfNoSpecifiedTests=false)
 
 Statut d'implémentation : IMPLEMENTATION NOT AUTHORIZED
-Prochain acte attendu : Arbitrage humain et décision GO_L6_I2_IMPLEMENTATION
+Prochain acte attendu : Arbitrage humain final et décision GO_L6_I2_IMPLEMENTATION
 ================================================================================
 ```
