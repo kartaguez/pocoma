@@ -180,9 +180,13 @@ def initialize_v3_write():
 
 
 def initialize_v3_read():
+    # Bootstrap persistent maintenance authority in public schema (idempotent)
+    maint_content = (REPO_ROOT / "scripts/v3/bootstrap-read-maintenance.sql").read_text(encoding="utf-8")
+    psql_script("pocoma_read", "public", maint_content)
+
     reg = psql("pocoma_read", "SELECT to_regclass('v3_read.read_current_pot')::text;")
     if reg and reg != "":
-        print("  ✓ Schema v3_read already initialized.")
+        print("  ✓ Schema v3_read and public maintenance authority already initialized.")
         return
 
     print("▶ Initializing schema v3_read in database pocoma_read...")
@@ -231,7 +235,11 @@ def initialize_v3_read():
         content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
         psql_script("pocoma_read", "v3_read", content, variables=variables)
 
-    print("  ✓ Schema v3_read successfully provisioned and secured.")
+    # Bootstrap persistent maintenance authority in public schema
+    maint_content = (REPO_ROOT / "scripts/v3/bootstrap-read-maintenance.sql").read_text(encoding="utf-8")
+    psql_script("pocoma_read", "public", maint_content)
+
+    print("  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.")
 
 
 def generate_properties_file():

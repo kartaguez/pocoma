@@ -77,7 +77,13 @@ public class V3ConsumptionWorkerConfiguration {
                         Set.of(
                                 V3ReadFacadeConfiguration.class.getName(),
                                 V3ReadFacadeComposition.Services.class.getName(),
-                                "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication"));
+                                "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication",
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceState.class.getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority.class.getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority.class.getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter.class.getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle.class.getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation.class.getName()));
             if (readMode
                     && Arrays.asList(env.getActiveProfiles())
                             .contains(V3ReadHttpConfiguration.PROFILE))
@@ -97,6 +103,16 @@ public class V3ConsumptionWorkerConfiguration {
                                         .getName(),
                                 V3ReadHttpConfiguration.InvitationQueries.class.getName(),
                                 com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class
+                                        .getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority.class
+                                        .getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority.class
+                                        .getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter.class
+                                        .getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation.class
+                                        .getName(),
+                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle.class
                                         .getName(),
                                 com.kartaguez.pocoma.engine.read.currentbinding.v3
                                         .GetCurrentBindingV3.Query.class
@@ -276,6 +292,14 @@ public class V3ConsumptionWorkerConfiguration {
         @Bean(destroyMethod = "")
         HikariDataSource readControl(Resources r) {
             return r.readControl;
+        }
+
+        @Bean
+        @Profile(V3ConsumptionWorkerSettings.READ_PROFILE)
+        com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority v3WorkerReadMaintenanceAuthority(
+                Resources r) {
+            return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority(
+                    r.readBusiness);
         }
 
         @Bean
@@ -712,6 +736,10 @@ public class V3ConsumptionWorkerConfiguration {
                                     || bean instanceof Active
                                     || bean instanceof V3ReadFacadeConfiguration
                                     || bean instanceof V3ReadFacadeComposition.Services
+                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority
+                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter
+                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation
+                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle
                                     || value.equals(
                                             "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication")
                                     || value.equals(

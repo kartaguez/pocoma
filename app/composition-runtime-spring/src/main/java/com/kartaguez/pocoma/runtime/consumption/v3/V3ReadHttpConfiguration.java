@@ -120,6 +120,14 @@ public class V3ReadHttpConfiguration {
 
     @Bean
     @Profile("!v3-read-worker")
+    com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority v3HttpReadMaintenanceAuthority(
+            HikariDataSource v3HttpReadPool) {
+        return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority(
+                v3HttpReadPool);
+    }
+
+    @Bean
+    @Profile("!v3-read-worker")
     V3ReadFacadeComposition.Services v3HttpStandaloneServices(
             HikariDataSource v3HttpReadPool,
             Optional<MeterRegistry> meterRegistry) {
@@ -278,6 +286,30 @@ public class V3ReadHttpConfiguration {
         return new V3ReadTransport(
                 Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission"),
                 telemetry);
+    }
+
+    @Bean
+    FilterRegistrationBean<com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter> v3ReadMaintenanceFilter(
+            com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority authority,
+            Environment env) {
+        boolean admission = Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission");
+        var filter = new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter(authority, admission);
+        var registration = new FilterRegistrationBean<>(filter);
+        registration.setOrder(-105);
+        registration.addUrlPatterns("/api/v3/*");
+        return registration;
+    }
+
+    @Bean
+    com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation v3ReadRebuildObservation(
+            Optional<MeterRegistry> meterRegistry) {
+        return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation(
+                meterRegistry.orElseGet(io.micrometer.core.instrument.simple.SimpleMeterRegistry::new));
+    }
+
+    @Bean
+    com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle v3ReadinessOracle() {
+        return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle();
     }
 
     @Bean
