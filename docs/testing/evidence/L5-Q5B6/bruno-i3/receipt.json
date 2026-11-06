@@ -1,0 +1,15 @@
+{
+  "realIdp" : true,
+  "primaryRequests" : 10,
+  "scenarios" : [ "B301", "B302", "B303", "B304", "B305", "B307", "B308", "B309", "B310", "B313" ],
+  "helperRequests" : 68,
+  "brunoSeconds" : 3.700292917,
+  "independentSql" : {
+    "proposals" : 1,
+    "links" : 1,
+    "associations" : 1,
+    "changed" : 2,
+    "versions" : 2
+  },
+  "issuer" : "http://localhost:8081/realms/pocoma"
+}

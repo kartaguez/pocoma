@@ -1,0 +1,26 @@
+{
+  "E1" : {
+    "issuer" : "http://localhost:8081/realms/pocoma",
+    "subject" : "6369f0ca-3f72-4536-ae44-70826ef09457",
+    "iat" : 1793947376,
+    "exp" : 1793947676,
+    "auth_time" : 1793947376,
+    "aud" : "pocoma-api"
+  },
+  "E2" : {
+    "issuer" : "http://localhost:8081/realms/pocoma",
+    "subject" : "fa59ef8c-95b0-45d7-b479-350bf5519200",
+    "iat" : 1793947376,
+    "exp" : 1793947676,
+    "auth_time" : 1793947376,
+    "aud" : "pocoma-api"
+  },
+  "E3" : {
+    "issuer" : "http://localhost:8081/realms/pocoma",
+    "subject" : "ed86bf6a-0746-4122-85d2-372eb9b73ae1",
+    "iat" : 1793947376,
+    "exp" : 1793947676,
+    "auth_time" : 1793947376,
+    "aud" : "pocoma-api"
+  }
+}

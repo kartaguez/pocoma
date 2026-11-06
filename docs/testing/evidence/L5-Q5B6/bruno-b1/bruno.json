@@ -1,0 +1,1211 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "01 Identity and READ/01 Own Binding/B01 activeOwnBinding.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 93,
+          "duration": 93,
+          "size": 69
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B01 success and no-store",
+            "status": "pass",
+            "uid": "-6hq14b-gu2O1kmJ2x2k-"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.121374917,
+        "name": "B01 activeOwnBinding",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/01 Own Binding/B01 activeOwnBinding",
+        "path": "01 Identity and READ/01 Own Binding/B01 activeOwnBinding",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/01 Own Binding/B02 inactiveOwnBinding.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 51
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B02 success and no-store",
+            "status": "pass",
+            "uid": "vVVVpSkBK3KoffHz6s87u"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.010352792,
+        "name": "B02 inactiveOwnBinding",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/01 Own Binding/B02 inactiveOwnBinding",
+        "path": "01 Identity and READ/01 Own Binding/B02 inactiveOwnBinding",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/01 Own Binding/B03 absentOwnBinding.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B03 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "x7n0LAcan9KjmiJsEccGk"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.011207833,
+        "name": "B03 absentOwnBinding",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/01 Own Binding/B03 absentOwnBinding",
+        "path": "01 Identity and READ/01 Own Binding/B03 absentOwnBinding",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/01 Own Binding/B04 bindingMinimum.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding?minVersion=2",
+          "headers": {}
+        },
+        "response": {
+          "status": 503,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding?minVersion=2",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 103
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B04 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "lCex8tx8CzKvWXKgQYkXS"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.019404,
+        "name": "B04 bindingMinimum",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/01 Own Binding/B04 bindingMinimum",
+        "path": "01 Identity and READ/01 Own Binding/B04 bindingMinimum",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/01 Own Binding/B05 foreignBindingSelector.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding?eui=other",
+          "headers": {}
+        },
+        "response": {
+          "status": 400,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding?eui=other",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B05 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "8sqP6mg4QBE0v3xj0GZxv"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.006574417,
+        "name": "B05 foreignBindingSelector",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/01 Own Binding/B05 foreignBindingSelector",
+        "path": "01 Identity and READ/01 Own Binding/B05 foreignBindingSelector",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/01 Own Binding/B06 noBearer.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 401,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 3,
+          "duration": 3,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B06 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "jFK3C_ASXQf2oSNnGo9sv"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.0048075,
+        "name": "B06 noBearer",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/01 Own Binding/B06 noBearer",
+        "path": "01 Identity and READ/01 Own Binding/B06 noBearer",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B07 currentComplete.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300?minVersion=1",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300?minVersion=1",
+          "responseTime": 30,
+          "duration": 30,
+          "size": 24836
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B07 success and no-store",
+            "status": "pass",
+            "uid": "OQl29tjVJ0kZ4wNQxjFbD"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.034074375,
+        "name": "B07 currentComplete",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B07 currentComplete",
+        "path": "01 Identity and READ/02 Pot and Balance/B07 currentComplete",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B08 exactHistory.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1",
+          "responseTime": 13,
+          "duration": 13,
+          "size": 24836
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B08 success and no-store",
+            "status": "pass",
+            "uid": "RrXhwPZ6GWy51PCIdwx4u"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.016766834,
+        "name": "B08 exactHistory",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B08 exactHistory",
+        "path": "01 Identity and READ/02 Pot and Balance/B08 exactHistory",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B09 exactBalance.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/balance",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/balance",
+          "responseTime": 9,
+          "duration": 9,
+          "size": 191
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B09 success and no-store",
+            "status": "pass",
+            "uid": "FaxWEzgVPN6Eto7XWG8un"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.01109175,
+        "name": "B09 exactBalance",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B09 exactBalance",
+        "path": "01 Identity and READ/02 Pot and Balance/B09 exactBalance",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B10 forbiddenAndAbsent.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000301?minVersion=9223372036854775807",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000301?minVersion=9223372036854775807",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B10 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "k9Kn_kgroYWS_aYnfDtkF"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.017091,
+        "name": "B10 forbiddenAndAbsent",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B10 forbiddenAndAbsent",
+        "path": "01 Identity and READ/02 Pot and Balance/B10 forbiddenAndAbsent",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B11 deletedCurrent.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000302",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000302",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B11 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "ZS1t72yOCZL6M0e_gHeVZ"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.008050834,
+        "name": "B11 deletedCurrent",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B11 deletedCurrent",
+        "path": "01 Identity and READ/02 Pot and Balance/B11 deletedCurrent",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B12 terminalVersion.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000302/versions/2",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000302/versions/2",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B12 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "ljCwHeeCTZYwyKF5vXwSn"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.012542834,
+        "name": "B12 terminalVersion",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B12 terminalVersion",
+        "path": "01 Identity and READ/02 Pot and Balance/B12 terminalVersion",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B13 historyBeforeDeletion.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000302/versions/1",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000302/versions/1",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 885
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B13 success and no-store",
+            "status": "pass",
+            "uid": "BUH0PEba7ZFUiFtWEo5Rj"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.029810666,
+        "name": "B13 historyBeforeDeletion",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B13 historyBeforeDeletion",
+        "path": "01 Identity and READ/02 Pot and Balance/B13 historyBeforeDeletion",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/02 Pot and Balance/B14 authorizedLag.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000303",
+          "headers": {}
+        },
+        "response": {
+          "status": 503,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000303",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 103
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B14 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "X-JQhmK0vE3doiaQj4jpc"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.0241125,
+        "name": "B14 authorizedLag",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/02 Pot and Balance/B14 authorizedLag",
+        "path": "01 Identity and READ/02 Pot and Balance/B14 authorizedLag",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/03 Expense Batches/B15 singleExpense.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 507
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B15 success and no-store",
+            "status": "pass",
+            "uid": "p3LYtm657onp_SpxkqonR"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.009631667,
+        "name": "B15 singleExpense",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B15 singleExpense",
+        "path": "01 Identity and READ/03 Expense Batches/B15 singleExpense",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/03 Expense Batches/B16 fiftyExpenses.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "responseTime": 17,
+          "duration": 17,
+          "size": 21666
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B16 success and no-store",
+            "status": "pass",
+            "uid": "99E12_EOckygi_iwjR-cJ"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.019526042,
+        "name": "B16 fiftyExpenses",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B16 fiftyExpenses",
+        "path": "01 Identity and READ/03 Expense Batches/B16 fiftyExpenses",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/03 Expense Batches/B17 emptyBatch.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "headers": {}
+        },
+        "response": {
+          "status": 400,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B17 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "zW45uZUXU_3y-E9xT_8mh"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.00400675,
+        "name": "B17 emptyBatch",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B17 emptyBatch",
+        "path": "01 Identity and READ/03 Expense Batches/B17 emptyBatch",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/03 Expense Batches/B18 oversizedBatch.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "headers": {}
+        },
+        "response": {
+          "status": 400,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B18 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "PPn0ws_j-8jslKMq8CbFx"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.008154667,
+        "name": "B18 oversizedBatch",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B18 oversizedBatch",
+        "path": "01 Identity and READ/03 Expense Batches/B18 oversizedBatch",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/03 Expense Batches/B19 duplicateBatch.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "headers": {}
+        },
+        "response": {
+          "status": 400,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B19 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "UZxMq-H60FUgo_pmMfkqm"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.003447458,
+        "name": "B19 duplicateBatch",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B19 duplicateBatch",
+        "path": "01 Identity and READ/03 Expense Batches/B19 duplicateBatch",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/03 Expense Batches/B20 foreignReference.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300/versions/1/expenses/query",
+          "responseTime": 8,
+          "duration": 8,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B20 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "tVxjj3s2FhdEeWLKzagbW"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.009433875,
+        "name": "B20 foreignReference",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/03 Expense Batches/B20 foreignReference",
+        "path": "01 Identity and READ/03 Expense Batches/B20 foreignReference",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B21 navigationPages.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/pots?limit=100",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/pots?limit=100",
+          "responseTime": 10,
+          "duration": 10,
+          "size": 3979
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B21 success and no-store",
+            "status": "pass",
+            "uid": "OYUuOo1-ZpPdITslQuo0X"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.031496667,
+        "name": "B21 navigationPages",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B21 navigationPages",
+        "path": "01 Identity and READ/04 Navigation and Results/B21 navigationPages",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B22 invalidCursor.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/pots?cursor=malformed",
+          "headers": {}
+        },
+        "response": {
+          "status": 400,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/pots?cursor=malformed",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B22 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "Dm7GC8jNkL6e0uWluGrnI"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.006179833,
+        "name": "B22 invalidCursor",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B22 invalidCursor",
+        "path": "01 Identity and READ/04 Navigation and Results/B22 invalidCursor",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B23 pageLimits.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/pots?limit=0",
+          "headers": {}
+        },
+        "response": {
+          "status": 400,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/pots?limit=0",
+          "responseTime": 2,
+          "duration": 2,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B23 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "sFLa5Cd_P_YcKuNivyDx7"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.016496416,
+        "name": "B23 pageLimits",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B23 pageLimits",
+        "path": "01 Identity and READ/04 Navigation and Results/B23 pageLimits",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B24 mismatchedToken.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000300",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000300",
+          "responseTime": 4,
+          "duration": 4,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B24 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "JBXjrK-YmXHYxYT8okgmn"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.01315725,
+        "name": "B24 mismatchedToken",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B24 mismatchedToken",
+        "path": "01 Identity and READ/04 Navigation and Results/B24 mismatchedToken",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B25 commandCompleted.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/commands/00000000-0000-0000-0000-000000000401/result",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/commands/00000000-0000-0000-0000-000000000401/result",
+          "responseTime": 4,
+          "duration": 4,
+          "size": 186
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B25 success and no-store",
+            "status": "pass",
+            "uid": "SsZ9iL8dFin-KTlvqegA-"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.006112916,
+        "name": "B25 commandCompleted",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B25 commandCompleted",
+        "path": "01 Identity and READ/04 Navigation and Results/B25 commandCompleted",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B26 commandRejected.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/commands/00000000-0000-0000-0000-000000000402/result",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/commands/00000000-0000-0000-0000-000000000402/result",
+          "responseTime": 4,
+          "duration": 4,
+          "size": 201
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B26 success and no-store",
+            "status": "pass",
+            "uid": "TPkVeizxNjUMd7Y0Pj4v2"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.005847083,
+        "name": "B26 commandRejected",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B26 commandRejected",
+        "path": "01 Identity and READ/04 Navigation and Results/B26 commandRejected",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B27 identityCompleted.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/identity/requests/00000000-0000-0000-0000-000000000403/result",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/identity/requests/00000000-0000-0000-0000-000000000403/result",
+          "responseTime": 7,
+          "duration": 7,
+          "size": 202
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B27 success and no-store",
+            "status": "pass",
+            "uid": "zhFmqsoCcWSOT1woe3qbj"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.01297225,
+        "name": "B27 identityCompleted",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B27 identityCompleted",
+        "path": "01 Identity and READ/04 Navigation and Results/B27 identityCompleted",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B28 identityRejected.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/identity/requests/00000000-0000-0000-0000-000000000404/result",
+          "headers": {}
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/identity/requests/00000000-0000-0000-0000-000000000404/result",
+          "responseTime": 4,
+          "duration": 4,
+          "size": 168
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B28 success and no-store",
+            "status": "pass",
+            "uid": "h0aFdRjdLI2dPMVXevtg5"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.005632291,
+        "name": "B28 identityRejected",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B28 identityRejected",
+        "path": "01 Identity and READ/04 Navigation and Results/B28 identityRejected",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B29 foreignAndSameUserResult.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/commands/00000000-0000-0000-0000-000000000401/result",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/commands/00000000-0000-0000-0000-000000000401/result",
+          "responseTime": 5,
+          "duration": 5,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B29 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "MDDIx_HAKx35lmF01VCRW"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.039764542,
+        "name": "B29 foreignAndSameUserResult",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B29 foreignAndSameUserResult",
+        "path": "01 Identity and READ/04 Navigation and Results/B29 foreignAndSameUserResult",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B30 boundedResultPolling.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/commands/00000000-0000-0000-0000-000000000405/result",
+          "headers": {}
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/commands/00000000-0000-0000-0000-000000000405/result",
+          "responseTime": 4,
+          "duration": 4,
+          "size": 101
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B30 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "q7-SGDRBbf9EJYgW3Dc_j"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 2.056650792,
+        "name": "B30 boundedResultPolling",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B30 boundedResultPolling",
+        "path": "01 Identity and READ/04 Navigation and Results/B30 boundedResultPolling",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B31 invalidBearer.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/me/binding",
+          "headers": {}
+        },
+        "response": {
+          "status": 401,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/me/binding",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 105
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B31 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "TUK88eBSdJK2UQmsySU5-"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.01246425,
+        "name": "B31 invalidBearer",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B31 invalidBearer",
+        "path": "01 Identity and READ/04 Navigation and Results/B31 invalidBearer",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "01 Identity and READ/04 Navigation and Results/B32 transportAndPrivacy.bru"
+        },
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:51219/api/v3/pots/00000000-0000-0000-0000-000000000304",
+          "headers": {}
+        },
+        "response": {
+          "status": 503,
+          "statusText": "",
+          "headers": {},
+          "url": "http://127.0.0.1/api/v3/pots/00000000-0000-0000-0000-000000000304",
+          "responseTime": 77,
+          "duration": 77,
+          "size": 103
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [],
+        "testResults": [
+          {
+            "description": "B32 status, bounded uniform error and no-store",
+            "status": "pass",
+            "uid": "QFqAUZbQq-QmYxN8NIDg4"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.114844583,
+        "name": "B32 transportAndPrivacy",
+        "suitename": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/01 Identity and READ/04 Navigation and Results/B32 transportAndPrivacy",
+        "path": "01 Identity and READ/04 Navigation and Results/B32 transportAndPrivacy",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 32,
+      "passedRequests": 32,
+      "failedRequests": 0,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
+      "failedAssertions": 0,
+      "totalTests": 32,
+      "passedTests": 32,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

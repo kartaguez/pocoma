@@ -1,0 +1,230 @@
+{
+  "manifest_version": "1.0.0",
+  "campaign": "L5-Q5B6-FINAL-CERTIFICATION",
+  "date": "2026-11-06T08:35:42+01:00",
+  "status": "CERTIFICATION_PASS",
+  "sha": "2890d88f6fa94ff2262d08a2809f48512ce27c9d",
+  "invocation_id": "eead78b94c294a948253ec7022ec1ab6",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "b860c22d5f0a78d5d47a0a268b84faae2d31d3cd3d2f3939b7074011618e40c0",
+      "bytes": 4948
+    },
+    {
+      "path": "bruno-b1/bruno.json",
+      "sha256": "3f1f5a0a51c08f4fa8bafffcbfcbef91f66656cb28c2ced2087f2faaaef458c6",
+      "bytes": 42930
+    },
+    {
+      "path": "bruno-b1/bruno.log",
+      "sha256": "36934f9212e304b5e519e42a4f6df672f3c1fef9184bf94ecfbeeb6d888e8c43",
+      "bytes": 5199
+    },
+    {
+      "path": "bruno-b1/receipt.json",
+      "sha256": "a5a00b719cc1b18d23a9f07b069f44656144f745d9f79855ba7bc854e2de0a83",
+      "bytes": 865
+    },
+    {
+      "path": "bruno-b1/requests.jsonl",
+      "sha256": "4334118c6937abd26ff99c5305d2ce26737c32d1c2f80cf0637a74557e7ac809",
+      "bytes": 1440
+    },
+    {
+      "path": "bruno-b2/bruno.json",
+      "sha256": "8f8002493b8421878c3e7e0322f121b46a4ad1e26b5e839df870d9eabb4b4a6d",
+      "bytes": 29803
+    },
+    {
+      "path": "bruno-b2/bruno.log",
+      "sha256": "d7f73b800f5ce48640bcbf81fa8de0433a9efb26f358cfb886f103771562d504",
+      "bytes": 3590
+    },
+    {
+      "path": "bruno-b2/controlled-internal-link",
+      "sha256": "cd03511dbcb43bd0f1056d6b0028b9b017390ec5c107268137516870fc341b56",
+      "bytes": 19
+    },
+    {
+      "path": "bruno-b2/controlled-internal-link.ready",
+      "sha256": "4f3bf87666728f37a7b4c55ad0a3e8b9d76dc22f23247aedf6cc5e6c693050e9",
+      "bytes": 28
+    },
+    {
+      "path": "bruno-b2/inputs-before.json",
+      "sha256": "e5eed286cb675b52cf3e009e87087a7f1fd696603cc10c4a75e05c163b2bd5d5",
+      "bytes": 11544
+    },
+    {
+      "path": "bruno-b2/receipt.json",
+      "sha256": "f162bdbf4717d6b5329860b26f5930e9b6b81348488ec0981a4f406341861ecb",
+      "bytes": 1047
+    },
+    {
+      "path": "bruno-b2/requests.jsonl",
+      "sha256": "6bba6f7ff2787e3760c1a4c095dc0710ac14a73f87ef3e20386c421b71164bd0",
+      "bytes": 1218
+    },
+    {
+      "path": "bruno-b2/sql-observer.json",
+      "sha256": "abae3cfbfee7be2021cdd88a6a461746be6a2f65da54641a2c217b174411cd6a",
+      "bytes": 93
+    },
+    {
+      "path": "bruno-b4/bruno.json",
+      "sha256": "1ce0bcccc139be55961be9ed4183984ab0a324b19176c2bb552a12024bc4b554",
+      "bytes": 5378
+    },
+    {
+      "path": "bruno-b4/bruno.log",
+      "sha256": "ef405ca846179273a753961187f17cd796df5ffb2bcf3e48861e960a4b1b444e",
+      "bytes": 1424
+    },
+    {
+      "path": "bruno-b4/receipt.json",
+      "sha256": "9968a1298f8dd3f2f838e2b9046bf1b1964ad79c8b0a770de252e6acd3f3f555",
+      "bytes": 241
+    },
+    {
+      "path": "bruno-b4/requests.jsonl",
+      "sha256": "70665c3a5516eaac4deebdbad574628d6e0f4b6e626208be5d625cfff5628397",
+      "bytes": 19019
+    },
+    {
+      "path": "bruno-b5-consolidated.json",
+      "sha256": "fd886fad8f59b0c317f594e238097768bbbe569859d3263d86421b6c8408aa94",
+      "bytes": 12020
+    },
+    {
+      "path": "bruno-i3/auth.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "bruno-i3/bruno.json",
+      "sha256": "078e45831918ca0ebed4c48165d11be2c2acb422cba5489e9296c3fad51b7d6c",
+      "bytes": 12365
+    },
+    {
+      "path": "bruno-i3/bruno.log",
+      "sha256": "5c59adb1428c275932856834af4b787af37e977d83b00f8552662efc61d6a0f0",
+      "bytes": 1990
+    },
+    {
+      "path": "bruno-i3/real-jwt-claims.json",
+      "sha256": "f32dd724e072634fd9c0c6b10bfe0cdddf5e6581d0b107d17b68b5bdc4239c0e",
+      "bytes": 689
+    },
+    {
+      "path": "bruno-i3/receipt.json",
+      "sha256": "e23421f562ce52312654c773a03c4383f4aa5b9375f3726b58daa932cd7eb44c",
+      "bytes": 385
+    },
+    {
+      "path": "bruno-i3/requests.jsonl",
+      "sha256": "779ac08b95ab2a5b4e5223b49ac42d347274aa6556f2ffcaf7fb9f2b1fe10954",
+      "bytes": 6869
+    },
+    {
+      "path": "discovery.log",
+      "sha256": "11700c556dfbee710991394612782bb63761580a9e9ac1004f73e165a0eb629f",
+      "bytes": 10745
+    },
+    {
+      "path": "plan.json",
+      "sha256": "4e83ffd0b65c91be1a605367b6d8016721cc5d90fdf5499cfc626f1ab341d8ce",
+      "bytes": 205873
+    },
+    {
+      "path": "provenance.json",
+      "sha256": "dcbf1295cc4677e364946ddcaff3dcc736363f274580a61759b4c1c28cc630f2",
+      "bytes": 276431
+    },
+    {
+      "path": "result.json",
+      "sha256": "e63ca24432f6c8b8e6a62c14888cbce2065699eaead4f3ba643eddd5427ee961",
+      "bytes": 1004908
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.ReadRootsCoexistencePostgresTest.xml",
+      "sha256": "d07d61a77970abcda1ad77289a69a31fd428ee32fca035cf5f44b0df14f20590",
+      "bytes": 109254
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.xml",
+      "sha256": "415cb2f59aca2906b65c51bf82a945833c76b561f4224576a6018ef3520934a8",
+      "bytes": 145129
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3AdmissionFlowPostgresTest.xml",
+      "sha256": "2a3c7d04b32257dc98bd1eefbdf42d6743d7c11cadb7160bc0700a1d93d706f9",
+      "bytes": 71937
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3HttpCompositionPostgresTest.xml",
+      "sha256": "813788e924b695e26522522f26c1e0aa9696c9989fecb81dc3e6faf3fb337324",
+      "bytes": 69305
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+      "sha256": "a8b45e61c4925b55a0d5529370b1e8fcce603961eeb324ff719add2473485f05",
+      "bytes": 74562
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+      "sha256": "f3658b9a9374281c1b10c4ef65418bb8da394388ced07a535b34a4ddb9d2e2d0",
+      "bytes": 58725
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationTopologyPostgresTest.xml",
+      "sha256": "bd28815826ba2e1e361d2686176fb72af186e22f37f0a0360983722f780fd719",
+      "bytes": 71198
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationWritePostgresTest.xml",
+      "sha256": "be914b6610fa4222e50942132456cf3faac49b92523c7ee70d6bbf2a946ee520",
+      "bytes": 74994
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3LinkBrunoPostgresTest.xml",
+      "sha256": "c61bfafb2f6aa552e42911bd766d9544a493972a66f1b9f37da5c9ad9ec843f3",
+      "bytes": 54870
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest.xml",
+      "sha256": "8f701edc86209966d181a854209ee6c1df9f4c01ad033ca6dd0f86b3ae625ca4",
+      "bytes": 54886
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml",
+      "sha256": "e19c47d7b64454ecd12cff06cc03f8d52824b2463548e9135c9795c4efec2bdc",
+      "bytes": 73888
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml",
+      "sha256": "84976532f8b4ae2a327d10bf7c80424277bc0d9a87e8996f72c78d75421eb464",
+      "bytes": 65136
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.xml",
+      "sha256": "157f8c2668c7a16649c3af0a5d2ceb3ea78d9f33694e6d6ae908283864571124",
+      "bytes": 235017
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3AdmissionArchitectureTest.xml",
+      "sha256": "3d791880dfb47532264648c13a673d38b4ed0207650e6c1aec842387bb328928",
+      "bytes": 56533
+    },
+    {
+      "path": "surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.xml",
+      "sha256": "bcd129f50e723a024c6417d942bef77db911f0244c936bddbedf947fe51b7092",
+      "bytes": 690846
+    },
+    {
+      "path": "timings.json",
+      "sha256": "729e56efe1fcbd287b1fe989353631c433986af1665e4092957a1a4b49da7235",
+      "bytes": 613
+    }
+  ]
+}

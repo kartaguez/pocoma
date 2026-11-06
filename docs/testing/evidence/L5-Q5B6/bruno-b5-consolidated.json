@@ -1,0 +1,458 @@
+{
+  "manifest_type": "POCOMA_V3_BRUNO_B5_CONSOLIDATED_MANIFEST",
+  "standard": "SPEC-10 / Reactor Verification Policy / AUD-Q5A-05",
+  "qualified_sha": "2890d88f6fa94ff2262d08a2809f48512ce27c9d",
+  "global_verdict": "B5 COMPOSITE PASS",
+  "total_scenarios_expected": 70,
+  "total_scenarios_passed": 70,
+  "zero_failure": true,
+  "zero_error": true,
+  "zero_skip": true,
+  "composite_qualification": true,
+  "shared_universal_state_demonstrated": false,
+  "disclaimer": "Qualification composite sur bancs dedies etanches. Chaque corpus B1, B2, B3, B4 a ete execute sur son banc d'isolation specifique (B1: ReadHttpFixture; B2: AdmissionFlow; B3: LinkBruno avec Keycloak reel; B4: InvitationHttp). Aucun parcours universel partage sur une instance d'etat unique n'est revendique, conformement a SPEC-10 et AUD-Q5A-01.",
+  "scenarios_passed": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B09",
+    "B10",
+    "B11",
+    "B12",
+    "B13",
+    "B14",
+    "B15",
+    "B16",
+    "B17",
+    "B18",
+    "B19",
+    "B20",
+    "B201",
+    "B202",
+    "B203",
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "B21",
+    "B210",
+    "B211",
+    "B212",
+    "B213",
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B22",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B23",
+    "B24",
+    "B25",
+    "B26",
+    "B27",
+    "B28",
+    "B29",
+    "B30",
+    "B301",
+    "B302",
+    "B303",
+    "B304",
+    "B305",
+    "B307",
+    "B308",
+    "B309",
+    "B31",
+    "B310",
+    "B313",
+    "B32",
+    "B401",
+    "B402",
+    "B403",
+    "B404"
+  ],
+  "corpora": {
+    "B1": {
+      "corpus_id": "B1",
+      "directory": "/private/tmp/pocoma-q5b6-evidence-20261106/bruno-b1",
+      "present": true,
+      "artifacts": {
+        "requests.jsonl": {
+          "sha256": "4334118c6937abd26ff99c5305d2ce26737c32d1c2f80cf0637a74557e7ac809",
+          "bytes": 1440
+        },
+        "receipt.json": {
+          "sha256": "a5a00b719cc1b18d23a9f07b069f44656144f745d9f79855ba7bc854e2de0a83",
+          "bytes": 865
+        },
+        "bruno.json": {
+          "sha256": "3f1f5a0a51c08f4fa8bafffcbfcbef91f66656cb28c2ced2087f2faaaef458c6",
+          "bytes": 42930
+        },
+        "bruno.log": {
+          "sha256": "36934f9212e304b5e519e42a4f6df672f3c1fef9184bf94ecfbeeb6d888e8c43",
+          "bytes": 5199
+        }
+      },
+      "scenarios_executed": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25",
+        "B26",
+        "B27",
+        "B28",
+        "B29",
+        "B30",
+        "B31",
+        "B32"
+      ],
+      "scenarios_passed": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25",
+        "B26",
+        "B27",
+        "B28",
+        "B29",
+        "B30",
+        "B31",
+        "B32"
+      ],
+      "scenarios_failed": [],
+      "scenarios_skipped": [],
+      "verdict": "PASS",
+      "receipt_details": {
+        "exitCode": 0,
+        "fixturePublisherCompleted": true,
+        "cliVersion": "4.3.0",
+        "cliSeconds": 3.917462792
+      },
+      "bruno_summary": {
+        "totalRequests": 32,
+        "passedRequests": 32,
+        "failedRequests": 0,
+        "errorRequests": 0,
+        "skippedRequests": 0,
+        "totalTests": 32,
+        "passedTests": 32
+      },
+      "metadata": {
+        "title": "B1 Identity and READ",
+        "description": "Consultation Pot, balances, batches, navigation keyset et masquage uniforme",
+        "testbed": "Autonomous V3ReadHttpFixture with disposable PostgreSQL container and ephemeral JWKS server",
+        "authentication": "locally signed JWT sessions (ephemeral JWKS)",
+        "external_idp_certified": false,
+        "oracle_type": "Surefire contract + B30 publisher handshake + HTTP status assertions"
+      }
+    },
+    "B2": {
+      "corpus_id": "B2",
+      "directory": "/private/tmp/pocoma-q5b6-evidence-20261106/maven-full/bruno-b2",
+      "present": true,
+      "artifacts": {
+        "requests.jsonl": {
+          "sha256": "6bba6f7ff2787e3760c1a4c095dc0710ac14a73f87ef3e20386c421b71164bd0",
+          "bytes": 1218
+        },
+        "receipt.json": {
+          "sha256": "f162bdbf4717d6b5329860b26f5930e9b6b81348488ec0981a4f406341861ecb",
+          "bytes": 1047
+        },
+        "bruno.json": {
+          "sha256": "8f8002493b8421878c3e7e0322f121b46a4ad1e26b5e839df870d9eabb4b4a6d",
+          "bytes": 29803
+        },
+        "bruno.log": {
+          "sha256": "d7f73b800f5ce48640bcbf81fa8de0433a9efb26f358cfb886f103771562d504",
+          "bytes": 3590
+        },
+        "inputs-before.json": {
+          "sha256": "e5eed286cb675b52cf3e009e87087a7f1fd696603cc10c4a75e05c163b2bd5d5",
+          "bytes": 11544
+        }
+      },
+      "scenarios_executed": [
+        "B201",
+        "B202",
+        "B203",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B214",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224"
+      ],
+      "scenarios_passed": [
+        "B201",
+        "B202",
+        "B203",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B214",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224"
+      ],
+      "scenarios_failed": [],
+      "scenarios_skipped": [],
+      "verdict": "PASS",
+      "receipt_details": {
+        "exit": 0,
+        "requests": 550,
+        "provenance": "PUBLIC_ADMISSION_I2; internal Link fixture remains L3 only"
+      },
+      "bruno_summary": {
+        "totalRequests": 24,
+        "passedRequests": 24,
+        "failedRequests": 0,
+        "errorRequests": 0,
+        "skippedRequests": 0,
+        "totalTests": 24,
+        "passedTests": 24
+      },
+      "metadata": {
+        "title": "B2 Admission and Commands",
+        "description": "11 commandes Pot, Registration et Unlink publics, idempotence atomique S-03",
+        "testbed": "V3AdmissionFlowPostgresTest inside runtime-monolith reactor with PostgreSQL 17 testcontainer",
+        "authentication": "locally signed JWT sessions (ephemeral JWKS) with controlled L3 internal link",
+        "external_idp_certified": false,
+        "oracle_type": "Surefire contract + independent SQL queries on v3_command and v3_admission_association"
+      }
+    },
+    "B3": {
+      "corpus_id": "B3",
+      "directory": "/private/tmp/pocoma-q5b6-evidence-20261106/maven-full/bruno-i3",
+      "present": true,
+      "artifacts": {
+        "requests.jsonl": {
+          "sha256": "779ac08b95ab2a5b4e5223b49ac42d347274aa6556f2ffcaf7fb9f2b1fe10954",
+          "bytes": 6869
+        },
+        "receipt.json": {
+          "sha256": "e23421f562ce52312654c773a03c4383f4aa5b9375f3726b58daa932cd7eb44c",
+          "bytes": 385
+        },
+        "bruno.json": {
+          "sha256": "078e45831918ca0ebed4c48165d11be2c2acb422cba5489e9296c3fad51b7d6c",
+          "bytes": 12365
+        },
+        "bruno.log": {
+          "sha256": "5c59adb1428c275932856834af4b787af37e977d83b00f8552662efc61d6a0f0",
+          "bytes": 1990
+        },
+        "real-jwt-claims.json": {
+          "sha256": "f32dd724e072634fd9c0c6b10bfe0cdddf5e6581d0b107d17b68b5bdc4239c0e",
+          "bytes": 689
+        },
+        "auth.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "scenarios_executed": [
+        "B301",
+        "B302",
+        "B303",
+        "B304",
+        "B305",
+        "B307",
+        "B308",
+        "B309",
+        "B310",
+        "B313"
+      ],
+      "scenarios_passed": [
+        "B301",
+        "B302",
+        "B303",
+        "B304",
+        "B305",
+        "B307",
+        "B308",
+        "B309",
+        "B310",
+        "B313"
+      ],
+      "scenarios_failed": [],
+      "scenarios_skipped": [],
+      "verdict": "PASS",
+      "receipt_details": {
+        "issuer": "http://localhost:8081/realms/pocoma",
+        "realIdp": true,
+        "independentSql": {
+          "proposals": 1,
+          "links": 1,
+          "associations": 1,
+          "changed": 2,
+          "versions": 2
+        },
+        "brunoSeconds": 3.700292917
+      },
+      "bruno_summary": {
+        "totalRequests": 10,
+        "passedRequests": 10,
+        "failedRequests": 0,
+        "errorRequests": 0,
+        "skippedRequests": 0,
+        "totalTests": 10,
+        "passedTests": 10
+      },
+      "metadata": {
+        "title": "B3 Link Requests",
+        "description": "Link headless, proposition technique, consentement explicite par POST E2 authentifiee",
+        "testbed": "V3LinkBrunoPostgresTest inside runtime-monolith reactor with Keycloak 26.7.0 and PostgreSQL 17",
+        "authentication": "real Keycloak 26.7.0 OIDC provider (http://localhost:8081/realms/pocoma, 3 real actors E1/E2/E3)",
+        "external_idp_certified": true,
+        "oracle_type": "Surefire contract + independent SQL queries on v3_link_proposal and v3_identity_request"
+      }
+    },
+    "B4": {
+      "corpus_id": "B4",
+      "directory": "/private/tmp/pocoma-q5b6-evidence-20261106/maven-full/bruno-b4",
+      "present": true,
+      "artifacts": {
+        "requests.jsonl": {
+          "sha256": "70665c3a5516eaac4deebdbad574628d6e0f4b6e626208be5d625cfff5628397",
+          "bytes": 19019
+        },
+        "receipt.json": {
+          "sha256": "9968a1298f8dd3f2f838e2b9046bf1b1964ad79c8b0a770de252e6acd3f3f555",
+          "bytes": 241
+        },
+        "bruno.json": {
+          "sha256": "1ce0bcccc139be55961be9ed4183984ab0a324b19176c2bb552a12024bc4b554",
+          "bytes": 5378
+        },
+        "bruno.log": {
+          "sha256": "ef405ca846179273a753961187f17cd796df5ffb2bcf3e48861e960a4b1b444e",
+          "bytes": 1424
+        }
+      },
+      "scenarios_executed": [
+        "B401",
+        "B402",
+        "B403",
+        "B404"
+      ],
+      "scenarios_passed": [
+        "B401",
+        "B402",
+        "B403",
+        "B404"
+      ],
+      "scenarios_failed": [],
+      "scenarios_skipped": [],
+      "verdict": "PASS",
+      "receipt_details": {
+        "authentication": "three locally signed JWT sessions, real Resource Server and JWK HTTP boundary",
+        "externalIdpCertified": false,
+        "helperRequests": 217
+      },
+      "bruno_summary": {
+        "totalRequests": 4,
+        "passedRequests": 4,
+        "failedRequests": 0,
+        "errorRequests": 0,
+        "skippedRequests": 0,
+        "totalTests": 4,
+        "passedTests": 4
+      },
+      "metadata": {
+        "title": "B4 Invitations and Voluntary Departure",
+        "description": "Protocole d'invitation complet, chiffrement, places libres, auto-rattachement et depart volontaire",
+        "testbed": "V3InvitationHttpTest inside runtime-monolith reactor with PostgreSQL 17 testcontainer",
+        "authentication": "locally signed JWT sessions (ephemeral JWKS)",
+        "external_idp_certified": false,
+        "oracle_type": "Surefire contract + independent SQL queries on v3_invitation_event and logs decryption check"
+      }
+    }
+  },
+  "errors": [],
+  "anomalies": []
+}
