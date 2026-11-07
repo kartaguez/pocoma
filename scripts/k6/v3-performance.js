@@ -71,15 +71,20 @@ const cReadQueries200 = new Counter('v3_read_queries_200');
 const cReadQueriesErrors = new Counter('v3_read_queries_errors');
 
 function scenarioOptions() {
-  const arrival = (rate, vus, maxVus = null) => ({
-    executor: 'constant-arrival-rate',
-    rate,
-    timeUnit: '1s',
-    duration: DURATION,
-    preAllocatedVUs: vus,
-    maxVUs: maxVus || Math.max(vus * 2, 8),
-    gracefulStop: `${Math.ceil(POLL_TIMEOUT_MS / 1000) + 5}s`,
-  });
+  const arrival = (rate, vus, maxVus = null) => {
+    const isDecoupled = __ENV.DECOUPLED !== 'false';
+    const preVUs = isDecoupled ? Math.max(rate, 10) : vus;
+    const peakVUs = isDecoupled ? Math.max(rate * 2, 20) : (maxVus || Math.max(vus * 2, 8));
+    return {
+      executor: 'constant-arrival-rate',
+      rate,
+      timeUnit: '1s',
+      duration: DURATION,
+      preAllocatedVUs: preVUs,
+      maxVUs: peakVUs,
+      gracefulStop: isDecoupled ? '5s' : `${Math.ceil(POLL_TIMEOUT_MS / 1000) + 5}s`,
+    };
+  };
 
   switch (SCENARIO) {
     case 'smoke':
@@ -204,6 +209,72 @@ export function setup() {
 }
 
 let own = null;
+let lastTokenRefresh = Date.now();
+
+function checkAndRefreshToken(c) {
+  const authUrl = __ENV.POCOMA_AUTH_URL || null;
+  if (!authUrl) return;
+  if (Date.now() - lastTokenRefresh < 120000) return;
+  try {
+    const res = http.get(authUrl, { timeout: '3s' });
+    if (res.status === 200) {
+      const j = res.json();
+      if (j && j.token) {
+        c.token = j.token;
+        lastTokenRefresh = Date.now();
+      }
+    }
+  } catch (_) {}
+}
+
+function injectDecoupled(c, pot) {
+  checkAndRefreshToken(c);
+  const observed = pot.version;
+  const t0_send = Date.now();
+  cAdmissionsOffered.add(1);
+
+  const payload = expensePayload(pot.shareholders, `bench-${exec.scenario.iterationInTest}`);
+  let adm = c.submitCommand('CreateExpense', pot.potId, observed, payload, null, { maxRetries: 0 });
+
+  if (adm.status === 401 && __ENV.POCOMA_AUTH_URL) {
+    // Immediate token refresh and retry on 401
+    lastTokenRefresh = 0;
+    checkAndRefreshToken(c);
+    adm = c.submitCommand('CreateExpense', pot.potId, observed, payload, null, { maxRetries: 0 });
+  }
+
+  cAdmissionsAttempted.add(adm.attempts);
+  cAdmissionRetriesTotal.add(adm.retries);
+  tAdmissionRetriesPerCmd.add(adm.retries);
+  tAdmission.add(adm.duration);
+  tAdmissionWithRetries.add(adm.totalAdmissionDuration);
+
+  if (adm.status === 202) {
+    cAdmitted.add(1);
+    cFirstAttemptSuccess.add(1);
+    pot.version = observed + 1;
+    pot.expenses += 1;
+  } else if (adm.status === 503) {
+    cWriteCapacity503.add(1);
+    cCapacityRejected.add(1);
+  } else {
+    cAdmissionErrors.add(1);
+    cOracle.add(1);
+  }
+
+  // Pure JSON line to console for correlation engine
+  console.log(JSON.stringify({
+    commandId: adm.requestId,
+    potId: pot.potId,
+    t_send: t0_send,
+    t_admit: adm.admittedAt,
+    status: adm.status,
+    attempts: adm.attempts,
+    retries: adm.retries,
+    expectedVersion: observed + 1,
+    observedVersion: observed,
+  }));
+}
 
 function measureMutation(c, pot) {
   const observed = pot.version;
@@ -504,6 +575,13 @@ export default function (data) {
     const idx = (exec.vu.idInTest - 1) % data.pots.length;
     own = { ...data.pots[idx], shareholders: data.pots[idx].shareholders.slice() };
   }
+
+  const isDecoupled = __ENV.DECOUPLED !== 'false';
+  if (isDecoupled && ['nominal', 'sustained', 'peak', 'ramp'].includes(SCENARIO)) {
+    injectDecoupled(c, own);
+    return;
+  }
+
   measureMutation(c, own);
 }
 

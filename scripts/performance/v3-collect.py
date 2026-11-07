@@ -361,7 +361,8 @@ def generate_consolidated_report(scenario_name: str, k6_summary_file: Path,
                                  prom_url: str = "http://127.0.0.1:9090",
                                  actuator_url: str = ACTUATOR_URL,
                                  pre_snapshot_file: Optional[Path] = None,
-                                 run_id: Optional[str] = None) -> Dict[str, Any]:
+                                 run_id: Optional[str] = None,
+                                 decoupled_file: Optional[Path] = None) -> Dict[str, Any]:
     rid = run_id or f"run-{int(time.time())}"
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -383,11 +384,20 @@ def generate_consolidated_report(scenario_name: str, k6_summary_file: Path,
     system_data = collect_system_telemetry(prom_url)
     postgres_data = collect_postgres_telemetry()
 
+    decoupled_data = None
+    if decoupled_file and Path(decoupled_file).exists():
+        try:
+            with open(decoupled_file, "r", encoding="utf-8") as df:
+                decoupled_data = json.load(df)
+        except Exception as e:
+            print(f"Warning: could not read decoupled metrics file: {e}", file=sys.stderr)
+
     report = {
         "runId": rid,
         "scenario": scenario_name,
         "timestamp": timestamp,
         "k6ClientMetrics": k6_data,
+        "decoupledMetrics": decoupled_data,
         "engineTelemetry": engine_data,
         "systemTelemetry": system_data,
         "postgresTelemetry": postgres_data,
@@ -411,6 +421,7 @@ def main():
     parser.add_argument("--pre-snapshot", help="Pre-scenario actuator metrics text snapshot path")
     parser.add_argument("--take-snapshot", help="Save current actuator metrics text snapshot to path and exit")
     parser.add_argument("--run-id", help="Unique benchmark run identifier")
+    parser.add_argument("--decoupled-file", help="Path to decoupled JSON metrics file")
 
     args = parser.parse_args()
 
@@ -430,6 +441,7 @@ def main():
         actuator_url=args.actuator_url,
         pre_snapshot_file=Path(args.pre_snapshot) if args.pre_snapshot else None,
         run_id=args.run_id,
+        decoupled_file=Path(args.decoupled_file) if args.decoupled_file else None,
     )
 
     k6_res = report["k6ClientMetrics"]
@@ -473,6 +485,25 @@ def main():
                 print(f"    {k:<26} n={t.get('count', 0):>4} | p50={p50:>7} | p95={p95:>7} | p99={p99:>7} | avg={avg:>7}")
     else:
         print("  k6 Summary Data:        NOT AVAILABLE")
+
+    dm = report.get("decoupledMetrics")
+    if dm:
+        print("\n  === Decoupled Metrology & Correlation Results ===")
+        print(f"  Generator Status:       {dm.get('generatorStatus')} ({dm.get('generatorRateRatio')}%)")
+        print(f"  Demanded Rate:          {dm['ratesPerSecond'].get('demanded')} cmd/s")
+        print(f"  Emitted Rate:           {dm['ratesPerSecond'].get('emitted')} cmd/s ({dm['counts'].get('emitted')} commands in {dm.get('injectionActualSeconds')}s)")
+        print(f"  Admission Rate:         {dm['ratesPerSecond'].get('admitted')} cmd/s ({dm['counts'].get('admitted')} admitted)")
+        print(f"  Applied Rate:           {dm['ratesPerSecond'].get('applied')} cmd/s ({dm['counts'].get('applied')} applied)")
+        print(f"  READ Rate:              {dm['ratesPerSecond'].get('readMaterialized')} cmd/s ({dm['counts'].get('readMaterialized')} materialized)")
+        print(f"  Complete E2E:           {dm['counts'].get('completeE2E')} / {dm['counts'].get('admitted')} (Coverage: {dm['coverage'].get('percentage')}%)")
+        print(f"  Conservation Emitted:   {dm['conservations'].get('emittedEquation')}")
+        print(f"  Conservation Admitted:  {dm['conservations'].get('admittedEquation')}")
+        drain = dm.get("drainage", {})
+        print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Final DB Backlog: {drain.get('finalDbBacklog')})")
+        print("\n  --- Exact Decoupled Latencies (ms) ---")
+        for lk, lv in dm.get("latencies", {}).items():
+            if lv.get("count", 0) > 0:
+                print(f"    {lk:<26} n={lv['count']:>4} | p50={lv['p50']:>7} | p95={lv['p95']:>7} | p99={lv['p99']:>7} | mean={lv['mean']:>7}")
 
     print("\n  --- Engine Internal Stage Latencies (ms) ---")
     for s_name, s_val in stages.items():

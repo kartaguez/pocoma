@@ -22,6 +22,10 @@ import threading
 import time
 from typing import Dict, List, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from v3_token import OidcTokenManager, TokenHttpServer
+from v3_observer import DecoupledBenchCoordinator
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_DIR = REPO_ROOT / "docs" / "testing" / "evidence" / "L6-I3"
 BUDGET_FILE = EVIDENCE_DIR / ".budget_tracker.json"
@@ -73,11 +77,11 @@ K6_SCENARIO_MAP = {
     "idle-polling": {"SCENARIO": "idle", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "IDLE_SECONDS": "15"},
     "F01-J": {"SCENARIO": "idle", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "IDLE_SECONDS": "15"},
     # Phase C & D scenarios
-    "ramp-p1": {"SCENARIO": "nominal", "POTS": "4", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "120s"},
-    "ramp-p2": {"SCENARIO": "nominal", "POTS": "4", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "120s"},
-    "ramp-p3": {"SCENARIO": "sustained", "POTS": "4", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "120s"},
-    "ramp-p4": {"SCENARIO": "sustained", "POTS": "8", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "120s"},
-    "ramp-p5": {"SCENARIO": "peak", "POTS": "10", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 50, "DEFAULT_DURATION": "120s"},
+    "ramp-p1": {"SCENARIO": "nominal", "POTS": "4", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "120s"},
+    "ramp-p2": {"SCENARIO": "nominal", "POTS": "5", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "120s"},
+    "ramp-p3": {"SCENARIO": "sustained", "POTS": "8", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "120s"},
+    "ramp-p4": {"SCENARIO": "sustained", "POTS": "10", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "120s"},
+    "ramp-p5": {"SCENARIO": "peak", "POTS": "12", "SHAREHOLDERS": "5", "SEED_EXPENSES": "5", "DEFAULT_RATE": 50, "DEFAULT_DURATION": "120s"},
     "s1-indep": {"SCENARIO": "nominal", "POTS": "4", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "60s"},
     "s2-contention": {"SCENARIO": "contention", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "10", "CONTENTION_VUS": "4", "DEFAULT_DURATION": "45s"},
     "s3-read": {"SCENARIO": "read", "POTS": "2", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "READ_VUS": "3", "DEFAULT_DURATION": "45s"},
@@ -189,9 +193,36 @@ class Watchdog:
             print(f"Error terminating process: {e}", file=sys.stderr)
 
 
+def extract_correlation_event(line: str) -> Optional[Dict[str, Any]]:
+    stripped = line.strip()
+    if '"commandId":' in stripped:
+        if stripped.startswith('{"commandId":'):
+            try:
+                return json.loads(stripped)
+            except Exception:
+                pass
+        match = re.search(r'msg="(\{.*?\})"', stripped)
+        if match:
+            try:
+                raw = match.group(1).replace('\\"', '"')
+                return json.loads(raw)
+            except Exception:
+                pass
+        start = stripped.find('{"commandId":')
+        if start != -1:
+            end = stripped.rfind('}')
+            if end != -1:
+                try:
+                    snippet = stripped[start:end+1].replace('\\"', '"')
+                    return json.loads(snippet)
+                except Exception:
+                    pass
+    return None
+
+
 def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optional[int] = None,
                  skip_preflight: bool = False, run_id: Optional[str] = None) -> bool:
-    rid = run_id or f"run-{scenario_name}-{int(time.time())}"
+    rid = run_id or f"run-r2-{scenario_name}-{int(time.time())}"
     summary_path = EVIDENCE_DIR / f"{rid}_k6_summary.json"
     pre_snapshot_path = EVIDENCE_DIR / f"{rid}_pre_snapshot.txt"
     EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
@@ -253,6 +284,39 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     print(f"\n▶ Step 2: Spawning k6 Benchmark ({scenario_name} -> {k6_cfg['SCENARIO']}, duration={eff_duration}, rate={eff_rate})...")
     k6_script = REPO_ROOT / "scripts" / "k6" / "v3-performance.js"
 
+    # Start proactive OIDC Token Manager & local token server
+    token_mgr = OidcTokenManager()
+    token = token_mgr.get_token()
+    token_server = TokenHttpServer(token_mgr, port=18083)
+    token_server.start()
+
+    # Automatically resolve bindingToken
+    binding_token = os.environ.get("POCOMA_BINDING_TOKEN")
+    if not binding_token:
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "demo_journey", REPO_ROOT / "scripts" / "operations" / "run-demo-journey.py"
+            )
+            journey_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(journey_mod)
+            st, _, b = journey_mod.http_req("GET", "http://127.0.0.1:8080/api/v3/me/binding", token=token)
+            if st == 200:
+                bind_data = json.loads(b.decode())
+                if bind_data.get("bindingToken"):
+                    binding_token = bind_data["bindingToken"]
+                    print("  ✓ Authenticated OIDC session & active binding token established")
+        except Exception as e:
+            print(f"  [Notice] Binding token auto-resolution skipped ({e})")
+
+    is_decoupled = (scenario_name.startswith("ramp-p") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp"))
+    coordinator = None
+    if is_decoupled:
+        max_drain = min(90.0, max(45.0, dur_sec * 0.5))
+        coordinator = DecoupledBenchCoordinator(
+            run_id=rid, token_manager=token_mgr, binding_token=binding_token, max_drain_seconds=max_drain
+        )
+        coordinator.start()
+
     env = os.environ.copy()
     for k, v in k6_cfg.items():
         if not k.startswith("DEFAULT_"):
@@ -260,25 +324,11 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     env["DURATION"] = str(eff_duration)
     env["RATE"] = str(eff_rate)
     env["SUMMARY_PATH"] = str(summary_path)
-
-    # Automatically resolve OIDC token and bindingToken if not explicitly supplied
-    if not env.get("POCOMA_TOKEN"):
-        try:
-            spec = importlib.util.spec_from_file_location(
-                "demo_journey", REPO_ROOT / "scripts" / "operations" / "run-demo-journey.py"
-            )
-            journey_mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(journey_mod)
-            token = journey_mod.get_token("bruno", "bruno-local-only")
-            env["POCOMA_TOKEN"] = token
-            st, _, b = journey_mod.http_req("GET", "http://127.0.0.1:8080/api/v3/me/binding", token=token)
-            if st == 200:
-                bind_data = json.loads(b.decode())
-                if bind_data.get("bindingToken"):
-                    env["POCOMA_BINDING_TOKEN"] = bind_data["bindingToken"]
-                    print("  ✓ Authenticated OIDC session & active binding token established")
-        except Exception as e:
-            print(f"  [Notice] Token auto-resolution skipped ({e})")
+    env["POCOMA_TOKEN"] = token
+    env["POCOMA_AUTH_URL"] = token_server.url
+    env["DECOUPLED"] = "true" if is_decoupled else "false"
+    if binding_token:
+        env["POCOMA_BINDING_TOKEN"] = binding_token
 
     # For structural scenarios, pass pre-seeded parameters if available
     if scenario_name in ("s5-small", "s5-medium", "s5-large"):
@@ -303,7 +353,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
             except Exception as e:
                 print(f"  [Warning] Pre-seeded pot resolution failed ({e}), falling back to inline setup")
 
-    cmd = ["k6", "run", "--no-usage-report", str(k6_script)]
+    cmd = ["k6", "run", "--log-format=raw", "--no-usage-report", str(k6_script)]
 
     proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     watchdog = Watchdog(proc, scenario_timeout=scenario_limit)
@@ -311,10 +361,30 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
 
     try:
         for line in proc.stdout:
-            sys.stdout.write(line)
+            event = extract_correlation_event(line) if is_decoupled else None
+            if event:
+                coordinator.store.record_admission_event(event)
+            else:
+                sys.stdout.write(line)
         proc.wait()
     finally:
         watchdog.stop()
+
+    decoupled_path = None
+    if is_decoupled and coordinator:
+        coordinator.mark_injection_ended()
+        drain_res = coordinator.drain()
+        decoupled_report = coordinator.consolidate_metrics(
+            demanded_rate=eff_rate,
+            injection_target_sec=dur_sec,
+        )
+        decoupled_report["drainage"] = drain_res
+        decoupled_report["oidcTelemetry"] = token_mgr.get_telemetry()
+        decoupled_path = EVIDENCE_DIR / f"{rid}_decoupled.json"
+        with open(decoupled_path, "w", encoding="utf-8") as df:
+            json.dump(decoupled_report, df, indent=2)
+
+    token_server.stop()
 
     exec_duration = time.time() - start_t
     success = (proc.returncode == 0) and not watchdog.aborted
@@ -331,6 +401,8 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         "--pre-snapshot", str(pre_snapshot_path),
         "--run-id", rid,
     ]
+    if decoupled_path and decoupled_path.exists():
+        collect_cmd.extend(["--decoupled-file", str(decoupled_path)])
     subprocess.run(collect_cmd)
 
     # Step 4: Regenerate CSV and SVG charts
@@ -348,6 +420,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         return True
     else:
         print(f" CAMPAIGN COMPLETED WITH NON-ZERO CODE: exit={proc.returncode} in {exec_duration:.2f}s")
+        return False
         return False
 
 
@@ -376,10 +449,8 @@ def run_ramp_suite(duration: str = "120s") -> bool:
         print(f"\n>>> Launching Palier [{p_name}] @ {p_rate} cmd/s (duration={duration}) <<<")
         ok = run_scenario(p_name, duration=duration, rate=p_rate)
         if not ok:
-            print(f"\n[RAMP SUITE] Palier {p_name} experienced saturation or threshold breach.")
-            print(f"[RAMP SUITE] Boundary identified at {p_rate} cmd/s. Preserving proofs and stopping higher paliers.")
+            print(f"\n[RAMP SUITE] Palier {p_name} finished with warnings or threshold breach.")
             all_passed = False
-            break
         time.sleep(2.0)  # Brief inter-palier settlement pause
 
     return all_passed

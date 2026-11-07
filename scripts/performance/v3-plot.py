@@ -227,11 +227,25 @@ def export_csv(filename: Path, headers: List[str], rows: List[List[Any]]):
 def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHARTS_DIR):
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Deduplicate reports by scenario, preferring 'run-r2-' or latest timestamp
+    scenario_map = {}
+    for r in reports:
+        sc = r.get("scenario", "")
+        rid = r.get("runId", "")
+        if sc not in scenario_map:
+            scenario_map[sc] = r
+        else:
+            prev_rid = scenario_map[sc].get("runId", "")
+            # Prefer run-r2- over older runs, then newest runId
+            if ("run-r2-" in rid and "run-r2-" not in prev_rid) or (
+                ("run-r2-" in rid) == ("run-r2-" in prev_rid) and rid > prev_rid
+            ):
+                scenario_map[sc] = r
+
     # 1. Filter ramp / palier reports
     # Identify palier rates: P1 (1), P2 (5), P3 (10), P4 (20), P5 (50)
     palier_reports = []
-    for r in reports:
-        sc = r.get("scenario", "")
+    for sc, r in sorted(scenario_map.items()):
         if sc.startswith("ramp-p") or sc in ("small", "medium", "F01-A", "F01-B", "F01-C", "s1-indep"):
             palier_reports.append(r)
 
@@ -438,7 +452,80 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     with open(out_dir / "chart_structural_impact.svg", "w", encoding="utf-8") as f:
         f.write(c6.render())
 
-    print(f"Generated 6 SVG charts and 6 CSV datasets in {out_dir}")
+    # --------------------------------------------------------------------------
+    # Chart 7: Backlog over Time & Drainage Timeseries
+    # --------------------------------------------------------------------------
+    backlog_paliers = [r for sc, r in sorted(scenario_map.items()) if sc.startswith("ramp-p") and r.get("decoupledMetrics")]
+    c7 = SvgChart("Pocoma V3 — Évolution du Backlog et Drainage au Cours du Temps", x_label="Temps écoulé (s)", y_label="Commandes en attente (DB Backlog)")
+    csv_rows_7 = []
+    colors_p = {"ramp-p1": "#89b4fa", "ramp-p2": "#a6e3a1", "ramp-p3": "#f9e2af", "ramp-p4": "#fab387", "ramp-p5": "#f38ba8"}
+
+    for r in backlog_paliers:
+        sc = r.get("scenario", "")
+        dm = r.get("decoupledMetrics", {})
+        ts = dm.get("backlogTimeseries", [])
+        pts = [(pt["elapsedSeconds"], pt["dbBacklog"]) for pt in ts]
+        if pts:
+            c7.add_line(f"{sc} Backlog", pts, colors_p.get(sc, "#cba6f7"))
+        for pt in ts:
+            csv_rows_7.append([sc, pt.get("elapsedSeconds"), pt.get("phase"), pt.get("dbBacklog"), pt.get("pendingTerminalQueue"), pt.get("pendingReadQueue")])
+
+    if csv_rows_7:
+        export_csv(out_dir / "backlog_timeseries.csv",
+                   ["scenario", "elapsed_seconds", "phase", "db_backlog", "pending_terminal", "pending_read"],
+                   csv_rows_7)
+    with open(out_dir / "chart_backlog_drainage.svg", "w", encoding="utf-8") as f:
+        f.write(c7.render())
+
+    # --------------------------------------------------------------------------
+    # Chart 8: Decoupled Throughput & Correlation Coverage
+    # --------------------------------------------------------------------------
+    csv_rows_8 = []
+    c8 = SvgChart("Pocoma V3 — Débits Découplés et Couverture de Corrélation E2E", x_label="Débit demandé (cmd/s)", y_label="Débit réel (cmd/s) / Couverture (%)")
+    decoupled_runs = [r for sc, r in sorted(scenario_map.items()) if sc.startswith("ramp-p") and r.get("decoupledMetrics")]
+    decoupled_runs.sort(key=lambda r: (r["decoupledMetrics"]["ratesPerSecond"].get("demanded") or 0))
+
+    if decoupled_runs:
+        pts_dem = []
+        pts_emit = []
+        pts_adm = []
+        pts_app = []
+        pts_read = []
+        pts_cov = []
+        for r in decoupled_runs:
+            dm = r["decoupledMetrics"]
+            rates = dm.get("ratesPerSecond", {})
+            d_rate = rates.get("demanded", 0.0)
+            e_rate = rates.get("emitted", 0.0)
+            a_rate = rates.get("admitted", 0.0)
+            ap_rate = rates.get("applied", 0.0)
+            rm_rate = rates.get("readMaterialized", 0.0)
+            cov_pct = dm.get("coverage", {}).get("percentage", 0.0)
+
+            pts_dem.append((d_rate, d_rate))
+            pts_emit.append((d_rate, e_rate))
+            pts_adm.append((d_rate, a_rate))
+            pts_app.append((d_rate, ap_rate))
+            pts_read.append((d_rate, rm_rate))
+            pts_cov.append((d_rate, cov_pct))
+
+            csv_rows_8.append([d_rate, e_rate, a_rate, ap_rate, rm_rate, cov_pct, dm.get("generatorStatus")])
+
+        export_csv(out_dir / "decoupled_throughput_and_coverage.csv",
+                   ["demanded_rate", "emitted_rate", "admission_rate", "applied_rate", "read_materialized_rate", "e2e_coverage_pct", "generator_status"],
+                   csv_rows_8)
+
+        c8.add_line("Consigne Demande", pts_dem, "#a6adc8", dashed=True)
+        c8.add_line("Débit Émis (Injecteur)", pts_emit, "#89b4fa")
+        c8.add_line("Débit Admis", pts_adm, "#a6e3a1")
+        c8.add_line("Débit Appliqué", pts_app, "#f9e2af")
+        c8.add_line("Débit Matérialisé READ", pts_read, "#fab387")
+        c8.add_line("Couverture E2E (%)", pts_cov, "#cba6f7", dashed=True)
+
+        with open(out_dir / "chart_decoupled_throughput_coverage.svg", "w", encoding="utf-8") as f:
+            f.write(c8.render())
+
+    print(f"Generated 8 SVG charts and 8 CSV datasets in {out_dir}")
 
 
 def main():

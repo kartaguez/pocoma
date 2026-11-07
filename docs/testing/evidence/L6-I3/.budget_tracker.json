@@ -1,7 +1,7 @@
 {
   "globalBudgetSeconds": 4200,
-  "cumulativeSeconds": 2259.02,
-  "remainingSeconds": 1940.98,
+  "cumulativeSeconds": 3583.62,
+  "remainingSeconds": 616.38,
   "runs": [
     {
       "runId": "run-smoke-1794004221",
@@ -176,6 +176,83 @@
       "scenario": "ramp-p5",
       "durationSeconds": 326.61,
       "timestamp": "2026-11-07T18:47:07Z",
+      "success": false
+    },
+    {
+      "runId": "run-r2-smoke-1794079420",
+      "scenario": "smoke",
+      "durationSeconds": 9.61,
+      "timestamp": "2026-11-07T19:23:50Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p1-1794080045",
+      "scenario": "ramp-p1",
+      "durationSeconds": 146.85,
+      "timestamp": "2026-11-07T19:36:32Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-smoke-1794080263",
+      "scenario": "smoke",
+      "durationSeconds": 10.6,
+      "timestamp": "2026-11-07T19:37:54Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p1-1794080330",
+      "scenario": "ramp-p1",
+      "durationSeconds": 35.19,
+      "timestamp": "2026-11-07T19:39:26Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p1-1794080566",
+      "scenario": "ramp-p1",
+      "durationSeconds": 36.21,
+      "timestamp": "2026-11-07T19:43:22Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p1-1794080775",
+      "scenario": "ramp-p1",
+      "durationSeconds": 146.24,
+      "timestamp": "2026-11-07T19:48:42Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p2-1794080924",
+      "scenario": "ramp-p2",
+      "durationSeconds": 156.2,
+      "timestamp": "2026-11-07T19:51:21Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p3-1794081083",
+      "scenario": "ramp-p3",
+      "durationSeconds": 203.37,
+      "timestamp": "2026-11-07T19:54:47Z",
+      "success": true
+    },
+    {
+      "runId": "run-r2-ramp-p4-1794081290",
+      "scenario": "ramp-p4",
+      "durationSeconds": 249.37,
+      "timestamp": "2026-11-07T19:58:59Z",
+      "success": false
+    },
+    {
+      "runId": "run-r2-ramp-p5-1794081542",
+      "scenario": "ramp-p5",
+      "durationSeconds": 68.8,
+      "timestamp": "2026-11-07T20:00:11Z",
+      "success": false
+    },
+    {
+      "runId": "run-r2-ramp-p5-1794081695",
+      "scenario": "ramp-p5",
+      "durationSeconds": 262.16,
+      "timestamp": "2026-11-07T20:05:58Z",
       "success": false
     }
   ]

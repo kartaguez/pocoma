@@ -1,10 +1,16 @@
 # Pocoma V3 — Rapport de Qualification Approfondie de Performance et d'Instrumentation (L6/I3-R)
 
-**Statut du jalon** : `QUALIFICATION_DEEP_BOUNDED_PASS — READY FOR HUMAN REVIEW`  
-**Date d'exécution** : 7 novembre 2026  
-**Branche Git** : `feat/v3-architecture`  
-**SHA de référence** : `023e8dc57d19174a054a2162c349489a39434470`  
-**Mandat d'exécution** : `GO_L6_I3_DEEP_INSTRUMENTATION_AND_LOAD_QUALIFICATION`  
+> [!IMPORTANT]
+> **AVIS DE RÉVISION ET DE RÉCONCILIATION MÉTROLOGIQUE (L6/I3-R2)** :
+> Ce rapport (I3-R) constitue un document d'étape exploratoire dont les mesures ont fait l'objet d'un audit approfondi et d'une requalification complète sous découplage strict injection/observation dans le rapport normatif :
+> 👉 [`docs/v3/L6_I3_R2_Metrology_and_Capacity_Requalification_Report.md`](file:///Users/julien.guezennec/Dev/projects/pocoma/docs/v3/L6_I3_R2_Metrology_and_Capacity_Requalification_Report.md).
+> Consulter le rapport R2 pour les capacités d'admission isolée ($\ge 47.4\text{ cmd/s}$) et de traitement durable ($\approx 5.0 - 5.4\text{ cmd/s}$), l'élimination des biais de famine VU k6, et la réconciliation unitaire de l'ensemble des compteurs.
+
+**Statut du jalon** : `SUPERSEDED BY L6/I3-R2 — SEE REQUALIFICATION REPORT`
+**Date d'exécution** : 7 novembre 2026
+**Branche Git** : `feat/v3-architecture`
+**SHA de référence** : `023e8dc57d19174a054a2162c349489a39434470`
+**Mandat d'exécution** : `GO_L6_I3_DEEP_INSTRUMENTATION_AND_LOAD_QUALIFICATION`
 **Régime de vérification** : Strictement borné — Respect de `docs/testing/Reactor_Verification_Policy.md` et `AGENTS.md` (aucun test d'architecture global, aucun full reactor Maven, budget borné persistant de 70 minutes).
 
 ---

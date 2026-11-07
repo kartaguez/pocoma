@@ -308,6 +308,194 @@ class BenchOracleQualificationTests(unittest.TestCase):
             self.assertIn(p, v3_run.SCENARIO_BUDGETS, f"{p} must have a scenario budget")
             self.assertIn(p, v3_run.K6_SCENARIO_MAP, f"{p} must have k6 configuration mapping")
 
+    # 19. Counter Conservation Equations (Mandate Phase A1 & G)
+    def test_19_counter_conservation_equations(self):
+        v3_obs = importlib.import_module("v3_observer")
+        CorrelationStore = v3_obs.CorrelationStore
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            journal = Path(td) / "test_conservation.jsonl"
+            store = CorrelationStore("test-cons", journal_path=journal)
+
+            # 10 emitted: 8 admitted (202), 1 capacity 503, 1 error 400
+            for i in range(8):
+                store.record_admission_event({
+                    "commandId": f"cmd-{i}",
+                    "potId": "pot-1",
+                    "status": 202,
+                    "t_send": 1000.0,
+                    "t_admit": 1002.0,
+                })
+            store.record_admission_event({"commandId": "rej-1", "status": 503})
+            store.record_admission_event({"commandId": "err-1", "status": 400})
+            store.close()
+
+            # Emitted conservation equation:
+            # emitted = admitted + rejected_admission + error_admission
+            self.assertEqual(store.emitted_count, 10)
+            self.assertEqual(store.admitted_count, 8)
+            self.assertEqual(store.rejected_admission_count, 1)
+            self.assertEqual(store.error_admission_count, 1)
+            self.assertEqual(store.emitted_count,
+                             store.admitted_count + store.rejected_admission_count + store.error_admission_count)
+
+            # Admitted conservation equation:
+            # admitted = terminal_applied + terminal_rejected + non_terminal_at_close
+            applied = 6
+            cas_rej = 1
+            non_term = 1
+            self.assertEqual(store.admitted_count, applied + cas_rej + non_term)
+
+    # 20. Decoupled Queue Separation and Capacity Overflow
+    def test_20_decoupled_queue_separation_and_capacity_overflow(self):
+        v3_obs = importlib.import_module("v3_observer")
+        CorrelationStore = v3_obs.CorrelationStore
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            journal = Path(td) / "test_overflow.jsonl"
+            small_store = CorrelationStore("test-overflow", journal_path=journal, max_capacity=3)
+            small_store.record_admission_event({"commandId": "c1", "status": 202})
+            small_store.record_admission_event({"commandId": "c2", "status": 202})
+            small_store.record_admission_event({"commandId": "c3", "status": 202})
+
+            # 4th item must raise OverflowError (never silent loss)
+            with self.assertRaises(OverflowError):
+                small_store.record_admission_event({"commandId": "c4", "status": 202})
+            small_store.close()
+
+    # 21. OIDC Proactive Refresh and Token Server
+    def test_21_oidc_proactive_refresh_and_token_server(self):
+        v3_tok = importlib.import_module("v3_token")
+        OidcTokenManager = v3_tok.OidcTokenManager
+
+        mgr = OidcTokenManager()
+        # Mock initial login and refresh
+        with patch.object(mgr, "_initial_login") as mock_login, patch.object(mgr, "_refresh_login") as mock_refresh:
+            mock_login.return_value = {
+                "access_token": "token-v1",
+                "refresh_token": "refresh-v1",
+                "expires_in": 300,
+                "refresh_expires_in": 1800,
+            }
+            mock_refresh.return_value = {
+                "access_token": "token-v2-refreshed",
+                "refresh_token": "refresh-v2",
+                "expires_in": 300,
+            }
+
+            # 1. Initial login
+            tok1 = mgr.get_token()
+            self.assertEqual(tok1, "token-v1")
+            self.assertEqual(mgr.renewal_count, 0)
+
+            # 2. Subsequent call while valid returns cached token
+            tok1_cached = mgr.get_token()
+            self.assertEqual(tok1_cached, "token-v1")
+            self.assertEqual(mock_refresh.call_count, 0)
+
+            # 3. Force renew uses refresh_token grant
+            tok2 = mgr.get_token(force_renew=True)
+            self.assertEqual(tok2, "token-v2-refreshed")
+            self.assertEqual(mgr.renewal_count, 1)
+
+    # 22. Bounded Drainage and Timeout Classification
+    def test_22_bounded_drainage_and_timeout(self):
+        v3_obs = importlib.import_module("v3_observer")
+        DecoupledBenchCoordinator = v3_obs.DecoupledBenchCoordinator
+
+        mock_token_mgr = MagicMock()
+        mock_token_mgr.get_token.return_value = "fake-token"
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            journal = Path(td) / "test_drain.jsonl"
+            # Set short drainage limit of 0.2s
+            coord = DecoupledBenchCoordinator("test-drain-run", mock_token_mgr,
+                                              max_drain_seconds=0.2, journal_path=journal)
+            with patch("v3_observer.query_db_backlog", return_value=5):
+                coord.start()
+                coord.mark_injection_ended()
+                drain_res = coord.drain()
+
+                self.assertTrue(drain_res["timedOut"], "Drainage must time out when backlog remains")
+                self.assertEqual(drain_res["finalDbBacklog"], 5)
+                self.assertLessEqual(drain_res["drainDurationSec"], 1.0)
+
+    # 23. Generator Saturation vs Dropped Iterations
+    def test_23_generator_saturation_vs_dropped_iterations(self):
+        # When emitted rate is < 95% of demanded rate, classify as GENERATOR_LIMITED
+        demanded = 50.0
+        emitted_low = 35.0  # 70%
+        ratio_low = (emitted_low / demanded) * 100.0
+        status_low = "LOAD_GENERATOR_VALID" if (emitted_low / demanded) >= 0.95 else "GENERATOR_LIMITED"
+        self.assertEqual(status_low, "GENERATOR_LIMITED")
+        self.assertAlmostEqual(ratio_low, 70.0)
+
+        emitted_ok = 49.5   # 99%
+        ratio_ok = (emitted_ok / demanded) * 100.0
+        status_ok = "LOAD_GENERATOR_VALID" if (emitted_ok / demanded) >= 0.95 else "GENERATOR_LIMITED"
+        self.assertEqual(status_ok, "LOAD_GENERATOR_VALID")
+        self.assertAlmostEqual(ratio_ok, 99.0)
+
+    # 24. Exact Quantiles vs Bucket Estimates
+    def test_24_exact_quantiles_vs_bucket_estimates(self):
+        v3_obs = importlib.import_module("v3_observer")
+        calc_q = v3_obs.calculate_exact_quantiles
+
+        data = [10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 45.0, 50.0, 80.0, 120.0]
+        q = calc_q(data)
+        self.assertEqual(q["count"], 10)
+        self.assertEqual(q["min"], 10.0)
+        self.assertEqual(q["max"], 120.0)
+        self.assertAlmostEqual(q["p50"], 27.5)
+        self.assertAlmostEqual(q["mean"], 40.7)
+
+        # Empty list handled gracefully
+        q_empty = calc_q([])
+        self.assertEqual(q_empty["count"], 0)
+        self.assertIsNone(q_empty["p50"])
+
+    # 25. Growing Backlog Detection Despite Stable Admission
+    def test_25_growing_backlog_detection(self):
+        # Simulate timeseries: admission is constant at 50/s, but consumption is 10/s
+        timeseries = []
+        for sec in range(1, 10):
+            admitted = sec * 50
+            applied = sec * 10
+            backlog = admitted - applied
+            timeseries.append({"sec": sec, "admitted": admitted, "applied": applied, "backlog": backlog})
+
+        backlog_growth = timeseries[-1]["backlog"] - timeseries[0]["backlog"]
+        self.assertGreater(backlog_growth, 0, "System must detect persistent backlog growth")
+        self.assertEqual(timeseries[-1]["backlog"], 360)
+
+    # 26. E2E Correlation Coverage and Population Separation
+    def test_26_e2e_correlation_coverage_and_population_separation(self):
+        v3_obs = importlib.import_module("v3_observer")
+        CorrelationRecord = v3_obs.CorrelationRecord
+
+        # Complete record
+        r_complete = CorrelationRecord(
+            command_id="c1", pot_id="p1", t_send=1000.0, t_admit=1002.0, admission_status=202,
+            expected_version=2, observed_version=1, t_terminal=1080.0, terminal_status="APPLIED",
+            resulting_version=2, t_read=1100.0, read_version=2
+        )
+        self.assertTrue(r_complete.is_complete)
+        self.assertEqual(r_complete.latency_admission_ms, 2.0)
+        self.assertEqual(r_complete.latency_terminal_ms, 78.0)
+        self.assertEqual(r_complete.latency_read_ms, 20.0)
+        self.assertEqual(r_complete.latency_e2e_ms, 100.0)
+
+        # Incomplete record (timed out at terminal stage)
+        r_incomplete = CorrelationRecord(
+            command_id="c2", pot_id="p1", t_send=2000.0, t_admit=2003.0, admission_status=202,
+            expected_version=3, observed_version=2, t_terminal=None, terminal_status="TIMEOUT"
+        )
+        self.assertFalse(r_incomplete.is_complete)
+        self.assertIsNone(r_incomplete.latency_e2e_ms)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

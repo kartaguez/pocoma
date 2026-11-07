@@ -13,16 +13,19 @@ The tooling strictly adheres to:
 ```
 scripts/
 ├── k6/
-│   ├── v3-performance.js       # Core k6 performance scenario runner
+│   ├── v3-performance.js       # Core k6 performance scenario runner (coupled & decoupled)
 │   └── lib/
 │       ├── v3-api.js           # Low-level asynchronous V3 API client
 │       └── v3-oracles.js       # C-03 oracle assertions (Pot, Balance, Delete, Identity)
 └── performance/
     ├── v3-preflight.py         # Mandatory system safety and environment preflight gate
+    ├── v3_token.py             # Proactive OIDC Keycloak PKCE/refresh token manager & server
+    ├── v3_observer.py          # Decoupled coordinator, correlation store & observers
     ├── v3-seed.py              # Reproducible SPEC-09 dataset & fixture generator
     ├── v3-run.py               # Master orchestrator & 70-min safety watchdog
     ├── v3-collect.py           # Metrology collector (k6, Engine, System, PostgreSQL)
-    ├── test_bench.py           # Bench qualification test suite (14 mandatory failure modes)
+    ├── v3-plot.py              # SVG chart generator & CSV datasets exporter (8 charts)
+    ├── test_bench.py           # Bench qualification test suite (26 mandatory tests)
     └── README.md               # Architecture, usage, and operational guidelines
 ```
 
