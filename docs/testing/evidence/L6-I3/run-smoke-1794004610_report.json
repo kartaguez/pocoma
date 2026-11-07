@@ -1,0 +1,94 @@
+{
+  "runId": "run-smoke-1794004610",
+  "scenario": "smoke",
+  "timestamp": "2026-11-06T22:36:54Z",
+  "k6ClientMetrics": {
+    "available": true,
+    "admissionsAccepted": 2,
+    "commandsApplied": 2,
+    "terminalResults": 2,
+    "admissionErrors": 0,
+    "oracleFailures": 0,
+    "censoredTimeouts": 0,
+    "droppedIterations": 0,
+    "latencies": {
+      "admission": {
+        "p50": null,
+        "p90": 3.9938000000000002,
+        "p95": 4.0609,
+        "p99": null,
+        "avg": 3.457,
+        "min": 2.786,
+        "max": 4.128
+      },
+      "commandResult": {
+        "p50": null,
+        "p90": 1839.2,
+        "p95": 1893.1,
+        "p99": null,
+        "avg": 1408,
+        "min": 869,
+        "max": 1947
+      },
+      "balanceAvailable": {
+        "p50": null,
+        "p90": 1842.1000000000001,
+        "p95": 1896.05,
+        "p99": null,
+        "avg": 1410.5,
+        "min": 871,
+        "max": 1950
+      },
+      "potReadAvailable": {
+        "p50": null,
+        "p90": 1844.4,
+        "p95": 1898.2,
+        "p99": null,
+        "avg": 1414,
+        "min": 876,
+        "max": 1952
+      },
+      "identityAvailable": {
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "avg": null,
+        "min": null,
+        "max": null
+      },
+      "e2eTotal": {
+        "p50": null,
+        "p90": 1844.4,
+        "p95": 1898.2,
+        "p99": null,
+        "avg": 1414,
+        "min": 876,
+        "max": 1952
+      }
+    }
+  },
+  "engineTelemetry": {
+    "admissionRequestsTotal": 8.0,
+    "attemptOutcomesCommitted": 57.0,
+    "attemptOutcomesRetried": null,
+    "readQuotaPermitsAvailable": 2.0,
+    "readQuotaRejectionsTotal": 0.0,
+    "admissionCapacityAvailable": 1.0
+  },
+  "systemTelemetry": {
+    "jvmHeapUsedBytes": 13631488.0,
+    "jvmNonHeapUsedBytes": 1629952.0,
+    "jvmGcPauseCount": 372.0,
+    "jvmGcPauseSumSeconds": 1.144,
+    "processCpuUsage": 0.021660649819494584,
+    "systemCpuUsage": 0.04941868255439764,
+    "jvmLiveThreads": 51.0,
+    "hikariActiveConnections": 1.0,
+    "hikariIdleConnections": 32.0,
+    "hikariPendingThreads": 0.0
+  },
+  "postgresTelemetry": {
+    "error": "name 'POSTGRES_PASSWORD' is not defined"
+  }
+}

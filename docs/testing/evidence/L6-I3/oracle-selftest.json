@@ -1,0 +1,134 @@
+{
+  "total": 32,
+  "failed": [],
+  "cases": [
+      {
+        "name": "01 admission 403 rejected",
+        "pass": true
+      },
+      {
+        "name": "01 admission 202 w/o requestId rejected",
+        "pass": true
+      },
+      {
+        "name": "01 control admission 202 accepted",
+        "pass": true
+      },
+      {
+        "name": "02 non-terminal -> censored",
+        "pass": true
+      },
+      {
+        "name": "03 CHANGED v=observed rejected",
+        "pass": true
+      },
+      {
+        "name": "03 UNCHANGED not applied",
+        "pass": true
+      },
+      {
+        "name": "03 control CHANGED v=obs+1",
+        "pass": true
+      },
+      {
+        "name": "04 balance absent",
+        "pass": true
+      },
+      {
+        "name": "04 balance V+1 does not prove V",
+        "pass": true
+      },
+      {
+        "name": "04 balance missing shareholder",
+        "pass": true
+      },
+      {
+        "name": "04 control exact balance",
+        "pass": true
+      },
+      {
+        "name": "05 missing expense",
+        "pass": true
+      },
+      {
+        "name": "05 balance of W misses shareholder",
+        "pass": true
+      },
+      {
+        "name": "05 control complete pot",
+        "pass": true
+      },
+      {
+        "name": "06 W<V rejected",
+        "pass": true
+      },
+      {
+        "name": "06 control W>V accepted",
+        "pass": true
+      },
+      {
+        "name": "07 maintenance 503 classified",
+        "pass": true
+      },
+      {
+        "name": "07 capacity 503 not maintenance",
+        "pass": true
+      },
+      {
+        "name": "07 fail-closed control",
+        "pass": true
+      },
+      {
+        "name": "07 200 during maintenance is a violation",
+        "pass": true
+      },
+      {
+        "name": "07 maintenance probe aborts",
+        "pass": true
+      },
+      {
+        "name": "08 binding inactive",
+        "pass": true
+      },
+      {
+        "name": "08 binding older than target",
+        "pass": true
+      },
+      {
+        "name": "08 authorized read refused",
+        "pass": true
+      },
+      {
+        "name": "08 control usable binding",
+        "pass": true
+      },
+      {
+        "name": "09 404 without internal row",
+        "pass": true
+      },
+      {
+        "name": "09 current not terminal",
+        "pass": true
+      },
+      {
+        "name": "09 control deleted=true at D",
+        "pass": true
+      },
+      {
+        "name": "10 timeout not success",
+        "pass": true
+      },
+      {
+        "name": "10 control observed",
+        "pass": true
+      },
+      {
+        "name": "12 dropped iterations invalidate",
+        "pass": true
+      },
+      {
+        "name": "12 control no drop",
+        "pass": true
+      }
+    ]
+}

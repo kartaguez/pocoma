@@ -1,0 +1,77 @@
+{
+  "globalBudgetSeconds": 4200,
+  "cumulativeSeconds": 171.14,
+  "remainingSeconds": 4028.86,
+  "runs": [
+    {
+      "runId": "run-smoke-1794004221",
+      "scenario": "smoke",
+      "durationSeconds": 2.87,
+      "timestamp": "2026-11-06T22:30:24Z",
+      "success": false
+    },
+    {
+      "runId": "run-smoke-1794004610",
+      "scenario": "smoke",
+      "durationSeconds": 3.12,
+      "timestamp": "2026-11-06T22:36:53Z",
+      "success": true
+    },
+    {
+      "runId": "run-small-1794004666",
+      "scenario": "small",
+      "durationSeconds": 21.15,
+      "timestamp": "2026-11-06T22:38:07Z",
+      "success": false
+    },
+    {
+      "runId": "run-smoke-1794050946",
+      "scenario": "smoke",
+      "durationSeconds": 10.14,
+      "timestamp": "2026-11-07T11:29:17Z",
+      "success": true
+    },
+    {
+      "runId": "run-oracles-1794051002",
+      "scenario": "oracles",
+      "durationSeconds": 0.04,
+      "timestamp": "2026-11-07T11:30:02Z",
+      "success": false
+    },
+    {
+      "runId": "run-oracles-1794051265",
+      "scenario": "oracles",
+      "durationSeconds": 4.79,
+      "timestamp": "2026-11-07T11:34:30Z",
+      "success": true
+    },
+    {
+      "runId": "run-small-1794051319",
+      "scenario": "small",
+      "durationSeconds": 60.08,
+      "timestamp": "2026-11-07T11:36:19Z",
+      "success": true
+    },
+    {
+      "runId": "run-contention-1794051474",
+      "scenario": "contention",
+      "durationSeconds": 23.1,
+      "timestamp": "2026-11-07T11:38:18Z",
+      "success": false
+    },
+    {
+      "runId": "run-contention-1794051565",
+      "scenario": "contention",
+      "durationSeconds": 21.93,
+      "timestamp": "2026-11-07T11:39:48Z",
+      "success": true
+    },
+    {
+      "runId": "run-idle-polling-1794051711",
+      "scenario": "idle-polling",
+      "durationSeconds": 23.92,
+      "timestamp": "2026-11-07T11:42:16Z",
+      "success": true
+    }
+  ]
+}

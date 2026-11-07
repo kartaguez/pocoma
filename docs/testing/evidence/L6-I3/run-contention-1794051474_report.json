@@ -1,0 +1,97 @@
+{
+  "runId": "run-contention-1794051474",
+  "scenario": "contention",
+  "timestamp": "2026-11-07T11:38:18Z",
+  "k6ClientMetrics": {
+    "available": true,
+    "admissionsAccepted": 31,
+    "commandsApplied": 31,
+    "terminalResults": 31,
+    "commandsRejected": 0,
+    "admissionErrors": 2,
+    "oracleFailures": 2,
+    "censoredTimeouts": 0,
+    "droppedIterations": 0,
+    "readCapacity503": 0,
+    "readMaintenance503": 0,
+    "probeRequests": 0,
+    "latencies": {
+      "admission": {
+        "count": 33,
+        "p50": 1.684,
+        "p90": 2.2982,
+        "p95": 2.723199999999999,
+        "p99": 3.68572,
+        "avg": 1.8059090909090911,
+        "min": 0.821,
+        "max": 3.991
+      },
+      "commandResult": {
+        "count": 31,
+        "p50": 945,
+        "p90": 1444,
+        "p95": 1544.4999999999998,
+        "p99": 1721.7,
+        "avg": 1013.9677419354839,
+        "min": 469,
+        "max": 1776
+      },
+      "balanceAvailable": {
+        "count": null,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "avg": null,
+        "min": null,
+        "max": null
+      },
+      "potReadAvailable": {
+        "count": null,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "avg": null,
+        "min": null,
+        "max": null
+      }
+    }
+  },
+  "engineTelemetry": {
+    "admissionRequestsTotal": 121.0,
+    "attemptOutcomesCommitted": 585.0,
+    "attemptOutcomesRetried": null,
+    "discoveryReferencesTotal": 3456.0,
+    "claimOperationsTotal": 585.0,
+    "physicalPendingTotal": 0.0,
+    "readQuotaPermitsAvailable": 2.0,
+    "readQuotaRejectionsTotal": 0.0,
+    "admissionCapacityAvailable": 1.0,
+    "workerCyclesTotal": 40408.0
+  },
+  "systemTelemetry": {
+    "jvmHeapUsedBytes": 64674768.0,
+    "jvmHeapMaxBytes": 2080374784.0,
+    "jvmNonHeapUsedBytes": 131078552.0,
+    "jvmGcPauseCount": 76.0,
+    "jvmGcPauseSumSeconds": 0.226,
+    "processCpuUsage": 0.035984095427435386,
+    "systemCpuUsage": 0.07064443145528015,
+    "jvmLiveThreads": 52.0,
+    "hikariActiveConnections": 1.0,
+    "hikariIdleConnections": 32.0,
+    "hikariPendingThreads": 0.0
+  },
+  "postgresTelemetry": {
+    "activeSessions": 1,
+    "totalSessions": 41,
+    "lockWaits": 0,
+    "walBytes": 133837948,
+    "writeSlotsAvailable": 0,
+    "writeSlotsQuarantined": 0,
+    "slotsPending": 0,
+    "slotsQuarantined": 0,
+    "readMaintenanceState": "READY"
+  }
+}
