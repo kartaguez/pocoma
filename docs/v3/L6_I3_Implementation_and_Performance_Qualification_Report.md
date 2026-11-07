@@ -250,4 +250,23 @@ Le banc implémenté est d'ores et déjà prêt pour les campagnes de certificat
 L6_I3_BENCH_IMPLEMENTED_LOCAL_BOUNDED_PASS
 ```
 
+---
+
+## 14. Complément de Mission L6/I3-R (Renforcement et Montée en Charge)
+
+À la suite de la décision humaine stipulant que la première campagne (21 à 28 commandes) était insuffisante pour qualifier les performances du système, la mission **L6/I3-R** a été exécutée.
+
+Le rapport complet, exhaustif et quantitatif est consigné dans :
+👉 **[`docs/v3/L6_I3_Deep_Instrumentation_and_Load_Qualification_Report.md`](./L6_I3_Deep_Instrumentation_and_Load_Qualification_Report.md)**
+
+Ce rapport fournit notamment :
+1. La décomposition temporelle fine $T_0 \to T_{10}$ distinguant temps interne et client.
+2. Les résultats complets des paliers progressifs P1 (1 cmd/s), P2 (5 cmd/s), P3 (10 cmd/s), P4 (20 cmd/s) et P5 (50 cmd/s).
+3. Les résultats des scénarios dédiés S1 (Indépendant), S2 (Contention), S3 (READ pur), S4 (Mixte) et S5 (Structurel Small/Medium).
+4. La caractérisation du goulot d'étranglement du sémaphore de transport READ (`HTTP_PERMITS = 2`).
+5. Les réponses formelles aux 10 questions de diagnostic technique (Q1 à Q10).
+6. 6 graphiques vectoriels SVG et 6 jeux de données tabulaires CSV archivés dans `docs/testing/evidence/L6-I3/charts/`.
+7. La recommandation technique motivée : `ACCEPTER AVEC RÉSERVES`.
+
+
 Les bancs de performance et d'exploitation de Pocoma V3 sont complètement implémentés, leurs oracles sont formellement qualifiés et validés (32/32 tests k6 et 14/14 tests Python), et la reconnaissance locale bornée est achevée avec succès en 2,9 minutes sur un budget autorisé de 70 minutes. Les campagnes normatives ultérieures sont directement exploitables.

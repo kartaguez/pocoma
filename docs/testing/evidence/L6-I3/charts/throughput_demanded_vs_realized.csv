@@ -1,0 +1,11 @@
+demanded_rate_cmd_s,scenario,commands_offered,commands_admitted,commands_applied,admitted_rate_cmd_s
+1.0,ramp-p1,120,120,120,1.0
+1.0,ramp-p1,121,121,121,1.01
+1.0,s1-indep,279,279,278,13.95
+1.0,small,0,21,14,1.05
+1.0,small,0,21,21,1.05
+5.0,ramp-p2,539,539,71,4.49
+5.0,ramp-p2,502,502,492,4.18
+10.0,ramp-p3,767,767,722,6.39
+20.0,ramp-p4,851,851,739,7.09
+50.0,ramp-p5,1571,872,672,7.27

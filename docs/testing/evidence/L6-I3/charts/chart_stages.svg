@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" style="background-color: #1e1e2e; font-family: -apple-system, BlinkMacSystemFont, sans-serif;">
+<text x="400.0" y="32" fill="#cdd6f4" font-size="16" font-weight="bold" text-anchor="middle">Pocoma V3 — Décomposition des Latences Internes (p95 ms)</text>
+<line x1="80" y1="nan" x2="640" y2="nan" stroke="#313244" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="70" y="nan" fill="#a6adc8" font-size="11" text-anchor="end">nan</text>
+<line x1="80" y1="nan" x2="640" y2="nan" stroke="#313244" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="70" y="nan" fill="#a6adc8" font-size="11" text-anchor="end">inf</text>
+<line x1="80" y1="nan" x2="640" y2="nan" stroke="#313244" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="70" y="nan" fill="#a6adc8" font-size="11" text-anchor="end">inf</text>
+<line x1="80" y1="nan" x2="640" y2="nan" stroke="#313244" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="70" y="nan" fill="#a6adc8" font-size="11" text-anchor="end">inf</text>
+<line x1="80" y1="nan" x2="640" y2="nan" stroke="#313244" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="70" y="nan" fill="#a6adc8" font-size="11" text-anchor="end">inf</text>
+<line x1="80" y1="nan" x2="640" y2="nan" stroke="#313244" stroke-width="1" stroke-dasharray="3,3"/>
+<text x="70" y="nan" fill="#a6adc8" font-size="11" text-anchor="end">inf</text>
+<line x1="80.0" y1="60" x2="80.0" y2="390" stroke="#313244" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="80.0" y="410" fill="#a6adc8" font-size="11" text-anchor="middle">1</text>
+<line x1="125.71428571428571" y1="60" x2="125.71428571428571" y2="390" stroke="#313244" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="125.71428571428571" y="410" fill="#a6adc8" font-size="11" text-anchor="middle">5</text>
+<line x1="182.85714285714286" y1="60" x2="182.85714285714286" y2="390" stroke="#313244" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="182.85714285714286" y="410" fill="#a6adc8" font-size="11" text-anchor="middle">10</text>
+<line x1="297.1428571428571" y1="60" x2="297.1428571428571" y2="390" stroke="#313244" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="297.1428571428571" y="410" fill="#a6adc8" font-size="11" text-anchor="middle">20</text>
+<line x1="640.0" y1="60" x2="640.0" y2="390" stroke="#313244" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="640.0" y="410" fill="#a6adc8" font-size="11" text-anchor="middle">50</text>
+<line x1="80" y1="60" x2="80" y2="390" stroke="#585b70" stroke-width="1.5"/>
+<line x1="80" y1="390" x2="640" y2="390" stroke="#585b70" stroke-width="1.5"/>
+<text x="360.0" y="435" fill="#cdd6f4" font-size="12" text-anchor="middle">Débit demandé (cmd/s)</text>
+<text transform="rotate(-90)" x="-225.0" y="24" fill="#cdd6f4" font-size="12" text-anchor="middle">Latence p95 (ms)</text>
+<path d="M 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 125.7 390.0 L 125.7 390.0 L 182.9 390.0 L 297.1 390.0 L 640.0 390.0" fill="none" stroke="#89b4fa" stroke-width="2.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="182.9" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="297.1" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="640.0" cy="390.0" r="4" fill="#89b4fa" stroke="#1e1e2e" stroke-width="1.5"/>
+<path d="M 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 125.7 390.0 L 125.7 390.0 L 182.9 390.0 L 297.1 390.0 L 640.0 390.0" fill="none" stroke="#a6e3a1" stroke-width="2.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="182.9" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="297.1" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="640.0" cy="390.0" r="4" fill="#a6e3a1" stroke="#1e1e2e" stroke-width="1.5"/>
+<path d="M 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 125.7 390.0 L 125.7 390.0 L 182.9 390.0 L 297.1 390.0 L 640.0 390.0" fill="none" stroke="#f38ba8" stroke-width="2.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="182.9" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="297.1" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="640.0" cy="390.0" r="4" fill="#f38ba8" stroke="#1e1e2e" stroke-width="1.5"/>
+<path d="M 80.0 nan L 80.0 nan L 80.0 nan L 80.0 390.0 L 80.0 390.0 L 125.7 nan L 125.7 nan L 182.9 nan L 297.1 nan L 640.0 nan" fill="none" stroke="#f9e2af" stroke-width="2.5"/>
+<circle cx="80.0" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="182.9" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="297.1" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="640.0" cy="nan" r="4" fill="#f9e2af" stroke="#1e1e2e" stroke-width="1.5"/>
+<path d="M 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 125.7 390.0 L 125.7 390.0 L 182.9 390.0 L 297.1 390.0 L 640.0 390.0" fill="none" stroke="#cba6f7" stroke-width="2.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="182.9" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="297.1" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="640.0" cy="390.0" r="4" fill="#cba6f7" stroke="#1e1e2e" stroke-width="1.5"/>
+<path d="M 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 80.0 390.0 L 125.7 390.0 L 125.7 390.0 L 182.9 390.0 L 297.1 390.0 L 640.0 390.0" fill="none" stroke="#fab387" stroke-width="2.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="80.0" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="125.7" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="182.9" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="297.1" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<circle cx="640.0" cy="390.0" r="4" fill="#fab387" stroke="#1e1e2e" stroke-width="1.5"/>
+<rect x="660" y="62" width="12" height="12" fill="#89b4fa" rx="2"/>
+<text x="678" y="72" fill="#cdd6f4" font-size="11">T1-T2 Admission Serveur</text>
+<rect x="660" y="84" width="12" height="12" fill="#a6e3a1" rx="2"/>
+<text x="678" y="94" fill="#cdd6f4" font-size="11">T3-T4 WRITE Préparation</text>
+<rect x="660" y="106" width="12" height="12" fill="#f38ba8" rx="2"/>
+<text x="678" y="116" fill="#cdd6f4" font-size="11">T4-T5 WRITE Commit</text>
+<rect x="660" y="128" width="12" height="12" fill="#f9e2af" rx="2"/>
+<text x="678" y="138" fill="#cdd6f4" font-size="11">T5-T6 READ Découverte</text>
+<rect x="660" y="150" width="12" height="12" fill="#cba6f7" rx="2"/>
+<text x="678" y="160" fill="#cdd6f4" font-size="11">T6-T8 READ Projection</text>
+<rect x="660" y="172" width="12" height="12" fill="#fab387" rx="2"/>
+<text x="678" y="182" fill="#cdd6f4" font-size="11">T_term->T_pot Retard READ</text>
+</svg>

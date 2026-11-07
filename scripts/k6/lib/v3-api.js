@@ -43,19 +43,134 @@ export class V3ApiClient {
   }
 
   // ---- Admission -------------------------------------------------------------
-  submitCommand(operation, potId, observedVersion, payload, idempotencyKey) {
+  submitCommand(operation, potId, observedVersion, payload, idempotencyKey, retryOptions = {}) {
     const key = idempotencyKey || `perf-${operation}-${potId}-${observedVersion}-${Math.random().toString(36).slice(2, 10)}`;
     const body = JSON.stringify({ operation, potId, observedVersion, bindingToken: this.bindingToken, payload });
-    const res = http.post(`${this.baseUrl}/api/v3/commands`, body, {
-      headers: this.headers({ 'Idempotency-Key': key }),
-      tags: { endpoint: 'admission_command', operation },
-    });
+    const maxRetries = typeof retryOptions.maxRetries === 'number' ? retryOptions.maxRetries : 0;
+    const baseBackoffMs = typeof retryOptions.backoffMs === 'number' ? retryOptions.backoffMs : 10;
+
+    let attempts = 0;
+    let retries = 0;
+    let firstDuration = 0;
+    const t0 = Date.now();
+    let res = null;
     let requestId = null;
-    if (res.status === 202) {
-      try { requestId = res.json().requestId || null; } catch (_) { requestId = null; }
+
+    while (attempts <= maxRetries) {
+      attempts++;
+      res = http.post(`${this.baseUrl}/api/v3/commands`, body, {
+        headers: this.headers({ 'Idempotency-Key': key }),
+        tags: { endpoint: 'admission_command', operation },
+      });
+      if (attempts === 1) {
+        firstDuration = res.timings.duration;
+      }
+      if (res.status === 202) {
+        try { requestId = res.json().requestId || null; } catch (_) { requestId = null; }
+        break;
+      }
+      if (res.status === 503 && classify503(res) === 'capacity' && attempts <= maxRetries) {
+        retries++;
+        sleep((baseBackoffMs * attempts) / 1000);
+        continue;
+      }
+      break;
     }
-    // Client-side monotonic-ish admission timestamp: response received.
-    return { status: res.status, duration: res.timings.duration, requestId, admittedAt: Date.now() };
+
+    const admittedAt = Date.now();
+    return {
+      status: res ? res.status : 0,
+      duration: firstDuration,
+      totalAdmissionDuration: admittedAt - t0,
+      requestId,
+      admittedAt,
+      attempts,
+      retries,
+      wasRetried: retries > 0,
+      isCapacity503: res ? (res.status === 503 && classify503(res) === 'capacity') : false,
+      isMaintenance503: res ? (res.status === 503 && classify503(res) === 'maintenance') : false,
+    };
+  }
+
+  // ---- Pure Read Queries -----------------------------------------------------
+  getPotCurrent(potId) {
+    const start = Date.now();
+    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}`, {
+      headers: this.headers({}, true),
+      tags: { endpoint: 'read_pot_current' },
+    });
+    let data = null;
+    if (res.status === 200) {
+      try { data = res.json(); } catch (_) { data = null; }
+    }
+    return {
+      status: res.status,
+      duration: res.timings.duration,
+      elapsed: Date.now() - start,
+      data,
+      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
+      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
+    };
+  }
+
+  getPotVersion(potId, version) {
+    const start = Date.now();
+    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}/versions/${version}`, {
+      headers: this.headers({}, true),
+      tags: { endpoint: 'read_pot_version' },
+    });
+    let data = null;
+    if (res.status === 200) {
+      try { data = res.json(); } catch (_) { data = null; }
+    }
+    return {
+      status: res.status,
+      duration: res.timings.duration,
+      elapsed: Date.now() - start,
+      data,
+      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
+      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
+    };
+  }
+
+  getPotBalance(potId, version) {
+    const start = Date.now();
+    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}/versions/${version}/balance`, {
+      headers: this.headers({}, true),
+      tags: { endpoint: 'read_pot_balance' },
+    });
+    let data = null;
+    if (res.status === 200) {
+      try { data = res.json(); } catch (_) { data = null; }
+    }
+    return {
+      status: res.status,
+      duration: res.timings.duration,
+      elapsed: Date.now() - start,
+      data,
+      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
+      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
+    };
+  }
+
+  queryExpenses(potId, limit = 50) {
+    const start = Date.now();
+    const res = http.get(`${this.baseUrl}/api/v3/pots/${potId}/expenses/query?limit=${limit}`, {
+      headers: this.headers({}, true),
+      tags: { endpoint: 'read_expenses_query' },
+    });
+    let data = null;
+    if (res.status === 200) {
+      try { data = res.json(); } catch (_) { data = null; }
+    }
+    return {
+      status: res.status,
+      duration: res.timings.duration,
+      elapsed: Date.now() - start,
+      data,
+      isCapacity503: res.status === 503 && classify503(res) === 'capacity',
+      isMaintenance503: res.status === 503 && classify503(res) === 'maintenance',
+    };
   }
 
   // ---- Generic bounded poll --------------------------------------------------

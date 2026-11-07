@@ -101,3 +101,11 @@ Rapport `L6_I3_Implementation_and_Performance_Qualification_Report.md`, registre
 Ratifier D1–D6 du rapport de cadrage, les ressources A/B réellement disponibles, la division des sessions, l'autorisation destructive sur **base synthétique isolée**, le budget de préparation des seeds 1M/10M, les coûts d'implantation des sondes READ indépendantes et les seuils de sécurité. Aucun GO de tests, seed ni implémentation n'est inclus dans le présent document.
 
 **Verdict de plan :** `L6_I3_DESIGN_READY_FOR_HUMAN_APPROVAL`. Documentation seulement, aucune campagne lancée.
+
+---
+
+### Mise à jour d'Exécution L6/I3-R
+
+Le banc de test, l'outillage d'instrumentation et la campagne de montée en charge ont été réalisés et qualifiés dans le cadre de la mission **L6/I3-R**. Consulter :
+- Le rapport d'implémentation initial : `L6_I3_Implementation_and_Performance_Qualification_Report.md`
+- Le rapport d'instrumentation et de qualification approfondie : `L6_I3_Deep_Instrumentation_and_Load_Qualification_Report.md`

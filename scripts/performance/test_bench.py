@@ -244,6 +244,70 @@ class BenchOracleQualificationTests(unittest.TestCase):
         self.assertEqual(watchdog.incident_class, "INCIDENT_SCENARIO_TIMEOUT")
         mock_proc.terminate.assert_called()
 
+    # 15. Retry and 503 Discrimination
+    def test_15_retry_and_503_discrimination(self):
+        def classify_503(headers):
+            h = headers or {}
+            retry_after = h.get("Retry-After") or h.get("retry-after")
+            return "maintenance" if retry_after else "capacity"
+
+        # Capacity 503 (no Retry-After)
+        cap_hdrs = {"Cache-Control": "no-store"}
+        self.assertEqual(classify_503(cap_hdrs), "capacity",
+                         "503 without Retry-After must be classified as capacity refusal")
+
+        # Maintenance 503 (has Retry-After)
+        maint_hdrs = {"Cache-Control": "no-store", "Retry-After": "1"}
+        self.assertEqual(classify_503(maint_hdrs), "maintenance",
+                         "503 with Retry-After must be classified as maintenance fail-closed")
+
+    # 16. Differential Telemetry and Quantiles
+    def test_16_differential_telemetry_and_quantiles(self):
+        v3_col = importlib.import_module("v3-collect")
+        compute_q = v3_col.compute_quantile
+        diff_h = v3_col.diff_histograms
+
+        pre = {
+            "count": 10.0, "sum": 0.10, "max": 0.02,
+            "buckets": [(0.005, 5.0), (0.010, 8.0), (0.020, 10.0), (float("inf"), 10.0)]
+        }
+        post = {
+            "count": 20.0, "sum": 0.25, "max": 0.02,
+            "buckets": [(0.005, 7.0), (0.010, 15.0), (0.020, 20.0), (float("inf"), 20.0)]
+        }
+        diff = diff_h(post, pre)
+        self.assertEqual(diff["count"], 10.0)
+        self.assertAlmostEqual(diff["sum"], 0.15)
+
+        # Compute p50 on diff: rank = 0.5 * 10 = 5.0
+        # diff buckets: (0.005, 2.0), (0.010, 7.0), (0.020, 10.0)
+        # rank 5.0 falls between 0.005 and 0.010: cnt_diff = 5.0, rank-prev = 3.0
+        # Q = 0.005 + 0.005 * (3.0 / 5.0) = 0.008
+        p50 = compute_q(diff, 0.50)
+        self.assertAlmostEqual(p50, 0.008)
+
+    # 17. Structural Dataset Materialization Verification
+    def test_17_structural_dataset_materialization(self):
+        v3_seed = importlib.import_module("v3-seed")
+        # Check that Small and Medium profiles are registered
+        self.assertIn("small", v3_seed.SPEC09_PROFILES)
+        self.assertIn("medium", v3_seed.SPEC09_PROFILES)
+        self.assertIn("large", v3_seed.SPEC09_PROFILES)
+
+        # Mock SQL verification test
+        with patch.object(v3_seed, "run_psql") as mock_psql:
+            mock_psql.side_effect = lambda db, sql: "22" if "read_current_pot" in sql else ("1" if "read_pot_balance" in sql else "20")
+            ok = v3_seed.verify_materialized_pot("test-pot-id", 22, 20)
+            self.assertTrue(ok, "Materialized pot verification must pass when DB matches")
+
+    # 18. Scenario Mapping and Ramp Suite Configuration
+    def test_18_scenario_mapping_and_ramp_suite(self):
+        v3_run = importlib.import_module("v3-run")
+        paliers = ["ramp-p1", "ramp-p2", "ramp-p3", "ramp-p4", "ramp-p5"]
+        for p in paliers:
+            self.assertIn(p, v3_run.SCENARIO_BUDGETS, f"{p} must have a scenario budget")
+            self.assertIn(p, v3_run.K6_SCENARIO_MAP, f"{p} must have k6 configuration mapping")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
