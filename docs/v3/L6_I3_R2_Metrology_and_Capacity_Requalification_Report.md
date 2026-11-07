@@ -5,8 +5,17 @@
 **Repository**: `kartaguez/pocoma`
 **Branch**: `feat/v3-architecture`
 **Date**: November 2026
-**Status**: COMPLETED — VALIDATED EVIDENCE PUBLISHED
+**Status**: HISTORICAL CAMPAIGN REPORT — SUPERSEDED BY L6/I3-R3 AUDIT
 **Final Verdict**: `L6_I3_R2_METROLOGY_REQUALIFIED — CAPACITY_CHARACTERIZED — READY_FOR_HUMAN_REVIEW`
+
+> [!WARNING]
+> **AUDIT NOTICE (L6/I3-R3) :**
+> The conclusions of this R2 report regarding the capacity ceiling of 5.4 cmd/s, the backlog plateau at 253–255, and the apparent throughput collapse at P5 (0.48 cmd/s) have been **re-evaluated and requalified** by the independent audit L6/I3-R3 (see [`L6_I3_R3_Independent_Capacity_and_Metrology_Audit.md`](file:///Users/julien.guezennec/Dev/projects/pocoma/docs/v3/L6_I3_R3_Independent_Capacity_and_Metrology_Audit.md)).
+> In particular:
+> - **The 5.4 cmd/s limit is REFUTED**: Palier P3 demonstrated 10.01 terminal transactions/s drained to 0 backlog.
+> - **The backlog plateau at ~255 is an ARCHITECTURAL ARTIFACT**: `consumption_slot` is capped by `DiscoveryEngine.softCap` (4 partitions × 64 slots = 256), whereas the true backlog accumulates in `v3_command`.
+> - **P5 0.48 cmd/s is an OBSERVER POLLING ARTIFACT**: The single-threaded `TerminalObserver` was starved by 5,930 commands and only polled 552 before drainage timeout.
+> - **L6/I3 remains OPEN** under verdict `NOT_READY_FOR_CLOSURE — METROLOGY_CORRECTIONS_REQUIRED`.
 
 ---
 
