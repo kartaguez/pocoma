@@ -1,0 +1,15 @@
+{
+  "config": "A",
+  "duration_seconds": 22.103482961654663,
+  "discovery_cycles_per_sec": 59.81,
+  "consumption_cycles_per_sec": 72.02,
+  "total_cycles_per_sec": 131.83,
+  "zero_progress_cycles_per_sec": 131.83,
+  "hikari_acquires_per_sec": 242.45,
+  "postgres_xact_commit_per_sec": 839.01,
+  "postgres_tuples_returned_per_sec": 18524.09,
+  "active_jdbc_connections": 1.0,
+  "monolith_cpu_percent": 23.9,
+  "postgres_cpu_percent": 14.85,
+  "timestamp": 1794140104.656634
+}

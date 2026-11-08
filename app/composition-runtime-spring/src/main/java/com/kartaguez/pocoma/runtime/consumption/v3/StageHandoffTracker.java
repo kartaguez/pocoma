@@ -99,12 +99,18 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
         }
 
         public Map<String, Object> toMap() {
+            return toMap(true);
+        }
+
+        public Map<String, Object> toMap(boolean includeBusinessIds) {
             var m = new LinkedHashMap<String, Object>();
             m.put("commandId", commandId.toString());
-            m.put("potId", potId != null ? potId.toString() : null);
-            m.put("resultingVersion", resultingVersion);
-            m.put("potEventId", potEventId != null ? potEventId.toString() : null);
-            m.put("completionEventId", completionEventId != null ? completionEventId.toString() : null);
+            if (includeBusinessIds) {
+                m.put("potId", potId != null ? potId.toString() : null);
+                m.put("resultingVersion", resultingVersion);
+                m.put("potEventId", potEventId != null ? potEventId.toString() : null);
+                m.put("completionEventId", completionEventId != null ? completionEventId.toString() : null);
+            }
             m.put("t0EpochMs", t0EpochMs > 0 ? t0EpochMs : null);
             m.put("t1EpochMs", t1EpochMs > 0 ? t1EpochMs : null);
             m.put("t2EpochMs", t2EpochMs > 0 ? t2EpochMs : null);
@@ -349,6 +355,10 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
     }
 
     public Map<String, Object> snapshot(int limit, Long sinceEpochMs) {
+        return snapshot(limit, sinceEpochMs, true);
+    }
+
+    public Map<String, Object> snapshot(int limit, Long sinceEpochMs, boolean includeBusinessIds) {
         var result = new LinkedHashMap<String, Object>();
         var list = new ArrayList<Map<String, Object>>();
         int count = 0;
@@ -360,7 +370,7 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
                 if (sinceEpochMs != null && sinceEpochMs > 0 && rec.t0EpochMs > 0 && rec.t0EpochMs < sinceEpochMs) {
                     continue;
                 }
-                list.add(rec.toMap());
+                list.add(rec.toMap(includeBusinessIds));
                 count++;
                 if (count >= max) break;
             }

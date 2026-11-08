@@ -153,4 +153,40 @@ class StageHandoffTrackerTest {
         assertDoesNotThrow(() -> tracker.onAttemptFinished(null, null, null, 0));
         assertDoesNotThrow(() -> tracker.linkCommandEvents(null, null, null, null, null));
     }
+
+    @Test
+    void testUnauthenticatedSnapshotSanitizesBusinessIdentifiers() {
+        UUID cmdId = UUID.randomUUID();
+        UUID potId = UUID.randomUUID();
+        UUID potEventId = UUID.randomUUID();
+        UUID completionEventId = UUID.randomUUID();
+
+        tracker.onCommandAdmitted(cmdId);
+        long t1 = System.nanoTime();
+        tracker.onAttemptStarting(COMMAND_ID, cmdId, t1);
+        tracker.linkCommandEvents(cmdId, potId, 1L, potEventId, completionEventId);
+        long t2 = t1 + 5_000_000L;
+        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionEngine.Status.COMMITTED, t2);
+
+        // Authenticated snapshot contains business IDs
+        var authSnapshot = tracker.snapshot(10, null, true);
+        @SuppressWarnings("unchecked")
+        var authRec = (java.util.Map<String, Object>) ((java.util.List<?>) authSnapshot.get("records")).getFirst();
+        assertEquals(cmdId.toString(), authRec.get("commandId"));
+        assertEquals(potId.toString(), authRec.get("potId"));
+        assertEquals(1L, authRec.get("resultingVersion"));
+        assertEquals(potEventId.toString(), authRec.get("potEventId"));
+
+        // Unauthenticated snapshot omits all business IDs
+        var unauthSnapshot = tracker.snapshot(10, null, false);
+        @SuppressWarnings("unchecked")
+        var unauthRec = (java.util.Map<String, Object>) ((java.util.List<?>) unauthSnapshot.get("records")).getFirst();
+        assertEquals(cmdId.toString(), unauthRec.get("commandId"));
+        assertNull(unauthRec.get("potId"));
+        assertNull(unauthRec.get("resultingVersion"));
+        assertNull(unauthRec.get("potEventId"));
+        assertNull(unauthRec.get("completionEventId"));
+        // Technical timing metrics must remain available
+        assertNotNull(unauthRec.get("commandProcessingMs"));
+    }
 }

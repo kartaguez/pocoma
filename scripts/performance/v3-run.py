@@ -50,6 +50,10 @@ EVIDENCE_DIR_R6 = EVIDENCE_DIR / "R6"
 BUDGET_FILE_R6 = EVIDENCE_DIR_R6 / ".budget_tracker_r6.json"
 GLOBAL_BUDGET_SECONDS_R6 = 30 * 60  # 1800 seconds (30 minutes) max cumulative for R6
 
+EVIDENCE_DIR_R7 = EVIDENCE_DIR / "R7"
+BUDGET_FILE_R7 = EVIDENCE_DIR_R7 / ".budget_tracker_r7.json"
+GLOBAL_BUDGET_SECONDS_R7 = 40 * 60  # 2400 seconds (40 minutes) max cumulative for R7
+
 SCENARIO_BUDGETS = {
     "smoke": 120,          # 2 minutes max
     "small": 300,          # 5 minutes max
@@ -99,6 +103,12 @@ SCENARIO_BUDGETS = {
     "h3-contention-10": 180, # 30s + setup
     "h4-realistic-5": 240,   # 60s + setup
     "h5-realistic-20": 300,  # 60s + setup
+    # R7 Scenarios (Controlled Async Handoff Performance Optimization)
+    "r7-s1-1": 150,          # 60s + setup
+    "r7-s2-5": 150,          # 60s + setup
+    "r7-s3-10": 200,         # 90s + setup
+    "r7-medium": 150,        # 60s + setup
+    "r7-idle": 120,          # 30s + setup
 }
 
 K6_SCENARIO_MAP = {
@@ -147,6 +157,12 @@ K6_SCENARIO_MAP = {
     "h3-contention-10": {"SCENARIO": "contention", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "10", "CONTENTION_VUS": "4", "DEFAULT_DURATION": "30s"},
     "h4-realistic-5": {"SCENARIO": "m2-nominal-5", "POTS": "25", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
     "h5-realistic-20": {"SCENARIO": "m4-ramp-20", "POTS": "100", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    # R7 Scenarios (Controlled Async Handoff Performance Optimization)
+    "r7-s1-1": {"SCENARIO": "r7-s1-1", "POTS": "50", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    "r7-s2-5": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    "r7-s3-10": {"SCENARIO": "r7-s3-10", "POTS": "100", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "90s", "WORKLOAD_MODE": "realistic"},
+    "r7-medium": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "20", "SEED_EXPENSES": "200", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "60s"},
+    "r7-idle": {"SCENARIO": "idle", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "IDLE_SECONDS": "30"},
 }
 
 
@@ -312,6 +328,47 @@ class BudgetTrackerR6:
             }, f, indent=2)
 
 
+class BudgetTrackerR7:
+    """Dedicated budget tracker for the R7 controlled async performance optimization campaign (2400s / 40m ceiling)."""
+
+    @staticmethod
+    def get_consumed_seconds() -> float:
+        if not BUDGET_FILE_R7.exists():
+            return 0.0
+        try:
+            with open(BUDGET_FILE_R7, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return float(data.get("cumulativeSeconds", 0.0))
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = BudgetTrackerR7.get_consumed_seconds() + duration_sec
+        EVIDENCE_DIR_R7.mkdir(parents=True, exist_ok=True)
+        history = []
+        if BUDGET_FILE_R7.exists():
+            try:
+                with open(BUDGET_FILE_R7, "r", encoding="utf-8") as f:
+                    history = json.load(f).get("runs", [])
+            except Exception:
+                pass
+        history.append({
+            "runId": run_id,
+            "scenario": scenario,
+            "durationSeconds": round(duration_sec, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "success": success,
+        })
+        with open(BUDGET_FILE_R7, "w", encoding="utf-8") as f:
+            json.dump({
+                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R7,
+                "cumulativeSeconds": round(consumed, 2),
+                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R7 - consumed), 2),
+                "runs": history,
+            }, f, indent=2)
+
+
 class Watchdog:
     """Monitors k6 process and live infrastructure metrics, aborting if limits are breached."""
 
@@ -406,12 +463,19 @@ def extract_correlation_event(line: str) -> Optional[Dict[str, Any]]:
 
 def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optional[int] = None,
                  skip_preflight: bool = False, run_id: Optional[str] = None,
-                 is_r4: bool = False, is_r5: bool = False, is_r6: bool = False) -> bool:
-    is_r6_run = is_r6 or scenario_name.startswith("h")
-    is_r5_run = not is_r6_run and (is_r5 or scenario_name.startswith("m"))
-    is_r4_run = not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
+                 is_r4: bool = False, is_r5: bool = False, is_r6: bool = False,
+                 is_r7: bool = False) -> bool:
+    is_r7_run = is_r7 or scenario_name.startswith("r7")
+    is_r6_run = not is_r7_run and (is_r6 or scenario_name.startswith("h"))
+    is_r5_run = not is_r7_run and not is_r6_run and (is_r5 or scenario_name.startswith("m"))
+    is_r4_run = not is_r7_run and not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
 
-    if is_r6_run:
+    if is_r7_run:
+        target_evidence_dir = EVIDENCE_DIR_R7
+        target_tracker = BudgetTrackerR7
+        target_budget_limit = GLOBAL_BUDGET_SECONDS_R7
+        prefix = "run-r7"
+    elif is_r6_run:
         target_evidence_dir = EVIDENCE_DIR_R6
         target_tracker = BudgetTrackerR6
         target_budget_limit = GLOBAL_BUDGET_SECONDS_R6
@@ -528,7 +592,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     token_server = TokenHttpServer(token_mgr, port=18083, scheduler=scheduler)
     token_server.start()
 
-    is_decoupled = (is_r6_run or is_r5_run or scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp") or scenario_name.startswith("m") or scenario_name.startswith("h"))
+    is_decoupled = (is_r7_run or is_r6_run or is_r5_run or scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp") or scenario_name.startswith("m") or scenario_name.startswith("h") or scenario_name.startswith("r7"))
     coordinator = None
     if is_decoupled:
         max_drain = min(90.0, max(45.0, dur_sec * 0.5))
@@ -555,12 +619,13 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         env["POCOMA_BINDING_TOKEN"] = binding_token
 
     # For structural scenarios, pass pre-seeded parameters if available
-    if scenario_name in ("s5-small", "s5-medium", "s5-large", "q7-large"):
+    if scenario_name in ("s5-small", "s5-medium", "s5-large", "q7-large", "r7-medium"):
         seed_map = {
             "s5-small": EVIDENCE_DIR / "seeds" / "seed-v3-small-indep.json",
             "s5-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
             "s5-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
             "q7-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
+            "r7-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
         }
         seed_file = seed_map.get(scenario_name)
         if seed_file and seed_file.exists():
@@ -571,10 +636,21 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
                 if proof and sdata.get("materialized"):
                     p = sdata["pots"][0]
                     env["PRE_SEEDED_POT_ID"] = p["potId"]
-                    env["PRE_SEEDED_VERSION"] = str(proof[0]["finalVersion"])
+                    current_v = proof[0]["finalVersion"]
+                    try:
+                        q_res = subprocess.run([
+                            "docker", "exec", "pocoma-functional-postgres-1",
+                            "psql", "-U", "pocoma", "-d", "pocoma_read", "-t", "-c",
+                            f"SELECT max(pot_version) FROM v3_read.read_pot_version WHERE pot_id = '{p['potId']}';"
+                        ], capture_output=True, text=True)
+                        if q_res.returncode == 0 and q_res.stdout.strip():
+                            current_v = int(q_res.stdout.strip())
+                    except Exception:
+                        pass
+                    env["PRE_SEEDED_VERSION"] = str(current_v)
                     env["PRE_SEEDED_EXPENSES"] = str(proof[0]["expensesCount"])
                     env["PRE_SEEDED_SHAREHOLDERS"] = ",".join([s["id"] for s in p["shareholders"]])
-                    print(f"  ✓ Using pre-materialized Pot {p['potId']} (v{proof[0]['finalVersion']}, {proof[0]['expensesCount']} expenses)")
+                    print(f"  ✓ Using pre-materialized Pot {p['potId']} (v{current_v}, {proof[0]['expensesCount']} expenses)")
             except Exception as e:
                 print(f"  [Warning] Pre-seeded pot resolution failed ({e}), falling back to inline setup")
 
@@ -873,11 +949,18 @@ def main():
     parser.add_argument("--r4", action="store_true", help="Execute under R4 budget envelope and output directory")
     parser.add_argument("--r5", action="store_true", help="Execute under R5 budget envelope and output directory")
     parser.add_argument("--r6", action="store_true", help="Execute under R6 budget envelope and output directory")
+    parser.add_argument("--r7", action="store_true", help="Execute under R7 budget envelope and output directory")
 
     args = parser.parse_args()
 
     if args.budget_status:
-        if args.r6:
+        if args.r7:
+            consumed = BudgetTrackerR7.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS_R7 - consumed
+            print(f"R7 Budget:        {GLOBAL_BUDGET_SECONDS_R7}s ({GLOBAL_BUDGET_SECONDS_R7/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        elif args.r6:
             consumed = BudgetTrackerR6.get_consumed_seconds()
             remaining = GLOBAL_BUDGET_SECONDS_R6 - consumed
             print(f"R6 Budget:        {GLOBAL_BUDGET_SECONDS_R6}s ({GLOBAL_BUDGET_SECONDS_R6/60:.1f} min)")
@@ -920,9 +1003,10 @@ def main():
         ok = run_ramp_suite(duration=dur)
         sys.exit(0 if ok else 1)
 
-    is_r6 = args.r6 or args.scenario.startswith("h")
-    is_r5 = not is_r6 and (args.r5 or args.scenario.startswith("m"))
-    is_r4 = not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
+    is_r7 = args.r7 or args.scenario.startswith("r7")
+    is_r6 = not is_r7 and (args.r6 or args.scenario.startswith("h"))
+    is_r5 = not is_r7 and not is_r6 and (args.r5 or args.scenario.startswith("m"))
+    is_r4 = not is_r7 and not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
     ok = run_scenario(
         scenario_name=args.scenario,
         duration=args.duration,
@@ -932,6 +1016,7 @@ def main():
         is_r4=is_r4,
         is_r5=is_r5,
         is_r6=is_r6,
+        is_r7=is_r7,
     )
     sys.exit(0 if ok else 1)
 
