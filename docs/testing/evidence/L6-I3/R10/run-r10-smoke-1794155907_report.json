@@ -1,0 +1,519 @@
+{
+  "runId": "run-r10-smoke-1794155907",
+  "scenario": "smoke",
+  "timestamp": "2026-11-08T16:38:31Z",
+  "k6ClientMetrics": {
+    "available": true,
+    "admissionsOffered": 3,
+    "admissionsAttempted": 3,
+    "admissionsAccepted": 3,
+    "firstAttemptSuccess": 3,
+    "retriedSuccess": 0,
+    "capacityRejected": 0,
+    "firstAttemptSuccessRate": 100.0,
+    "finalSuccessRate": 100.0,
+    "admissionRetriesTotal": 0,
+    "avgRetriesPerCommand": 0.0,
+    "commandsApplied": 3,
+    "terminalResults": 3,
+    "commandsRejected": 0,
+    "admissionErrors": 0,
+    "oracleFailures": 0,
+    "censoredTimeouts": 0,
+    "droppedIterations": 0,
+    "writeCapacity503": 0,
+    "readCapacity503": 0,
+    "readMaintenance503": 0,
+    "probeRequests": 33,
+    "readQueriesTotal": 0,
+    "readQueries200": 0,
+    "readQueriesErrors": 0,
+    "latencies": {
+      "admissionFirstTry": {
+        "count": 3,
+        "p50": 3.09,
+        "p90": 3.43,
+        "p95": 3.47,
+        "p99": 3.5,
+        "avg": 2.98,
+        "min": 2.33,
+        "max": 3.51
+      },
+      "admissionWithRetries": {
+        "count": 3,
+        "p50": 3,
+        "p90": 3.8,
+        "p95": 3.9,
+        "p99": 3.98,
+        "avg": 3.33,
+        "min": 3,
+        "max": 4
+      },
+      "commandResult": {
+        "count": 3,
+        "p50": 251,
+        "p90": 272.6,
+        "p95": 275.3,
+        "p99": 277.46,
+        "avg": 222.67,
+        "min": 139,
+        "max": 278
+      },
+      "balanceAvailable": {
+        "count": 3,
+        "p50": 252,
+        "p90": 275.2,
+        "p95": 278.1,
+        "p99": 280.42,
+        "avg": 225,
+        "min": 142,
+        "max": 281
+      },
+      "potReadAvailable": {
+        "count": 3,
+        "p50": 255,
+        "p90": 278.2,
+        "p95": 281.1,
+        "p99": 283.42,
+        "avg": 228.33,
+        "min": 146,
+        "max": 284
+      },
+      "readPropagationLag": {
+        "count": 3,
+        "p50": 6,
+        "p90": 6.8,
+        "p95": 6.9,
+        "p99": 6.98,
+        "avg": 5.67,
+        "min": 4,
+        "max": 7
+      },
+      "e2eTotal": {
+        "count": 3,
+        "p50": 258,
+        "p90": 282,
+        "p95": 285,
+        "p99": 287.4,
+        "avg": 231.67,
+        "min": 149,
+        "max": 288
+      },
+      "retriesPerCommand": {
+        "count": 3,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 0,
+        "avg": 0,
+        "min": 0,
+        "max": 0
+      },
+      "readQueryHttp": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "avg": null,
+        "min": null,
+        "max": null
+      }
+    }
+  },
+  "decoupledMetrics": {
+    "runId": "run-r10-smoke-1794155907",
+    "demandedRate": 1,
+    "injectionTargetSeconds": 20.0,
+    "injectionActualSeconds": 20.0,
+    "totalScenarioSeconds": 2.87,
+    "generatorStatus": "GENERATOR_LIMITED",
+    "generatorRateRatio": 0.0,
+    "mixReport": null,
+    "latenciesByOperation": {},
+    "counts": {
+      "emitted": 0,
+      "admitted": 0,
+      "capacityRejected": 0,
+      "admissionErrors": 0,
+      "clientTerminalized": 0,
+      "applied": 0,
+      "clientApplied": 0,
+      "clientCasRejected": 0,
+      "clientTimeouts": 0,
+      "clientUnpolledAtClose": 0,
+      "readMaterialized": 0,
+      "clientReadMaterialized": 0,
+      "clientReadTimeouts": 0,
+      "clientReadUnpolled": 0,
+      "completeE2E": 0,
+      "serverApplied": 0,
+      "serverCasRejected": 0,
+      "serverPending": 0,
+      "serverFailed": 0,
+      "serverUnknown": 0,
+      "serverTerminalVerified": 0,
+      "serverReadVerified": 0
+    },
+    "ratesPerSecond": {
+      "demanded": 1,
+      "emitted": 0.0,
+      "admitted": 0.0,
+      "applied": 0.0,
+      "clientApplied": 0.0,
+      "serverApplied": 0.0,
+      "readMaterialized": 0.0
+    },
+    "coverage": {
+      "completeOverAdmitted": 0.0,
+      "percentage": 0.0,
+      "clientObservedPercentage": 0.0,
+      "serverVerifiedPercentage": 0.0
+    },
+    "conservations": {
+      "emittedEquation": true,
+      "admittedEquation": true,
+      "clientAdmittedEquation": true,
+      "serverAdmittedEquation": true,
+      "readMaterializedEquation": true
+    },
+    "latencies": {
+      "admission": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "terminal": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "readMaterialization": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "e2eTotal": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      }
+    },
+    "probesAnd503": {
+      "terminalProbes": 0,
+      "terminal503": 0,
+      "readProbes": 0,
+      "read503": 0
+    },
+    "backlogTimeseries": [
+      {
+        "timestamp": 1794155908.2,
+        "elapsedSeconds": 0.0,
+        "phase": "injection",
+        "dbBacklog": 0,
+        "upstreamPending": 0,
+        "slotBufferTotal": 0,
+        "slotBufferAvailable": 0,
+        "slotBufferQuarantined": 0,
+        "slotBufferClaimed": 0,
+        "pendingTerminalQueue": 0,
+        "pendingReadQueue": 0,
+        "admitted": 0,
+        "applied": 0,
+        "completeE2E": 0
+      },
+      {
+        "timestamp": 1794155909.25,
+        "elapsedSeconds": 1.05,
+        "phase": "injection",
+        "dbBacklog": 1,
+        "upstreamPending": 1,
+        "slotBufferTotal": 1,
+        "slotBufferAvailable": 1,
+        "slotBufferQuarantined": 0,
+        "slotBufferClaimed": 1,
+        "pendingTerminalQueue": 0,
+        "pendingReadQueue": 0,
+        "admitted": 0,
+        "applied": 0,
+        "completeE2E": 0
+      },
+      {
+        "timestamp": 1794155910.31,
+        "elapsedSeconds": 2.12,
+        "phase": "injection",
+        "dbBacklog": 1,
+        "upstreamPending": 1,
+        "slotBufferTotal": 0,
+        "slotBufferAvailable": 0,
+        "slotBufferQuarantined": 0,
+        "slotBufferClaimed": 0,
+        "pendingTerminalQueue": 0,
+        "pendingReadQueue": 0,
+        "admitted": 0,
+        "applied": 0,
+        "completeE2E": 0
+      }
+    ],
+    "sqlReconciliation": {
+      "serverTotalAdmitted": 0,
+      "serverApplied": 0,
+      "serverCasRejected": 0,
+      "serverPending": 0,
+      "serverFailed": 0,
+      "serverUnknown": 0,
+      "readMaterializedVerified": 0,
+      "serverTerminalVerified": 0,
+      "reconciliationExact": true
+    },
+    "asyncStageHandoffs": {
+      "totalServerTracked": 217,
+      "matchedCommands": 0,
+      "fullyCorrelatedCommands": 0,
+      "reconciledDecompositions": 0,
+      "reconciliationRatePercent": 0.0,
+      "stageA_commandWait": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageA1_waitBeforeDiscovery": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageA2_discoveryToSlot": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageA3_slotAcquisitionWait": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageA4_acquisitionToAttempt": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageB_commandProcessing": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageC_c03ReadWait": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "stageE_observationWait": {
+        "count": 0,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "projections": {}
+    },
+    "drainage": {
+      "drainDurationSec": 0.06,
+      "finalUpstreamPending": 0,
+      "finalSlotBufferTotal": 0,
+      "finalDbBacklog": 0,
+      "timedOut": false
+    },
+    "oidcTelemetry": {
+      "renewalCount": 0,
+      "renewalFailures": 0,
+      "totalAuthDurationMs": 108.48,
+      "tokenRemainingSeconds": 296.6
+    }
+  },
+  "engineTelemetry": {
+    "stages": {
+      "admissionHttp": {
+        "count": 10,
+        "avg": 2.53,
+        "p50": 2.1,
+        "p95": 5.3,
+        "p99": 5.53,
+        "max": 6.75
+      },
+      "writeWait": {
+        "count": 163,
+        "avg": 22.96,
+        "p50": 20.78,
+        "p95": 37.86,
+        "p99": 46.69,
+        "max": 108.35
+      },
+      "writePrepare": {
+        "count": 10,
+        "avg": 1.65,
+        "p50": 1.4,
+        "p95": 2.62,
+        "p99": 2.76,
+        "max": 7.27
+      },
+      "writeFinalize": {
+        "count": 10,
+        "avg": 11.39,
+        "p50": 9.32,
+        "p95": 20.97,
+        "p99": 22.09,
+        "max": 22.35
+      },
+      "writeTotalAttempt": {
+        "count": 10,
+        "avg": 13.06,
+        "p50": 10.79,
+        "p95": 21.44,
+        "p99": 22.18,
+        "max": 27.35
+      },
+      "readDiscovery": {
+        "count": 113,
+        "avg": 1.99,
+        "p50": 1.5,
+        "p95": 3.62,
+        "p99": 8.21,
+        "max": 24.03
+      },
+      "readProjectionPrepare": {
+        "count": 10,
+        "avg": 3.92,
+        "p50": 3.15,
+        "p95": 7.69,
+        "p99": 8.25,
+        "max": 7.42
+      },
+      "readProjectionFinalize": {
+        "count": 10,
+        "avg": 4.77,
+        "p50": 2.8,
+        "p95": 19.57,
+        "p99": 21.81,
+        "max": 19.37
+      },
+      "readProjectionTotalAttempt": {
+        "count": 10,
+        "avg": 8.71,
+        "p50": 6.29,
+        "p95": 25.17,
+        "p99": 27.4,
+        "max": 26.82
+      },
+      "readHttp": {
+        "count": 110,
+        "avg": 0.87,
+        "p50": 0.63,
+        "p95": 2.16,
+        "p99": 3.46,
+        "max": 6.05
+      },
+      "readQuery": {
+        "count": 110,
+        "avg": 0.64,
+        "p50": 0.62,
+        "p95": 1.73,
+        "p99": 2.76,
+        "max": 5.79
+      }
+    },
+    "admissionRequestsTotal": 173.0,
+    "attemptOutcomesCommitted": 486.0,
+    "attemptOutcomesRetried": null,
+    "discoveryReferencesTotal": 269302.0,
+    "claimOperationsTotal": 920.0,
+    "physicalPendingCommand": 0.0,
+    "physicalPendingPotVersion": 0.0,
+    "physicalPendingTotal": 0.0,
+    "readQuotaPermitsAvailable": 2.0,
+    "readQuotaRejectionsTotal": 0.0,
+    "admissionCapacityAvailable": 1.0,
+    "workerCyclesTotal": 956396.0
+  },
+  "systemTelemetry": {
+    "jvmHeapUsedBytes": 139007416.0,
+    "jvmHeapMaxBytes": 2080374784.0,
+    "jvmNonHeapUsedBytes": 147871168.0,
+    "jvmGcPauseCount": 671.0,
+    "jvmGcPauseSumSeconds": 1.2000000000000002,
+    "processCpuUsage": 0.03821656050955414,
+    "systemCpuUsage": 0.14129829855109702,
+    "jvmLiveThreads": 55.0,
+    "hikariActiveConnections": 0.0,
+    "hikariIdleConnections": 49.0,
+    "hikariPendingThreads": 0.0
+  },
+  "postgresTelemetry": {
+    "activeSessions": 1,
+    "totalSessions": 57,
+    "lockWaits": 0,
+    "walBytes": 2122532949,
+    "writeSlotsAvailable": 0,
+    "writeSlotsQuarantined": 0,
+    "slotsPending": 0,
+    "slotsQuarantined": 0,
+    "readMaintenanceState": "READY"
+  }
+}

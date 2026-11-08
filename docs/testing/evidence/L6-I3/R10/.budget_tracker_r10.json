@@ -1,0 +1,161 @@
+{
+  "globalBudgetSeconds": 3600,
+  "cumulativeSeconds": 1228.3,
+  "remainingSeconds": 2371.7,
+  "runs": [
+    {
+      "runId": "run-r10-smoke-1794155629",
+      "scenario": "smoke",
+      "durationSeconds": 3.69,
+      "timestamp": "2026-11-08T16:33:53Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-smoke-1794155891",
+      "scenario": "smoke",
+      "durationSeconds": 7.11,
+      "timestamp": "2026-11-08T16:38:18Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-smoke-1794155907",
+      "scenario": "smoke",
+      "durationSeconds": 3.62,
+      "timestamp": "2026-11-08T16:38:31Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794155912",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 72.42,
+      "timestamp": "2026-11-08T16:39:45Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s2-5-1794155994",
+      "scenario": "r10-s2-5",
+      "durationSeconds": 66.63,
+      "timestamp": "2026-11-08T16:41:01Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s2-5-1794156064",
+      "scenario": "r10-s2-5",
+      "durationSeconds": 66.75,
+      "timestamp": "2026-11-08T16:42:11Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s2-5-1794156134",
+      "scenario": "r10-s2-5",
+      "durationSeconds": 66.44,
+      "timestamp": "2026-11-08T16:43:21Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s2-5-1794156203",
+      "scenario": "r10-s2-5",
+      "durationSeconds": 67.02,
+      "timestamp": "2026-11-08T16:44:31Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794156281",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 61.53,
+      "timestamp": "2026-11-08T16:45:43Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794156344",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 61.47,
+      "timestamp": "2026-11-08T16:46:46Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794156447",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 61.56,
+      "timestamp": "2026-11-08T16:48:29Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794156510",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 61.47,
+      "timestamp": "2026-11-08T16:49:31Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794156572",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 61.96,
+      "timestamp": "2026-11-08T16:50:35Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-phase-d1-1794156642",
+      "scenario": "r10-phase-d1",
+      "durationSeconds": 67.01,
+      "timestamp": "2026-11-08T16:51:49Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-phase-d1-1794156832",
+      "scenario": "r10-phase-d1",
+      "durationSeconds": 66.53,
+      "timestamp": "2026-11-08T16:54:59Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-phase-d2-1794157005",
+      "scenario": "r10-phase-d2",
+      "durationSeconds": 62.26,
+      "timestamp": "2026-11-08T16:57:48Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-contention-1794157072",
+      "scenario": "contention",
+      "durationSeconds": 71.75,
+      "timestamp": "2026-11-08T16:59:04Z",
+      "success": false
+    },
+    {
+      "runId": "run-r10-r10-s2-5-1794157156",
+      "scenario": "r10-s2-5",
+      "durationSeconds": 62.02,
+      "timestamp": "2026-11-08T17:00:18Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794157223",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 56.52,
+      "timestamp": "2026-11-08T17:01:20Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794157282",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 62.06,
+      "timestamp": "2026-11-08T17:02:25Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794157348",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 61.97,
+      "timestamp": "2026-11-08T17:03:30Z",
+      "success": true
+    },
+    {
+      "runId": "run-r10-r10-s1-1-1794157413",
+      "scenario": "r10-s1-1",
+      "durationSeconds": 56.51,
+      "timestamp": "2026-11-08T17:04:30Z",
+      "success": true
+    }
+  ]
+}

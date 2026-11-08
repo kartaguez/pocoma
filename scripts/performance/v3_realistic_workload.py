@@ -432,6 +432,10 @@ class RealisticWorkloadScheduler:
                 # Terminal REJECTED or failed
                 if op in self.rejected_counts:
                     self.rejected_counts[op] += 1
+                if resulting_version and resulting_version > pot.confirmed_version:
+                    pot.confirmed_version = resulting_version
+                else:
+                    pot.confirmed_version += 1
 
     def get_mix_report(self) -> Dict[str, Any]:
         """Produces exhaustive statistical mix report required by mandate Section 6."""
