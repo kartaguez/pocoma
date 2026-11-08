@@ -84,6 +84,7 @@ final class V3ReadHttpFixture implements AutoCloseable {
         admin.execute("revoke all on all tables in schema " + schema + " from " + role);
         admin.execute("grant usage on schema " + schema + " to " + role);
         admin.execute("grant select on all tables in schema " + schema + " to " + role);
+        ensureMaintenanceTable(admin, role);
         var manager = new DataSourceTransactionManager(ds); manager.setNestedTransactionAllowed(false);
         injector = new SpringAttemptTransactions(ds, manager, 60);
         objects = new JdbcSubobjectVersionStore(ds, injector); pots = new JdbcPotVersionStore(ds, injector); balances = new JdbcPotBalanceStore(ds, injector);
@@ -106,6 +107,36 @@ final class V3ReadHttpFixture implements AutoCloseable {
         root.execute("create extension if not exists pgcrypto with schema public");
         root.execute("create database i5_read");
         new JdbcTemplate(new DriverManagerDataSource("jdbc:postgresql://" + pg.getHost() + ":" + pg.getMappedPort(5432) + "/i5_read", pg.getUsername(), pg.getPassword())).execute("create extension pgcrypto with schema public");
+    }
+
+    private void ensureMaintenanceTable(JdbcTemplate readAdmin, String readRole) {
+        String sql = String.format("""
+            CREATE TABLE IF NOT EXISTS public.read_maintenance_state (
+                id INT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+                state VARCHAR(32) NOT NULL CHECK (state IN ('READY', 'MAINTENANCE', 'REBUILDING', 'FAILED')),
+                phase VARCHAR(32) NOT NULL CHECK (phase IN (
+                    'IDLE', 'DRAINING', 'EXCLUDED', 'SCHEMA_DROPPED',
+                    'SCHEMA_CREATED', 'MIGRATED', 'ROUTED', 'REPLAYING', 'CONVERGED'
+                )),
+                target_prefix JSONB NULL,
+                operator_id VARCHAR(64) NULL,
+                operation_id UUID NULL,
+                started_at TIMESTAMPTZ NULL,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+                error_detail TEXT NULL
+            );
+            ALTER TABLE public.read_maintenance_state ADD COLUMN IF NOT EXISTS operation_id UUID NULL;
+            ALTER TABLE public.read_maintenance_state OWNER TO %s;
+            REVOKE ALL ON public.read_maintenance_state FROM PUBLIC;
+            REVOKE ALL ON public.read_maintenance_state FROM %s;
+            GRANT SELECT ON public.read_maintenance_state TO %s;
+            INSERT INTO public.read_maintenance_state (id, state, phase, updated_at)
+            VALUES (1, 'READY', 'IDLE', clock_timestamp())
+            ON CONFLICT (id) DO UPDATE SET
+                state = 'READY', phase = 'IDLE', target_prefix = NULL, operator_id = NULL, operation_id = NULL,
+                started_at = NULL, error_detail = NULL, updated_at = clock_timestamp();
+            """, pg.getUsername(), readRole, readRole);
+        readAdmin.execute(sql);
     }
 
     JdbcTemplate admissionObserver;

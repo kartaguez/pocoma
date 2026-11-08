@@ -67,6 +67,7 @@ public class V3ConsumptionWorkerConfiguration {
                                     V3ConsumptionWorkerSettings.class.getName(),
                                     V3BootstrapGuard.class.getName(),
                                     MicrometerV3ConsumptionObservation.class.getName(),
+                                    StageHandoffTracker.class.getName(),
                                     "com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication",
                                     "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
             boolean readMode =
@@ -122,7 +123,8 @@ public class V3ConsumptionWorkerConfiguration {
                                         .getName(),
                                 com.kartaguez.pocoma.engine.read.registrationresult.v3
                                         .GetIdentityTerminalResult.Query.class
-                                        .getName()));
+                                        .getName(),
+                                "com.kartaguez.pocoma.runtime.consumption.v3.V3StageHandoffController"));
             boolean admission =
                     readMode
                             && Arrays.asList(env.getActiveProfiles()).contains("v3-http-read")
@@ -317,6 +319,7 @@ public class V3ConsumptionWorkerConfiguration {
         @Bean
         @Conditional(HasPairs.class)
         MicrometerV3ConsumptionObservation v3WorkerObservation(MeterRegistry registry) {
+            StageHandoffTracker.getInstance().bindRegistry(registry);
             return new MicrometerV3ConsumptionObservation(registry);
         }
 
@@ -486,7 +489,8 @@ public class V3ConsumptionWorkerConfiguration {
                             settings.capacityLimits(),
                             settings.polling(),
                             observation,
-                            resources::close);
+                            resources::close,
+                            StageHandoffTracker.getInstance());
             resources.worker = worker;
             if (observation instanceof MicrometerV3ConsumptionObservation metrics)
                 metrics.bind(worker);
@@ -773,6 +777,10 @@ public class V3ConsumptionWorkerConfiguration {
                                                             instanceof
                                                             com.kartaguez.pocoma.supra.http.read.v3
                                                                     .V3ReadController
+                                                    || bean
+                                                            instanceof
+                                                            com.kartaguez.pocoma.runtime.consumption.v3
+                                                                    .V3StageHandoffController
                                                     || bean
                                                             instanceof
                                                             com.kartaguez.pocoma.supra.http.read.v3

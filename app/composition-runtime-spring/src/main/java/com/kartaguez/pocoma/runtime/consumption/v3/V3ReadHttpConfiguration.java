@@ -49,7 +49,7 @@ import java.util.*;
             "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration"
         })
 @Profile(V3ReadHttpConfiguration.PROFILE)
-@Import({V3ReadController.class, V3InvitationController.class})
+@Import({V3ReadController.class, V3InvitationController.class, V3StageHandoffController.class})
 public class V3ReadHttpConfiguration {
     public static final String PROFILE = "v3-http-read";
 

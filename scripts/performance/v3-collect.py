@@ -13,6 +13,7 @@ Outputs consolidated RAW JSON artifacts and human-readable summaries.
 
 import argparse
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -123,18 +124,18 @@ def extract_histogram(metrics: Dict[str, Any], base_name: str,
         if match_tags(tags, tags_filter):
             max_val = max(max_val, val)
 
-    buckets: List[Tuple[float, float]] = []
+    buckets_map: Dict[float, float] = {}
     for tags, count in bucket_series:
         if match_tags(tags, tags_filter) and "le" in tags:
             le_str = tags["le"]
             le_val = float("inf") if le_str == "+Inf" else float(le_str)
-            buckets.append((le_val, count))
+            buckets_map[le_val] = buckets_map.get(le_val, 0.0) + count
 
-    buckets.sort(key=lambda b: b[0])
+    buckets = sorted(buckets_map.items(), key=lambda b: b[0])
     return {"count": total_count, "sum": total_sum, "max": max_val, "buckets": buckets}
 
 
-def compute_quantile(hist: Dict[str, Any], q: float) -> float:
+def compute_quantile(hist: Dict[str, Any], q: float) -> Optional[float]:
     buckets = hist.get("buckets", [])
     total = hist.get("count", 0.0)
     if total <= 0 or not buckets:
@@ -144,7 +145,7 @@ def compute_quantile(hist: Dict[str, Any], q: float) -> float:
     prev_count = 0.0
     for le, count in buckets:
         if count >= rank:
-            if le == float("inf"):
+            if math.isinf(le):
                 return prev_le
             cnt_diff = count - prev_count
             if cnt_diff <= 0:
@@ -152,7 +153,8 @@ def compute_quantile(hist: Dict[str, Any], q: float) -> float:
             return prev_le + (le - prev_le) * ((rank - prev_count) / cnt_diff)
         prev_le = le
         prev_count = count
-    return prev_le
+    finite_buckets = [b[0] for b in buckets if not math.isinf(b[0])]
+    return finite_buckets[-1] if finite_buckets else 0.0
 
 
 def diff_histograms(post: Dict[str, Any], pre: Optional[Dict[str, Any]]) -> Dict[str, Any]:
@@ -162,8 +164,8 @@ def diff_histograms(post: Dict[str, Any], pre: Optional[Dict[str, Any]]) -> Dict
     d_sum = max(0.0, post.get("sum", 0.0) - pre.get("sum", 0.0))
     d_max = post.get("max", 0.0)
 
-    post_b = {b[0]: b[1] for b in post.get("buckets", [])}
-    pre_b = {b[0]: b[1] for b in pre.get("buckets", [])}
+    post_b = dict(post.get("buckets", []))
+    pre_b = dict(pre.get("buckets", []))
 
     diff_buckets = []
     for le in sorted(post_b.keys()):
@@ -177,17 +179,17 @@ def summarize_histogram(hist: Dict[str, Any], unit_multiplier: float = 1000.0) -
     count = hist.get("count", 0.0)
     total_sum = hist.get("sum", 0.0)
     avg = (total_sum / count * unit_multiplier) if count > 0 else 0.0
-    p50 = compute_quantile(hist, 0.50) * unit_multiplier if count > 0 else 0.0
-    p95 = compute_quantile(hist, 0.95) * unit_multiplier if count > 0 else 0.0
-    p99 = compute_quantile(hist, 0.99) * unit_multiplier if count > 0 else 0.0
+    p50 = compute_quantile(hist, 0.50)
+    p95 = compute_quantile(hist, 0.95)
+    p99 = compute_quantile(hist, 0.99)
     max_val = hist.get("max", 0.0) * unit_multiplier
     return {
         "count": int(count),
-        "avg": round(avg, 2),
-        "p50": round(p50, 2),
-        "p95": round(p95, 2),
-        "p99": round(p99, 2),
-        "max": round(max_val, 2),
+        "avg": round(avg, 2) if not (math.isinf(avg) or math.isnan(avg)) else None,
+        "p50": round(p50 * unit_multiplier, 2) if p50 is not None and not (math.isinf(p50) or math.isnan(p50)) else None,
+        "p95": round(p95 * unit_multiplier, 2) if p95 is not None and not (math.isinf(p95) or math.isnan(p95)) else None,
+        "p99": round(p99 * unit_multiplier, 2) if p99 is not None and not (math.isinf(p99) or math.isnan(p99)) else None,
+        "max": round(max_val, 2) if not (math.isinf(max_val) or math.isnan(max_val)) else None,
     }
 
 
@@ -408,7 +410,7 @@ def generate_consolidated_report(scenario_name: str, k6_summary_file: Path,
     target_dir.mkdir(parents=True, exist_ok=True)
     out_file = target_dir / f"{rid}_report.json"
     with open(out_file, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+        json.dump(report, f, indent=2, allow_nan=False)
 
     return report
 

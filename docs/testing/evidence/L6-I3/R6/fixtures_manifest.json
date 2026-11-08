@@ -1,0 +1,5409 @@
+{
+  "seed": 20261108,
+  "potPoolSize": 100,
+  "shareholdersPerPot": 5,
+  "createdAt": "2026-11-08T10:36:44Z",
+  "pots": [
+    {
+      "potId": "fe4789c2-7524-4562-aa95-936d0d50da0b",
+      "label": "R5-Pot-0",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "08ec49ff-9c54-4855-a662-dee113fefc30",
+          "name": "User-0-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "5b34c069-c5bf-482e-acb7-fbda64cae5cf",
+          "name": "User-0-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3fe13228-4493-4e1e-abda-dbc30a452269",
+          "name": "User-0-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e6a147e8-6e49-4d62-a876-07bdcbdad9ce",
+          "name": "User-0-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "34ebc609-d0f3-4e2d-acf7-38e7e603b3b9",
+          "name": "User-0-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "89bddb22-04d8-4394-a8ad-ded0c63874da",
+      "label": "R5-Pot-1",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "1a5f6e5c-bbec-4e34-a41b-d23fadc771df",
+          "name": "User-1-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "7cd2b1e5-dde0-4b0b-a425-d537487c1e8e",
+          "name": "User-1-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fec96dc1-566e-4a20-af62-5acece770366",
+          "name": "User-1-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f66f9dc8-0e79-4359-aee6-255e918dad07",
+          "name": "User-1-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "6b2a5ca7-f76e-43d1-a170-65e4cab86556",
+          "name": "User-1-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "ce4a7d2f-2e15-4a06-ab55-fc44b2a5fe5d",
+      "label": "R5-Pot-2",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "fb7b5370-d18b-4864-a5ad-cf435505063c",
+          "name": "User-2-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "9edcbb09-46a4-4f5c-a049-7e88ef561a44",
+          "name": "User-2-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "20bb8fad-c601-4e18-a57e-0f7088cf8c47",
+          "name": "User-2-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d6c2aebf-d8e2-4bd7-a2a9-efec7c7f9fed",
+          "name": "User-2-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "091b7e2d-44b1-476b-a30d-ed511baa386f",
+          "name": "User-2-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "1a96119f-a7e2-4834-a1b0-8465c2eb52a9",
+      "label": "R5-Pot-3",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "4c9fff09-86ba-463d-ae0a-b8de2d4a6ef7",
+          "name": "User-3-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "ff6768be-4263-4bd7-af71-6e29d7c42076",
+          "name": "User-3-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "821d1aa7-23ac-4552-a68c-a1a1ea013b5e",
+          "name": "User-3-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "38c17396-873a-4df6-ab91-e7a7691391bd",
+          "name": "User-3-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0d255cf6-425e-40aa-a751-c88b3533c7fb",
+          "name": "User-3-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "69f7e458-2678-4cb9-a0c2-39128cfb2608",
+      "label": "R5-Pot-4",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "e2d21301-8008-4d97-a1a9-d340aa5eee38",
+          "name": "User-4-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "afad9339-637f-4dcc-a491-d7d5c2f5c3c0",
+          "name": "User-4-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c3c1a11b-a938-4d3b-ac5c-887dc8e1d15c",
+          "name": "User-4-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bad76bfe-7b3a-4e51-adc3-b0b6c562f0cb",
+          "name": "User-4-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "26d3a33a-d94f-4957-a9c5-e33fcccd3de6",
+          "name": "User-4-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f975b41e-505d-4296-a065-ac47927bf447",
+      "label": "R5-Pot-5",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "14689577-4793-4572-afa3-a7cc3b02db46",
+          "name": "User-5-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "f71a898f-9a69-4ea8-a5e9-3efc6c06db6a",
+          "name": "User-5-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9f17ddc6-3e56-4ad5-a81a-b2c3c4d5de28",
+          "name": "User-5-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "26703082-e561-42e1-aa55-398a55f915c2",
+          "name": "User-5-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8002d80f-5d03-446c-a408-8f5d7bcac1f3",
+          "name": "User-5-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "2d24acc7-7222-4052-ae1d-d829f089e0c3",
+      "label": "R5-Pot-6",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "7beb4f4d-0631-4070-a881-c5f03da038a8",
+          "name": "User-6-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "78da3727-b35c-48b7-a402-9c4d306ae459",
+          "name": "User-6-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "292b2f74-0e9a-41bc-a6c3-d786cde1f1c0",
+          "name": "User-6-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ac281430-b9cc-44ed-a8ec-d4710f8feae0",
+          "name": "User-6-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4960d5ca-ebe9-4056-a1fa-5b15ca7b5705",
+          "name": "User-6-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5520468a-5f18-4755-a13d-3b3d786c7cc5",
+      "label": "R5-Pot-7",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "27646a1d-4e36-4b71-a8bb-dfde50487031",
+          "name": "User-7-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4e9beda3-9186-4e2c-aab8-578897cb24b8",
+          "name": "User-7-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7ec973a0-1790-4ac1-a6f4-fc29506f8e98",
+          "name": "User-7-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "66938696-6671-464a-ad02-aefe31814628",
+          "name": "User-7-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1e2a6339-8f6f-40d6-ac06-30c5598bb459",
+          "name": "User-7-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "eada5d9e-ea83-4d23-a739-c3a35dc5c5ea",
+      "label": "R5-Pot-8",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "017a5d22-a475-4e0e-a819-dbddb12ef60b",
+          "name": "User-8-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "c1ce7b6c-4ab3-44fe-abbb-edb0f332806f",
+          "name": "User-8-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1a226a96-ac0f-40a7-a79f-04d98fbfb796",
+          "name": "User-8-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8854ba01-f4b1-4827-a416-533453ee367e",
+          "name": "User-8-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1454166a-cf36-4918-a087-56666dec39a6",
+          "name": "User-8-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "048129be-3891-4596-a6bc-c1718bbecd49",
+      "label": "R5-Pot-9",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "c6a8b8e3-9735-46c5-af72-c81987c89c8f",
+          "name": "User-9-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "e8d9aa3b-3ed4-455c-aa2a-eda961a55f00",
+          "name": "User-9-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "317d846b-7380-414b-a80f-e127e922fa2f",
+          "name": "User-9-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1ee05677-a91e-4beb-a70c-00ae917243bc",
+          "name": "User-9-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4b060da4-8f2b-464c-a3bf-603431b67d45",
+          "name": "User-9-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "4c16ac5b-049a-49cd-a087-4b87179a6d2c",
+      "label": "R5-Pot-10",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "0e2db5b7-9433-44d5-ab91-b5f936e80572",
+          "name": "User-10-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "08eea029-bc7a-4cbc-a1a3-10f8c834ef82",
+          "name": "User-10-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "51d146f0-2626-46c8-a149-e8b4c4781f9d",
+          "name": "User-10-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1a65884c-d85f-4d4e-ad51-55f3198b2768",
+          "name": "User-10-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "231fc45e-b8fc-49bb-ab6f-c84a8d43a525",
+          "name": "User-10-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "abc55f9c-9ece-4124-a136-d970e1e37dda",
+      "label": "R5-Pot-11",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "bc048f97-ea5d-41cb-a6ae-17c05d5c4f47",
+          "name": "User-11-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "b2c7c8f5-9a22-414d-aacf-ababcd048763",
+          "name": "User-11-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "15dc9e6c-8c6c-4052-ab92-e8029928fa6c",
+          "name": "User-11-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b8009f37-6b94-496b-a7b8-b627718856fe",
+          "name": "User-11-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4bb45234-de2d-4c59-a61f-6b6488230b7a",
+          "name": "User-11-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "eced9b02-473f-44fb-a459-776f77681b81",
+      "label": "R5-Pot-12",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "a4ecea36-e626-4fd2-a11f-c4c812c80fd4",
+          "name": "User-12-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4ad7dcdd-e24e-4fb2-ad22-b92ad5fb6e1a",
+          "name": "User-12-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f30e3ca7-b3a8-4d15-a0b0-e1c81f38e787",
+          "name": "User-12-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c45eff62-abf9-49ca-a10c-6c3e3d8b3266",
+          "name": "User-12-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8452b30e-3942-4399-aa72-af301403e522",
+          "name": "User-12-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "197ef9a5-ad7a-42eb-a996-9c5385a28e57",
+      "label": "R5-Pot-13",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "52233e91-535e-4d9b-abc1-9623991051dd",
+          "name": "User-13-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "dc7020a3-5356-43cc-adf0-84feceeb9562",
+          "name": "User-13-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b9822d85-980a-4cdf-aefa-f98654beb8fc",
+          "name": "User-13-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "131d7aa0-c3b6-4417-af10-e65f7d4d5f69",
+          "name": "User-13-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f0098442-3e8c-48e6-ad64-471dbb3fba5b",
+          "name": "User-13-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "0a3a302c-afd3-47d3-acff-33eeb672b023",
+      "label": "R5-Pot-14",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "efb976ef-a409-43d7-aed6-c643ce12a5ed",
+          "name": "User-14-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "865504a1-f30e-4fbb-a4e7-46f9a421e571",
+          "name": "User-14-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "eb74c2a2-827c-4f52-aa00-a44258d5e0b7",
+          "name": "User-14-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "01e3408a-0adb-4864-a74b-373bb4aab8be",
+          "name": "User-14-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "981257d7-63d5-4f62-aa84-1002d5947e6e",
+          "name": "User-14-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "4e43920f-f6fa-4cdd-a123-f103ef2c0206",
+      "label": "R5-Pot-15",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "fe647aa1-2676-483a-a475-37d5cfce3bc7",
+          "name": "User-15-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "1e1dc8e4-e0ab-41ff-a888-75d9eea0ec86",
+          "name": "User-15-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "065a0dde-76c5-44f2-a221-9bc75076e182",
+          "name": "User-15-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "522456d7-32aa-4ca0-a7de-11504c7952df",
+          "name": "User-15-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "32543006-3b71-49d3-a8b6-5488adfcada2",
+          "name": "User-15-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "0fe4a6a8-4440-45e6-ac22-e64537a59bd6",
+      "label": "R5-Pot-16",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "5044d13b-75c1-40ce-abd7-490278026d2b",
+          "name": "User-16-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "1fa68672-8f5d-4275-a5ea-02066338799e",
+          "name": "User-16-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "87d9c811-0d3a-420d-a195-4a220cac057c",
+          "name": "User-16-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fa04e13e-8388-4c02-a453-4f03f14ef677",
+          "name": "User-16-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "6f8fc868-48ff-42e0-af63-c06940f59809",
+          "name": "User-16-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "aaf5bd00-8174-4120-a375-df17fb3bfa10",
+      "label": "R5-Pot-17",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "d05c90de-cc65-483c-a34a-636d80194d26",
+          "name": "User-17-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4926e7fb-106e-4da7-a88f-264823e12a83",
+          "name": "User-17-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a270e5a6-5ae2-4821-af61-1c436b553463",
+          "name": "User-17-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "5bba3e82-30d0-4d84-a6f9-21619b9473a9",
+          "name": "User-17-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4765c2de-6717-4eb9-a702-e950ceb18700",
+          "name": "User-17-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f0e0b643-ed49-4507-a91b-32042b4a94a0",
+      "label": "R5-Pot-18",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "a77b32b5-4561-4695-a414-1795de759613",
+          "name": "User-18-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "b531bcbe-d2cc-4d36-ad26-ac7af640d9f7",
+          "name": "User-18-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "17586dfb-1f33-4112-a933-f88ac9a0b2ad",
+          "name": "User-18-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "50b513b4-6a4a-483e-a9c2-0d9fdfa85e85",
+          "name": "User-18-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "cbb54876-b68d-4ee1-ae0f-81e79e29c130",
+          "name": "User-18-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "63a4ee67-4e51-4d5b-a1be-60d5f419001f",
+      "label": "R5-Pot-19",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "39f50eb0-7da6-4d53-ac7d-d7ef229da022",
+          "name": "User-19-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "52a2f6d1-5754-4a6a-a44d-c188d84c5cdf",
+          "name": "User-19-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "80fbf5b4-c0c4-439d-a545-5280b55e1b30",
+          "name": "User-19-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "92e185ee-43d4-4bc2-ad0d-95e325119314",
+          "name": "User-19-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "cb54e4ca-0856-4e2c-a354-ba414bbf603b",
+          "name": "User-19-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "9fc825e7-9339-4819-ac1a-db5dbc4b88fe",
+      "label": "R5-Pot-20",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "5bac82cc-5b34-4080-a3db-e5faf4f2b568",
+          "name": "User-20-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "928f609c-11d0-4c4c-a30b-27caff142333",
+          "name": "User-20-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "920341a0-0414-48b4-a367-4e1f048b781c",
+          "name": "User-20-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "984ee6d7-0718-4737-af3c-f14353fcbfd3",
+          "name": "User-20-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "067ec639-9621-47fb-aeb3-d3aa05a03751",
+          "name": "User-20-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "607b776c-7e3c-48bc-a5df-94bd5f03f9d9",
+      "label": "R5-Pot-21",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "e9f3b64c-f4c8-455e-a7eb-09fff187b6bd",
+          "name": "User-21-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "338ad4ad-d56b-4bb3-ae1b-c98b942a4617",
+          "name": "User-21-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0735778f-7f7d-4f1e-a017-66a1f0d68e25",
+          "name": "User-21-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0fbb3be2-fbea-4fc8-a413-5af6a7aecd11",
+          "name": "User-21-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "312eda80-d2bf-425b-ab0c-4c2124fed2b9",
+          "name": "User-21-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "a89034ab-8402-4206-a294-34cc152211aa",
+      "label": "R5-Pot-22",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "f8725ef0-6459-4b7d-aea0-543670fec87b",
+          "name": "User-22-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "285f06a3-5a0f-42bc-a44f-128e0be407f0",
+          "name": "User-22-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "87611dd4-013f-4583-acf1-658cd3543040",
+          "name": "User-22-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "53a5c370-8c5b-4081-a4c9-30d33b9477f5",
+          "name": "User-22-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "de72a0b4-f9f1-4f4a-a86b-6cdfd3df0573",
+          "name": "User-22-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "2e315b20-fe38-40a2-ad40-915b7a008327",
+      "label": "R5-Pot-23",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "8dbe2154-3faf-4830-ae31-450e0378619d",
+          "name": "User-23-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "df1ebd5d-eb25-4453-a58e-d9ecb8f0c22b",
+          "name": "User-23-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "dba787b8-2ff6-48f2-aade-a8ed37937d75",
+          "name": "User-23-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "621104f6-8f82-49d5-a73c-aad785db4705",
+          "name": "User-23-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "801c7088-1cbf-4a8b-abb9-5be3a16ca395",
+          "name": "User-23-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "224da95c-5dca-40d9-ad53-e5367b6de2ed",
+      "label": "R5-Pot-24",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "b3014cc5-ef21-4eea-a4d8-e2807bf6dd5e",
+          "name": "User-24-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "095e02c1-3484-4893-a274-63b2ba7b05f9",
+          "name": "User-24-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fdeb75f9-f9a5-491e-a0b8-3ad0535cb5a3",
+          "name": "User-24-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "5f07e290-715c-4359-ab00-4e820ae76247",
+          "name": "User-24-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "050ba5fc-e495-4139-a420-455b191ab6f9",
+          "name": "User-24-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "eff6fb49-d0af-4355-a433-4bfc73215e5d",
+      "label": "R5-Pot-25",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "0ac0f53e-edb9-44cf-a4df-251396e29898",
+          "name": "User-25-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "7c1c2539-4057-45b5-ab3a-a8818c1d8312",
+          "name": "User-25-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d59e2d55-ba0c-409d-a7d9-fa68132458e1",
+          "name": "User-25-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "2f48fa52-0b82-4d34-a87a-cbcaf709f79f",
+          "name": "User-25-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "2cbe6228-d68e-4b6c-a3e9-2de4d155ed4f",
+          "name": "User-25-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "34359e84-bdbc-48bd-a912-9e1ef0ccae39",
+      "label": "R5-Pot-26",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "c28d13ec-7559-469a-a6e0-a40b12de2b16",
+          "name": "User-26-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "21ce6460-3185-44c7-a85a-4809786d1c65",
+          "name": "User-26-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f535b0fe-a199-4bf8-aecb-3ca24a39e550",
+          "name": "User-26-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "262ec72f-00ca-4cc8-a771-d078487c9126",
+          "name": "User-26-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "6930cd60-f97c-4975-a61c-0695551ace13",
+          "name": "User-26-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "8c98ec03-6803-456b-a9bd-ffb591c282be",
+      "label": "R5-Pot-27",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "6404a2cd-84a9-4990-a802-049357a818ee",
+          "name": "User-27-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "af4653fb-6d00-4f31-afb6-69945a221934",
+          "name": "User-27-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0d71f07f-6794-4df4-a348-011c1d287680",
+          "name": "User-27-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7b40acfd-cd1b-4084-a2ec-9dfa45c6e3a2",
+          "name": "User-27-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "90801a3c-86ad-44d0-ab4e-b3f754e6c234",
+          "name": "User-27-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "2157f2d0-8d2b-4d9f-a867-1ee8e5967a07",
+      "label": "R5-Pot-28",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "0f800923-51d8-4cad-ae71-cb0596c97161",
+          "name": "User-28-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "17bf604f-1f0c-4abe-a8a9-c3a277c171a0",
+          "name": "User-28-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1a295bca-bd2e-4f2e-a0f9-ecef0e6ffd06",
+          "name": "User-28-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c87fffc1-5d91-4621-ab1a-248315e13f36",
+          "name": "User-28-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7bc848b6-c48f-4039-afc9-f669e67857a0",
+          "name": "User-28-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "8232de6b-464e-4c08-ae3d-c0ec7e676be7",
+      "label": "R5-Pot-29",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "1bd34a92-6e53-4deb-ae8a-1cbcc2582ea4",
+          "name": "User-29-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "90d506ac-4907-436a-aacd-b4a015212c4b",
+          "name": "User-29-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4ed947af-f13c-4294-ab3d-35184fdcd007",
+          "name": "User-29-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "55d03d89-ecdc-42a0-a92a-f8a08cd62eeb",
+          "name": "User-29-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7b35846a-4c45-486d-a1bb-142dc95f4d6f",
+          "name": "User-29-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "767a8db7-61f2-4d2b-ab32-eefe5a380546",
+      "label": "R5-Pot-30",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "bd0b22ab-6b2d-4249-a5b6-9943d7e5ecde",
+          "name": "User-30-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "f738774f-85b7-4f46-ab0f-ccd65f69c585",
+          "name": "User-30-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "2c6b0d4c-8fef-43d1-ab61-a8a07ba3ad29",
+          "name": "User-30-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f59cedc9-4019-4bc5-ad99-9021f097c9ac",
+          "name": "User-30-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "35fcc726-6e73-4e05-a912-9cb4fd7e1271",
+          "name": "User-30-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "9221f745-6e2a-493c-a1ce-4a5c7f1676f4",
+      "label": "R5-Pot-31",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "d289dafd-fc9c-46ec-aa97-ea450307a3f8",
+          "name": "User-31-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "750a2623-8fd3-41a8-ad25-37de1415e615",
+          "name": "User-31-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e527bd52-5f9b-4715-a6c2-3641e4462d64",
+          "name": "User-31-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4f7173cb-cf4b-4c9c-aeec-7122d2da198c",
+          "name": "User-31-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b4cbf691-2812-40b8-afd8-ac291ebb4536",
+          "name": "User-31-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "365ea433-ba42-4429-a2df-6ad069a9d722",
+      "label": "R5-Pot-32",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "ba098a95-960e-4107-a73a-0817187f331b",
+          "name": "User-32-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "bb7359c9-11c1-4353-a0fa-761f72367180",
+          "name": "User-32-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0c14e794-e2ee-4b0e-a49f-795adffc3b15",
+          "name": "User-32-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "08f0c3aa-8738-47a8-ac12-7fab77271899",
+          "name": "User-32-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7d282dbc-299d-45ed-ab47-a209e75fbf7b",
+          "name": "User-32-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "39bf4394-5afe-4e36-acd7-76b18aecddcd",
+      "label": "R5-Pot-33",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "3d703b47-34cd-4983-a873-fae0e8b159d2",
+          "name": "User-33-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "e1f9f03a-dca5-43a3-ab7a-8b0867699300",
+          "name": "User-33-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "907ff078-6b8b-4f21-ab37-085e93ff1bed",
+          "name": "User-33-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ad19ae5c-340d-48b3-a968-4d495bb075d4",
+          "name": "User-33-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3a1d22d4-8d7d-4bf0-a75b-e8065044bc18",
+          "name": "User-33-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "348e8f92-a541-44b8-aa94-737af63f3448",
+      "label": "R5-Pot-34",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "27d6eeee-a112-409a-a934-cb4ab2884d75",
+          "name": "User-34-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "9dac19af-5ffc-4dfa-a2c1-a487ee8f04a2",
+          "name": "User-34-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c1bb0f92-4e1c-4e36-aab8-cbab39b6e554",
+          "name": "User-34-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "5a5f1ced-8eb8-471c-a2ec-4fb2a90c0ef7",
+          "name": "User-34-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "5ca4c305-4652-423a-af7a-2fc6aeb5a1b0",
+          "name": "User-34-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "0c92c3f8-f692-4bba-a24b-11c9b5489928",
+      "label": "R5-Pot-35",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "9827bba3-dc54-4cd2-a905-30544c11fd5f",
+          "name": "User-35-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "90a7b25b-7515-400a-af55-0bbb928c4598",
+          "name": "User-35-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b82be5c3-1b9c-4f8e-ac4b-1e18583bc9e0",
+          "name": "User-35-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e53fb7ce-b476-4eed-a214-ceaa31b7520d",
+          "name": "User-35-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e74b22be-e44e-4c80-a5c6-ab0be551488f",
+          "name": "User-35-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "47108a7d-2b94-4123-ab59-104136e22a03",
+      "label": "R5-Pot-36",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "9167c8ac-9eba-4244-a397-8a14b4394f6b",
+          "name": "User-36-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "7ad3a17d-038b-4ee1-ae7d-273df9944610",
+          "name": "User-36-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1701b395-4bff-4496-a2d4-563d943ced56",
+          "name": "User-36-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bdb10c3e-0043-4b06-ad69-b3fbe6b113b2",
+          "name": "User-36-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "afeb9a5e-846f-4464-aebe-0d1502f9ffa6",
+          "name": "User-36-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "8277280e-2fc9-4de0-a490-177d935da965",
+      "label": "R5-Pot-37",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "3c2de8f6-0c09-4bcc-adae-7dd4ea0c4d7d",
+          "name": "User-37-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "70d17a96-7427-43e4-a371-5dcb677a332e",
+          "name": "User-37-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "438fc0ac-6ee3-4d30-a5a7-d4d213df680d",
+          "name": "User-37-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3a6f39b3-fb98-4595-a40a-63d4a7c466ba",
+          "name": "User-37-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "af6ecca5-e23b-4304-a67b-4e14b2994b24",
+          "name": "User-37-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "9ff6b581-11bb-4640-a430-37fcdf333563",
+      "label": "R5-Pot-38",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "f93341d6-1014-4112-afaa-b4775a170b4e",
+          "name": "User-38-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "2dc50ef0-e8e8-41c3-ad75-8626e5a7a9d7",
+          "name": "User-38-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fd9cdc25-e11d-49e7-a8c2-7ba0f0d39916",
+          "name": "User-38-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d2e11506-2e0e-4679-a06a-ba513ef51c96",
+          "name": "User-38-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a498981f-92be-447d-a20a-eee86f50af30",
+          "name": "User-38-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "a7556703-bd14-4c6a-a15e-2aee3f4661ca",
+      "label": "R5-Pot-39",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "65817c15-c820-43c5-a28e-c27244a90cee",
+          "name": "User-39-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4141436f-fb37-48e8-aaea-d4b95c066797",
+          "name": "User-39-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "46fb07ec-8948-40d4-a677-e25ab151040a",
+          "name": "User-39-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "880c245e-462c-480c-a860-996c36b89296",
+          "name": "User-39-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f10b30c4-2202-449f-a7f1-a257057c0d0f",
+          "name": "User-39-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f3852473-c575-457a-ae98-42fb8a86aa57",
+      "label": "R5-Pot-40",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "28b02cea-3f4b-472e-a2e5-cc73aa7bdf8c",
+          "name": "User-40-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "f21e062b-d978-415b-ad31-36088b38b5fd",
+          "name": "User-40-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0e4570aa-a34f-427f-a54f-ff2f82fb7c90",
+          "name": "User-40-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "22a0260c-cc53-46be-af8a-216413faf2a3",
+          "name": "User-40-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "550c92f3-85cf-46c2-a765-8e70753063ac",
+          "name": "User-40-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f605f0f0-cca8-409c-aa44-c2ee7e700c16",
+      "label": "R5-Pot-41",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "a7e09a31-ec5b-4248-a561-350f37cd62e2",
+          "name": "User-41-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "d3b31768-08ec-46c5-a592-16e7471d29a2",
+          "name": "User-41-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "abc34242-aa06-4ab3-a42f-a34c82f0040a",
+          "name": "User-41-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "94d378d1-79e1-49ae-afac-2f8b7c65780c",
+          "name": "User-41-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "70bb780d-ac60-4971-a64e-5a2a157f6379",
+          "name": "User-41-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "4140e1ca-455b-4baf-a405-f9ee222f7c97",
+      "label": "R5-Pot-42",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "1805b4a6-15cf-456e-a15a-246e28bdfb20",
+          "name": "User-42-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "81498806-fa57-47d7-a764-bb7528d57715",
+          "name": "User-42-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a57cd561-7e2c-43d8-ad40-9cd29a862481",
+          "name": "User-42-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a4e75080-85ad-4ea1-a15a-6241e48c8d03",
+          "name": "User-42-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b774861e-51d4-484b-adfd-1cfcd184d4d9",
+          "name": "User-42-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5cba6a9f-3ad9-4d35-ade1-82a3d16c7e55",
+      "label": "R5-Pot-43",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "33522c23-f0f8-4601-a886-c20b506d5df1",
+          "name": "User-43-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "3b80ccb2-ee3f-469a-a83e-5c195fd5976c",
+          "name": "User-43-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9955b521-5866-4082-afed-06e834fea4f2",
+          "name": "User-43-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b5df73bb-d385-44c8-a5ed-d10029d17aa1",
+          "name": "User-43-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0007db4c-ce50-46c6-a2a4-a6e83acd639b",
+          "name": "User-43-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "dd8415a4-9c7b-48f1-a379-96452cc66014",
+      "label": "R5-Pot-44",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "6a855d37-b16b-48a6-aa22-5d9ff29ee50f",
+          "name": "User-44-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "71c2171c-58eb-4faf-aa37-b075a79cfbd4",
+          "name": "User-44-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "6cc24dd4-a262-4e5e-a8e3-6ac8ad94eafd",
+          "name": "User-44-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f56e0d62-27b5-462e-a3be-70d11ab9f18b",
+          "name": "User-44-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "66205395-5990-47e9-ac60-a048acfed0e5",
+          "name": "User-44-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "af1c5930-6dc6-4b87-a637-2d89bb8090bf",
+      "label": "R5-Pot-45",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "daa087c6-1832-43bc-a243-7aecea91aeec",
+          "name": "User-45-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4b8c555b-2333-45fd-a8f4-ad74cac66e5f",
+          "name": "User-45-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ac51e8fc-b5ff-4714-a54a-b921ab389087",
+          "name": "User-45-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b454f504-e1e3-4f62-a84d-1cf655559758",
+          "name": "User-45-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3cf01977-2190-4ccc-a6be-c3a3f1cbfc48",
+          "name": "User-45-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "02898719-c9c0-4cee-acea-10cd06b12b1d",
+      "label": "R5-Pot-46",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "3809990f-fe3d-4249-aa8d-0a7767cb4a03",
+          "name": "User-46-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "ebc5629d-6a46-481c-ac66-8a10aefd97e4",
+          "name": "User-46-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f029edfb-da98-434c-a6e8-aa37ec0e3701",
+          "name": "User-46-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3ee1dee6-7904-4827-acf4-bc970db60ec8",
+          "name": "User-46-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "97556611-b4e5-4063-a66f-c6a59edb086c",
+          "name": "User-46-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "d35a15e8-adff-421f-aa17-b695d82f4947",
+      "label": "R5-Pot-47",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "66fa44a1-6a81-4559-a10a-5de4a514c5b0",
+          "name": "User-47-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "ed6a144e-c5c3-4fe0-ac6d-aeff8fccda9f",
+          "name": "User-47-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d5d10d09-036a-484e-a344-4bc2ba1d649a",
+          "name": "User-47-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "675c8646-f505-4370-af8f-c161b2312dfc",
+          "name": "User-47-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "83a54954-c848-49d5-aff9-b6f57cf559de",
+          "name": "User-47-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "10f6cef6-569e-490c-a877-33b144cbde5b",
+      "label": "R5-Pot-48",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "714d71c2-3742-4baa-a67a-5f1071a2f54e",
+          "name": "User-48-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "974b3b67-71d5-423f-a91a-a5b91dbbe2ef",
+          "name": "User-48-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9490c1aa-4a68-4ff6-a2b1-2e476d26cb44",
+          "name": "User-48-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "32dd1f18-9460-4fab-a45e-8e9e465924c7",
+          "name": "User-48-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d8f026b9-b2a9-4c32-adae-3329963c85d3",
+          "name": "User-48-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "1447af66-882d-45da-a327-c329b155bcc2",
+      "label": "R5-Pot-49",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "451cf451-9769-4dd0-a5b3-a1b26c65429e",
+          "name": "User-49-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "42398475-2b94-4e05-a9ee-8972da005555",
+          "name": "User-49-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ccb92965-97dd-4145-a777-fc145ba7b00c",
+          "name": "User-49-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1178fe75-6637-4906-a83c-9ebccbbb6f2a",
+          "name": "User-49-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "89170786-3fc4-4f0a-aa72-41d841a4b25c",
+          "name": "User-49-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "6871b66c-3036-4db8-a571-368c35d0b9f5",
+      "label": "R5-Pot-50",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "2b71a433-fdd7-453b-a958-de0f4a3df385",
+          "name": "User-50-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "81d82404-36fd-469d-a4c5-1f609a6b0b8a",
+          "name": "User-50-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "22be956e-4ab9-4c1c-aa2f-6840cdb7a281",
+          "name": "User-50-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "256e42f7-ed94-46f3-acee-37c35cf4acfd",
+          "name": "User-50-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ace3ee55-d09c-4ed9-a11f-34f6743209c7",
+          "name": "User-50-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "0fecde52-6d0b-46b8-a0f3-f63b6319a831",
+      "label": "R5-Pot-51",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "59407628-a45c-491a-af5c-bb8ddc15ad50",
+          "name": "User-51-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "8c48cdb3-48cd-4ad7-acb2-869879d49939",
+          "name": "User-51-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f343f66f-07c1-4783-a069-fd549dff6b72",
+          "name": "User-51-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "79b0e0b4-5c78-4eae-aae7-9b7cd29245cf",
+          "name": "User-51-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "6e2ede4f-b9df-4114-a9c9-169c71bfe033",
+          "name": "User-51-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5bd0732b-98cc-4a03-a52b-d45dd6e23f13",
+      "label": "R5-Pot-52",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "2ab97f39-5a42-4e40-a462-8ac773562816",
+          "name": "User-52-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "3bc01a81-178a-43ce-a50c-2991cfccf189",
+          "name": "User-52-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7dcaa6fa-0d1f-4522-a6d1-93289278c5e3",
+          "name": "User-52-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c5349a90-8938-44fd-a810-875fb56c8c4d",
+          "name": "User-52-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "68fe5db4-8741-4782-ac93-c6966bc7000e",
+          "name": "User-52-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "eef3fe82-1d03-48c0-abc4-074d51b356b8",
+      "label": "R5-Pot-53",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "403b8e56-9841-462d-a991-3c7e31b2e91c",
+          "name": "User-53-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "f29cdaef-d4f8-4374-aedd-8b4b33117943",
+          "name": "User-53-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3f854111-fac7-43be-ad9f-e3a9a1e479e9",
+          "name": "User-53-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bd0d3924-55b9-4950-a1c2-7ba6b48be2f8",
+          "name": "User-53-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3d510103-4c50-4cd4-a527-73bd423d92b8",
+          "name": "User-53-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "4100b164-1a48-40e5-ada8-5abf07c22aca",
+      "label": "R5-Pot-54",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "fa159152-8e4d-4bd2-ad11-2f6ade0ca119",
+          "name": "User-54-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "b2ce96a6-4c7d-40e5-a28e-a12030bbcbea",
+          "name": "User-54-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a6a4cac0-b286-425c-afd6-40afc938573b",
+          "name": "User-54-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7ba26da7-dc52-4ce8-adae-89e7d8bf84c3",
+          "name": "User-54-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b23bb07a-5b64-4272-a8db-06cf98452c09",
+          "name": "User-54-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "8efb0e7a-883c-4a6a-aef2-73a646967b2a",
+      "label": "R5-Pot-55",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "7d11e0e9-0f05-43a9-abad-a05d2d298980",
+          "name": "User-55-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "3819bb42-e623-4b7a-abef-d3be3b5398d9",
+          "name": "User-55-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "053a90bd-fad4-478a-a60d-6fcdb934ffc2",
+          "name": "User-55-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8b31ba88-eb7c-4c10-a536-baa442e4663f",
+          "name": "User-55-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c04199e9-d852-431e-a98f-bbae3fc687a8",
+          "name": "User-55-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "c6f25ced-c1cb-4457-a4ff-03e95a4f9d9b",
+      "label": "R5-Pot-56",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "e7b33564-dfa8-4b3e-a42d-07ab39279a19",
+          "name": "User-56-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "dce27712-fc37-4694-a132-4b14856be06c",
+          "name": "User-56-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "19159d02-89b6-4cd9-a09b-f2c8851954c9",
+          "name": "User-56-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b2b8ec16-dc0a-4fca-ae40-45a538b326e1",
+          "name": "User-56-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "42d661a5-df19-446b-a1db-f998c3e91231",
+          "name": "User-56-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "0a6c186a-63fb-4e09-a57e-79610d702dea",
+      "label": "R5-Pot-57",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "590dbde1-3136-4c85-ad0b-7109250c518f",
+          "name": "User-57-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "b8b5631a-5ee8-431c-a24b-d3fc06bf3071",
+          "name": "User-57-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3403dd7b-2aea-4f50-a922-228a2b361836",
+          "name": "User-57-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f3e4bd2b-715a-4865-a845-6ea72e6d7e26",
+          "name": "User-57-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8015657e-0e73-44c4-a389-207afa3ad82c",
+          "name": "User-57-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "91eac647-61f7-4ff2-af3b-edecb17c4cea",
+      "label": "R5-Pot-58",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "c019b4ad-e299-4990-aebc-b912712cbbcf",
+          "name": "User-58-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "6b2b7c36-ddd7-44b0-a248-d3e25e5d7401",
+          "name": "User-58-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0e9ab20e-9a4b-4027-a494-37fd9955b31c",
+          "name": "User-58-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f2bf5141-1ab6-4da1-a477-a6167b222708",
+          "name": "User-58-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e724355a-d7d2-427c-af2d-75e4ad286231",
+          "name": "User-58-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "25b6220f-6012-4770-a8df-c4203f0adc39",
+      "label": "R5-Pot-59",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "12791236-708a-4bf3-ab85-6d0b13b7505d",
+          "name": "User-59-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "68889c5c-dcbf-4306-a5ef-41ed18c26a11",
+          "name": "User-59-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "20645433-8102-4657-af82-3bfc27f6f50c",
+          "name": "User-59-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "04043796-ed58-474e-aa45-ff40a62637ba",
+          "name": "User-59-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bd443c8c-f8a8-4f06-aeaa-c0d956ff7312",
+          "name": "User-59-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "d9803c26-6770-43f7-a8f1-ab0497ac7f02",
+      "label": "R5-Pot-60",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "6ab4fe42-7d9f-4862-aeb3-673682179581",
+          "name": "User-60-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "23462530-fc2c-466f-ad0a-117f6e60a560",
+          "name": "User-60-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "07b0daa1-28c5-4ab1-a89e-cc6c6fe9809a",
+          "name": "User-60-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8eb654d9-87ae-4a46-aa1f-68274eb5b280",
+          "name": "User-60-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "87fb10b7-3281-403a-ae6e-fc1cfad7c902",
+          "name": "User-60-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "fc2f1bf4-4256-4cb0-ad72-212abd5cb73d",
+      "label": "R5-Pot-61",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "745bd383-6fc9-42ac-a808-94b9800b1a15",
+          "name": "User-61-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "63e6659f-2f83-4bce-a397-04390c4240a1",
+          "name": "User-61-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "98fdcd72-c314-4829-a326-c9ea25fa9ea7",
+          "name": "User-61-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9cbc5d30-748e-4475-a94f-73175b00ea3c",
+          "name": "User-61-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bba4e4ef-883a-41a7-a5ed-9700d57d5b56",
+          "name": "User-61-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5f4eeebd-73ae-428b-a8d0-b237c3ed41b0",
+      "label": "R5-Pot-62",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "347b7f60-8ed8-405a-aa1c-6e7809ec478e",
+          "name": "User-62-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4d12742f-da7b-4662-a3bd-0a253e852edb",
+          "name": "User-62-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bce81aeb-4fb4-42bf-a424-f73006b9cd38",
+          "name": "User-62-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9ff828ec-12bd-4319-a93a-80a72ec17f6f",
+          "name": "User-62-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "abf6cbe9-7b6b-4117-affd-88081984be81",
+          "name": "User-62-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "db615ded-5ff6-4b9a-afcb-861c147e103c",
+      "label": "R5-Pot-63",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "83b0b351-caa3-44eb-a903-edb97533833c",
+          "name": "User-63-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "82061431-bec9-4061-af0c-eb21d0af2887",
+          "name": "User-63-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "911818d1-6329-49f0-a6b9-2353cab0f4fb",
+          "name": "User-63-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f1fa4138-2d9e-4105-a741-d1b25ec0d9d6",
+          "name": "User-63-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f6ea2924-bd61-4feb-a681-ff7e940fe421",
+          "name": "User-63-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "b773f4e1-423d-4fab-a8d8-69d0850c23b4",
+      "label": "R5-Pot-64",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "94f16774-7d39-4a70-a0ba-c3ebbae5751d",
+          "name": "User-64-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "a661b648-107e-4a03-a6b1-88ff0a501fe3",
+          "name": "User-64-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "78c13939-679c-445e-a73e-ccdbe0bd2387",
+          "name": "User-64-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f4325eaa-ed9b-4305-a6e8-32a4ce3bd816",
+          "name": "User-64-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "cad9a929-8117-4c8a-adf4-240694279c73",
+          "name": "User-64-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "09c476bd-626f-4ec2-aa4e-1e18a49ad653",
+      "label": "R5-Pot-65",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "c35c8e63-05a2-4295-a40a-9856aa02c004",
+          "name": "User-65-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "5bdbc236-68ac-4261-a9ab-66861c0c65da",
+          "name": "User-65-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "33bf5baf-0496-4b20-ae79-7b66129dce11",
+          "name": "User-65-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e1983e0f-c03b-49dd-a866-df249010eb47",
+          "name": "User-65-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1b47d389-5777-46bb-a661-e327237bb0a6",
+          "name": "User-65-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f660c97f-d569-481d-a754-840563b8e8c1",
+      "label": "R5-Pot-66",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "4d47a5e7-24d5-4f57-a429-d676b499691d",
+          "name": "User-66-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "da64ad01-0eee-460d-a3f1-bf50b6a459e8",
+          "name": "User-66-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0fb3cfe4-a606-462c-aaec-913cd3f99e64",
+          "name": "User-66-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "57fb0dae-5c3e-443e-afc6-f1182ecb0306",
+          "name": "User-66-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4fb51811-e824-4332-a6ad-82483bd7cf96",
+          "name": "User-66-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5835452f-dab5-4697-abff-f485ee72a7de",
+      "label": "R5-Pot-67",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "ef319ba5-8f7a-4413-a9f7-cfd59bfc17b7",
+          "name": "User-67-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "0b863fe4-7717-4d52-a6ef-62b255f7e21b",
+          "name": "User-67-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1d1da090-4e5e-48d2-a5b7-a8575dafa7d8",
+          "name": "User-67-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b96cfc5d-2949-449f-a369-dd0131277e93",
+          "name": "User-67-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f33a8ea9-901a-4510-abb3-7c4e4e375a58",
+          "name": "User-67-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "3fe3501f-e1b5-43f6-aa7e-defd731a1b97",
+      "label": "R5-Pot-68",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "95e3f808-904e-48d1-a9a2-d0968c4520d0",
+          "name": "User-68-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "59ecde68-d4e3-42eb-a559-a0c4122436ff",
+          "name": "User-68-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fd9081f0-de64-4206-a0b9-be063cc29324",
+          "name": "User-68-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "34cbefe9-678f-4e6e-afdc-79d720a408be",
+          "name": "User-68-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "311b11b0-a2d6-4025-a89c-42c8d909c8d2",
+          "name": "User-68-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "95530be1-e691-4d6e-a745-97e0fb093386",
+      "label": "R5-Pot-69",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "1674c1ec-2722-48ae-a067-8b246a8b41c9",
+          "name": "User-69-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "e9650e5b-9f32-4a79-a1b3-be6c5f0c2c9b",
+          "name": "User-69-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "76e26a0b-831e-4334-a32a-b442d1901d15",
+          "name": "User-69-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9188b275-0d84-4fc3-a278-b54fe7bd761b",
+          "name": "User-69-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c29b6353-84ee-4d9b-acf0-fb0408bc1c4c",
+          "name": "User-69-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "10318f9a-76a3-40b9-a2a4-d3e56c3f06fc",
+      "label": "R5-Pot-70",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "637ff4ae-ed89-4a97-a43e-73e2799cac6b",
+          "name": "User-70-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "55ebd79b-bce8-429c-a9f7-1b2dc91a7a0c",
+          "name": "User-70-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f02a9931-20da-4a4d-a436-751ca43d5fe7",
+          "name": "User-70-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7f4efedf-afde-41aa-a570-acd25d8505c8",
+          "name": "User-70-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4243d697-8ee3-464b-a714-352afa8c9a20",
+          "name": "User-70-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f76bad01-36ab-4d19-a62a-67284dee070f",
+      "label": "R5-Pot-71",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "16a8e5d1-dc9a-4554-ae63-4435978132eb",
+          "name": "User-71-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "6d5ae322-568b-426d-a70a-ac6e2ab6c4a4",
+          "name": "User-71-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d31c4275-e8ca-4165-a557-0b9350e648f2",
+          "name": "User-71-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "846324c8-6d3e-4f5c-abbb-9ec1283a72ac",
+          "name": "User-71-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d1a23815-8d8d-438f-a6b0-79849aa9885d",
+          "name": "User-71-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "97169f52-599f-4b27-aad1-521b0e05ce2d",
+      "label": "R5-Pot-72",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "e002d091-ee7e-4a8c-a7b1-c0e7d2ec9dde",
+          "name": "User-72-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "8051d8ba-cf9f-44eb-a13d-3dbe83d6e2cf",
+          "name": "User-72-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3dde4120-4be1-4adc-a75d-821fa27c38c9",
+          "name": "User-72-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7b0b2a98-9c99-49ae-af67-c14307a12071",
+          "name": "User-72-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "55fc7991-44ee-4a74-a142-421361469009",
+          "name": "User-72-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "f552613c-dca4-4a82-a383-2cd7d1c7de27",
+      "label": "R5-Pot-73",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "fab2344d-44b7-4c54-aa05-c927f490d725",
+          "name": "User-73-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4bac3202-56d0-4900-a14f-8a0dbf61c5ba",
+          "name": "User-73-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d13b698f-a04f-48e0-af22-0ef0c06efbab",
+          "name": "User-73-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "180081dd-891b-48c6-a3e8-cda0f91a8fed",
+          "name": "User-73-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b90cd47f-75d2-4c6e-a4d6-1811bdc379bc",
+          "name": "User-73-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "1e7e9cf0-55b4-424b-a3b2-9c359c389e7e",
+      "label": "R5-Pot-74",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "f6e95287-e2bd-4b12-a7a1-2dddf21094c1",
+          "name": "User-74-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "3ab4bb57-614d-4096-a016-6272ee4539c9",
+          "name": "User-74-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d2be05d6-5f73-4f54-aae5-97db055f32d7",
+          "name": "User-74-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0fdb5268-f7aa-4948-a935-5094283c39e2",
+          "name": "User-74-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c0b1e248-85d6-470d-a217-ee3aac7fa58e",
+          "name": "User-74-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "adb459cf-e8c3-4824-af15-c2c5f22d3d1b",
+      "label": "R5-Pot-75",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "fd2cb2e0-7861-495d-a636-c889363fe2ed",
+          "name": "User-75-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "7c984224-40c8-4ec6-a1b6-ab7e36b940e2",
+          "name": "User-75-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e9114a33-c47f-4313-ae08-c97c7c5e661c",
+          "name": "User-75-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "65668495-2851-44c6-a4f0-6141e1a61038",
+          "name": "User-75-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "dd627034-aa71-4dea-a182-1a53ff5d6f08",
+          "name": "User-75-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "4af85de5-2b43-4bd2-a50b-4762f4f23006",
+      "label": "R5-Pot-76",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "6c37bc08-7d4d-4697-a773-40ee82849e15",
+          "name": "User-76-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "2e9f87c6-8af0-4ed0-af0f-759e8fd2cce9",
+          "name": "User-76-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f286f3e4-dbd8-4752-af89-a0beb6f8d316",
+          "name": "User-76-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e4cd5f98-5f18-414f-ad71-32441d800928",
+          "name": "User-76-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bd9f7976-f451-46ff-adb7-ad53d6ee51c0",
+          "name": "User-76-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "496681cc-b364-4990-aedf-7db35835f2e0",
+      "label": "R5-Pot-77",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "7419af98-7c7c-45e2-af23-169efc452a83",
+          "name": "User-77-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "41aaecb0-a920-455c-ae31-7a8fa5585eea",
+          "name": "User-77-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "953ee604-0ff7-417d-a935-09e9ce5b80a8",
+          "name": "User-77-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e3d7879e-1f4d-412a-ab74-9fc4c3597712",
+          "name": "User-77-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "857e15a4-513c-43f6-a19e-dde580c46293",
+          "name": "User-77-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "9d65ff83-02f3-4d53-a952-dd5e3c3405fb",
+      "label": "R5-Pot-78",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "978a2d1c-8cb4-490c-a2c6-c9c40a43da47",
+          "name": "User-78-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "fbf0dfb5-fd9d-4221-a35a-79bbbb0c33eb",
+          "name": "User-78-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "08549a25-fe28-4783-ab24-cb8da57d5d01",
+          "name": "User-78-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "aabffdda-e240-4b0a-a777-4888dec59240",
+          "name": "User-78-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0449008a-a3bb-4fd1-a5c2-8bbd2b7e6466",
+          "name": "User-78-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "2d57d969-6ac3-4fae-a73e-d9258d5b947a",
+      "label": "R5-Pot-79",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "4f116517-2dcd-41c4-a44b-374cde58b9af",
+          "name": "User-79-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "53a57cbb-eed7-4fbb-a24b-c3d90df05d20",
+          "name": "User-79-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "56f567bb-cc5e-47da-ac0f-7b4e16b2003d",
+          "name": "User-79-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b8d65254-464a-4460-a863-fae58e9c38da",
+          "name": "User-79-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a7b1fc60-96d8-454a-aef5-769db37de7de",
+          "name": "User-79-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "d0c07a6b-9177-4410-a5d6-70be175bf6f9",
+      "label": "R5-Pot-80",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "8995059c-9f6f-4d5b-a73a-4ac69e787137",
+          "name": "User-80-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "c518c38b-c90f-495f-a015-c98b0db6fbb3",
+          "name": "User-80-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "23a9539a-7cd4-471b-a2c8-9a0769d0024a",
+          "name": "User-80-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "23a943c5-56d8-4e08-a0e7-1ee03a1d38b8",
+          "name": "User-80-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "5787139e-19e1-4b17-a674-259373c75b50",
+          "name": "User-80-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "26dc74ac-063d-4a30-af64-0ff22b158c5e",
+      "label": "R5-Pot-81",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "e4906f2d-669f-4172-ad69-ca97d422404f",
+          "name": "User-81-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "7da3e9cd-d21f-4670-a9d5-4bc19fa522f4",
+          "name": "User-81-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fd0948c7-4743-434f-ad43-91016c2e2ee6",
+          "name": "User-81-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "426d6713-6c22-426c-af2e-c929fd60a580",
+          "name": "User-81-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "63f23b82-1810-4556-a930-c084045ba7d1",
+          "name": "User-81-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "2e6a060a-b107-4e06-a150-7ac2b7d6a9e3",
+      "label": "R5-Pot-82",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "cb89ebfc-d973-48a4-a755-fa500226a109",
+          "name": "User-82-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4b1062eb-b991-494a-ab06-3b6d7e665476",
+          "name": "User-82-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "25cb1644-b8de-45e9-ad18-647e78621c84",
+          "name": "User-82-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "2c726757-7e5f-41ee-aad2-2835031ee0dd",
+          "name": "User-82-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0d176eea-906d-42d4-ac2a-efd63cb09af4",
+          "name": "User-82-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "db74a1f7-7ac1-4570-a16c-240eb20ad378",
+      "label": "R5-Pot-83",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "ae699826-f995-47fb-a3b3-531b1d1a43c5",
+          "name": "User-83-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "54bf6b1c-4fcf-42be-a203-d66dde8d4dc5",
+          "name": "User-83-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "72649cad-e949-48fd-ae11-bb1fa9356d81",
+          "name": "User-83-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "421671d3-99ed-4914-afe8-6e253027e998",
+          "name": "User-83-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7a45fecb-a8a2-438c-af2a-35c750578c53",
+          "name": "User-83-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "4ca95df9-7cbd-420b-ab93-616d83dd53f5",
+      "label": "R5-Pot-84",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "212f006c-d913-4dd3-aaae-729fa295f32e",
+          "name": "User-84-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "0b5ab535-9243-444a-ab75-7ac89e47498f",
+          "name": "User-84-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "032208cc-8c99-43b1-ad40-380c8ce91d22",
+          "name": "User-84-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d96cc416-ce52-4992-aaa2-9c8f8d2954c1",
+          "name": "User-84-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "05447486-da1d-4e7b-a672-117a97207f63",
+          "name": "User-84-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5a0bf806-ac23-4256-a3b0-e23907cd12c4",
+      "label": "R5-Pot-85",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "a76631c2-91f6-4f44-a662-c9461dfde9d3",
+          "name": "User-85-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "1f53a9bd-fc19-4a5e-aa95-af1be89c6657",
+          "name": "User-85-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fc6030eb-a16c-4a70-a04c-16fb1cb16752",
+          "name": "User-85-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "499e87de-5f28-4618-af38-629a2fc88009",
+          "name": "User-85-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "372e78e9-7f39-4dc4-a05c-14f80da53581",
+          "name": "User-85-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "69ff94f1-3e8a-4a94-a0db-18cb800ffd9e",
+      "label": "R5-Pot-86",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "599a259c-b6e0-43d0-ac04-703556613985",
+          "name": "User-86-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "f06f59d6-aa2d-4b90-a28c-ace5b30d7b18",
+          "name": "User-86-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ac33c55a-320d-4e60-a914-76c7c160b5ec",
+          "name": "User-86-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "baf9d1d5-76ac-4aff-a7fd-c94ef0c84a63",
+          "name": "User-86-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "aa818b28-be25-4691-a1ab-d0cca68a993c",
+          "name": "User-86-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "e4beb9c2-9542-4c2a-a27e-08eaa440b30e",
+      "label": "R5-Pot-87",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "fefe226b-734f-4118-a42e-3bb953d876fb",
+          "name": "User-87-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "4444b374-e11f-4b2b-a8f0-a3c576526b92",
+          "name": "User-87-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7d57e125-2506-4370-a384-5e644f3a34e2",
+          "name": "User-87-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "fc398a1b-26df-4525-a4f0-14fbded77ea0",
+          "name": "User-87-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b912290e-eb69-4a11-afc8-ddb0696103dd",
+          "name": "User-87-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "9e983c48-f110-40ff-a8e3-b45f0f0a1477",
+      "label": "R5-Pot-88",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "7d9112a9-ece3-4124-a0c2-627ab282ae63",
+          "name": "User-88-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "b78b4bfe-0eed-4a2f-adab-32fa10e17791",
+          "name": "User-88-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d908a7df-5bf8-49bf-a5f2-06bf89c9d65b",
+          "name": "User-88-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "ee57b449-04ae-4450-a69e-5b9906682bb3",
+          "name": "User-88-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b1dcf206-f1eb-46a0-a58e-3db89917382c",
+          "name": "User-88-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "7a3c63e1-eb58-4934-a0ec-195d4c16ae63",
+      "label": "R5-Pot-89",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "815fc307-c146-4e23-affc-cdd7541477c0",
+          "name": "User-89-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "8cef0f02-2861-44be-a251-506e17b311dc",
+          "name": "User-89-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "83b3ff96-030c-4bd9-a02c-a6762e0305ec",
+          "name": "User-89-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "05a44432-045c-4961-a4de-97d66fae8a96",
+          "name": "User-89-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bf1369f3-27bd-43e3-a33f-11b0e879309d",
+          "name": "User-89-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "749208df-f17a-4912-ae47-829652043c05",
+      "label": "R5-Pot-90",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "df6bb893-e7d7-4e66-a6ff-606931c12905",
+          "name": "User-90-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "33036d90-fce2-4389-af06-47ab0ba9eb63",
+          "name": "User-90-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "8e15d987-a818-4a7c-a5bc-cdb307568d6c",
+          "name": "User-90-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "bfd41a9c-d048-444c-ab9a-d8c6c245a716",
+          "name": "User-90-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "a636fd0b-1bc8-45ea-adae-97c94585b8a5",
+          "name": "User-90-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "c6e31955-5b58-4a5f-a297-bd31756b2308",
+      "label": "R5-Pot-91",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "824de44e-56c9-4da3-aa2a-4e54e559b9c9",
+          "name": "User-91-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "9c074c10-2870-4f30-ac5b-a80c38c26106",
+          "name": "User-91-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "583d821e-06ce-4941-aa94-c02a97187128",
+          "name": "User-91-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "d2cdb314-4e60-483a-a418-b5d55107059b",
+          "name": "User-91-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e3a29487-f884-4fa5-a03e-44fc2d4b28d5",
+          "name": "User-91-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "5a33ec3b-e204-426b-acfe-13e198aa212c",
+      "label": "R5-Pot-92",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "efc9a5c0-ec24-4002-aeb9-47143c6b0882",
+          "name": "User-92-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "c2a049b1-14f2-403b-a315-7e0eb68b8ce2",
+          "name": "User-92-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "6ada76a3-1a7c-4692-a075-a3b5e33f0fce",
+          "name": "User-92-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "72c81a85-2744-4c9b-a7b1-1122fe4501f2",
+          "name": "User-92-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "1cc545fc-b3e5-4235-a45a-9ed46d8985eb",
+          "name": "User-92-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "2f5ee26e-b49d-4d4b-a79b-bb6cdaf40c9d",
+      "label": "R5-Pot-93",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "7d2d2f47-b408-4563-ab5d-865d67aa1b52",
+          "name": "User-93-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "0b37f8b2-05a9-40de-a289-16478e19bfdf",
+          "name": "User-93-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9ef2fb3f-2f1e-4be7-a809-693c616abffd",
+          "name": "User-93-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "2031fd33-de2f-4533-a902-afab10a2ac0a",
+          "name": "User-93-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "303d11fb-9719-44eb-a7e6-989ec77eb4c4",
+          "name": "User-93-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "a448f322-349b-4e6b-a29a-58424edcbf9a",
+      "label": "R5-Pot-94",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "aaa4a654-f7af-426a-ae50-2b65eab005fb",
+          "name": "User-94-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "01f305ce-d62b-450a-a580-afc74a709510",
+          "name": "User-94-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0911e995-eca3-45e8-a6cc-9aaa386cd1c4",
+          "name": "User-94-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "e65747c4-dcf3-443c-a447-f81437752eae",
+          "name": "User-94-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "065eaac8-a01c-4a00-a9f4-a79aedc9d1cf",
+          "name": "User-94-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "973439d2-8839-48e4-a250-da3629120c0d",
+      "label": "R5-Pot-95",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "9e0123ab-426e-4bec-a81a-4aa0e1d9d9a8",
+          "name": "User-95-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "ab6ce088-8cc7-4ef0-a981-eea8564c4bb8",
+          "name": "User-95-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "25645a9c-5f1f-4f35-ab9e-cf69d324b824",
+          "name": "User-95-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4460a765-6050-4ee3-a28e-8bb58c66d6e6",
+          "name": "User-95-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "0db4aa49-8ddd-4fad-ad50-ccea595363e4",
+          "name": "User-95-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "451e60ab-0fef-4c66-a80e-8606d3637e25",
+      "label": "R5-Pot-96",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "160b85ca-1824-4bc7-a1a8-0f8143cc5d96",
+          "name": "User-96-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "e0cb6147-ded7-48dd-af0c-79c86ddb97b3",
+          "name": "User-96-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "c172d007-81d9-4221-afe1-7b3c4e31bd7d",
+          "name": "User-96-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "5c771a63-7ae8-4292-af19-3dcc5f27cbbd",
+          "name": "User-96-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "84ededf9-7454-4c88-af01-1266598286cd",
+          "name": "User-96-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "c16fc983-ca81-45b2-a0b1-610e73c1e4b7",
+      "label": "R5-Pot-97",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "b178c8c5-f8a9-4d91-a00a-a0e1ec040262",
+          "name": "User-97-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "3c033b9e-0cc8-4a48-af58-78c1d4c2c62b",
+          "name": "User-97-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "7b286cdf-4f28-452a-a4e7-8e73caaeb67b",
+          "name": "User-97-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f530388f-19e0-4ed7-acdf-57e3ff6cd17e",
+          "name": "User-97-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "9889c942-933c-435f-a22d-abbc45677542",
+          "name": "User-97-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "19e0ed3d-c8fa-4ad0-a072-8cd6e7b71bc1",
+      "label": "R5-Pot-98",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "833c8068-8afb-4057-a94d-99ac80ee7c9d",
+          "name": "User-98-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "9751978b-dfc3-4869-ade6-f5c92b339d5f",
+          "name": "User-98-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "f89e8c93-68b4-4944-a828-27fd51ae57e2",
+          "name": "User-98-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "12d99856-debb-480b-a634-7a92df83ec96",
+          "name": "User-98-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "035b3e25-3feb-409e-a6e3-25950866052a",
+          "name": "User-98-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    },
+    {
+      "potId": "380661a1-eacc-4e63-a697-9d501fc7940e",
+      "label": "R5-Pot-99",
+      "confirmedVersion": 2,
+      "shareholders": [
+        {
+          "id": "56952260-a014-4d69-a6ed-9311a5918010",
+          "name": "User-99-0",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": true,
+          "weight_updated": false
+        },
+        {
+          "id": "6661ebbc-1e6d-4d10-a99f-d2a80bded5e5",
+          "name": "User-99-1",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "b5840a79-0cb2-4ed4-adba-ab3602201a2e",
+          "name": "User-99-2",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "4d8273dc-e776-42ff-a00a-ea8c5088748b",
+          "name": "User-99-3",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        },
+        {
+          "id": "3b071bd5-9ae1-42e5-ae1d-3b314d6d4c99",
+          "name": "User-99-4",
+          "weight_num": 1,
+          "weight_den": 1,
+          "attached": false,
+          "weight_updated": false
+        }
+      ],
+      "appliedExpenses": [],
+      "inFlight": false,
+      "inFlightCommandId": null,
+      "inFlightOperation": null,
+      "inFlightObservedVersion": null,
+      "inFlightSubmittedAt": null,
+      "lastCommandTime": 0.0
+    }
+  ],
+  "fingerprintSha256": "65340b18c82a534a74e71bc0cb8670c844c7d9c8cd4824649aabf14d4883b965"
+}

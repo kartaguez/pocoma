@@ -31,6 +31,13 @@ public class V3AdmissionHttpConfiguration {
     public static final String PROFILE = "v3-http-admission";
     private static final String PREFIX = "pocoma.v3.http.admission.";
 
+    static {
+        try {
+            V3AdmissionController.ON_ADMITTED = StageHandoffTracker.getInstance()::onCommandAdmitted;
+        } catch (Throwable ignored) {
+        }
+    }
+
     @Bean
     static BeanFactoryPostProcessor v3AdmissionPreflight(Environment env) {
         return new Preflight(env);

@@ -17,6 +17,13 @@ import java.util.*;
 @org.springframework.context.annotation.Profile("v3-http-admission")
 @RestController
 public final class V3AdmissionController {
+    @FunctionalInterface
+    public interface AdmissionListener {
+        void onCommandAdmitted(UUID commandId);
+    }
+
+    public static volatile AdmissionListener ON_ADMITTED = null;
+
     private final AdmitCommandV3 commands;
     private final AdmitIdentityRequestV3 identity;
     private final V3AdmissionTransport transport;
@@ -43,7 +50,10 @@ public final class V3AdmissionController {
                             transport.parse(body(request)),
                             new PotCommand.Eui(p.issuer(), p.subject()),
                             transport.limits().rationalDigits());
-            accepted(response, commands.admit(p, key, input), "/api/v3/commands/");
+            UUID id = commands.admit(p, key, input);
+            AdmissionListener staticHook = ON_ADMITTED;
+            if (staticHook != null) staticHook.onCommandAdmitted(id);
+            accepted(response, id, "/api/v3/commands/");
         } catch (AdmissionFailure failure) {
             if (!failure.physicalTerminationObserved())
                 request.setAttribute(V3AdmissionTransport.UNRESOLVED, true);

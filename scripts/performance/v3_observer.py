@@ -121,6 +121,24 @@ def calculate_exact_quantiles(values: List[float]) -> Dict[str, Optional[float]]
     }
 
 
+def fetch_server_stage_handoffs(base_url: str = BASE_URL) -> List[Dict[str, Any]]:
+    """Fetches diagnostic stage handoff records from the application monolith."""
+    urls = [
+        f"{base_url.rstrip('/')}/actuator/stage-handoffs?limit=10000",
+        "http://127.0.0.1:18081/actuator/stage-handoffs?limit=10000",
+    ]
+    for url in urls:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Pocoma-Observer/1.0"})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    return data.get("records", [])
+        except Exception:
+            continue
+    return []
+
+
 @dataclass
 class CorrelationRecord:
     command_id: str
@@ -154,6 +172,15 @@ class CorrelationRecord:
     server_version: Optional[int] = None
     server_read_materialized: Optional[bool] = None
 
+    # Server Stage Handoff Metrology (populated via StageHandoffTracker)
+    server_t0_ms: Optional[float] = None
+    server_t1_ms: Optional[float] = None
+    server_t2_ms: Optional[float] = None
+    stage_a_cmd_wait_ms: Optional[float] = None
+    stage_b_cmd_proc_ms: Optional[float] = None
+    stage_c_read_wait_ms: Optional[float] = None
+    stage_e_obs_wait_ms: Optional[float] = None
+
     @property
     def latency_admission_ms(self) -> float:
         return max(0.0, self.t_admit - self.t_send)
@@ -186,6 +213,10 @@ class CorrelationRecord:
         d["latency_terminal_ms"] = round(self.latency_terminal_ms, 2) if self.latency_terminal_ms is not None else None
         d["latency_read_ms"] = round(self.latency_read_ms, 2) if self.latency_read_ms is not None else None
         d["latency_e2e_ms"] = round(self.latency_e2e_ms, 2) if self.latency_e2e_ms is not None else None
+        d["stage_a_cmd_wait_ms"] = round(self.stage_a_cmd_wait_ms, 2) if self.stage_a_cmd_wait_ms is not None else None
+        d["stage_b_cmd_proc_ms"] = round(self.stage_b_cmd_proc_ms, 2) if self.stage_b_cmd_proc_ms is not None else None
+        d["stage_c_read_wait_ms"] = round(self.stage_c_read_wait_ms, 2) if self.stage_c_read_wait_ms is not None else None
+        d["stage_e_obs_wait_ms"] = round(self.stage_e_obs_wait_ms, 2) if self.stage_e_obs_wait_ms is not None else None
         d["is_complete"] = self.is_complete
         return d
 
@@ -886,6 +917,68 @@ class DecoupledBenchCoordinator:
                 }
             }
 
+        # Stage Handoff Correlation & Metrology (Phase B/C/D)
+        server_records = fetch_server_stage_handoffs(self.read_obs.base_url)
+        server_by_id = {r["commandId"]: r for r in server_records if "commandId" in r}
+
+        cmd_wait_samples: List[float] = []      # A: T1 - T0
+        cmd_proc_samples: List[float] = []      # B: T2 - T1
+        c03_wait_samples: List[float] = []      # C: T3(C-03) - T2
+        c03_obs_samples: List[float] = []       # E: T5 - T4_C03
+
+        proj_waits: Dict[str, List[float]] = {}
+        proj_procs: Dict[str, List[float]] = {}
+
+        for r in client_applied_records:
+            srec = server_by_id.get(r.command_id)
+            if srec:
+                r.server_t0_ms = srec.get("t0EpochMs")
+                r.server_t1_ms = srec.get("t1EpochMs")
+                r.server_t2_ms = srec.get("t2EpochMs")
+
+                w = srec.get("commandWaitMs")
+                if w is not None:
+                    r.stage_a_cmd_wait_ms = w
+                    cmd_wait_samples.append(w)
+
+                p = srec.get("commandProcessingMs")
+                if p is not None:
+                    r.stage_b_cmd_proc_ms = p
+                    cmd_proc_samples.append(p)
+
+                rw = srec.get("c03ReadWaitMs")
+                if rw is not None:
+                    r.stage_c_read_wait_ms = rw
+                    c03_wait_samples.append(rw)
+
+                for p_name, p_data in srec.get("projections", {}).items():
+                    if p_data.get("readWaitMs") is not None:
+                        proj_waits.setdefault(p_name, []).append(p_data["readWaitMs"])
+                    if p_data.get("readProcessingMs") is not None:
+                        proj_procs.setdefault(p_name, []).append(p_data["readProcessingMs"])
+
+                c03_ready = srec.get("c03ReadyEpochMs")
+                if c03_ready and r.t_read:
+                    obs_delay = max(0.0, r.t_read - c03_ready)
+                    r.stage_e_obs_wait_ms = obs_delay
+                    c03_obs_samples.append(obs_delay)
+
+        handoff_metrics = {
+            "totalServerTracked": len(server_records),
+            "matchedCommands": sum(1 for r in client_applied_records if r.command_id in server_by_id),
+            "stageA_commandWait": calculate_exact_quantiles(cmd_wait_samples),
+            "stageB_commandProcessing": calculate_exact_quantiles(cmd_proc_samples),
+            "stageC_c03ReadWait": calculate_exact_quantiles(c03_wait_samples),
+            "stageE_observationWait": calculate_exact_quantiles(c03_obs_samples),
+            "projections": {
+                p: {
+                    "readWait": calculate_exact_quantiles(proj_waits.get(p, [])),
+                    "readProcessing": calculate_exact_quantiles(proj_procs.get(p, [])),
+                }
+                for p in sorted(set(list(proj_waits.keys()) + list(proj_procs.keys())))
+            }
+        }
+
         return {
             "runId": self.run_id,
             "demandedRate": demanded_rate,
@@ -961,4 +1054,5 @@ class DecoupledBenchCoordinator:
             },
             "backlogTimeseries": self.backlog_timeseries,
             "sqlReconciliation": sql_proof,
+            "asyncStageHandoffs": handoff_metrics,
         }

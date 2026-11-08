@@ -16,13 +16,32 @@ import javax.sql.DataSource;
 
 /** V3 WRITE only. Initial admission/discovery/acquisition are deliberately outside this writer. */
 public final class JdbcPotCommandStore implements PotCommandStore {
+    @FunctionalInterface
+    public interface PublicationListener {
+        void onPublished(
+                UUID commandId,
+                UUID potId,
+                Long resultingVersion,
+                UUID potEventId,
+                UUID completionEventId);
+    }
+
     private final DataSource source;
     private final JdbcTemplate jdbc;
     private final SpringAttemptTransactions transactions;
+    private final PublicationListener publicationListener;
 
     public JdbcPotCommandStore(DataSource source, SpringAttemptTransactions transactions) {
+        this(source, transactions, (cmd, pot, ver, potEvt, compEvt) -> {});
+    }
+
+    public JdbcPotCommandStore(
+            DataSource source,
+            SpringAttemptTransactions transactions,
+            PublicationListener publicationListener) {
         this.source = Objects.requireNonNull(source);
         this.transactions = Objects.requireNonNull(transactions);
+        this.publicationListener = Objects.requireNonNull(publicationListener);
         transactions.requireSource(source);
         jdbc = new JdbcTemplate(source);
     }
@@ -251,6 +270,12 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     if (potEvent != null) position("POT", potEvent);
                     if (invitationEvent != null) position("INVITATION", invitationEvent);
                     position("COMMAND_COMPLETION", completion);
+                    publicationListener.onPublished(
+                            command.requestId(),
+                            command.potId().value(),
+                            result.resultingPotVersion(),
+                            potEvent,
+                            completion);
                     return null;
                 });
     }

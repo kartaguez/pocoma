@@ -57,7 +57,10 @@ public final class V3PotCommandComposition {
         transactions.requireSource(writeSource);
         var participant =
                 new ExecutePotCommand(
-                        new JdbcPotCommandStore(writeSource, transactions),
+                        new JdbcPotCommandStore(
+                                writeSource,
+                                transactions,
+                                com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTracker.getInstance()::linkCommandEvents),
                         new JdbcPotCommandObservation(writeSource),
                         identityAuthority,
                         new JdbcPotHistoryAdapter(writeSource),
@@ -147,7 +150,10 @@ public final class V3PotCommandComposition {
         effects.requireSource(business);
         var participant =
                 new ExecutePotCommand(
-                        new JdbcPotCommandStore(business, effects),
+                        new JdbcPotCommandStore(
+                                business,
+                                effects,
+                                com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTracker.getInstance()::linkCommandEvents),
                         new JdbcPotCommandObservation(business),
                         identity,
                         new JdbcPotHistoryAdapter(business),
@@ -156,7 +162,10 @@ public final class V3PotCommandComposition {
         if (invitations != null)
             participant =
                     new ExecutePotCommand(
-                            new JdbcPotCommandStore(business, effects),
+                            new JdbcPotCommandStore(
+                                    business,
+                                    effects,
+                                    com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTracker.getInstance()::linkCommandEvents),
                             new JdbcPotCommandObservation(business),
                             identity,
                             new JdbcPotHistoryAdapter(business),

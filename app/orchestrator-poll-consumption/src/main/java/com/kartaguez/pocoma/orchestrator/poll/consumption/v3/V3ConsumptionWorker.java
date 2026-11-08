@@ -12,6 +12,27 @@ import java.util.concurrent.*;
 
 /** Local lifecycle only. Engine alone owns all reservations and durable decisions. */
 public final class V3ConsumptionWorker {
+    public interface AttemptHook {
+        void onAttemptStarting(ConsumptionId id, UUID consumableId, long startNanos);
+        void onAttemptFinished(
+                ConsumptionId id,
+                UUID consumableId,
+                ConsumptionEngine.Status status,
+                long finishNanos);
+
+        AttemptHook NOOP = new AttemptHook() {
+            @Override
+            public void onAttemptStarting(ConsumptionId id, UUID consumableId, long startNanos) {}
+
+            @Override
+            public void onAttemptFinished(
+                    ConsumptionId id,
+                    UUID consumableId,
+                    ConsumptionEngine.Status status,
+                    long finishNanos) {}
+        };
+    }
+
     public enum State {
         STARTING,
         RUNNING,
@@ -125,6 +146,10 @@ public final class V3ConsumptionWorker {
             }
             try {
                 if (start) {
+                    var cid = binding.definition().id();
+                    var consumableId = handle.claim().consumableId();
+                    long startNanos = System.nanoTime();
+                    attemptHook.onAttemptStarting(cid, consumableId, startNanos);
                     event(
                             binding,
                             ConsumptionObservation.Phase.ATTEMPT_STARTED,
@@ -132,6 +157,8 @@ public final class V3ConsumptionWorker {
                             1,
                             Duration.ZERO);
                     var attempt = binding.engine().execute(handle);
+                    long finishNanos = System.nanoTime();
+                    attemptHook.onAttemptFinished(cid, consumableId, attempt.status(), finishNanos);
                     if (attempt.status() == ConsumptionEngine.Status.INCONSISTENT
                             || attempt.resolution()
                                     == com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
@@ -177,6 +204,7 @@ public final class V3ConsumptionWorker {
     final ConditionConsumptionWaiter maintenanceWait = new ConditionConsumptionWaiter();
     private final List<Runnable> stoppedCallbacks = new ArrayList<>();
     private final ThreadPoolExecutor executor;
+    private final AttemptHook attemptHook;
     private final Runnable closeResources;
     private final V3RenewalService renewals;
     private final V3DiscoveryLoop discovery;
@@ -198,6 +226,17 @@ public final class V3ConsumptionWorker {
             Settings settings,
             ConsumptionObservation observation,
             Runnable closeResources) {
+        this(bindings, capacity, limits, settings, observation, closeResources, AttemptHook.NOOP);
+    }
+
+    public V3ConsumptionWorker(
+            List<Binding> bindings,
+            WorkerCapacity capacity,
+            Map<ConsumptionId, Integer> limits,
+            Settings settings,
+            ConsumptionObservation observation,
+            Runnable closeResources,
+            AttemptHook attemptHook) {
         this(
                 bindings,
                 capacity,
@@ -205,6 +244,7 @@ public final class V3ConsumptionWorker {
                 settings,
                 observation,
                 closeResources,
+                attemptHook,
                 new ThreadPoolExecutor(
                         capacity.workerLimit(),
                         capacity.workerLimit(),
@@ -223,12 +263,33 @@ public final class V3ConsumptionWorker {
             ConsumptionObservation observation,
             Runnable closeResources,
             ThreadPoolExecutor executor) {
+        this(
+                bindings,
+                capacity,
+                limits,
+                settings,
+                observation,
+                closeResources,
+                AttemptHook.NOOP,
+                executor);
+    }
+
+    V3ConsumptionWorker(
+            List<Binding> bindings,
+            WorkerCapacity capacity,
+            Map<ConsumptionId, Integer> limits,
+            Settings settings,
+            ConsumptionObservation observation,
+            Runnable closeResources,
+            AttemptHook attemptHook,
+            ThreadPoolExecutor executor) {
         this.bindings = List.copyOf(bindings);
         this.capacity = Objects.requireNonNull(capacity);
         this.limits = Map.copyOf(limits);
         this.settings = Objects.requireNonNull(settings);
         this.observation = Objects.requireNonNull(observation);
         this.closeResources = Objects.requireNonNull(closeResources);
+        this.attemptHook = Objects.requireNonNull(attemptHook);
         this.executor = Objects.requireNonNull(executor);
         if (bindings.isEmpty()
                 || bindings.stream().map(b -> b.definition().id()).distinct().count()
