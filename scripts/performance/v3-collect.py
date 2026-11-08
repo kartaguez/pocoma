@@ -522,6 +522,31 @@ def main():
             if lv.get("count", 0) > 0:
                 print(f"    {lk:<26} n={lv['count']:>4} | p50={lv['p50']:>7} | p95={lv['p95']:>7} | p99={lv['p99']:>7} | mean={lv['mean']:>7}")
 
+        mix = dm.get("mixReport")
+        if mix:
+            print("\n  --- Statistical Mix Breakdown (Demanded vs Actual) ---")
+            families = mix.get("families", [])
+            for fam_info in families:
+                fname = fam_info.get("family")
+                tgt = fam_info.get("demandedRatio", 0.0) * 100.0
+                app_pct = fam_info.get("appliedRatio", 0.0) * 100.0
+                n_app = fam_info.get("appliedCount", 0)
+                n_emit = fam_info.get("emittedCount", 0)
+                dev_pct = fam_info.get("relativeDeviationPercent", 0.0)
+                print(f"    {fname:<28} Target: {tgt:>5.1f}% | Applied: {app_pct:>5.1f}% (n={n_app}, emitted={n_emit}, dev={dev_pct:+.1f}%)")
+            rem = mix.get("remainingEligibleEntities", {})
+            if rem:
+                print(f"    Uncorrected Expenses: {rem.get('uncorrectedExpenses')} | Updatable Weights: {rem.get('updatableShareholderWeights')} | Unattached SH: {rem.get('unattachedShareholders')}")
+            print(f"    Pot Starvation Count: {mix.get('potStarvationCount', 0)}")
+
+        op_lat = dm.get("latenciesByOperation")
+        if op_lat:
+            print("\n  --- Per-Operation End-to-End Latency Breakdown ---")
+            for op_name, op_val in op_lat.items():
+                e2e = op_val.get("latencies", {}).get("e2eTotal", {})
+                if e2e.get("count", 0) > 0:
+                    print(f"    {op_name:<28} n={e2e['count']:>4} | p50={e2e['p50']:>7} | p95={e2e['p95']:>7} | p99={e2e['p99']:>7} | mean={e2e['mean']:>7}")
+
     print("\n  --- Engine Internal Stage Latencies (ms) ---")
     for s_name, s_val in stages.items():
         if s_val.get("count", 0) > 0:

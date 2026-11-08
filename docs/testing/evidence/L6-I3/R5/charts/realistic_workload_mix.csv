@@ -1,0 +1,6 @@
+scenario,demanded_rate,create_count,create_pct,correct_count,correct_pct,weight_count,weight_pct,attach_count,attach_pct
+m1-smoke,1,10,66.67,2,13.33,2,13.33,1,6.67
+m2-nominal-5,5,253,86.64,31,10.620000000000001,4,1.37,4,1.37
+m3-ramp-10,10,38,69.08999999999999,14,25.45,2,3.64,1,1.82
+m4-ramp-20,20,130,80.25,26,16.05,3,1.8499999999999999,3,1.8499999999999999
+m5-ramp-50,50,473,84.31,66,11.76,11,1.96,11,1.96

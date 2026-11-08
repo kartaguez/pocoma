@@ -13,20 +13,22 @@ The tooling strictly adheres to:
 ```
 scripts/
 ├── k6/
-│   ├── v3-performance.js       # Core k6 performance scenario runner (coupled & decoupled)
+│   ├── v3-performance.js       # Core k6 performance scenario runner (coupled, decoupled & realistic)
 │   └── lib/
 │       ├── v3-api.js           # Low-level asynchronous V3 API client
 │       └── v3-oracles.js       # C-03 oracle assertions (Pot, Balance, Delete, Identity)
 └── performance/
     ├── v3-preflight.py         # Mandatory system safety and environment preflight gate
-    ├── v3_token.py             # Proactive OIDC Keycloak PKCE/refresh token manager & server
+    ├── v3_token.py             # Proactive OIDC Keycloak PKCE/refresh token manager & HTTP bridge
     ├── v3_observer.py          # Decoupled coordinator, concurrent observers & SQL reconciler
+    ├── v3_realistic_workload.py# R5 realistic business workload scheduler & dynamic state synchronizer
     ├── v3-seed.py              # Reproducible SPEC-09 dataset & fixture generator
-    ├── v3-run.py               # Master orchestrator & dual budget watchdogs (R2 / R4)
+    ├── v3-run.py               # Master orchestrator & budget watchdogs (R2, R4, R5)
     ├── v3-collect.py           # Metrology collector (k6, Engine, System, PostgreSQL)
-    ├── v3-plot.py              # SVG chart generator & CSV datasets exporter (8 charts)
+    ├── v3-plot.py              # SVG chart generator & CSV datasets exporter (9 charts)
     ├── test_bench.py           # Bench qualification test suite (26 mandatory tests)
     ├── test_r4_observer.py     # R4 concurrent observer & SQL reconciler test suite (9 tests)
+    ├── test_r5_scheduler.py    # R5 realistic workload scheduler test suite (15 tests)
     └── README.md               # Architecture, usage, and operational guidelines
 ```
 
@@ -163,4 +165,37 @@ python3 scripts/performance/v3-collect.py --scenario q5-ramp-50 --evidence-dir d
 
 # Generate R4 SVG charts and CSV datasets:
 python3 scripts/performance/v3-plot.py --evidence-dir docs/testing/evidence/L6-I3/R4
+```
+
+---
+
+## 8. R5 Realistic Business Workload Tooling (`v3_realistic_workload.py`, `test_r5_scheduler.py`)
+
+Addressing the artificial CAS contention of speculative pipelining identified in R4, the R5 architecture introduces:
+1. **Realistic Workload Scheduler (`RealisticWorkloadScheduler`)**:
+   - Implements the realistic business mix: 88% Expense Creation (`CreateExpense`), 10% Expense Correction (`UpdateExpenseFinancials`), 2% Rare lifecycle operations (`UpdateShareholderWeights` & `UpdateShareholderDetails`).
+   - Enforces strict functional serialization per Pot: at most 1 in-flight mutating command per Pot in nominal regime.
+   - Waits for confirmed terminal version on each Pot before emitting the next command.
+   - Lifecycle constraints: at most 1 correction per applied expense, at most 1 default weight change per shareholder, at most 1 attachment per eligible unattached shareholder.
+2. **Dynamic State Synchronization**:
+   - `sync_pot_states_from_db` queries PostgreSQL `v3_write` to reconstruct Pot versions, confirmed expenses, and shareholder attachment states across test executions.
+3. **HTTP Next-Command Injection Bridge**:
+   - `TokenHttpServer` exposes `/next-command` and `/mix-report` endpoints consumed by k6 virtual users.
+   - In k6, `injectRealistic` requests the next eligible business command and tracks pot starvation when all Pots are busy.
+4. **Dedicated R5 Suite & Budget Tracker**:
+   - Scenarios `M1 — Smoke` (1/s, 10 pots), `M2 — Référence` (5/s, 25 pots), `M3 — Modéré` (10/s, 50 pots), `M4 — Élevé` (20/s, 100 pots), `M5 — Cible` (50/s, 250 pots).
+   - Dedicated 1,800s envelope tracked in `.budget_tracker_r5.json`.
+5. **R5 Test Suite (`test_r5_scheduler.py`)**:
+   - 15 unit tests covering mix determination, deterministic reproducibility, version constraints, concurrency locks, correction and rare operation rules, starvation, and failure recovery.
+
+```bash
+# Run R5 scheduler unit tests:
+python3 -m unittest scripts/performance/test_r5_scheduler.py
+
+# Run R5 qualification suite:
+python3 scripts/performance/v3-run.py --r5
+
+# Collect and plot R5 metrology:
+python3 scripts/performance/v3-collect.py --scenario m5-ramp-50 --evidence-dir docs/testing/evidence/L6-I3/R5
+python3 scripts/performance/v3-plot.py --evidence-dir docs/testing/evidence/L6-I3/R5
 ```

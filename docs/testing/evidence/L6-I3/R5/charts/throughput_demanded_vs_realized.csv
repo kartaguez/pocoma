@@ -1,0 +1,6 @@
+demanded_rate_cmd_s,scenario,commands_offered,commands_admitted,commands_applied,admitted_rate_cmd_s
+1.0,m1-smoke,15,15,15,0.75
+5.0,m2-nominal-5,301,301,292,5.02
+10.0,m3-ramp-10,112,112,55,1.87
+20.0,m4-ramp-20,262,261,162,4.35
+50.0,m5-ramp-50,799,699,561,5.59

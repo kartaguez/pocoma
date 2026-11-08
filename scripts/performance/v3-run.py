@@ -25,6 +25,13 @@ from typing import Dict, List, Optional
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from v3_token import OidcTokenManager, TokenHttpServer
 from v3_observer import DecoupledBenchCoordinator
+from v3_realistic_workload import (
+    WorkloadConfig,
+    RealisticWorkloadScheduler,
+    prepare_live_fixtures,
+    save_fixtures_manifest,
+    load_fixtures_manifest,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_DIR = REPO_ROOT / "docs" / "testing" / "evidence" / "L6-I3"
@@ -34,6 +41,10 @@ GLOBAL_BUDGET_SECONDS = 70 * 60  # 4200 seconds (70 minutes) max cumulative
 EVIDENCE_DIR_R4 = EVIDENCE_DIR / "R4"
 BUDGET_FILE_R4 = EVIDENCE_DIR_R4 / ".budget_tracker_r4.json"
 GLOBAL_BUDGET_SECONDS_R4 = 30 * 60  # 1800 seconds (30 minutes) max cumulative for R4
+
+EVIDENCE_DIR_R5 = EVIDENCE_DIR / "R5"
+BUDGET_FILE_R5 = EVIDENCE_DIR_R5 / ".budget_tracker_r5.json"
+GLOBAL_BUDGET_SECONDS_R5 = 30 * 60  # 1800 seconds (30 minutes) max cumulative for R5
 
 SCENARIO_BUDGETS = {
     "smoke": 120,          # 2 minutes max
@@ -72,6 +83,12 @@ SCENARIO_BUDGETS = {
     "q5-ramp-50": 300,     # 60s + 50 pots setup
     "q6-contention": 180,  # 30s + 1 pot setup
     "q7-large": 240,       # 30s + large pot setup
+    # R5 Scenarios (Realistic Workload 88/10/2)
+    "m1-smoke": 120,       # 20s + setup
+    "m2-nominal-5": 240,   # 60s + setup
+    "m3-ramp-10": 240,     # 60s + setup
+    "m4-ramp-20": 300,     # 60s + setup
+    "m5-ramp-50": 450,     # 120s + setup
 }
 
 K6_SCENARIO_MAP = {
@@ -108,6 +125,12 @@ K6_SCENARIO_MAP = {
     "q5-ramp-50": {"SCENARIO": "peak", "POTS": "50", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "DEFAULT_RATE": 50, "DEFAULT_DURATION": "60s"},
     "q6-contention": {"SCENARIO": "contention", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "10", "CONTENTION_VUS": "4", "DEFAULT_DURATION": "30s"},
     "q7-large": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "100", "SEED_EXPENSES": "2000", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s"},
+    # R5 Scenarios (Realistic Workload 88/10/2)
+    "m1-smoke": {"SCENARIO": "m1-smoke", "POTS": "10", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "20s", "WORKLOAD_MODE": "realistic"},
+    "m2-nominal-5": {"SCENARIO": "m2-nominal-5", "POTS": "25", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    "m3-ramp-10": {"SCENARIO": "m3-ramp-10", "POTS": "50", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    "m4-ramp-20": {"SCENARIO": "m4-ramp-20", "POTS": "100", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    "m5-ramp-50": {"SCENARIO": "m5-ramp-50", "POTS": "250", "DEFAULT_RATE": 50, "DEFAULT_DURATION": "120s", "WORKLOAD_MODE": "realistic"},
 }
 
 
@@ -187,6 +210,47 @@ class BudgetTrackerR4:
                 "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R4,
                 "cumulativeSeconds": round(consumed, 2),
                 "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R4 - consumed), 2),
+                "runs": history,
+            }, f, indent=2)
+
+
+class BudgetTrackerR5:
+    """Dedicated budget tracker for the R5 realistic workload qualification campaign (1800s / 30m ceiling)."""
+
+    @staticmethod
+    def get_consumed_seconds() -> float:
+        if not BUDGET_FILE_R5.exists():
+            return 0.0
+        try:
+            with open(BUDGET_FILE_R5, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return float(data.get("cumulativeSeconds", 0.0))
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = BudgetTrackerR5.get_consumed_seconds() + duration_sec
+        EVIDENCE_DIR_R5.mkdir(parents=True, exist_ok=True)
+        history = []
+        if BUDGET_FILE_R5.exists():
+            try:
+                with open(BUDGET_FILE_R5, "r", encoding="utf-8") as f:
+                    history = json.load(f).get("runs", [])
+            except Exception:
+                pass
+        history.append({
+            "runId": run_id,
+            "scenario": scenario,
+            "durationSeconds": round(duration_sec, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "success": success,
+        })
+        with open(BUDGET_FILE_R5, "w", encoding="utf-8") as f:
+            json.dump({
+                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R5,
+                "cumulativeSeconds": round(consumed, 2),
+                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R5 - consumed), 2),
                 "runs": history,
             }, f, indent=2)
 
@@ -285,13 +349,26 @@ def extract_correlation_event(line: str) -> Optional[Dict[str, Any]]:
 
 def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optional[int] = None,
                  skip_preflight: bool = False, run_id: Optional[str] = None,
-                 is_r4: bool = False) -> bool:
-    is_r4_run = is_r4 or scenario_name.startswith("q")
-    target_evidence_dir = EVIDENCE_DIR_R4 if is_r4_run else EVIDENCE_DIR
-    target_tracker = BudgetTrackerR4 if is_r4_run else BudgetTracker
-    target_budget_limit = GLOBAL_BUDGET_SECONDS_R4 if is_r4_run else GLOBAL_BUDGET_SECONDS
+                 is_r4: bool = False, is_r5: bool = False) -> bool:
+    is_r5_run = is_r5 or scenario_name.startswith("m")
+    is_r4_run = not is_r5_run and (is_r4 or scenario_name.startswith("q"))
 
-    prefix = "run-r4" if is_r4_run else "run-r2"
+    if is_r5_run:
+        target_evidence_dir = EVIDENCE_DIR_R5
+        target_tracker = BudgetTrackerR5
+        target_budget_limit = GLOBAL_BUDGET_SECONDS_R5
+        prefix = "run-r5"
+    elif is_r4_run:
+        target_evidence_dir = EVIDENCE_DIR_R4
+        target_tracker = BudgetTrackerR4
+        target_budget_limit = GLOBAL_BUDGET_SECONDS_R4
+        prefix = "run-r4"
+    else:
+        target_evidence_dir = EVIDENCE_DIR
+        target_tracker = BudgetTracker
+        target_budget_limit = GLOBAL_BUDGET_SECONDS
+        prefix = "run-r2"
+
     rid = run_id or f"{prefix}-{scenario_name}-{int(time.time())}"
     summary_path = target_evidence_dir / f"{rid}_k6_summary.json"
     pre_snapshot_path = target_evidence_dir / f"{rid}_pre_snapshot.txt"
@@ -354,11 +431,9 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     print(f"\n▶ Step 2: Spawning k6 Benchmark ({scenario_name} -> {k6_cfg['SCENARIO']}, duration={eff_duration}, rate={eff_rate})...")
     k6_script = REPO_ROOT / "scripts" / "k6" / "v3-performance.js"
 
-    # Start proactive OIDC Token Manager & local token server
+    # Start proactive OIDC Token Manager
     token_mgr = OidcTokenManager()
     token = token_mgr.get_token()
-    token_server = TokenHttpServer(token_mgr, port=18083)
-    token_server.start()
 
     # Automatically resolve bindingToken
     binding_token = os.environ.get("POCOMA_BINDING_TOKEN")
@@ -378,12 +453,25 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         except Exception as e:
             print(f"  [Notice] Binding token auto-resolution skipped ({e})")
 
-    is_decoupled = (scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp"))
+    # Initialize realistic workload fixtures and scheduler if in realistic mode
+    scheduler = None
+    if is_r5_run or k6_cfg.get("WORKLOAD_MODE") == "realistic":
+        pot_count = int(k6_cfg.get("POTS", 250))
+        wl_cfg = WorkloadConfig(pot_pool_size=pot_count, random_seed=20261108)
+        manifest_path = target_evidence_dir / "fixtures_manifest.json"
+        pots = prepare_live_fixtures(token, binding_token, wl_cfg, manifest_path=manifest_path)
+        scheduler = RealisticWorkloadScheduler(config=wl_cfg, pots=pots)
+
+    token_server = TokenHttpServer(token_mgr, port=18083, scheduler=scheduler)
+    token_server.start()
+
+    is_decoupled = (is_r5_run or scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp") or scenario_name.startswith("m"))
     coordinator = None
     if is_decoupled:
         max_drain = min(90.0, max(45.0, dur_sec * 0.5))
         coordinator = DecoupledBenchCoordinator(
-            run_id=rid, token_manager=token_mgr, binding_token=binding_token, max_drain_seconds=max_drain
+            run_id=rid, token_manager=token_mgr, binding_token=binding_token, max_drain_seconds=max_drain,
+            evidence_dir=target_evidence_dir, scheduler=scheduler
         )
         coordinator.start()
 
@@ -398,6 +486,8 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     env["POCOMA_AUTH_URL"] = token_server.url
     env["DECOUPLED"] = "true" if is_decoupled else "false"
     env["POLL_TIMEOUT_MS"] = os.environ.get("POLL_TIMEOUT_MS", "25000")
+    if is_r5_run:
+        env["WORKLOAD_MODE"] = "realistic"
     if binding_token:
         env["POCOMA_BINDING_TOKEN"] = binding_token
 
@@ -591,9 +681,81 @@ def run_r4_suite() -> bool:
     return all_passed
 
 
+def run_r5_suite() -> bool:
+    """Executes the full R5 campaign (M1..M5) under realistic business workload (88/10/2)."""
+    m_scenarios = [
+        ("m1-smoke", "20s", 1),
+        ("m2-nominal-5", "60s", 5),
+        ("m3-ramp-10", "60s", 10),
+        ("m4-ramp-20", "60s", 20),
+        ("m5-ramp-50", "120s", 50),
+    ]
+
+    print("================================================================================")
+    print(" Pocoma V3 — R5 Realistic Workload Qualification Campaign (50 cmd/s, 88/10/2)")
+    print(f" Envelope Budget: {GLOBAL_BUDGET_SECONDS_R5}s (30 min)")
+    print(f" Evidence Directory: {EVIDENCE_DIR_R5}")
+    print(f" Scenarios: {[m[0] for m in m_scenarios]}")
+    print("================================================================================")
+
+    # First execute mandatory Preflight
+    print("\n▶ Preflight Gate for R5 Campaign...")
+    preflight_script = REPO_ROOT / "scripts" / "performance" / "v3-preflight.py"
+    pre_res = subprocess.run([sys.executable, str(preflight_script)])
+    if pre_res.returncode != 0:
+        print("ERROR: Preflight failed. Aborting R5 suite.", file=sys.stderr)
+        return False
+    print("  ✓ Preflight passed.")
+
+    # Upfront fixture preparation for all 250 pots
+    print("\n▶ Pre-generating / Verifying 250 Realistic Fixtures...")
+    token_mgr = OidcTokenManager()
+    token = token_mgr.get_token()
+    binding_token = os.environ.get("POCOMA_BINDING_TOKEN")
+    if not binding_token:
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "demo_journey", REPO_ROOT / "scripts" / "operations" / "run-demo-journey.py"
+            )
+            journey_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(journey_mod)
+            st, _, b = journey_mod.http_req("GET", "http://127.0.0.1:8080/api/v3/me/binding", token=token)
+            if st == 200:
+                bind_data = json.loads(b.decode())
+                binding_token = bind_data.get("bindingToken")
+        except Exception:
+            pass
+
+    t_prep_start = time.time()
+    wl_cfg = WorkloadConfig(pot_pool_size=250, random_seed=20261108)
+    manifest_path = EVIDENCE_DIR_R5 / "fixtures_manifest.json"
+    EVIDENCE_DIR_R5.mkdir(parents=True, exist_ok=True)
+    prepare_live_fixtures(token, binding_token, wl_cfg, manifest_path=manifest_path)
+    prep_dur = time.time() - t_prep_start
+    BudgetTrackerR5.record_run("fixtures-prep", prep_dur, f"prep-fixtures-{int(time.time())}", True)
+    print(f"  ✓ Fixtures verified and tracked in budget ({prep_dur:.1f}s)")
+
+    all_passed = True
+    for sc_name, sc_dur, sc_rate in m_scenarios:
+        rem = GLOBAL_BUDGET_SECONDS_R5 - BudgetTrackerR5.get_consumed_seconds()
+        if rem < 120:
+            print(f"\n[R5 SUITE] Low budget ({rem:.1f}s remaining). Halting suite safely before {sc_name}.")
+            all_passed = False
+            break
+
+        print(f"\n>>> Launching R5 Scenario [{sc_name}] (duration={sc_dur}, rate={sc_rate}) <<<")
+        ok = run_scenario(sc_name, duration=sc_dur, rate=sc_rate, skip_preflight=True, is_r5=True)
+        if not ok:
+            print(f"\n[R5 SUITE] Scenario {sc_name} reported warnings or non-zero exit.")
+            all_passed = False
+        time.sleep(3.0)  # Inter-scenario settlement pause
+
+    return all_passed
+
+
 def main():
     parser = argparse.ArgumentParser(description="Pocoma V3 Master Performance Orchestrator")
-    parser.add_argument("scenario", choices=list(SCENARIO_BUDGETS.keys()) + ["ramp-suite", "r4-suite"], default="smoke",
+    parser.add_argument("scenario", choices=list(SCENARIO_BUDGETS.keys()) + ["ramp-suite", "r4-suite", "r5-suite"], default="smoke",
                         nargs="?", help="Scenario to execute")
     parser.add_argument("--duration", help="k6 scenario duration (e.g. 10s, 30s, 60s, 120s)")
     parser.add_argument("--rate", type=int, help="Arrival rate (commands/sec)")
@@ -601,11 +763,18 @@ def main():
     parser.add_argument("--run-id", help="Explicit run ID")
     parser.add_argument("--budget-status", action="store_true", help="Display budget status and exit")
     parser.add_argument("--r4", action="store_true", help="Execute under R4 budget envelope and output directory")
+    parser.add_argument("--r5", action="store_true", help="Execute under R5 budget envelope and output directory")
 
     args = parser.parse_args()
 
     if args.budget_status:
-        if args.r4:
+        if args.r5:
+            consumed = BudgetTrackerR5.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS_R5 - consumed
+            print(f"R5 Budget:        {GLOBAL_BUDGET_SECONDS_R5}s ({GLOBAL_BUDGET_SECONDS_R5/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        elif args.r4:
             consumed = BudgetTrackerR4.get_consumed_seconds()
             remaining = GLOBAL_BUDGET_SECONDS_R4 - consumed
             print(f"R4 Budget:        {GLOBAL_BUDGET_SECONDS_R4}s ({GLOBAL_BUDGET_SECONDS_R4/60:.1f} min)")
@@ -619,6 +788,10 @@ def main():
             print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
         sys.exit(0)
 
+    if args.scenario == "r5-suite":
+        ok = run_r5_suite()
+        sys.exit(0 if ok else 1)
+
     if args.scenario == "r4-suite":
         ok = run_r4_suite()
         sys.exit(0 if ok else 1)
@@ -628,7 +801,8 @@ def main():
         ok = run_ramp_suite(duration=dur)
         sys.exit(0 if ok else 1)
 
-    is_r4 = args.r4 or args.scenario.startswith("q")
+    is_r5 = args.r5 or args.scenario.startswith("m")
+    is_r4 = not is_r5 and (args.r4 or args.scenario.startswith("q"))
     ok = run_scenario(
         scenario_name=args.scenario,
         duration=args.duration,
@@ -636,6 +810,7 @@ def main():
         skip_preflight=args.skip_preflight,
         run_id=args.run_id,
         is_r4=is_r4,
+        is_r5=is_r5,
     )
     sys.exit(0 if ok else 1)
 

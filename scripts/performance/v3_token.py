@@ -194,15 +194,18 @@ class OidcTokenManager:
 class TokenHttpServer:
     """Local ephemeral HTTP server serving active tokens to k6 VUs or local scripts."""
 
-    def __init__(self, token_manager: OidcTokenManager, host: str = "127.0.0.1", port: int = 18083):
+    def __init__(self, token_manager: OidcTokenManager, host: str = "127.0.0.1", port: int = 18083,
+                 scheduler: Any = None):
         self.token_manager = token_manager
         self.host = host
         self.port = port
+        self.scheduler = scheduler
         self.server: Optional[socketserver.TCPServer] = None
         self.thread: Optional[threading.Thread] = None
 
     def start(self):
         token_mgr = self.token_manager
+        sched = self.scheduler
 
         class Handler(http.server.BaseHTTPRequestHandler):
             def log_message(self, format, *args):
@@ -213,6 +216,48 @@ class TokenHttpServer:
                     try:
                         token = token_mgr.get_token()
                         body = json.dumps({"token": token, "expiresIn": 300}).encode("utf-8")
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json")
+                        self.send_header("Content-Length", str(len(body)))
+                        self.end_headers()
+                        self.wfile.write(body)
+                    except Exception as e:
+                        err = json.dumps({"error": str(e)}).encode("utf-8")
+                        self.send_response(500)
+                        self.send_header("Content-Type", "application/json")
+                        self.send_header("Content-Length", str(len(err)))
+                        self.end_headers()
+                        self.wfile.write(err)
+                elif self.path == "/next-command":
+                    try:
+                        if not sched:
+                            self.send_response(503)
+                            self.end_headers()
+                            return
+                        cmd = sched.next_command()
+                        if cmd is None:
+                            body = json.dumps({"available": False}).encode("utf-8")
+                        else:
+                            body = json.dumps({"available": True, "command": cmd}).encode("utf-8")
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json")
+                        self.send_header("Content-Length", str(len(body)))
+                        self.end_headers()
+                        self.wfile.write(body)
+                    except Exception as e:
+                        err = json.dumps({"error": str(e)}).encode("utf-8")
+                        self.send_response(500)
+                        self.send_header("Content-Type", "application/json")
+                        self.send_header("Content-Length", str(len(err)))
+                        self.end_headers()
+                        self.wfile.write(err)
+                elif self.path == "/mix-report":
+                    try:
+                        if not sched:
+                            rep = {}
+                        else:
+                            rep = sched.get_mix_report()
+                        body = json.dumps(rep).encode("utf-8")
                         self.send_response(200)
                         self.send_header("Content-Type", "application/json")
                         self.send_header("Content-Length", str(len(body)))

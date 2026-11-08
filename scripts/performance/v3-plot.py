@@ -252,7 +252,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # Identify palier rates: P1 (1), P2 (5), P3 (10), P4 (20), P5 (50)
     palier_reports = []
     for sc, r in sorted(scenario_map.items()):
-        if sc.startswith("ramp-p") or sc.startswith("q") or sc in ("small", "medium", "F01-A", "F01-B", "F01-C", "s1-indep"):
+        if sc.startswith("ramp-p") or sc.startswith("q") or sc.startswith("m") or sc in ("small", "medium", "F01-A", "F01-B", "F01-C", "s1-indep"):
             palier_reports.append(r)
 
     # Sort by offered / admitted commands
@@ -274,7 +274,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
         rate_val = 1.0
         if dm and "ratesPerSecond" in dm and dm["ratesPerSecond"].get("demanded") is not None:
             rate_val = float(dm["ratesPerSecond"]["demanded"])
-        elif sc == "ramp-p1" or sc in ("small", "F01-A", "q1-smoke"):
+        elif sc == "ramp-p1" or sc in ("small", "F01-A", "q1-smoke", "m1-smoke"):
             rate_val = 1.0
         elif sc == "ramp-p2" or "nominal-5" in sc:
             rate_val = 5.0
@@ -473,12 +473,13 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # --------------------------------------------------------------------------
     # Chart 7: Backlog over Time & Drainage Timeseries
     # --------------------------------------------------------------------------
-    backlog_paliers = [r for sc, r in sorted(scenario_map.items()) if (sc.startswith("ramp-p") or sc.startswith("q")) and r.get("decoupledMetrics")]
+    backlog_paliers = [r for sc, r in sorted(scenario_map.items()) if (sc.startswith("ramp-p") or sc.startswith("q") or sc.startswith("m")) and r.get("decoupledMetrics")]
     c7 = SvgChart("Pocoma V3 — Évolution du Backlog et Drainage au Cours du Temps", x_label="Temps écoulé (s)", y_label="Commandes en attente (DB Backlog)")
     csv_rows_7 = []
     colors_p = {
         "ramp-p1": "#89b4fa", "ramp-p2": "#a6e3a1", "ramp-p3": "#f9e2af", "ramp-p4": "#fab387", "ramp-p5": "#f38ba8",
         "q1-smoke": "#89b4fa", "q2-nominal-5": "#a6e3a1", "q3-ramp-10": "#f9e2af", "q4-ramp-20": "#fab387", "q5-ramp-50": "#f38ba8",
+        "m1-smoke": "#89b4fa", "m2-nominal-5": "#a6e3a1", "m3-ramp-10": "#f9e2af", "m4-ramp-20": "#fab387", "m5-ramp-50": "#f38ba8",
     }
 
     for r in backlog_paliers:
@@ -503,7 +504,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # --------------------------------------------------------------------------
     csv_rows_8 = []
     c8 = SvgChart("Pocoma V3 — Débits Découplés et Couverture de Corrélation E2E", x_label="Débit demandé (cmd/s)", y_label="Débit réel (cmd/s) / Couverture (%)")
-    decoupled_runs = [r for sc, r in sorted(scenario_map.items()) if (sc.startswith("ramp-p") or sc.startswith("q")) and r.get("decoupledMetrics")]
+    decoupled_runs = [r for sc, r in sorted(scenario_map.items()) if (sc.startswith("ramp-p") or sc.startswith("q") or sc.startswith("m")) and r.get("decoupledMetrics")]
     decoupled_runs.sort(key=lambda r: (r["decoupledMetrics"]["ratesPerSecond"].get("demanded") or 0))
 
     if decoupled_runs:
@@ -546,7 +547,60 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
         with open(out_dir / "chart_decoupled_throughput_coverage.svg", "w", encoding="utf-8") as f:
             f.write(c8.render())
 
-    print(f"Generated 8 SVG charts and 8 CSV datasets in {out_dir}")
+    # --------------------------------------------------------------------------
+    # Chart 9: Realistic Workload Statistical Mix & Operations Breakdown
+    # --------------------------------------------------------------------------
+    csv_rows_9 = []
+    c9 = SvgChart("Pocoma V3 — Répartition Statistique Réelle des Familles de Commandes", x_label="Débit demandé (cmd/s)", y_label="Proportion Appliquée (%)")
+    mix_runs = [r for sc, r in sorted(scenario_map.items()) if sc.startswith("m") and r.get("decoupledMetrics") and r["decoupledMetrics"].get("mixReport")]
+    mix_runs.sort(key=lambda r: (r["decoupledMetrics"]["ratesPerSecond"].get("demanded") or 0))
+
+    if mix_runs:
+        pts_create = []
+        pts_correct = []
+        pts_weight = []
+        pts_attach = []
+        for r in mix_runs:
+            dm = r["decoupledMetrics"]
+            d_rate = dm.get("ratesPerSecond", {}).get("demanded", 0.0)
+            mix = dm["mixReport"]
+            fam_map = {f["family"]: f for f in mix.get("families", [])}
+            f_create = fam_map.get("CreateExpense", {})
+            f_correct = fam_map.get("UpdateExpenseFinancials", {})
+            f_weight = fam_map.get("UpdateShareholderWeights", {})
+            f_attach = fam_map.get("UpdateShareholderDetails", {})
+
+            p_create = f_create.get("appliedRatio", 0.0) * 100.0
+            p_correct = f_correct.get("appliedRatio", 0.0) * 100.0
+            p_weight = f_weight.get("appliedRatio", 0.0) * 100.0
+            p_attach = f_attach.get("appliedRatio", 0.0) * 100.0
+
+            pts_create.append((d_rate, p_create))
+            pts_correct.append((d_rate, p_correct))
+            pts_weight.append((d_rate, p_weight))
+            pts_attach.append((d_rate, p_attach))
+
+            csv_rows_9.append([
+                r.get("scenario"), d_rate,
+                f_create.get("appliedCount", 0), p_create,
+                f_correct.get("appliedCount", 0), p_correct,
+                f_weight.get("appliedCount", 0), p_weight,
+                f_attach.get("appliedCount", 0), p_attach,
+            ])
+
+        export_csv(out_dir / "realistic_workload_mix.csv",
+                   ["scenario", "demanded_rate", "create_count", "create_pct", "correct_count", "correct_pct", "weight_count", "weight_pct", "attach_count", "attach_pct"],
+                   csv_rows_9)
+
+        c9.add_line("Création Dépense (Cible 88%)", pts_create, "#a6e3a1")
+        c9.add_line("Correction Dépense (Cible 10%)", pts_correct, "#89b4fa")
+        c9.add_line("Changement Poids (Rare)", pts_weight, "#fab387")
+        c9.add_line("Rattachement SH (Rare)", pts_attach, "#f38ba8")
+
+        with open(out_dir / "chart_realistic_mix_proportions.svg", "w", encoding="utf-8") as f:
+            f.write(c9.render())
+
+    print(f"Generated SVG charts and CSV datasets in {out_dir}")
 
 
 def main():

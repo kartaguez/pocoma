@@ -132,6 +132,7 @@ class CorrelationRecord:
     observed_version: int
     attempts: int = 1
     retries: int = 0
+    operation: str = "CreateExpense"
 
     # Client-side Terminal Observer results
     t_terminal: Optional[float] = None
@@ -192,10 +193,11 @@ class CorrelationRecord:
 class CorrelationStore:
     """Thread-safe bounded in-memory store and JSONL event journal."""
 
-    def __init__(self, run_id: str, journal_path: Optional[Path] = None, max_capacity: int = 100000):
+    def __init__(self, run_id: str, journal_path: Optional[Path] = None, max_capacity: int = 100000, scheduler: Any = None):
         self.run_id = run_id
         self.max_capacity = max_capacity
         self.journal_path = journal_path or (EVIDENCE_DIR / f"{run_id}_admissions.jsonl")
+        self.scheduler = scheduler
 
         self._lock = threading.Lock()
         self.records: Dict[str, CorrelationRecord] = {}
@@ -232,6 +234,7 @@ class CorrelationStore:
                 observed_version=int(event_data.get("observedVersion", 0)),
                 attempts=int(event_data.get("attempts", 1)),
                 retries=int(event_data.get("retries", 0)),
+                operation=str(event_data.get("operation", "CreateExpense")),
             )
 
             if status == 202 and rec.command_id and not rec.command_id.startswith("unassigned"):
@@ -250,6 +253,19 @@ class CorrelationStore:
 
             self._journal_file.write(json.dumps(rec.to_dict()) + "\n")
             self._journal_file.flush()
+
+            if self.scheduler:
+                try:
+                    self.scheduler.record_admission(
+                        command_id=cid,
+                        pot_id=rec.pot_id,
+                        operation=rec.operation,
+                        status=status,
+                        meta=event_data.get("_meta"),
+                    )
+                except Exception:
+                    pass
+
             return rec
 
     def close(self):
@@ -271,12 +287,13 @@ class TerminalObserver:
 
     def __init__(self, store: CorrelationStore, token_getter,
                  base_url: str = BASE_URL, command_timeout_sec: float = 90.0,
-                 max_workers: int = 12):
+                 max_workers: int = 12, on_terminal_callback: Optional[Any] = None):
         self.store = store
         self.token_getter = token_getter
         self.base_url = base_url.rstrip("/")
         self.command_timeout_sec = command_timeout_sec
         self.max_workers = max(1, min(32, max_workers))
+        self.on_terminal_callback = on_terminal_callback
 
         self.stop_event = threading.Event()
         self.threads: List[threading.Thread] = []
@@ -329,6 +346,11 @@ class TerminalObserver:
                 rec.failure_reason = f"Terminal probe timeout after {self.command_timeout_sec}s"
                 with self._counter_lock:
                     self.timeouts_count += 1
+                if self.on_terminal_callback:
+                    try:
+                        self.on_terminal_callback(cid, rec.pot_id, None, "TIMEOUT")
+                    except Exception:
+                        pass
                 self.store.terminal_queue.task_done()
                 continue
 
@@ -359,6 +381,13 @@ class TerminalObserver:
                             with self._counter_lock:
                                 self.rejected_cas_count += 1
                             rec.failure_reason = f"CAS_REJECTED: {data.get('rejection', 'n/a')}"
+
+                        if self.on_terminal_callback:
+                            try:
+                                self.on_terminal_callback(cid, rec.pot_id, data.get("resultingPotVersion"), outcome)
+                            except Exception:
+                                pass
+
                         self.store.terminal_queue.task_done()
                         continue
             except urllib.error.HTTPError as e:
@@ -384,6 +413,11 @@ class TerminalObserver:
                     rec.failure_reason = f"Terminal probe HTTP {e.code}"
                     with self._counter_lock:
                         self.terminalized_count += 1
+                    if self.on_terminal_callback:
+                        try:
+                            self.on_terminal_callback(cid, rec.pot_id, None, f"HTTP_{e.code}")
+                        except Exception:
+                            pass
             except Exception:
                 # Network transient: brief pause and re-queue
                 self.store.terminal_queue.put((cid, attempt + 1, time.time() * 1000 + 50))
@@ -655,16 +689,20 @@ class DecoupledBenchCoordinator:
                  evidence_dir: Optional[Path] = None,
                  terminal_workers: int = 12,
                  read_workers: int = 8,
-                 store: Optional[CorrelationStore] = None):
+                 store: Optional[CorrelationStore] = None,
+                 scheduler: Any = None):
         self.run_id = run_id
         self.token_manager = token_manager
         self.binding_token = binding_token
         self.max_drain_seconds = max_drain_seconds
         self.evidence_dir = evidence_dir or EVIDENCE_DIR
+        self.scheduler = scheduler
 
-        self.store = store or CorrelationStore(run_id=run_id, journal_path=journal_path)
+        j_path = journal_path or (self.evidence_dir / f"{run_id}_admissions.jsonl")
+        self.store = store or CorrelationStore(run_id=run_id, journal_path=j_path, scheduler=scheduler)
         self.term_obs = TerminalObserver(
-            self.store, token_manager.get_token, max_workers=terminal_workers
+            self.store, token_manager.get_token, max_workers=terminal_workers,
+            on_terminal_callback=(self.scheduler.on_command_terminal if self.scheduler else None)
         )
         self.read_obs = ReadObserver(
             self.store, token_manager.get_token, binding_token=binding_token, max_workers=read_workers
@@ -823,6 +861,31 @@ class DecoupledBenchCoordinator:
 
         coverage_ratio = len(complete_records) / len(admitted_records) if admitted_records else 0.0
 
+        # Per-operation breakdown
+        ops = sorted(list(set(r.operation for r in admitted_records)))
+        operation_metrics = {}
+        for op in ops:
+            op_admitted = [r for r in admitted_records if r.operation == op]
+            op_applied = [r for r in op_admitted if r.terminal_status in ("COMPLETED", "CHANGED", "APPLIED")]
+            op_cas = [r for r in op_admitted if r.terminal_status == "REJECTED"]
+            op_term = [r for r in op_admitted if r.t_terminal is not None]
+            op_read = [r for r in op_applied if r.t_read is not None]
+            op_e2e = [r for r in op_applied if r.is_complete_client]
+
+            operation_metrics[op] = {
+                "admitted": len(op_admitted),
+                "applied": len(op_applied),
+                "casRejected": len(op_cas),
+                "readMaterialized": len(op_read),
+                "completeE2E": len(op_e2e),
+                "latencies": {
+                    "admission": calculate_exact_quantiles([r.latency_admission_ms for r in op_admitted]),
+                    "terminal": calculate_exact_quantiles([r.latency_terminal_ms for r in op_term if r.latency_terminal_ms is not None]),
+                    "readMaterialization": calculate_exact_quantiles([r.latency_read_ms for r in op_read if r.latency_read_ms is not None]),
+                    "e2eTotal": calculate_exact_quantiles([r.latency_e2e_ms for r in op_e2e if r.latency_e2e_ms is not None]),
+                }
+            }
+
         return {
             "runId": self.run_id,
             "demandedRate": demanded_rate,
@@ -831,6 +894,8 @@ class DecoupledBenchCoordinator:
             "totalScenarioSeconds": round(total_duration, 2),
             "generatorStatus": "LOAD_GENERATOR_VALID" if is_gen_valid else "GENERATOR_LIMITED",
             "generatorRateRatio": round(gen_ratio * 100.0, 1),
+            "mixReport": self.scheduler.get_mix_report() if self.scheduler else None,
+            "latenciesByOperation": operation_metrics,
             "counts": {
                 "emitted": self.store.emitted_count,
                 "admitted": self.store.admitted_count,

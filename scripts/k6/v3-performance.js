@@ -69,6 +69,7 @@ const cProbeRequests = new Counter('v3_probe_requests');
 const cReadQueriesTotal = new Counter('v3_read_queries_total');
 const cReadQueries200 = new Counter('v3_read_queries_200');
 const cReadQueriesErrors = new Counter('v3_read_queries_errors');
+const cStarvation = new Counter('v3_generator_pot_starvation');
 
 function scenarioOptions() {
   const arrival = (rate, vus, maxVus = null) => {
@@ -108,6 +109,9 @@ function scenarioOptions() {
     case 'structural':
       return { structural: arrival(RATE, Math.max(POTS, 2), Math.max(POTS * 2, 6)) };
     default:
+      if (SCENARIO.startsWith('m') || __ENV.WORKLOAD_MODE === 'realistic') {
+        return { [SCENARIO]: arrival(RATE, Math.max(RATE, 10), Math.max(RATE * 2, 20)) };
+      }
       throw new Error(`Unknown SCENARIO ${SCENARIO}`);
   }
 }
@@ -159,6 +163,9 @@ function expensePayload(shareholders, label) {
 }
 
 export function setup() {
+  if (__ENV.WORKLOAD_MODE === 'realistic' || SCENARIO.startsWith('m')) {
+    return { seededAt: Date.now() };
+  }
   if (!TOKEN || !BINDING) {
     throw new Error('POCOMA_TOKEN and POCOMA_BINDING_TOKEN are required (set by v3-run.py)');
   }
@@ -273,6 +280,77 @@ function injectDecoupled(c, pot) {
     retries: adm.retries,
     expectedVersion: observed + 1,
     observedVersion: observed,
+  }));
+}
+
+function injectRealistic(c) {
+  checkAndRefreshToken(c);
+
+  const res = http.get('http://127.0.0.1:18083/next-command');
+  if (res.status !== 200) {
+    cStarvation.add(1);
+    sleep(0.005);
+    return;
+  }
+
+  let cmdResp = null;
+  try {
+    cmdResp = res.json();
+  } catch (_) {
+    cStarvation.add(1);
+    sleep(0.005);
+    return;
+  }
+
+  if (!cmdResp || !cmdResp.available || !cmdResp.command) {
+    cStarvation.add(1);
+    sleep(0.005);
+    return;
+  }
+
+  const cmd = cmdResp.command;
+  const t0_send = Date.now();
+  cAdmissionsOffered.add(1);
+
+  let adm = c.submitCommand(cmd.operation, cmd.potId, cmd.observedVersion, cmd.payload, null, { maxRetries: 0 });
+
+  if (adm.status === 401 && __ENV.POCOMA_AUTH_URL) {
+    // Immediate token refresh and retry on 401
+    lastTokenRefresh = 0;
+    checkAndRefreshToken(c);
+    adm = c.submitCommand(cmd.operation, cmd.potId, cmd.observedVersion, cmd.payload, null, { maxRetries: 0 });
+  }
+
+  cAdmissionsAttempted.add(adm.attempts);
+  cAdmissionRetriesTotal.add(adm.retries);
+  tAdmissionRetriesPerCmd.add(adm.retries);
+  tAdmission.add(adm.duration);
+  tAdmissionWithRetries.add(adm.totalAdmissionDuration);
+
+  if (adm.status === 202) {
+    cAdmitted.add(1);
+    cFirstAttemptSuccess.add(1);
+  } else if (adm.status === 503) {
+    cWriteCapacity503.add(1);
+    cCapacityRejected.add(1);
+  } else {
+    cAdmissionErrors.add(1);
+    cOracle.add(1);
+  }
+
+  // Pure JSON line to console for correlation engine
+  console.log(JSON.stringify({
+    commandId: adm.requestId,
+    potId: cmd.potId,
+    operation: cmd.operation,
+    t_send: t0_send,
+    t_admit: adm.admittedAt,
+    status: adm.status,
+    attempts: adm.attempts,
+    retries: adm.retries,
+    expectedVersion: cmd.observedVersion + 1,
+    observedVersion: cmd.observedVersion,
+    _meta: cmd._meta || null,
   }));
 }
 
@@ -543,6 +621,11 @@ function readIteration(c, data) {
 export default function (data) {
   const c = client();
 
+  if (__ENV.WORKLOAD_MODE === 'realistic' || SCENARIO.startsWith('m')) {
+    injectRealistic(c);
+    return;
+  }
+
   if (SCENARIO === 'contention') {
     contentionIteration(c, data);
     return;
@@ -614,7 +697,8 @@ export function handleSummary(data) {
       + ` (1st_try=${firstSuccess}, retried=${retriedSuccess}, cap_rejected=${capRej}) retries_total=${retriesTotal}`,
     `  Terminal & Read: applied=${cnt('v3_commands_applied')} terminal=${cnt('v3_terminal_results_count')}`
       + ` rejected_cas=${cnt('v3_commands_rejected')} admission_errors=${cnt('v3_admission_errors')}`
-      + ` oracle_failures=${cnt('v3_oracle_failures')} censored=${cnt('v3_censored_timeouts')} dropped_iters=${cnt('dropped_iterations')}`,
+      + ` oracle_failures=${cnt('v3_oracle_failures')} starvation=${cnt('v3_generator_pot_starvation')}`
+      + ` censored=${cnt('v3_censored_timeouts')} dropped_iters=${cnt('dropped_iterations')}`,
     `  Capacity & Semaphores: write_503=${cnt('v3_write_capacity_503')} read_503=${cnt('v3_read_capacity_503')}`
       + ` maintenance_503=${cnt('v3_read_maintenance_503')} probe_reqs=${cnt('v3_probe_requests')}`
       + ` read_queries=${cnt('v3_read_queries_total')} read_200=${cnt('v3_read_queries_200')}`,
