@@ -1,0 +1,959 @@
+{
+  "R9-C1": [
+    {
+      "config": {
+        "quantum": 1,
+        "backlog": 0
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153612",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:00:15Z",
+        "writeWait": {
+          "p50": 20.38,
+          "p95": 31.6,
+          "p99": 44.35,
+          "avg": 22.59,
+          "count": 121,
+          "max": 155.31
+        },
+        "readDiscovery": {
+          "p50": 1.39,
+          "p95": 2.89,
+          "count": 89
+        },
+        "admissionHttp": {
+          "p50": 2.97,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 144,
+          "p95": 276.3,
+          "p99": 288.06,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 212,
+          "p95": 292.1,
+          "p99": 299.22,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:00:16Z"
+    },
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 0
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153626",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:00:30Z",
+        "writeWait": {
+          "p50": 21.12,
+          "p95": 35.14,
+          "p99": 43.14,
+          "avg": 22.98,
+          "count": 143,
+          "max": 52.97
+        },
+        "readDiscovery": {
+          "p50": 1.62,
+          "p95": 4.74,
+          "count": 99
+        },
+        "admissionHttp": {
+          "p50": 4.19,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 264,
+          "p95": 283.8,
+          "p99": 285.56,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 280,
+          "p95": 295.3,
+          "p99": 296.66,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:00:31Z"
+    },
+    {
+      "config": {
+        "quantum": 1,
+        "backlog": 200
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153641",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:01:10Z",
+        "writeWait": {
+          "p50": 20.18,
+          "p95": 27.09,
+          "p99": 33.55,
+          "avg": 21.92,
+          "count": 1302,
+          "max": 68.63
+        },
+        "readDiscovery": {
+          "p50": 1.3,
+          "p95": 2.61,
+          "count": 961
+        },
+        "admissionHttp": {
+          "p50": 3.84,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 1340,
+          "p95": 3761.0,
+          "p99": 3976.2,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 1352,
+          "p95": 3771.2,
+          "p99": 3986.24,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:01:11Z"
+    },
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 200
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153682",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:01:44Z",
+        "writeWait": {
+          "p50": 20.07,
+          "p95": 27.57,
+          "p99": 38.33,
+          "avg": 21.63,
+          "count": 1035,
+          "max": 88.42
+        },
+        "readDiscovery": {
+          "p50": 1.32,
+          "p95": 3.04,
+          "count": 751
+        },
+        "admissionHttp": {
+          "p50": 3.15,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 783,
+          "p95": 1340.1,
+          "p99": 1389.62,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 797,
+          "p95": 1375.7,
+          "p99": 1427.14,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:01:45Z"
+    },
+    {
+      "config": {
+        "quantum": 8,
+        "backlog": 200
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153716",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:02:03Z",
+        "writeWait": {
+          "p50": 20.31,
+          "p95": 27.42,
+          "p99": 38.51,
+          "avg": 22.0,
+          "count": 334,
+          "max": 68.25
+        },
+        "readDiscovery": {
+          "p50": 1.36,
+          "p95": 2.97,
+          "count": 241
+        },
+        "admissionHttp": {
+          "p50": 3.15,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 512,
+          "p95": 535.4,
+          "p99": 537.48,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 577,
+          "p95": 584.2,
+          "p99": 584.84,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:02:04Z"
+    }
+  ],
+  "R9-C2": [
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 0
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153742",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:02:26Z",
+        "writeWait": {
+          "p50": 20.96,
+          "p95": 32.16,
+          "p99": 42.04,
+          "avg": 22.67,
+          "count": 145,
+          "max": 89.87
+        },
+        "readDiscovery": {
+          "p50": 1.45,
+          "p95": 3.31,
+          "count": 102
+        },
+        "admissionHttp": {
+          "p50": 3.84,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 257,
+          "p95": 287.6,
+          "p99": 290.32,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 268,
+          "p95": 302.2,
+          "p99": 305.24,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:02:27Z"
+    },
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 50
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153747",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:02:39Z",
+        "writeWait": {
+          "p50": 20.3,
+          "p95": 27.74,
+          "p99": 42.23,
+          "avg": 22.22,
+          "count": 504,
+          "max": 89.87
+        },
+        "readDiscovery": {
+          "p50": 1.32,
+          "p95": 2.15,
+          "count": 378
+        },
+        "admissionHttp": {
+          "p50": 2.62,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 477,
+          "p95": 721.8,
+          "p99": 743.56,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 486,
+          "p95": 730.8,
+          "p99": 752.56,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:02:39Z"
+    },
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 200
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153759",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:02:59Z",
+        "writeWait": {
+          "p50": 20.54,
+          "p95": 27.26,
+          "p99": 33.02,
+          "avg": 22.07,
+          "count": 896,
+          "max": 89.87
+        },
+        "readDiscovery": {
+          "p50": 1.31,
+          "p95": 2.08,
+          "count": 678
+        },
+        "admissionHttp": {
+          "p50": 2.45,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 503,
+          "p95": 706.4,
+          "p99": 724.48,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 510,
+          "p95": 715.2,
+          "p99": 733.44,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:03:00Z"
+    },
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 500
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153780",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:03:41Z",
+        "writeWait": {
+          "p50": 20.66,
+          "p95": 27.68,
+          "p99": 42.5,
+          "avg": 22.41,
+          "count": 1821,
+          "max": 89.87
+        },
+        "readDiscovery": {
+          "p50": 1.35,
+          "p95": 2.15,
+          "count": 1368
+        },
+        "admissionHttp": {
+          "p50": 2.91,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 1631,
+          "p95": 16653.8,
+          "p99": 17989.16,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 1639,
+          "p95": 16663.6,
+          "p99": 17999.12,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:03:42Z"
+    },
+    {
+      "config": {
+        "quantum": 4,
+        "backlog": 1000
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153822",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:04:49Z",
+        "writeWait": {
+          "p50": 20.46,
+          "p95": 27.84,
+          "p99": 42.37,
+          "avg": 22.42,
+          "count": 2983,
+          "max": 89.87
+        },
+        "readDiscovery": {
+          "p50": 1.36,
+          "p95": 2.04,
+          "count": 2244
+        },
+        "admissionHttp": {
+          "p50": 3.23,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 5485,
+          "p95": 16882.6,
+          "p99": 17895.72,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 5495,
+          "p95": 16940.3,
+          "p99": 17957.66,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:04:50Z"
+    }
+  ],
+  "R9-C3": [
+    {
+      "config": {
+        "distribution": "uniform",
+        "count": 200
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153900",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:05:23Z",
+        "writeWait": {
+          "p50": 20.36,
+          "p95": 26.86,
+          "p99": 27.93,
+          "avg": 21.86,
+          "count": 1042,
+          "max": 53.43
+        },
+        "readDiscovery": {
+          "p50": 1.3,
+          "p95": 2.03,
+          "count": 789
+        },
+        "admissionHttp": {
+          "p50": 2.8,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 1128,
+          "p95": 8599.8,
+          "p99": 9263.96,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 1244,
+          "p95": 8668.1,
+          "p99": 9328.02,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:05:23Z"
+    },
+    {
+      "config": {
+        "distribution": "concentrated_p0",
+        "count": 200
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153923",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:05:35Z",
+        "writeWait": {
+          "p50": 20.19,
+          "p95": 26.59,
+          "p99": 27.88,
+          "avg": 21.64,
+          "count": 541,
+          "max": 63.95
+        },
+        "readDiscovery": {
+          "p50": 1.4,
+          "p95": 2.08,
+          "count": 395
+        },
+        "admissionHttp": {
+          "p50": 2.18,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 223,
+          "p95": 1816.9,
+          "p99": 1958.58,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 348,
+          "p95": 1837.5,
+          "p99": 1969.9,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:05:36Z"
+    }
+  ],
+  "R9-C4": [
+    {
+      "config": {
+        "phase": "overload",
+        "rate": 15
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153943",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:05:46Z",
+        "writeWait": {
+          "p50": 20.21,
+          "p95": 27.88,
+          "p99": 43.88,
+          "avg": 22.14,
+          "count": 146,
+          "max": 63.95
+        },
+        "readDiscovery": {
+          "p50": 1.34,
+          "p95": 2.87,
+          "count": 108
+        },
+        "admissionHttp": {
+          "p50": 2.1,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 220,
+          "p95": 328,
+          "p99": 337.6,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 229,
+          "p95": 382.9,
+          "p99": 396.58,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:05:47Z"
+    },
+    {
+      "config": {
+        "phase": "recovery",
+        "rate": 1
+      },
+      "metrics": {
+        "runId": "run-r9-smoke-1794153949",
+        "scenario": "smoke",
+        "timestamp": "2026-11-08T16:05:53Z",
+        "writeWait": {
+          "p50": 20.22,
+          "p95": 27.66,
+          "p99": 43.54,
+          "avg": 22.15,
+          "count": 143,
+          "max": 63.95
+        },
+        "readDiscovery": {
+          "p50": 1.38,
+          "p95": 2.34,
+          "count": 104
+        },
+        "admissionHttp": {
+          "p50": 2.27,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": 278,
+          "p95": 323.9,
+          "p99": 327.98,
+          "count": 3
+        },
+        "e2eTotal": {
+          "p50": 285,
+          "p95": 330,
+          "p99": 334,
+          "count": 3
+        },
+        "admissionsAccepted": 3,
+        "commandsApplied": 3
+      },
+      "recordedAt": "2026-11-08T16:05:53Z"
+    },
+    {
+      "config": {
+        "phase": "overload",
+        "rate": 20
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s2-5-1794154009",
+        "scenario": "r9-s2-5",
+        "timestamp": "2026-11-08T16:07:06Z",
+        "writeWait": {
+          "p50": 21.35,
+          "p95": 37.89,
+          "p99": 44.19,
+          "avg": 23.19,
+          "count": 687,
+          "max": 65.51
+        },
+        "readDiscovery": {
+          "p50": 1.81,
+          "p95": 2.73,
+          "count": 480
+        },
+        "admissionHttp": {
+          "p50": 1.96,
+          "count": 47
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 47,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:07:06Z"
+    },
+    {
+      "config": {
+        "phase": "recovery",
+        "rate": 1
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154029",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:07:21Z",
+        "writeWait": {
+          "p50": 20.98,
+          "p95": 27.4,
+          "p99": 32.51,
+          "avg": 22.31,
+          "count": 493,
+          "max": 72.07
+        },
+        "readDiscovery": {
+          "p50": 1.72,
+          "p95": 2.56,
+          "count": 341
+        },
+        "admissionHttp": {
+          "p50": 2.62,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 10,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:07:21Z"
+    }
+  ],
+  "R9-C5": [
+    {
+      "config": {
+        "phase": "post_restart",
+        "residual_slots": 50
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154082",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:08:13Z",
+        "writeWait": {
+          "p50": 20.38,
+          "p95": 27.46,
+          "p99": 42.54,
+          "avg": 22.16,
+          "count": 518,
+          "max": 82.14
+        },
+        "readDiscovery": {
+          "p50": 1.55,
+          "p95": 3.72,
+          "count": 358
+        },
+        "admissionHttp": {
+          "p50": 5.0,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 10,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:08:14Z"
+    }
+  ],
+  "R9-C6": [
+    {
+      "config": {
+        "action": "post_quarantine_resolution"
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154105",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:08:37Z",
+        "writeWait": {
+          "p50": 20.51,
+          "p95": 28.76,
+          "p99": 42.88,
+          "avg": 22.46,
+          "count": 500,
+          "max": 82.14
+        },
+        "readDiscovery": {
+          "p50": 1.74,
+          "p95": 2.79,
+          "count": 342
+        },
+        "admissionHttp": {
+          "p50": 4.19,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 10,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:08:37Z"
+    }
+  ],
+  "R9-C7": [
+    {
+      "config": {
+        "scenario": "concurrency_safety"
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154124",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:08:55Z",
+        "writeWait": {
+          "p50": 20.73,
+          "p95": 27.39,
+          "p99": 32.77,
+          "avg": 22.11,
+          "count": 498,
+          "max": 82.14
+        },
+        "readDiscovery": {
+          "p50": 1.71,
+          "p95": 2.66,
+          "count": 335
+        },
+        "admissionHttp": {
+          "p50": 4.19,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 10,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:08:56Z"
+    }
+  ],
+  "R9-C8": [
+    {
+      "config": {
+        "cycle": 1
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154142",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:09:13Z",
+        "writeWait": {
+          "p50": 20.54,
+          "p95": 27.1,
+          "p99": 29.92,
+          "avg": 21.97,
+          "count": 495,
+          "max": 82.14
+        },
+        "readDiscovery": {
+          "p50": 1.59,
+          "p95": 2.73,
+          "count": 335
+        },
+        "admissionHttp": {
+          "p50": 3.67,
+          "count": 11
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 11,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:09:14Z"
+    },
+    {
+      "config": {
+        "cycle": 2
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154156",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:09:27Z",
+        "writeWait": {
+          "p50": 20.3,
+          "p95": 27.11,
+          "p99": 33.55,
+          "avg": 21.84,
+          "count": 501,
+          "max": 82.14
+        },
+        "readDiscovery": {
+          "p50": 1.75,
+          "p95": 2.53,
+          "count": 336
+        },
+        "admissionHttp": {
+          "p50": 3.76,
+          "count": 11
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 11,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:09:28Z"
+    },
+    {
+      "config": {
+        "cycle": 3
+      },
+      "metrics": {
+        "runId": "run-r9-r9-s1-1-1794154170",
+        "scenario": "r9-s1-1",
+        "timestamp": "2026-11-08T16:09:41Z",
+        "writeWait": {
+          "p50": 20.53,
+          "p95": 39.18,
+          "p99": 43.82,
+          "avg": 22.83,
+          "count": 477,
+          "max": 82.14
+        },
+        "readDiscovery": {
+          "p50": 1.83,
+          "p95": 2.77,
+          "count": 329
+        },
+        "admissionHttp": {
+          "p50": 3.67,
+          "count": 10
+        },
+        "commandResult": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "e2eTotal": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "count": 0
+        },
+        "admissionsAccepted": 10,
+        "commandsApplied": 0
+      },
+      "recordedAt": "2026-11-08T16:09:41Z"
+    }
+  ]
+}
