@@ -104,8 +104,11 @@ Ratifier D1–D6 du rapport de cadrage, les ressources A/B réellement disponibl
 
 ---
 
-### Mise à jour d'Exécution L6/I3-R
+### Mises à jour d'Exécution L6/I3
 
-Le banc de test, l'outillage d'instrumentation et la campagne de montée en charge ont été réalisés et qualifiés dans le cadre de la mission **L6/I3-R**. Consulter :
-- Le rapport d'implémentation initial : `L6_I3_Implementation_and_Performance_Qualification_Report.md`
-- Le rapport d'instrumentation et de qualification approfondie : `L6_I3_Deep_Instrumentation_and_Load_Qualification_Report.md`
+Le banc de test, l'outillage d'instrumentation et les campagnes de montée en charge ont été réalisés et qualifiés à travers plusieurs itérations successives :
+- **L6/I3 initial :** Rapport d'implémentation initial : [`L6_I3_Implementation_and_Performance_Qualification_Report.md`](L6_I3_Implementation_and_Performance_Qualification_Report.md)
+- **L6/I3-R :** Rapport d'instrumentation approfondie et de qualification de charge : [`L6_I3_Deep_Instrumentation_and_Load_Qualification_Report.md`](L6_I3_Deep_Instrumentation_and_Load_Qualification_Report.md)
+- **L6/I3-R2 :** Rapport de requalification métrologique et injection découplée : [`L6_I3_R2_Metrology_and_Capacity_Requalification_Report.md`](L6_I3_R2_Metrology_and_Capacity_Requalification_Report.md)
+- **L6/I3-R3 :** Rapport d'audit indépendant métrologie et capacité réelle : [`L6_I3_R3_Independent_Capacity_and_Metrology_Audit.md`](L6_I3_R3_Independent_Capacity_and_Metrology_Audit.md)
+- **L6/I3-R4 :** Rapport final de correction métrologique et qualification de capacité utile durable : [`L6_I3_R4_Final_Metrology_and_Sustainable_Capacity_Qualification_Report.md`](L6_I3_R4_Final_Metrology_and_Sustainable_Capacity_Qualification_Report.md)

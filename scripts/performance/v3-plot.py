@@ -227,7 +227,14 @@ def export_csv(filename: Path, headers: List[str], rows: List[List[Any]]):
 def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHARTS_DIR):
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Deduplicate reports by scenario, preferring 'run-r2-' or latest timestamp
+    # Deduplicate reports by scenario, preferring 'run-r4-' > 'run-r2-' or latest timestamp
+    def run_precedence(r_id: str) -> int:
+        if "run-r4-" in r_id:
+            return 4
+        if "run-r2-" in r_id:
+            return 2
+        return 1
+
     scenario_map = {}
     for r in reports:
         sc = r.get("scenario", "")
@@ -236,9 +243,8 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
             scenario_map[sc] = r
         else:
             prev_rid = scenario_map[sc].get("runId", "")
-            # Prefer run-r2- over older runs, then newest runId
-            if ("run-r2-" in rid and "run-r2-" not in prev_rid) or (
-                ("run-r2-" in rid) == ("run-r2-" in prev_rid) and rid > prev_rid
+            if (run_precedence(rid) > run_precedence(prev_rid)) or (
+                run_precedence(rid) == run_precedence(prev_rid) and rid > prev_rid
             ):
                 scenario_map[sc] = r
 
@@ -246,7 +252,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # Identify palier rates: P1 (1), P2 (5), P3 (10), P4 (20), P5 (50)
     palier_reports = []
     for sc, r in sorted(scenario_map.items()):
-        if sc.startswith("ramp-p") or sc in ("small", "medium", "F01-A", "F01-B", "F01-C", "s1-indep"):
+        if sc.startswith("ramp-p") or sc.startswith("q") or sc in ("small", "medium", "F01-A", "F01-B", "F01-C", "s1-indep"):
             palier_reports.append(r)
 
     # Sort by offered / admitted commands
@@ -260,23 +266,34 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
         applied = k6_res.get("commandsApplied", 0)
         lat = k6_res.get("latencies", {})
 
-        # estimate rate from duration or scenario
-        rate_val = 1.0
+        # estimate rate from duration, scenario or decoupled metrics
+        dm = r.get("decoupledMetrics")
+        if applied == 0 and dm and "counts" in dm:
+            applied = dm["counts"].get("applied", dm["counts"].get("clientApplied", 0))
         sc = r.get("scenario", "")
-        if sc == "ramp-p1" or sc in ("small", "F01-A"):
+        rate_val = 1.0
+        if dm and "ratesPerSecond" in dm and dm["ratesPerSecond"].get("demanded") is not None:
+            rate_val = float(dm["ratesPerSecond"]["demanded"])
+        elif sc == "ramp-p1" or sc in ("small", "F01-A", "q1-smoke"):
             rate_val = 1.0
-        elif sc == "ramp-p2":
+        elif sc == "ramp-p2" or "nominal-5" in sc:
             rate_val = 5.0
-        elif sc == "ramp-p3" or sc == "F01-B":
+        elif sc == "ramp-p3" or sc == "F01-B" or "ramp-10" in sc:
             rate_val = 10.0
-        elif sc == "ramp-p4":
+        elif sc == "ramp-p4" or "ramp-20" in sc:
             rate_val = 20.0
-        elif sc == "ramp-p5" or sc == "F01-C":
+        elif sc == "ramp-p5" or sc == "F01-C" or "ramp-50" in sc:
             rate_val = 50.0
 
         stages = r.get("engineTelemetry", {}).get("stages", {})
         sys_t = r.get("systemTelemetry", {})
         pg_t = r.get("postgresTelemetry", {})
+
+        inj_dur = float(dm.get("injectionActualSeconds", 60.0)) if dm else (120.0 if "ramp" in sc else 60.0 if "nominal" in sc else 20.0)
+        admitted_rate = float(dm["ratesPerSecond"].get("admitted", round(admitted / max(1.0, inj_dur), 2))) if dm and "ratesPerSecond" in dm else round(admitted / max(1.0, inj_dur), 2)
+        applied_rate = float(dm["ratesPerSecond"].get("applied", round(applied / max(1.0, inj_dur), 2))) if dm and "ratesPerSecond" in dm else round(applied / max(1.0, inj_dur), 2)
+
+        dm_lat = (dm.get("latencies") or {}) if dm else {}
 
         palier_data.append({
             "rate": rate_val,
@@ -284,17 +301,18 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
             "offered": offered,
             "admitted": admitted,
             "applied": applied,
-            "admittedRate": round(admitted / 120.0, 2) if "ramp" in sc else round(admitted / 20.0, 2),
-            "p50_adm": (lat.get("admissionFirstTry") or {}).get("p50") or 0.0,
-            "p95_adm": (lat.get("admissionFirstTry") or {}).get("p95") or 0.0,
-            "p50_term": (lat.get("commandResult") or {}).get("p50") or 0.0,
-            "p95_term": (lat.get("commandResult") or {}).get("p95") or 0.0,
-            "p99_term": (lat.get("commandResult") or {}).get("p99") or 0.0,
-            "p50_pot": (lat.get("potReadAvailable") or {}).get("p50") or 0.0,
-            "p95_pot": (lat.get("potReadAvailable") or {}).get("p95") or 0.0,
-            "p99_pot": (lat.get("potReadAvailable") or {}).get("p99") or 0.0,
-            "p50_e2e": (lat.get("e2eTotal") or {}).get("p50") or 0.0,
-            "p95_e2e": (lat.get("e2eTotal") or {}).get("p95") or 0.0,
+            "admittedRate": admitted_rate,
+            "appliedRate": applied_rate,
+            "p50_adm": (lat.get("admissionFirstTry") or {}).get("p50") or (dm_lat.get("admission") or {}).get("p50") or 0.0,
+            "p95_adm": (lat.get("admissionFirstTry") or {}).get("p95") or (dm_lat.get("admission") or {}).get("p95") or 0.0,
+            "p50_term": (dm_lat.get("terminal") or {}).get("p50") or (lat.get("commandResult") or {}).get("p50") or 0.0,
+            "p95_term": (dm_lat.get("terminal") or {}).get("p95") or (lat.get("commandResult") or {}).get("p95") or 0.0,
+            "p99_term": (dm_lat.get("terminal") or {}).get("p99") or (lat.get("commandResult") or {}).get("p99") or 0.0,
+            "p50_pot": (dm_lat.get("readMaterialization") or {}).get("p50") or (lat.get("potReadAvailable") or {}).get("p50") or 0.0,
+            "p95_pot": (dm_lat.get("readMaterialization") or {}).get("p95") or (lat.get("potReadAvailable") or {}).get("p95") or 0.0,
+            "p99_pot": (dm_lat.get("readMaterialization") or {}).get("p99") or (lat.get("potReadAvailable") or {}).get("p99") or 0.0,
+            "p50_e2e": (dm_lat.get("e2eTotal") or {}).get("p50") or (lat.get("e2eTotal") or {}).get("p50") or 0.0,
+            "p95_e2e": (dm_lat.get("e2eTotal") or {}).get("p95") or (lat.get("e2eTotal") or {}).get("p95") or 0.0,
             "p50_lag": (lat.get("readPropagationLag") or {}).get("p50") or 0.0,
             "p95_lag": (lat.get("readPropagationLag") or {}).get("p95") or 0.0,
             "cpu_proc": round((sys_t.get("processCpuUsage") or 0.0) * 100, 1),
@@ -330,7 +348,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     c1 = SvgChart("Pocoma V3 — Débit Demandé vs Débit Réalisé", x_label="Débit demandé (cmd/s)", y_label="Débit soutenu (cmd/s)")
     c1.add_line("Idéal (x=y)", [(d["rate"], d["rate"]) for d in palier_data], "#a6adc8", dashed=True)
     c1.add_line("Débit Admis", [(d["rate"], d["admittedRate"]) for d in palier_data], "#89b4fa", marker="circle")
-    c1.add_line("Débit Appliqué", [(d["rate"], min(d["admittedRate"], d["applied"] / max(1, (120 if "ramp" in d["scenario"] else 20)))) for d in palier_data], "#a6e3a1", marker="circle")
+    c1.add_line("Débit Appliqué", [(d["rate"], d["appliedRate"]) for d in palier_data], "#a6e3a1", marker="circle")
     with open(out_dir / "chart_throughput.svg", "w", encoding="utf-8") as f:
         f.write(c1.render())
 
@@ -401,7 +419,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # --------------------------------------------------------------------------
     # Chart 6: Structural Pot Size Impact (Small vs Medium vs Large)
     # --------------------------------------------------------------------------
-    struct_reports = [r for r in reports if r.get("scenario") in ("s5-small", "s5-medium", "s5-large", "small", "medium", "F01-D")]
+    struct_reports = [r for r in reports if r.get("scenario") in ("s5-small", "s5-medium", "s5-large", "small", "medium", "large", "q7-large", "F01-D")]
     struct_cats = ["Small (5/20)", "Medium (20/200)", "Large (100/2000)"]
     # Look for matching reports or compute defaults
     term_vals = [1276.0, 1420.0, 1850.0]
@@ -427,7 +445,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
                 pot_vals[1] = p95_p
             if p95_a:
                 adm_vals[1] = p95_a
-        elif sc in ("s5-large", "F01-D") and p95_t:
+        elif sc in ("s5-large", "large", "q7-large", "F01-D") and p95_t:
             term_vals[2] = p95_t
             if p95_p:
                 pot_vals[2] = p95_p
@@ -455,10 +473,13 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # --------------------------------------------------------------------------
     # Chart 7: Backlog over Time & Drainage Timeseries
     # --------------------------------------------------------------------------
-    backlog_paliers = [r for sc, r in sorted(scenario_map.items()) if sc.startswith("ramp-p") and r.get("decoupledMetrics")]
+    backlog_paliers = [r for sc, r in sorted(scenario_map.items()) if (sc.startswith("ramp-p") or sc.startswith("q")) and r.get("decoupledMetrics")]
     c7 = SvgChart("Pocoma V3 — Évolution du Backlog et Drainage au Cours du Temps", x_label="Temps écoulé (s)", y_label="Commandes en attente (DB Backlog)")
     csv_rows_7 = []
-    colors_p = {"ramp-p1": "#89b4fa", "ramp-p2": "#a6e3a1", "ramp-p3": "#f9e2af", "ramp-p4": "#fab387", "ramp-p5": "#f38ba8"}
+    colors_p = {
+        "ramp-p1": "#89b4fa", "ramp-p2": "#a6e3a1", "ramp-p3": "#f9e2af", "ramp-p4": "#fab387", "ramp-p5": "#f38ba8",
+        "q1-smoke": "#89b4fa", "q2-nominal-5": "#a6e3a1", "q3-ramp-10": "#f9e2af", "q4-ramp-20": "#fab387", "q5-ramp-50": "#f38ba8",
+    }
 
     for r in backlog_paliers:
         sc = r.get("scenario", "")
@@ -482,7 +503,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
     # --------------------------------------------------------------------------
     csv_rows_8 = []
     c8 = SvgChart("Pocoma V3 — Débits Découplés et Couverture de Corrélation E2E", x_label="Débit demandé (cmd/s)", y_label="Débit réel (cmd/s) / Couverture (%)")
-    decoupled_runs = [r for sc, r in sorted(scenario_map.items()) if sc.startswith("ramp-p") and r.get("decoupledMetrics")]
+    decoupled_runs = [r for sc, r in sorted(scenario_map.items()) if (sc.startswith("ramp-p") or sc.startswith("q")) and r.get("decoupledMetrics")]
     decoupled_runs.sort(key=lambda r: (r["decoupledMetrics"]["ratesPerSecond"].get("demanded") or 0))
 
     if decoupled_runs:
@@ -498,7 +519,7 @@ def build_and_save_all_charts(reports: List[Dict[str, Any]], out_dir: Path = CHA
             d_rate = rates.get("demanded", 0.0)
             e_rate = rates.get("emitted", 0.0)
             a_rate = rates.get("admitted", 0.0)
-            ap_rate = rates.get("applied", 0.0)
+            ap_rate = rates.get("applied") if rates.get("applied") is not None else rates.get("clientApplied", 0.0)
             rm_rate = rates.get("readMaterialized", 0.0)
             cov_pct = dm.get("coverage", {}).get("percentage", 0.0)
 

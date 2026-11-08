@@ -20,12 +20,13 @@ scripts/
 └── performance/
     ├── v3-preflight.py         # Mandatory system safety and environment preflight gate
     ├── v3_token.py             # Proactive OIDC Keycloak PKCE/refresh token manager & server
-    ├── v3_observer.py          # Decoupled coordinator, correlation store & observers
+    ├── v3_observer.py          # Decoupled coordinator, concurrent observers & SQL reconciler
     ├── v3-seed.py              # Reproducible SPEC-09 dataset & fixture generator
-    ├── v3-run.py               # Master orchestrator & 70-min safety watchdog
+    ├── v3-run.py               # Master orchestrator & dual budget watchdogs (R2 / R4)
     ├── v3-collect.py           # Metrology collector (k6, Engine, System, PostgreSQL)
     ├── v3-plot.py              # SVG chart generator & CSV datasets exporter (8 charts)
     ├── test_bench.py           # Bench qualification test suite (26 mandatory tests)
+    ├── test_r4_observer.py     # R4 concurrent observer & SQL reconciler test suite (9 tests)
     └── README.md               # Architecture, usage, and operational guidelines
 ```
 
@@ -130,4 +131,36 @@ Validates the bench against all 14 mandatory discriminant failure modes:
 ```bash
 # Run oracle test suite:
 python3 scripts/performance/test_bench.py
+```
+
+---
+
+## 7. R4 Metrological Tooling & Concurrent Observers (`v3_observer.py`, `test_r4_observer.py`)
+
+Addressing the 7 audit findings of L6/I3-R3 (F-01..F-07), the R4 metrological architecture introduces:
+1. **Concurrent Observer Pools (`TerminalObserver`, `ReadObserver`)**:
+   - `TerminalObserver` (12 worker threads): polls `/v3/commands/{id}` concurrently with exponential backoff on HTTP 404 (100ms..2000ms), eliminating observer starvation at high admission rates.
+   - `ReadObserver` (8 worker threads): polls `/v3/pots/{id}` strictly post-terminalization, ensuring zero contention with the write stage and zero READ 503 semaphore exhaustion.
+2. **Dual-Axis Backlog Monitoring**:
+   - `upstreamPending`: counts uncommitted commands in `v3_write.v3_command WHERE status = 'PENDING'`.
+   - `slotBufferTotal`: counts work units in `v3_write.consumption_slot` (ventilated by state: `AVAILABLE`, `QUARANTINED`, `CLAIMED`).
+   - Differentiates ingestion queuing from the internal `DiscoveryEngine.softCap` (256 slots across 4 partitions).
+3. **Read-Only Server-Side SQL Reconciliation (`SqlReconciler`)**:
+   - Compares client-observed outcomes with database ground truth.
+   - Asserts exact conservation: $\text{serverAdmitted} = \text{serverApplied} + \text{serverCasRejected} + \text{serverPending} + \text{serverFailed}$.
+4. **R4 Test Suite (`test_r4_observer.py`)**:
+   - 9 unit tests validating concurrent observations, exact conservation equations (without timeout double-counting), backlog dual-axis polling, SQL reconciliation, and quantile computations.
+
+```bash
+# Run R4 observer test suite:
+python3 scripts/performance/test_r4_observer.py
+
+# Run R4 qualification suite with dedicated 1800s watchdog:
+python3 scripts/performance/v3-run.py --r4
+
+# Collect R4 metrology into dedicated evidence directory:
+python3 scripts/performance/v3-collect.py --scenario q5-ramp-50 --evidence-dir docs/testing/evidence/L6-I3/R4
+
+# Generate R4 SVG charts and CSV datasets:
+python3 scripts/performance/v3-plot.py --evidence-dir docs/testing/evidence/L6-I3/R4
 ```

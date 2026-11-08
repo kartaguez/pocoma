@@ -29,8 +29,11 @@ from v3_observer import DecoupledBenchCoordinator
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_DIR = REPO_ROOT / "docs" / "testing" / "evidence" / "L6-I3"
 BUDGET_FILE = EVIDENCE_DIR / ".budget_tracker.json"
-
 GLOBAL_BUDGET_SECONDS = 70 * 60  # 4200 seconds (70 minutes) max cumulative
+
+EVIDENCE_DIR_R4 = EVIDENCE_DIR / "R4"
+BUDGET_FILE_R4 = EVIDENCE_DIR_R4 / ".budget_tracker_r4.json"
+GLOBAL_BUDGET_SECONDS_R4 = 30 * 60  # 1800 seconds (30 minutes) max cumulative for R4
 
 SCENARIO_BUDGETS = {
     "smoke": 120,          # 2 minutes max
@@ -61,6 +64,14 @@ SCENARIO_BUDGETS = {
     "s5-small": 300,       # Structural Small (5/20)
     "s5-medium": 300,      # Structural Medium (20/200)
     "s5-large": 300,       # Structural Large (100/2000)
+    # R4 Scenarios
+    "q1-smoke": 120,       # 15s + setup
+    "q2-nominal-5": 240,   # 60s + 50 pots setup
+    "q3-ramp-10": 240,     # 60s + 50 pots setup
+    "q4-ramp-20": 240,     # 60s + 50 pots setup
+    "q5-ramp-50": 300,     # 60s + 50 pots setup
+    "q6-contention": 180,  # 30s + 1 pot setup
+    "q7-large": 240,       # 30s + large pot setup
 }
 
 K6_SCENARIO_MAP = {
@@ -89,6 +100,14 @@ K6_SCENARIO_MAP = {
     "s5-small": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "20", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s"},
     "s5-medium": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "20", "SEED_EXPENSES": "200", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s"},
     "s5-large": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "100", "SEED_EXPENSES": "2000", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s"},
+    # R4 Scenarios (with POTS=50 for Q2..Q5 to isolate CAS contention)
+    "q1-smoke": {"SCENARIO": "nominal", "POTS": "2", "SHAREHOLDERS": "5", "SEED_EXPENSES": "2", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "15s"},
+    "q2-nominal-5": {"SCENARIO": "nominal", "POTS": "50", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "60s"},
+    "q3-ramp-10": {"SCENARIO": "sustained", "POTS": "50", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "60s"},
+    "q4-ramp-20": {"SCENARIO": "sustained", "POTS": "50", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "60s"},
+    "q5-ramp-50": {"SCENARIO": "peak", "POTS": "50", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "DEFAULT_RATE": 50, "DEFAULT_DURATION": "60s"},
+    "q6-contention": {"SCENARIO": "contention", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "10", "CONTENTION_VUS": "4", "DEFAULT_DURATION": "30s"},
+    "q7-large": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "100", "SEED_EXPENSES": "2000", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s"},
 }
 
 
@@ -131,15 +150,59 @@ class BudgetTracker:
             }, f, indent=2)
 
 
+class BudgetTrackerR4:
+    """Dedicated budget tracker for the R4 qualification campaign (1800s / 30m ceiling)."""
+
+    @staticmethod
+    def get_consumed_seconds() -> float:
+        if not BUDGET_FILE_R4.exists():
+            return 0.0
+        try:
+            with open(BUDGET_FILE_R4, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return float(data.get("cumulativeSeconds", 0.0))
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = BudgetTrackerR4.get_consumed_seconds() + duration_sec
+        EVIDENCE_DIR_R4.mkdir(parents=True, exist_ok=True)
+        history = []
+        if BUDGET_FILE_R4.exists():
+            try:
+                with open(BUDGET_FILE_R4, "r", encoding="utf-8") as f:
+                    history = json.load(f).get("runs", [])
+            except Exception:
+                pass
+        history.append({
+            "runId": run_id,
+            "scenario": scenario,
+            "durationSeconds": round(duration_sec, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "success": success,
+        })
+        with open(BUDGET_FILE_R4, "w", encoding="utf-8") as f:
+            json.dump({
+                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R4,
+                "cumulativeSeconds": round(consumed, 2),
+                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R4 - consumed), 2),
+                "runs": history,
+            }, f, indent=2)
+
+
 class Watchdog:
     """Monitors k6 process and live infrastructure metrics, aborting if limits are breached."""
 
     def __init__(self, proc: subprocess.Popen, scenario_timeout: float,
-                 prom_url: str = "http://127.0.0.1:9090", check_interval: float = 0.5):
+                 prom_url: str = "http://127.0.0.1:9090", check_interval: float = 0.5,
+                 tracker: Any = None, global_budget: Optional[float] = None):
         self.proc = proc
         self.scenario_timeout = scenario_timeout
         self.prom_url = prom_url
         self.check_interval = check_interval
+        self.tracker = tracker or BudgetTracker
+        self.global_budget = global_budget if global_budget is not None else GLOBAL_BUDGET_SECONDS
         self.aborted = False
         self.abort_reason = None
         self.incident_class = None
@@ -167,10 +230,10 @@ class Watchdog:
                 break
 
             # 2. Cumulative budget check
-            total_consumed = BudgetTracker.get_consumed_seconds() + elapsed
-            if total_consumed > GLOBAL_BUDGET_SECONDS:
+            total_consumed = self.tracker.get_consumed_seconds() + elapsed
+            if total_consumed > self.global_budget:
                 self._trigger_abort(
-                    f"Global budget ceiling of 70 min (4200s) breached (consumed: {total_consumed:.1f}s)",
+                    f"Global budget ceiling of {self.global_budget/60:.0f} min ({self.global_budget}s) breached (consumed: {total_consumed:.1f}s)",
                     "INCIDENT_GLOBAL_BUDGET_EXCEEDED"
                 )
                 break
@@ -221,11 +284,18 @@ def extract_correlation_event(line: str) -> Optional[Dict[str, Any]]:
 
 
 def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optional[int] = None,
-                 skip_preflight: bool = False, run_id: Optional[str] = None) -> bool:
-    rid = run_id or f"run-r2-{scenario_name}-{int(time.time())}"
-    summary_path = EVIDENCE_DIR / f"{rid}_k6_summary.json"
-    pre_snapshot_path = EVIDENCE_DIR / f"{rid}_pre_snapshot.txt"
-    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+                 skip_preflight: bool = False, run_id: Optional[str] = None,
+                 is_r4: bool = False) -> bool:
+    is_r4_run = is_r4 or scenario_name.startswith("q")
+    target_evidence_dir = EVIDENCE_DIR_R4 if is_r4_run else EVIDENCE_DIR
+    target_tracker = BudgetTrackerR4 if is_r4_run else BudgetTracker
+    target_budget_limit = GLOBAL_BUDGET_SECONDS_R4 if is_r4_run else GLOBAL_BUDGET_SECONDS
+
+    prefix = "run-r4" if is_r4_run else "run-r2"
+    rid = run_id or f"{prefix}-{scenario_name}-{int(time.time())}"
+    summary_path = target_evidence_dir / f"{rid}_k6_summary.json"
+    pre_snapshot_path = target_evidence_dir / f"{rid}_pre_snapshot.txt"
+    target_evidence_dir.mkdir(parents=True, exist_ok=True)
 
     k6_cfg = K6_SCENARIO_MAP.get(scenario_name, K6_SCENARIO_MAP["smoke"])
     eff_duration = duration or k6_cfg.get("DEFAULT_DURATION", "20s")
@@ -236,9 +306,9 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     print("================================================================================")
 
     # Check budget
-    consumed = BudgetTracker.get_consumed_seconds()
-    remaining = GLOBAL_BUDGET_SECONDS - consumed
-    print(f"  Cumulative Time Consumed: {consumed:.1f}s / {GLOBAL_BUDGET_SECONDS}s ({consumed/60:.1f} / 70.0 min)")
+    consumed = target_tracker.get_consumed_seconds()
+    remaining = target_budget_limit - consumed
+    print(f"  Cumulative Time Consumed: {consumed:.1f}s / {target_budget_limit}s ({consumed/60:.1f} / {target_budget_limit/60:.1f} min)")
     print(f"  Remaining Qualification: {remaining:.1f}s ({remaining/60:.1f} min)")
 
     if remaining <= 10.0:
@@ -308,7 +378,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         except Exception as e:
             print(f"  [Notice] Binding token auto-resolution skipped ({e})")
 
-    is_decoupled = (scenario_name.startswith("ramp-p") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp"))
+    is_decoupled = (scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp"))
     coordinator = None
     if is_decoupled:
         max_drain = min(90.0, max(45.0, dur_sec * 0.5))
@@ -327,15 +397,17 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     env["POCOMA_TOKEN"] = token
     env["POCOMA_AUTH_URL"] = token_server.url
     env["DECOUPLED"] = "true" if is_decoupled else "false"
+    env["POLL_TIMEOUT_MS"] = os.environ.get("POLL_TIMEOUT_MS", "25000")
     if binding_token:
         env["POCOMA_BINDING_TOKEN"] = binding_token
 
     # For structural scenarios, pass pre-seeded parameters if available
-    if scenario_name in ("s5-small", "s5-medium", "s5-large"):
+    if scenario_name in ("s5-small", "s5-medium", "s5-large", "q7-large"):
         seed_map = {
             "s5-small": EVIDENCE_DIR / "seeds" / "seed-v3-small-indep.json",
             "s5-medium": EVIDENCE_DIR / "seeds" / "seed-v3-medium-indep.json",
             "s5-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
+            "q7-large": EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json",
         }
         seed_file = seed_map.get(scenario_name)
         if seed_file and seed_file.exists():
@@ -356,7 +428,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     cmd = ["k6", "run", "--log-format=raw", "--no-usage-report", str(k6_script)]
 
     proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    watchdog = Watchdog(proc, scenario_timeout=scenario_limit)
+    watchdog = Watchdog(proc, scenario_timeout=scenario_limit, tracker=target_tracker, global_budget=target_budget_limit)
     watchdog.start()
 
     try:
@@ -380,7 +452,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         )
         decoupled_report["drainage"] = drain_res
         decoupled_report["oidcTelemetry"] = token_mgr.get_telemetry()
-        decoupled_path = EVIDENCE_DIR / f"{rid}_decoupled.json"
+        decoupled_path = target_evidence_dir / f"{rid}_decoupled.json"
         with open(decoupled_path, "w", encoding="utf-8") as df:
             json.dump(decoupled_report, df, indent=2)
 
@@ -390,7 +462,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     success = (proc.returncode == 0) and not watchdog.aborted
 
     # Record budget consumption
-    BudgetTracker.record_run(scenario_name, exec_duration, rid, success)
+    target_tracker.record_run(scenario_name, exec_duration, rid, success)
 
     # Step 3: Diagnostic & Differential Metrology Collection
     print(f"\n▶ Step 3: Collecting Diagnostics & Differential Metrology (Run: {rid})...")
@@ -400,6 +472,7 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
         "--summary-file", str(summary_path),
         "--pre-snapshot", str(pre_snapshot_path),
         "--run-id", rid,
+        "--evidence-dir", str(target_evidence_dir),
     ]
     if decoupled_path and decoupled_path.exists():
         collect_cmd.extend(["--decoupled-file", str(decoupled_path)])
@@ -408,7 +481,11 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     # Step 4: Regenerate CSV and SVG charts
     print("\n▶ Step 4: Regenerating Performance Charts & CSV Datasets...")
     plot_script = REPO_ROOT / "scripts" / "performance" / "v3-plot.py"
-    subprocess.run([sys.executable, str(plot_script)])
+    subprocess.run([
+        sys.executable, str(plot_script),
+        "--evidence-dir", str(target_evidence_dir),
+        "--output-dir", str(target_evidence_dir / "charts"),
+    ])
 
     print("\n================================================================================")
     if watchdog.aborted:
@@ -456,37 +533,109 @@ def run_ramp_suite(duration: str = "120s") -> bool:
     return all_passed
 
 
+def run_r4_suite() -> bool:
+    """Executes the complete R4 qualification suite under the 1,800s budget envelope."""
+    q_scenarios = [
+        ("q1-smoke", "15s", 1),
+        ("q2-nominal-5", "60s", 5),
+        ("q3-ramp-10", "60s", 10),
+        ("q4-ramp-20", "60s", 20),
+        ("q5-ramp-50", "60s", 50),
+        ("q6-contention", "30s", None),
+    ]
+
+    print("================================================================================")
+    print(" Pocoma V3 — R4 Final Metrology & Useful Capacity Qualification Suite")
+    print(f" Envelope: {GLOBAL_BUDGET_SECONDS_R4}s (30 min) tracked in {BUDGET_FILE_R4}")
+    print(f" Scenarios: {[q[0] for q in q_scenarios]}")
+    print("================================================================================")
+
+    # First execute mandatory Preflight
+    print("\n▶ Preflight Gate for R4 Campaign...")
+    preflight_script = REPO_ROOT / "scripts" / "performance" / "v3-preflight.py"
+    pre_res = subprocess.run([sys.executable, str(preflight_script)])
+    if pre_res.returncode != 0:
+        print("ERROR: Preflight failed. Aborting R4 suite.", file=sys.stderr)
+        return False
+    print("  ✓ Preflight passed.")
+
+    all_passed = True
+    for sc_name, sc_dur, sc_rate in q_scenarios:
+        rem = GLOBAL_BUDGET_SECONDS_R4 - BudgetTrackerR4.get_consumed_seconds()
+        if rem < 120:
+            print(f"\n[R4 SUITE] Low budget ({rem:.1f}s remaining). Halting suite safely before {sc_name}.")
+            all_passed = False
+            break
+
+        print(f"\n>>> Launching R4 Scenario [{sc_name}] (duration={sc_dur}, rate={sc_rate}) <<<")
+        ok = run_scenario(sc_name, duration=sc_dur, rate=sc_rate, skip_preflight=True, is_r4=True)
+        if not ok:
+            print(f"\n[R4 SUITE] Scenario {sc_name} reported warnings or non-zero exit.")
+            all_passed = False
+        time.sleep(3.0)  # Inter-scenario settlement pause
+
+    # Check if Q7 is runnable
+    large_seed = EVIDENCE_DIR / "seeds" / "seed-v3-large-indep.json"
+    if large_seed.exists():
+        rem = GLOBAL_BUDGET_SECONDS_R4 - BudgetTrackerR4.get_consumed_seconds()
+        if rem >= 150:
+            print("\n>>> Launching Optional R4 Scenario [q7-large] <<<")
+            ok_q7 = run_scenario("q7-large", duration="30s", rate=1, skip_preflight=True, is_r4=True)
+            if not ok_q7:
+                all_passed = False
+        else:
+            print(f"\n[R4 SUITE] Insufficient budget for Q7 ({rem:.1f}s remaining). Skipping.")
+    else:
+        print("\n[R4 SUITE] Q7 skipped: Large profile not pre-materialized (explicit reservation documented).")
+
+    return all_passed
+
+
 def main():
     parser = argparse.ArgumentParser(description="Pocoma V3 Master Performance Orchestrator")
-    parser.add_argument("scenario", choices=list(SCENARIO_BUDGETS.keys()) + ["ramp-suite"], default="smoke",
+    parser.add_argument("scenario", choices=list(SCENARIO_BUDGETS.keys()) + ["ramp-suite", "r4-suite"], default="smoke",
                         nargs="?", help="Scenario to execute")
     parser.add_argument("--duration", help="k6 scenario duration (e.g. 10s, 30s, 60s, 120s)")
     parser.add_argument("--rate", type=int, help="Arrival rate (commands/sec)")
     parser.add_argument("--skip-preflight", action="store_true", help="Skip preflight gate (testing only)")
     parser.add_argument("--run-id", help="Explicit run ID")
     parser.add_argument("--budget-status", action="store_true", help="Display budget status and exit")
+    parser.add_argument("--r4", action="store_true", help="Execute under R4 budget envelope and output directory")
 
     args = parser.parse_args()
 
     if args.budget_status:
-        consumed = BudgetTracker.get_consumed_seconds()
-        remaining = GLOBAL_BUDGET_SECONDS - consumed
-        print(f"Global Budget:    {GLOBAL_BUDGET_SECONDS}s ({GLOBAL_BUDGET_SECONDS/60:.1f} min)")
-        print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
-        print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        if args.r4:
+            consumed = BudgetTrackerR4.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS_R4 - consumed
+            print(f"R4 Budget:        {GLOBAL_BUDGET_SECONDS_R4}s ({GLOBAL_BUDGET_SECONDS_R4/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        else:
+            consumed = BudgetTracker.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS - consumed
+            print(f"Global Budget:    {GLOBAL_BUDGET_SECONDS}s ({GLOBAL_BUDGET_SECONDS/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
         sys.exit(0)
+
+    if args.scenario == "r4-suite":
+        ok = run_r4_suite()
+        sys.exit(0 if ok else 1)
 
     if args.scenario == "ramp-suite":
         dur = args.duration or "120s"
         ok = run_ramp_suite(duration=dur)
         sys.exit(0 if ok else 1)
 
+    is_r4 = args.r4 or args.scenario.startswith("q")
     ok = run_scenario(
         scenario_name=args.scenario,
         duration=args.duration,
         rate=args.rate,
         skip_preflight=args.skip_preflight,
         run_id=args.run_id,
+        is_r4=is_r4,
     )
     sys.exit(0 if ok else 1)
 

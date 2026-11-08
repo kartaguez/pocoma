@@ -1,11 +1,11 @@
 # Rapport d'Audit Indépendant — Métrologie, Capacité et Chaîne Asynchrone Pocoma V3 (L6/I3-R3)
 
-> **Statut de l'Audit :** ACHEVÉ — AUDIT INDÉPENDANT CONTRADICTOIRE  
-> **Mandat :** `GO_L6_I3_R3_INDEPENDENT_CAPACITY_AUDIT`  
-> **Mode :** `READ-ONLY SOURCE & EVIDENCE AUDIT + DOCUMENTATION` (Aucune modification applicative, aucune réexécution de banc)  
-> **Branche :** `feat/v3-architecture`  
-> **SHA de référence analysé :** `a12b3550b0c6183d2f3d67f70b2299cf76fbe6d4`  
-> **Verdict d'audit :** `NOT_READY_FOR_CLOSURE — METROLOGY_CORRECTIONS_REQUIRED`  
+> **Statut de l'Audit :** ACHEVÉ — AUDIT INDÉPENDANT CONTRADICTOIRE
+> **Mandat :** `GO_L6_I3_R3_INDEPENDENT_CAPACITY_AUDIT`
+> **Mode :** `READ-ONLY SOURCE & EVIDENCE AUDIT + DOCUMENTATION` (Aucune modification applicative, aucune réexécution de banc)
+> **Branche :** `feat/v3-architecture`
+> **SHA de référence analysé :** `a12b3550b0c6183d2f3d67f70b2299cf76fbe6d4`
+> **Verdict d'audit :** `NOT_READY_FOR_CLOSURE — METROLOGY_CORRECTIONS_REQUIRED`
 > **Statut de l'itération L6/I3 :** L6/I3 DEMEURE OUVERT
 
 ---
@@ -169,7 +169,7 @@ SELECT count(*) FROM v3_write.consumption_slot;
 ```
 Le banc mesurait donc **le buffer de travail interne du moteur de découverte** (borné par conception à 256) et non **la file d'attente globale des commandes en souffrance** dans `v3_command WHERE status = 'PENDING'`.
 
-> **Classification de l'Anomalie :** **`QUERY_OR_COLLECTOR_CAP`** cumulé à un **`MEASUREMENT_ARTIFACT`**.  
+> **Classification de l'Anomalie :** **`QUERY_OR_COLLECTOR_CAP`** cumulé à un **`MEASUREMENT_ARTIFACT`**.
 > Le plateau à ~255 n'a jamais représenté une saturation de la base de données ni un effondrement mémoire, mais l'effet direct de la borne de conception `softCap = 64` sur 4 partitions.
 
 ---
@@ -254,23 +254,23 @@ Le composant [`PotBalanceCalculator.java`](file:///Users/julien.guezennec/Dev/pr
 public Optional<Balances> calculate(PotFinancialState state) {
     // 1. Initialisation des balances par participant : O(S)
     state.shareholders().keySet().forEach(id -> balances.put(id, Fraction.ZERO));
-    
+
     // 2. Boucle principale sur les dépenses : E itérations
     for (var expense : state.expenses().values()) {
         if (expense.header().value().deleted()) continue;
         var financials = expense.financials().value();
-        
+
         // Somme des poids des participants : O(P_e)
         Fraction total = Fraction.ZERO;
         for (var participant : financials.participants().entrySet())
             total = total.add(effectiveWeight(state, participant.getKey(), participant.getValue()));
-            
+
         Fraction amount = financials.amount().value();
         balances.merge(financials.payerId(), amount, Fraction::add);
-        
+
         // Facteur de débit unitaire
         Fraction debitPerWeight = Fraction.ZERO.subtract(amount.divide(total));
-        
+
         // Répartition aux participants : O(P_e)
         for (var participant : financials.participants().entrySet()) {
             var weight = effectiveWeight(state, participant.getKey(), participant.getValue());
@@ -372,8 +372,23 @@ Pour permettre une acceptation humaine rigoureuse de la capacité de Pocoma V3 l
 
 Compte tenu de la découverte d'artefacts métrologiques majeurs (FINDING-01, FINDING-02, FINDING-03), la capacité réelle de Pocoma V3 au-delà de 10 cmd/s n'est pas scientifiquement qualifiée.
 
-> **Verdict de l'Audit Indépendant R3 :**  
-> **`NOT_READY_FOR_CLOSURE — METROLOGY_CORRECTIONS_REQUIRED`**  
-> 
-> **L'itération L6/I3 demeure formellement OUVERTE.**  
+> **Verdict de l'Audit Indépendant R3 :**
+> **`NOT_READY_FOR_CLOSURE — METROLOGY_CORRECTIONS_REQUIRED`**
+>
+> **L'itération L6/I3 demeure formellement OUVERTE.**
 > Une campagne ciblée L6/I3-R4 incorporant les correctifs d'outillage prescrits est requise avant toute clôture.
+
+---
+
+## 12. Postface : Résolution des Constats dans L6/I3-R4
+
+L'itération ciblée **L6/I3-R4** (`GO_L6_I3_R4_FINAL_METROLOGY_AND_USEFUL_CAPACITY_QUALIFICATION`) a été exécutée le 8 novembre 2026. L'ensemble des constats et prescriptions de l'audit R3 y a été formellement résolu :
+- **F-01 (Famine observateur mono-threadé) :** Résolu par l'implémentation d'observateurs concurrents (`TerminalObserver` 12 threads, `ReadObserver` 8 threads) absorbant plus de 91 000 requêtes en Q5 sans dégradation métrologique.
+- **F-02 (Confusion file amont et tampon de slots) :** Résolu par le monitoring à double axe (`upstreamPending` via `v3_command` vs `slotBufferTotal` ventilé via `consumption_slot`), démontrant empiriquement que le tampon de slots plafonne à son `softCap = 256` par conception tandis que la file amont absorbe les pics jusqu'à 2 346 commandes.
+- **F-03 (Profil Large) :** Complexité bilinéaire confirmée, coût de matérialisation HTTP qualifié et réserve budgétaire explicite formellement consignée.
+- **F-04 (Plafond 5,4 cmd/s réfuté) :** Débit durable intrinsèque du worker qualifié entre 12 et 15 transactions/seconde lors du drainage de Q4 et Q5.
+- **F-05 (Double comptage des timeouts) :** Équations de conservation corrigées et certifiées conformes côté client et côté serveur (`SqlReconciler`).
+- **F-06 (Complexité bilinéaire de balance) :** Modèle de coût $\mathcal{O}(E \cdot S)$ formellement ratifié.
+- **F-07 (Interclassement UUID) :** Cause racine applicative identifiée dans `JdbcCommandDiscoveryReferences.java:47` (`ORDER BY request_id`), expliquant l'obsolescence CAS sous pipelining spéculatif et validée par le succès à 100% en boucle fermée (Q6).
+
+Consulter le rapport complet : [Rapport Final de Correction Métrologique et Qualification de Capacité Utile Durable L6/I3-R4](L6_I3_R4_Final_Metrology_and_Sustainable_Capacity_Qualification_Report.md).

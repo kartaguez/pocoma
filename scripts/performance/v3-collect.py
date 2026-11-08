@@ -362,7 +362,8 @@ def generate_consolidated_report(scenario_name: str, k6_summary_file: Path,
                                  actuator_url: str = ACTUATOR_URL,
                                  pre_snapshot_file: Optional[Path] = None,
                                  run_id: Optional[str] = None,
-                                 decoupled_file: Optional[Path] = None) -> Dict[str, Any]:
+                                 decoupled_file: Optional[Path] = None,
+                                 evidence_dir: Optional[Path] = None) -> Dict[str, Any]:
     rid = run_id or f"run-{int(time.time())}"
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -403,8 +404,9 @@ def generate_consolidated_report(scenario_name: str, k6_summary_file: Path,
         "postgresTelemetry": postgres_data,
     }
 
-    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
-    out_file = EVIDENCE_DIR / f"{rid}_report.json"
+    target_dir = Path(evidence_dir) if evidence_dir else (k6_summary_file.parent if k6_summary_file else EVIDENCE_DIR)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    out_file = target_dir / f"{rid}_report.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
@@ -422,6 +424,7 @@ def main():
     parser.add_argument("--take-snapshot", help="Save current actuator metrics text snapshot to path and exit")
     parser.add_argument("--run-id", help="Unique benchmark run identifier")
     parser.add_argument("--decoupled-file", help="Path to decoupled JSON metrics file")
+    parser.add_argument("--evidence-dir", help="Target evidence directory for reports")
 
     args = parser.parse_args()
 
@@ -442,6 +445,7 @@ def main():
         pre_snapshot_file=Path(args.pre_snapshot) if args.pre_snapshot else None,
         run_id=args.run_id,
         decoupled_file=Path(args.decoupled_file) if args.decoupled_file else None,
+        evidence_dir=Path(args.evidence_dir) if args.evidence_dir else None,
     )
 
     k6_res = report["k6ClientMetrics"]
@@ -499,7 +503,20 @@ def main():
         print(f"  Conservation Emitted:   {dm['conservations'].get('emittedEquation')}")
         print(f"  Conservation Admitted:  {dm['conservations'].get('admittedEquation')}")
         drain = dm.get("drainage", {})
-        print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Final DB Backlog: {drain.get('finalDbBacklog')})")
+        bl = drain.get("finalDbBacklog")
+        if isinstance(bl, dict):
+            print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Upstream Pending: {bl.get('upstreamPending')}, Slot Buffer: {bl.get('slotBufferTotal')})")
+        else:
+            print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Final DB Backlog: {bl})")
+
+        sql_rec = dm.get("sqlReconciliation")
+        if sql_rec:
+            print("\n  --- SQL Server-Side Reconciliation ---")
+            print(f"  Server Admitted Count:  {sql_rec.get('serverTotalAdmitted')}")
+            print(f"  Server Terminal Verif:  {sql_rec.get('serverTerminalVerified')} (Applied: {sql_rec.get('serverApplied')}, CAS: {sql_rec.get('serverCasRejected')}, Failed: {sql_rec.get('serverFailed')})")
+            print(f"  Server Pending (DB):    {sql_rec.get('serverPending')}")
+            print(f"  Server Read Material:   {sql_rec.get('readMaterializedVerified')}")
+            print(f"  Reconciliation Exact:   {sql_rec.get('reconciliationExact')}")
         print("\n  --- Exact Decoupled Latencies (ms) ---")
         for lk, lv in dm.get("latencies", {}).items():
             if lv.get("count", 0) > 0:

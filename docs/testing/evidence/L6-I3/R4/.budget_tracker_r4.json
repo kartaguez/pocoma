@@ -1,0 +1,56 @@
+{
+  "globalBudgetSeconds": 1800,
+  "cumulativeSeconds": 1028.1,
+  "remainingSeconds": 771.9,
+  "runs": [
+    {
+      "runId": "run-r4-q1-smoke-1794088011",
+      "scenario": "q1-smoke",
+      "durationSeconds": 26.17,
+      "timestamp": "2026-11-07T21:47:17Z",
+      "success": true
+    },
+    {
+      "runId": "run-r4-q2-nominal-5-1794088216",
+      "scenario": "q2-nominal-5",
+      "durationSeconds": 203.88,
+      "timestamp": "2026-11-07T21:53:40Z",
+      "success": true
+    },
+    {
+      "runId": "run-r4-q3-ramp-10-1794088879",
+      "scenario": "q3-ramp-10",
+      "durationSeconds": 201.76,
+      "timestamp": "2026-11-07T22:04:41Z",
+      "success": true
+    },
+    {
+      "runId": "run-r4-q4-ramp-20-1794089141",
+      "scenario": "q4-ramp-20",
+      "durationSeconds": 69.79,
+      "timestamp": "2026-11-07T22:06:51Z",
+      "success": false
+    },
+    {
+      "runId": "run-r4-q4-ramp-20-1794089290",
+      "scenario": "q4-ramp-20",
+      "durationSeconds": 246.0,
+      "timestamp": "2026-11-07T22:12:17Z",
+      "success": false
+    },
+    {
+      "runId": "run-r4-q5-ramp-50-1794089786",
+      "scenario": "q5-ramp-50",
+      "durationSeconds": 237.78,
+      "timestamp": "2026-11-07T22:20:24Z",
+      "success": false
+    },
+    {
+      "runId": "run-r4-q6-contention-1794119839",
+      "scenario": "q6-contention",
+      "durationSeconds": 42.72,
+      "timestamp": "2026-11-08T06:38:02Z",
+      "success": true
+    }
+  ]
+}
