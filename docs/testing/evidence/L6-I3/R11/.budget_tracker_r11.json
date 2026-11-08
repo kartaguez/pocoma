@@ -1,0 +1,70 @@
+{
+  "globalBudgetSeconds": 3600,
+  "cumulativeSeconds": 647.46,
+  "remainingSeconds": 2952.54,
+  "runs": [
+    {
+      "runId": "run-r11-r11-s0-ref-1-1794160420",
+      "scenario": "r11-s0-ref-1",
+      "durationSeconds": 31.57,
+      "timestamp": "2026-11-08T17:54:12Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s0-ref-1-1794160489",
+      "scenario": "r11-s0-ref-1",
+      "durationSeconds": 76.64,
+      "timestamp": "2026-11-08T17:56:06Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s0-ref-1-1794161138",
+      "scenario": "r11-s0-ref-1",
+      "durationSeconds": 76.57,
+      "timestamp": "2026-11-08T18:06:55Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s1-q-1-1794161219",
+      "scenario": "r11-s1-q-1",
+      "durationSeconds": 77.01,
+      "timestamp": "2026-11-08T18:08:16Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s2-ref-5-1794161300",
+      "scenario": "r11-s2-ref-5",
+      "durationSeconds": 77.37,
+      "timestamp": "2026-11-08T18:09:38Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s3-q-5-1794161382",
+      "scenario": "r11-s3-q-5",
+      "durationSeconds": 77.39,
+      "timestamp": "2026-11-08T18:10:59Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s4-ref-20-1794161463",
+      "scenario": "r11-s4-ref-20",
+      "durationSeconds": 77.1,
+      "timestamp": "2026-11-08T18:12:21Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s5-q-20-1794161545",
+      "scenario": "r11-s5-q-20",
+      "durationSeconds": 76.48,
+      "timestamp": "2026-11-08T18:13:42Z",
+      "success": true
+    },
+    {
+      "runId": "run-r11-r11-s6-conc-5-1794161626",
+      "scenario": "r11-s6-conc-5",
+      "durationSeconds": 77.33,
+      "timestamp": "2026-11-08T18:15:04Z",
+      "success": true
+    }
+  ]
+}

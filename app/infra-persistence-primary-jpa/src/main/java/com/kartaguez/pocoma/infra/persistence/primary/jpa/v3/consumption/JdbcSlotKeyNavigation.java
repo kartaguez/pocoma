@@ -12,7 +12,7 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
-/** Bounded raw keys, no eligibility predicate or row lock. U and first page share RR snapshot. */
+/** Bounded raw keys excluding QUARANTINED slots, no lease/retry eligibility predicate or row lock. U and first page share RR snapshot. */
 public final class JdbcSlotKeyNavigation implements SlotKeyNavigation {
     private final DataSource source;
     private final JdbcTemplate jdbc;
@@ -50,7 +50,7 @@ public final class JdbcSlotKeyNavigation implements SlotKeyNavigation {
                 (settings.statementTimeout().toMillis() + 1000) + "ms");
         String prefix =
                 "select consumable_id from consumption_slot where consumption_id=? and"
-                        + " partition_id=?";
+                        + " partition_id=? and state <> 'QUARANTINED'";
         var upper = walk.upperInclusive();
         if (upper.isEmpty())
             upper =

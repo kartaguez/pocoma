@@ -331,12 +331,12 @@ class TerminalObserver:
 
     def __init__(self, store: CorrelationStore, token_getter,
                  base_url: str = BASE_URL, command_timeout_sec: float = 90.0,
-                 max_workers: int = 12, on_terminal_callback: Optional[Any] = None):
+                 max_workers: int = 32, on_terminal_callback: Optional[Any] = None):
         self.store = store
         self.token_getter = token_getter
         self.base_url = base_url.rstrip("/")
         self.command_timeout_sec = command_timeout_sec
-        self.max_workers = max(1, min(32, max_workers))
+        self.max_workers = max(1, min(48, max_workers))
         self.on_terminal_callback = on_terminal_callback
 
         self.stop_event = threading.Event()
@@ -475,13 +475,13 @@ class ReadObserver:
     def __init__(self, store: CorrelationStore, token_getter,
                  binding_token: Optional[str] = None,
                  base_url: str = BASE_URL, read_timeout_sec: float = 90.0,
-                 max_workers: int = 8):
+                 max_workers: int = 32):
         self.store = store
         self.token_getter = token_getter
         self.binding_token = binding_token
         self.base_url = base_url.rstrip("/")
         self.read_timeout_sec = read_timeout_sec
-        self.max_workers = max(1, min(16, max_workers))
+        self.max_workers = max(1, min(48, max_workers))
 
         self.stop_event = threading.Event()
         self.threads: List[threading.Thread] = []
@@ -731,8 +731,8 @@ class DecoupledBenchCoordinator:
                  max_drain_seconds: float = 60.0,
                  journal_path: Optional[Path] = None,
                  evidence_dir: Optional[Path] = None,
-                 terminal_workers: int = 12,
-                 read_workers: int = 8,
+                 terminal_workers: int = 32,
+                 read_workers: int = 32,
                  store: Optional[CorrelationStore] = None,
                  scheduler: Any = None):
         self.run_id = run_id

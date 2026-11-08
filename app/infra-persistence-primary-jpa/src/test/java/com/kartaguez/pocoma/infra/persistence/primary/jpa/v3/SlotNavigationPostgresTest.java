@@ -185,7 +185,7 @@ class SlotNavigationPostgresTest {
                             q.setObject(1, ids.get(1));
                             q.executeQuery().close();
                         }
-                        assertEquals(ids, page(f, 0, SlotKeyNavigation.Walk.fresh(), 32).keys());
+                        assertEquals(ids.subList(0, 5), page(f, 0, SlotKeyNavigation.Walk.fresh(), 32).keys());
                         var got = e.acquire(lease, ids);
                         assertEquals(2, got.examinedCount());
                         assertEquals(1, got.claims().size());
@@ -400,10 +400,16 @@ class SlotNavigationPostgresTest {
                                 }
                                 f.oracle.execute("analyze consumption_slot");
                                 for (int batch : List.of(1, 32)) {
-                                    var keys = raw(f, 0);
-                                    UUID upper = keys.getLast(), after = keys.get(size / 2);
+                                    var keys =
+                                            f.oracle.queryForList(
+                                                    "select consumable_id from consumption_slot where consumption_id=? and"
+                                                            + " partition_id=0 and state <> 'QUARANTINED' order by consumable_id",
+                                                    UUID.class,
+                                                    f.definition.id().value());
+                                    UUID upper = keys.getLast(),
+                                            after = keys.get(Math.max(0, keys.size() / 2 - 1));
                                     assertEquals(
-                                            keys.subList(0, batch),
+                                            keys.subList(0, Math.min(batch, keys.size())),
                                             page(f, 0, SlotKeyNavigation.Walk.fresh(), batch)
                                                     .keys());
                                     // Administrator-only disposable comparison. Rollback restores
@@ -424,7 +430,7 @@ class SlotNavigationPostgresTest {
                                                             "select consumable_id from"
                                                                     + " consumption_slot where"
                                                                     + " consumption_id=? and"
-                                                                    + " partition_id=0"
+                                                                    + " partition_id=0 and state <> 'QUARANTINED'"
                                                                     + (seek == 1
                                                                             ? " and consumable_id>?"
                                                                                   + " and consumable_id<=?"

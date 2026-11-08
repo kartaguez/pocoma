@@ -30,7 +30,7 @@ CHARTS_DIR = EVIDENCE_DIR / "charts"
 
 def load_all_reports(evidence_dir: Path = EVIDENCE_DIR) -> List[Dict[str, Any]]:
     reports = []
-    for f in sorted(evidence_dir.glob("run-*_report.json")):
+    for f in sorted(evidence_dir.glob("*_report.json")):
         try:
             with open(f, "r", encoding="utf-8") as fp:
                 data = json.load(fp)

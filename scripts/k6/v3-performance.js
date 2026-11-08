@@ -172,6 +172,19 @@ export function setup() {
   const c = client();
   const pots = [];
 
+  const prePotsJson = __ENV.PRE_SEEDED_POTS_JSON || null;
+  if (prePotsJson) {
+    const list = JSON.parse(prePotsJson);
+    const pots = list.map((p) => ({
+      potId: p.potId,
+      shareholders: p.shareholders,
+      initialVersion: p.version,
+      version: p.version,
+      expenses: p.version - 2,
+    }));
+    return { pots, seededAt: Date.now() };
+  }
+
   const prePotId = __ENV.PRE_SEEDED_POT_ID || null;
   if (prePotId) {
     const shareholders = (__ENV.PRE_SEEDED_SHAREHOLDERS || '').split(',').filter(Boolean);
@@ -280,6 +293,50 @@ function injectDecoupled(c, pot) {
     retries: adm.retries,
     expectedVersion: observed + 1,
     observedVersion: observed,
+  }));
+}
+
+function injectDecoupledForPot(c, pot, observedVersion, iteration) {
+  checkAndRefreshToken(c);
+  const t0_send = Date.now();
+  cAdmissionsOffered.add(1);
+
+  const payload = expensePayload(pot.shareholders, `bench-${iteration}`);
+  let adm = c.submitCommand('CreateExpense', pot.potId, observedVersion, payload, null, { maxRetries: 0 });
+
+  if (adm.status === 401 && __ENV.POCOMA_AUTH_URL) {
+    lastTokenRefresh = 0;
+    checkAndRefreshToken(c);
+    adm = c.submitCommand('CreateExpense', pot.potId, observedVersion, payload, null, { maxRetries: 0 });
+  }
+
+  cAdmissionsAttempted.add(adm.attempts);
+  cAdmissionRetriesTotal.add(adm.retries);
+  tAdmissionRetriesPerCmd.add(adm.retries);
+  tAdmission.add(adm.duration);
+  tAdmissionWithRetries.add(adm.totalAdmissionDuration);
+
+  if (adm.status === 202) {
+    cAdmitted.add(1);
+    cFirstAttemptSuccess.add(1);
+  } else if (adm.status === 503) {
+    cWriteCapacity503.add(1);
+    cCapacityRejected.add(1);
+  } else {
+    cAdmissionErrors.add(1);
+    cOracle.add(1);
+  }
+
+  console.log(JSON.stringify({
+    commandId: adm.requestId,
+    potId: pot.potId,
+    t_send: t0_send,
+    t_admit: adm.admittedAt,
+    status: adm.status,
+    attempts: adm.attempts,
+    retries: adm.retries,
+    expectedVersion: observedVersion + 1,
+    observedVersion: observedVersion,
   }));
 }
 
@@ -661,7 +718,13 @@ export default function (data) {
 
   const isDecoupled = __ENV.DECOUPLED !== 'false';
   if (isDecoupled && ['nominal', 'sustained', 'peak', 'ramp'].includes(SCENARIO)) {
-    injectDecoupled(c, own);
+    const I = exec.scenario.iterationInTest;
+    const numPots = data.pots.length;
+    const potIdx = I % numPots;
+    const pot = data.pots[potIdx];
+    const initialV = pot.initialVersion !== undefined ? pot.initialVersion : pot.version;
+    const observed = initialV;
+    injectDecoupledForPot(c, pot, observed, I);
     return;
   }
 

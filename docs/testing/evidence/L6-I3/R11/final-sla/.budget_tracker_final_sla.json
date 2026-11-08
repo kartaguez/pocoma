@@ -1,0 +1,35 @@
+{
+  "globalBudgetSeconds": 3600,
+  "cumulativeSeconds": 917.82,
+  "remainingSeconds": 2682.18,
+  "runs": [
+    {
+      "runId": "final-sla-n1-nominal-1-1794164856",
+      "scenario": "n1-nominal-1",
+      "durationSeconds": 182.59,
+      "timestamp": "2026-11-08T19:10:39Z",
+      "success": true
+    },
+    {
+      "runId": "final-sla-n2-sustained-10-1794165044",
+      "scenario": "n2-sustained-10",
+      "durationSeconds": 272.7,
+      "timestamp": "2026-11-08T19:15:17Z",
+      "success": true
+    },
+    {
+      "runId": "final-sla-n2-sustained-10-1794165409",
+      "scenario": "n2-sustained-10",
+      "durationSeconds": 273.5,
+      "timestamp": "2026-11-08T19:21:23Z",
+      "success": true
+    },
+    {
+      "runId": "final-sla-n3-peak-50-1794165738",
+      "scenario": "n3-peak-50",
+      "durationSeconds": 189.03,
+      "timestamp": "2026-11-08T19:25:27Z",
+      "success": false
+    }
+  ]
+}

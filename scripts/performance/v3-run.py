@@ -66,7 +66,18 @@ EVIDENCE_DIR_R10 = EVIDENCE_DIR / "R10"
 BUDGET_FILE_R10 = EVIDENCE_DIR_R10 / ".budget_tracker_r10.json"
 GLOBAL_BUDGET_SECONDS_R10 = 60 * 60  # 3600 seconds (60 minutes) max cumulative for R10
 
+EVIDENCE_DIR_R11 = EVIDENCE_DIR / "R11"
+BUDGET_FILE_R11 = EVIDENCE_DIR_R11 / ".budget_tracker_r11.json"
+GLOBAL_BUDGET_SECONDS_R11 = 60 * 60  # 3600 seconds (60 minutes) max cumulative for R11
+
+EVIDENCE_DIR_FINAL_SLA = EVIDENCE_DIR / "R11" / "final-sla"
+BUDGET_FILE_FINAL_SLA = EVIDENCE_DIR_FINAL_SLA / ".budget_tracker_final_sla.json"
+GLOBAL_BUDGET_SECONDS_FINAL_SLA = 60 * 60  # 3600 seconds (60 minutes) max cumulative for Final SLA Qualification
+
 SCENARIO_BUDGETS = {
+    "n1-nominal-1": 180,
+    "n2-sustained-10": 240,
+    "n3-peak-50": 300,
     "smoke": 120,          # 2 minutes max
     "small": 300,          # 5 minutes max
     "medium": 300,         # 5 minutes max
@@ -147,6 +158,14 @@ SCENARIO_BUDGETS = {
     "r10-phase-d2": 180,     # 60s + setup
     "r10-phase-d3": 180,     # 60s + setup
     "r10-phase-d4": 240,     # 90s + setup
+    # R11 Scenarios (Quarantine Discovery Filter Requalification)
+    "r11-s0-ref-1": 150,     # 30s + setup
+    "r11-s1-q-1": 150,       # 30s + setup
+    "r11-s2-ref-5": 150,     # 30s + setup
+    "r11-s3-q-5": 150,       # 30s + setup
+    "r11-s4-ref-20": 150,    # 30s + setup
+    "r11-s5-q-20": 150,      # 30s + setup
+    "r11-s6-conc-5": 150,    # 30s + setup
 }
 
 K6_SCENARIO_MAP = {
@@ -227,6 +246,18 @@ K6_SCENARIO_MAP = {
     "r10-phase-d2": {"SCENARIO": "r7-s1-1", "POTS": "50", "DEFAULT_RATE": 2, "DEFAULT_DURATION": "45s", "WORKLOAD_MODE": "realistic"},
     "r10-phase-d3": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 15, "DEFAULT_DURATION": "45s", "WORKLOAD_MODE": "realistic"},
     "r10-phase-d4": {"SCENARIO": "r7-s1-1", "POTS": "50", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "90s", "WORKLOAD_MODE": "realistic"},
+    # R11 Scenarios (Quarantine Discovery Filter Requalification)
+    "r11-s0-ref-1": {"SCENARIO": "r7-s1-1", "POTS": "50", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    "r11-s1-q-1": {"SCENARIO": "r7-s1-1", "POTS": "50", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    "r11-s2-ref-5": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    "r11-s3-q-5": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    "r11-s4-ref-20": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    "r11-s5-q-20": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 20, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    "r11-s6-conc-5": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "30s", "WORKLOAD_MODE": "realistic"},
+    # Final SPEC-09 SLA Qualification Scenarios (Pots moyens: 20 shareholders, >= 200 initial expenses)
+    "n1-nominal-1": {"SCENARIO": "nominal", "POTS": "6", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "120s", "DECOUPLED": "true"},
+    "n2-sustained-10": {"SCENARIO": "sustained", "POTS": "6", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "180s", "DECOUPLED": "true"},
+    "n3-peak-50": {"SCENARIO": "peak", "POTS": "6", "DEFAULT_RATE": 50, "DEFAULT_DURATION": "60s", "DECOUPLED": "true"},
 }
 
 
@@ -556,6 +587,88 @@ class BudgetTrackerR10:
             }, f, indent=2)
 
 
+class BudgetTrackerR11:
+    """Dedicated budget tracker for the R11 qualification campaign (3600s / 60m ceiling)."""
+
+    @staticmethod
+    def get_consumed_seconds() -> float:
+        if not BUDGET_FILE_R11.exists():
+            return 0.0
+        try:
+            with open(BUDGET_FILE_R11, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return float(data.get("cumulativeSeconds", 0.0))
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = BudgetTrackerR11.get_consumed_seconds() + duration_sec
+        EVIDENCE_DIR_R11.mkdir(parents=True, exist_ok=True)
+        history = []
+        if BUDGET_FILE_R11.exists():
+            try:
+                with open(BUDGET_FILE_R11, "r", encoding="utf-8") as f:
+                    history = json.load(f).get("runs", [])
+            except Exception:
+                pass
+        history.append({
+            "runId": run_id,
+            "scenario": scenario,
+            "durationSeconds": round(duration_sec, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "success": success,
+        })
+        with open(BUDGET_FILE_R11, "w", encoding="utf-8") as f:
+            json.dump({
+                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R11,
+                "cumulativeSeconds": round(consumed, 2),
+                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R11 - consumed), 2),
+                "runs": history,
+            }, f, indent=2)
+
+
+class BudgetTrackerFinalSla:
+    """Dedicated budget tracker for the Final SPEC-09 SLA Qualification (3600s / 60m ceiling)."""
+
+    @staticmethod
+    def get_consumed_seconds() -> float:
+        if not BUDGET_FILE_FINAL_SLA.exists():
+            return 0.0
+        try:
+            with open(BUDGET_FILE_FINAL_SLA, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return float(data.get("cumulativeSeconds", 0.0))
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = BudgetTrackerFinalSla.get_consumed_seconds() + duration_sec
+        EVIDENCE_DIR_FINAL_SLA.mkdir(parents=True, exist_ok=True)
+        history = []
+        if BUDGET_FILE_FINAL_SLA.exists():
+            try:
+                with open(BUDGET_FILE_FINAL_SLA, "r", encoding="utf-8") as f:
+                    history = json.load(f).get("runs", [])
+            except Exception:
+                pass
+        history.append({
+            "runId": run_id,
+            "scenario": scenario,
+            "durationSeconds": round(duration_sec, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "success": success,
+        })
+        with open(BUDGET_FILE_FINAL_SLA, "w", encoding="utf-8") as f:
+            json.dump({
+                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_FINAL_SLA,
+                "cumulativeSeconds": round(consumed, 2),
+                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_FINAL_SLA - consumed), 2),
+                "runs": history,
+            }, f, indent=2)
+
+
 class Watchdog:
     """Monitors k6 process and live infrastructure metrics, aborting if limits are breached."""
 
@@ -652,16 +765,28 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
                  skip_preflight: bool = False, run_id: Optional[str] = None,
                  is_r4: bool = False, is_r5: bool = False, is_r6: bool = False,
                  is_r7: bool = False, is_r8: bool = False, is_r9: bool = False,
-                 is_r10: bool = False) -> bool:
-    is_r10_run = is_r10 or scenario_name.startswith("r10")
-    is_r9_run = not is_r10_run and (is_r9 or scenario_name.startswith("r9"))
-    is_r8_run = not is_r10_run and not is_r9_run and (is_r8 or scenario_name.startswith("r8"))
-    is_r7_run = not is_r10_run and not is_r9_run and not is_r8_run and (is_r7 or scenario_name.startswith("r7"))
-    is_r6_run = not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and (is_r6 or scenario_name.startswith("h"))
-    is_r5_run = not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and not is_r6_run and (is_r5 or scenario_name.startswith("m"))
-    is_r4_run = not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
+                 is_r10: bool = False, is_r11: bool = False, is_final_sla: bool = False) -> bool:
+    is_final_sla_run = is_final_sla or scenario_name.startswith("n")
+    is_r11_run = not is_final_sla_run and (is_r11 or scenario_name.startswith("r11"))
+    is_r10_run = not is_final_sla_run and not is_r11_run and (is_r10 or scenario_name.startswith("r10"))
+    is_r9_run = not is_final_sla_run and not is_r11_run and not is_r10_run and (is_r9 or scenario_name.startswith("r9"))
+    is_r8_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and (is_r8 or scenario_name.startswith("r8"))
+    is_r7_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and (is_r7 or scenario_name.startswith("r7"))
+    is_r6_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and (is_r6 or scenario_name.startswith("h"))
+    is_r5_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and not is_r6_run and (is_r5 or scenario_name.startswith("m"))
+    is_r4_run = not is_final_sla_run and not is_r11_run and not is_r10_run and not is_r9_run and not is_r8_run and not is_r7_run and not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
 
-    if is_r10_run:
+    if is_final_sla_run:
+        target_evidence_dir = EVIDENCE_DIR_FINAL_SLA
+        target_tracker = BudgetTrackerFinalSla
+        target_budget_limit = GLOBAL_BUDGET_SECONDS_FINAL_SLA
+        prefix = "final-sla"
+    elif is_r11_run:
+        target_evidence_dir = EVIDENCE_DIR_R11
+        target_tracker = BudgetTrackerR11
+        target_budget_limit = GLOBAL_BUDGET_SECONDS_R11
+        prefix = "run-r11"
+    elif is_r10_run:
         target_evidence_dir = EVIDENCE_DIR_R10
         target_tracker = BudgetTrackerR10
         target_budget_limit = GLOBAL_BUDGET_SECONDS_R10
@@ -788,7 +913,37 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
 
     # Initialize realistic workload fixtures and scheduler if in realistic mode
     scheduler = None
-    if is_r5_run or (is_r6_run and k6_cfg.get("WORKLOAD_MODE") == "realistic") or k6_cfg.get("WORKLOAD_MODE") == "realistic":
+    manifest_pots = None
+    if is_final_sla_run:
+        manifest_path = EVIDENCE_DIR_FINAL_SLA / "fixtures_manifest.json"
+        if manifest_path.exists():
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                mdata = json.load(f)
+            manifest_pots = mdata.get("pots", [])
+            try:
+                pot_ids_sql = ",".join(f"'{p['potId']}'" for p in manifest_pots)
+                cmd = [
+                    "docker", "exec", "pocoma-functional-postgres-1",
+                    "psql", "-U", "pocoma", "-d", "pocoma_write", "-t", "-A", "-c",
+                    f"SELECT pot_id, MAX(version) FROM v3_write.v3_pot_version WHERE pot_id IN ({pot_ids_sql}) GROUP BY pot_id;"
+                ]
+                res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                db_versions = {}
+                for line in res.stdout.strip().splitlines():
+                    if "|" in line:
+                        pid, ver = line.split("|", 1)
+                        db_versions[pid.strip()] = int(ver.strip())
+                for p in manifest_pots:
+                    if p["potId"] in db_versions:
+                        p["version"] = db_versions[p["potId"]]
+                mdata["pots"] = manifest_pots
+                with open(manifest_path, "w", encoding="utf-8") as f:
+                    json.dump(mdata, f, indent=2)
+                print(f"  ✓ Refreshed live versions for {len(manifest_pots)} Pots moyens: {[p['version'] for p in manifest_pots]}")
+            except Exception as e:
+                print(f"  [Warning] Failed to refresh live pot versions from DB: {e}")
+            print(f"  ✓ Loaded {len(manifest_pots)} pre-seeded SPEC-09 Pots moyens from {manifest_path.name}")
+    elif is_r5_run or (is_r6_run and k6_cfg.get("WORKLOAD_MODE") == "realistic") or k6_cfg.get("WORKLOAD_MODE") == "realistic":
         pot_count = int(k6_cfg.get("POTS", 250))
         wl_cfg = WorkloadConfig(pot_pool_size=pot_count, random_seed=20261108)
         manifest_path = target_evidence_dir / "fixtures_manifest.json"
@@ -798,13 +953,16 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     token_server = TokenHttpServer(token_mgr, port=18083, scheduler=scheduler)
     token_server.start()
 
-    is_decoupled = (is_r10_run or is_r9_run or is_r8_run or is_r7_run or is_r6_run or is_r5_run or scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp") or scenario_name.startswith("m") or scenario_name.startswith("h") or scenario_name.startswith("r7") or scenario_name.startswith("r8") or scenario_name.startswith("r9") or scenario_name.startswith("r10"))
+    is_decoupled = (is_final_sla_run or is_r11_run or is_r10_run or is_r9_run or is_r8_run or is_r7_run or is_r6_run or is_r5_run or scenario_name.startswith("ramp-p") or scenario_name in ("q1-smoke", "q2-nominal-5", "q3-ramp-10", "q4-ramp-20", "q5-ramp-50", "q7-large") or k6_cfg.get("SCENARIO") in ("nominal", "sustained", "peak", "ramp") or scenario_name.startswith("m") or scenario_name.startswith("h") or scenario_name.startswith("r7") or scenario_name.startswith("r8") or scenario_name.startswith("r9") or scenario_name.startswith("r10") or scenario_name.startswith("r11"))
     coordinator = None
     if is_decoupled:
-        max_drain = min(90.0, max(45.0, dur_sec * 0.5))
+        max_drain = 120.0 if is_final_sla_run else min(120.0, max(60.0, dur_sec * 0.5))
+        term_workers = 32 if is_final_sla_run else 12
+        read_workers = 32 if is_final_sla_run else 8
         coordinator = DecoupledBenchCoordinator(
             run_id=rid, token_manager=token_mgr, binding_token=binding_token, max_drain_seconds=max_drain,
-            evidence_dir=target_evidence_dir, scheduler=scheduler
+            evidence_dir=target_evidence_dir, scheduler=scheduler,
+            terminal_workers=term_workers, read_workers=read_workers
         )
         coordinator.start()
 
@@ -812,6 +970,8 @@ def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optio
     for k, v in k6_cfg.items():
         if not k.startswith("DEFAULT_"):
             env[k] = str(v)
+    if is_final_sla_run and manifest_pots:
+        env["PRE_SEEDED_POTS_JSON"] = json.dumps(manifest_pots)
     env["DURATION"] = str(eff_duration)
     env["RATE"] = str(eff_rate)
     env["SUMMARY_PATH"] = str(summary_path)
@@ -1159,11 +1319,25 @@ def main():
     parser.add_argument("--r8", action="store_true", help="Execute under R8 budget envelope and output directory")
     parser.add_argument("--r9", action="store_true", help="Execute under R9 budget envelope and output directory")
     parser.add_argument("--r10", action="store_true", help="Execute under R10 budget envelope and output directory")
+    parser.add_argument("--r11", action="store_true", help="Execute under R11 budget envelope and output directory")
+    parser.add_argument("--final-sla", action="store_true", help="Execute under Final SLA Qualification budget envelope and output directory")
 
     args = parser.parse_args()
 
     if args.budget_status:
-        if args.r10:
+        if args.final_sla:
+            consumed = BudgetTrackerFinalSla.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS_FINAL_SLA - consumed
+            print(f"Final SLA Budget: {GLOBAL_BUDGET_SECONDS_FINAL_SLA}s ({GLOBAL_BUDGET_SECONDS_FINAL_SLA/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        elif args.r11:
+            consumed = BudgetTrackerR11.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS_R11 - consumed
+            print(f"R11 Budget:       {GLOBAL_BUDGET_SECONDS_R11}s ({GLOBAL_BUDGET_SECONDS_R11/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        elif args.r10:
             consumed = BudgetTrackerR10.get_consumed_seconds()
             remaining = GLOBAL_BUDGET_SECONDS_R10 - consumed
             print(f"R10 Budget:       {GLOBAL_BUDGET_SECONDS_R10}s ({GLOBAL_BUDGET_SECONDS_R10/60:.1f} min)")
@@ -1230,13 +1404,15 @@ def main():
         ok = run_ramp_suite(duration=dur)
         sys.exit(0 if ok else 1)
 
-    is_r10 = args.r10 or args.scenario.startswith("r10")
-    is_r9 = not is_r10 and (args.r9 or args.scenario.startswith("r9"))
-    is_r8 = not is_r10 and not is_r9 and (args.r8 or args.scenario.startswith("r8"))
-    is_r7 = not is_r10 and not is_r9 and not is_r8 and (args.r7 or args.scenario.startswith("r7"))
-    is_r6 = not is_r10 and not is_r9 and not is_r8 and not is_r7 and (args.r6 or args.scenario.startswith("h"))
-    is_r5 = not is_r10 and not is_r9 and not is_r8 and not is_r7 and not is_r6 and (args.r5 or args.scenario.startswith("m"))
-    is_r4 = not is_r10 and not is_r9 and not is_r8 and not is_r7 and not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
+    is_final_sla = args.final_sla or args.scenario.startswith("n")
+    is_r11 = not is_final_sla and (args.r11 or args.scenario.startswith("r11"))
+    is_r10 = not is_final_sla and not is_r11 and (args.r10 or args.scenario.startswith("r10"))
+    is_r9 = not is_final_sla and not is_r11 and not is_r10 and (args.r9 or args.scenario.startswith("r9"))
+    is_r8 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and (args.r8 or args.scenario.startswith("r8"))
+    is_r7 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and (args.r7 or args.scenario.startswith("r7"))
+    is_r6 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and not is_r7 and (args.r6 or args.scenario.startswith("h"))
+    is_r5 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and not is_r7 and not is_r6 and (args.r5 or args.scenario.startswith("m"))
+    is_r4 = not is_final_sla and not is_r11 and not is_r10 and not is_r9 and not is_r8 and not is_r7 and not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
     ok = run_scenario(
         scenario_name=args.scenario,
         duration=args.duration,
@@ -1250,6 +1426,8 @@ def main():
         is_r8=is_r8,
         is_r9=is_r9,
         is_r10=is_r10,
+        is_r11=is_r11,
+        is_final_sla=is_final_sla,
     )
     sys.exit(0 if ok else 1)
 
