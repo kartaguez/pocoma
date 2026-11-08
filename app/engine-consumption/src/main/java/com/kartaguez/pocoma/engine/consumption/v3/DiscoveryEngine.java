@@ -55,6 +55,16 @@ public final class DiscoveryEngine {
     public record EventProgress(
             Status status, OptionalLong checkpoint, int examined, int inserted) {}
 
+    public interface DiscoveryListener {
+        default void onCandidateDiscovered(
+                ConsumptionDefinition definition, int partition, UUID id, long nanos) {}
+
+        default void onSlotAdmitted(
+                ConsumptionDefinition definition, int partition, UUID id, long nanos) {}
+
+        DiscoveryListener NOOP = new DiscoveryListener() {};
+    }
+
     public record RequestProgress(
             Status status,
             RequestWalk next,
@@ -72,6 +82,7 @@ public final class DiscoveryEngine {
     private final NonBurnableReferences events;
     private final BurnableReferences requests;
     private final Predicate<NonBurnableReferences.Reference> relevant;
+    private final DiscoveryListener listener;
 
     public DiscoveryEngine(
             ConsumptionDefinition definition,
@@ -82,6 +93,28 @@ public final class DiscoveryEngine {
             AttemptTransactions sourceReads,
             NonBurnableReferences source,
             Predicate<NonBurnableReferences.Reference> relevant) {
+        this(
+                definition,
+                effects,
+                ownership,
+                admissions,
+                settings,
+                sourceReads,
+                source,
+                relevant,
+                DiscoveryListener.NOOP);
+    }
+
+    public DiscoveryEngine(
+            ConsumptionDefinition definition,
+            AttemptTransactions effects,
+            PartitionOwnershipStore ownership,
+            DiscoveryAdmissionStore admissions,
+            Settings settings,
+            AttemptTransactions sourceReads,
+            NonBurnableReferences source,
+            Predicate<NonBurnableReferences.Reference> relevant,
+            DiscoveryListener listener) {
         this.definition = Objects.requireNonNull(definition);
         this.effects = Objects.requireNonNull(effects);
         this.ownership = Objects.requireNonNull(ownership);
@@ -91,6 +124,7 @@ public final class DiscoveryEngine {
         this.events = Objects.requireNonNull(source);
         this.relevant = Objects.requireNonNull(relevant);
         this.requests = null;
+        this.listener = Objects.requireNonNull(listener);
         if (burnable(definition.family()) || definition.family() != source.family())
             throw new IllegalArgumentException("incompatible event source");
     }
@@ -102,6 +136,17 @@ public final class DiscoveryEngine {
             DiscoveryAdmissionStore admissions,
             Settings settings,
             BurnableReferences source) {
+        this(definition, effects, ownership, admissions, settings, source, DiscoveryListener.NOOP);
+    }
+
+    public DiscoveryEngine(
+            ConsumptionDefinition definition,
+            AttemptTransactions effects,
+            PartitionOwnershipStore ownership,
+            DiscoveryAdmissionStore admissions,
+            Settings settings,
+            BurnableReferences source,
+            DiscoveryListener listener) {
         this.definition = Objects.requireNonNull(definition);
         this.effects = Objects.requireNonNull(effects);
         this.ownership = Objects.requireNonNull(ownership);
@@ -111,6 +156,7 @@ public final class DiscoveryEngine {
         this.requests = Objects.requireNonNull(source);
         this.events = null;
         this.relevant = null;
+        this.listener = Objects.requireNonNull(listener);
         if (!burnable(definition.family()) || definition.family() != source.family())
             throw new IllegalArgumentException("incompatible request source");
     }
@@ -278,6 +324,9 @@ public final class DiscoveryEngine {
                     for (var id : page) {
                         examined++;
                         if (local(id, current.partitionId()) && requests.tryProtectPending(id)) {
+                            long discoveredNanos = System.nanoTime();
+                            listener.onCandidateDiscovered(
+                                    definition, current.partitionId(), id, discoveredNanos);
                             // A separate statement/snapshot AFTER source lock. No row lock on
                             // existing slot.
                             boolean exists =
@@ -289,6 +338,9 @@ public final class DiscoveryEngine {
                                     break;
                                 }
                                 admissions.insertInitial(definition, current.partitionId(), id);
+                                long admittedNanos = System.nanoTime();
+                                listener.onSlotAdmitted(
+                                        definition, current.partitionId(), id, admittedNanos);
                                 remaining--;
                                 inserted++;
                             }

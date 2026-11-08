@@ -13,6 +13,9 @@ import java.util.concurrent.*;
 /** Local lifecycle only. Engine alone owns all reservations and durable decisions. */
 public final class V3ConsumptionWorker {
     public interface AttemptHook {
+        default void onSlotAcquired(
+                ConsumptionId id, UUID consumableId, int partition, long startNanos) {}
+
         void onAttemptStarting(ConsumptionId id, UUID consumableId, long startNanos);
         void onAttemptFinished(
                 ConsumptionId id,
@@ -677,11 +680,15 @@ public final class V3ConsumptionWorker {
                 observation, binding.definition().id(), phase, outcome, amount, duration);
     }
 
-    void signal() {
+    public void signal() {
         discoveryWait.signal();
         consumptionWait.signal();
         maintenanceWait.signal();
         renewals.signal();
+    }
+
+    AttemptHook attemptHook() {
+        return attemptHook;
     }
 
     private void loop(

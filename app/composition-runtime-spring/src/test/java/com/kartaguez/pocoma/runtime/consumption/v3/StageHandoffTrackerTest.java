@@ -189,4 +189,82 @@ class StageHandoffTrackerTest {
         // Technical timing metrics must remain available
         assertNotNull(unauthRec.get("commandProcessingMs"));
     }
+
+    @Test
+    void testDetailedMilestoneDecompositionA1ToA4() {
+        UUID cmdId = UUID.randomUUID();
+        var def = V3ConsumptionCatalogConfiguration.definitions().getFirst(); // Command
+
+        // T0: Admission
+        tracker.onCommandAdmitted(cmdId);
+        var recBefore = tracker.snapshot(1, null);
+        @SuppressWarnings("unchecked")
+        var rec0 = (java.util.Map<String, Object>) ((java.util.List<?>) recBefore.get("records")).getFirst();
+        assertNotNull(rec0.get("t0EpochMs"));
+        assertEquals("MISSING_T0A", rec0.get("missingDataReason"));
+
+        // T0a: Discovery candidate
+        long t0a = System.nanoTime();
+        tracker.onCandidateDiscovered(def, 2, cmdId, t0a);
+
+        // T0b: Slot persisted
+        long t0b = t0a + 1_500_000L; // +1.5ms
+        tracker.onSlotAdmitted(def, 2, cmdId, t0b);
+
+        // T0c: Slot acquired
+        long t0c = t0b + 8_000_000L; // +8.0ms
+        tracker.onSlotAcquired(COMMAND_ID, cmdId, 2, t0c);
+
+        // T1: Attempt start
+        long t1 = t0c + 2_500_000L; // +2.5ms
+        tracker.onAttemptStarting(COMMAND_ID, cmdId, t1);
+
+        // T2: Attempt finished
+        long t2 = t1 + 4_000_000L; // +4.0ms
+        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionEngine.Status.COMMITTED, t2);
+
+        var snapshot = tracker.snapshot(10, null);
+        @SuppressWarnings("unchecked")
+        var rec = (java.util.Map<String, Object>) ((java.util.List<?>) snapshot.get("records")).getFirst();
+
+        assertEquals(2, rec.get("partition"));
+        assertEquals(1, rec.get("attempts"));
+        assertEquals("COMMITTED", rec.get("status"));
+        assertNull(rec.get("missingDataReason"));
+
+        Double a1 = (Double) rec.get("waitBeforeDiscoveryMs");
+        Double a2 = (Double) rec.get("discoveryToSlotMs");
+        Double a3 = (Double) rec.get("slotAcquisitionWaitMs");
+        Double a4 = (Double) rec.get("acquisitionToAttemptMs");
+        Double totalWait = (Double) rec.get("commandWaitMs");
+        Double b = (Double) rec.get("commandProcessingMs");
+
+        assertNotNull(a1);
+        assertNotNull(a2);
+        assertNotNull(a3);
+        assertNotNull(a4);
+        assertNotNull(totalWait);
+        assertNotNull(b);
+
+        assertEquals(1.5, a2, 0.05);
+        assertEquals(8.0, a3, 0.05);
+        assertEquals(2.5, a4, 0.05);
+        assertEquals(4.0, b, 0.05);
+
+        // Check identity: A1 + A2 + A3 + A4 == totalWait (within float rounding)
+        assertEquals(totalWait, a1 + a2 + a3 + a4, 0.05);
+
+        // Check partition stats
+        @SuppressWarnings("unchecked")
+        var partitionStats = (java.util.Map<String, Object>) snapshot.get("partitionStats");
+        assertNotNull(partitionStats);
+        @SuppressWarnings("unchecked")
+        var p2Map = (java.util.Map<String, Object>) partitionStats.get("partition_2");
+        assertEquals(1, p2Map.get("totalTracked"));
+        assertEquals(1, p2Map.get("discovered"));
+        assertEquals(1, p2Map.get("slotPersisted"));
+        assertEquals(1, p2Map.get("slotAcquired"));
+        assertEquals(1, p2Map.get("attemptStarted"));
+        assertEquals(1, p2Map.get("attemptFinished"));
+    }
 }

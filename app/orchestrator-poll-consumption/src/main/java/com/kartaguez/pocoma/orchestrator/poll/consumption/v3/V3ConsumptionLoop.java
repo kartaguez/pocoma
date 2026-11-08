@@ -95,6 +95,14 @@ public final class V3ConsumptionLoop {
             var keys =
                     page.keys().subList(0, Math.min(worker.settings.quantum(), page.keys().size()));
             var acquired = binding.engine().acquire(lease, keys);
+            long acquiredNanos = System.nanoTime();
+            for (var handle : acquired.claims()) {
+                worker.attemptHook().onSlotAcquired(
+                        binding.definition().id(),
+                        handle.claim().consumableId(),
+                        lease.partitionId(),
+                        acquiredNanos);
+            }
             try {
                 int e = acquired.examinedCount();
                 if (e < 0 || e > keys.size())

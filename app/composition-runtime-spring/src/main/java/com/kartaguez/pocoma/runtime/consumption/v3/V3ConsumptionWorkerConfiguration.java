@@ -494,6 +494,7 @@ public class V3ConsumptionWorkerConfiguration {
             resources.worker = worker;
             if (observation instanceof MicrometerV3ConsumptionObservation metrics)
                 metrics.bind(worker);
+            StageHandoffTracker.getInstance().registerWakeSignal(worker::signal);
             return worker;
         }
 

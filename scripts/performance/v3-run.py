@@ -54,6 +54,10 @@ EVIDENCE_DIR_R7 = EVIDENCE_DIR / "R7"
 BUDGET_FILE_R7 = EVIDENCE_DIR_R7 / ".budget_tracker_r7.json"
 GLOBAL_BUDGET_SECONDS_R7 = 40 * 60  # 2400 seconds (40 minutes) max cumulative for R7
 
+EVIDENCE_DIR_R8 = EVIDENCE_DIR / "R8"
+BUDGET_FILE_R8 = EVIDENCE_DIR_R8 / ".budget_tracker_r8.json"
+GLOBAL_BUDGET_SECONDS_R8 = 30 * 60  # 1800 seconds (30 minutes) max cumulative for R8
+
 SCENARIO_BUDGETS = {
     "smoke": 120,          # 2 minutes max
     "small": 300,          # 5 minutes max
@@ -109,6 +113,9 @@ SCENARIO_BUDGETS = {
     "r7-s3-10": 200,         # 90s + setup
     "r7-medium": 150,        # 60s + setup
     "r7-idle": 120,          # 30s + setup
+    # R8 Scenarios (Command Discovery & Scheduling Diagnosis)
+    "r8-s1-1": 150,          # 60s + setup
+    "r8-s2-5": 150,          # 60s + setup
 }
 
 K6_SCENARIO_MAP = {
@@ -163,6 +170,9 @@ K6_SCENARIO_MAP = {
     "r7-s3-10": {"SCENARIO": "r7-s3-10", "POTS": "100", "DEFAULT_RATE": 10, "DEFAULT_DURATION": "90s", "WORKLOAD_MODE": "realistic"},
     "r7-medium": {"SCENARIO": "structural", "POTS": "1", "SHAREHOLDERS": "20", "SEED_EXPENSES": "200", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "60s"},
     "r7-idle": {"SCENARIO": "idle", "POTS": "1", "SHAREHOLDERS": "5", "SEED_EXPENSES": "1", "IDLE_SECONDS": "30"},
+    # R8 Scenarios
+    "r8-s1-1": {"SCENARIO": "r7-s1-1", "POTS": "50", "DEFAULT_RATE": 1, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
+    "r8-s2-5": {"SCENARIO": "r7-s2-5", "POTS": "50", "DEFAULT_RATE": 5, "DEFAULT_DURATION": "60s", "WORKLOAD_MODE": "realistic"},
 }
 
 
@@ -369,6 +379,47 @@ class BudgetTrackerR7:
             }, f, indent=2)
 
 
+class BudgetTrackerR8:
+    """Dedicated budget tracker for the R8 command discovery and scheduling latency diagnosis campaign (1800s / 30m ceiling)."""
+
+    @staticmethod
+    def get_consumed_seconds() -> float:
+        if not BUDGET_FILE_R8.exists():
+            return 0.0
+        try:
+            with open(BUDGET_FILE_R8, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return float(data.get("cumulativeSeconds", 0.0))
+        except Exception:
+            return 0.0
+
+    @staticmethod
+    def record_run(scenario: str, duration_sec: float, run_id: str, success: bool):
+        consumed = BudgetTrackerR8.get_consumed_seconds() + duration_sec
+        EVIDENCE_DIR_R8.mkdir(parents=True, exist_ok=True)
+        history = []
+        if BUDGET_FILE_R8.exists():
+            try:
+                with open(BUDGET_FILE_R8, "r", encoding="utf-8") as f:
+                    history = json.load(f).get("runs", [])
+            except Exception:
+                pass
+        history.append({
+            "runId": run_id,
+            "scenario": scenario,
+            "durationSeconds": round(duration_sec, 2),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "success": success,
+        })
+        with open(BUDGET_FILE_R8, "w", encoding="utf-8") as f:
+            json.dump({
+                "globalBudgetSeconds": GLOBAL_BUDGET_SECONDS_R8,
+                "cumulativeSeconds": round(consumed, 2),
+                "remainingSeconds": round(max(0.0, GLOBAL_BUDGET_SECONDS_R8 - consumed), 2),
+                "runs": history,
+            }, f, indent=2)
+
+
 class Watchdog:
     """Monitors k6 process and live infrastructure metrics, aborting if limits are breached."""
 
@@ -464,13 +515,19 @@ def extract_correlation_event(line: str) -> Optional[Dict[str, Any]]:
 def run_scenario(scenario_name: str, duration: Optional[str] = None, rate: Optional[int] = None,
                  skip_preflight: bool = False, run_id: Optional[str] = None,
                  is_r4: bool = False, is_r5: bool = False, is_r6: bool = False,
-                 is_r7: bool = False) -> bool:
-    is_r7_run = is_r7 or scenario_name.startswith("r7")
-    is_r6_run = not is_r7_run and (is_r6 or scenario_name.startswith("h"))
-    is_r5_run = not is_r7_run and not is_r6_run and (is_r5 or scenario_name.startswith("m"))
-    is_r4_run = not is_r7_run and not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
+                 is_r7: bool = False, is_r8: bool = False) -> bool:
+    is_r8_run = is_r8 or scenario_name.startswith("r8")
+    is_r7_run = not is_r8_run and (is_r7 or scenario_name.startswith("r7"))
+    is_r6_run = not is_r8_run and not is_r7_run and (is_r6 or scenario_name.startswith("h"))
+    is_r5_run = not is_r8_run and not is_r7_run and not is_r6_run and (is_r5 or scenario_name.startswith("m"))
+    is_r4_run = not is_r8_run and not is_r7_run and not is_r6_run and not is_r5_run and (is_r4 or scenario_name.startswith("q"))
 
-    if is_r7_run:
+    if is_r8_run:
+        target_evidence_dir = EVIDENCE_DIR_R8
+        target_tracker = BudgetTrackerR8
+        target_budget_limit = GLOBAL_BUDGET_SECONDS_R8
+        prefix = "run-r8"
+    elif is_r7_run:
         target_evidence_dir = EVIDENCE_DIR_R7
         target_tracker = BudgetTrackerR7
         target_budget_limit = GLOBAL_BUDGET_SECONDS_R7
@@ -950,11 +1007,18 @@ def main():
     parser.add_argument("--r5", action="store_true", help="Execute under R5 budget envelope and output directory")
     parser.add_argument("--r6", action="store_true", help="Execute under R6 budget envelope and output directory")
     parser.add_argument("--r7", action="store_true", help="Execute under R7 budget envelope and output directory")
+    parser.add_argument("--r8", action="store_true", help="Execute under R8 budget envelope and output directory")
 
     args = parser.parse_args()
 
     if args.budget_status:
-        if args.r7:
+        if args.r8:
+            consumed = BudgetTrackerR8.get_consumed_seconds()
+            remaining = GLOBAL_BUDGET_SECONDS_R8 - consumed
+            print(f"R8 Budget:        {GLOBAL_BUDGET_SECONDS_R8}s ({GLOBAL_BUDGET_SECONDS_R8/60:.1f} min)")
+            print(f"Consumed So Far:  {consumed:.1f}s ({consumed/60:.1f} min)")
+            print(f"Remaining Budget: {remaining:.1f}s ({remaining/60:.1f} min)")
+        elif args.r7:
             consumed = BudgetTrackerR7.get_consumed_seconds()
             remaining = GLOBAL_BUDGET_SECONDS_R7 - consumed
             print(f"R7 Budget:        {GLOBAL_BUDGET_SECONDS_R7}s ({GLOBAL_BUDGET_SECONDS_R7/60:.1f} min)")
@@ -1003,10 +1067,11 @@ def main():
         ok = run_ramp_suite(duration=dur)
         sys.exit(0 if ok else 1)
 
-    is_r7 = args.r7 or args.scenario.startswith("r7")
-    is_r6 = not is_r7 and (args.r6 or args.scenario.startswith("h"))
-    is_r5 = not is_r7 and not is_r6 and (args.r5 or args.scenario.startswith("m"))
-    is_r4 = not is_r7 and not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
+    is_r8 = args.r8 or args.scenario.startswith("r8")
+    is_r7 = not is_r8 and (args.r7 or args.scenario.startswith("r7"))
+    is_r6 = not is_r8 and not is_r7 and (args.r6 or args.scenario.startswith("h"))
+    is_r5 = not is_r8 and not is_r7 and not is_r6 and (args.r5 or args.scenario.startswith("m"))
+    is_r4 = not is_r8 and not is_r7 and not is_r6 and not is_r5 and (args.r4 or args.scenario.startswith("q"))
     ok = run_scenario(
         scenario_name=args.scenario,
         duration=args.duration,
@@ -1017,6 +1082,7 @@ def main():
         is_r5=is_r5,
         is_r6=is_r6,
         is_r7=is_r7,
+        is_r8=is_r8,
     )
     sys.exit(0 if ok else 1)
 

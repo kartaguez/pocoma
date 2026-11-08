@@ -174,12 +174,21 @@ class CorrelationRecord:
 
     # Server Stage Handoff Metrology (populated via StageHandoffTracker)
     server_t0_ms: Optional[float] = None
+    server_t0a_ms: Optional[float] = None
+    server_t0b_ms: Optional[float] = None
+    server_t0c_ms: Optional[float] = None
     server_t1_ms: Optional[float] = None
     server_t2_ms: Optional[float] = None
     stage_a_cmd_wait_ms: Optional[float] = None
+    stage_a1_wait_discovery_ms: Optional[float] = None
+    stage_a2_discovery_to_slot_ms: Optional[float] = None
+    stage_a3_slot_acq_wait_ms: Optional[float] = None
+    stage_a4_acq_to_attempt_ms: Optional[float] = None
     stage_b_cmd_proc_ms: Optional[float] = None
     stage_c_read_wait_ms: Optional[float] = None
     stage_e_obs_wait_ms: Optional[float] = None
+    partition: Optional[int] = None
+    missing_data_reason: Optional[str] = None
 
     @property
     def latency_admission_ms(self) -> float:
@@ -214,6 +223,10 @@ class CorrelationRecord:
         d["latency_read_ms"] = round(self.latency_read_ms, 2) if self.latency_read_ms is not None else None
         d["latency_e2e_ms"] = round(self.latency_e2e_ms, 2) if self.latency_e2e_ms is not None else None
         d["stage_a_cmd_wait_ms"] = round(self.stage_a_cmd_wait_ms, 2) if self.stage_a_cmd_wait_ms is not None else None
+        d["stage_a1_wait_discovery_ms"] = round(self.stage_a1_wait_discovery_ms, 2) if self.stage_a1_wait_discovery_ms is not None else None
+        d["stage_a2_discovery_to_slot_ms"] = round(self.stage_a2_discovery_to_slot_ms, 2) if self.stage_a2_discovery_to_slot_ms is not None else None
+        d["stage_a3_slot_acq_wait_ms"] = round(self.stage_a3_slot_acq_wait_ms, 2) if self.stage_a3_slot_acq_wait_ms is not None else None
+        d["stage_a4_acq_to_attempt_ms"] = round(self.stage_a4_acq_to_attempt_ms, 2) if self.stage_a4_acq_to_attempt_ms is not None else None
         d["stage_b_cmd_proc_ms"] = round(self.stage_b_cmd_proc_ms, 2) if self.stage_b_cmd_proc_ms is not None else None
         d["stage_c_read_wait_ms"] = round(self.stage_c_read_wait_ms, 2) if self.stage_c_read_wait_ms is not None else None
         d["stage_e_obs_wait_ms"] = round(self.stage_e_obs_wait_ms, 2) if self.stage_e_obs_wait_ms is not None else None
@@ -922,24 +935,60 @@ class DecoupledBenchCoordinator:
         server_by_id = {r["commandId"]: r for r in server_records if "commandId" in r}
 
         cmd_wait_samples: List[float] = []      # A: T1 - T0
+        a1_samples: List[float] = []            # A1: T0a - T0
+        a2_samples: List[float] = []            # A2: T0b - T0a
+        a3_samples: List[float] = []            # A3: T0c - T0b
+        a4_samples: List[float] = []            # A4: T1 - T0c
         cmd_proc_samples: List[float] = []      # B: T2 - T1
         c03_wait_samples: List[float] = []      # C: T3(C-03) - T2
         c03_obs_samples: List[float] = []       # E: T5 - T4_C03
 
         proj_waits: Dict[str, List[float]] = {}
         proj_procs: Dict[str, List[float]] = {}
+        reconciled_count = 0
+        fully_correlated_count = 0
 
         for r in client_applied_records:
             srec = server_by_id.get(r.command_id)
             if srec:
                 r.server_t0_ms = srec.get("t0EpochMs")
+                r.server_t0a_ms = srec.get("t0aEpochMs")
+                r.server_t0b_ms = srec.get("t0bEpochMs")
+                r.server_t0c_ms = srec.get("t0cEpochMs")
                 r.server_t1_ms = srec.get("t1EpochMs")
                 r.server_t2_ms = srec.get("t2EpochMs")
+                r.partition = srec.get("partition")
+                r.missing_data_reason = srec.get("missingDataReason")
 
                 w = srec.get("commandWaitMs")
                 if w is not None:
                     r.stage_a_cmd_wait_ms = w
                     cmd_wait_samples.append(w)
+
+                a1 = srec.get("waitBeforeDiscoveryMs")
+                if a1 is not None:
+                    r.stage_a1_wait_discovery_ms = a1
+                    a1_samples.append(a1)
+
+                a2 = srec.get("discoveryToSlotMs")
+                if a2 is not None:
+                    r.stage_a2_discovery_to_slot_ms = a2
+                    a2_samples.append(a2)
+
+                a3 = srec.get("slotAcquisitionWaitMs")
+                if a3 is not None:
+                    r.stage_a3_slot_acq_wait_ms = a3
+                    a3_samples.append(a3)
+
+                a4 = srec.get("acquisitionToAttemptMs")
+                if a4 is not None:
+                    r.stage_a4_acq_to_attempt_ms = a4
+                    a4_samples.append(a4)
+
+                if a1 is not None and a2 is not None and a3 is not None and a4 is not None and w is not None:
+                    fully_correlated_count += 1
+                    if abs((a1 + a2 + a3 + a4) - w) <= 1.0:
+                        reconciled_count += 1
 
                 p = srec.get("commandProcessingMs")
                 if p is not None:
@@ -963,10 +1012,19 @@ class DecoupledBenchCoordinator:
                     r.stage_e_obs_wait_ms = obs_delay
                     c03_obs_samples.append(obs_delay)
 
+        reconcile_rate = (reconciled_count / fully_correlated_count * 100.0) if fully_correlated_count > 0 else 0.0
+
         handoff_metrics = {
             "totalServerTracked": len(server_records),
             "matchedCommands": sum(1 for r in client_applied_records if r.command_id in server_by_id),
+            "fullyCorrelatedCommands": fully_correlated_count,
+            "reconciledDecompositions": reconciled_count,
+            "reconciliationRatePercent": round(reconcile_rate, 2),
             "stageA_commandWait": calculate_exact_quantiles(cmd_wait_samples),
+            "stageA1_waitBeforeDiscovery": calculate_exact_quantiles(a1_samples),
+            "stageA2_discoveryToSlot": calculate_exact_quantiles(a2_samples),
+            "stageA3_slotAcquisitionWait": calculate_exact_quantiles(a3_samples),
+            "stageA4_acquisitionToAttempt": calculate_exact_quantiles(a4_samples),
             "stageB_commandProcessing": calculate_exact_quantiles(cmd_proc_samples),
             "stageC_c03ReadWait": calculate_exact_quantiles(c03_wait_samples),
             "stageE_observationWait": calculate_exact_quantiles(c03_obs_samples),

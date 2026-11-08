@@ -51,7 +51,8 @@ public final class V3ConsumptionDiscoveryComposition {
                 settings,
                 definition.family() == ConsumableFamily.IDENTITY_REQUEST
                         ? new JdbcIdentityRequestDiscoveryReferences(source, settings)
-                        : new JdbcCommandDiscoveryReferences(source, settings));
+                        : new JdbcCommandDiscoveryReferences(source, settings),
+                StageHandoffTracker.getInstance());
     }
 
     public static boolean relevant(

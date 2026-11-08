@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.runtime.consumption.v3;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
 import com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -16,9 +17,11 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Thread-safe, bounded in-memory metrology store and Micrometer reporter for asynchronous stage handoffs.
- * Measures intervals A (T1 - T0), B (T2 - T1), C (T3 - T2), D (T4 - T3), and aggregates C-03 readiness.
+ * Measures intervals A1 (T0a - T0), A2 (T0b - T0a), A3 (T0c - T0b), A4 (T1 - T0c),
+ * A (T1 - T0), B (T2 - T1), C (T3 - T2), D (T4 - T3), and aggregates C-03 readiness.
  */
-public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHook {
+public final class StageHandoffTracker
+        implements V3ConsumptionWorker.AttemptHook, DiscoveryEngine.DiscoveryListener {
 
     private static final StageHandoffTracker INSTANCE = new StageHandoffTracker();
     private static final int MAX_TRACKED_COMMANDS = 10_000;
@@ -76,8 +79,21 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
         public volatile UUID potEventId;
         public volatile UUID completionEventId;
 
+        public volatile Integer partition;
+        public volatile int attempts = 0;
+        public volatile ConsumptionEngine.Status terminalStatus;
+
         public volatile long t0Nanos;
         public volatile long t0EpochMs;
+
+        public volatile long t0aNanos;
+        public volatile long t0aEpochMs;
+
+        public volatile long t0bNanos;
+        public volatile long t0bEpochMs;
+
+        public volatile long t0cNanos;
+        public volatile long t0cEpochMs;
 
         public volatile long t1Nanos;
         public volatile long t1EpochMs;
@@ -86,6 +102,10 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
         public volatile long t2EpochMs;
 
         public volatile Double commandWaitMs;
+        public volatile Double waitBeforeDiscoveryMs;
+        public volatile Double discoveryToSlotMs;
+        public volatile Double slotAcquisitionWaitMs;
+        public volatile Double acquisitionToAttemptMs;
         public volatile Double commandProcessingMs;
 
         public volatile Long c03ReadyEpochMs;
@@ -96,6 +116,16 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
 
         public CommandRecord(UUID commandId) {
             this.commandId = commandId;
+        }
+
+        public String missingDataReason() {
+            if (t0Nanos == 0) return "MISSING_T0";
+            if (t0aNanos == 0) return "MISSING_T0A";
+            if (t0bNanos == 0) return "MISSING_T0B";
+            if (t0cNanos == 0) return "MISSING_T0C";
+            if (t1Nanos == 0) return "MISSING_T1";
+            if (t2Nanos == 0) return "MISSING_T2";
+            return null;
         }
 
         public Map<String, Object> toMap() {
@@ -111,10 +141,21 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
                 m.put("potEventId", potEventId != null ? potEventId.toString() : null);
                 m.put("completionEventId", completionEventId != null ? completionEventId.toString() : null);
             }
+            m.put("partition", partition);
+            m.put("attempts", attempts);
+            m.put("status", terminalStatus != null ? terminalStatus.name() : (t1Nanos > 0 ? "EXECUTING" : "PENDING"));
+            m.put("missingDataReason", missingDataReason());
             m.put("t0EpochMs", t0EpochMs > 0 ? t0EpochMs : null);
+            m.put("t0aEpochMs", t0aEpochMs > 0 ? t0aEpochMs : null);
+            m.put("t0bEpochMs", t0bEpochMs > 0 ? t0bEpochMs : null);
+            m.put("t0cEpochMs", t0cEpochMs > 0 ? t0cEpochMs : null);
             m.put("t1EpochMs", t1EpochMs > 0 ? t1EpochMs : null);
             m.put("t2EpochMs", t2EpochMs > 0 ? t2EpochMs : null);
             m.put("commandWaitMs", commandWaitMs);
+            m.put("waitBeforeDiscoveryMs", waitBeforeDiscoveryMs);
+            m.put("discoveryToSlotMs", discoveryToSlotMs);
+            m.put("slotAcquisitionWaitMs", slotAcquisitionWaitMs);
+            m.put("acquisitionToAttemptMs", acquisitionToAttemptMs);
             m.put("commandProcessingMs", commandProcessingMs);
 
             var projs = new LinkedHashMap<String, Object>();
@@ -188,6 +229,77 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
         }
     }
 
+    private boolean isCommand(ConsumptionDefinition definition) {
+        return definition != null && (
+                definition.family() == com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily.COMMAND
+                || "Command".equals(consumptionNames.get(definition.id())));
+    }
+
+    // T0a: Discovery discovers candidate command
+    @Override
+    public void onCandidateDiscovered(ConsumptionDefinition definition, int partition, UUID id, long nanos) {
+        if (id == null || !isCommand(definition)) return;
+        long epoch = System.currentTimeMillis();
+        var rec = commands.computeIfAbsent(id, k -> {
+            evictIfNeeded();
+            ring.add(k);
+            return new CommandRecord(k);
+        });
+        if (rec.t0aNanos == 0) {
+            rec.t0aNanos = nanos;
+            rec.t0aEpochMs = epoch;
+            rec.partition = partition;
+        }
+    }
+
+    // T0b: Slot durably admitted / persisted in consumption_slot
+    @Override
+    public void onSlotAdmitted(ConsumptionDefinition definition, int partition, UUID id, long nanos) {
+        if (id == null || !isCommand(definition)) return;
+        long epoch = System.currentTimeMillis();
+        var rec = commands.computeIfAbsent(id, k -> {
+            evictIfNeeded();
+            ring.add(k);
+            return new CommandRecord(k);
+        });
+        if (rec.t0bNanos == 0) {
+            rec.t0bNanos = nanos;
+            rec.t0bEpochMs = epoch;
+            if (rec.partition == null) rec.partition = partition;
+        }
+    }
+
+    // T0c: Slot acquired by worker
+    @Override
+    public void onSlotAcquired(ConsumptionId id, UUID consumableId, int partition, long nanos) {
+        if (consumableId == null) return;
+        String name = consumptionNames.getOrDefault(id, id.value().toString());
+        if ("Command".equals(name)) {
+            long epoch = System.currentTimeMillis();
+            var rec = commands.computeIfAbsent(consumableId, k -> {
+                evictIfNeeded();
+                ring.add(k);
+                return new CommandRecord(k);
+            });
+            if (rec.t0cNanos == 0) {
+                rec.t0cNanos = nanos;
+                rec.t0cEpochMs = epoch;
+                if (rec.partition == null) rec.partition = partition;
+            }
+        }
+    }
+
+    @FunctionalInterface
+    public interface WakeSignal {
+        void signal();
+    }
+
+    private volatile WakeSignal wakeSignal = null;
+
+    public void registerWakeSignal(WakeSignal signal) {
+        this.wakeSignal = signal;
+    }
+
     // T0: Admission confirmed
     public void onCommandAdmitted(UUID commandId) {
         if (commandId == null) return;
@@ -200,6 +312,14 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
         });
         rec.t0Nanos = nanos;
         rec.t0EpochMs = epoch;
+
+        WakeSignal signal = this.wakeSignal;
+        if (signal != null) {
+            try {
+                signal.signal();
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     // Linkage from JdbcPotCommandStore.publish(...)
@@ -237,8 +357,13 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
 
         if ("Command".equals(name)) {
             // T1: Command worker starts attempt
-            var rec = commands.get(consumableId);
-            if (rec != null) {
+            var rec = commands.computeIfAbsent(consumableId, k -> {
+                evictIfNeeded();
+                ring.add(k);
+                return new CommandRecord(k);
+            });
+            rec.attempts++;
+            if (rec.t1Nanos == 0) {
                 rec.t1Nanos = startNanos;
                 rec.t1EpochMs = epoch;
                 if (rec.t0Nanos > 0 && startNanos >= rec.t0Nanos) {
@@ -248,6 +373,24 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
                             "handoff.wait",
                             Duration.ofNanos(waitNanos),
                             Tags.of("stage", "command", "consumption", "Command"));
+
+                    // Sub-intervals A1, A2, A3, A4
+                    if (rec.t0aNanos >= rec.t0Nanos) {
+                        rec.waitBeforeDiscoveryMs =
+                                Math.round(((rec.t0aNanos - rec.t0Nanos) / 1_000_000.0) * 100.0) / 100.0;
+                    }
+                    if (rec.t0bNanos >= rec.t0aNanos && rec.t0aNanos > 0) {
+                        rec.discoveryToSlotMs =
+                                Math.round(((rec.t0bNanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
+                    }
+                    if (rec.t0cNanos >= rec.t0bNanos && rec.t0bNanos > 0) {
+                        rec.slotAcquisitionWaitMs =
+                                Math.round(((rec.t0cNanos - rec.t0bNanos) / 1_000_000.0) * 100.0) / 100.0;
+                    }
+                    if (startNanos >= rec.t0cNanos && rec.t0cNanos > 0) {
+                        rec.acquisitionToAttemptMs =
+                                Math.round(((startNanos - rec.t0cNanos) / 1_000_000.0) * 100.0) / 100.0;
+                    }
                 }
             }
         } else {
@@ -279,7 +422,7 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
             UUID consumableId,
             ConsumptionEngine.Status status,
             long finishNanos) {
-        if (id == null || consumableId == null || status != ConsumptionEngine.Status.COMMITTED) return;
+        if (id == null || consumableId == null) return;
         String name = consumptionNames.getOrDefault(id, id.value().toString());
         long epoch = System.currentTimeMillis();
 
@@ -287,19 +430,23 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
             // T2: Command write transaction commit confirmed
             var rec = commands.get(consumableId);
             if (rec != null) {
-                rec.t2Nanos = finishNanos;
-                rec.t2EpochMs = epoch;
-                if (rec.t1Nanos > 0 && finishNanos >= rec.t1Nanos) {
-                    long procNanos = finishNanos - rec.t1Nanos;
-                    rec.commandProcessingMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
-                    recordTimer(
-                            "handoff.processing",
-                            Duration.ofNanos(procNanos),
-                            Tags.of("stage", "command", "consumption", "Command"));
+                rec.terminalStatus = status;
+                if (status == ConsumptionEngine.Status.COMMITTED && rec.t2Nanos == 0) {
+                    rec.t2Nanos = finishNanos;
+                    rec.t2EpochMs = epoch;
+                    if (rec.t1Nanos > 0 && finishNanos >= rec.t1Nanos) {
+                        long procNanos = finishNanos - rec.t1Nanos;
+                        rec.commandProcessingMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
+                        recordTimer(
+                                "handoff.processing",
+                                Duration.ofNanos(procNanos),
+                                Tags.of("stage", "command", "consumption", "Command"));
+                    }
                 }
             }
         } else {
             // T4: Read projection write transaction commit confirmed
+            if (status != ConsumptionEngine.Status.COMMITTED) return;
             UUID commandId = eventToCommand.get(consumableId);
             if (commandId != null) {
                 var rec = commands.get(commandId);
@@ -364,11 +511,35 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
         int count = 0;
         int max = limit > 0 ? limit : 2000;
 
+        var partitionStats = new LinkedHashMap<String, Map<String, Object>>();
+        for (int p = 0; p < 4; p++) {
+            var pMap = new LinkedHashMap<String, Object>();
+            pMap.put("partition", p);
+            pMap.put("totalTracked", 0);
+            pMap.put("discovered", 0);
+            pMap.put("slotPersisted", 0);
+            pMap.put("slotAcquired", 0);
+            pMap.put("attemptStarted", 0);
+            pMap.put("attemptFinished", 0);
+            partitionStats.put("partition_" + p, pMap);
+        }
+
         for (UUID cid : ring) {
             var rec = commands.get(cid);
             if (rec != null) {
                 if (sinceEpochMs != null && sinceEpochMs > 0 && rec.t0EpochMs > 0 && rec.t0EpochMs < sinceEpochMs) {
                     continue;
+                }
+                if (rec.partition != null && rec.partition >= 0 && rec.partition < 4) {
+                    var pMap = partitionStats.get("partition_" + rec.partition);
+                    if (pMap != null) {
+                        pMap.put("totalTracked", (int) pMap.get("totalTracked") + 1);
+                        if (rec.t0aNanos > 0) pMap.put("discovered", (int) pMap.get("discovered") + 1);
+                        if (rec.t0bNanos > 0) pMap.put("slotPersisted", (int) pMap.get("slotPersisted") + 1);
+                        if (rec.t0cNanos > 0) pMap.put("slotAcquired", (int) pMap.get("slotAcquired") + 1);
+                        if (rec.t1Nanos > 0) pMap.put("attemptStarted", (int) pMap.get("attemptStarted") + 1);
+                        if (rec.t2Nanos > 0) pMap.put("attemptFinished", (int) pMap.get("attemptFinished") + 1);
+                    }
                 }
                 list.add(rec.toMap(includeBusinessIds));
                 count++;
@@ -378,6 +549,7 @@ public final class StageHandoffTracker implements V3ConsumptionWorker.AttemptHoo
 
         result.put("totalTracked", ring.size());
         result.put("returned", list.size());
+        result.put("partitionStats", partitionStats);
         result.put("records", list);
         return result;
     }
