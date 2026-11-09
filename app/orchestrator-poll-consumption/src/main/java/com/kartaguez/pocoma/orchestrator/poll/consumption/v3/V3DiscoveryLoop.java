@@ -30,27 +30,32 @@ public final class V3DiscoveryLoop {
         Throwable failure = null;
         worker.event(binding, Phase.DISCOVERY_ROTATION, Outcome.CONFIRMED, 1, Duration.ZERO);
         try {
-            var lease = worker.lease(binding, p);
-            if (lease == null) return false;
             var pair = new V3ConsumptionWorker.Pair(binding, p);
             DiscoveryEngine.Status status;
             int examined, advanced, admitted;
-            if (binding.definition().family()
-                            == com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily.COMMAND
-                    || binding.definition().family()
-                            == com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily
-                                    .IDENTITY_REQUEST) {
-                var result = binding.discovery().discoverRequests(lease);
-                status = result.status();
-                examined = result.examined();
-                advanced = result.advanced();
-                admitted = result.committedAdmissions();
-            } else {
-                var result = binding.discovery().discoverEvents(lease);
-                status = result.status();
-                examined = result.examined();
-                advanced = 0;
-                admitted = result.inserted();
+            synchronized (worker.pairLock(pair)) {
+                var lease = worker.lease(binding, p);
+                if (lease == null) return false;
+                if (binding.definition().family()
+                                == com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily
+                                        .COMMAND
+                        || binding.definition().family()
+                                == com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily
+                                        .IDENTITY_REQUEST) {
+                    var result = binding.discovery().discoverRequests(lease);
+                    status = result.status();
+                    examined = result.examined();
+                    advanced = result.advanced();
+                    admitted = result.committedAdmissions();
+                } else {
+                    var result = binding.discovery().discoverEvents(lease);
+                    status = result.status();
+                    examined = result.examined();
+                    advanced = 0;
+                    admitted = result.inserted();
+                }
+                if (status == DiscoveryEngine.Status.BUSY_OR_NOT_OWNER)
+                    worker.suspend(binding, lease);
             }
             if (status == DiscoveryEngine.Status.CAPACITY) {
                 if (saturated.add(pair))
@@ -63,7 +68,6 @@ public final class V3DiscoveryLoop {
                         case BUSY_OR_NOT_OWNER -> Outcome.BUSY;
                         default -> Outcome.CONFIRMED;
                     };
-            if (status == DiscoveryEngine.Status.BUSY_OR_NOT_OWNER) worker.suspend(binding, lease);
             worker.event(
                     binding, Phase.DISCOVERY_EXAMINED, Outcome.CONFIRMED, examined, Duration.ZERO);
             worker.event(

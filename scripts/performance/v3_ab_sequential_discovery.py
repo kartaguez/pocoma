@@ -269,7 +269,7 @@ def ensure_pot_pool(token: str, binding_token: str, min_pots: int = 25) -> List[
         pid = p["potId"]
         try:
             st, pdata = http_get(f"{READ_BASE_URL}/api/v3/pots/{pid}", token, binding_token)
-            if st == 200:
+            if st == 200 and pdata.get("potVersion", 1) <= 60:
                 pot_states.append(
                     {
                         "potId": pid,
@@ -811,10 +811,9 @@ def main() -> None:
         (EVIDENCE_DIR / f"db_profile_{profile}.json").write_text(
             json.dumps(seed_report, indent=2), encoding="utf-8"
         )
-        if pot_states is None:
-            print("[Init] Ensuring pool of 25 SPEC-09 medium pots (20 shareholders each)...")
-            pot_states = ensure_pot_pool(token_mgr.get_token(), binding_token, min_pots=25)
-            print(f"[Init] Ready with {len(pot_states)} SPEC-09 medium pots.")
+        print("[Init] Ensuring pool of 25 SPEC-09 medium pots (20 shareholders each, version <= 60)...")
+        pot_states = ensure_pot_pool(token_mgr.get_token(), binding_token, min_pots=25)
+        print(f"[Init] Ready with {len(pot_states)} SPEC-09 medium pots.")
 
         # For H1 and H3 (R11 quarantine comparison), run all requested rates (1, 10, 50 cmd/s).
         # For H2, H4, H5, run 1 cmd/s and 10 cmd/s (and 50 cmd/s on H4) to keep campaign duration bounded.
@@ -833,6 +832,17 @@ def main() -> None:
             (EVIDENCE_DIR / f"campaign_{profile}_rate_{int(rate)}.json").write_text(
                 json.dumps(res, indent=2), encoding="utf-8"
             )
+
+    # Reload all campaign_*.json and db_profile_*.json so partial profile runs merge cleanly
+    all_campaigns = []
+    for p in ["H1", "H2", "H3", "H4", "H5"]:
+        p_file = EVIDENCE_DIR / f"db_profile_{p}.json"
+        if p_file.exists() and p not in profile_seeding_reports:
+            profile_seeding_reports[p] = json.loads(p_file.read_text(encoding="utf-8"))
+        for r in [1, 10, 50]:
+            c_file = EVIDENCE_DIR / f"campaign_{p}_rate_{r}.json"
+            if c_file.exists():
+                all_campaigns.append(json.loads(c_file.read_text(encoding="utf-8")))
 
     # Write summary CSV and JSON
     csv_path = EVIDENCE_DIR / "ab_comparison_summary.csv"

@@ -418,31 +418,20 @@ def synchronize_checkpoints_and_analyze() -> None:
 
     sync_read_sql = f"""
     DELETE FROM consumption_slot WHERE state = 'AVAILABLE';
+    DELETE FROM discovery_checkpoint;
 
-    UPDATE discovery_checkpoint d
-       SET position = GREATEST(d.position, {pot_pos})
-      FROM consumption_routing_contract c
-     WHERE d.consumption_id = c.consumption_id AND c.family = 'POT_EVENT';
-
-    UPDATE discovery_checkpoint d
-       SET position = GREATEST(d.position, {cmd_comp_pos})
-      FROM consumption_routing_contract c
-     WHERE d.consumption_id = c.consumption_id AND c.family = 'COMMAND_COMPLETION_EVENT';
-
-    UPDATE discovery_checkpoint d
-       SET position = GREATEST(d.position, {id_pos})
-      FROM consumption_routing_contract c
-     WHERE d.consumption_id = c.consumption_id AND c.family = 'IDENTITY_EVENT';
-
-    UPDATE discovery_checkpoint d
-       SET position = GREATEST(d.position, {inv_pos})
-      FROM consumption_routing_contract c
-     WHERE d.consumption_id = c.consumption_id AND c.family = 'INVITATION_EVENT';
-
-    UPDATE discovery_checkpoint d
-       SET position = GREATEST(d.position, {id_comp_pos})
-      FROM consumption_routing_contract c
-     WHERE d.consumption_id = c.consumption_id AND c.family = 'IDENTITY_COMPLETION_EVENT';
+    INSERT INTO discovery_checkpoint(consumption_id, partition_id, position)
+    SELECT c.consumption_id, p.partition_id,
+           CASE c.family
+               WHEN 'POT_EVENT' THEN {pot_pos}
+               WHEN 'COMMAND_COMPLETION_EVENT' THEN {cmd_comp_pos}
+               WHEN 'IDENTITY_EVENT' THEN {id_pos}
+               WHEN 'INVITATION_EVENT' THEN {inv_pos}
+               WHEN 'IDENTITY_COMPLETION_EVENT' THEN {id_comp_pos}
+               ELSE 0
+           END
+    FROM consumption_routing_contract c
+    CROSS JOIN generate_series(0, c.partition_count - 1) AS p(partition_id);
 
     UPDATE partition_ownership
        SET owner_token = NULL, owned_until = NULL;
@@ -539,7 +528,7 @@ def retire_all_quarantines() -> None:
             VALUES ('COMMAND_COMPLETION', e_pos, ev_id);
         END LOOP;
 
-        FOR rec IN SELECT request_id FROM v3_identity_request WHERE status = 'PENDING' LOOP
+        FOR rec IN SELECT request_id, operation FROM v3_identity_request WHERE status = 'PENDING' LOOP
             ev_id := gen_random_uuid();
             DELETE FROM consumption_slot
              WHERE consumption_id = '2999e75c-272d-5afe-a966-c9364ef021fe'::uuid
@@ -553,7 +542,7 @@ def retire_all_quarantines() -> None:
             INSERT INTO v3_identity_completion_event(
                 event_id, subject_type, subject_id, recorded_at
             ) VALUES (
-                ev_id, 'UNLINK', rec.request_id, clock_timestamp()
+                ev_id, rec.operation, rec.request_id, clock_timestamp()
             );
             UPDATE v3_event_counter
                SET position = position + 1
@@ -601,7 +590,12 @@ def apply_profile(profile_name: str) -> Dict[str, Any]:
     print(f"[{profile_name}] Stopping worker containers for clean atomic population...")
     subprocess.run(["docker", "stop", *workers], capture_output=True, text=True, check=True)
     try:
-        if target["quarantined_commands"] == 0 and target["quarantined_identity"] == 0:
+        initial = current_counts()
+        if (
+            (target["quarantined_commands"] == 0 and target["quarantined_identity"] == 0)
+            or initial["commands_quarantined_slots"] > target["quarantined_commands"]
+            or initial["identity_quarantined_slots"] > target["quarantined_identity"]
+        ):
             retire_all_quarantines()
         before = current_counts()
 

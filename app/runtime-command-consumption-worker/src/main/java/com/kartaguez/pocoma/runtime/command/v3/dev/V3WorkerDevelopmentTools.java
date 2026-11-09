@@ -341,6 +341,7 @@ public final class V3WorkerDevelopmentTools {
                                             + " values ('COMMAND',?,?)",
                                     pos,
                                     request);
+                            return null;
                         });
         System.out.println(
                 "I5_DEV_REQUEST_ADMITTED internal SQL fixture; no HTTP API; no slot in admission"

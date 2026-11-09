@@ -200,6 +200,7 @@ public final class V3ConsumptionWorker {
     final Settings settings;
     final ConsumptionObservation observation;
     final Map<Pair, LeaseEntry> leases = new LinkedHashMap<>();
+    private final Map<Pair, Object> pairLocks = new ConcurrentHashMap<>();
     final List<Envelope> envelopes = new ArrayList<>();
     final List<V3RenewalService.Call> renewalCalls = new ArrayList<>();
     final ConditionConsumptionWaiter discoveryWait = new ConditionConsumptionWaiter();
@@ -446,24 +447,32 @@ public final class V3ConsumptionWorker {
         }
     }
 
+    Object pairLock(Pair pair) {
+        return pairLocks.computeIfAbsent(pair, ignored -> new Object());
+    }
+
     void suspend(Binding binding, PartitionLease lease) {
         boolean changed = false;
         synchronized (monitor) {
             var current = leases.get(new Pair(binding, lease.partitionId()));
-            if (current != null
-                    && current.usable
-                    && current.lease.ownerToken().equals(lease.ownerToken())) {
+            if (current != null && current.usable && current.lease.equals(lease)) {
                 current.usable = false;
+                current.renewedAt =
+                        System.nanoTime()
+                                - settings.renewalInterval().toNanos()
+                                + settings.minPoll().toNanos();
                 changed = true;
             }
         }
-        if (changed)
+        if (changed) {
+            renewals.signal();
             event(
                     binding,
                     ConsumptionObservation.Phase.LEASE_SUSPEND,
                     Outcome.CONFIRMED,
                     1,
                     Duration.ZERO);
+        }
     }
 
     boolean dispatchAvailable() {

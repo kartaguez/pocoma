@@ -78,47 +78,55 @@ public final class V3ConsumptionLoop {
             }
             consumptionSaturated[selected] = false;
             outcome = Outcome.CONFIRMED;
-            var lease = worker.lease(binding, p);
-            if (lease == null) return false;
             var pair = new V3ConsumptionWorker.Pair(binding, p);
-            var previous = walks.getOrDefault(pair, SlotKeyNavigation.Walk.fresh());
-            var page = binding.engine().navigate(lease, previous, worker.settings.pageSize());
-            // U is remembered, but reading keys never advances afterExclusive.
-            var bounded =
-                    new SlotKeyNavigation.Walk(previous.afterExclusive(), page.upperInclusive());
-            walks.put(pair, bounded);
-            if (page.keys().isEmpty()) {
-                walks.put(pair, SlotKeyNavigation.Walk.fresh());
-                worker.event(binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
-                return false;
+            synchronized (worker.pairLock(pair)) {
+                var lease = worker.lease(binding, p);
+                if (lease == null) return false;
+                var previous = walks.getOrDefault(pair, SlotKeyNavigation.Walk.fresh());
+                var page = binding.engine().navigate(lease, previous, worker.settings.pageSize());
+                // U is remembered, but reading keys never advances afterExclusive.
+                var bounded =
+                        new SlotKeyNavigation.Walk(
+                                previous.afterExclusive(), page.upperInclusive());
+                walks.put(pair, bounded);
+                if (page.keys().isEmpty()) {
+                    walks.put(pair, SlotKeyNavigation.Walk.fresh());
+                    worker.event(
+                            binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
+                    return false;
+                }
+                var keys =
+                        page.keys()
+                                .subList(
+                                        0,
+                                        Math.min(worker.settings.quantum(), page.keys().size()));
+                var acquired = binding.engine().acquire(lease, keys);
+                long acquiredNanos = System.nanoTime();
+                for (var handle : acquired.claims()) {
+                    worker.attemptHook()
+                            .onSlotAcquired(
+                                    binding.definition().id(),
+                                    handle.claim().consumableId(),
+                                    lease.partitionId(),
+                                    acquiredNanos);
+                }
+                try {
+                    int e = acquired.examinedCount();
+                    if (e < 0 || e > keys.size())
+                        throw new IllegalStateException("invalid examined prefix");
+                    if (e > 0)
+                        walks.put(
+                                pair,
+                                new SlotKeyNavigation.Walk(
+                                        Optional.of(keys.get(e - 1)), page.upperInclusive()));
+                    if (e == 0) worker.suspend(binding, lease);
+                } finally {
+                    // Every confirmed handle transfers to registration/cleanup, even on a
+                    // validation failure.
+                    worker.dispatch(binding, acquired.claims());
+                }
+                return acquired.examinedCount() > 0;
             }
-            var keys =
-                    page.keys().subList(0, Math.min(worker.settings.quantum(), page.keys().size()));
-            var acquired = binding.engine().acquire(lease, keys);
-            long acquiredNanos = System.nanoTime();
-            for (var handle : acquired.claims()) {
-                worker.attemptHook().onSlotAcquired(
-                        binding.definition().id(),
-                        handle.claim().consumableId(),
-                        lease.partitionId(),
-                        acquiredNanos);
-            }
-            try {
-                int e = acquired.examinedCount();
-                if (e < 0 || e > keys.size())
-                    throw new IllegalStateException("invalid examined prefix");
-                if (e > 0)
-                    walks.put(
-                            pair,
-                            new SlotKeyNavigation.Walk(
-                                    Optional.of(keys.get(e - 1)), page.upperInclusive()));
-                if (e == 0) worker.suspend(binding, lease);
-            } finally {
-                // Every confirmed handle transfers to registration/cleanup, even on a validation
-                // failure.
-                worker.dispatch(binding, acquired.claims());
-            }
-            return acquired.examinedCount() > 0;
         } catch (RuntimeException | Error failure) {
             exit = failure;
             outcome = Outcome.UNKNOWN;

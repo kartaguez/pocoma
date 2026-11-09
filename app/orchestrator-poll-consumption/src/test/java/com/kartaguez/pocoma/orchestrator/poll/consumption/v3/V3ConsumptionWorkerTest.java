@@ -473,6 +473,22 @@ class V3ConsumptionWorkerTest {
             assertTrue(entry.usable);
             assertEquals(2, calls.get());
             assertEquals(0, f.capacity.snapshot().worker());
+            var staleLease =
+                    new PartitionLease(
+                            entry.lease.consumptionId(),
+                            entry.lease.partitionId(),
+                            entry.lease.ownerToken(),
+                            entry.lease.ownedUntil().minusSeconds(1));
+            f.worker.suspend(binding, staleLease);
+            assertTrue(entry.usable, "stale pre-renewal incarnation cannot suspend renewed lease");
+            f.worker.suspend(binding, entry.lease);
+            assertFalse(entry.usable);
+            await(
+                    () ->
+                            System.nanoTime() - entry.renewedAt
+                                    >= f.worker.settings.renewalInterval().toNanos());
+            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
+            assertTrue(entry.usable, "loop suspension schedules immediate minPoll re-verification");
             alwaysMissing.set(true);
             entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
             assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
