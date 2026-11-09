@@ -204,6 +204,17 @@ class DiscoveryEngineTest {
         h.events = List.of(new NonBurnableReferences.Reference(1, u(5), "POT"));
         assertEquals(1, h.engine(1).discoverEvents(h.lease).checkpoint().orElseThrow());
         assertTrue(h.slots.isEmpty());
+        // Empty window short-circuits redundant trailing fence checks while still validating lease & checkpoint.
+        h.events = List.of();
+        h.k = 1;
+        var emptyEvent = h.engine(1).discoverEvents(h.lease);
+        assertEquals(DiscoveryEngine.Status.COMMITTED, emptyEvent.status());
+        assertEquals(1L, emptyEvent.checkpoint().orElseThrow());
+        var reqH = new Harness(ConsumableFamily.COMMAND);
+        reqH.pending = List.of();
+        var emptyReq = reqH.engine(1).discoverRequests(reqH.lease);
+        assertEquals(DiscoveryEngine.Status.COMMITTED, emptyReq.status());
+        assertEquals(0L, emptyReq.checkpoint().orElseThrow());
     }
 
     @Test

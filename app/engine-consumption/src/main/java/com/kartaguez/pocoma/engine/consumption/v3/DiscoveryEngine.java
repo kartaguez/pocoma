@@ -232,6 +232,8 @@ public final class DiscoveryEngine {
                                 Status.STALE_CHECKPOINT, OptionalLong.of(actual), 0, 0);
                     }
                     int remaining = budget(current), inserted = 0, examined = 0;
+                    if (window.references().isEmpty())
+                        return new EventProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0);
                     long covered = k;
                     boolean capacity = false;
                     for (int i = 0; i < window.references().size(); i++) {
@@ -298,6 +300,8 @@ public final class DiscoveryEngine {
                         return new RequestProgress(
                                 Status.CAPACITY, OptionalLong.of(actual), 0, 0, 0);
                     }
+                    if (window.references().isEmpty())
+                        return new RequestProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0, 0);
                     int examined = 0, advanced = 0, inserted = 0;
                     long covered = k;
                     boolean capacity = false;

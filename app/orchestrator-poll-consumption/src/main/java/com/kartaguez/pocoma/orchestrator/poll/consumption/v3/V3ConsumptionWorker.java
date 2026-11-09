@@ -711,29 +711,39 @@ public final class V3ConsumptionWorker {
                                 .mapToInt(b -> b.partitions().size())
                                 .max()
                                 .orElseThrow();
+        Duration stepPoll = settings.minPoll().dividedBy(tour);
         int remaining = tour;
+        boolean tourProgressed = false;
         try {
             awaitActivation();
             while (running()) {
-                Duration delay = settings.minPoll();
+                Duration delay = stepPoll;
                 long cycleBegan = System.nanoTime();
                 boolean returned = false;
                 try {
                     boolean progressed = pass.getAsBoolean();
                     returned = true;
                     if (progressed) {
+                        delay = Duration.ZERO;
                         backoff = settings.minPoll();
+                        tourProgressed = true;
+                    }
+                    if (--remaining == 0) {
                         remaining = tour;
-                    } else if (--remaining == 0) {
-                        delay = backoff;
-                        remaining = tour;
-                        backoff =
-                                backoff.multipliedBy(2).compareTo(settings.maxPoll()) > 0
-                                        ? settings.maxPoll()
-                                        : backoff.multipliedBy(2);
+                        if (tourProgressed) {
+                            tourProgressed = false;
+                        } else {
+                            delay = backoff;
+                            backoff =
+                                    backoff.multipliedBy(2).compareTo(settings.maxPoll()) > 0
+                                            ? settings.maxPoll()
+                                            : backoff.multipliedBy(2);
+                        }
                     }
                 } catch (RuntimeException fault) {
-                    delay = settings.errorPoll();
+                    boolean ready =
+                            isDiscovery ? discovery.hasReadyBinding() : consumption.hasReadyBinding();
+                    delay = ready ? stepPoll : settings.errorPoll();
                 } finally {
                     event(
                             bindings.getFirst(),

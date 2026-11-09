@@ -10,6 +10,7 @@ import java.util.*;
 public final class V3ConsumptionLoop {
     private final V3ConsumptionWorker worker;
     private final int[] nextPartitions;
+    private final long[] errorUntilNanos;
     private final Map<V3ConsumptionWorker.Pair, SlotKeyNavigation.Walk> walks = new HashMap<>();
     private int nextConsumption;
     private final long[] lastOpportunity;
@@ -19,8 +20,15 @@ public final class V3ConsumptionLoop {
     V3ConsumptionLoop(V3ConsumptionWorker worker) {
         this.worker = worker;
         nextPartitions = new int[worker.bindings.size()];
+        errorUntilNanos = new long[worker.bindings.size()];
         lastOpportunity = new long[worker.bindings.size()];
         consumptionSaturated = new boolean[worker.bindings.size()];
+    }
+
+    boolean hasReadyBinding() {
+        long now = System.nanoTime();
+        for (long until : errorUntilNanos) if (now - until >= 0) return true;
+        return false;
     }
 
     public boolean runOnePass() {
@@ -43,14 +51,23 @@ public final class V3ConsumptionLoop {
         }
         globalSaturation = null;
         if (!worker.beginOperation()) return false;
+        long began = System.nanoTime();
         int selected = nextConsumption;
+        if (worker.bindings.size() > 1) {
+            for (int i = 0; i < worker.bindings.size(); i++) {
+                int candidate = (nextConsumption + i) % worker.bindings.size();
+                if (began - errorUntilNanos[candidate] >= 0) {
+                    selected = candidate;
+                    break;
+                }
+            }
+        }
         var binding = worker.bindings.get(selected);
         nextConsumption =
                 (selected + 1)
                         % worker.bindings.size(); // Consumed once, even when a slow call fails.
         int p = binding.partitions().get(nextPartitions[selected]);
         nextPartitions[selected] = (nextPartitions[selected] + 1) % binding.partitions().size();
-        long began = System.nanoTime();
         Outcome outcome = Outcome.UNKNOWN;
         Throwable exit = null;
         if (lastOpportunity[selected] != 0)
@@ -93,43 +110,56 @@ public final class V3ConsumptionLoop {
                     walks.put(pair, SlotKeyNavigation.Walk.fresh());
                     worker.event(
                             binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
+                    errorUntilNanos[selected] = 0;
                     return false;
                 }
-                var keys =
-                        page.keys()
-                                .subList(
-                                        0,
-                                        Math.min(worker.settings.quantum(), page.keys().size()));
-                var acquired = binding.engine().acquire(lease, keys);
-                long acquiredNanos = System.nanoTime();
-                for (var handle : acquired.claims()) {
-                    worker.attemptHook()
-                            .onSlotAcquired(
-                                    binding.definition().id(),
-                                    handle.claim().consumableId(),
-                                    lease.partitionId(),
-                                    acquiredNanos);
+                int offset = 0;
+                int totalExamined = 0;
+                int totalClaims = 0;
+                while (offset < page.keys().size() && worker.running()) {
+                    int end = Math.min(offset + worker.settings.quantum(), page.keys().size());
+                    var keys = page.keys().subList(offset, end);
+                    var acquired = binding.engine().acquire(lease, keys);
+                    long acquiredNanos = System.nanoTime();
+                    for (var handle : acquired.claims()) {
+                        worker.attemptHook()
+                                .onSlotAcquired(
+                                        binding.definition().id(),
+                                        handle.claim().consumableId(),
+                                        lease.partitionId(),
+                                        acquiredNanos);
+                    }
+                    int e;
+                    try {
+                        e = acquired.examinedCount();
+                        if (e < 0 || e > keys.size())
+                            throw new IllegalStateException("invalid examined prefix");
+                        if (e > 0)
+                            walks.put(
+                                    pair,
+                                    new SlotKeyNavigation.Walk(
+                                            Optional.of(keys.get(e - 1)), page.upperInclusive()));
+                        if (e == 0) worker.suspend(binding, lease);
+                    } finally {
+                        // Every confirmed handle transfers to registration/cleanup, even on a
+                        // validation failure.
+                        worker.dispatch(binding, acquired.claims());
+                    }
+                    totalExamined += e;
+                    totalClaims += acquired.claims().size();
+                    if (totalClaims > 0 || e < keys.size()) break;
+                    offset = end;
                 }
-                try {
-                    int e = acquired.examinedCount();
-                    if (e < 0 || e > keys.size())
-                        throw new IllegalStateException("invalid examined prefix");
-                    if (e > 0)
-                        walks.put(
-                                pair,
-                                new SlotKeyNavigation.Walk(
-                                        Optional.of(keys.get(e - 1)), page.upperInclusive()));
-                    if (e == 0) worker.suspend(binding, lease);
-                } finally {
-                    // Every confirmed handle transfers to registration/cleanup, even on a
-                    // validation failure.
-                    worker.dispatch(binding, acquired.claims());
-                }
-                return acquired.examinedCount() > 0;
+                errorUntilNanos[selected] = 0;
+                return totalClaims > 0
+                        || (totalExamined > 0
+                                && page.keys().size() == worker.settings.pageSize());
             }
         } catch (RuntimeException | Error failure) {
             exit = failure;
             outcome = Outcome.UNKNOWN;
+            errorUntilNanos[selected] =
+                    System.nanoTime() + worker.settings.errorPoll().toNanos();
             throw failure;
         } finally {
             worker.event(

@@ -10,20 +10,37 @@ import java.util.*;
 public final class V3DiscoveryLoop {
     private final V3ConsumptionWorker worker;
     private final int[] nextPartitions;
+    private final long[] errorUntilNanos;
     private int nextConsumption;
     private final Set<V3ConsumptionWorker.Pair> saturated = new HashSet<>();
 
     V3DiscoveryLoop(V3ConsumptionWorker worker) {
         this.worker = worker;
         nextPartitions = new int[worker.bindings.size()];
+        errorUntilNanos = new long[worker.bindings.size()];
+    }
+
+    boolean hasReadyBinding() {
+        long now = System.nanoTime();
+        for (long until : errorUntilNanos) if (now - until >= 0) return true;
+        return false;
     }
 
     public boolean runOnePass() {
         if (!worker.beginOperation()) return false;
         long began = System.nanoTime();
-        var binding = worker.bindings.get(nextConsumption);
         int selected = nextConsumption;
-        nextConsumption = (nextConsumption + 1) % worker.bindings.size();
+        if (worker.bindings.size() > 1) {
+            for (int i = 0; i < worker.bindings.size(); i++) {
+                int candidate = (nextConsumption + i) % worker.bindings.size();
+                if (began - errorUntilNanos[candidate] >= 0) {
+                    selected = candidate;
+                    break;
+                }
+            }
+        }
+        var binding = worker.bindings.get(selected);
+        nextConsumption = (selected + 1) % worker.bindings.size();
         int p = binding.partitions().get(nextPartitions[selected]);
         nextPartitions[selected] = (nextPartitions[selected] + 1) % binding.partitions().size();
         Outcome outcome = Outcome.UNKNOWN;
@@ -57,6 +74,7 @@ public final class V3DiscoveryLoop {
                 if (status == DiscoveryEngine.Status.BUSY_OR_NOT_OWNER)
                     worker.suspend(binding, lease);
             }
+            if (admitted > 0) worker.consumptionWait.signal();
             if (status == DiscoveryEngine.Status.CAPACITY) {
                 if (saturated.add(pair))
                     worker.event(
@@ -74,9 +92,14 @@ public final class V3DiscoveryLoop {
                     binding, Phase.DISCOVERY_ADVANCED, Outcome.CONFIRMED, advanced, Duration.ZERO);
             worker.event(
                     binding, Phase.DISCOVERY_ADMITTED, Outcome.CONFIRMED, admitted, Duration.ZERO);
-            return admitted > 0 || advanced > 0;
+            errorUntilNanos[selected] = 0;
+            return admitted > 0
+                    || advanced > 0
+                    || (status == DiscoveryEngine.Status.COMMITTED && examined > 0);
         } catch (RuntimeException | Error exit) {
             failure = exit;
+            errorUntilNanos[selected] =
+                    System.nanoTime() + worker.settings.errorPoll().toNanos();
             throw exit;
         } finally {
             worker.event(

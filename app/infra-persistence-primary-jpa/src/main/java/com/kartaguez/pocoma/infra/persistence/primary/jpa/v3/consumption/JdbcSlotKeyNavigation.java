@@ -36,17 +36,12 @@ public final class JdbcSlotKeyNavigation implements SlotKeyNavigation {
         Objects.requireNonNull(walk);
         if (partition < 0 || partition >= 4 || limit < 1 || limit > settings.batchSize())
             throw new IllegalArgumentException("invalid bounded slot page");
-        jdbc.queryForObject(
-                "select set_config('lock_timeout',?,true)",
-                String.class,
-                settings.lockTimeout().toMillis() + "ms");
-        jdbc.queryForObject(
-                "select set_config('statement_timeout',?,true)",
-                String.class,
-                settings.statementTimeout().toMillis() + "ms");
-        jdbc.queryForObject(
-                "select set_config('transaction_timeout',?,true)",
-                String.class,
+        jdbc.queryForList(
+                "select set_config('lock_timeout',?,true),"
+                        + " set_config('statement_timeout',?,true),"
+                        + " set_config('transaction_timeout',?,true)",
+                settings.lockTimeout().toMillis() + "ms",
+                settings.statementTimeout().toMillis() + "ms",
                 (settings.statementTimeout().toMillis() + 1000) + "ms");
         String prefix =
                 "select consumable_id from consumption_slot where consumption_id=? and"

@@ -574,6 +574,8 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
         try {
             String numerator = (String) row.get("numerator"),
                     denominator = (String) row.get("denominator");
+            if ("0".equals(numerator) && "1".equals(denominator)) return Fraction.ZERO;
+            if ("1".equals(numerator) && "1".equals(denominator)) return Fraction.ONE;
             var fraction = new Fraction(new BigInteger(numerator), new BigInteger(denominator));
             if (!fraction.numerator().toString().equals(numerator)
                     || !fraction.denominator().toString().equals(denominator))

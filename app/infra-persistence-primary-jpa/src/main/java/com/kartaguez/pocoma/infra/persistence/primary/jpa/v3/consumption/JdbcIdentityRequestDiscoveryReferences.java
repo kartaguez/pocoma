@@ -35,13 +35,10 @@ public final class JdbcIdentityRequestDiscoveryReferences implements BurnableRef
                 () -> {
                     if (after < 0 || max < 1 || max > settings.windowSize())
                         throw new IllegalArgumentException("invalid window bound");
-                    jdbc.queryForObject(
-                            "select set_config('lock_timeout',?,true)",
-                            String.class,
-                            settings.lockTimeout().toMillis() + "ms");
-                    jdbc.queryForObject(
-                            "select set_config('statement_timeout',?,true)",
-                            String.class,
+                    jdbc.queryForList(
+                            "select set_config('lock_timeout',?,true),"
+                                    + " set_config('statement_timeout',?,true)",
+                            settings.lockTimeout().toMillis() + "ms",
                             settings.statementTimeout().toMillis() + "ms");
                     var counters =
                             jdbc.queryForList(
@@ -51,6 +48,7 @@ public final class JdbcIdentityRequestDiscoveryReferences implements BurnableRef
                     if (counters.size() != 1 || counters.getFirst() < after)
                         throw new IllegalStateException("missing or regressed publication counter");
                     long high = after + Math.min((long) max, counters.getFirst() - after);
+                    if (high == after) return new Window(after, high, List.of());
                     var refs =
                             jdbc.query(
                                     "select p.position,p.request_id,r.request_id from"

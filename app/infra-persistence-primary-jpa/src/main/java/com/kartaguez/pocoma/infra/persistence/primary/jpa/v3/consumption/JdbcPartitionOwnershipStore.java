@@ -32,17 +32,12 @@ public final class JdbcPartitionOwnershipStore implements PartitionOwnershipStor
                 () -> {
                     LifecycleSettings.micros(lockTimeout, false);
                     LifecycleSettings.micros(statementTimeout, false);
-                    jdbc.queryForObject(
-                            "select set_config('lock_timeout', ?, true)",
-                            String.class,
-                            lockTimeout.toMillis() + "ms");
-                    jdbc.queryForObject(
-                            "select set_config('statement_timeout', ?, true)",
-                            String.class,
-                            statementTimeout.toMillis() + "ms");
-                    jdbc.queryForObject(
-                            "select set_config('transaction_timeout', ?, true)",
-                            String.class,
+                    jdbc.queryForList(
+                            "select set_config('lock_timeout', ?, true),"
+                                    + " set_config('statement_timeout', ?, true),"
+                                    + " set_config('transaction_timeout', ?, true)",
+                            lockTimeout.toMillis() + "ms",
+                            statementTimeout.toMillis() + "ms",
                             statementTimeout.plusSeconds(1).toMillis() + "ms");
                     return null;
                 });

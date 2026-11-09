@@ -549,10 +549,33 @@ class V3ConsumptionWorkerTest {
             assertEquals(0, f.capacity.snapshot().worker());
             f.failAcquire = false;
             f.zeroAcquire = true;
-            loop.runOnePass();
+            assertFalse(loop.runOnePass(), "partial page with 0 claims must not report hot progress");
             // A scanned but unwon key is examined (not a fabricated completion).
             assertEquals(Optional.of(new UUID(1, 1)), loop.walk(b, 0).afterExclusive());
             assertEquals(0, f.effects.getFirst().get());
+        }
+        // Multi-key page where the first key is already claimed/delayed skips to the second key in the same pass.
+        try (var f = new Fixture(2, 1, true, null)) {
+            var loop = new V3ConsumptionLoop(f.worker);
+            var b0 = f.bindings.get(0);
+            var k1 = new UUID(1, 1);
+            var k2 = new UUID(1, 2);
+            f.keys.get(0).add(k2);
+            // Pre-claim k1 so acquire([k1]) returns 0 claims, then the same pass must acquire k2.
+            var lease = b0.engine().acquirePartition(0).orElseThrow();
+            var preclaimed = b0.engine().acquire(lease, List.of(k1)).claims();
+            assertEquals(1, preclaimed.size());
+            preclaimed.forEach(b0.engine()::abandon);
+            assertTrue(loop.runOnePass(), "must skip unwon k1 and acquire eligible k2 in same pass");
+            await(() -> f.effects.get(0).get() == 1);
+            assertEquals(Optional.of(k2), loop.walk(b0, 0).afterExclusive());
+            // Per-binding errorPoll isolation: a rolled-back failure on binding 0 does not block binding 1.
+            f.failAcquire = true;
+            assertThrows(AttemptTransactions.Failure.class, () -> {
+                // Advance rotation back to binding 0
+                loop.runOnePass();
+            });
+            assertTrue(loop.hasReadyBinding(), "healthy binding remains ready when another binding enters errorPoll");
         }
     }
 

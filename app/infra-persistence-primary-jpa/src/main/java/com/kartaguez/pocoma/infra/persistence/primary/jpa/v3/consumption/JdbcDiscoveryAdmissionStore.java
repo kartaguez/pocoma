@@ -47,13 +47,10 @@ public final class JdbcDiscoveryAdmissionStore implements DiscoveryAdmissionStor
                 source,
                 context,
                 () -> {
-                    jdbc.queryForObject(
-                            "select set_config('lock_timeout',?,true)",
-                            String.class,
-                            settings.lockTimeout().toMillis() + "ms");
-                    jdbc.queryForObject(
-                            "select set_config('statement_timeout',?,true)",
-                            String.class,
+                    jdbc.queryForList(
+                            "select set_config('lock_timeout',?,true),"
+                                    + " set_config('statement_timeout',?,true)",
+                            settings.lockTimeout().toMillis() + "ms",
                             settings.statementTimeout().toMillis() + "ms");
                     return checkpoint(id, partition);
                 });
