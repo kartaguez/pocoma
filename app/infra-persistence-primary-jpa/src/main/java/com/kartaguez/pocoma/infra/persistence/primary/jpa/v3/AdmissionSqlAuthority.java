@@ -58,7 +58,11 @@ public final class AdmissionSqlAuthority {
                     Map.entry("v3_event_position", Set.of("event_id")),
                     Map.entry("consumption_slot", Set.of("consumption_id", "consumable_id")),
                     Map.entry("v3_pocoma_user", Set.of("created_request_id")),
-                    Map.entry("v3_eui_version", Set.of("request_id")));
+                    Map.entry("v3_eui_version", Set.of("request_id")),
+                    Map.entry("v3_request_counter", Set.of("family", "position")),
+                    Map.entry(
+                            "v3_request_position",
+                            Set.of("family", "position", "request_id")));
     private static final Map<String, Set<String>> INSERT =
             Map.of(
                     "v3_link_proposal", PROPOSAL,
@@ -96,7 +100,9 @@ public final class AdmissionSqlAuthority {
                                     "target_subject",
                                     "admission_context",
                                     "link_proposal_id",
-                                    "created_at"));
+                                    "created_at"),
+                    "v3_request_position",
+                            Set.of("family", "position", "request_id"));
 
     public static void verify(DataSource source, String database, String schema, String role) {
         var sql = new JdbcTemplate(source);
@@ -193,8 +199,13 @@ where n.nspname not like 'pg_%' and n.nspname<>'information_schema'
             if (local) present.add(table);
             boolean select = local && SELECT.getOrDefault(table, Set.of()).contains(column);
             boolean insert = local && INSERT.getOrDefault(table, Set.of()).contains(column);
-            boolean update = local && table.equals("v3_link_proposal")
-                    && Set.of("accepted_at", "identity_request_id").contains(column);
+            boolean update =
+                    local
+                            && ((table.equals("v3_link_proposal")
+                                            && Set.of("accepted_at", "identity_request_id")
+                                                    .contains(column))
+                                    || (table.equals("v3_request_counter")
+                                            && column.equals("position")));
             require(
                     Boolean.TRUE.equals(r.get("can_select")) == select
                             && Boolean.TRUE.equals(r.get("can_insert")) == insert

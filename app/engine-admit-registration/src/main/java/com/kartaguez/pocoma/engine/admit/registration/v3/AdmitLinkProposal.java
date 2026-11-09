@@ -107,9 +107,9 @@ public final class AdmitLinkProposal {
             var context = new IdentityRequest.AdmissionContext("pocoma-v3-link-post", "1", p.initiator(),
                     p.target(), HexFormat.of().formatHex(p.intentFingerprint()), id.toString(), now,
                     attestations, IdentityRequest.Origin.AUTHENTICATED_HTTP);
+            store.accept(id, now);
             store.insertAcceptedLink(new IdentityRequest(id, p.initiator(), new IdentityRequest.Link(p.target()),
                     p.bindingToken(), now, context));
-            store.accept(id, now);
             return new Accepted(id, id);
         }));
     }

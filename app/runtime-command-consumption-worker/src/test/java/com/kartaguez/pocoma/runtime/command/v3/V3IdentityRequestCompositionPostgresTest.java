@@ -380,9 +380,13 @@ class V3IdentityRequestCompositionPostgresTest {
             // Controlled internal fixture admission; the Identity-only injector has no Command
             // grant.
             write.update(
-                    "insert into"
+                    "with next_pos as (update v3_request_counter set position=position+1 where"
+                        + " family='COMMAND' returning position), inserted as (insert into"
                         + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values (?,?,?,?,?,?,?,?::jsonb)",
+                        + " values (?,?,?,?,?,?,?,?::jsonb) returning request_id) insert into"
+                        + " v3_request_position(family,position,request_id) select"
+                        + " 'COMMAND',next_pos.position,inserted.request_id from"
+                        + " next_pos,inserted",
                     command.requestId(),
                     command.requester().issuer(),
                     command.requester().subject(),

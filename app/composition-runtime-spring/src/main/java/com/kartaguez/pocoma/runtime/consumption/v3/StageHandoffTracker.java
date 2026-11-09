@@ -68,6 +68,7 @@ public final class StageHandoffTracker
             m.put("t4EpochMs", t4EpochMs > 0 ? t4EpochMs : null);
             m.put("readWaitMs", readWaitMs);
             m.put("readProcessingMs", readProcessingMs);
+            m.put("t3ToT4Ms", readProcessingMs);
             return m;
         }
     }
@@ -106,6 +107,7 @@ public final class StageHandoffTracker
         public volatile Double discoveryToSlotMs;
         public volatile Double slotAcquisitionWaitMs;
         public volatile Double acquisitionToAttemptMs;
+        public volatile Double t0aToT1Ms;
         public volatile Double commandProcessingMs;
 
         public volatile Long c03ReadyEpochMs;
@@ -156,7 +158,9 @@ public final class StageHandoffTracker
             m.put("discoveryToSlotMs", discoveryToSlotMs);
             m.put("slotAcquisitionWaitMs", slotAcquisitionWaitMs);
             m.put("acquisitionToAttemptMs", acquisitionToAttemptMs);
+            m.put("t0aToT1Ms", t0aToT1Ms);
             m.put("commandProcessingMs", commandProcessingMs);
+            m.put("t1ToT2Ms", commandProcessingMs);
 
             var projs = new LinkedHashMap<String, Object>();
             for (var entry : projections.entrySet()) {
@@ -186,12 +190,30 @@ public final class StageHandoffTracker
     private final Map<ConsumptionId, String> consumptionNames = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, CommandRecord> commands = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, UUID> eventToCommand = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, ConcurrentHashMap<String, ProjectionRecord>> eventProjections =
+            new ConcurrentHashMap<>();
     private final ConcurrentLinkedDeque<UUID> ring = new ConcurrentLinkedDeque<>();
+    private static final java.nio.file.Path HANDOFF_LOG_PATH =
+            java.nio.file.Path.of(
+                    System.getProperty(
+                            "pocoma.v3.handoff.log", "/tmp/pocoma-stage-handoffs.jsonl"));
 
     private volatile MeterRegistry registry;
 
     public StageHandoffTracker() {
         initCatalog();
+    }
+
+    private void appendLogLine(String jsonLine) {
+        try {
+            java.nio.file.Files.writeString(
+                    HANDOFF_LOG_PATH,
+                    jsonLine + "\n",
+                    java.nio.charset.StandardCharsets.UTF_8,
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
+        } catch (Throwable ignored) {
+        }
     }
 
     private void initCatalog() {
@@ -206,9 +228,13 @@ public final class StageHandoffTracker
             "CommandResult",
             "IdentityRequestResult"
         };
-        var defs = V3ConsumptionCatalogConfiguration.definitions();
-        for (int i = 0; i < defs.size() && i < canonical.length; i++) {
-            consumptionNames.put(defs.get(i).id(), canonical[i]);
+        var defs = new ArrayList<>(V3ConsumptionCatalogConfiguration.definitions());
+        defs.addAll(V3ConsumptionWorkerSettings.probeDefinitions());
+        for (int i = 0; i < defs.size(); i++) {
+            var d = defs.get(i);
+            consumptionNames.put(
+                    d.id(),
+                    i < 9 ? canonical[i] : i == 9 ? "I5ReadPotProbe" : "I5ReadCompletionProbe");
         }
     }
 
@@ -249,6 +275,13 @@ public final class StageHandoffTracker
             rec.t0aNanos = nanos;
             rec.t0aEpochMs = epoch;
             rec.partition = partition;
+            appendLogLine(
+                    String.format(
+                            Locale.ROOT,
+                            "{\"stage\":\"T0a\",\"commandId\":\"%s\",\"partition\":%d,\"t0aEpochMs\":%d}",
+                            id,
+                            partition,
+                            epoch));
         }
     }
 
@@ -266,6 +299,18 @@ public final class StageHandoffTracker
             rec.t0bNanos = nanos;
             rec.t0bEpochMs = epoch;
             if (rec.partition == null) rec.partition = partition;
+            if (rec.t0aNanos > 0 && nanos >= rec.t0aNanos) {
+                rec.discoveryToSlotMs =
+                        Math.round(((nanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
+            }
+            appendLogLine(
+                    String.format(
+                            Locale.ROOT,
+                            "{\"stage\":\"T0b\",\"commandId\":\"%s\",\"partition\":%d,\"t0bEpochMs\":%d,\"discoveryToSlotMs\":%s}",
+                            id,
+                            partition,
+                            epoch,
+                            rec.discoveryToSlotMs != null ? rec.discoveryToSlotMs : "null"));
         }
     }
 
@@ -285,6 +330,18 @@ public final class StageHandoffTracker
                 rec.t0cNanos = nanos;
                 rec.t0cEpochMs = epoch;
                 if (rec.partition == null) rec.partition = partition;
+                if (rec.t0bNanos > 0 && nanos >= rec.t0bNanos) {
+                    rec.slotAcquisitionWaitMs =
+                            Math.round(((nanos - rec.t0bNanos) / 1_000_000.0) * 100.0) / 100.0;
+                }
+                appendLogLine(
+                        String.format(
+                                Locale.ROOT,
+                                "{\"stage\":\"T0c\",\"commandId\":\"%s\",\"partition\":%d,\"t0cEpochMs\":%d,\"slotAcquisitionWaitMs\":%s}",
+                                consumableId,
+                                partition,
+                                epoch,
+                                rec.slotAcquisitionWaitMs != null ? rec.slotAcquisitionWaitMs : "null"));
             }
         }
     }
@@ -312,6 +369,12 @@ public final class StageHandoffTracker
         });
         rec.t0Nanos = nanos;
         rec.t0EpochMs = epoch;
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"T0\",\"commandId\":\"%s\",\"t0EpochMs\":%d}",
+                        commandId,
+                        epoch));
 
         WakeSignal signal = this.wakeSignal;
         if (signal != null) {
@@ -346,6 +409,15 @@ public final class StageHandoffTracker
         if (completionEventId != null) {
             eventToCommand.put(completionEventId, commandId);
         }
+        appendLogLine(
+                String.format(
+                        Locale.ROOT,
+                        "{\"stage\":\"LINK\",\"commandId\":\"%s\",\"potId\":%s,\"resultingVersion\":%s,\"potEventId\":%s,\"completionEventId\":%s}",
+                        commandId,
+                        potId != null ? "\"" + potId + "\"" : "null",
+                        resultingVersion != null ? resultingVersion : "null",
+                        potEventId != null ? "\"" + potEventId + "\"" : "null",
+                        completionEventId != null ? "\"" + completionEventId + "\"" : "null"));
     }
 
     // T1 / T3: Worker starts attempt
@@ -366,35 +438,57 @@ public final class StageHandoffTracker
             if (rec.t1Nanos == 0) {
                 rec.t1Nanos = startNanos;
                 rec.t1EpochMs = epoch;
+                if (rec.t0aNanos > 0 && startNanos >= rec.t0aNanos) {
+                    rec.t0aToT1Ms =
+                            Math.round(((startNanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
+                }
+                if (rec.t0bNanos >= rec.t0aNanos && rec.t0aNanos > 0) {
+                    rec.discoveryToSlotMs =
+                            Math.round(((rec.t0bNanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
+                }
+                if (rec.t0cNanos >= rec.t0bNanos && rec.t0bNanos > 0) {
+                    rec.slotAcquisitionWaitMs =
+                            Math.round(((rec.t0cNanos - rec.t0bNanos) / 1_000_000.0) * 100.0) / 100.0;
+                }
+                if (startNanos >= rec.t0cNanos && rec.t0cNanos > 0) {
+                    rec.acquisitionToAttemptMs =
+                            Math.round(((startNanos - rec.t0cNanos) / 1_000_000.0) * 100.0) / 100.0;
+                }
                 if (rec.t0Nanos > 0 && startNanos >= rec.t0Nanos) {
                     long waitNanos = startNanos - rec.t0Nanos;
                     rec.commandWaitMs = Math.round((waitNanos / 1_000_000.0) * 100.0) / 100.0;
                     recordTimer(
                             "handoff.wait",
                             Duration.ofNanos(waitNanos),
-                            Tags.of("stage", "command", "consumption", "Command"));
+                            Tags.of("phase", "command", "consumption", "Command"));
 
-                    // Sub-intervals A1, A2, A3, A4
+                    // Sub-interval A1 (same JVM only)
                     if (rec.t0aNanos >= rec.t0Nanos) {
                         rec.waitBeforeDiscoveryMs =
                                 Math.round(((rec.t0aNanos - rec.t0Nanos) / 1_000_000.0) * 100.0) / 100.0;
                     }
-                    if (rec.t0bNanos >= rec.t0aNanos && rec.t0aNanos > 0) {
-                        rec.discoveryToSlotMs =
-                                Math.round(((rec.t0bNanos - rec.t0aNanos) / 1_000_000.0) * 100.0) / 100.0;
-                    }
-                    if (rec.t0cNanos >= rec.t0bNanos && rec.t0bNanos > 0) {
-                        rec.slotAcquisitionWaitMs =
-                                Math.round(((rec.t0cNanos - rec.t0bNanos) / 1_000_000.0) * 100.0) / 100.0;
-                    }
-                    if (startNanos >= rec.t0cNanos && rec.t0cNanos > 0) {
-                        rec.acquisitionToAttemptMs =
-                                Math.round(((startNanos - rec.t0cNanos) / 1_000_000.0) * 100.0) / 100.0;
-                    }
                 }
+                appendLogLine(
+                        String.format(
+                                Locale.ROOT,
+                                "{\"stage\":\"T1\",\"commandId\":\"%s\",\"partition\":%s,\"t1EpochMs\":%d,\"t0aToT1Ms\":%s,\"discoveryToSlotMs\":%s,\"slotAcquisitionWaitMs\":%s,\"acquisitionToAttemptMs\":%s}",
+                                consumableId,
+                                rec.partition != null ? rec.partition : "null",
+                                epoch,
+                                rec.t0aToT1Ms != null ? rec.t0aToT1Ms : "null",
+                                rec.discoveryToSlotMs != null ? rec.discoveryToSlotMs : "null",
+                                rec.slotAcquisitionWaitMs != null ? rec.slotAcquisitionWaitMs : "null",
+                                rec.acquisitionToAttemptMs != null ? rec.acquisitionToAttemptMs : "null"));
             }
         } else {
             // T3: Read projection starts attempt
+            var eventProjMap =
+                    eventProjections.computeIfAbsent(consumableId, k -> new ConcurrentHashMap<>());
+            var eventProj = eventProjMap.computeIfAbsent(name, ProjectionRecord::new);
+            if (eventProj.t3Nanos == 0) {
+                eventProj.t3Nanos = startNanos;
+                eventProj.t3EpochMs = epoch;
+            }
             UUID commandId = eventToCommand.get(consumableId);
             if (commandId != null) {
                 var rec = commands.get(commandId);
@@ -405,13 +499,21 @@ public final class StageHandoffTracker
                     if (rec.t2Nanos > 0 && startNanos >= rec.t2Nanos) {
                         long waitNanos = startNanos - rec.t2Nanos;
                         proj.readWaitMs = Math.round((waitNanos / 1_000_000.0) * 100.0) / 100.0;
+                        eventProj.readWaitMs = proj.readWaitMs;
                         recordTimer(
                                 "handoff.wait",
                                 Duration.ofNanos(waitNanos),
-                                Tags.of("stage", "read", "consumption", name));
+                                Tags.of("phase", "read", "consumption", name));
                     }
                 }
             }
+            appendLogLine(
+                    String.format(
+                            Locale.ROOT,
+                            "{\"stage\":\"T3\",\"eventId\":\"%s\",\"consumption\":\"%s\",\"t3EpochMs\":%d}",
+                            consumableId,
+                            name,
+                            epoch));
         }
     }
 
@@ -440,13 +542,39 @@ public final class StageHandoffTracker
                         recordTimer(
                                 "handoff.processing",
                                 Duration.ofNanos(procNanos),
-                                Tags.of("stage", "command", "consumption", "Command"));
+                                Tags.of("phase", "command", "consumption", "Command"));
                     }
+                    appendLogLine(
+                            String.format(
+                                    Locale.ROOT,
+                                    "{\"stage\":\"T2\",\"commandId\":\"%s\",\"t2EpochMs\":%d,\"t1ToT2Ms\":%s,\"potId\":%s,\"resultingVersion\":%s,\"potEventId\":%s,\"completionEventId\":%s}",
+                                    consumableId,
+                                    epoch,
+                                    rec.commandProcessingMs != null ? rec.commandProcessingMs : "null",
+                                    rec.potId != null ? "\"" + rec.potId + "\"" : "null",
+                                    rec.resultingVersion != null ? rec.resultingVersion : "null",
+                                    rec.potEventId != null ? "\"" + rec.potEventId + "\"" : "null",
+                                    rec.completionEventId != null ? "\"" + rec.completionEventId + "\"" : "null"));
                 }
             }
         } else {
             // T4: Read projection write transaction commit confirmed
             if (status != ConsumptionEngine.Status.COMMITTED) return;
+            Double procMs = null;
+            var eventProjMap =
+                    eventProjections.computeIfAbsent(consumableId, k -> new ConcurrentHashMap<>());
+            var eventProj = eventProjMap.computeIfAbsent(name, ProjectionRecord::new);
+            eventProj.t4Nanos = finishNanos;
+            eventProj.t4EpochMs = epoch;
+            if (eventProj.t3Nanos > 0 && finishNanos >= eventProj.t3Nanos) {
+                long procNanos = finishNanos - eventProj.t3Nanos;
+                procMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
+                eventProj.readProcessingMs = procMs;
+                recordTimer(
+                        "handoff.processing",
+                        Duration.ofNanos(procNanos),
+                        Tags.of("phase", "read", "consumption", name));
+            }
             UUID commandId = eventToCommand.get(consumableId);
             if (commandId != null) {
                 var rec = commands.get(commandId);
@@ -457,14 +585,18 @@ public final class StageHandoffTracker
                     if (proj.t3Nanos > 0 && finishNanos >= proj.t3Nanos) {
                         long procNanos = finishNanos - proj.t3Nanos;
                         proj.readProcessingMs = Math.round((procNanos / 1_000_000.0) * 100.0) / 100.0;
-                        recordTimer(
-                                "handoff.processing",
-                                Duration.ofNanos(procNanos),
-                                Tags.of("stage", "read", "consumption", name));
                     }
                     checkC03Ready(rec);
                 }
             }
+            appendLogLine(
+                    String.format(
+                            Locale.ROOT,
+                            "{\"stage\":\"T4\",\"eventId\":\"%s\",\"consumption\":\"%s\",\"t4EpochMs\":%d,\"t3ToT4Ms\":%s}",
+                            consumableId,
+                            name,
+                            epoch,
+                            procMs != null ? procMs : "null"));
         }
     }
 
@@ -488,8 +620,14 @@ public final class StageHandoffTracker
             if (evicted != null) {
                 var rec = commands.remove(evicted);
                 if (rec != null) {
-                    if (rec.potEventId != null) eventToCommand.remove(rec.potEventId);
-                    if (rec.completionEventId != null) eventToCommand.remove(rec.completionEventId);
+                    if (rec.potEventId != null) {
+                        eventToCommand.remove(rec.potEventId);
+                        eventProjections.remove(rec.potEventId);
+                    }
+                    if (rec.completionEventId != null) {
+                        eventToCommand.remove(rec.completionEventId);
+                        eventProjections.remove(rec.completionEventId);
+                    }
                 }
             }
         }
@@ -499,6 +637,11 @@ public final class StageHandoffTracker
         ring.clear();
         commands.clear();
         eventToCommand.clear();
+        eventProjections.clear();
+        try {
+            java.nio.file.Files.deleteIfExists(HANDOFF_LOG_PATH);
+        } catch (Throwable ignored) {
+        }
     }
 
     public Map<String, Object> snapshot(int limit, Long sinceEpochMs) {
@@ -547,10 +690,23 @@ public final class StageHandoffTracker
             }
         }
 
+        var exportedEventProjections = new LinkedHashMap<String, Map<String, Object>>();
+        int epCount = 0;
+        for (var entry : eventProjections.entrySet()) {
+            var projMap = new LinkedHashMap<String, Object>();
+            for (var pEntry : entry.getValue().entrySet()) {
+                projMap.put(pEntry.getKey(), pEntry.getValue().toMap());
+            }
+            exportedEventProjections.put(entry.getKey().toString(), projMap);
+            epCount++;
+            if (epCount >= max) break;
+        }
+
         result.put("totalTracked", ring.size());
         result.put("returned", list.size());
         result.put("partitionStats", partitionStats);
         result.put("records", list);
+        result.put("eventProjections", exportedEventProjections);
         return result;
     }
 }

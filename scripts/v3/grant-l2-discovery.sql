@@ -55,7 +55,7 @@ grant insert(consumption_id,consumable_id,partition_hash,partition_id) on consum
 grant insert(consumption_id,partition_id,position),update(position) on discovery_checkpoint to :"runtime_role";
 select (to_regclass('v3_command') is not null) as is_write \gset
 \if :is_write
-grant select on v3_command,v3_event_counter,v3_event_position,v3_pot_event,v3_command_completion_event to :"runtime_role";
+grant select on v3_command,v3_event_counter,v3_event_position,v3_pot_event,v3_command_completion_event,v3_request_counter,v3_request_position to :"runtime_role";
 \endif
 -- Refuse preexisting broader effective grants; reexecution never silently normalizes an unsafe role.
 do $$
@@ -96,8 +96,8 @@ do $$
 declare r text:=current_setting('pocoma.runtime_role'); a text:=current_setting('pocoma.reactivation_role');
  t text; col record; ins boolean; upd boolean;
 begin
- foreach t in array array['v3_command','v3_command_result','v3_pot_identity','v3_pot_version','v3_shareholder_identity','v3_expense_identity','v3_pot_header','v3_pot_details','v3_shareholder_header','v3_shareholder_details','v3_shareholder_weight','v3_expense_header','v3_expense_details','v3_expense_financials','v3_expense_participant','v3_pot_event','v3_pot_event_component','v3_command_completion_event','v3_event_counter','v3_event_position'] loop
-  ins:=t not in ('v3_command','v3_event_counter');
+ foreach t in array array['v3_command','v3_command_result','v3_pot_identity','v3_pot_version','v3_shareholder_identity','v3_expense_identity','v3_pot_header','v3_pot_details','v3_shareholder_header','v3_shareholder_details','v3_shareholder_weight','v3_expense_header','v3_expense_details','v3_expense_financials','v3_expense_participant','v3_pot_event','v3_pot_event_component','v3_command_completion_event','v3_event_counter','v3_event_position','v3_request_counter','v3_request_position'] loop
+  ins:=t not in ('v3_command','v3_event_counter','v3_request_counter','v3_request_position');
   if not has_table_privilege(r,t,'SELECT') or has_table_privilege(r,t,'INSERT')<>ins
     or has_table_privilege(r,t,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
     or has_table_privilege(a,t,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
@@ -115,6 +115,13 @@ begin
  end loop;
  if exists(select 1 from pg_proc where pronamespace=(select oid from pg_namespace where nspname=current_schema()) and prosecdef)
  then raise exception 'SECURITY DEFINER forbidden in combined authority' using errcode='42501'; end if;
+ if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
+    lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
+    and c.relname in ('v3_request_counter','v3_request_position') and acl.grantee=0)
+    or exists(select 1 from pg_attribute att join pg_class c on c.oid=att.attrelid
+      join pg_namespace n on n.oid=c.relnamespace,lateral aclexplode(att.attacl) acl
+      where n.nspname=current_schema() and c.relname in ('v3_request_counter','v3_request_position') and acl.grantee=0)
+ then raise exception 'PUBLIC privileges expose request publication tables' using errcode='42501'; end if;
 end $$;
 \endif
 do $$
@@ -165,7 +172,8 @@ begin
        where p.prosecdef and n.nspname not in ('pg_catalog','information_schema'))
   then raise exception 'Identity indirect exposure: READ view or user SECURITY DEFINER on WRITE' using errcode='42501';end if;
   foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
-       'v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
+       'v3_identity_request_result','v3_identity_event','v3_identity_completion_event',
+       'v3_request_counter','v3_request_position'] loop
    if has_any_column_privilege(reader,t,'SELECT,INSERT,UPDATE,REFERENCES') or has_table_privilege(reader,t,'DELETE,TRUNCATE,TRIGGER')
    then raise exception 'READ principal has Identity WRITE authority privileges' using errcode='42501';end if;
   end loop;

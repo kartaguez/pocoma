@@ -193,9 +193,13 @@ class CommandExecutionPostgresTest {
 
     UUID admit(PotCommand command) {
         jdbc.update(
-                "insert into"
+                "with cmd as (insert into"
                     + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                    + " values (?,?,?,?,?,?,?,?::jsonb)",
+                    + " values (?,?,?,?,?,?,?,?::jsonb) returning request_id), pos as (update"
+                    + " v3_request_counter set position=position+1 where family='COMMAND'"
+                    + " returning position) insert into"
+                    + " v3_request_position(family,position,request_id) select"
+                    + " 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                 command.requestId(),
                 command.requester().issuer(),
                 command.requester().subject(),

@@ -132,6 +132,7 @@ def initialize_v3_write():
         "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V8__admission_column_reads.sql",
         "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
         "app/infra-persistence-primary-jpa/src/main/resources/db/v3-invitation/migration/V10__invitation_history.sql",
+        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V11__sequential_request_publication.sql",
     ]
     apply_migrations("pocoma_write", "v3_write", "pocoma", "pocoma_write", write_migrations)
 

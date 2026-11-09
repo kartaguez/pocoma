@@ -45,10 +45,26 @@ begin
     -- The deferred admission constraint reads the result even for PENDING.
     execute format('grant select on v3_command_result to %I',i);
     execute format('grant select,insert(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) on v3_command to %I',i);
+    execute format('grant select,update(position) on v3_request_counter to %I',i);
+    execute format('grant select,insert(family,position,request_id) on v3_request_position to %I',i);
+    foreach t in array array['v3_request_counter','v3_request_position'] loop
+     if has_table_privilege(i,t,'INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER,REFERENCES')
+        or has_any_column_privilege(i,t,'REFERENCES')
+        or has_any_column_privilege(i,t,'UPDATE')<>(t='v3_request_counter') then
+      raise exception 'unsafe Command internal injector table rights on %',t using errcode='42501';end if;
+     for col in select column_name from information_schema.columns where table_schema=current_schema() and table_name=t loop
+      if not has_column_privilege(i,t,col.column_name,'SELECT')
+         or has_column_privilege(i,t,col.column_name,'INSERT')<>(t='v3_request_position')
+         or has_column_privilege(i,t,col.column_name,'UPDATE')<>(t='v3_request_counter' and col.column_name='position') then
+       raise exception 'unsafe Command internal injector column rights on %.%',t,col.column_name using errcode='42501';end if;
+     end loop;
+    end loop;
  end if;
  if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_identity_request') is not null then
     execute format('grant usage on schema %I to %I',current_schema(),i);
     execute format('grant select,insert on v3_identity_request to %I',i);
+    execute format('grant select,update(position) on v3_request_counter to %I',i);
+    execute format('grant select,insert(family,position,request_id) on v3_request_position to %I',i);
     -- Invoker PENDING-unit check: no token column or business mutation granted.
     execute format('grant select on v3_identity_request_result,v3_identity_event,v3_identity_completion_event,v3_event_position,consumption_slot to %I',i);
     execute format('grant select(created_request_id) on v3_pocoma_user to %I',i);
@@ -56,18 +72,22 @@ begin
     -- Exhaustive effective allowlist: table-only rights are not column rights.
     foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
          'v3_identity_request_result','v3_identity_event','v3_identity_completion_event',
-         'v3_event_position','consumption_slot'] loop
+         'v3_event_position','consumption_slot','v3_request_counter','v3_request_position'] loop
      if has_table_privilege(i,t,'DELETE,TRUNCATE,TRIGGER')
         or has_table_privilege(i,t,'INSERT')<>(t='v3_identity_request')
-        or has_any_column_privilege(i,t,'UPDATE,REFERENCES') then
+        or has_table_privilege(i,t,'UPDATE,REFERENCES')
+        or has_any_column_privilege(i,t,'REFERENCES')
+        or has_any_column_privilege(i,t,'UPDATE')<>(t='v3_request_counter') then
       raise exception 'unsafe Identity internal injector table rights on %',t using errcode='42501';end if;
      for col in select column_name from information_schema.columns where table_schema=current_schema() and table_name=t loop
       sel:=t in ('v3_identity_request','v3_identity_request_result','v3_identity_event',
-            'v3_identity_completion_event','v3_event_position','consumption_slot')
+            'v3_identity_completion_event','v3_event_position','consumption_slot',
+            'v3_request_counter','v3_request_position')
         or (t='v3_pocoma_user' and col.column_name='created_request_id')
         or (t='v3_eui_version' and col.column_name='request_id');
       if has_column_privilege(i,t,col.column_name,'SELECT')<>sel
-         or has_column_privilege(i,t,col.column_name,'INSERT')<>(t='v3_identity_request') then
+         or has_column_privilege(i,t,col.column_name,'INSERT')<>(t in ('v3_identity_request','v3_request_position'))
+         or has_column_privilege(i,t,col.column_name,'UPDATE')<>(t='v3_request_counter' and col.column_name='position') then
        raise exception 'unsafe Identity internal injector column rights on %.%',t,col.column_name using errcode='42501';end if;
      end loop;
     end loop;

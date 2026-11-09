@@ -225,9 +225,14 @@ class V3PotCommandCompositionPostgresTest {
             var claim = UUID.randomUUID();
             var intent = new PotCommand.CreatePot(new Label("composed"));
             sql.update(
-                    "insert into"
+                    "with next_pos as (update v3_request_counter set position=position+1 where"
+                        + " family='COMMAND' returning position), inserted as (insert into"
                         + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values (?,'issuer','subject','secret',?,0,'CreatePot',?::jsonb)",
+                        + " values (?,'issuer','subject','secret',?,0,'CreatePot',?::jsonb)"
+                        + " returning request_id) insert into"
+                        + " v3_request_position(family,position,request_id) select"
+                        + " 'COMMAND',next_pos.position,inserted.request_id from"
+                        + " next_pos,inserted",
                     request,
                     pot.value(),
                     PotCommandJson.encode(intent));
@@ -280,9 +285,15 @@ class V3PotCommandCompositionPostgresTest {
                                         Long.class,
                                         pot.value());
                         sql.update(
-                                "insert into"
+                                "with next_pos as (update v3_request_counter set"
+                                    + " position=position+1 where family='COMMAND' returning"
+                                    + " position), inserted as (insert into"
                                     + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                                    + " values (?,'issuer','subject','secret',?,?,?,?::jsonb)",
+                                    + " values (?,'issuer','subject','secret',?,?,?,?::jsonb)"
+                                    + " returning request_id) insert into"
+                                    + " v3_request_position(family,position,request_id) select"
+                                    + " 'COMMAND',next_pos.position,inserted.request_id from"
+                                    + " next_pos,inserted",
                                 id,
                                 pot.value(),
                                 observed,

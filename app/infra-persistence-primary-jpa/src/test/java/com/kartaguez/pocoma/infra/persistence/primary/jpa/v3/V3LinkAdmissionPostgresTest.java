@@ -187,4 +187,26 @@ class V3LinkAdmissionPostgresTest {
         assertFalse(PG.getLogs().contains(canary));
         counts(1,0);
     }
+    @Test void linkAcceptancePublishesSequentialPositionAsFinalStatementBeforeCommit() {
+        var id1 = create("seq-1");
+        var id2 = create("seq-2");
+        var order = new ArrayList<String>();
+        var tracedStore = (AdmitLinkProposal.Store) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class<?>[]{AdmitLinkProposal.Store.class},
+                (p, m, a) -> {
+                    order.add(m.getName());
+                    return m.invoke(f.store, a);
+                });
+        var svc = service(tracedStore, new AdmissionSqlTransactions(f.source, f.owner), Duration.ofMinutes(10));
+        assertEquals(id1, svc.accept(f.principal("E2"), id1).requestId());
+        assertEquals(List.of("proposal", "now", "reserve", "accept", "insertAcceptedLink"), order);
+        assertEquals(id2, service().accept(f.principal("E2"), id2).requestId());
+        // Replay does not allocate a new position
+        assertEquals(id1, service().accept(f.principal("E2"), id1).requestId());
+        assertEquals(2L, f.observer.queryForObject(
+                "select position from v3_request_counter where family='IDENTITY_REQUEST'", Long.class));
+        assertEquals(List.of(id1, id2), f.observer.queryForList(
+                "select request_id from v3_request_position where family='IDENTITY_REQUEST' order by position", UUID.class));
+    }
 }

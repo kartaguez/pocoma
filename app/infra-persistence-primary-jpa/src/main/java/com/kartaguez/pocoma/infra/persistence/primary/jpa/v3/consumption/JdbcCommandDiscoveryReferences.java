@@ -28,50 +28,55 @@ public final class JdbcCommandDiscoveryReferences implements BurnableReferences 
         return ConsumableFamily.COMMAND;
     }
 
-    private void read(RecoveryReadContext context) {
-        SpringAttemptTransactions.requireRead(source, context);
-        jdbc.queryForObject(
-                "select set_config('lock_timeout',?,true)",
-                String.class,
-                settings.lockTimeout().toMillis() + "ms");
-        jdbc.queryForObject(
-                "select set_config('statement_timeout',?,true)",
-                String.class,
-                settings.statementTimeout().toMillis() + "ms");
-    }
-
-    public Optional<UUID> upperPending(RecoveryReadContext context) {
-        read(context);
-        return jdbc
-                .query(
-                        "select request_id from v3_command where status='PENDING' order by"
-                                + " request_id desc limit 1",
-                        (r, n) -> r.getObject(1, UUID.class))
-                .stream()
-                .findFirst();
-    }
-
-    public List<UUID> pendingPage(
-            Optional<UUID> after, UUID upper, int size, RecoveryReadContext context) {
-        read(context);
-        Objects.requireNonNull(after);
-        Objects.requireNonNull(upper);
-        if (size < 1 || size > settings.pageSize())
-            throw new IllegalArgumentException("invalid page bound");
-        return after.isEmpty()
-                ? jdbc.query(
-                        "select request_id from v3_command where status='PENDING' and request_id<=?"
-                                + " order by request_id limit ?",
-                        (r, n) -> r.getObject(1, UUID.class),
-                        upper,
-                        size)
-                : jdbc.query(
-                        "select request_id from v3_command where status='PENDING' and request_id>?"
-                                + " and request_id<=? order by request_id limit ?",
-                        (r, n) -> r.getObject(1, UUID.class),
-                        after.orElseThrow(),
-                        upper,
-                        size);
+    public Window window(long after, int max, RecoveryReadContext context) {
+        return SpringAttemptTransactions.observed(
+                source,
+                context,
+                () -> {
+                    if (after < 0 || max < 1 || max > settings.windowSize())
+                        throw new IllegalArgumentException("invalid window bound");
+                    jdbc.queryForObject(
+                            "select set_config('lock_timeout',?,true)",
+                            String.class,
+                            settings.lockTimeout().toMillis() + "ms");
+                    jdbc.queryForObject(
+                            "select set_config('statement_timeout',?,true)",
+                            String.class,
+                            settings.statementTimeout().toMillis() + "ms");
+                    var counters =
+                            jdbc.queryForList(
+                                    "select position from v3_request_counter where"
+                                            + " family='COMMAND'",
+                                    Long.class);
+                    if (counters.size() != 1 || counters.getFirst() < after)
+                        throw new IllegalStateException("missing or regressed publication counter");
+                    long high = after + Math.min((long) max, counters.getFirst() - after);
+                    var refs =
+                            jdbc.query(
+                                    "select p.position,p.request_id,c.request_id from"
+                                            + " v3_request_position p left join v3_command c on"
+                                            + " c.request_id=p.request_id where p.family='COMMAND'"
+                                            + " and p.position>? and p.position<=? order by"
+                                            + " p.position",
+                                    (r, n) -> {
+                                        if (r.getObject(3, UUID.class) == null)
+                                            throw new IllegalStateException(
+                                                    "missing command envelope");
+                                        return new Reference(
+                                                r.getLong(1), r.getObject(2, UUID.class));
+                                    },
+                                    after,
+                                    high);
+                    if (refs.size() != high - after)
+                        throw new IllegalStateException("hole in published prefix");
+                    long position = after;
+                    var ids = new HashSet<UUID>();
+                    for (var ref : refs)
+                        if (ref.position() != ++position || !ids.add(ref.requestId()))
+                            throw new IllegalStateException(
+                                    "non-contiguous publication or duplicate identity");
+                    return new Window(after, high, refs);
+                });
     }
 
     public boolean tryProtectPending(UUID id) {
@@ -81,6 +86,17 @@ public final class JdbcCommandDiscoveryReferences implements BurnableReferences 
                         !jdbc.queryForList(
                                         "select request_id from v3_command where request_id=? and"
                                                 + " status='PENDING' for update skip locked",
+                                        Objects.requireNonNull(id))
+                                .isEmpty());
+    }
+
+    public boolean isTerminal(UUID id) {
+        return SpringAttemptTransactions.guarded(
+                source,
+                () ->
+                        !jdbc.queryForList(
+                                        "select request_id from v3_command where request_id=? and"
+                                                + " status='TERMINAL'",
                                         Objects.requireNonNull(id))
                                 .isEmpty());
     }

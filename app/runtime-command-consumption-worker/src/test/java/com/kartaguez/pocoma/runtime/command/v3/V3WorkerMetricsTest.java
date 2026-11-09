@@ -212,17 +212,17 @@ class V3WorkerMetricsTest {
         }
     }
 
-    static void discoveryCount(MeterRegistry registry, int expected) {
+    static void advancedCount(MeterRegistry registry, int expected) {
         assertEquals(
                 expected,
                 count(
                         registry,
-                        "pocoma.v3.rotation.tours",
+                        "pocoma.v3.discovery.references",
                         "consumption",
                         "Command",
-                        "loop",
-                        "discovery"),
-                "independent page/owner boundary oracle");
+                        "kind",
+                        "advanced"),
+                "independent sequential window advancement oracle");
     }
 
     @Test
@@ -244,13 +244,13 @@ class V3WorkerMetricsTest {
                 ConsumptionObservation observation =
                         (id, phase, outcome, n, elapsed) -> {
                             if (!scenario.equals("omitted")
-                                    || phase != ConsumptionObservation.Phase.DISCOVERY_TOUR)
+                                    || phase != ConsumptionObservation.Phase.DISCOVERY_ADVANCED)
                                 metrics.record(id, phase, outcome, n, elapsed);
                             if (scenario.equals("premature")
                                     && phase == ConsumptionObservation.Phase.DISCOVERY_EXAMINED)
                                 metrics.record(
                                         id,
-                                        ConsumptionObservation.Phase.DISCOVERY_TOUR,
+                                        ConsumptionObservation.Phase.DISCOVERY_ADVANCED,
                                         ConsumptionObservation.Outcome.CONFIRMED,
                                         1,
                                         java.time.Duration.ZERO);
@@ -264,14 +264,11 @@ class V3WorkerMetricsTest {
                     if (!scenario.equals("empty"))
                         for (int i = 0; i < 3; i++)
                             requests.add(pendingAtPartition(f, 700000 + i * 100, 0));
-                    requests.sort(
-                            com.kartaguez.pocoma.engine.consumption.v3.port.SlotKeyNavigation
-                                    ::compare);
                     replace(
                             binding.discovery(),
                             "settings",
                             new DiscoveryEngine.Settings(
-                                    32,
+                                    1,
                                     1,
                                     32,
                                     scenario.equals("capacity") ? 1 : 100,
@@ -346,7 +343,7 @@ class V3WorkerMetricsTest {
                                     com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
                                             .Failure.class,
                                     loop::runOnePass);
-                            discoveryCount(registry, 0);
+                            advancedCount(registry, 0);
                             assertEquals(
                                     0,
                                     f.write.queryForObject(
@@ -354,7 +351,7 @@ class V3WorkerMetricsTest {
                                             Integer.class));
                         } else if (scenario.equals("no-owner")) {
                             loop.runOnePass();
-                            discoveryCount(registry, 0);
+                            advancedCount(registry, 0);
                             assertEquals(
                                     0,
                                     f.write.queryForObject(
@@ -362,11 +359,7 @@ class V3WorkerMetricsTest {
                                             Integer.class));
                         } else if (scenario.equals("empty")) {
                             assertFalse(loop.runOnePass());
-                            discoveryCount(registry, 1);
-                            assertNotNull(
-                                    registry.find("pocoma.v3.rotation.tours")
-                                            .tags("consumption", "Command", "loop", "discovery")
-                                            .counter());
+                            advancedCount(registry, 0);
                         } else {
                             for (int page = 0; page < 3; page++) {
                                 loop.runOnePass();
@@ -375,21 +368,19 @@ class V3WorkerMetricsTest {
                                                 "select count(*) from consumption_slot",
                                                 Integer.class);
                                 assertEquals(scenario.equals("capacity") ? 1 : page + 1, slots);
-                                int expected = page == 2 && !scenario.equals("capacity") ? 1 : 0;
-                                if (scenario.equals("premature")
-                                        || scenario.equals("omitted") && page == 2)
+                                int expected = scenario.equals("capacity") ? 1 : page + 1;
+                                if (scenario.equals("premature") || scenario.equals("omitted"))
                                     assertThrows(
                                             AssertionError.class,
-                                            () -> discoveryCount(registry, expected));
-                                else discoveryCount(registry, expected);
+                                            () -> advancedCount(registry, expected));
+                                else advancedCount(registry, expected);
                             }
                             if (scenario.equals("multipage")
                                     || scenario.equals("observer-failure")) {
-                                // A full repeat with all slots already present has no new
-                                // admissions.
+                                // A full repeat with checkpoint already at 3 has no new admissions.
                                 for (int page = 0; page < 3; page++) {
                                     loop.runOnePass();
-                                    discoveryCount(registry, page == 2 ? 2 : 1);
+                                    advancedCount(registry, 3);
                                 }
                                 assertEquals(
                                         3,

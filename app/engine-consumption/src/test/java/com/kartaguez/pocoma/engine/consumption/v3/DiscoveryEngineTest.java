@@ -26,15 +26,17 @@ class DiscoveryEngineTest {
             implements AttemptTransactions,
                     PartitionOwnershipStore,
                     DiscoveryAdmissionStore,
-                    NonBurnableReferences,
-                    BurnableReferences {
+                    NonBurnableReferences {
         final ConsumptionDefinition definition;
         final PartitionLease lease;
-        final Set<UUID> slots = new HashSet<>(), skipped = new HashSet<>();
+        final Set<UUID> slots = new HashSet<>(),
+                skipped = new HashSet<>(),
+                terminal = new HashSet<>();
         final List<UUID> protectedIds = new ArrayList<>();
         List<NonBurnableReferences.Reference> events = List.of();
+        List<BurnableReferences.Reference> requestWindow = null;
         List<UUID> pending = List.of();
-        long k, stock;
+        long k, stock, actualK = -1;
         boolean unknown, owned = true;
 
         Harness(ConsumableFamily family) {
@@ -48,10 +50,44 @@ class DiscoveryEngineTest {
             lease = new PartitionLease(definition.id(), 0, u(101), Instant.MAX);
         }
 
+        BurnableReferences burnableSource() {
+            return new BurnableReferences() {
+                @Override
+                public ConsumableFamily family() {
+                    return definition.family();
+                }
+
+                @Override
+                public Window window(long after, int max, RecoveryReadContext r) {
+                    if (requestWindow != null) {
+                        return new Window(after, after + requestWindow.size(), requestWindow);
+                    }
+                    var refs = new ArrayList<Reference>();
+                    for (int i = (int) after;
+                            i < pending.size() && refs.size() < max;
+                            i++) {
+                        refs.add(new Reference(i + 1L, pending.get(i)));
+                    }
+                    return new Window(after, after + refs.size(), refs);
+                }
+
+                @Override
+                public boolean tryProtectPending(UUID id) {
+                    protectedIds.add(id);
+                    return !skipped.contains(id) && !terminal.contains(id);
+                }
+
+                @Override
+                public boolean isTerminal(UUID id) {
+                    return terminal.contains(id);
+                }
+            };
+        }
+
         DiscoveryEngine engine(long cap) {
             return family() == ConsumableFamily.COMMAND
                     ? new DiscoveryEngine(
-                            definition, this, this, this, settings(cap), (BurnableReferences) this)
+                            definition, this, this, this, settings(cap), burnableSource())
                     : new DiscoveryEngine(
                             definition, this, this, this, settings(cap), this, this, r -> true);
         }
@@ -104,7 +140,7 @@ class DiscoveryEngineTest {
         }
 
         public long currentCheckpoint(PartitionLease l) {
-            return k;
+            return actualK >= 0 ? actualK : k;
         }
 
         public long liveSlots(PartitionLease l) {
@@ -141,20 +177,6 @@ class DiscoveryEngineTest {
             return new NonBurnableReferences.Window(after, after + events.size(), events);
         }
 
-        public Optional<UUID> upperPending(RecoveryReadContext r) {
-            return pending.stream().reduce((a, b) -> b);
-        }
-
-        public List<UUID> pendingPage(
-                Optional<UUID> after, UUID upper, int size, RecoveryReadContext r) {
-            return pending;
-        }
-
-        public boolean tryProtectPending(UUID id) {
-            protectedIds.add(id);
-            return !skipped.contains(id);
-        }
-
         void fourEvents() {
             events =
                     List.of(
@@ -189,62 +211,75 @@ class DiscoveryEngineTest {
         var h = new Harness(ConsumableFamily.COMMAND);
         h.pending = List.of(u(3), u(9));
         h.slots.add(u(3));
-        var result = h.engine(1).discoverRequests(h.lease, DiscoveryEngine.RequestWalk.fresh());
+        var result = h.engine(1).discoverRequests(h.lease);
         assertEquals(2, result.advanced());
         assertEquals(1, result.committedAdmissions());
+        assertEquals(2L, result.checkpoint().orElseThrow());
         assertEquals(Set.of(u(3), u(9)), h.slots);
     }
 
     @Test
-    void filteredPageIsNotEndOfTour() {
+    void lockedPendingHoldsBackCheckpointWhileTerminalAdvances() {
         var h = new Harness(ConsumableFamily.COMMAND);
-        h.pending = List.of(u(3));
-        h.skipped.add(u(3));
-        var result =
-                h.engine(1)
-                        .discoverRequests(
-                                h.lease,
-                                new DiscoveryEngine.RequestWalk(
-                                        Optional.empty(), Optional.of(u(19))));
-        assertFalse(result.tourFinished());
-        assertEquals(Optional.of(u(3)), result.next().afterExclusive());
-        assertEquals(1, result.examined());
-        assertEquals(1, result.advanced());
-        assertEquals(0, result.committedAdmissions());
+        h.pending = List.of(u(3), u(9), u(12));
+        h.terminal.add(u(3));
+        h.skipped.add(u(9));
+        var first = h.engine(2).discoverRequests(h.lease);
+        assertEquals(DiscoveryEngine.Status.COMMITTED, first.status());
+        assertEquals(2, first.examined());
+        assertEquals(1, first.advanced());
+        assertEquals(0, first.committedAdmissions());
+        assertEquals(1L, first.checkpoint().orElseThrow());
+        assertEquals(1L, h.k);
+        assertTrue(h.slots.isEmpty());
+
+        // Once the lock on u(9) is released, the next pass resumes from checkpoint 1 and admits u(9) and u(12)
+        h.skipped.remove(u(9));
+        var second = h.engine(2).discoverRequests(h.lease);
+        assertEquals(DiscoveryEngine.Status.COMMITTED, second.status());
+        assertEquals(2, second.examined());
+        assertEquals(2, second.advanced());
+        assertEquals(2, second.committedAdmissions());
+        assertEquals(3L, second.checkpoint().orElseThrow());
+        assertEquals(3L, h.k);
+        assertEquals(Set.of(u(9), u(12)), h.slots);
     }
 
     @Test
     void capacityPreservesUnexaminedSuffix() {
         var h = new Harness(ConsumableFamily.COMMAND);
         h.pending = List.of(u(3), u(9), u(12), u(15), u(19));
-        h.skipped.add(u(9));
+        h.terminal.add(u(9));
         h.slots.add(u(12));
-        var result = h.engine(1).discoverRequests(h.lease, DiscoveryEngine.RequestWalk.fresh());
+        var result = h.engine(1).discoverRequests(h.lease);
+        assertEquals(DiscoveryEngine.Status.CAPACITY, result.status());
         assertEquals(4, result.examined());
         assertEquals(3, result.advanced());
         assertEquals(1, result.committedAdmissions());
-        assertEquals(Optional.of(u(12)), result.next().afterExclusive());
-        assertEquals(Optional.of(u(19)), result.next().upperInclusive());
+        assertEquals(3L, result.checkpoint().orElseThrow());
         assertEquals(List.of(u(3), u(9), u(12), u(15)), h.protectedIds);
         var full = new Harness(ConsumableFamily.COMMAND);
         full.stock = 1;
         full.pending = h.pending;
-        var walk = DiscoveryEngine.RequestWalk.fresh();
-        var stopped = full.engine(1).discoverRequests(full.lease, walk);
-        assertEquals(walk, stopped.next());
+        var stopped = full.engine(1).discoverRequests(full.lease);
+        assertEquals(DiscoveryEngine.Status.CAPACITY, stopped.status());
+        assertEquals(0L, stopped.checkpoint().orElseThrow());
         assertEquals(0, stopped.examined());
         assertTrue(full.protectedIds.isEmpty());
     }
 
     @Test
-    void walkUsesUnsignedUuidOrder() {
-        UUID low = UUID.fromString("7fffffff-ffff-ffff-ffff-ffffffffffff"),
-                high = UUID.fromString("80000000-0000-0000-0000-000000000000");
-        assertDoesNotThrow(
-                () -> new DiscoveryEngine.RequestWalk(Optional.of(low), Optional.of(high)));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new DiscoveryEngine.RequestWalk(Optional.of(high), Optional.of(low)));
+    void staleCheckpointAndNotOwnerOnRequests() {
+        var h = new Harness(ConsumableFamily.COMMAND);
+        h.pending = List.of(u(3));
+        h.actualK = 5L;
+        var stale = h.engine(1).discoverRequests(h.lease);
+        assertEquals(DiscoveryEngine.Status.STALE_CHECKPOINT, stale.status());
+        assertEquals(5L, stale.checkpoint().orElseThrow());
+        h.owned = false;
+        var notOwner = h.engine(1).discoverRequests(h.lease);
+        assertEquals(DiscoveryEngine.Status.BUSY_OR_NOT_OWNER, notOwner.status());
+        assertTrue(notOwner.checkpoint().isEmpty());
     }
 
     @Test
@@ -254,7 +289,7 @@ class DiscoveryEngineTest {
         h.unknown = true;
         assertThrows(
                 AttemptTransactions.Failure.class,
-                () -> h.engine(1).discoverRequests(h.lease, DiscoveryEngine.RequestWalk.fresh()));
+                () -> h.engine(1).discoverRequests(h.lease));
     }
 
     @Test
@@ -266,13 +301,10 @@ class DiscoveryEngineTest {
         assertEquals(0, h.k);
         assertThrows(
                 IllegalStateException.class,
-                () -> h.engine(1).discoverRequests(h.lease, DiscoveryEngine.RequestWalk.fresh()));
+                () -> h.engine(1).discoverRequests(h.lease));
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new DiscoveryEngine.Settings(0, 1, 1, 1, Duration.ZERO, Duration.ZERO));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new DiscoveryEngine.RequestWalk(Optional.of(u(1)), Optional.empty()));
         for (int[] bounds :
                 List.of(
                         new int[] {-1, 1, 1, 1},
@@ -309,9 +341,6 @@ class DiscoveryEngineTest {
                         new DiscoveryEngine.Settings(
                                 1, 1, 1, 1, Duration.ofSeconds(3), Duration.ofSeconds(2)));
         assertThrows(
-                NullPointerException.class,
-                () -> new DiscoveryEngine.RequestWalk(null, Optional.empty()));
-        assertThrows(
                 NullPointerException.class, () -> new NonBurnableReferences.Window(0, 1, null));
         assertThrows(
                 IllegalArgumentException.class,
@@ -322,6 +351,17 @@ class DiscoveryEngineTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new NonBurnableReferences.Reference(1, u(2), " "));
+        assertThrows(
+                NullPointerException.class, () -> new BurnableReferences.Window(0, 1, null));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new BurnableReferences.Window(Long.MAX_VALUE, 0, List.of()));
+        assertThrows(
+                NullPointerException.class,
+                () -> new BurnableReferences.Reference(1, null));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new BurnableReferences.Reference(0, u(2)));
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -349,16 +389,13 @@ class DiscoveryEngineTest {
                 IllegalArgumentException.class,
                 () ->
                         new DiscoveryEngine(
-                                h.definition, h, h, h, settings(1), (BurnableReferences) wrong));
+                                h.definition, h, h, h, settings(1), wrong.burnableSource()));
         assertThrows(
                 IllegalStateException.class, () -> wrong.engine(1).discoverEvents(wrong.lease));
-        wrong.pending = List.of(u(9), u(3));
+        wrong.requestWindow = List.of(new BurnableReferences.Reference(2, u(9)));
         assertThrows(
                 IllegalStateException.class,
-                () ->
-                        wrong.engine(1)
-                                .discoverRequests(
-                                        wrong.lease, DiscoveryEngine.RequestWalk.fresh()));
+                () -> wrong.engine(1).discoverRequests(wrong.lease));
         assertTrue(wrong.slots.isEmpty());
         h.owned = false;
         h.events = List.of();

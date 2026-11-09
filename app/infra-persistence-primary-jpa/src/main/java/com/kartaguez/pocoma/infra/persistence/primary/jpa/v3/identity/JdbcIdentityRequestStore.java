@@ -153,25 +153,42 @@ from v3_identity_request c left join v3_identity_request_result r using(request_
                     if (request.createdAt().getNano() % 1000 != 0)
                         throw new IllegalArgumentException(
                                 "PostgreSQL microsecond precision required");
-                    jdbc.update(
-                            """
+                    int inserted =
+                            jdbc.update(
+                                    """
 insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,
     target_issuer,target_subject,admission_context,created_at)
 values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
 """,
-                            request.requestId(),
-                            request.requesterEui().issuer(),
-                            request.requesterEui().subject(),
-                            IdentityRequestJson.operation(request),
-                            request.bindingToken() == null ? null : request.bindingToken().value(),
-                            request.target().issuer(),
-                            request.target().subject(),
-                            IdentityRequestJson.encode(request.admission()),
-                            Timestamp.from(request.createdAt()));
+                                    request.requestId(),
+                                    request.requesterEui().issuer(),
+                                    request.requesterEui().subject(),
+                                    IdentityRequestJson.operation(request),
+                                    request.bindingToken() == null
+                                            ? null
+                                            : request.bindingToken().value(),
+                                    request.target().issuer(),
+                                    request.target().subject(),
+                                    IdentityRequestJson.encode(request.admission()),
+                                    Timestamp.from(request.createdAt()));
                     var stored = load(request.requestId()).orElseThrow();
                     if (!stored.request().equals(request))
                         throw new IllegalStateException(
                                 "Identity request ID has another intention");
+                    if (inserted == 1) {
+                        Long pos =
+                                jdbc.queryForObject(
+                                        "update v3_request_counter set position=position+1 where"
+                                                + " family='IDENTITY_REQUEST' returning position",
+                                        Long.class);
+                        if (pos == null)
+                            throw new IllegalStateException("Missing IDENTITY_REQUEST counter");
+                        jdbc.update(
+                                "insert into v3_request_position(family,position,request_id) values"
+                                        + " ('IDENTITY_REQUEST',?,?)",
+                                pos,
+                                request.requestId());
+                    }
                     return stored;
                 });
     }

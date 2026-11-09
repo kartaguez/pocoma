@@ -79,7 +79,8 @@ class ConsumptionBootstrapPostgresTest {
                 .locations(
                         "classpath:db/v3-pot/migration",
                         "classpath:db/v3-pot-execution/migration",
-                        "classpath:db/v3-consumption-write/migration")
+                        "classpath:db/v3-consumption-write/migration",
+                        "classpath:db/v3-identity/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

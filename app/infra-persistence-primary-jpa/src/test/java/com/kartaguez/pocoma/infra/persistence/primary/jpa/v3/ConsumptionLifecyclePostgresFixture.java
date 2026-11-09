@@ -85,7 +85,8 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                         ? new String[] {
                             "classpath:db/v3-pot/migration",
                             "classpath:db/v3-pot-execution/migration",
-                            "classpath:db/v3-consumption-write/migration"
+                            "classpath:db/v3-consumption-write/migration",
+                            "classpath:db/v3-identity/migration"
                         }
                         : new String[] {
                             "filesystem:"
@@ -418,9 +419,13 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                 != partition);
         if (write)
             oracle.update(
-                    "insert into"
+                    "with cmd as (insert into"
                         + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values (?,'i3','actor','fixture',?,?,?,?::jsonb)",
+                        + " values (?,'i3','actor','fixture',?,?,?,?::jsonb) returning request_id),"
+                        + " pos as (update v3_request_counter set position=position+1 where"
+                        + " family='COMMAND' returning position) insert into"
+                        + " v3_request_position(family,position,request_id) select"
+                        + " 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                     id,
                     pot == null ? new UUID(1, sequence) : pot,
                     observed,

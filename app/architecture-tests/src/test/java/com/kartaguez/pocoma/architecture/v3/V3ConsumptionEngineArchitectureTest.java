@@ -516,6 +516,10 @@ class V3ConsumptionEngineArchitectureTest {
                                 .Reference.class,
                         com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences.Window
                                 .class,
+                        com.kartaguez.pocoma.engine.consumption.v3.port.BurnableReferences
+                                .Reference.class,
+                        com.kartaguez.pocoma.engine.consumption.v3.port.BurnableReferences.Window
+                                .class,
                         com.kartaguez.pocoma.domain.projection.v3.SubobjectVersion.class,
                         com.kartaguez.pocoma.domain.projection.v3.SubobjectKey.class)) {
             assertTrue(type.isRecord());
@@ -531,6 +535,7 @@ class V3ConsumptionEngineArchitectureTest {
                         name);
             }
         }
+        assertTrue(PROD.stream().noneMatch(c -> c.getSimpleName().equals("RequestWalk")));
     }
 
     static class BadParticipantGuard {

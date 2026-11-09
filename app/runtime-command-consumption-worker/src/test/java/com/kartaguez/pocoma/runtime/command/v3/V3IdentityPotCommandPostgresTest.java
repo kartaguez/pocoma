@@ -237,7 +237,7 @@ class V3IdentityPotCommandPostgresTest {
             var lease =
                     leases.computeIfAbsent(
                             partition, p -> engine.acquirePartition(p).orElseThrow());
-            discovery.discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+            discovery.discoverRequests(lease);
             var acquired = engine.acquire(lease, List.of(command.requestId()));
             assertEquals(1, acquired.claims().size());
             var claim = acquired.claims().getFirst();

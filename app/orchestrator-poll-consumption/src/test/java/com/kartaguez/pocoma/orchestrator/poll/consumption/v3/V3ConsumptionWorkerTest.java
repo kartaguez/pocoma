@@ -302,7 +302,10 @@ class V3ConsumptionWorkerTest {
                                         new Class[] {DiscoveryAdmissionStore.class},
                                         (p, m, a) ->
                                                 switch (m.getName()) {
-                                                    case "liveSlots" -> 0L;
+                                                    case "liveSlots",
+                                                            "checkpoint",
+                                                            "currentCheckpoint" ->
+                                                            0L;
                                                     case "contains" -> true;
                                                     case "insertInitial", "advanceCheckpoint" ->
                                                             null;
@@ -315,17 +318,16 @@ class V3ConsumptionWorkerTest {
                                 return ConsumableFamily.COMMAND;
                             }
 
-                            public Optional<UUID> upperPending(RecoveryReadContext c) {
+                            public Window window(long after, int max, RecoveryReadContext c) {
                                 discoveries.incrementAndGet();
-                                return Optional.empty();
-                            }
-
-                            public List<UUID> pendingPage(
-                                    Optional<UUID> a, UUID u, int n, RecoveryReadContext c) {
-                                return List.of();
+                                return new Window(after, after, List.of());
                             }
 
                             public boolean tryProtectPending(UUID key) {
+                                return false;
+                            }
+
+                            public boolean isTerminal(UUID key) {
                                 return false;
                             }
                         };
@@ -847,8 +849,9 @@ class V3ConsumptionWorkerTest {
     static final class TourFixture implements AutoCloseable {
         final List<String> journal = new ArrayList<>();
         final List<UUID> source = new ArrayList<>();
-        final Set<UUID> admitted = new HashSet<>();
-        final AtomicInteger tours = new AtomicInteger();
+        final Set<UUID> admitted = new HashSet<>(), lockedPending = new HashSet<>();
+        final AtomicInteger advanced = new AtomicInteger();
+        final Map<ConsumptionId, Long> checkpoints = new HashMap<>();
         final Fixture base;
         final V3DiscoveryLoop loop;
         boolean full, noLease, notOwner, sourceFailure, admissionFailure, fenceFailure;
@@ -866,9 +869,9 @@ class V3ConsumptionWorkerTest {
                             true,
                             null,
                             (id, phase, outcome, amount, elapsed) -> {
-                                if (phase == ConsumptionObservation.Phase.DISCOVERY_TOUR) {
+                                if (phase == ConsumptionObservation.Phase.DISCOVERY_ADVANCED) {
                                     journal.add("metric:" + id.value());
-                                    tours.addAndGet((int) amount);
+                                    advanced.addAndGet((int) amount);
                                 }
                                 if (observerFailure)
                                     throw new AssertionError("observer unavailable");
@@ -938,10 +941,21 @@ class V3ConsumptionWorkerTest {
                                                         admitted.add((UUID) args[2]);
                                                         yield null;
                                                     }
-                                                    case "checkpoint", "currentCheckpoint" ->
-                                                            checkpoint;
+                                                    case "checkpoint" ->
+                                                            checkpoints.getOrDefault(
+                                                                    (ConsumptionId) args[0], 0L);
+                                                    case "currentCheckpoint" ->
+                                                            checkpoints.getOrDefault(
+                                                                    ((PartitionLease) args[0])
+                                                                            .consumptionId(),
+                                                                    0L);
                                                     case "advanceCheckpoint" -> {
-                                                        checkpoint = (long) args[2];
+                                                        long next = (long) args[2];
+                                                        checkpoints.put(
+                                                                ((PartitionLease) args[0])
+                                                                        .consumptionId(),
+                                                                next);
+                                                        checkpoint = next;
                                                         yield null;
                                                     }
                                                     default ->
@@ -979,7 +993,7 @@ class V3ConsumptionWorkerTest {
                         };
                 var settings =
                         new DiscoveryEngine.Settings(
-                                32,
+                                pageSize,
                                 pageSize,
                                 softCap,
                                 softCap,
@@ -994,32 +1008,25 @@ class V3ConsumptionWorkerTest {
                                     return family;
                                 }
 
-                                public Optional<UUID> upperPending(RecoveryReadContext read) {
-                                    journal.add("upper");
+                                public Window window(
+                                        long after, int limit, RecoveryReadContext read) {
+                                    journal.add("window:" + after);
                                     if (sourceFailure) throw new IllegalStateException("source");
-                                    return source.stream().max(SlotKeyNavigation::compare);
-                                }
-
-                                public List<UUID> pendingPage(
-                                        Optional<UUID> after,
-                                        UUID upper,
-                                        int limit,
-                                        RecoveryReadContext read) {
-                                    journal.add("page:" + after);
-                                    return source.stream()
-                                            .filter(
-                                                    k ->
-                                                            after.isEmpty()
-                                                                    || SlotKeyNavigation.compare(
-                                                                                    k, after.get())
-                                                                            > 0)
-                                            .filter(k -> SlotKeyNavigation.compare(k, upper) <= 0)
-                                            .limit(limit)
-                                            .toList();
+                                    var refs = new ArrayList<Reference>();
+                                    for (int i = (int) after;
+                                            i < source.size() && refs.size() < limit;
+                                            i++) {
+                                        refs.add(new Reference(i + 1L, source.get(i)));
+                                    }
+                                    return new Window(after, after + refs.size(), refs);
                                 }
 
                                 public boolean tryProtectPending(UUID key) {
-                                    return true;
+                                    return !lockedPending.contains(key);
+                                }
+
+                                public boolean isTerminal(UUID key) {
+                                    return false;
                                 }
                             };
                     discovery =
@@ -1083,10 +1090,10 @@ class V3ConsumptionWorkerTest {
             field.set(target, value);
         }
 
-        void pass(int expectedTours) {
+        void pass(int expectedAdvanced) {
             protections = 0;
             loop.runOnePass();
-            assertEquals(expectedTours, tours.get(), journal.toString());
+            assertEquals(expectedAdvanced, advanced.get(), journal.toString());
             for (int i = 0; i < journal.size(); i++)
                 if (journal.get(i).startsWith("metric:"))
                     assertEquals("owner-return", journal.get(i - 1));
@@ -1098,33 +1105,36 @@ class V3ConsumptionWorkerTest {
     }
 
     @Test
-    void i5_u11_discovery_tours() throws Exception {
+    void i5_u11_discovery_checkpoints() throws Exception {
         for (var family : List.of(ConsumableFamily.COMMAND, ConsumableFamily.IDENTITY_REQUEST)) {
             try (var f = new TourFixture(family, 2, 3, 1, 100)) {
-                for (int expected : List.of(0, 0, 0, 0, 1, 2)) f.pass(expected);
+                for (int expected : List.of(1, 2, 3, 4, 5, 6)) f.pass(expected);
                 assertEquals(3, f.admitted.size());
-                // Same keys, no new admission; the next complete traversal still counts.
-                for (int expected : List.of(2, 2, 2, 2, 3, 4)) f.pass(expected);
+                // Covered checkpoints are never re-walked when no new positions exist.
+                for (int expected : List.of(6, 6)) f.pass(expected);
                 assertEquals(3, f.admitted.size());
             }
             try (var f = new TourFixture(family, 1, 0, 1, 100)) {
-                f.pass(1);
+                f.pass(0);
             }
             try (var f = new TourFixture(family, 1, 3, 1, 100)) {
-                f.pass(0);
-                f.source.clear();
                 f.pass(1);
+                f.lockedPending.add(f.source.get(1));
+                f.pass(1); // Locked PENDING without slot holds back checkpoint at 1
+                f.lockedPending.clear();
+                f.pass(2);
+                f.pass(3);
             }
             try (var f = new TourFixture(family, 1, 3, 3, 1)) {
                 f.full = true;
                 f.pass(0);
                 f.full = false;
-                f.pass(0); // Partial prefix, capacity is reached before U.
+                f.pass(1); // Partial prefix, capacity is reached after position 1.
                 assertEquals(1, f.admitted.size());
                 f.admitted.clear();
-                f.pass(0);
+                f.pass(2);
                 f.admitted.clear();
-                f.pass(1);
+                f.pass(3);
             }
         }
     }
@@ -1146,7 +1156,7 @@ class V3ConsumptionWorkerTest {
             try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, 1, 1, 100)) {
                 f.lostResult = resolution;
                 assertThrows(AttemptTransactions.Failure.class, () -> f.loop.runOnePass());
-                assertEquals(0, f.tours.get());
+                assertEquals(0, f.advanced.get());
             }
         }
         for (String fault : List.of("source", "admission", "fence")) {
@@ -1155,7 +1165,7 @@ class V3ConsumptionWorkerTest {
                 f.admissionFailure = fault.equals("admission");
                 f.fenceFailure = fault.equals("fence");
                 assertThrows(IllegalStateException.class, () -> f.loop.runOnePass());
-                assertEquals(0, f.tours.get());
+                assertEquals(0, f.advanced.get());
             }
         }
         try (var f = new TourFixture(ConsumableFamily.POT_EVENT, 1, 1, 1, 100)) {
@@ -1165,9 +1175,9 @@ class V3ConsumptionWorkerTest {
         }
         try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, 3, 1, 100)) {
             f.observerFailure = true;
-            f.pass(0);
-            f.pass(0);
             f.pass(1);
+            f.pass(2);
+            f.pass(3);
             assertEquals(3, f.admitted.size());
         }
     }

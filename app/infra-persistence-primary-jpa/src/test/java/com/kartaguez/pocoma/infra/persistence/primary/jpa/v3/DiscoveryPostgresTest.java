@@ -132,9 +132,13 @@ class DiscoveryPostgresTest {
             c.setAutoCommit(false);
             try (var st =
                     c.prepareStatement(
-                            "insert into"
+                            "with cmd as (insert into"
                                 + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                                + " values(?,'i3','actor','fixture',gen_random_uuid(),0,'CreatePot',?::jsonb)")) {
+                                + " values(?,'i3','actor','fixture',gen_random_uuid(),0,'CreatePot',?::jsonb)"
+                                + " returning request_id), pos as (update v3_request_counter set"
+                                + " position=position+1 where family='COMMAND' returning position)"
+                                + " insert into v3_request_position(family,position,request_id)"
+                                + " select 'COMMAND',pos.position,cmd.request_id from cmd,pos")) {
                 for (UUID id : ids) {
                     st.setObject(1, id);
                     st.setString(
@@ -210,13 +214,11 @@ class DiscoveryPostgresTest {
                             new JdbcDiscoveryAdmissionStore(connection, settings),
                             settings,
                             new JdbcCommandDiscoveryReferences(connection, settings));
-            var walk = DiscoveryEngine.RequestWalk.fresh();
             for (int offset = 0; offset < n; offset += 32) {
                 lease = e.renewPartitions(List.of(lease)).getFirst();
                 int end = Math.min(n, offset + 32);
-                var progress = d.discoverRequests(lease, walk);
+                var progress = d.discoverRequests(lease);
                 assertEquals(end - offset, progress.committedAdmissions());
-                walk = progress.next();
                 var claims = e.acquire(lease, ids.subList(offset, end)).claims();
                 assertEquals(end - offset, claims.size());
                 for (var claim : claims)
@@ -589,15 +591,25 @@ class DiscoveryPostgresTest {
                     assertEquals(before, f.slotIds());
                 });
         both(
-                "no-burnable-checkpoint",
+                "burnable-checkpoint-monotonic-and-partition-bounds",
                 f -> {
-                    assertThrows(
-                            RuntimeException.class,
-                            () ->
-                                    f.target.sql.update(
-                                            "insert into discovery_checkpoint values(?,0,1)",
-                                            f.definition.id().value()));
-                    assertEquals(0, f.k(0));
+                    f.target.sql.update(
+                            "insert into discovery_checkpoint values(?,0,2)",
+                            f.definition.id().value());
+                    assertEquals(2, f.k(0));
+                    for (String sql :
+                            List.of(
+                                    "update discovery_checkpoint set position=1 where"
+                                            + " partition_id=0",
+                                    "delete from discovery_checkpoint",
+                                    "insert into discovery_checkpoint values('"
+                                            + f.definition.id().value()
+                                            + "',1,-1)",
+                                    "insert into discovery_checkpoint values('"
+                                            + f.definition.id().value()
+                                            + "',4,1)"))
+                        assertThrows(RuntimeException.class, () -> f.target.sql.execute(sql), sql);
+                    assertEquals(2, f.k(0));
                 });
     }
 
@@ -640,13 +652,11 @@ class DiscoveryPostgresTest {
                 "pending-admission",
                 f -> {
                     f.pending(f.q(0));
-                    var r =
-                            f.engine()
-                                    .discoverRequests(
-                                            f.lease(0), DiscoveryEngine.RequestWalk.fresh());
+                    var r = f.engine().discoverRequests(f.lease(0));
                     assertEquals(1, r.committedAdmissions());
+                    assertEquals(1L, r.checkpoint().orElseThrow());
                     assertEquals(Set.of(f.q(0)), f.slotIds());
-                    assertEquals(0, f.k(0));
+                    assertEquals(1, f.k(0));
                     assertEquals(
                             "PENDING",
                             f.write.oracle.queryForObject(
@@ -673,12 +683,7 @@ class DiscoveryPostgresTest {
                         if (active)
                             assertEquals(1, e.acquire(lease, List.of(f.q(0))).claims().size());
                         var before = f.target.oracle.queryForList("select * from consumption_slot");
-                        assertEquals(
-                                0,
-                                f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh())
-                                        .committedAdmissions());
+                        assertEquals(0, f.engine().discoverRequests(lease).committedAdmissions());
                         assertEquals(
                                 before,
                                 f.target.oracle.queryForList("select * from consumption_slot"));
@@ -701,11 +706,7 @@ class DiscoveryPostgresTest {
                                     + " '1 second' where consumption_id=?",
                             f.definition.id().value());
                     var before = f.target.oracle.queryForList("select * from consumption_slot");
-                    assertEquals(
-                            0,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(0, f.engine().discoverRequests(lease).committedAdmissions());
                     assertEquals(
                             before, f.target.oracle.queryForList("select * from consumption_slot"));
                     var next = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
@@ -734,11 +735,7 @@ class DiscoveryPostgresTest {
                                             f.definition.id().value())
                                     .toInstant();
                     var before = f.target.oracle.queryForList("select * from consumption_slot");
-                    assertEquals(
-                            0,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(0, f.engine().discoverRequests(lease).committedAdmissions());
                     assertEquals(
                             before, f.target.oracle.queryForList("select * from consumption_slot"));
                     assertTrue(f.lifecycle().acquire(lease, List.of(f.q(0))).claims().isEmpty());
@@ -760,12 +757,9 @@ class DiscoveryPostgresTest {
                     var before = f.target.oracle.queryForList("select * from consumption_slot");
                     var lease = f.lease(0);
                     for (int tour = 0; tour < 3; tour++) {
-                        var r =
-                                f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh());
+                        var r = f.engine().discoverRequests(lease);
                         assertEquals(0, r.committedAdmissions());
-                        assertTrue(r.tourFinished());
+                        assertEquals(1L, r.checkpoint().orElseThrow());
                         assertEquals(0, f.count());
                         assertEquals(
                                 before,
@@ -789,7 +783,7 @@ class DiscoveryPostgresTest {
                                     f.requests,
                                     (m, a) -> {},
                                     (m, a) -> {
-                                        if (m.equals("pendingPage")
+                                        if (m.equals("window")
                                                 && called.compareAndSet(false, true))
                                             f.target
                                                     .threads
@@ -803,7 +797,7 @@ class DiscoveryPostgresTest {
                     assertEquals(
                             0,
                             f.engine(f.admissions, null, source, f.target.tx)
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
+                                    .discoverRequests(lease)
                                     .committedAdmissions());
                     assertTrue(f.slotIds().isEmpty());
                     assertEquals(
@@ -841,28 +835,19 @@ class DiscoveryPostgresTest {
                             f.target.threads.submit(
                                     () ->
                                             f.engine(store, null, f.requests, f.target.tx)
-                                                    .discoverRequests(
-                                                            lease,
-                                                            DiscoveryEngine.RequestWalk.fresh()));
+                                                    .discoverRequests(lease));
                     assertTrue(held.await(8, TimeUnit.SECONDS));
                     try {
                         assertEquals(
                                 DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
-                                f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh())
-                                        .status());
+                                f.engine().discoverRequests(lease).status());
                         assertTrue(f.slotIds().isEmpty());
                         f.locks("D1-held-partition");
                     } finally {
                         release.countDown();
                     }
                     assertEquals(2, d.get(8, TimeUnit.SECONDS).committedAdmissions());
-                    assertEquals(
-                            0,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(0, f.engine().discoverRequests(lease).committedAdmissions());
                     assertEquals(Set.of(f.q(0), f.q(1)), f.slotIds());
                 });
     }
@@ -875,23 +860,17 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(3));
                     f.settings =
                             new DiscoveryEngine.Settings(
-                                    128, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
+                                    1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var first =
-                            f.engine().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
-                    assertFalse(first.tourFinished());
-                    assertEquals(Optional.of(f.q(3)), first.next().upperInclusive());
+                    var first = f.engine().discoverRequests(lease);
+                    assertEquals(1L, first.checkpoint().orElseThrow());
                     UUID newId = behind ? f.q(0) : f.q(4);
                     f.pending(newId);
-                    var end = f.engine().discoverRequests(lease, first.next());
-                    assertTrue(end.tourFinished());
+                    var second = f.engine().discoverRequests(lease);
+                    assertEquals(2L, second.checkpoint().orElseThrow());
                     assertFalse(f.slotIds().contains(newId));
-                    var walk = DiscoveryEngine.RequestWalk.fresh();
-                    for (int call = 0; call < 8; call++) {
-                        var r = f.engine().discoverRequests(lease, walk);
-                        walk = r.next();
-                        if (r.tourFinished()) break;
-                    }
+                    var third = f.engine().discoverRequests(lease);
+                    assertEquals(3L, third.checkpoint().orElseThrow());
                     assertTrue(f.slotIds().contains(newId));
                 });
     }
@@ -917,27 +896,25 @@ class DiscoveryPostgresTest {
                     f.slot(f.q(0), false);
                     f.settings =
                             new DiscoveryEngine.Settings(
-                                    128, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
+                                    1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var walk = DiscoveryEngine.RequestWalk.fresh();
                     try (var locked = f.lockSource(f.q(1))) {
-                        for (int call = 0; call < 4; call++) {
-                            var r = f.engine().discoverRequests(lease, walk);
+                        for (int call = 0; call < 3; call++) {
+                            var r = f.engine().discoverRequests(lease);
                             f.trace.add("first tour " + r);
                             assertEquals(1, r.examined());
-                            assertEquals(1, r.advanced());
-                            if (call < 3) assertFalse(r.tourFinished());
-                            walk = r.next();
+                            assertEquals(call < 2 ? 1 : 0, r.advanced());
                         }
-                        assertEquals(Set.of(f.q(0), f.q(2)), f.slotIds());
+                        assertEquals(2L, f.k(0));
+                        assertEquals(Set.of(f.q(0)), f.slotIds());
                         f.locks("skipped-source-still-held");
                         locked.rollback();
                     }
-                    for (int call = 0; call < 4; call++) {
-                        var r = f.engine().discoverRequests(lease, walk);
+                    for (int call = 0; call < 2; call++) {
+                        var r = f.engine().discoverRequests(lease);
                         f.trace.add("free tour " + r);
-                        walk = r.next();
                     }
+                    assertEquals(4L, f.k(0));
                     assertEquals(Set.of(f.q(0), f.q(1), f.q(2)), f.slotIds());
                 });
     }
@@ -954,17 +931,16 @@ class DiscoveryPostgresTest {
                             new DiscoveryEngine.Settings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var walk = DiscoveryEngine.RequestWalk.fresh();
-                    var stopped = f.engine().discoverRequests(lease, walk);
-                    assertEquals(walk, stopped.next());
+                    var stopped = f.engine().discoverRequests(lease);
+                    assertEquals(DiscoveryEngine.Status.CAPACITY, stopped.status());
                     assertEquals(0, stopped.examined());
                     assertEquals(0, stopped.advanced());
                     assertEquals(0, stopped.committedAdmissions());
                     f.complete(lease, f.q(0));
-                    var first = f.engine().discoverRequests(lease, walk);
+                    var first = f.engine().discoverRequests(lease);
                     assertEquals(1, first.committedAdmissions());
                     f.complete(lease, f.q(1));
-                    var last = f.engine().discoverRequests(lease, first.next());
+                    var last = f.engine().discoverRequests(lease);
                     assertEquals(1, last.committedAdmissions());
                     assertEquals(Set.of(f.q(2)), f.slotIds());
                 });
@@ -980,22 +956,18 @@ class DiscoveryPostgresTest {
                             new DiscoveryEngine.Settings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var first =
-                            f.engine().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                    var first = f.engine().discoverRequests(lease);
                     assertEquals(2, first.examined());
                     assertEquals(1, first.advanced());
                     assertEquals(1, first.committedAdmissions());
-                    assertEquals(Optional.of(f.q(0)), first.next().afterExclusive());
+                    assertEquals(1L, first.checkpoint().orElseThrow());
                     f.complete(lease, f.q(0));
-                    var second = f.engine().discoverRequests(lease, first.next());
+                    var second = f.engine().discoverRequests(lease);
                     assertEquals(1, second.committedAdmissions());
-                    assertEquals(Optional.of(f.q(1)), second.next().afterExclusive());
+                    assertEquals(2L, second.checkpoint().orElseThrow());
                     f.complete(lease, f.q(1));
-                    assertEquals(
-                            1,
-                            f.engine()
-                                    .discoverRequests(lease, second.next())
-                                    .committedAdmissions());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
+                    assertEquals(3L, f.k(0));
                     assertEquals(Set.of(f.q(2)), f.slotIds());
                 });
     }
@@ -1008,15 +980,12 @@ class DiscoveryPostgresTest {
                     for (var id : List.of(f.q(0), f.q(1), f.q(4))) f.pending(id);
                     f.settings =
                             new DiscoveryEngine.Settings(
-                                    128, 2, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
+                                    2, 2, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    try (var locked = f.lockSource(f.q(0))) {
-                        var r =
-                                f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh());
-                        assertEquals(Optional.of(f.q(1)), r.next().afterExclusive());
-                        assertFalse(f.slotIds().contains(f.q(0)));
+                    try (var locked = f.lockSource(f.q(1))) {
+                        var r = f.engine().discoverRequests(lease);
+                        assertEquals(1L, r.checkpoint().orElseThrow());
+                        assertEquals(Set.of(f.q(0)), f.slotIds());
                         locked.rollback();
                     }
                     f.target.oracle.update(
@@ -1026,17 +995,11 @@ class DiscoveryPostgresTest {
                     var next = f.lease(0);
                     assertEquals(
                             DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .status());
-                    var walk = DiscoveryEngine.RequestWalk.fresh();
-                    for (int call = 0; call < 3; call++) {
-                        var r = f.engine().discoverRequests(next, walk);
-                        walk = r.next();
-                        if (r.tourFinished()) break;
-                    }
+                            f.engine().discoverRequests(lease).status());
+                    var r = f.engine().discoverRequests(next);
+                    assertEquals(2, r.committedAdmissions());
                     assertEquals(Set.of(f.q(0), f.q(1), f.q(4)), f.slotIds());
-                    assertEquals(0, f.k(0));
+                    assertEquals(3, f.k(0));
                 });
     }
 
@@ -1050,27 +1013,17 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(3));
                     f.settings =
                             new DiscoveryEngine.Settings(
-                                    128, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
+                                    1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var r = f.engine().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                    var r = f.engine().discoverRequests(lease);
+                    assertEquals(1L, r.checkpoint().orElseThrow());
                     for (var id : List.of(f.q(0), f.q(2), f.q(4))) f.pending(id);
-                    var walk = r.next();
-                    int calls = 0;
-                    do {
-                        r = f.engine().discoverRequests(lease, walk);
-                        f.trace.add("bounded current tour " + r);
-                        assertEquals(Optional.of(f.q(3)), walk.upperInclusive());
-                        walk = r.next();
-                        assertTrue(++calls <= 4);
-                    } while (!r.tourFinished());
-                    assertEquals(Set.of(f.q(1), f.q(2), f.q(3)), f.slotIds());
-                    calls = 0;
-                    do {
-                        r = f.engine().discoverRequests(lease, walk);
-                        f.trace.add("new tour " + r);
-                        walk = r.next();
-                        assertTrue(++calls <= 6);
-                    } while (!r.tourFinished());
+                    for (int call = 0; call < 4; call++) {
+                        r = f.engine().discoverRequests(lease);
+                        f.trace.add("sequential arrival window " + r);
+                        assertEquals(1, r.committedAdmissions());
+                    }
+                    assertEquals(5L, f.k(0));
                     assertEquals(Set.of(f.q(0), f.q(1), f.q(2), f.q(3), f.q(4)), f.slotIds());
                 });
     }
@@ -1277,10 +1230,7 @@ class DiscoveryPostgresTest {
                                 f.target.threads.submit(
                                         () ->
                                                 f.engine(f.admissions, null, source, f.target.tx)
-                                                        .discoverRequests(
-                                                                lease,
-                                                                DiscoveryEngine.RequestWalk
-                                                                        .fresh()));
+                                                        .discoverRequests(lease));
                         assertTrue(held.await(8, TimeUnit.SECONDS));
                         try {
                             fin.release();
@@ -1315,10 +1265,7 @@ class DiscoveryPostgresTest {
                             var lease = f.lease(0);
                             Set<UUID> before = f.slotIds();
                             try (var fin = new PausedFinalizer(f, lease, f.q(0), cut, rollback)) {
-                                var r =
-                                        f.engine()
-                                                .discoverRequests(
-                                                        lease, DiscoveryEngine.RequestWalk.fresh());
+                                var r = f.engine().discoverRequests(lease);
                                 assertEquals(1, r.examined());
                                 assertEquals(1, r.advanced());
                                 assertEquals(0, r.committedAdmissions());
@@ -1333,10 +1280,7 @@ class DiscoveryPostgresTest {
                                 assertEquals(rollback ? before : Set.of(), f.slotIds());
                                 assertEquals(
                                         0,
-                                        f.engine()
-                                                .discoverRequests(
-                                                        lease, DiscoveryEngine.RequestWalk.fresh())
-                                                .committedAdmissions());
+                                        f.engine().discoverRequests(lease).committedAdmissions());
                             }
                         });
     }
@@ -1488,15 +1432,12 @@ class DiscoveryPostgresTest {
                                             });
                             var r =
                                     f.engine(store, null, f.requests, f.target.tx)
-                                            .discoverRequests(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh());
+                                            .discoverRequests(lease);
                             assertEquals(DiscoveryEngine.Status.CAPACITY, r.status());
                             assertEquals(4, r.examined());
                             assertEquals(3, r.advanced());
                             assertEquals(1, r.committedAdmissions());
-                            assertEquals(Optional.of(f.q(2)), r.next().afterExclusive());
-                            assertEquals(Optional.of(f.q(4)), r.next().upperInclusive());
-                            assertFalse(r.tourFinished());
+                            assertEquals(3L, r.checkpoint().orElseThrow());
                             assertFalse(
                                     checkpoints.stream()
                                             .anyMatch(v -> v.endsWith(f.q(4).toString())));
@@ -1531,18 +1472,15 @@ class DiscoveryPostgresTest {
                                             : ConsumptionEngine.Status.COMMITTED,
                                     finalResult.status());
                             if (rollback) f.complete(lease, f.q(0));
-                            var next = f.engine().discoverRequests(lease, r.next());
+                            var next = f.engine().discoverRequests(lease);
                             assertEquals(1, next.committedAdmissions());
-                            assertEquals(Optional.of(f.q(3)), next.next().afterExclusive());
+                            assertEquals(4L, next.checkpoint().orElseThrow());
                             f.complete(lease, f.q(3));
-                            var last = f.engine().discoverRequests(lease, next.next());
+                            var last = f.engine().discoverRequests(lease);
                             assertEquals(1, last.committedAdmissions());
-                            assertTrue(last.tourFinished());
+                            assertTrue(last.checkpoint().orElseThrow() >= 5L);
                             f.complete(lease, f.q(4));
-                            var revisit =
-                                    f.engine()
-                                            .discoverRequests(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh());
+                            var revisit = f.engine().discoverRequests(lease);
                             assertEquals(0, revisit.committedAdmissions());
                             assertTrue(f.slotIds().contains(f.q(2)));
                             if (rollback) assertTrue(f.slotIds().contains(f.q(1)));
@@ -1580,7 +1518,7 @@ class DiscoveryPostgresTest {
         if (realEvents)
             for (var entry : externalPartitions(f.family, published).entrySet())
                 if (entry.getValue() == lease.partitionId()) expected.add(entry.getKey());
-        long high = realEvents ? published.size() : 4;
+        long high = realEvents ? published.size() : f.burnable() ? 2 : 4;
         f.trace.add(
                 "wire expected before stimulus: ids="
                         + expected
@@ -1618,7 +1556,6 @@ class DiscoveryPostgresTest {
             } else manager = ConsumptionLifecyclePostgresFixture.jdbcManager(source);
             try {
                 var owner = new SpringAttemptTransactions(source, manager);
-                var sql = new JdbcTemplate(source);
                 AttemptTransactions tx =
                         new AttemptTransactions() {
                             public <T> T read(
@@ -1646,61 +1583,7 @@ class DiscoveryPostgresTest {
                                 owner.requirePublicationClosed();
                             }
                         };
-                BurnableReferences requests =
-                        f.burnable()
-                                ? f.family == ConsumableFamily.COMMAND
-                                        ? new JdbcCommandDiscoveryReferences(source, f.settings)
-                                        : new BurnableReferences() {
-                                            public ConsumableFamily family() {
-                                                return f.family;
-                                            }
-
-                                            public Optional<UUID> upperPending(
-                                                    RecoveryReadContext c) {
-                                                SpringAttemptTransactions.requireRead(source, c);
-                                                return sql
-                                                        .queryForList(
-                                                                "select id from"
-                                                                    + " fixture_discovery_request"
-                                                                    + " where status='PENDING'"
-                                                                    + " order by id desc limit 1",
-                                                                UUID.class)
-                                                        .stream()
-                                                        .findFirst();
-                                            }
-
-                                            public List<UUID> pendingPage(
-                                                    Optional<UUID> after,
-                                                    UUID upper,
-                                                    int size,
-                                                    RecoveryReadContext c) {
-                                                SpringAttemptTransactions.requireRead(source, c);
-                                                return sql.queryForList(
-                                                        "select id from fixture_discovery_request"
-                                                            + " where status='PENDING' and id<=?"
-                                                            + " order by id limit ?",
-                                                        UUID.class,
-                                                        upper,
-                                                        size);
-                                            }
-
-                                            public boolean tryProtectPending(UUID id) {
-                                                return SpringAttemptTransactions.guarded(
-                                                        source,
-                                                        () ->
-                                                                !sql.queryForList(
-                                                                                "select id from"
-                                                                                    + " fixture_discovery_request"
-                                                                                    + " where id=?"
-                                                                                    + " and status='PENDING'"
-                                                                                    + " for update"
-                                                                                    + " skip"
-                                                                                    + " locked",
-                                                                                id)
-                                                                        .isEmpty());
-                                            }
-                                        }
-                                : null;
+                BurnableReferences requests = f.burnable() ? f.requestReferences(source) : null;
                 var admissions = new JdbcDiscoveryAdmissionStore(source, f.settings);
                 var ownership = new JdbcPartitionOwnershipStore(source);
                 var d =
@@ -1725,9 +1608,7 @@ class DiscoveryPostgresTest {
                         assertThrows(
                                 AttemptTransactions.Failure.class,
                                 () -> {
-                                    if (f.burnable())
-                                        d.discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh());
+                                    if (f.burnable()) d.discoverRequests(lease);
                                     else d.discoverEvents(lease);
                                 });
                 assertEquals(AttemptTransactions.Resolution.UNKNOWN, failure.resolution());
@@ -1745,16 +1626,14 @@ class DiscoveryPostgresTest {
                                         == 0);
                 boolean committed = fault == CommitAcknowledgementProxy.Fault.AFTER_COMMIT;
                 assertEquals(committed ? expected : Set.of(), f.slotIds());
-                if (!f.burnable()) assertEquals(committed ? high : 0, f.k(lease.partitionId()));
+                assertEquals(committed ? high : 0, f.k(lease.partitionId()));
                 int inserted =
                         f.burnable()
-                                ? f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh())
-                                        .committedAdmissions()
+                                ? f.engine().discoverRequests(lease).committedAdmissions()
                                 : f.engine().discoverEvents(lease).inserted();
                 assertEquals(committed ? 0 : expected.size(), inserted);
                 assertEquals(expected, f.slotIds());
+                assertEquals(high, f.k(lease.partitionId()));
                 f.trace.add(
                         "WIRE "
                                 + fault
@@ -1814,19 +1693,13 @@ class DiscoveryPostgresTest {
                                         AttemptTransactions.Failure.class,
                                         () ->
                                                 f.engine(store, null, f.requests, f.target.tx)
-                                                        .discoverRequests(
-                                                                lease,
-                                                                DiscoveryEngine.RequestWalk
-                                                                        .fresh()));
+                                                        .discoverRequests(lease));
                         assertEquals(
                                 AttemptTransactions.Resolution.ROLLED_BACK, failure.resolution());
                         assertTrue(f.slotIds().isEmpty());
+                        assertEquals(0, f.k(0));
                         assertEquals(
-                                2,
-                                f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh())
-                                        .committedAdmissions());
+                                2, f.engine().discoverRequests(lease).committedAdmissions());
                     });
         for (var fault :
                 List.of(
@@ -2139,9 +2012,14 @@ class DiscoveryPostgresTest {
                                     + " values('i3',?,'00000000-0000-0000-0000-000000000001','fixture')",
                                 actor);
                         w.oracle.update(
-                                "insert into"
+                                "with cmd as (insert into"
                                     + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                                    + " values(?,'i3',?,'fixture',?,0,'CreatePot',?::jsonb)",
+                                    + " values(?,'i3',?,'fixture',?,0,'CreatePot',?::jsonb)"
+                                    + " returning request_id), pos as (update v3_request_counter"
+                                    + " set position=position+1 where family='COMMAND' returning"
+                                    + " position) insert into"
+                                    + " v3_request_position(family,position,request_id) select"
+                                    + " 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                                 id,
                                 actor,
                                 pot,
@@ -2335,7 +2213,7 @@ class DiscoveryPostgresTest {
                 f -> {
                     f.pending(f.q(0));
                     var lease = f.lease(0);
-                    f.engine().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                    f.engine().discoverRequests(lease);
                     var e = f.lifecycle();
                     var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
                     f.target.oracle.update(
@@ -2346,16 +2224,11 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(1));
                     assertEquals(
                             DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .status());
+                            f.engine().discoverRequests(lease).status());
                     assertEquals(1, e.renewClaims(List.of(claim.claim())).size());
                     assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claim).status());
                     assertEquals(
-                            1,
-                            f.engine()
-                                    .discoverRequests(newLease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                            1, f.engine().discoverRequests(newLease).committedAdmissions());
                     assertEquals(Set.of(f.q(1)), f.slotIds());
                 });
     }
@@ -2411,15 +2284,11 @@ class DiscoveryPostgresTest {
                     assertEquals(2, f.count());
                     assertEquals(
                             DiscoveryEngine.Status.CAPACITY,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .status());
+                            f.engine().discoverRequests(lease).status());
                     f.complete(lease, f.q(1));
                     assertEquals(
                             DiscoveryEngine.Status.CAPACITY,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .status());
+                            f.engine().discoverRequests(lease).status());
                     f.complete(lease, f.q(0));
                     assertEquals(0, f.count());
                 });
@@ -2461,9 +2330,7 @@ class DiscoveryPostgresTest {
                             f.target.threads.submit(
                                     () ->
                                             f.engine(store, null, f.requests, f.target.tx)
-                                                    .discoverRequests(
-                                                            lease,
-                                                            DiscoveryEngine.RequestWalk.fresh()));
+                                                    .discoverRequests(lease));
                     assertTrue(held.await(8, TimeUnit.SECONDS));
                     try {
                         assertEquals(1, e.renewClaims(List.of(claim.claim())).size());
@@ -2726,7 +2593,7 @@ class DiscoveryPostgresTest {
                 f -> {
                     var lease = f.lease(0);
                     f.pending(f.q(0));
-                    f.engine().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                    f.engine().discoverRequests(lease);
                     f.complete(lease, f.q(0));
                     var pot =
                             f.write.oracle.queryForObject(
@@ -2735,19 +2602,20 @@ class DiscoveryPostgresTest {
                                     f.q(0));
                     for (int n = 1; n <= 2; n++)
                         f.write.oracle.update(
-                                "insert into"
+                                "with cmd as (insert into"
                                     + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                                    + " values(?,'i3','actor','fixture',?,?,'UpdatePotDetails',?::jsonb)",
+                                    + " values(?,'i3','actor','fixture',?,?,'UpdatePotDetails',?::jsonb)"
+                                    + " returning request_id), pos as (update v3_request_counter"
+                                    + " set position=position+1 where family='COMMAND' returning"
+                                    + " position) insert into"
+                                    + " v3_request_position(family,position,request_id) select"
+                                    + " 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                                 f.q(n),
                                 pot,
                                 n == 1 ? 1 : 999,
                                 PotCommandJson.encode(
                                         new PotCommand.UpdatePotDetails(new Label("I4 expected"))));
-                    assertEquals(
-                            2,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(2, f.engine().discoverRequests(lease).committedAdmissions());
                     for (int n = 1; n <= 2; n++) f.complete(lease, f.q(n));
                     assertEquals(
                             List.of("CHANGED", "UNCHANGED", "REJECTED"),
@@ -2763,11 +2631,7 @@ class DiscoveryPostgresTest {
                             f.write.oracle.queryForObject(
                                     "select count(*) from v3_command_completion_event",
                                     Integer.class));
-                    assertEquals(
-                            0,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(0, f.engine().discoverRequests(lease).committedAdmissions());
                     assertTrue(f.slotIds().isEmpty());
                     assertThrows(
                             RuntimeException.class,
@@ -2988,11 +2852,7 @@ class DiscoveryPostgresTest {
                 f -> {
                     f.pending(f.q(0));
                     var lease = f.lease(0);
-                    assertEquals(
-                            1,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
                     try (var proxy =
                             new CommitAcknowledgementProxy(PG.getHost(), PG.getMappedPort(5432))) {
                         var ds =
@@ -3097,11 +2957,7 @@ class DiscoveryPostgresTest {
                                                 "select count(*) from " + table, Integer.class));
                             assertTrue(f.slotIds().isEmpty());
                             assertEquals(
-                                    0,
-                                    f.engine()
-                                            .discoverRequests(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh())
-                                            .committedAdmissions());
+                                    0, f.engine().discoverRequests(lease).committedAdmissions());
                             e.settlePending();
                             assertTrue(f.slotIds().isEmpty());
                             f.trace.add(
@@ -3141,9 +2997,15 @@ class DiscoveryPostgresTest {
                                             + " where subject='actor'");
                             for (int n = 0; n < 2; n++)
                                 f.write.oracle.update(
-                                        "insert into"
+                                        "with cmd as (insert into"
                                             + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                                            + " values(?,'i3',?,'fixture',?,1,'UpdatePotDetails',?::jsonb)",
+                                            + " values(?,'i3',?,'fixture',?,1,'UpdatePotDetails',?::jsonb)"
+                                            + " returning request_id), pos as (update"
+                                            + " v3_request_counter set position=position+1 where"
+                                            + " family='COMMAND' returning position) insert into"
+                                            + " v3_request_position(family,position,request_id)"
+                                            + " select 'COMMAND',pos.position,cmd.request_id from"
+                                            + " cmd,pos",
                                         f.q(n),
                                         n == 0 || sameIdentity ? "actor" : "actor2",
                                         pots.get(n == 0 || samePot ? 0 : 1),
@@ -3152,11 +3014,7 @@ class DiscoveryPostgresTest {
                                                         new Label("I4 matrix " + n))));
                             var lease = f.lease(0);
                             assertEquals(
-                                    2,
-                                    f.engine()
-                                            .discoverRequests(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh())
-                                            .committedAdmissions());
+                                    2, f.engine().discoverRequests(lease).committedAdmissions());
                             try (var counter = f.write.admin.getConnection();
                                     var first =
                                             new PausedFinalizer(
@@ -3249,10 +3107,7 @@ class DiscoveryPostgresTest {
                                                 + counterPid);
                                 assertFalse(first.future.isDone());
                                 assertFalse(other.isDone());
-                                var d =
-                                        f.engine()
-                                                .discoverRequests(
-                                                        lease, DiscoveryEngine.RequestWalk.fresh());
+                                var d = f.engine().discoverRequests(lease);
                                 assertEquals(0, d.committedAdmissions());
                                 assertFalse(first.future.isDone());
                                 assertFalse(other.isDone());
@@ -3300,11 +3155,7 @@ class DiscoveryPostgresTest {
                                             Integer.class));
                             assertTrue(f.slotIds().isEmpty());
                             assertEquals(
-                                    0,
-                                    f.engine()
-                                            .discoverRequests(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh())
-                                            .committedAdmissions());
+                                    0, f.engine().discoverRequests(lease).committedAdmissions());
                         });
     }
 
@@ -3705,10 +3556,20 @@ class DiscoveryPostgresTest {
             c.setAutoCommit(false);
             String sql =
                     f.family == ConsumableFamily.COMMAND
-                            ? "insert into"
+                            ? "with cmd as (insert into"
                                   + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
                                   + " values(?,'i3','actor','fixture',gen_random_uuid(),0,'CreatePot',?::jsonb)"
-                            : "insert into fixture_discovery_request(id) values(?)";
+                                  + " returning request_id), pos as (update v3_request_counter set"
+                                  + " position=position+1 where family='COMMAND' returning"
+                                  + " position) insert into"
+                                  + " v3_request_position(family,position,request_id) select"
+                                  + " 'COMMAND',pos.position,cmd.request_id from cmd,pos"
+                            : "with req as (insert into fixture_discovery_request(id) values(?)"
+                                  + " returning id), pos as (update"
+                                  + " fixture_discovery_request_counter set position=position+1"
+                                  + " returning position) insert into"
+                                  + " fixture_discovery_request_position(position,id) select"
+                                  + " pos.position,req.id from req,pos";
             try (var st = c.prepareStatement(sql)) {
                 for (UUID id : ids) {
                     st.setObject(1, id);
@@ -3761,22 +3622,18 @@ class DiscoveryPostgresTest {
                     var lease = f.lease(0);
                     try (var cost = new CostDiscovery(f);
                             var locked = f.lockSource(f.q(2))) {
-                        var r = cost.discover(lease, DiscoveryEngine.RequestWalk.fresh());
-                        assertEquals(5, r.examined());
-                        assertEquals(5, r.advanced());
-                        assertEquals(1, r.committedAdmissions());
-                        assertTrue(r.tourFinished());
+                        var r = cost.discover(lease);
+                        assertEquals(3, r.examined());
+                        assertEquals(2, r.advanced());
+                        assertEquals(0, r.committedAdmissions());
+                        assertEquals(2L, r.checkpoint().orElseThrow());
                         assertFalse(f.slotIds().contains(f.q(2)));
                         f.locks(
                                 "majority duplicate/locked page physically committed while source"
                                         + " held");
                         locked.rollback();
                     }
-                    assertEquals(
-                            1,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .committedAdmissions());
+                    assertEquals(2, f.engine().discoverRequests(lease).committedAdmissions());
                     assertEquals(5, f.slotIds().size());
                 });
     }
@@ -3823,8 +3680,7 @@ class DiscoveryPostgresTest {
                             + " concurrency/composition proofs; no I5 pool guarantee");
         }
 
-        DiscoveryEngine.RequestProgress discover(
-                PartitionLease lease, DiscoveryEngine.RequestWalk walk) throws Exception {
+        DiscoveryEngine.RequestProgress discover(PartitionLease lease) throws Exception {
             meter.reset();
             meter.enabled = true;
             try {
@@ -3835,7 +3691,7 @@ class DiscoveryPostgresTest {
                                     long dispatch = System.nanoTime() - submitted;
                                     long allocation = allocatedBytes();
                                     try {
-                                        return engine.discoverRequests(lease, walk);
+                                        return engine.discoverRequests(lease);
                                     } finally {
                                         f.trace.add(
                                                 "COST actual harness single-platform-thread"
@@ -3933,27 +3789,25 @@ class DiscoveryPostgresTest {
                                             + " mod(abs(partition_hash::bigint),3)=1");
                             f.settings =
                                     new DiscoveryEngine.Settings(
-                                            128,
+                                            page,
                                             page,
                                             32,
                                             size + 64L,
                                             Duration.ofMillis(500),
                                             Duration.ofSeconds(10));
                             var lease = f.lease(0);
-                            var walk = DiscoveryEngine.RequestWalk.fresh();
                             try (var cost = new CostDiscovery(f)) {
                                 for (int sample = -5; sample < 10; sample++) {
                                     String walBefore = wal(f);
                                     long allocatedBefore = allocatedBytes();
                                     long start = System.nanoTime();
-                                    var r = cost.discover(lease, walk);
+                                    var r = cost.discover(lease);
                                     long ns = System.nanoTime() - start;
                                     long allocation = allocatedBytes() - allocatedBefore;
                                     long walBytes = walDelta(f, walBefore);
                                     assertTrue(r.examined() <= page);
                                     assertTrue(r.advanced() <= r.examined());
                                     assertTrue(r.committedAdmissions() <= 32);
-                                    walk = r.next();
                                     f.trace.add(
                                             "P02 sample="
                                                     + sample
@@ -3975,17 +3829,21 @@ class DiscoveryPostgresTest {
                             }
                             dmlPlanRolledBack(f);
                             f.trace.add(
-                                    "P02 keyset plan="
+                                    "P02 window plan="
                                             + f.write.oracle.queryForList(
                                                     "explain (analyze,buffers,wal,format json)"
-                                                            + " select "
-                                                            + f.requestKey()
-                                                            + " from "
-                                                            + f.requestTable()
-                                                            + " where status='PENDING' order by "
-                                                            + f.requestKey()
-                                                            + " limit "
-                                                            + page));
+                                                            + " select position, "
+                                                            + (f.family == ConsumableFamily.COMMAND
+                                                                    ? "request_id from"
+                                                                        + " v3_request_position"
+                                                                        + " where family='COMMAND'"
+                                                                        + " and"
+                                                                    : "id from"
+                                                                        + " fixture_discovery_request_position"
+                                                                        + " where")
+                                                            + " position>0 and position<="
+                                                            + page
+                                                            + " order by position"));
                         });
         duplicateLockedCost();
         both(
@@ -3997,17 +3855,17 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(0));
                     f.settings =
                             new DiscoveryEngine.Settings(
-                                    128, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
+                                    1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     try (var cost = new CostDiscovery(f)) {
-                        var first = cost.discover(lease, DiscoveryEngine.RequestWalk.fresh());
+                        var first = cost.discover(lease);
                         assertEquals(1, first.examined());
                         assertEquals(1, first.advanced());
                         assertEquals(0, first.committedAdmissions());
-                        assertFalse(first.tourFinished());
-                        var second = cost.discover(lease, first.next());
+                        assertEquals(1L, first.checkpoint().orElseThrow());
+                        var second = cost.discover(lease);
                         assertEquals(1, second.committedAdmissions());
-                        assertTrue(second.tourFinished());
+                        assertEquals(2L, second.checkpoint().orElseThrow());
                         assertEquals(Set.of(f.q(0)), f.slotIds());
                         f.trace.add(
                                 "filtered first page is global navigation; second real call admits"
@@ -4026,6 +3884,10 @@ class DiscoveryPostgresTest {
                             var ids = input(f.family, 0).subList(0, size);
                             bulkPending(f, ids);
                             bulkSlots(f, ids, percent);
+                            f.target.oracle.update(
+                                    "insert into discovery_checkpoint values(?,0,?)",
+                                    f.definition.id().value(),
+                                    size);
                             long live = f.count();
                             assertEquals((long) size * (100 - percent) / 100, live);
                             f.pending(f.q(0));
@@ -4043,9 +3905,7 @@ class DiscoveryPostgresTest {
                                     String walBefore = wal(f);
                                     long allocatedBefore = allocatedBytes();
                                     long start = System.nanoTime();
-                                    var r =
-                                            cost.discover(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh());
+                                    var r = cost.discover(lease);
                                     long ns = System.nanoTime() - start;
                                     long allocation = allocatedBytes() - allocatedBefore;
                                     long walBytes = walDelta(f, walBefore);
@@ -4073,10 +3933,7 @@ class DiscoveryPostgresTest {
                             dmlPlanRolledBack(f);
                             UUID free = ids.get(percent == 0 ? 0 : percent);
                             f.complete(lease, free);
-                            var r =
-                                    f.engine()
-                                            .discoverRequests(
-                                                    lease, DiscoveryEngine.RequestWalk.fresh());
+                            var r = f.engine().discoverRequests(lease);
                             assertEquals(1, r.committedAdmissions());
                             assertTrue(f.slotIds().contains(f.q(0)));
                             assertEquals(live, f.count());
@@ -4545,17 +4402,12 @@ class DiscoveryPostgresTest {
                             f.target.threads.submit(
                                     () ->
                                             f.engine(store, null, f.requests, f.target.tx)
-                                                    .discoverRequests(
-                                                            lease,
-                                                            DiscoveryEngine.RequestWalk.fresh()));
+                                                    .discoverRequests(lease));
                     assertTrue(held.await(8, TimeUnit.SECONDS));
                     try {
                         assertEquals(
                                 DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
-                                f.engine()
-                                        .discoverRequests(
-                                                lease, DiscoveryEngine.RequestWalk.fresh())
-                                        .status());
+                                f.engine().discoverRequests(lease).status());
                     } finally {
                         release.countDown();
                     }
@@ -4564,15 +4416,9 @@ class DiscoveryPostgresTest {
                     assertEquals(1, f.count());
                     assertEquals(
                             DiscoveryEngine.Status.CAPACITY,
-                            f.engine()
-                                    .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                                    .status());
+                            f.engine().discoverRequests(lease).status());
                     f.complete(lease, f.q(0));
-                    assertEquals(
-                            1,
-                            f.engine()
-                                    .discoverRequests(lease, result.next())
-                                    .committedAdmissions());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
                     assertEquals(Set.of(f.q(1)), f.slotIds());
                 });
     }
@@ -4587,20 +4433,17 @@ class DiscoveryPostgresTest {
                             new DiscoveryEngine.Settings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var walk = DiscoveryEngine.RequestWalk.fresh();
                     try (var locked = f.lockSource(f.q(1))) {
-                        var result = f.engine().discoverRequests(lease, walk);
+                        var result = f.engine().discoverRequests(lease);
+                        assertEquals(DiscoveryEngine.Status.CAPACITY, result.status());
                         assertEquals(0, result.examined());
-                        assertEquals(walk, result.next());
                         f.complete(lease, f.q(0));
                         locked.rollback();
                     }
-                    var first = f.engine().discoverRequests(lease, walk);
+                    var first = f.engine().discoverRequests(lease);
                     assertEquals(1, first.committedAdmissions());
                     f.complete(lease, f.q(1));
-                    assertEquals(
-                            1,
-                            f.engine().discoverRequests(lease, first.next()).committedAdmissions());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
                     assertEquals(Set.of(f.q(2)), f.slotIds());
                 });
     }
@@ -4613,26 +4456,23 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(3));
                     f.settings =
                             new DiscoveryEngine.Settings(
-                                    128, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
+                                    1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
-                    var r = f.engine().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                    var r = f.engine().discoverRequests(lease);
+                    assertEquals(1L, r.checkpoint().orElseThrow());
                     for (UUID id : List.of(f.q(0), f.q(2), f.q(4))) f.pending(id);
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
                     try (var locked = f.lockSource(f.q(2))) {
-                        var skipped = f.engine().discoverRequests(lease, r.next());
+                        var skipped = f.engine().discoverRequests(lease);
                         assertEquals(0, skipped.committedAdmissions());
-                        assertEquals(Optional.of(f.q(2)), skipped.next().afterExclusive());
-                        assertFalse(skipped.tourFinished());
-                        r = f.engine().discoverRequests(lease, skipped.next());
-                        assertTrue(r.tourFinished());
+                        assertEquals(3L, skipped.checkpoint().orElseThrow());
                         assertFalse(f.slotIds().contains(f.q(2)));
                         locked.rollback();
                     }
-                    int calls = 0;
-                    do {
-                        r = f.engine().discoverRequests(lease, r.next());
-                        assertTrue(++calls <= 6);
-                        f.trace.add("controlled free tour opportunity " + r);
-                    } while (!r.tourFinished());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
+                    assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
+                    assertEquals(5L, f.k(0));
                     assertEquals(Set.of(f.q(0), f.q(1), f.q(2), f.q(3), f.q(4)), f.slotIds());
                 });
     }
@@ -4918,6 +4758,262 @@ class DiscoveryPostgresTest {
                 "Three independent technical effects for the same POT event committed in distinct"
                     + " READ units; one actual F rollback retained only its own slot before normal"
                     + " reacquisition");
+    }
+
+    @Test
+    void populatedQuarantinesAndCompositeRestart() throws Exception {
+        for (int totalQuarantines : List.of(300, 800, 2000)) {
+            both(
+                    "populated-quarantines-" + totalQuarantines,
+                    f -> {
+                        var allQuarantined = new ArrayList<UUID>(totalQuarantines);
+                        for (int i = 0; i < totalQuarantines; i++) {
+                            allQuarantined.add(new UUID(0x5155415200000000L + totalQuarantines, i + 1L));
+                        }
+                        bulkPending(f, allQuarantined);
+                        try (var c = f.target.admin.getConnection()) {
+                            c.setAutoCommit(false);
+                            try (var st =
+                                    c.prepareStatement(
+                                            "insert into"
+                                                + " consumption_slot(consumption_id,consumable_id,partition_id,partition_hash,state,attempt_count)"
+                                                + " values(?,?,mod(mod(consumption_hash_v1(?,?)::bigint,4)+4,4)::integer,consumption_hash_v1(?,?),'QUARANTINED',3)")) {
+                                for (UUID id : allQuarantined) {
+                                    st.setObject(1, f.definition.id().value());
+                                    st.setObject(2, id);
+                                    st.setString(3, f.family.name());
+                                    st.setObject(4, id);
+                                    st.setString(5, f.family.name());
+                                    st.setObject(6, id);
+                                    st.addBatch();
+                                }
+                                st.executeBatch();
+                            }
+                            for (int p = 0; p < 4; p++) {
+                                try (var st =
+                                        c.prepareStatement(
+                                                "insert into"
+                                                    + " discovery_checkpoint(consumption_id,partition_id,position)"
+                                                    + " values(?,?,?)")) {
+                                    st.setObject(1, f.definition.id().value());
+                                    st.setInt(2, p);
+                                    st.setLong(3, totalQuarantines);
+                                    st.executeUpdate();
+                                }
+                            }
+                            c.commit();
+                        }
+                        assertEquals(
+                                totalQuarantines,
+                                f.target.oracle.queryForObject(
+                                        "select count(*) from consumption_slot where"
+                                                + " consumption_id=? and state='QUARANTINED'",
+                                        Integer.class,
+                                        f.definition.id().value()));
+                        assertEquals(
+                                4,
+                                f.target.oracle.queryForObject(
+                                        "select count(distinct partition_id) from consumption_slot"
+                                                + " where consumption_id=? and state='QUARANTINED'",
+                                        Integer.class,
+                                        f.definition.id().value()));
+                        assertEquals(0, f.count());
+                        f.pending(f.q(0));
+                        var lease = f.lease(0);
+                        try (var cost = new CostDiscovery(f)) {
+                            var progress = cost.discover(lease);
+                            assertEquals(DiscoveryEngine.Status.COMMITTED, progress.status());
+                            assertEquals(1, progress.examined());
+                            assertEquals(1, progress.advanced());
+                            assertEquals(1, progress.committedAdmissions());
+                            assertEquals(
+                                    totalQuarantines + 1L, progress.checkpoint().orElseThrow());
+                        }
+                        assertEquals(
+                                totalQuarantines,
+                                f.target.oracle.queryForObject(
+                                        "select count(*) from consumption_slot where"
+                                                + " consumption_id=? and state='QUARANTINED'",
+                                        Integer.class,
+                                        f.definition.id().value()));
+                        assertEquals(1, f.count());
+                        f.complete(lease, f.q(0));
+                        assertEquals(0, f.count());
+                    });
+        }
+        both(
+                "composite-restart-populated-state",
+                f -> {
+                    int totalQuarantined = 400;
+                    var seeded = new ArrayList<UUID>();
+                    for (int i = 0; i < totalQuarantined; i++) {
+                        seeded.add(new UUID(0x5155415299990000L, i + 1L));
+                    }
+                    var p0Extra = input(f.family, 0).subList(0, 6);
+                    seeded.addAll(p0Extra);
+                    bulkPending(f, seeded);
+                    long checkpointBeforeRestart = seeded.size();
+                    try (var c = f.target.admin.getConnection()) {
+                        c.setAutoCommit(false);
+                        try (var st =
+                                c.prepareStatement(
+                                        "insert into"
+                                            + " consumption_slot(consumption_id,consumable_id,partition_id,partition_hash,state,attempt_count)"
+                                            + " values(?,?,mod(mod(consumption_hash_v1(?,?)::bigint,4)+4,4)::integer,consumption_hash_v1(?,?),'QUARANTINED',3)")) {
+                            for (UUID id : seeded.subList(0, totalQuarantined)) {
+                                st.setObject(1, f.definition.id().value());
+                                st.setObject(2, id);
+                                st.setString(3, f.family.name());
+                                st.setObject(4, id);
+                                st.setString(5, f.family.name());
+                                st.setObject(6, id);
+                                st.addBatch();
+                            }
+                            st.executeBatch();
+                        }
+                        for (int p = 0; p < 4; p++) {
+                            try (var st =
+                                    c.prepareStatement(
+                                            "insert into"
+                                                + " discovery_checkpoint(consumption_id,partition_id,position)"
+                                                + " values(?,?,?)")) {
+                                st.setObject(1, f.definition.id().value());
+                                st.setInt(2, p);
+                                st.setLong(3, checkpointBeforeRestart);
+                                st.executeUpdate();
+                            }
+                        }
+                        c.commit();
+                    }
+                    // Pre-existing AVAILABLE, active IN_PROGRESS, and expired IN_PROGRESS slots on partition 0
+                    for (int i = 0; i < 6; i++) f.slot(p0Extra.get(i), false);
+                    var staleLease = f.lease(0);
+                    var lifecycle = f.lifecycle();
+                    var activeClaims =
+                            lifecycle.acquire(staleLease, p0Extra.subList(0, 2)).claims();
+                    var expiredClaims =
+                            lifecycle.acquire(staleLease, p0Extra.subList(2, 4)).claims();
+                    assertEquals(2, activeClaims.size());
+                    assertEquals(2, expiredClaims.size());
+                    f.target.oracle.update(
+                            "update consumption_slot set claimed_until=clock_timestamp()-interval"
+                                    + " '2 second' where consumption_id=? and consumable_id in"
+                                    + " (?,?)",
+                            f.definition.id().value(),
+                            p0Extra.get(2),
+                            p0Extra.get(3));
+                    // Expire partition 0 lease while keeping partition 1 lease valid
+                    var validP1Lease = f.lease(1);
+                    f.target.oracle.update(
+                            "update partition_ownership set"
+                                    + " owned_until=clock_timestamp()-interval '2 second' where"
+                                    + " consumption_id=? and partition_id=0",
+                            f.definition.id().value());
+                    // Admit 40 new PENDING requests after checkpointBeforeRestart (30 in p0, 10 in p1)
+                    // across multiple windows (windowSize=16, softCap=10)
+                    var newP0 = input(f.family, 0).subList(6, 36);
+                    var newP1 = input(f.family, 1).subList(0, 10);
+                    var postCheckpoint = new ArrayList<UUID>();
+                    for (int i = 0; i < 30; i++) {
+                        postCheckpoint.add(newP0.get(i));
+                        if (i < 10) postCheckpoint.add(newP1.get(i));
+                    }
+                    bulkPending(f, postCheckpoint);
+                    long expectedFinalPosition = checkpointBeforeRestart + postCheckpoint.size();
+                    // SQL audit before restart recovery
+                    String posTable =
+                            f.family == ConsumableFamily.COMMAND
+                                    ? "v3_request_position where family='COMMAND'"
+                                    : "fixture_discovery_request_position";
+                    String cntTable =
+                            f.family == ConsumableFamily.COMMAND
+                                    ? "v3_request_counter where family='COMMAND'"
+                                    : "fixture_discovery_request_counter";
+                    assertEquals(
+                            expectedFinalPosition,
+                            f.write.oracle.queryForObject(
+                                    "select position from " + cntTable, Long.class));
+                    assertEquals(
+                            expectedFinalPosition,
+                            f.write.oracle.queryForObject(
+                                    "select count(*) from " + posTable, Long.class));
+                    assertEquals(
+                            expectedFinalPosition,
+                            f.write.oracle.queryForObject(
+                                    "select max(position) from " + posTable, Long.class));
+                    // Stale lease must be rejected
+                    assertEquals(
+                            DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                            f.engine().discoverRequests(staleLease).status());
+                    // Reacquire partition 0 lease after restart; set windowSize=16, insertBatchSize=8, softCap=10
+                    var recoveredP0Lease = f.lease(0);
+                    f.settings =
+                            new DiscoveryEngine.Settings(
+                                    16,
+                                    16,
+                                    8,
+                                    10,
+                                    Duration.ofMillis(500),
+                                    Duration.ofSeconds(5));
+                    // Complete pre-existing active, expired, and available slots on p0
+                    for (var c : activeClaims)
+                        assertEquals(
+                                ConsumptionEngine.Status.COMMITTED,
+                                lifecycle.execute(c).status());
+                    for (UUID id : p0Extra.subList(2, 6)) f.complete(recoveredP0Lease, id);
+                    assertEquals(0, f.count());
+                    // Drain all post-checkpoint requests on p0 and p1 across multiple windows
+                    while (f.k(0) < expectedFinalPosition || f.count() > 0) {
+                        var prog = f.engine().discoverRequests(recoveredP0Lease);
+                        assertTrue(
+                                prog.status() == DiscoveryEngine.Status.COMMITTED
+                                        || prog.status() == DiscoveryEngine.Status.CAPACITY);
+                        var slotIds =
+                                f.target.oracle.queryForList(
+                                        "select consumable_id from consumption_slot where"
+                                                + " consumption_id=? and partition_id=0 and"
+                                                + " state<>'QUARANTINED'",
+                                        UUID.class,
+                                        f.definition.id().value());
+                        for (UUID id : slotIds) f.complete(recoveredP0Lease, id);
+                    }
+                    while (f.k(1) < expectedFinalPosition) {
+                        var prog = f.engine().discoverRequests(validP1Lease);
+                        assertEquals(DiscoveryEngine.Status.COMMITTED, prog.status());
+                        var slotIds =
+                                f.target.oracle.queryForList(
+                                        "select consumable_id from consumption_slot where"
+                                                + " consumption_id=? and partition_id=1 and"
+                                                + " state<>'QUARANTINED'",
+                                        UUID.class,
+                                        f.definition.id().value());
+                        for (UUID id : slotIds) f.complete(validP1Lease, id);
+                    }
+                    // SQL audit after restart & drain
+                    assertEquals(expectedFinalPosition, f.k(0));
+                    assertEquals(expectedFinalPosition, f.k(1));
+                    assertEquals(
+                            totalQuarantined,
+                            f.target.oracle.queryForObject(
+                                    "select count(*) from consumption_slot where consumption_id=?"
+                                            + " and state='QUARANTINED'",
+                                    Integer.class,
+                                    f.definition.id().value()));
+                    assertEquals(
+                            0,
+                            f.target.oracle.queryForObject(
+                                    "select count(*) from consumption_slot where consumption_id=?"
+                                            + " and state<>'QUARANTINED'",
+                                    Integer.class,
+                                    f.definition.id().value()));
+                    assertEquals(
+                            totalQuarantined,
+                            f.write.oracle.queryForObject(
+                                    "select count(*) from "
+                                            + f.requestTable()
+                                            + " where status='PENDING'",
+                                    Integer.class));
+                });
     }
 
     long allocatedBytes() {

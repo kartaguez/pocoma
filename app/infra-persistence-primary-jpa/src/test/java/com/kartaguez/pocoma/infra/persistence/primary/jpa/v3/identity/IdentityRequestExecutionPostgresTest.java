@@ -831,7 +831,7 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
         int partition =
                 RoutingV1.partition(
                         RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, request.requestId()), 4);
-        discovery.discoverRequests(lease(partition), DiscoveryEngine.RequestWalk.fresh());
+        discovery.discoverRequests(lease(partition));
     }
 
     ConsumptionEngine.AcquiredClaim claim(IdentityRequest request) {

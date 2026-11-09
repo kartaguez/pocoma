@@ -65,7 +65,8 @@ do $$
 declare t text;a text:=current_setting('pocoma.reactivation_role');
 begin
  foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
-      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
+      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event',
+      'v3_request_counter','v3_request_position'] loop
   if has_any_column_privilege(a,t,'SELECT,INSERT,UPDATE,REFERENCES')
      or has_table_privilege(a,t,'DELETE,TRUNCATE,TRIGGER')
   then raise exception 'unsafe Identity reactivation rights' using errcode='42501';end if;
@@ -73,12 +74,13 @@ begin
  if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
     lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
     and c.relname in ('v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
-      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event') and acl.grantee=0)
+      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event',
+      'v3_request_counter','v3_request_position') and acl.grantee=0)
     or exists(select 1 from pg_attribute att join pg_class c on c.oid=att.attrelid
       join pg_namespace n on n.oid=c.relnamespace,lateral aclexplode(att.attacl) acl
       where n.nspname=current_schema() and c.relname in ('v3_identity_request','v3_eui_authority',
       'v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event',
-      'v3_identity_completion_event') and acl.grantee=0)
+      'v3_identity_completion_event','v3_request_counter','v3_request_position') and acl.grantee=0)
  then raise exception 'PUBLIC privileges expose Identity authority' using errcode='42501';end if;
 end $$;
 \endif
@@ -124,7 +126,8 @@ begin
        where p.prosecdef and n.nspname not in ('pg_catalog','information_schema'))
   then raise exception 'Identity indirect exposure: READ view or user SECURITY DEFINER on WRITE' using errcode='42501';end if;
   foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
-       'v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
+       'v3_identity_request_result','v3_identity_event','v3_identity_completion_event',
+       'v3_request_counter','v3_request_position'] loop
    if has_any_column_privilege(reader,t,'SELECT,INSERT,UPDATE,REFERENCES') or has_table_privilege(reader,t,'DELETE,TRUNCATE,TRIGGER')
    then raise exception 'READ principal has Identity WRITE authority privileges' using errcode='42501';end if;
   end loop;

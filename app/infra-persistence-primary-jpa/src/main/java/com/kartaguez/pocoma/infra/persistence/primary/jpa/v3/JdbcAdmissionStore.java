@@ -102,6 +102,7 @@ values (?,?,?,?,?,?,?,?,?,?,?) on conflict (scope_key_fingerprint) do nothing re
                             c.observedVersion(),
                             c.intent().getClass().getSimpleName(),
                             PotCommandJson.encode(c));
+                    publishPosition("COMMAND", c.requestId());
                     return null;
                 });
     }
@@ -141,8 +142,24 @@ values (?,?,?,?,?,?,?,?,?,?,?) on conflict (scope_key_fingerprint) do nothing re
                             IdentityRequestJson.encode(r.admission()),
                             Timestamp.from(r.createdAt()),
                             r.operation() instanceof IdentityRequest.Link ? r.requestId() : null);
+                    publishPosition("IDENTITY_REQUEST", r.requestId());
                     return null;
                 });
+    }
+
+    private void publishPosition(String family, UUID requestId) {
+        Long pos =
+                jdbc.queryForObject(
+                        "update v3_request_counter set position=position+1 where family=? returning"
+                                + " position",
+                        Long.class,
+                        family);
+        if (pos == null) throw new IllegalStateException("Missing request counter: " + family);
+        jdbc.update(
+                "insert into v3_request_position(family,position,request_id) values (?,?,?)",
+                family,
+                pos,
+                requestId);
     }
 
     @Override public java.time.Instant now() {

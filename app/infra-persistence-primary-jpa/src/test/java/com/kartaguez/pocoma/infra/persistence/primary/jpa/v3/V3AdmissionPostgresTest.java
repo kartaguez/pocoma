@@ -390,9 +390,9 @@ class V3AdmissionPostgresTest {
                                                                         "select pg_backend_pid()",
                                                                         Integer.class));
                                                 assertTrue(store.reserve(a));
-                                                store.insert(i.command(a.requestId()));
                                                 entered.countDown();
                                                 await(release);
+                                                store.insert(i.command(a.requestId()));
                                                 if (rollback)
                                                     throw new IllegalStateException(
                                                             "injected rollback");
@@ -1087,5 +1087,286 @@ class V3AdmissionPostgresTest {
                                                 .admit(principal("subject"), "restored", i))
                         .status());
         pair(1);
+    }
+
+    @Test
+    void sequentialRequestPublicationAndTriggerInvariants() throws Exception {
+        var cmdService = service();
+        var idService =
+                new AdmitIdentityRequestV3(store, owner, protection, Clock.systemUTC(), 4096);
+        var c1 = cmdService.admit(principal("subject"), "c1", input("subject", "cmd-1"));
+        var c2 = cmdService.admit(principal("subject"), "c2", input("subject", "cmd-2"));
+        // Idempotent replay of c1 and c2 does not increment counter or duplicate position
+        assertEquals(c1, cmdService.admit(principal("subject"), "c1", input("subject", "cmd-1")));
+        assertEquals(c2, cmdService.admit(principal("subject"), "c2", input("subject", "cmd-2")));
+
+        var regInput =
+                IdentityAdmissionInput.decode(
+                        Map.of("operation", "Registration"), principal("subject").identity());
+        var unlinkInput =
+                IdentityAdmissionInput.decode(
+                        Map.of(
+                                "operation",
+                                "Unlink",
+                                "bindingToken",
+                                "tok-1",
+                                "target",
+                                Map.of("issuer", "issuer", "subject", "target")),
+                        principal("subject").identity());
+        var i1 = idService.admit(principal("subject"), regInput.operation(), regInput);
+        var i2 = idService.admit(principal("subject"), unlinkInput.operation(), unlinkInput);
+        assertEquals(i1, idService.admit(principal("subject"), regInput.operation(), regInput));
+
+        assertEquals(
+                2L,
+                observer.queryForObject(
+                        "select position from v3_request_counter where family='COMMAND'",
+                        Long.class));
+        assertEquals(
+                2L,
+                observer.queryForObject(
+                        "select position from v3_request_counter where family='IDENTITY_REQUEST'",
+                        Long.class));
+        assertEquals(
+                List.of(c1, c2),
+                observer.queryForList(
+                        "select request_id from v3_request_position where family='COMMAND' order by"
+                                + " position",
+                        UUID.class));
+        assertEquals(
+                List.of(i1, i2),
+                observer.queryForList(
+                        "select request_id from v3_request_position where family='IDENTITY_REQUEST'"
+                                + " order by position",
+                        UUID.class));
+
+        // Rollback after insert leaves zero gaps
+        var rollbackDs = faultyCommit(false, null, null);
+        var rollbackTx = owner(rollbackDs);
+        var rollbackStore = new JdbcAdmissionStore(rollbackDs, rollbackTx);
+        var rollbackService =
+                new AdmitCommandV3(
+                        rollbackStore,
+                        new AdmissionSqlTransactions(rollbackDs, rollbackTx),
+                        protection,
+                        Clock.systemUTC(),
+                        4096);
+        assertEquals(
+                503,
+                assertThrows(
+                                AdmissionFailure.class,
+                                () ->
+                                        rollbackService.admit(
+                                                principal("subject"),
+                                                "rolled-back",
+                                                input("subject", "rolled-back")))
+                        .status());
+        var c3 = cmdService.admit(principal("subject"), "c3", input("subject", "cmd-3"));
+        assertEquals(
+                3L,
+                observer.queryForObject(
+                        "select position from v3_request_counter where family='COMMAND'",
+                        Long.class));
+        assertEquals(
+                List.of(1L, 2L, 3L),
+                observer.queryForList(
+                        "select position from v3_request_position where family='COMMAND' order by"
+                                + " position",
+                        Long.class));
+        assertEquals(
+                c3,
+                observer.queryForObject(
+                        "select request_id from v3_request_position where family='COMMAND' and"
+                                + " position=3",
+                        UUID.class));
+
+        // Out-of-order commit ("transaction tardive"): T1 starts and inserts into v3_command before
+        // T2 starts, T2 commits first at position 4, T1 commits second at position 5.
+        var t1InsertedCommand = new CountDownLatch(1);
+        var t2Committed = new CountDownLatch(1);
+        var slowStore =
+                new AdmitCommandV3.Store() {
+                    public Optional<AdmissionAssociation> find(byte[] scope) {
+                        return store.find(scope);
+                    }
+
+                    public boolean reserve(AdmissionAssociation a) {
+                        return store.reserve(a);
+                    }
+
+                    public void insert(
+                            com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand c) {
+                        var jdbc = new JdbcTemplate(source);
+                        jdbc.update(
+                                "insert into"
+                                    + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
+                                    + " values (?,?,?,?,?,?,?,?::jsonb)",
+                                c.requestId(),
+                                c.requester().issuer(),
+                                c.requester().subject(),
+                                c.bindingToken(),
+                                c.potId().value(),
+                                c.observedVersion(),
+                                c.intent().getClass().getSimpleName(),
+                                PotCommandJson.encode(c));
+                        t1InsertedCommand.countDown();
+                        try {
+                            assertTrue(t2Committed.await(5, TimeUnit.SECONDS));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            throw new IllegalStateException(e);
+                        }
+                        Long pos =
+                                jdbc.queryForObject(
+                                        "update v3_request_counter set position=position+1 where"
+                                                + " family='COMMAND' returning position",
+                                        Long.class);
+                        jdbc.update(
+                                "insert into v3_request_position(family,position,request_id) values"
+                                        + " ('COMMAND',?,?)",
+                                pos,
+                                c.requestId());
+                    }
+                };
+        try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
+            var f1 =
+                    pool.submit(
+                            () ->
+                                    new AdmitCommandV3(
+                                                    slowStore,
+                                                    new AdmissionSqlTransactions(source, owner),
+                                                    protection,
+                                                    Clock.systemUTC(),
+                                                    4096)
+                                            .admit(
+                                                    principal("subject"),
+                                                    "late-t1",
+                                                    input("subject", "late-t1")));
+            assertTrue(t1InsertedCommand.await(5, TimeUnit.SECONDS));
+            var fastId =
+                    cmdService.admit(principal("subject"), "fast-t2", input("subject", "fast-t2"));
+            assertEquals(
+                    List.of(1L, 2L, 3L, 4L),
+                    observer.queryForList(
+                            "select position from v3_request_position where family='COMMAND' order"
+                                    + " by position",
+                            Long.class));
+            t2Committed.countDown();
+            var lateId = f1.get(5, TimeUnit.SECONDS);
+            assertEquals(
+                    fastId,
+                    observer.queryForObject(
+                            "select request_id from v3_request_position where family='COMMAND' and"
+                                    + " position=4",
+                            UUID.class));
+            assertEquals(
+                    lateId,
+                    observer.queryForObject(
+                            "select request_id from v3_request_position where family='COMMAND' and"
+                                    + " position=5",
+                            UUID.class));
+        }
+
+        // Concurrency: 16 threads admitting simultaneously -> dense positions 6..21
+        try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
+            var barrier = new CyclicBarrier(16);
+            var futures = new ArrayList<Future<UUID>>();
+            for (int k = 0; k < 16; k++) {
+                int idx = k;
+                futures.add(
+                        pool.submit(
+                                () -> {
+                                    barrier.await(5, TimeUnit.SECONDS);
+                                    return cmdService.admit(
+                                            principal("subject"),
+                                            "conc-" + idx,
+                                            input("subject", "conc-" + idx));
+                                }));
+            }
+            for (var f : futures) assertNotNull(f.get(10, TimeUnit.SECONDS));
+        }
+        assertEquals(
+                21L,
+                observer.queryForObject(
+                        "select position from v3_request_counter where family='COMMAND'",
+                        Long.class));
+        var positions =
+                observer.queryForList(
+                        "select position from v3_request_position where family='COMMAND' order by"
+                                + " position",
+                        Long.class);
+        assertEquals(21, positions.size());
+        for (int k = 0; k < 21; k++) assertEquals((long) (k + 1), positions.get(k));
+
+        // Negative SQL invariants (immutability, step, deferred unit triggers)
+        for (String invalid :
+                List.of(
+                        "delete from v3_request_position where family='COMMAND' and position=1",
+                        "update v3_request_position set position=999 where family='COMMAND' and"
+                                + " position=1",
+                        "truncate v3_request_position",
+                        "delete from v3_request_counter where family='COMMAND'",
+                        "insert into v3_request_counter(family,position) values ('COMMAND',0)",
+                        "update v3_request_counter set position=position+2 where family='COMMAND'",
+                        "update v3_request_counter set position=position where family='COMMAND'",
+                        "insert into v3_request_position(family,position,request_id) values"
+                                + " ('COMMAND',99,'"
+                                + c1
+                                + "')")) {
+            try (var c = observer.getDataSource().getConnection()) {
+                c.setAutoCommit(false);
+                try {
+                    assertThrows(SQLException.class, () -> c.createStatement().execute(invalid));
+                } finally {
+                    c.rollback();
+                }
+            }
+        }
+        for (String deferredInvalid :
+                List.of(
+                        "update v3_request_counter set position=position+1 where family='COMMAND'",
+                        "with p as (update v3_request_counter set position=position+1 where"
+                            + " family='COMMAND' returning position) insert into"
+                            + " v3_request_position(family,position,request_id) select"
+                            + " 'COMMAND',position,gen_random_uuid() from p",
+                        "insert into"
+                            + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
+                            + " values"
+                            + " (gen_random_uuid(),'i','s','t',gen_random_uuid(),0,'CreatePot','{\"label\":\"x\"}'::jsonb)",
+                        "insert into"
+                            + " v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at)"
+                            + " select"
+                            + " gen_random_uuid(),requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at"
+                            + " from v3_identity_request limit 1")) {
+            try (var c = observer.getDataSource().getConnection()) {
+                c.setAutoCommit(false);
+                try {
+                    c.createStatement().execute(deferredInvalid);
+                    assertEquals(
+                            "23514",
+                            assertThrows(
+                                            SQLException.class,
+                                            () ->
+                                                    c.createStatement()
+                                                            .execute(
+                                                                    "set constraints all"
+                                                                            + " immediate"))
+                                    .getSQLState());
+                } finally {
+                    c.rollback();
+                }
+            }
+        }
+
+        // Verify discovery_checkpoint is authorized for COMMAND and IDENTITY_REQUEST
+        observer.update(
+                "insert into consumption_routing_contract(consumption_id,family,routing_version,partition_count) values"
+                        + " ('98f7268d-d340-581c-b83d-010926223e14','COMMAND','sha256-v1',4),"
+                        + " ('2999e75c-272d-5afe-a966-c9364ef021fe','IDENTITY_REQUEST','sha256-v1',4)");
+        observer.update(
+                "insert into discovery_checkpoint(consumption_id,partition_id,position) values"
+                        + " ('98f7268d-d340-581c-b83d-010926223e14',0,21),"
+                        + " ('2999e75c-272d-5afe-a966-c9364ef021fe',0,2)");
+        assertEquals(2, count("discovery_checkpoint"));
     }
 }

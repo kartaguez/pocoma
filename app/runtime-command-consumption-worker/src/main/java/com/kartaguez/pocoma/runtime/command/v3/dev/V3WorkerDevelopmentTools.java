@@ -210,9 +210,7 @@ public final class V3WorkerDevelopmentTools {
                                         "classpath:db/v3-pot/migration",
                                         "classpath:db/v3-pot-execution/migration",
                                         "classpath:db/v3-consumption-write/migration",
-                                        settings.identityAuthority().equals("real")
-                                                ? "classpath:db/v3-identity/migration"
-                                                : "classpath:db/v3-consumption-write/migration"
+                                        "classpath:db/v3-identity/migration"
                                     }
                                     : new String[] {"classpath:db/v3-consumption-read/migration"})
                     .placeholders(
@@ -289,12 +287,12 @@ public final class V3WorkerDevelopmentTools {
         String role = identifier(required("POCOMA_I5_INJECTOR_ROLE"));
         if (role.equals(settings.writeBusiness().username()))
             throw new IllegalStateException("separate injector required");
-        var sql =
-                new JdbcTemplate(
-                        new DriverManagerDataSource(
-                                settings.writeBusiness().url(),
-                                role,
-                                required("POCOMA_I5_INJECTOR_PASSWORD")));
+        var injectorSource =
+                new DriverManagerDataSource(
+                        settings.writeBusiness().url(),
+                        role,
+                        required("POCOMA_I5_INJECTOR_PASSWORD"));
+        var sql = new JdbcTemplate(injectorSource);
         // Stable request -> stable Pot; a duplicate request is observed, never silently
         // reinterpreted.
         UUID pot =
@@ -322,14 +320,28 @@ public final class V3WorkerDevelopmentTools {
             System.out.println("I5_DEV_REQUEST_ALREADY_ADMITTED internal SQL fixture");
             return;
         }
-        sql.update(
-                "insert into"
-                    + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                    + " values"
-                    + " (?,'i5-dev','actor','i5-development-fixture',?,0,'CreatePot',?::jsonb)",
-                request,
-                pot,
-                payload);
+        new SpringAttemptTransactions(injectorSource, manager(injectorSource), 5)
+                .write(
+                        () -> {
+                            sql.update(
+                                    "insert into"
+                                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
+                                        + " values"
+                                        + " (?,'i5-dev','actor','i5-development-fixture',?,0,'CreatePot',?::jsonb)",
+                                    request,
+                                    pot,
+                                    payload);
+                            Long pos =
+                                    sql.queryForObject(
+                                            "update v3_request_counter set position=position+1"
+                                                    + " where family='COMMAND' returning position",
+                                            Long.class);
+                            sql.update(
+                                    "insert into v3_request_position(family,position,request_id)"
+                                            + " values ('COMMAND',?,?)",
+                                    pos,
+                                    request);
+                        });
         System.out.println(
                 "I5_DEV_REQUEST_ADMITTED internal SQL fixture; no HTTP API; no slot in admission"
                         + " unit");

@@ -194,26 +194,22 @@ class DiscoveryCompositionPostgresTest {
             assertSame(write, field(discovery, "effects"));
             UUID id = new UUID(0, 3);
             f.write.update(
-                    "insert into"
+                    "with cmd as (insert into"
                         + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values(?,'fixture','actor','fixture',?,0,'CreatePot',?::jsonb)",
+                        + " values(?,'fixture','actor','fixture',?,0,'CreatePot',?::jsonb) returning"
+                        + " request_id), pos as (update v3_request_counter set position=position+1"
+                        + " where family='COMMAND' returning position) insert into"
+                        + " v3_request_position(family,position,request_id) select"
+                        + " 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                     id,
                     UUID.randomUUID(),
                     PotCommandJson.encode(
                             new PotCommand.CreatePot(new Label("Discovery composition"))));
             var lease = lifecycle.acquirePartition(0).orElseThrow();
-            assertEquals(
-                    1,
-                    discovery
-                            .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                            .committedAdmissions());
+            assertEquals(1, discovery.discoverRequests(lease).committedAdmissions());
             var claim = lifecycle.acquire(lease, List.of(id)).claims().getFirst();
             assertEquals(ConsumptionEngine.Status.COMMITTED, lifecycle.execute(claim).status());
-            assertEquals(
-                    0,
-                    discovery
-                            .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh())
-                            .committedAdmissions());
+            assertEquals(0, discovery.discoverRequests(lease).committedAdmissions());
             var event = definition(ConsumableFamily.POT_EVENT);
             var readDiscovery =
                     V3ConsumptionDiscoveryComposition.events(

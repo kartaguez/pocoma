@@ -29,22 +29,6 @@ public final class DiscoveryEngine {
         }
     }
 
-    public record RequestWalk(Optional<UUID> afterExclusive, Optional<UUID> upperInclusive) {
-        public RequestWalk {
-            Objects.requireNonNull(afterExclusive);
-            Objects.requireNonNull(upperInclusive);
-            if (afterExclusive.isPresent()
-                    && (upperInclusive.isEmpty()
-                            || compare(afterExclusive.orElseThrow(), upperInclusive.orElseThrow())
-                                    > 0))
-                throw new IllegalArgumentException("cursor outside UUID tour");
-        }
-
-        public static RequestWalk fresh() {
-            return new RequestWalk(Optional.empty(), Optional.empty());
-        }
-    }
-
     public enum Status {
         COMMITTED,
         BUSY_OR_NOT_OWNER,
@@ -67,11 +51,10 @@ public final class DiscoveryEngine {
 
     public record RequestProgress(
             Status status,
-            RequestWalk next,
+            OptionalLong checkpoint,
             int examined,
             int advanced,
-            int committedAdmissions,
-            boolean tourFinished) {}
+            int committedAdmissions) {}
 
     private final ConsumptionDefinition definition;
     private final AttemptTransactions effects;
@@ -165,14 +148,6 @@ public final class DiscoveryEngine {
         return family == ConsumableFamily.COMMAND || family == ConsumableFamily.IDENTITY_REQUEST;
     }
 
-    // PostgreSQL uuid compares the 16 unsigned network-order bytes, unlike UUID.compareTo.
-    private static int compare(UUID a, UUID b) {
-        int high = Long.compareUnsigned(a.getMostSignificantBits(), b.getMostSignificantBits());
-        return high != 0
-                ? high
-                : Long.compareUnsigned(a.getLeastSignificantBits(), b.getLeastSignificantBits());
-    }
-
     private void lease(PartitionLease lease) {
         Objects.requireNonNull(lease);
         if (!definition.id().equals(lease.consumptionId())
@@ -212,6 +187,19 @@ public final class DiscoveryEngine {
         var ids = new HashSet<UUID>();
         for (var reference : window.references()) {
             if (reference.position() != ++position || !ids.add(reference.eventId()))
+                throw new IllegalStateException("hole or duplicate in global window");
+        }
+    }
+
+    private void validate(BurnableReferences.Window window, long k) {
+        if (window.afterExclusive() != k
+                || window.highInclusive() - k > settings.windowSize()
+                || window.highInclusive() - k != window.references().size())
+            throw new IllegalStateException("inconsistent dense global window");
+        long position = k;
+        var ids = new HashSet<UUID>();
+        for (var reference : window.references()) {
+            if (reference.position() != ++position || !ids.add(reference.requestId()))
                 throw new IllegalStateException("hole or duplicate in global window");
         }
     }
@@ -278,86 +266,91 @@ public final class DiscoveryEngine {
         // callback.
     }
 
-    public RequestProgress discoverRequests(PartitionLease lease, RequestWalk walk) {
+    public RequestProgress discoverRequests(PartitionLease lease) {
         if (requests == null) throw new IllegalStateException("not a request Discovery");
         lease(lease);
-        Objects.requireNonNull(walk);
-        var upper =
-                walk.upperInclusive().isPresent()
-                        ? walk.upperInclusive()
-                        : sourceReads.read(requests::upperPending);
-        var page =
-                upper.isEmpty()
-                        ? List.<UUID>of()
-                        : sourceReads.read(
-                                read ->
-                                        List.copyOf(
-                                                requests.pendingPage(
-                                                        walk.afterExclusive(),
-                                                        upper.orElseThrow(),
-                                                        settings.pageSize(),
-                                                        read)));
-        if (page.size() > settings.pageSize())
-            throw new IllegalStateException("oversized request page");
-        UUID previous = walk.afterExclusive().orElse(null);
-        for (var id : page) {
-            if (previous != null && compare(id, previous) <= 0
-                    || upper.isEmpty()
-                    || compare(id, upper.orElseThrow()) > 0)
-                throw new IllegalStateException("unordered request page outside tour");
-            previous = id;
-        }
+        long k =
+                effects.read(
+                        read -> admissions.checkpoint(definition.id(), lease.partitionId(), read));
+        if (k < 0) throw new IllegalStateException("negative checkpoint");
+        var window = sourceReads.read(read -> requests.window(k, settings.windowSize(), read));
+        validate(window, k);
+        var eligible =
+                window.references().stream()
+                        .map(r -> local(r.requestId(), lease.partitionId()))
+                        .toList();
         return effects.write(
                 () -> {
                     var protectedLease = protect(lease);
                     if (protectedLease.isEmpty())
-                        return new RequestProgress(Status.BUSY_OR_NOT_OWNER, walk, 0, 0, 0, false);
+                        return new RequestProgress(
+                                Status.BUSY_OR_NOT_OWNER, OptionalLong.empty(), 0, 0, 0);
                     var current = protectedLease.orElseThrow();
+                    long actual = admissions.currentCheckpoint(current);
+                    if (actual != k) {
+                        fence(current);
+                        return new RequestProgress(
+                                Status.STALE_CHECKPOINT, OptionalLong.of(actual), 0, 0, 0);
+                    }
                     int remaining = budget(current);
                     if (remaining == 0) {
                         fence(current);
-                        return new RequestProgress(Status.CAPACITY, walk, 0, 0, 0, false);
+                        return new RequestProgress(
+                                Status.CAPACITY, OptionalLong.of(actual), 0, 0, 0);
                     }
-                    var after = walk.afterExclusive();
                     int examined = 0, advanced = 0, inserted = 0;
+                    long covered = k;
                     boolean capacity = false;
-                    for (var id : page) {
+                    for (int i = 0; i < window.references().size(); i++) {
+                        var ref = window.references().get(i);
+                        var id = ref.requestId();
                         examined++;
-                        if (local(id, current.partitionId()) && requests.tryProtectPending(id)) {
-                            long discoveredNanos = System.nanoTime();
-                            listener.onCandidateDiscovered(
-                                    definition, current.partitionId(), id, discoveredNanos);
-                            // A separate statement/snapshot AFTER source lock. No row lock on
-                            // existing slot.
-                            boolean exists =
-                                    admissions.contains(definition, current.partitionId(), id);
-                            fence(current);
-                            if (!exists) {
-                                if (remaining == 0) {
-                                    capacity = true;
+                        if (eligible.get(i)) {
+                            if (requests.tryProtectPending(id)) {
+                                long discoveredNanos = System.nanoTime();
+                                listener.onCandidateDiscovered(
+                                        definition, current.partitionId(), id, discoveredNanos);
+                                // A separate statement/snapshot AFTER source lock. No row lock on
+                                // existing slot.
+                                boolean exists =
+                                        admissions.contains(definition, current.partitionId(), id);
+                                fence(current);
+                                if (!exists) {
+                                    if (remaining == 0) {
+                                        capacity = true;
+                                        break;
+                                    }
+                                    admissions.insertInitial(definition, current.partitionId(), id);
+                                    long admittedNanos = System.nanoTime();
+                                    listener.onSlotAdmitted(
+                                            definition, current.partitionId(), id, admittedNanos);
+                                    remaining--;
+                                    inserted++;
+                                }
+                            } else {
+                                boolean settled =
+                                        requests.isTerminal(id)
+                                                || admissions.contains(
+                                                        definition, current.partitionId(), id)
+                                                || requests.isTerminal(id);
+                                fence(current);
+                                if (!settled) {
                                     break;
                                 }
-                                admissions.insertInitial(definition, current.partitionId(), id);
-                                long admittedNanos = System.nanoTime();
-                                listener.onSlotAdmitted(
-                                        definition, current.partitionId(), id, admittedNanos);
-                                remaining--;
-                                inserted++;
                             }
                         }
-                        after = Optional.of(id);
+                        covered = ref.position();
                         advanced++;
                     }
                     fence(current);
-                    boolean finished = !capacity && (page.isEmpty() || after.equals(upper));
-                    var next = finished ? RequestWalk.fresh() : new RequestWalk(after, upper);
+                    if (covered > k) admissions.advanceCheckpoint(current, k, covered);
+                    fence(current);
                     return new RequestProgress(
                             capacity ? Status.CAPACITY : Status.COMMITTED,
-                            next,
+                            OptionalLong.of(covered),
                             examined,
                             advanced,
-                            inserted,
-                            finished);
+                            inserted);
                 });
     }
 }

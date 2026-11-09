@@ -343,16 +343,31 @@ public final class V3BootstrapGuard {
                     try (var rs =
                             s.executeQuery(
                                     "select"
-                                        + " pg_get_functiondef('v3_require_command_unit()'::regprocedure)")) {
+                                        + " pg_get_functiondef('v3_require_command_unit()'::regprocedure),"
+                                        + " to_regclass('v3_request_counter') is not null and"
+                                        + " to_regclass('v3_request_position') is not null")) {
                         rs.next();
                         require(
                                 rs.getString(1)
-                                        .contains(
-                                                "s.consumption_id='"
-                                                        + command
-                                                        + "'::uuid and"
-                                                        + " s.consumable_id=c.request_id"),
-                                "canonical Command trigger mismatch");
+                                                .contains(
+                                                        "s.consumption_id='"
+                                                                + command
+                                                                + "'::uuid and"
+                                                                + " s.consumable_id=c.request_id")
+                                        && rs.getBoolean(2),
+                                "canonical Command trigger or request publication tables mismatch");
+                    }
+                    try (var rs =
+                            s.executeQuery(
+                                    "select count(*)=4 from pg_trigger where tgrelid in"
+                                        + " ('v3_command'::regclass,'v3_identity_request'::regclass,'v3_request_counter'::regclass,'v3_request_position'::regclass)"
+                                        + " and tgname in"
+                                        + " ('v3_command_request_positioned','v3_identity_request_positioned','v3_request_counter_unit','v3_request_position_unit')"
+                                        + " and tgdeferrable and tginitdeferred")) {
+                        rs.next();
+                        require(
+                                rs.getBoolean(1),
+                                "sequential request publication triggers required");
                     }
                 }
                 // Independent fixed ordinary UUID catches a replaced SQL hash function at startup.
@@ -543,7 +558,10 @@ select exists(select 1 from pg_roles where rolname=? and
                                 "Identity indirect exposure or unsafe READ principal on WRITE");
                     }
                 }
-                for (String table : IDENTITY_TABLES) {
+                var identityAndRequestTables = new HashSet<>(IDENTITY_TABLES);
+                identityAndRequestTables.addAll(
+                        Set.of("v3_request_counter", "v3_request_position"));
+                for (String table : identityAndRequestTables) {
                     try (var rows =
                             statement.executeQuery(
                                     "select exists(select 1 from pg_roles where rolname='"
@@ -706,7 +724,29 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
         for (String table : List.of("v3_invitation", "v3_invitation_event"))
             if (tableExists(statement, table)) insertTables.add(table);
         var tables = new HashSet<>(insertTables);
-        tables.addAll(Set.of("v3_command", "v3_event_counter"));
+        tables.addAll(
+                Set.of(
+                        "v3_command",
+                        "v3_event_counter",
+                        "v3_request_counter",
+                        "v3_request_position"));
+        try (var rows =
+                statement.executeQuery(
+                        "select (select count(*)=2 from v3_request_counter where family in"
+                            + " ('COMMAND','IDENTITY_REQUEST')),exists(select 1 from pg_class c"
+                            + " join pg_namespace n on n.oid=c.relnamespace,lateral"
+                            + " aclexplode(c.relacl) acl where n.nspname=current_schema() and"
+                            + " c.relname in ('v3_request_counter','v3_request_position') and"
+                            + " acl.grantee=0) or exists(select 1 from pg_attribute a join"
+                            + " pg_class c on c.oid=a.attrelid join pg_namespace n on"
+                            + " n.oid=c.relnamespace,lateral aclexplode(a.attacl) acl where"
+                            + " n.nspname=current_schema() and c.relname in"
+                            + " ('v3_request_counter','v3_request_position') and acl.grantee=0)")) {
+            rows.next();
+            require(
+                    rows.getBoolean(1) && !rows.getBoolean(2),
+                    "request publication counters required and PUBLIC grants forbidden");
+        }
         var history =
                 Set.of(
                         "v3_pot_header",
@@ -872,7 +912,9 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
                             "v3_pot_event_component",
                             "v3_command_completion_event",
                             "v3_event_position",
-                            "v3_event_counter");
+                            "v3_event_counter",
+                            "v3_request_position",
+                            "v3_request_counter");
             while (rows.next()) {
                 String table = rows.getString(1);
                 if (TABLES.contains(table)

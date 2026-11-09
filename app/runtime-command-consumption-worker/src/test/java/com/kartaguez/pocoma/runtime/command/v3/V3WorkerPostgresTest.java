@@ -138,7 +138,8 @@ class V3WorkerPostgresTest {
                                         ? new String[] {
                                             "classpath:db/v3-pot/migration",
                                             "classpath:db/v3-pot-execution/migration",
-                                            "classpath:db/v3-consumption-write/migration"
+                                            "classpath:db/v3-consumption-write/migration",
+                                            "classpath:db/v3-identity/migration"
                                         }
                                         : new String[] {
                                             "classpath:db/v3-consumption-read/migration"
@@ -297,10 +298,15 @@ class V3WorkerPostgresTest {
                     new JdbcTemplate(
                             new DriverManagerDataSource(writeUrl, injectorRole, "i5-fixture"));
             injection.update(
-                    "insert into"
+                    "with next_pos as (update v3_request_counter set position=position+1 where"
+                        + " family='COMMAND' returning position), inserted as (insert into"
                         + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
                         + " values"
-                        + " (?,'i5-dev','actor','i5-development-fixture',?,0,'CreatePot',?::jsonb)",
+                        + " (?,'i5-dev','actor','i5-development-fixture',?,0,'CreatePot',?::jsonb)"
+                        + " returning request_id) insert into"
+                        + " v3_request_position(family,position,request_id) select"
+                        + " 'COMMAND',next_pos.position,inserted.request_id from"
+                        + " next_pos,inserted",
                     id,
                     pot,
                     PotCommandJson.encode(new PotCommand.CreatePot(new Label("I5 expected"))));
@@ -713,7 +719,7 @@ class V3WorkerPostgresTest {
             var lease =
                     leases.computeIfAbsent(
                             partition, p -> binding.engine().acquirePartition(p).orElseThrow());
-            binding.discovery().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+            binding.discovery().discoverRequests(lease);
             var claim = binding.engine().acquire(lease, List.of(id)).claims().getFirst();
             assertEquals(
                     ConsumptionEngine.Status.COMMITTED, binding.engine().execute(claim).status());
@@ -737,7 +743,7 @@ class V3WorkerPostgresTest {
                         "select ((consumption_hash_v1('COMMAND',?)::bigint%4+4)%4)::int",
                         Integer.class, id);
         var lease = b.engine().acquirePartition(p).orElseThrow();
-        b.discovery().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+        b.discovery().discoverRequests(lease);
         f.write.update(
                 "update partition_ownership set owned_until=clock_timestamp()-interval '1 second'"
                         + " where consumption_id=? and partition_id=?",
@@ -3070,7 +3076,7 @@ class V3WorkerPostgresTest {
                 var original = (ConsumptionParticipant) field(engine, "participant");
                 quarantined = pendingAtPartitionZero(f, 8000);
                 var lease = engine.acquirePartition(0).orElseThrow();
-                binding.discovery().discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                binding.discovery().discoverRequests(lease);
                 replace(
                         engine,
                         "participant",

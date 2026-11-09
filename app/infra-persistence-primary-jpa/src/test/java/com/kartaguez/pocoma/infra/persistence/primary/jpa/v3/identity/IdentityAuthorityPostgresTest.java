@@ -320,7 +320,7 @@ abstract class IdentityPostgresFixture {
         admin.execute("grant usage on schema " + schema + " to " + schema + "_runtime");
         admin.execute(
                 "grant select,insert,update,delete on"
-                    + " v3_identity_request,v3_eui_authority,v3_pocoma_user,v3_eui_version,v3_identity_request_result,v3_identity_event,v3_identity_completion_event,v3_event_counter,v3_event_position,consumption_slot"
+                    + " v3_identity_request,v3_eui_authority,v3_pocoma_user,v3_eui_version,v3_identity_request_result,v3_identity_event,v3_identity_completion_event,v3_event_counter,v3_event_position,v3_request_counter,v3_request_position,consumption_slot"
                     + " to "
                         + schema
                         + "_runtime");
@@ -463,12 +463,19 @@ abstract class IdentityPostgresFixture {
     Work admit(Work w) {
         jdbc.update(
                 """
-insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at)
-values (?,?,?,?,?,?,?,jsonb_build_object('validator','I2 harness','contractVersion','1',
-  'initiator',jsonb_build_object('issuer',?::text,'subject',?::text),
-  'target',jsonb_build_object('issuer',?::text,'subject',?::text),
-  'intentionFingerprint',?::text,'grantOrCorrelationReference',?::text,'validatedAt','2026-10-30T00:00:00Z',
-  'attestations','{}'::jsonb,'origin','CONTROLLED_INTERNAL'),clock_timestamp())
+with req as (
+    insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at)
+    values (?,?,?,?,?,?,?,jsonb_build_object('validator','I2 harness','contractVersion','1',
+      'initiator',jsonb_build_object('issuer',?::text,'subject',?::text),
+      'target',jsonb_build_object('issuer',?::text,'subject',?::text),
+      'intentionFingerprint',?::text,'grantOrCorrelationReference',?::text,'validatedAt','2026-10-30T00:00:00Z',
+      'attestations','{}'::jsonb,'origin','CONTROLLED_INTERNAL'),clock_timestamp())
+    returning request_id
+), pos as (
+    update v3_request_counter set position=position+1 where family='IDENTITY_REQUEST' returning position
+)
+insert into v3_request_position(family,position,request_id)
+select 'IDENTITY_REQUEST',pos.position,req.request_id from req,pos
 """,
                 w.id(),
                 w.requester().issuer(),

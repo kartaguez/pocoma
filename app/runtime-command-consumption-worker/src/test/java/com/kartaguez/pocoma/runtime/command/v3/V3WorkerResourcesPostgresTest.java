@@ -1597,9 +1597,7 @@ class V3WorkerResourcesPostgresTest {
                 for (int p = 0; p < 4 && handles.size() < 2; p++) {
                     var lease = binding.engine().acquirePartition(p).orElseThrow();
                     leases.add(lease);
-                    if (write)
-                        binding.discovery()
-                                .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
+                    if (write) binding.discovery().discoverRequests(lease);
                     else binding.discovery().discoverEvents(lease);
                     var keys =
                             sql.queryForList(
@@ -2654,9 +2652,7 @@ class V3WorkerResourcesPostgresTest {
                         var sql = write ? f.write : f.read;
                         int partition = write ? 0 : sqlPartition(f, binding, id);
                         var held = binding.engine().acquirePartition(partition).orElseThrow();
-                        if (write)
-                            binding.discovery()
-                                    .discoverRequests(held, DiscoveryEngine.RequestWalk.fresh());
+                        if (write) binding.discovery().discoverRequests(held);
                         else binding.discovery().discoverEvents(held);
                         var handle =
                                 binding.engine().acquire(held, List.of(id)).claims().getFirst();

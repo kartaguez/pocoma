@@ -10,8 +10,6 @@ import java.util.*;
 public final class V3DiscoveryLoop {
     private final V3ConsumptionWorker worker;
     private final int[] nextPartitions;
-    private final Map<V3ConsumptionWorker.Pair, DiscoveryEngine.RequestWalk> walks =
-            new HashMap<>();
     private int nextConsumption;
     private final Set<V3ConsumptionWorker.Pair> saturated = new HashSet<>();
 
@@ -42,18 +40,7 @@ public final class V3DiscoveryLoop {
                     || binding.definition().family()
                             == com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily
                                     .IDENTITY_REQUEST) {
-                var result =
-                        binding.discovery()
-                                .discoverRequests(
-                                        lease,
-                                        walks.getOrDefault(
-                                                pair, DiscoveryEngine.RequestWalk.fresh()));
-                walks.put(
-                        pair,
-                        result.next()); // Only the confirmed I4 result controls source progress.
-                if (result.tourFinished())
-                    worker.event(
-                            binding, Phase.DISCOVERY_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
+                var result = binding.discovery().discoverRequests(lease);
                 status = result.status();
                 examined = result.examined();
                 advanced = result.advanced();

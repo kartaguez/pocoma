@@ -190,14 +190,22 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                             : new JdbcEventDiscoveryReferences(write.source, family, settings);
         if (family == ConsumableFamily.IDENTITY_REQUEST) {
             write.oracle.execute(
-                    "create table fixture_discovery_request(id uuid primary key,status text not"
+                    "create table fixture_discovery_request_counter(position bigint not null);"
+                        + " insert into fixture_discovery_request_counter values(0);create table"
+                        + " fixture_discovery_request(id uuid primary key,status text not"
                         + " null default 'PENDING' check(status in ('PENDING','TERMINAL')));create"
-                        + " table fixture_discovery_result(id uuid primary key references"
+                        + " table fixture_discovery_request_position(position bigint primary"
+                        + " key,id uuid unique not null references fixture_discovery_request(id));"
+                        + " create table fixture_discovery_result(id uuid primary key references"
                         + " fixture_discovery_request(id));create table"
                         + " fixture_discovery_completion(id uuid primary key references"
                         + " fixture_discovery_result(id))");
             write.oracle.execute(
                     "grant select,update(status) on fixture_discovery_request to "
+                            + write.runtimeRole
+                            + ";grant select on"
+                            + " fixture_discovery_request_counter,fixture_discovery_request_position"
+                            + " to "
                             + write.runtimeRole
                             + ";grant select,insert on"
                             + " fixture_discovery_result,fixture_discovery_completion to "
@@ -352,13 +360,24 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
     void pending(UUID id) {
         if (family == ConsumableFamily.COMMAND)
             write.oracle.update(
-                    "insert into"
+                    "with cmd as (insert into"
                         + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values(?,'i3','actor','fixture',?,0,'CreatePot',?::jsonb)",
+                        + " values(?,'i3','actor','fixture',?,0,'CreatePot',?::jsonb) returning"
+                        + " request_id), pos as (update v3_request_counter set position=position+1"
+                        + " where family='COMMAND' returning position) insert into"
+                        + " v3_request_position(family,position,request_id) select"
+                        + " 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                     id,
                     UUID.randomUUID(),
                     PotCommandJson.encode(new PotCommand.CreatePot(new Label("I4 expected"))));
-        else write.oracle.update("insert into fixture_discovery_request(id) values(?)", id);
+        else
+            write.oracle.update(
+                    "with req as (insert into fixture_discovery_request(id) values(?) returning"
+                        + " id), pos as (update fixture_discovery_request_counter set"
+                        + " position=position+1 returning position) insert into"
+                        + " fixture_discovery_request_position(position,id) select"
+                        + " pos.position,req.id from req,pos",
+                    id);
         trace.add("admitted durable PENDING no slot " + id);
     }
 
@@ -412,35 +431,57 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                 return family;
             }
 
-            public Optional<UUID> upperPending(RecoveryReadContext c) {
-                SpringAttemptTransactions.requireRead(source, c);
-                return sql
-                        .queryForList(
-                                "select id from fixture_discovery_request where"
-                                        + " status='PENDING' order by id desc limit 1",
-                                UUID.class)
-                        .stream()
-                        .findFirst();
-            }
-
-            public List<UUID> pendingPage(
-                    Optional<UUID> after, UUID upper, int size, RecoveryReadContext c) {
-                SpringAttemptTransactions.requireRead(source, c);
-                return after.isEmpty()
-                        ? sql.queryForList(
-                                "select id from fixture_discovery_request where"
-                                        + " status='PENDING' and id<=? order by id limit ?",
-                                UUID.class,
-                                upper,
-                                size)
-                        : sql.queryForList(
-                                "select id from fixture_discovery_request where"
-                                        + " status='PENDING' and id>? and id<=? order by id"
-                                        + " limit ?",
-                                UUID.class,
-                                after.orElseThrow(),
-                                upper,
-                                size);
+            public Window window(long after, int max, RecoveryReadContext c) {
+                return SpringAttemptTransactions.observed(
+                        source,
+                        c,
+                        () -> {
+                            if (after < 0 || max < 1 || max > settings.windowSize())
+                                throw new IllegalArgumentException("invalid window bound");
+                            sql.queryForObject(
+                                    "select set_config('lock_timeout',?,true)",
+                                    String.class,
+                                    settings.lockTimeout().toMillis() + "ms");
+                            sql.queryForObject(
+                                    "select set_config('statement_timeout',?,true)",
+                                    String.class,
+                                    settings.statementTimeout().toMillis() + "ms");
+                            var counters =
+                                    sql.queryForList(
+                                            "select position from"
+                                                    + " fixture_discovery_request_counter",
+                                            Long.class);
+                            if (counters.size() != 1 || counters.getFirst() < after)
+                                throw new IllegalStateException(
+                                        "missing or regressed publication counter");
+                            long high =
+                                    after + Math.min((long) max, counters.getFirst() - after);
+                            var refs =
+                                    sql.query(
+                                            "select p.position,p.id,r.id from"
+                                                + " fixture_discovery_request_position p left join"
+                                                + " fixture_discovery_request r on r.id=p.id where"
+                                                + " p.position>? and p.position<=? order by"
+                                                + " p.position",
+                                            (r, n) -> {
+                                                if (r.getObject(3, UUID.class) == null)
+                                                    throw new IllegalStateException(
+                                                            "missing request envelope");
+                                                return new Reference(
+                                                        r.getLong(1), r.getObject(2, UUID.class));
+                                            },
+                                            after,
+                                            high);
+                            if (refs.size() != high - after)
+                                throw new IllegalStateException("hole in published prefix");
+                            long position = after;
+                            var ids = new HashSet<UUID>();
+                            for (var ref : refs)
+                                if (ref.position() != ++position || !ids.add(ref.requestId()))
+                                    throw new IllegalStateException(
+                                            "non-contiguous publication or duplicate identity");
+                            return new Window(after, high, refs);
+                        });
             }
 
             public boolean tryProtectPending(UUID id) {
@@ -452,6 +493,18 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                                                         + " fixture_discovery_request where"
                                                         + " id=? and status='PENDING' for"
                                                         + " update skip locked",
+                                                id)
+                                        .isEmpty());
+            }
+
+            public boolean isTerminal(UUID id) {
+                return SpringAttemptTransactions.guarded(
+                        source,
+                        () ->
+                                !sql.queryForList(
+                                                "select id from"
+                                                        + " fixture_discovery_request where"
+                                                        + " id=? and status='TERMINAL'",
                                                 id)
                                         .isEmpty());
             }
@@ -467,6 +520,12 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
             NonBurnableReferences eventSource,
             BurnableReferences requestSource,
             AttemptTransactions tx) {
+        if (requestSource == this.requests && family == ConsumableFamily.COMMAND) {
+            requestSource = new JdbcCommandDiscoveryReferences(write.source, settings);
+        }
+        if (store == this.admissions) {
+            store = new JdbcDiscoveryAdmissionStore(target.source, settings);
+        }
         if (!capturedBeforeDiscovery) {
             try {
                 snapshot("independent durable state immediately before first Discovery");
@@ -630,35 +689,22 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                     return source.family();
                 }
 
-                public Optional<UUID> upperPending(RecoveryReadContext c) {
-                    var upper = source.upperPending(c);
+                public Window window(long after, int max, RecoveryReadContext c) {
+                    var w = source.window(after, max, c);
                     f.trace.add(
-                            "D upper PENDING U="
-                                    + upper
-                                    + " source snapshot="
-                                    + sql.queryForMap(
-                                            "select"
-                                                + " pg_backend_pid(),pg_current_xact_id()::text,clock_timestamp()"));
-                    return upper;
-                }
-
-                public List<UUID> pendingPage(
-                        Optional<UUID> a, UUID u, int n, RecoveryReadContext c) {
-                    var page = source.pendingPage(a, u, n, c);
-                    f.trace.add(
-                            "D loaded global pending page after="
-                                    + a
-                                    + " U="
-                                    + u
+                            "D loaded global request window after="
+                                    + after
+                                    + " H="
+                                    + w.highInclusive()
                                     + " B="
-                                    + n
+                                    + max
                                     + " references="
-                                    + page
+                                    + w.references()
                                     + " source snapshot="
                                     + sql.queryForMap(
                                             "select"
                                                 + " pg_backend_pid(),pg_current_xact_id()::text,clock_timestamp()"));
-                    return page;
+                    return w;
                 }
 
                 public boolean tryProtectPending(UUID id) {
@@ -677,6 +723,10 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                     if (result)
                         held.get().putIfAbsent("source:" + id, new Instant[] {before, after});
                     return result;
+                }
+
+                public boolean isTerminal(UUID id) {
+                    return source.isTerminal(id);
                 }
             };
         }

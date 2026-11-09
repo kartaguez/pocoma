@@ -675,6 +675,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                         "v3_identity_anchor_state",
                         "v3_identity_version_state",
                         "v3_identity_request_unit",
+                        "v3_identity_request_positioned",
                         "v3_identity_result_unit",
                         "v3_identity_user_unit",
                         "v3_identity_version_unit",
