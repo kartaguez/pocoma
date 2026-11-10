@@ -373,6 +373,8 @@ public record V3ConsumptionWorkerSettings(
         String db = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".database"),
                 schema = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".schema"),
                 role = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".username");
+        if (env.containsProperty(p + "maximum"))
+            throw new IllegalArgumentException("use maximum-pool-size, not maximum: " + key);
         int defaultMax = mw + (business ? 2 : 6);
         int max = env.getProperty(p + "maximum-pool-size", Integer.class, defaultMax);
         int minIdle = env.getProperty(p + "minimum-idle", Integer.class, max);
@@ -389,9 +391,8 @@ public record V3ConsumptionWorkerSettings(
                         business);
         if (!pool.username().equals(role)
                 || pool.maximum() > defaultMax
-                || pool.maximum() < (business ? Math.min(mw, 2) : 2)
-                || pool.minimumIdle() < 1
-                || pool.minimumIdle() > pool.maximum())
+                || pool.maximum() < defaultMax
+                || pool.minimumIdle() != pool.maximum())
             throw new IllegalArgumentException("unqualified pool sizing or runtime principal");
         var uri = endpoint(pool);
         if (uri.getHost() == null

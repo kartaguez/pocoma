@@ -59,7 +59,11 @@ public class V3AdmissionHttpConfiguration {
                                                             "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
                                                     .contains(n));
             if (!root) throw new IllegalStateException("Admission requires WEB or Monolith root");
-            if (Arrays.stream(factory.getBeanDefinitionNames())
+            boolean monolith = Arrays.stream(factory.getBeanDefinitionNames())
+                    .map(n -> factory.getType(n, false))
+                    .filter(Objects::nonNull)
+                    .anyMatch(t -> t.getName().equals("com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
+            if (!monolith && Arrays.stream(factory.getBeanDefinitionNames())
                     .map(n -> factory.getType(n, false))
                     .filter(Objects::nonNull)
                     .anyMatch(
