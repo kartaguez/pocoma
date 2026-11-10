@@ -27,7 +27,7 @@ public class PocomaRuntimeMonolithApplication {
 
     /** Legacy scanning and processing are mutually exclusive with the inert pilot. */
     @org.springframework.context.annotation.Profile(
-            "!v3-consumption-pilot & !v3-consumption-worker-dev & !v3-read-worker & !v3-http-read")
+            "!v3-consumption-pilot & !v3-consumption-worker-dev & !v3-read-worker & !v3-http-read & !v3-http-admission")
     @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
     @org.springframework.context.annotation.ComponentScan(
             basePackages = "com.kartaguez.pocoma",

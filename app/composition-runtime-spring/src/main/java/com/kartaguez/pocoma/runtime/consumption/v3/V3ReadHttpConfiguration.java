@@ -65,7 +65,11 @@ public class V3ReadHttpConfiguration {
                     || env.getProperty("management.health.db.enabled", Boolean.class, true))
                 throw new IllegalStateException(
                         "V3 HTTP requires migrations, OSIV and DB health disabled");
-            if (Arrays.stream(factory.getBeanDefinitionNames())
+            boolean monolith = Arrays.stream(factory.getBeanDefinitionNames())
+                    .map(n -> factory.getType(n, false))
+                    .filter(Objects::nonNull)
+                    .anyMatch(t -> t.getName().equals("com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
+            if (!monolith && Arrays.stream(factory.getBeanDefinitionNames())
                     .map(n -> factory.getType(n, false))
                     .filter(Objects::nonNull)
                     .anyMatch(

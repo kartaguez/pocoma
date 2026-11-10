@@ -70,6 +70,32 @@ class ReadActivationSettingsTest {
     }
 
     @Test
+    void poolKeysAndReservesMatchAssembly() {
+        for (String authority : List.of("write", "read")) {
+            for (String kind : List.of("business", "control")) {
+                String pool = authority + "-" + kind;
+                int required = 4 + (kind.equals("business") ? 2 : 6);
+                var valid = env(List.of("MaterializePotVersion"))
+                        .withProperty(P + pool + ".maximum-pool-size", Integer.toString(required))
+                        .withProperty(P + pool + ".minimum-idle", Integer.toString(required));
+                assertDoesNotThrow(() -> V3ConsumptionWorkerSettings.from(valid), pool);
+                var undersized = env(List.of("MaterializePotVersion"))
+                        .withProperty(P + pool + ".maximum-pool-size", Integer.toString(required - 1));
+                assertThrows(IllegalArgumentException.class,
+                        () -> V3ConsumptionWorkerSettings.from(undersized), pool);
+                var cold = env(List.of("MaterializePotVersion"))
+                        .withProperty(P + pool + ".minimum-idle", "1");
+                assertThrows(IllegalArgumentException.class,
+                        () -> V3ConsumptionWorkerSettings.from(cold), pool);
+                var misspelled = env(List.of("MaterializePotVersion"))
+                        .withProperty(P + pool + ".maximum", Integer.toString(required));
+                assertThrows(IllegalArgumentException.class,
+                        () -> V3ConsumptionWorkerSettings.from(misspelled), pool);
+            }
+        }
+    }
+
+    @Test
     void independentSelectionAndTemporalPreflight() {
         var names = V3ConsumptionWorkerSettings.READ_NAMES;
         var ids =
