@@ -3428,8 +3428,9 @@ class DiscoveryPostgresTest {
                             assertTrue(sourceMeter.statements > 0);
                             assertEquals(
                                     Math.min(w, ids.size())
+                                            // set_config returns one row; the publication counter returns one.
                                             + (f.events instanceof JdbcEventDiscoveryReferences
-                                                    ? 3
+                                                    ? 2
                                                     : 1),
                                     sourceMeter.rows);
                             if (sample >= 0) {

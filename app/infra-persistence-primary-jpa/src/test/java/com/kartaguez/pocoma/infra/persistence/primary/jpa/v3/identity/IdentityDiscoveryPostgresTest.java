@@ -29,7 +29,12 @@ class IdentityDiscoveryPostgresTest extends IdentityEngineFixture {
         execute(req);
         discover(req);
         assertEquals(0, count("consumption_slot"));
-        assertEquals(0, count("discovery_checkpoint"));
+        assertEquals(1, count("discovery_checkpoint"));
+        int partition = RoutingV1.partition(
+                RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, req.requestId()), 4);
+        assertEquals(1L, admin.queryForObject(
+                "select position from discovery_checkpoint where consumption_id=? and partition_id=?",
+                Long.class, CONSUMPTION, partition), "K retains the covered published request after terminalization");
     }
 
     @Test

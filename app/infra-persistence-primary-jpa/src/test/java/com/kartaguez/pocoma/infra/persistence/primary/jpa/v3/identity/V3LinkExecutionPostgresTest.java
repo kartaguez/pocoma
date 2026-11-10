@@ -23,6 +23,11 @@ import java.nio.file.Path;
 @Testcontainers
 class V3LinkExecutionPostgresTest extends IdentityEngineFixture {
     AdmitLinkProposal links;
+    @Override String[] migrationLocations() {
+        var locations = new ArrayList<>(Arrays.asList(super.migrationLocations()));
+        locations.add("classpath:db/v3-admission/migration");
+        return locations.toArray(String[]::new);
+    }
     @BeforeEach void admission() throws Exception {
         Flyway.configure().dataSource(adminSource).defaultSchema(schema).schemas(schema)
             .locations("classpath:db/v3-pot/migration","classpath:db/v3-pot-execution/migration",
