@@ -1,15 +1,19 @@
 package com.kartaguez.pocoma.engine.admit.registration.v3;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.*;
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 
 import java.time.*;
 import java.util.*;
 
 /** S-03 admission only. No business authority port is available here. */
-public final class AdmitIdentityRequestV3 {
+public final class AdmitIdentityRequestV3 implements com.kartaguez.pocoma.contract.writeadmission.AdmitIdentityRequest {
     public interface Store extends AdmissionAssociation.Store {
         void insert(IdentityRequest request);
     }

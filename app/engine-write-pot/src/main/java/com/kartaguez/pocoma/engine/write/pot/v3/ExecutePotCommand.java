@@ -1,11 +1,12 @@
 package com.kartaguez.pocoma.engine.write.pot.v3;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort.*;

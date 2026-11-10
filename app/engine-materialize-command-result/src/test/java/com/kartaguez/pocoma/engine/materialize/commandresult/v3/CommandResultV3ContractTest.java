@@ -1,5 +1,5 @@
 package com.kartaguez.pocoma.engine.materialize.commandresult.v3;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.CommandTerminalResult;
+import com.kartaguez.pocoma.domain.projection.v3.CommandTerminalResult;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

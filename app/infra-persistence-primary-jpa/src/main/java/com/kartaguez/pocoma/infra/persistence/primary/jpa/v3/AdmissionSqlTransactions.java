@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
 
-import com.kartaguez.pocoma.contracts.command.v3.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 

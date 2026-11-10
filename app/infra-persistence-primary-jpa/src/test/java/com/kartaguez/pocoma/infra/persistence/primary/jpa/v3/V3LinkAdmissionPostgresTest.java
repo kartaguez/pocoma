@@ -1,9 +1,12 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.*;
-import com.kartaguez.pocoma.contracts.registration.v3.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.admit.registration.v3.*;
@@ -123,7 +126,7 @@ class V3LinkAdmissionPostgresTest {
         try (var threads=Executors.newVirtualThreadPerTaskExecutor(); var lock=f.source.getConnection()) {
             lock.setAutoCommit(false); lock.createStatement().execute("select link_request_id from v3_link_proposal for update");
             var barrier=new CyclicBarrier(3);
-            Callable<AdmitLinkProposal.Accepted> action=()->{barrier.await(5,TimeUnit.SECONDS);return service().accept(f.principal("E2"),id);};
+            Callable<IssueLinkProposal.Accepted> action=()->{barrier.await(5,TimeUnit.SECONDS);return service().accept(f.principal("E2"),id);};
             var a=threads.submit(action);var b=threads.submit(action);barrier.await(5,TimeUnit.SECONDS);awaitLock();lock.commit();
             assertEquals(a.get(5,TimeUnit.SECONDS),b.get(5,TimeUnit.SECONDS));
         }

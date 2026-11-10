@@ -1,10 +1,12 @@
 package com.kartaguez.pocoma.supra.http.write.v3;
+import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.AdmissionFailure;
-import com.kartaguez.pocoma.engine.admit.command.v3.*;
-import com.kartaguez.pocoma.engine.admit.registration.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import jakarta.servlet.http.*;
 
@@ -17,24 +19,23 @@ import java.util.*;
 @org.springframework.context.annotation.Profile("v3-http-admission")
 @RestController
 public final class V3AdmissionController {
-    @FunctionalInterface
-    public interface AdmissionListener {
-        void onCommandAdmitted(UUID commandId);
+    private final AdmitCommand commands;
+    private final AdmitIdentityRequest identity;
+    private final V3AdmissionTransport transport;
+    private final AdmissionObserver observer;
+
+    public V3AdmissionController(AdmitCommand commands, AdmitIdentityRequest identity,
+            V3AdmissionTransport transport) {
+        this(commands, identity, transport, AdmissionObserver.NOOP);
     }
 
-    public static volatile AdmissionListener ON_ADMITTED = null;
-
-    private final AdmitCommandV3 commands;
-    private final AdmitIdentityRequestV3 identity;
-    private final V3AdmissionTransport transport;
-
-    public V3AdmissionController(
-            AdmitCommandV3 commands,
-            AdmitIdentityRequestV3 identity,
-            V3AdmissionTransport transport) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public V3AdmissionController(AdmitCommand commands, AdmitIdentityRequest identity,
+            V3AdmissionTransport transport, AdmissionObserver observer) {
         this.commands = commands;
         this.identity = identity;
         this.transport = transport;
+        this.observer = Objects.requireNonNull(observer);
     }
 
     @PostMapping("/api/v3/commands")
@@ -51,8 +52,7 @@ public final class V3AdmissionController {
                             new PotCommand.Eui(p.issuer(), p.subject()),
                             transport.limits().rationalDigits());
             UUID id = commands.admit(p, key, input);
-            AdmissionListener staticHook = ON_ADMITTED;
-            if (staticHook != null) staticHook.onCommandAdmitted(id);
+            observer.onCommandAdmitted(id);
             accepted(response, id, "/api/v3/commands/");
         } catch (AdmissionFailure failure) {
             if (!failure.physicalTerminationObserved())

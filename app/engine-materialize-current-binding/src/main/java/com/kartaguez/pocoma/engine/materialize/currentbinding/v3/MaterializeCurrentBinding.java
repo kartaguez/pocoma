@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.engine.materialize.currentbinding.v3;
+import com.kartaguez.pocoma.port.projection.v3.CurrentBindingStore;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import java.util.*;
 public final class MaterializeCurrentBinding implements ConsumptionParticipant {

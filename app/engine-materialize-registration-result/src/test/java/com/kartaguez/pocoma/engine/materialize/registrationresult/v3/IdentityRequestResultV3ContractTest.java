@@ -1,5 +1,5 @@
 package com.kartaguez.pocoma.engine.materialize.registrationresult.v3;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.IdentityTerminalResult;
+import com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

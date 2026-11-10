@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consume.registration.v3.*;

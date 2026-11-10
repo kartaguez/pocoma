@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
+import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
@@ -94,14 +99,14 @@ public class V3ConsumptionWorkerConfiguration {
                                 V3ReadHttpConfiguration.class.getName(),
                                 V3ReadHttpConfiguration.PrincipalResolver.class.getName(),
                                 V3ReadHttpConfiguration.PotQueries.class.getName(),
-                                com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3.Queries.class
+                                com.kartaguez.pocoma.contract.readquery.PotRead.Queries.class
                                         .getName(),
                                 V3ReadHttpConfiguration.HttpPreflight.class.getName(),
                                 com.kartaguez.pocoma.supra.http.read.v3.V3ReadController.class
                                         .getName(),
                                 com.kartaguez.pocoma.supra.http.read.v3.V3InvitationController.class
                                         .getName(),
-                                com.kartaguez.pocoma.engine.read.pot.v3.ReadInvitation.Queries.class
+                                com.kartaguez.pocoma.contract.readquery.InvitationRead.Queries.class
                                         .getName(),
                                 V3ReadHttpConfiguration.InvitationQueries.class.getName(),
                                 com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class
@@ -115,14 +120,11 @@ public class V3ConsumptionWorkerConfiguration {
                                         .getName(),
                                 com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle.class
                                         .getName(),
-                                com.kartaguez.pocoma.engine.read.currentbinding.v3
-                                        .GetCurrentBindingV3.Query.class
+                                com.kartaguez.pocoma.contract.readquery.BindingRead.Query.class
                                         .getName(),
-                                com.kartaguez.pocoma.engine.read.commandresult.v3
-                                        .GetCommandTerminalResult.Query.class
+                                com.kartaguez.pocoma.contract.readquery.CommandResultRead.Query.class
                                         .getName(),
-                                com.kartaguez.pocoma.engine.read.registrationresult.v3
-                                        .GetIdentityTerminalResult.Query.class
+                                com.kartaguez.pocoma.contract.readquery.IdentityResultRead.Query.class
                                         .getName(),
                                 "com.kartaguez.pocoma.runtime.consumption.v3.V3StageHandoffController"));
             boolean admission =
@@ -794,24 +796,15 @@ public class V3ConsumptionWorkerConfiguration {
                                                     || (name.equals("v3HttpBinding")
                                                             && bean
                                                                     instanceof
-                                                                    com.kartaguez.pocoma.engine.read
-                                                                            .currentbinding.v3
-                                                                            .GetCurrentBindingV3
-                                                                            .Query)
+                                                                    com.kartaguez.pocoma.contract.readquery.BindingRead.Query)
                                                     || (name.equals("v3HttpCommandResult")
                                                             && bean
                                                                     instanceof
-                                                                    com.kartaguez.pocoma.engine.read
-                                                                            .commandresult.v3
-                                                                            .GetCommandTerminalResult
-                                                                            .Query)
+                                                                    com.kartaguez.pocoma.contract.readquery.CommandResultRead.Query)
                                                     || (name.equals("v3HttpIdentityResult")
                                                             && bean
                                                                     instanceof
-                                                                    com.kartaguez.pocoma.engine.read
-                                                                            .registrationresult.v3
-                                                                            .GetIdentityTerminalResult
-                                                                            .Query)
+                                                                    com.kartaguez.pocoma.contract.readquery.IdentityResultRead.Query)
                                                     || (name.equals("v3HttpServerBounds")
                                                             && bean
                                                                     instanceof

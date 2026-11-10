@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.supra.http.read.v3;
+import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
+import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import static com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.require;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,13 +24,13 @@ import java.util.function.BiFunction;
 @RestController
 @RequestMapping("/api/v3")
 public final class V3ReadController {
-    private final ReadPotV3.Queries pots;
-    private final GetCurrentBindingV3.Query bindings;
-    private final GetCommandTerminalResult.Query commands;
-    private final GetIdentityTerminalResult.Query identities;
+    private final PotRead.Queries pots;
+    private final BindingRead.Query bindings;
+    private final CommandResultRead.Query commands;
+    private final IdentityResultRead.Query identities;
     private final V3ReadTransport transport;
-    public V3ReadController(ReadPotV3.Queries pots, GetCurrentBindingV3.Query bindings,
-            GetCommandTerminalResult.Query commands, GetIdentityTerminalResult.Query identities, V3ReadTransport transport) {
+    public V3ReadController(PotRead.Queries pots, BindingRead.Query bindings,
+            CommandResultRead.Query commands, IdentityResultRead.Query identities, V3ReadTransport transport) {
         this.pots = pots; this.bindings = bindings; this.commands = commands; this.identities = identities; this.transport = transport;
     }
     @GetMapping("/me/binding")

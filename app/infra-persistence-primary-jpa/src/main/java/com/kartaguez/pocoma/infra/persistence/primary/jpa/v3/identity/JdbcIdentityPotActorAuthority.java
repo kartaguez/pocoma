@@ -4,7 +4,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentity;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotActorAuthority;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
 import org.springframework.dao.DataAccessException;

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 
 import org.junit.jupiter.api.*;

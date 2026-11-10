@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
 
@@ -10,7 +12,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;

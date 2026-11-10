@@ -1,4 +1,8 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
+import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.V3ReadHttpFixture.*;
@@ -47,7 +51,7 @@ class V3HttpCompositionPostgresTest {
             assertTrue(f.context.getBeansOfType(V3ConsumptionWorker.class).isEmpty());
             assertTrue(f.context.getBeansOfType(org.springframework.transaction.PlatformTransactionManager.class).isEmpty(), "no implicit JDBC/JPA owner");
             assertTrue(f.context.getBeansOfType(jakarta.persistence.EntityManagerFactory.class).isEmpty(), "no implicit legacy JPA assembly");
-            assertEquals(1, f.context.getBeansOfType(ReadPotV3.Queries.class).size()); assertEquals(1, f.context.getBeansOfType(GetCurrentBindingV3.Query.class).size());
+            assertEquals(1, f.context.getBeansOfType(PotRead.Queries.class).size()); assertEquals(1, f.context.getBeansOfType(BindingRead.Query.class).size());
             assertEquals(200, f.get("/pots/" + POT).statusCode()); assertEquals(200, f.get("/me/binding").statusCode());
             assertTrue(f.context.getBeansOfType(com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandService.class).isEmpty());
             f.evidence("C01-root", Map.of("root", PocomaWebApiApplication.class.getName(), "routes", routes(f), "pools", 1, "poolMaximum", 2, "workers", 0));
@@ -95,7 +99,7 @@ class V3HttpCompositionPostgresTest {
         for (var file : Files.walk(app.resolve("supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3")).filter(p -> p.toString().endsWith(".java")).toList()) {
             String source = Files.readString(file); for (String forbidden : List.of("com.kartaguez.pocoma.runtime.", "com.kartaguez.pocoma.infra.", "engine.write", "engine.admit", "javax.sql", "RecoveryReadContext")) assertFalse(source.contains(forbidden), file + " " + forbidden);
         }
-        for (Class<?> port : List.of(ReadPotV3.Queries.class, GetCurrentBindingV3.Query.class, GetCommandTerminalResult.Query.class, GetIdentityTerminalResult.Query.class)) for (var method : port.getMethods()) for (Class<?> parameter : method.getParameterTypes()) assertFalse(parameter.getName().contains("Context"), "no owner/context crosses HTTP");
+        for (Class<?> port : List.of(PotRead.Queries.class, BindingRead.Query.class, CommandResultRead.Query.class, IdentityResultRead.Query.class)) for (var method : port.getMethods()) for (Class<?> parameter : method.getParameterTypes()) assertFalse(parameter.getName().contains("Context"), "no owner/context crosses HTTP");
         String monolithPom = Files.readString(app.resolve("runtime-monolith/pom.xml")); assertFalse(monolithPom.contains("pocoma-runtime-web-api"), "Monolith must not depend on the Web runtime, even for tests");
     }
     static void visit(String node, Map<String, Set<String>> graph, Set<String> visiting, Set<String> done) {

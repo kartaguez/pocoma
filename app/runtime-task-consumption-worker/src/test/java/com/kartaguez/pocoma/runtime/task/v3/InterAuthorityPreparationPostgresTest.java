@@ -784,7 +784,7 @@ class InterAuthorityPreparationPostgresTest {
                     new com.kartaguez.pocoma.engine.write.pot.port.execution.v3
                             .PotActorAuthority() {
                         public Witness observe(
-                                com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand
+                                com.kartaguez.pocoma.contract.writeadmission.PotCommand
                                         command) {
                             snapshots.add(f.witness(f.primary, "Command actor"));
                             observed.set(
@@ -798,7 +798,7 @@ class InterAuthorityPreparationPostgresTest {
                         }
 
                         public boolean protect(
-                                com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand
+                                com.kartaguez.pocoma.contract.writeadmission.PotCommand
                                         command,
                                 Witness witness) {
                             return f.sql.queryForObject(

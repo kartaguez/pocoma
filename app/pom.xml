@@ -31,6 +31,8 @@
 	</scm>
 
 	<modules>
+        <module>contract-write-admission</module>
+        <module>contract-read-query</module>
 		<module>domain-authorization</module>
 		<module>domain-event</module>
 		<module>domain-user-identity</module>

@@ -1,9 +1,11 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.HmacAdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.AdmissionProtection;
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.admit.registration.v3.*;
@@ -41,7 +43,7 @@ class V3LinkExecutionPostgresTest extends IdentityEngineFixture {
         var owner=new SpringAttemptTransactions(source,manager,5);
         AdmissionSqlAuthority.verify(source,PG.getDatabaseName(),schema,role);
         links=new AdmitLinkProposal(new JdbcAdmissionStore(source,owner),new AdmissionSqlTransactions(source,owner),
-            new AdmissionProtection("lookup",new byte[32],"key",Map.of("key",new byte[32])),Clock.systemUTC(),Duration.ofMinutes(10),4096);
+            new HmacAdmissionProtection("lookup",new byte[32],"key",Map.of("key",new byte[32])),Clock.systemUTC(),Duration.ofMinutes(10),4096);
     }
     AuthenticatedExternalPrincipal actor(ExternalIdentity e) {
         var now=Instant.now();return new AuthenticatedExternalPrincipal(e.issuer(),e.subject(),now.minusSeconds(2),now.minusSeconds(1),now.plusSeconds(300),Set.of());

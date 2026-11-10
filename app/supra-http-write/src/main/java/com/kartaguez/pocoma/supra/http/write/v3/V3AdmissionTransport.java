@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.supra.http.write.v3;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.kartaguez.pocoma.contracts.command.v3.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;

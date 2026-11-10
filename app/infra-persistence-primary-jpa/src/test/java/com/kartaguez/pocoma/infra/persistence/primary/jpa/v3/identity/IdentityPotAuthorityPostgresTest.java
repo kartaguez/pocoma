@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ class PotCommandJsonTest {
                                         id, new Name("A"), Optional.empty())));
         for (var mode : List.of(Attachment.SELF, Attachment.KEEP, Attachment.DETACH)) {
             var c =
-                    new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                    new com.kartaguez.pocoma.contract.writeadmission.PotCommand(
                             UUID.randomUUID(),
                             new Eui("i", "s"),
                             "token",

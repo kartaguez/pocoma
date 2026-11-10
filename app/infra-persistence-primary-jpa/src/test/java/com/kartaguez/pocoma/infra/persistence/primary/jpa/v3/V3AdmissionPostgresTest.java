@@ -1,12 +1,18 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.HmacAdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.engine.admit.command.v3.*;
 import com.kartaguez.pocoma.engine.admit.registration.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 
@@ -48,7 +54,7 @@ class V3AdmissionPostgresTest {
     SpringAttemptTransactions owner;
     JdbcAdmissionStore store;
     final AdmissionProtection protection =
-            new AdmissionProtection("stable", new byte[32], "old", Map.of("old", new byte[32]));
+            new HmacAdmissionProtection("stable", new byte[32], "old", Map.of("old", new byte[32]));
     final String pot = "00000000-0000-0000-0000-000000000001";
 
     @BeforeEach
@@ -915,7 +921,7 @@ class V3AdmissionPostgresTest {
                     }
 
                     public void insert(
-                            com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest r) {
+                            com.kartaguez.pocoma.contract.writeadmission.IdentityRequest r) {
                         store.insert(r);
                         assertEquals(0, count("v3_identity_request"));
                         assertEquals(0, count("v3_admission_association"));
@@ -1061,7 +1067,7 @@ class V3AdmissionPostgresTest {
         byte[] next = new byte[32];
         next[0] = 1;
         var rotated =
-                new AdmissionProtection(
+                new HmacAdmissionProtection(
                         "stable", new byte[32], "new", Map.of("old", new byte[32], "new", next));
         assertEquals(
                 a.requestId(),
@@ -1072,7 +1078,7 @@ class V3AdmissionPostgresTest {
                                 Clock.systemUTC(),
                                 1)
                         .admit(principal("subject"), "restored", i));
-        var missing = new AdmissionProtection("stable", new byte[32], "new", Map.of("new", next));
+        var missing = new HmacAdmissionProtection("stable", new byte[32], "new", Map.of("new", next));
         assertEquals(
                 503,
                 assertThrows(
@@ -1195,7 +1201,7 @@ class V3AdmissionPostgresTest {
                     }
 
                     public void insert(
-                            com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand c) {
+                            com.kartaguez.pocoma.contract.writeadmission.PotCommand c) {
                         var jdbc = new JdbcTemplate(source);
                         jdbc.update(
                                 "insert into"

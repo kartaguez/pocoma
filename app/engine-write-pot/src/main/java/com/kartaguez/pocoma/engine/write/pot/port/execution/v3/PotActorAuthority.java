@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.engine.write.pot.port.execution.v3;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 

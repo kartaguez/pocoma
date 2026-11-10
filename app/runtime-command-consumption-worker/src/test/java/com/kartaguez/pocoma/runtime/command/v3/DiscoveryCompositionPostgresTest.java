@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
 

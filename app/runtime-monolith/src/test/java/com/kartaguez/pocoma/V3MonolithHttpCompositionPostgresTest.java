@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.V3CompositionHttpFixture.*;
@@ -43,7 +44,7 @@ class V3MonolithHttpCompositionPostgresTest {
             var context = app.run(); fixture.contexts.add(context);
             try {
                 var services = context.getBean(V3ReadFacadeComposition.Services.class);
-                assertSame(services, ((V3ReadHttpConfiguration.PotQueries) context.getBean(ReadPotV3.Queries.class)).delegate(), "the typed HTTP adapter shares the same owner and SQL quota");
+                assertSame(services, ((V3ReadHttpConfiguration.PotQueries) context.getBean(PotRead.Queries.class)).delegate(), "the typed HTTP adapter shares the same owner and SQL quota");
                 assertEquals(Set.of("MaterializeCurrentBinding"), services.activeParticipants()); assertTrue(services.workerState().isPresent());
                 assertEquals(4, context.getBeansOfType(HikariDataSource.class).size()); assertFalse(context.containsBean("v3HttpReadPool"));
                 http.context = context; http.baseUrl = "http://127.0.0.1:" + ((org.springframework.boot.web.server.context.WebServerApplicationContext) context).getWebServer().getPort();

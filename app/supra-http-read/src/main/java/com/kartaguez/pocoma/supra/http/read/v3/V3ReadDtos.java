@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.supra.http.read.v3;
 
 import com.kartaguez.pocoma.domain.pot.v3.Fraction;
-import com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 import java.util.*;
 
 /** Explicit public allowlists; no authority, User ID or persistence record is serialized. */

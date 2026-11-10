@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.consume.registration.v3;
 
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;

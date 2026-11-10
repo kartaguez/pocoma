@@ -1,5 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.junit.jupiter.api.Assertions.*;

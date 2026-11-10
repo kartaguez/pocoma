@@ -222,7 +222,7 @@ class V3AdmissionHttpTest {
                 transport.parse(
                         ("[".repeat(16) + "0" + "]".repeat(16)).getBytes(StandardCharsets.UTF_8)));
         assertThrows(
-                com.kartaguez.pocoma.contracts.command.v3.AdmissionFailure.class,
+                com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure.class,
                 () ->
                         transport.parse(
                                 ("[".repeat(17) + "0" + "]".repeat(17))

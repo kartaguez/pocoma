@@ -1106,7 +1106,7 @@ class ConsumptionLifecyclePostgresTest {
                 f.oracle.queryForObject(
                         "select pot_id from v3_command where request_id=?", UUID.class, create);
         var intent =
-                new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand
+                new com.kartaguez.pocoma.contract.writeadmission.PotCommand
                         .UpdatePotDetails(
                         new com.kartaguez.pocoma.domain.pot.value.Label("original intent"));
         var original = f.seedCommand(0, pot, obsolete ? 1 : 99, intent);
@@ -1115,7 +1115,7 @@ class ConsumptionLifecyclePostgresTest {
                         0,
                         pot,
                         1,
-                        new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand
+                        new com.kartaguez.pocoma.contract.writeadmission.PotCommand
                                 .UpdatePotDetails(
                                 new com.kartaguez.pocoma.domain.pot.value.Label(
                                         "concurrent revision")));
@@ -1755,8 +1755,7 @@ class ConsumptionLifecyclePostgresTest {
                                         0,
                                         pot,
                                         1,
-                                        new com.kartaguez.pocoma.engine.write.pot.port.execution.v3
-                                                .PotCommand.UpdatePotDetails(
+                                        new com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails(
                                                 new com.kartaguez.pocoma.domain.pot.value.Label(
                                                         "quarantined intention")));
                         next =
@@ -1764,8 +1763,7 @@ class ConsumptionLifecyclePostgresTest {
                                         0,
                                         pot,
                                         1,
-                                        new com.kartaguez.pocoma.engine.write.pot.port.execution.v3
-                                                .PotCommand.UpdatePotDetails(
+                                        new com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails(
                                                 new com.kartaguez.pocoma.domain.pot.value.Label(
                                                         "later same Pot progresses")));
                     } else {

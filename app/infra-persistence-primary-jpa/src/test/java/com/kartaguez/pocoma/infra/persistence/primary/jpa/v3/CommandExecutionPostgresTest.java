@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,7 +9,7 @@ import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1CommandCompatibilityHarness.*;

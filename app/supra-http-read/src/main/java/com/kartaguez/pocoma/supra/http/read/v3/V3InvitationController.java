@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.supra.http.read.v3;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
@@ -13,10 +15,10 @@ import java.util.*;
 @org.springframework.context.annotation.Profile("v3-http-read")
 @RestController
 public final class V3InvitationController {
-    private final ReadInvitation.Queries queries;
+    private final InvitationRead.Queries queries;
     private final V3ReadTransport transport;
 
-    public V3InvitationController(ReadInvitation.Queries queries, V3ReadTransport transport) {
+    public V3InvitationController(InvitationRead.Queries queries, V3ReadTransport transport) {
         this.queries = queries;
         this.transport = transport;
     }
@@ -37,7 +39,7 @@ public final class V3InvitationController {
             throw new V3ReadTransport.Failure(400);
         }
         var result = queries.link(p.identity(), id);
-        if (result instanceof ReadPotV3Result.Available<ReadInvitation.Link> a) {
+        if (result instanceof ReadPotV3Result.Available<InvitationRead.Link> a) {
             var v = a.value();
             transport.write(
                     response,
@@ -75,7 +77,7 @@ public final class V3InvitationController {
             var bindings = Collections.list(request.getHeaders("X-Pocoma-Binding-Token"));
             V3ReadTransport.require(bindings.size() == 1 && !bindings.getFirst().isBlank());
             var result = queries.places(p.identity(), bindings.getFirst(), n.get("token").asText());
-            if (result instanceof ReadPotV3Result.Available<List<ReadInvitation.Place>> a)
+            if (result instanceof ReadPotV3Result.Available<List<InvitationRead.Place>> a)
                 transport.write(response, Map.of("shareholders", a.value()));
             else error(result);
         } catch (com.fasterxml.jackson.core.JsonProcessingException malformed) {

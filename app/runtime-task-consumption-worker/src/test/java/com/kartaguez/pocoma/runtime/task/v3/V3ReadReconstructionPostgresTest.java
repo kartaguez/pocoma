@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority;
 import com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter;

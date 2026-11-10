@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.supra.http.write.v3;
+import com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -6,8 +7,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.AdmissionFailure;
-import com.kartaguez.pocoma.engine.admit.registration.v3.*;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.*;
 import jakarta.servlet.http.*;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
@@ -16,14 +17,14 @@ import java.util.*;
 @org.springframework.context.annotation.Profile("v3-http-admission")
 @RestController
 public final class V3LinkProposalController {
-    private final AdmitLinkProposal links;
+    private final IssueLinkProposal links;
     private final V3AdmissionTransport transport;
     private final ObjectMapper json = new ObjectMapper().registerModule(new SimpleModule()
             .addSerializer(java.time.Instant.class, new JsonSerializer<java.time.Instant>() {
                 @Override public void serialize(java.time.Instant value, JsonGenerator output,
                         SerializerProvider provider) throws IOException { output.writeString(value.toString()); }
             }));
-    public V3LinkProposalController(AdmitLinkProposal links, V3AdmissionTransport transport) {
+    public V3LinkProposalController(IssueLinkProposal links, V3AdmissionTransport transport) {
         this.links = links; this.transport = transport;
     }
     @PostMapping("/api/v3/identity/link-requests")

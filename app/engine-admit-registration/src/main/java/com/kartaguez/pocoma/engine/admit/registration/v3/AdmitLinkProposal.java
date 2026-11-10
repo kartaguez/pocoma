@@ -1,15 +1,21 @@
 package com.kartaguez.pocoma.engine.admit.registration.v3;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.LinkProposal;
+import com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.*;
-import com.kartaguez.pocoma.contracts.registration.v3.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 import java.time.*;
 import java.util.*;
 import java.util.function.Supplier;
 
 /** Two authenticated acts, one physical admission. No Identity business authority dependency. */
-public final class AdmitLinkProposal {
+public final class AdmitLinkProposal implements com.kartaguez.pocoma.contract.writeadmission.IssueLinkProposal {
     public interface Store extends AdmissionAssociation.Store {
         Instant now();
         Optional<LinkProposal> proposalByScope(byte[] scope);
@@ -19,12 +25,9 @@ public final class AdmitLinkProposal {
         void accept(UUID id, Instant acceptedAt);
     }
     /** Public allowlist: no occurrence token, provenance or UserId. */
-    public record Summary(UUID linkRequestId, com.kartaguez.pocoma.domain.useridentity.ExternalIdentity initiator,
-            com.kartaguez.pocoma.domain.useridentity.ExternalIdentity target, String action,
-            Instant createdAt, Instant expiresAt, String state, UUID requestId,
-            Long potCount, Instant potCountAsOf) {}
-    public record Created(UUID linkRequestId, Instant expiresAt) {}
-    public record Accepted(UUID linkRequestId, UUID requestId) {}
+
+
+
     private final Store store;
     private final AttemptTransactions transactions;
     private final AdmissionProtection protection;

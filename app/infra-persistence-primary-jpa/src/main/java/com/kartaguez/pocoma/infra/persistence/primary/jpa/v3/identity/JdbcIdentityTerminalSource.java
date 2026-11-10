@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
 import com.kartaguez.pocoma.engine.materialize.registrationresult.v3.IdentityTerminalSource;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.IdentityTerminalResult;
+import com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult;
 import com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestStore;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;

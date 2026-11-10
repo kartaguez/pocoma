@@ -1,6 +1,12 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
+import com.kartaguez.pocoma.domain.projection.v3.CommandTerminalResult;
+import com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult;
 
-import static com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
@@ -292,7 +298,7 @@ public final class V3ReadFacadeComposition {
             return query("visible", c -> navigation.visible(eui, token, after, limit, c));
         }
 
-        public ReadPotV3Result<GetCurrentBindingV3.Answer> binding(
+        public ReadPotV3Result<BindingRead.Answer> binding(
                 ExternalIdentity eui, long minimum) {
             if (eui == null || minimum < 0) {
                 record("binding", "invalid_input", 0L);
@@ -323,7 +329,7 @@ public final class V3ReadFacadeComposition {
                                     .toInstant());
         }
 
-        public ReadPotV3Result<ReadInvitation.Link> invitationLink(
+        public ReadPotV3Result<InvitationRead.Link> invitationLink(
                 ExternalIdentity eui,
                 UUID request,
                 Function<com.kartaguez.pocoma.domain.pot.v3.Invitation, String> decrypt) {
@@ -334,7 +340,7 @@ public final class V3ReadFacadeComposition {
             return query("invitation_link", c -> invitations(decrypt).link(eui, request, c));
         }
 
-        public ReadPotV3Result<List<ReadInvitation.Place>> invitationPlaces(
+        public ReadPotV3Result<List<InvitationRead.Place>> invitationPlaces(
                 ExternalIdentity eui, String binding, String token) {
             if (eui == null
                     || binding == null

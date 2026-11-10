@@ -1,4 +1,11 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
+import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
@@ -171,7 +178,7 @@ public class V3ReadHttpConfiguration {
 
     /** Optional READ linkage belongs to the HTTP assembly, not to the shared Services type. */
     public record PotQueries(V3ReadFacadeComposition.Services delegate)
-            implements ReadPotV3.Queries {
+            implements PotRead.Queries {
         public ReadPotV3Result<ReadPotV3Result.Pot> current(
                 ExternalIdentity eui, String token, UUID id, long minimum) {
             return delegate.current(eui, token, id, minimum);
@@ -205,8 +212,8 @@ public class V3ReadHttpConfiguration {
     public record InvitationQueries(
             V3ReadFacadeComposition.Services services,
             com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.InvitationCryptography crypto)
-            implements ReadInvitation.Queries {
-        public ReadPotV3Result<ReadInvitation.Link> link(ExternalIdentity eui, UUID request) {
+            implements InvitationRead.Queries {
+        public ReadPotV3Result<InvitationRead.Link> link(ExternalIdentity eui, UUID request) {
             return services.invitationLink(
                     eui,
                     request,
@@ -217,43 +224,42 @@ public class V3ReadHttpConfiguration {
                     });
         }
 
-        public ReadPotV3Result<List<ReadInvitation.Place>> places(
+        public ReadPotV3Result<List<InvitationRead.Place>> places(
                 ExternalIdentity eui, String binding, String token) {
             return services.invitationPlaces(eui, binding, token);
         }
     }
 
     @Bean
-    ReadInvitation.Queries v3HttpInvitations(
+    InvitationRead.Queries v3HttpInvitations(
             V3ReadFacadeComposition.Services services, Environment env) {
         return new InvitationQueries(services, V3InvitationConfiguration.keys(env));
     }
 
     @Bean
-    ReadPotV3.Queries v3HttpPot(V3ReadFacadeComposition.Services services) {
+    PotRead.Queries v3HttpPot(V3ReadFacadeComposition.Services services) {
         return new PotQueries(services);
     }
 
     @Bean
-    GetCurrentBindingV3.Query v3HttpBinding(V3ReadFacadeComposition.Services services) {
+    BindingRead.Query v3HttpBinding(V3ReadFacadeComposition.Services services) {
         return (eui, minimum) -> {
             var result = services.binding(eui, minimum);
-            return result instanceof ReadPotV3Result.Available<GetCurrentBindingV3.Answer> a
+            return result instanceof ReadPotV3Result.Available<BindingRead.Answer> a
                     ? a.value()
-                    : new GetCurrentBindingV3.Answer(GetCurrentBindingV3.Status.UNAVAILABLE, null);
+                    : new BindingRead.Answer(BindingRead.Status.UNAVAILABLE, null);
         };
     }
 
     @Bean
-    GetCommandTerminalResult.Query v3HttpCommandResult(V3ReadFacadeComposition.Services services) {
+    CommandResultRead.Query v3HttpCommandResult(V3ReadFacadeComposition.Services services) {
         return (id, eui) -> {
             var result = services.commandResult(id, eui);
             if (result instanceof ReadPotV3Result.Available<?> a) {
                 @SuppressWarnings("unchecked")
                 var value =
                         (Optional<
-                                        com.kartaguez.pocoma.engine.read.commandresult.v3
-                                                .CommandTerminalResult>)
+                                        com.kartaguez.pocoma.domain.projection.v3.CommandTerminalResult>)
                                 a.value();
                 return value;
             }
@@ -262,7 +268,7 @@ public class V3ReadHttpConfiguration {
     }
 
     @Bean
-    GetIdentityTerminalResult.Query v3HttpIdentityResult(
+    IdentityResultRead.Query v3HttpIdentityResult(
             V3ReadFacadeComposition.Services services) {
         return (id, eui) -> {
             var result = services.identityResult(id, eui);
@@ -270,8 +276,7 @@ public class V3ReadHttpConfiguration {
                 @SuppressWarnings("unchecked")
                 var value =
                         (Optional<
-                                        com.kartaguez.pocoma.engine.read.registrationresult.v3
-                                                .IdentityTerminalResult>)
+                                        com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult>)
                                 a.value();
                 return value;
             }

@@ -287,14 +287,14 @@ class InterAuthorityRecoveryPostgresTest {
                             "i2", "registration");
             var id = UUID.randomUUID();
             var request =
-                    new com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest(
+                    new com.kartaguez.pocoma.contract.writeadmission.IdentityRequest(
                             id,
                             key,
-                            new com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest
+                            new com.kartaguez.pocoma.contract.writeadmission.IdentityRequest
                                     .Registration(),
                             null,
                             java.time.Instant.EPOCH,
-                            new com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest
+                            new com.kartaguez.pocoma.contract.writeadmission.IdentityRequest
                                     .AdmissionContext(
                                     "I2 fixture",
                                     "1",
@@ -304,7 +304,7 @@ class InterAuthorityRecoveryPostgresTest {
                                     id.toString(),
                                     java.time.Instant.EPOCH,
                                     Map.of("scope", "internal"),
-                                    com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest
+                                    com.kartaguez.pocoma.contract.writeadmission.IdentityRequest
                                             .Origin.CONTROLLED_INTERNAL));
             var store =
                     new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity

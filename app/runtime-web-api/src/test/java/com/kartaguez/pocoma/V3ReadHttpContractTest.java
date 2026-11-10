@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.V3ReadHttpFixture.*;

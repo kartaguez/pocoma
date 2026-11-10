@@ -2,14 +2,14 @@ package com.kartaguez.pocoma;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;

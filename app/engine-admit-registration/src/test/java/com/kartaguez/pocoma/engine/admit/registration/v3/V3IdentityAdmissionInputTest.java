@@ -1,9 +1,11 @@
 package com.kartaguez.pocoma.engine.admit.registration.v3;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.contracts.command.v3.*;
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 
 import org.junit.jupiter.api.Test;

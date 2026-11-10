@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.*;

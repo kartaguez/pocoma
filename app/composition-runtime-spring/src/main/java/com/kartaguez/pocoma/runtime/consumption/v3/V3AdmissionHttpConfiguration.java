@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.HmacAdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
 
-import com.kartaguez.pocoma.contracts.command.v3.*;
+import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3;
 import com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3;
 import com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal;
@@ -31,11 +33,9 @@ public class V3AdmissionHttpConfiguration {
     public static final String PROFILE = "v3-http-admission";
     private static final String PREFIX = "pocoma.v3.http.admission.";
 
-    static {
-        try {
-            V3AdmissionController.ON_ADMITTED = StageHandoffTracker.getInstance()::onCommandAdmitted;
-        } catch (Throwable ignored) {
-        }
+    @Bean
+    com.kartaguez.pocoma.contract.writeadmission.AdmissionObserver v3AdmissionObserver() {
+        return StageHandoffTracker.getInstance()::onCommandAdmitted;
     }
 
     @Bean
@@ -127,7 +127,7 @@ public class V3AdmissionHttpConfiguration {
                                                                 PREFIX + "comparison-keys." + id)))
                                 != null) throw new IllegalArgumentException();
             }
-            return new AdmissionProtection(
+            return new HmacAdmissionProtection(
                     env.getRequiredProperty(PREFIX + "lookup-key-id"),
                     Base64.getDecoder().decode(env.getRequiredProperty(PREFIX + "lookup-key")),
                     current,

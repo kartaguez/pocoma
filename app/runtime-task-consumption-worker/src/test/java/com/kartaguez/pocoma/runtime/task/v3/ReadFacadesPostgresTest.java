@@ -1,8 +1,11 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import static com.kartaguez.pocoma.domain.projection.v3.SubobjectContent.*;
 import static com.kartaguez.pocoma.domain.projection.v3.SubobjectKind.*;
-import static com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 import static com.kartaguez.pocoma.runtime.task.v3.ReadRuntimeI8Fixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -756,12 +759,12 @@ class ReadFacadesPostgresTest {
             var own = available(q.services.binding(EUI, 1), "own Binding without token").value();
             assertEquals("token-a", own.value().bindingToken());
             assertEquals(
-                    GetCurrentBindingV3.Status.NOT_READY,
+                    BindingRead.Status.NOT_READY,
                     available(q.services.binding(sameUser, 2), "minVersion same EUI")
                             .value()
                             .status());
             assertEquals(
-                    GetCurrentBindingV3.Status.ABSENT,
+                    BindingRead.Status.ABSENT,
                     available(
                                     q.services.binding(new ExternalIdentity("unknown", "none"), 0),
                                     "normal absent Binding")
@@ -846,7 +849,7 @@ class ReadFacadesPostgresTest {
                             f.ownToken("owner").value(),
                             pot,
                             0,
-                            new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand
+                            new com.kartaguez.pocoma.contract.writeadmission.PotCommand
                                     .CreatePot(new Label("real window")));
             f.produce(create);
             String oldToken = f.ownToken("owner").value();
@@ -901,7 +904,7 @@ class ReadFacadesPostgresTest {
                         () -> {
                             var answer = services.binding(f.eui("owner"), 2);
                             return answer instanceof Available<?> value
-                                    && value.value() instanceof GetCurrentBindingV3.Answer binding
+                                    && value.value() instanceof BindingRead.Answer binding
                                     && binding.value() != null
                                     && !binding.value().active();
                         });

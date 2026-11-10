@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.engine.materialize.registrationresult.v3;
+import com.kartaguez.pocoma.port.projection.v3.IdentityTerminalResultStore;
 import com.kartaguez.pocoma.engine.read.registrationresult.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import java.util.*;

@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.runtime.task.v3;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.runtime.task.v3.V3QuotaHttpFixture.*;
-import static com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 import com.kartaguez.pocoma.supra.http.read.v3.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import jakarta.servlet.http.*;
@@ -283,7 +283,7 @@ class V3ReadQuotaPostgresTest {
             };
             var manager = ReadRuntimeI8Fixture.manager(observed);
             var owner = new com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions(observed, manager, 3);
-            var readers = V3ReadFacadeComposition.create(observed, owner, new com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3(50,100,16000000), Set.of("MaterializeCurrentBinding"), Optional::empty, true);
+            var readers = V3ReadFacadeComposition.create(observed, owner, new com.kartaguez.pocoma.contract.readquery.ReadLimitsV3(50,100,16000000), Set.of("MaterializeCurrentBinding"), Optional::empty, true);
             try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
                 var one = executor.submit(() -> readers.binding(f.eui("owner"), 0)); var two = executor.submit(() -> readers.binding(f.eui("owner"), 0));
                 try {

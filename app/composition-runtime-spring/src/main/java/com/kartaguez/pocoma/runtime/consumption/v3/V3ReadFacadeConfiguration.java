@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
 
-import com.kartaguez.pocoma.engine.read.pot.v3.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
 
 import io.micrometer.core.instrument.MeterRegistry;
 

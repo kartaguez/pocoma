@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.materialize.commandresult.v3.CommandTerminalSource;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.CommandTerminalResult;
+import com.kartaguez.pocoma.domain.projection.v3.CommandTerminalResult;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 import org.springframework.jdbc.core.JdbcTemplate;

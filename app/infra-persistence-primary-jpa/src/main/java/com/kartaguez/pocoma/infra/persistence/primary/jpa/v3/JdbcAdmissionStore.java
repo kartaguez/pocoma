@@ -1,14 +1,15 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation;
 
-import com.kartaguez.pocoma.contracts.command.v3.*;
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
-import com.kartaguez.pocoma.contracts.registration.v3.LinkProposal;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.LinkProposal;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal;
 import com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3;
 import com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestJson;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 

@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.engine.read.pot.v3;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
-import static com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.port.projection.v3.PotVisibilityStore;

@@ -1,6 +1,10 @@
 package com.kartaguez.pocoma.engine.read.pot.v3;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead.*;
 
-import static com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.projection.v3.*;
@@ -14,26 +18,16 @@ import java.util.function.*;
 
 /** Restricted Invitation queries; no authority or fallback in WRITE. */
 public final class ReadInvitation {
-    public record Link(UUID invitationId, UUID potId, Instant expiresAt, String link) {
-        @Override
-        public String toString() {
-            return "InvitationLink[redacted]";
-        }
-    }
 
-    public record Place(UUID shareholderId, String name) {}
 
-    public interface Queries {
-        ReadPotV3Result<Link> link(ExternalIdentity eui, UUID creationRequestId);
 
-        ReadPotV3Result<List<Place>> places(
-                ExternalIdentity eui, String bindingToken, String invitationToken);
-    }
+
+
 
     private final com.kartaguez.pocoma.port.projection.v3.InvitationStore invitations;
     private final PotVersionStore pots;
     private final SubobjectVersionStore objects;
-    private final ReadPotV3.BindingReader bindings;
+    private final PotRead.BindingReader bindings;
     private final Function<Invitation, String> decrypt;
     private final Supplier<Instant> clock;
 
@@ -41,7 +35,7 @@ public final class ReadInvitation {
             com.kartaguez.pocoma.port.projection.v3.InvitationStore invitations,
             PotVersionStore pots,
             SubobjectVersionStore objects,
-            ReadPotV3.BindingReader bindings,
+            PotRead.BindingReader bindings,
             Function<Invitation, String> decrypt,
             Supplier<Instant> clock) {
         this.invitations = invitations;

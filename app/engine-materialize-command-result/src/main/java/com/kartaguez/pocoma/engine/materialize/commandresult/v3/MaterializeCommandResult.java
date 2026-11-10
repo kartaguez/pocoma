@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.engine.materialize.commandresult.v3;
+import com.kartaguez.pocoma.port.projection.v3.CommandTerminalResultStore;
 import com.kartaguez.pocoma.engine.read.commandresult.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import java.util.*;

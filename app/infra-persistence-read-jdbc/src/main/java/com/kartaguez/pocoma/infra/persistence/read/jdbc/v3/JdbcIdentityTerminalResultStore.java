@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.read.jdbc.v3;
+import com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult;
+import com.kartaguez.pocoma.port.projection.v3.IdentityTerminalResultStore;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.read.registrationresult.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
