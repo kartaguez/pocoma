@@ -198,6 +198,28 @@ public record V3ConsumptionWorkerSettings(
         if (probes) expected.addAll(List.of("I5ReadPotProbe", "I5ReadCompletionProbe"));
         if (expected.isEmpty() && !readMode)
             throw new IllegalArgumentException("at least one implemented pair required");
+        if (name.equals("command-worker") || name.equals("pocoma-command-worker")) {
+            if (readMode || !reads.isEmpty())
+                throw new IllegalArgumentException("Command worker cannot activate read participants");
+            if (!command || !identity)
+                throw new IllegalArgumentException(
+                        "Command worker must activate Command and IdentityRequest");
+        } else if (name.equals("results-worker") || name.equals("pocoma-results-worker")) {
+            if (!readMode || command || identity)
+                throw new IllegalArgumentException("Results worker cannot activate write participants");
+            var resultTypes = Set.of("MaterializeCommandResult", "MaterializeIdentityRequestResult");
+            if (!resultTypes.containsAll(reads) || !reads.containsAll(resultTypes))
+                throw new IllegalArgumentException(
+                        "Results worker must activate exclusively MaterializeCommandResult and MaterializeIdentityRequestResult");
+        } else if (name.equals("business-read-worker") || name.equals("pocoma-business-read-worker")) {
+            if (!readMode || command || identity)
+                throw new IllegalArgumentException(
+                        "Business read worker cannot activate write participants");
+            if (reads.contains("MaterializeCommandResult")
+                    || reads.contains("MaterializeIdentityRequestResult"))
+                throw new IllegalArgumentException(
+                        "Business READ worker cannot activate result projections");
+        }
         var limits = new LinkedHashMap<String, Integer>();
         for (var entry : entries(env.getRequiredProperty(PREFIX + "consumption-limits"), ",")) {
             var pair = entry.split("=", -1);
@@ -351,6 +373,9 @@ public record V3ConsumptionWorkerSettings(
         String db = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".database"),
                 schema = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".schema"),
                 role = env.getRequiredProperty("pocoma.v3.pilot." + authority + ".username");
+        int defaultMax = mw + (business ? 2 : 6);
+        int max = env.getProperty(p + "maximum-pool-size", Integer.class, defaultMax);
+        int minIdle = env.getProperty(p + "minimum-idle", Integer.class, max);
         var pool =
                 new Pool(
                         key,
@@ -359,13 +384,14 @@ public record V3ConsumptionWorkerSettings(
                         env.getRequiredProperty(p + "password"),
                         db,
                         schema,
-                        env.getProperty(
-                                p + "maximum-pool-size", Integer.class, mw + (business ? 2 : 6)),
-                        env.getProperty(p + "minimum-idle", Integer.class, mw + (business ? 2 : 6)),
+                        max,
+                        minIdle,
                         business);
         if (!pool.username().equals(role)
-                || pool.maximum() != mw + (business ? 2 : 6)
-                || pool.minimumIdle() != pool.maximum())
+                || pool.maximum() > defaultMax
+                || pool.maximum() < (business ? Math.min(mw, 2) : 2)
+                || pool.minimumIdle() < 1
+                || pool.minimumIdle() > pool.maximum())
             throw new IllegalArgumentException("unqualified pool sizing or runtime principal");
         var uri = endpoint(pool);
         if (uri.getHost() == null

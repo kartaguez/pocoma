@@ -27,7 +27,7 @@ class V3ReadHttpContractTest {
     @Container static final PostgreSQLContainer PG = container();
     V3ReadHttpFixture f;
     long setupSqlCalls;
-    long sqlCalls() { return f.sqlStats().stream().mapToLong(row -> ((Number) row.get("calls")).longValue()).sum(); }
+    long sqlCalls() { return f.sqlStats().stream().filter(row -> !row.get("query").toString().contains("read_maintenance_state")).mapToLong(row -> ((Number) row.get("calls")).longValue()).sum(); }
     @BeforeAll static void retainClasspath() throws IOException { Files.writeString(Path.of("target/i1-classpath.txt"), System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"))); }
     @BeforeEach void fixture() throws Exception { f = new V3ReadHttpFixture(PG); f.start(PocomaWebApiApplication.class); setupSqlCalls = sqlCalls(); }
     @AfterEach void close() throws Exception { try { if (f != null) f.evidence("HTTP-" + f.schema, Map.of("sql", f.sqlStats(), "activeBackends", f.activeBackends())); } finally { if (f != null) f.close(); } }

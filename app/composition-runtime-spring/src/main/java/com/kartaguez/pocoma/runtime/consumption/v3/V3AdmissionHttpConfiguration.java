@@ -26,7 +26,7 @@ import java.util.*;
 /** Explicit HTTP-only activation. No admission allocation on COMMAND or READ-only roots. */
 @Configuration(proxyBeanMethods = false)
 @Profile(V3AdmissionHttpConfiguration.PROFILE)
-@Import({V3AdmissionController.class, V3LinkProposalController.class})
+@Import({V3HttpSecurityConfiguration.class, V3AdmissionController.class, V3LinkProposalController.class})
 public class V3AdmissionHttpConfiguration {
     public static final String PROFILE = "v3-http-admission";
     private static final String PREFIX = "pocoma.v3.http.admission.";
@@ -47,9 +47,6 @@ public class V3AdmissionHttpConfiguration {
         @Override
         public void postProcessBeanFactory(
                 org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
-            if (!Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE))
-                throw new IllegalStateException(
-                        "Admission requires V3 authenticated HTTP assembly");
             boolean root =
                     Arrays.stream(factory.getBeanDefinitionNames())
                             .map(n -> factory.getType(n, false))
@@ -62,6 +59,29 @@ public class V3AdmissionHttpConfiguration {
                                                             "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
                                                     .contains(n));
             if (!root) throw new IllegalStateException("Admission requires WEB or Monolith root");
+            if (Arrays.stream(factory.getBeanDefinitionNames())
+                    .map(n -> factory.getType(n, false))
+                    .filter(Objects::nonNull)
+                    .anyMatch(
+                            t ->
+                                    t.getName().contains("WorkerCapacity")
+                                            || t.getName().contains("V3ConsumptionWorker"))) {
+                throw new IllegalStateException(
+                        "Workers and partition ownership forbidden on HTTP WRITE runtime");
+            }
+            if (!Arrays.asList(env.getActiveProfiles()).contains(V3ReadHttpConfiguration.PROFILE)) {
+                for (String name : factory.getBeanDefinitionNames()) {
+                    Class<?> type = factory.getType(name, false);
+                    if (type == null) continue;
+                    String val = type.getName();
+                    if (val.startsWith("com.kartaguez.pocoma.supra.http.read.v3.V3ReadController")
+                            || val.startsWith("com.kartaguez.pocoma.supra.http.read.v3.V3InvitationController")
+                            || name.equals("v3HttpReadPool")) {
+                        throw new IllegalStateException(
+                                "READ component forbidden on HTTP WRITE runtime: " + val);
+                    }
+                }
+            }
             limits(env);
             protection(env);
             linkTtl(env);

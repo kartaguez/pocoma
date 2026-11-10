@@ -12,7 +12,7 @@ import org.springframework.context.annotation.*;
 public class PocomaWebApiApplication {
     public static void main(String[] args) { SpringApplication.run(PocomaWebApiApplication.class, args); }
     @Configuration(proxyBeanMethods = false)
-    @Profile("!v3-http-read")
+    @Profile("!v3-http-read & !v3-http-admission")
     @ComponentScan(basePackages = "com.kartaguez.pocoma", excludeFilters = {
         @ComponentScan.Filter(type = FilterType.CUSTOM, classes = org.springframework.boot.context.TypeExcludeFilter.class),
         @ComponentScan.Filter(type = FilterType.CUSTOM, classes = org.springframework.boot.autoconfigure.AutoConfigurationExcludeFilter.class)

@@ -159,4 +159,27 @@ class ReadActivationSettingsTest {
                 () -> V3ConsumptionWorkerSettings.from(legacy),
                 "legacy READ property");
     }
+
+    @Test
+    void fiveRuntimeParticipantIsolation() {
+        // Business READ worker accepts only business read participants
+        var brValid = env(List.of("MaterializePotVersion", "MaterializePotBalance", "MaterializePotVisibility", "MaterializeCurrentBinding", "MaterializeInvitation"));
+        brValid.setProperty(P + "worker-name", "business-read-worker");
+        assertDoesNotThrow(() -> V3ConsumptionWorkerSettings.from(brValid));
+
+        // Business READ worker rejects results participants
+        var brInvalid = env(List.of("MaterializePotVersion", "MaterializeCommandResult"));
+        brInvalid.setProperty(P + "worker-name", "business-read-worker");
+        assertThrows(IllegalArgumentException.class, () -> V3ConsumptionWorkerSettings.from(brInvalid));
+
+        // Results worker accepts only result participants
+        var resValid = env(List.of("MaterializeCommandResult", "MaterializeIdentityRequestResult"));
+        resValid.setProperty(P + "worker-name", "results-worker");
+        assertDoesNotThrow(() -> V3ConsumptionWorkerSettings.from(resValid));
+
+        // Results worker rejects business participants
+        var resInvalid = env(List.of("MaterializeCommandResult", "MaterializePotVersion"));
+        resInvalid.setProperty(P + "worker-name", "results-worker");
+        assertThrows(IllegalArgumentException.class, () -> V3ConsumptionWorkerSettings.from(resInvalid));
+    }
 }

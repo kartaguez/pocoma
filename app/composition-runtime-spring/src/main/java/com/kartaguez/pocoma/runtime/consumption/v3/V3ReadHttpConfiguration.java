@@ -41,15 +41,13 @@ import java.util.*;
 
 /** Explicit V3 HTTP assembly. Standalone WEB owns only a two-connection READ pool. */
 @Configuration(proxyBeanMethods = false)
-@org.springframework.boot.autoconfigure.EnableAutoConfiguration(
-        excludeName = {
-            "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
-            "org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration",
-            "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration",
-            "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration"
-        })
 @Profile(V3ReadHttpConfiguration.PROFILE)
-@Import({V3ReadController.class, V3InvitationController.class, V3StageHandoffController.class})
+@Import({
+    V3HttpSecurityConfiguration.class,
+    V3ReadController.class,
+    V3InvitationController.class,
+    V3StageHandoffController.class
+})
 public class V3ReadHttpConfiguration {
     public static final String PROFILE = "v3-http-read";
 
@@ -67,6 +65,29 @@ public class V3ReadHttpConfiguration {
                     || env.getProperty("management.health.db.enabled", Boolean.class, true))
                 throw new IllegalStateException(
                         "V3 HTTP requires migrations, OSIV and DB health disabled");
+            if (Arrays.stream(factory.getBeanDefinitionNames())
+                    .map(n -> factory.getType(n, false))
+                    .filter(Objects::nonNull)
+                    .anyMatch(
+                            t ->
+                                    t.getName().contains("WorkerCapacity")
+                                            || t.getName().contains("V3ConsumptionWorker"))) {
+                throw new IllegalStateException(
+                        "Workers and partition ownership forbidden on HTTP READ runtime");
+            }
+            if (!Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission")) {
+                for (String name : factory.getBeanDefinitionNames()) {
+                    Class<?> type = factory.getType(name, false);
+                    if (type == null) continue;
+                    String val = type.getName();
+                    if (name.equals("v3AdmissionPool")
+                            || val.startsWith("com.kartaguez.pocoma.supra.http.write.v3.")
+                            || val.startsWith("com.kartaguez.pocoma.engine.admit.")) {
+                        throw new IllegalStateException(
+                                "Admission component forbidden on HTTP READ runtime: " + val);
+                    }
+                }
+            }
             for (String name : factory.getBeanDefinitionNames()) {
                 Class<?> type = factory.getType(name, false);
                 if (type == null) continue;
@@ -254,40 +275,6 @@ public class V3ReadHttpConfiguration {
         };
     }
 
-    private static final java.time.Duration[] READ_SLO_BUCKETS = {
-        java.time.Duration.ofMillis(1),
-        java.time.Duration.ofMillis(5),
-        java.time.Duration.ofMillis(10),
-        java.time.Duration.ofMillis(50),
-        java.time.Duration.ofMillis(100),
-        java.time.Duration.ofMillis(500),
-        java.time.Duration.ofSeconds(1),
-        java.time.Duration.ofSeconds(2),
-        java.time.Duration.ofSeconds(5),
-        java.time.Duration.ofSeconds(30),
-        java.time.Duration.ofSeconds(60),
-        java.time.Duration.ofSeconds(120)
-    };
-
-    @Bean
-    V3ReadTransport v3ReadTransport(Environment env, Optional<MeterRegistry> meterRegistry) {
-        var registry = meterRegistry.orElse(null);
-        V3ReadTransport.Telemetry telemetry = (endpoint, status, durationNanos) -> {
-            if (registry != null) {
-                Tags tags = Tags.of("endpoint", endpoint, "status", String.valueOf(status));
-                Timer.builder("pocoma.v3.read.http.duration")
-                        .tags(tags)
-                        .publishPercentileHistogram()
-                        .serviceLevelObjectives(READ_SLO_BUCKETS)
-                        .register(registry)
-                        .record(java.time.Duration.ofNanos(durationNanos));
-            }
-        };
-        return new V3ReadTransport(
-                Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission"),
-                telemetry);
-    }
-
     @Bean
     FilterRegistrationBean<com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter> v3ReadMaintenanceFilter(
             com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority authority,
@@ -312,170 +299,9 @@ public class V3ReadHttpConfiguration {
         return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle();
     }
 
-    @Bean
-    FilterRegistrationBean<V3ReadTransport> v3ReadFilter(V3ReadTransport transport) {
-        var registration = new FilterRegistrationBean<>(transport);
-        registration.setOrder(-90);
-        registration.addUrlPatterns("/api/v3/*");
-        return registration;
-    }
+    public static final class PrincipalResolver extends V3HttpSecurityConfiguration.PrincipalResolver {}
 
-    @Bean
-    WebServerFactoryCustomizer<TomcatServletWebServerFactory> v3HttpServerBounds() {
-        return server ->
-                server.addConnectorCustomizers(
-                        connector -> {
-                            var protocol =
-                                    (org.apache.coyote.http11.AbstractHttp11Protocol<?>)
-                                            connector.getProtocolHandler();
-                            protocol.setMaxThreads(4);
-                            protocol.setMaxConnections(16);
-                            protocol.setAcceptCount(4);
-                            protocol.setConnectionTimeout(5000);
-                            protocol.setKeepAliveTimeout(5000);
-                            protocol.setMaxHttpRequestHeaderSize(16_384);
-                            protocol.setCompression("off");
-                        });
-    }
-
-    @Bean
-    JwtDecoder v3ReadJwtDecoder(Environment env) {
-        var decoder =
-                NimbusJwtDecoder.withJwkSetUri(
-                                env.getRequiredProperty("pocoma.v3.http.jwk-set-uri"))
-                        .jwsAlgorithm(SignatureAlgorithm.RS256)
-                        .build();
-        var conversion = MappedJwtClaimSetConverter.withDefaults(Map.of());
-        decoder.setClaimSetConverter(
-                raw -> {
-                    // The default converter synthesizes iat from exp. V3 requires attested claims.
-                    if (!(raw.get("iss") instanceof String issuer)
-                            || issuer.isBlank()
-                            || !(raw.get("sub") instanceof String subject)
-                            || subject.isBlank()
-                            || raw.get("iat") == null
-                            || raw.get("exp") == null
-                            || !(raw.get("auth_time") instanceof Number auth))
-                        throw new BadJwtException("Incomplete authenticated claims");
-                    try {
-                        if (new java.math.BigDecimal(auth.toString()).longValueExact() < 0)
-                            throw new ArithmeticException("negative auth_time");
-                    } catch (ArithmeticException invalid) {
-                        throw new BadJwtException("Invalid authenticated claims");
-                    }
-                    return conversion.convert(raw);
-                });
-        OAuth2TokenValidator<Jwt> claims =
-                jwt -> {
-                    boolean valid =
-                            jwt.getSubject() != null
-                                    && !jwt.getSubject().isBlank()
-                                    && jwt.getAudience() != null
-                                    && jwt.getAudience()
-                                            .contains(
-                                                    env.getRequiredProperty(
-                                                            "pocoma.v3.http.audience"))
-                                    && jwt.getIssuedAt() != null
-                                    && jwt.getExpiresAt() != null;
-                    try {
-                        principal(jwt);
-                    } catch (RuntimeException invalid) {
-                        valid = false;
-                    }
-                    return valid
-                            ? OAuth2TokenValidatorResult.success()
-                            : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
-                };
-        decoder.setJwtValidator(
-                new DelegatingOAuth2TokenValidator<>(
-                        new JwtTimestampValidator(Duration.ZERO),
-                        new JwtIssuerValidator(env.getRequiredProperty("pocoma.v3.http.issuer")),
-                        claims));
-        return decoder;
-    }
-
-    @Bean
-    SecurityFilterChain v3ReadSecurity(HttpSecurity http, JwtDecoder v3ReadJwtDecoder)
-            throws Exception {
-        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(c -> c.disable())
-                .authorizeHttpRequests(
-                        a ->
-                                a.requestMatchers("/actuator/**")
-                                        .permitAll()
-                                        .requestMatchers("/api/v3/**")
-                                        .authenticated()
-                                        .anyRequest()
-                                        .denyAll())
-                .oauth2ResourceServer(
-                        o ->
-                                o.jwt(j -> j.decoder(v3ReadJwtDecoder))
-                                        .authenticationEntryPoint(
-                                                (request, response, error) ->
-                                                        V3ReadTransport.error(response, 401)))
-                .exceptionHandling(
-                        e ->
-                                e.accessDeniedHandler(
-                                        (request, response, error) ->
-                                                V3ReadTransport.error(response, 404)));
-        return http.build();
-    }
-
-    @Bean
-    PrincipalResolver v3PrincipalResolver() {
-        return new PrincipalResolver();
-    }
-
-    public static final class PrincipalResolver
-            implements WebMvcConfigurer, HandlerMethodArgumentResolver {
-        @Override
-        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-            resolvers.add(this);
-        }
-
-        @Override
-        public boolean supportsParameter(MethodParameter parameter) {
-            return parameter.getParameterType() == AuthenticatedExternalPrincipal.class;
-        }
-
-        @Override
-        public Object resolveArgument(
-                MethodParameter parameter,
-                ModelAndViewContainer mav,
-                NativeWebRequest request,
-                WebDataBinderFactory binder) {
-            if (!(SecurityContextHolder.getContext().getAuthentication()
-                    instanceof JwtAuthenticationToken token))
-                throw new V3ReadTransport.Failure(401);
-            try {
-                return principal(token.getToken());
-            } catch (RuntimeException invalid) {
-                throw new V3ReadTransport.Failure(401);
-            }
-        }
-    }
-
-    static AuthenticatedExternalPrincipal principal(Jwt jwt) {
-        Object claim = jwt.getClaim("auth_time");
-        Instant auth =
-                claim instanceof Instant i
-                        ? i
-                        : claim instanceof Number n ? Instant.ofEpochSecond(n.longValue()) : null;
-        if (jwt.getIssuer() == null
-                || jwt.getSubject() == null
-                || jwt.getSubject().isBlank()
-                || auth == null
-                || jwt.getIssuedAt() == null
-                || jwt.getExpiresAt() == null
-                || auth.isAfter(jwt.getIssuedAt())
-                || !jwt.getIssuedAt().isBefore(jwt.getExpiresAt()))
-            throw new IllegalArgumentException("incomplete authenticated claims");
-        return new AuthenticatedExternalPrincipal(
-                jwt.getIssuer().toString(),
-                jwt.getSubject(),
-                auth,
-                jwt.getIssuedAt(),
-                jwt.getExpiresAt(),
-                Set.of());
+    public static AuthenticatedExternalPrincipal principal(org.springframework.security.oauth2.jwt.Jwt jwt) {
+        return V3HttpSecurityConfiguration.principal(jwt);
     }
 }
