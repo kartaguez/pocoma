@@ -919,8 +919,7 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
                 String table = rows.getString(1);
                 if (TABLES.contains(table)
                         || (enabled && table.equals(fixture))
-                        || (readWorker
-                                && authority == Authority.READ
+                        || (authority == Authority.READ
                                 && READ_UPDATES.containsKey(table))
                         || (authority == Authority.WRITE
                                 && (writeTables.contains(table)

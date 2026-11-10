@@ -131,7 +131,8 @@ class V3WorkerMonolithPostgresTest {
                                         ? new String[] {
                                             "classpath:db/v3-pot/migration",
                                             "classpath:db/v3-pot-execution/migration",
-                                            "classpath:db/v3-consumption-write/migration"
+                                            "classpath:db/v3-consumption-write/migration",
+                                            "classpath:db/v3-identity/migration"
                                         }
                                         : new String[] {
                                             "classpath:db/v3-consumption-read/migration"
