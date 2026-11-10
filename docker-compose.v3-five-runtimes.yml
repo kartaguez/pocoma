@@ -1,0 +1,249 @@
+name: pocoma-v3-five-runtimes
+
+networks:
+  pocoma-v3-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+  postgres:
+    container_name: pocoma-v3-postgres
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: pocoma
+      POSTGRES_USER: pocoma
+      POSTGRES_PASSWORD: pocoma-local-only
+    volumes:
+      - postgres-v3-data:/var/lib/postgresql/data
+      - ./docker/postgres/functional-init.sql:/docker-entrypoint-initdb.d/functional-init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pocoma -d pocoma"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1024M
+
+  keycloak:
+    container_name: pocoma-v3-keycloak
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: ["start-dev", "--import-realm", "--hostname=http://localhost:8081", "--health-enabled=true"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/pocoma
+      KC_DB_SCHEMA: keycloak
+      KC_DB_USERNAME: pocoma
+      KC_DB_PASSWORD: pocoma-local-only
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin-local-only
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - ./docker/keycloak/pocoma-realm.json:/opt/keycloak/data/import/pocoma-realm.json:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9000; printf 'GET /health/ready HTTP/1.0\r\n\r\n' >&3; grep -q '200 OK' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1024M
+
+  pocoma-http-write:
+    container_name: pocoma-http-write
+    image: pocoma-functional-runtime-monolith:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: v3-http-admission
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/http-write.properties
+      JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m -XX:+UseSerialGC
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:18080:18080"
+    volumes:
+      - ./app/runtime-web-api/target/pocoma-runtime-web-api-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
+      - ./docker/v3-five-runtimes/http-write.properties:/app/config/http-write.properties:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/18080; printf 'GET /actuator/health/readiness HTTP/1.0\r\n\r\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  pocoma-command-worker:
+    container_name: pocoma-command-worker
+    image: pocoma-functional-runtime-monolith:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: v3-consumption-worker-dev
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/command-worker.properties
+      JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m -XX:+UseSerialGC
+    ports:
+      - "127.0.0.1:18083:18083"
+    volumes:
+      - ./app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
+      - ./docker/v3-five-runtimes/command-worker.properties:/app/config/command-worker.properties:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.11
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/18083; printf 'GET /actuator/health/readiness HTTP/1.0\r\n\r\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  pocoma-results-worker:
+    container_name: pocoma-results-worker
+    image: pocoma-functional-runtime-monolith:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: v3-read-worker
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/results-worker.properties
+      JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m -XX:+UseSerialGC
+    ports:
+      - "127.0.0.1:18084:18084"
+    volumes:
+      - ./app/runtime-task-consumption-worker/target/pocoma-runtime-task-consumption-worker-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
+      - ./docker/v3-five-runtimes/results-worker.properties:/app/config/results-worker.properties:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.12
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/18084; printf 'GET /actuator/health/readiness HTTP/1.0\r\n\r\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  pocoma-business-read-worker:
+    container_name: pocoma-business-read-worker
+    image: pocoma-functional-runtime-monolith:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: v3-read-worker
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/business-read-worker.properties
+      JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m -XX:+UseSerialGC
+    ports:
+      - "127.0.0.1:18085:18085"
+    volumes:
+      - ./app/runtime-task-consumption-worker/target/pocoma-runtime-task-consumption-worker-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
+      - ./docker/v3-five-runtimes/business-read-worker.properties:/app/config/business-read-worker.properties:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.13
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/18085; printf 'GET /actuator/health/readiness HTTP/1.0\r\n\r\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 640M
+
+  pocoma-http-read:
+    container_name: pocoma-http-read
+    image: pocoma-functional-runtime-monolith:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: v3-http-read
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/http-read.properties
+      JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m -XX:+UseSerialGC
+    ports:
+      - "127.0.0.1:8082:8082"
+      - "127.0.0.1:18082:18082"
+    volumes:
+      - ./app/runtime-web-api/target/pocoma-runtime-web-api-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
+      - ./docker/v3-five-runtimes/http-read.properties:/app/config/http-read.properties:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.14
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/18082; printf 'GET /actuator/health/readiness HTTP/1.0\r\n\r\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  prometheus:
+    container_name: pocoma-v3-prometheus
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./docker/v3-five-runtimes/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      pocoma-v3-net:
+        ipv4_address: 172.28.0.15
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+volumes:
+  postgres-v3-data:
+    name: pocoma-functional_postgres-v3-data
