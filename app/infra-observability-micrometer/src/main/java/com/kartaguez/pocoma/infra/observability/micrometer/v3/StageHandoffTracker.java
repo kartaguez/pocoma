@@ -1,13 +1,10 @@
-package com.kartaguez.pocoma.runtime.consumption.v3;
+package com.kartaguez.pocoma.infra.observability.micrometer.v3;
 import com.kartaguez.pocoma.contract.consumption.observation.AttemptObservation;
 import com.kartaguez.pocoma.contract.consumption.observation.DiscoveryListener;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
@@ -26,7 +23,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public final class StageHandoffTracker
         implements AttemptObservation, DiscoveryListener {
 
-    private static final StageHandoffTracker INSTANCE = new StageHandoffTracker();
     private static final int MAX_TRACKED_COMMANDS = 10_000;
 
     private static final Duration[] HISTOGRAM_BUCKETS = {
@@ -47,9 +43,6 @@ public final class StageHandoffTracker
         Duration.ofSeconds(60)
     };
 
-    public static StageHandoffTracker getInstance() {
-        return INSTANCE;
-    }
 
     public static final class ProjectionRecord {
         public final String name;
@@ -231,8 +224,8 @@ public final class StageHandoffTracker
             "CommandResult",
             "IdentityRequestResult"
         };
-        var defs = new ArrayList<>(V3ConsumptionCatalogConfiguration.definitions());
-        defs.addAll(V3ConsumptionWorkerSettings.probeDefinitions());
+        var defs = new ArrayList<>(com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions());
+        defs.addAll(com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.probeDefinitions());
         for (int i = 0; i < defs.size(); i++) {
             var d = defs.get(i);
             consumptionNames.put(

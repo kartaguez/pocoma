@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3HttpSecurityConfiguration;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.HmacAdmissionProtection;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
 
@@ -28,14 +30,14 @@ import java.util.*;
 /** Explicit HTTP-only activation. No admission allocation on COMMAND or READ-only roots. */
 @Configuration(proxyBeanMethods = false)
 @Profile(V3AdmissionHttpConfiguration.PROFILE)
-@Import({V3HttpSecurityConfiguration.class, V3AdmissionController.class, V3LinkProposalController.class})
+@Import({V3ObservabilityConfiguration.class, V3HttpSecurityConfiguration.class, V3AdmissionController.class, V3LinkProposalController.class})
 public class V3AdmissionHttpConfiguration {
     public static final String PROFILE = "v3-http-admission";
     private static final String PREFIX = "pocoma.v3.http.admission.";
 
     @Bean
-    com.kartaguez.pocoma.contract.writeadmission.AdmissionObserver v3AdmissionObserver() {
-        return StageHandoffTracker.getInstance()::onCommandAdmitted;
+    com.kartaguez.pocoma.contract.writeadmission.AdmissionObserver v3AdmissionObserver(StageHandoffTracker tracker) {
+        return tracker::onCommandAdmitted;
     }
 
     @Bean

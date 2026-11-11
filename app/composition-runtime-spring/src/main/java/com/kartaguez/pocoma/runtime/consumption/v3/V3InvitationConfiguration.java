@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
 
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.InvitationCryptography;
+import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
 
 import org.springframework.core.env.Environment;
 

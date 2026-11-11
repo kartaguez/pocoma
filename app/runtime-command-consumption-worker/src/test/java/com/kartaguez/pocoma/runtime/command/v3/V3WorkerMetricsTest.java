@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.MicrometerV3ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;

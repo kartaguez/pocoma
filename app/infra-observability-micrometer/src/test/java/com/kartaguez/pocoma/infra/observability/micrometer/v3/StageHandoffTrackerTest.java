@@ -1,8 +1,7 @@
-package com.kartaguez.pocoma.runtime.consumption.v3;
+package com.kartaguez.pocoma.infra.observability.micrometer.v3;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +27,22 @@ class StageHandoffTrackerTest {
 
     @BeforeEach
     void setUp() {
-        tracker = StageHandoffTracker.getInstance();
+        tracker = new StageHandoffTracker();
         tracker.clear();
         registry = new SimpleMeterRegistry();
         tracker.bindRegistry(registry);
+    }
+
+    @Test
+    void independentlyComposedScopesCannotWakeOrClearEachOther() {
+        var first=new StageHandoffTracker();var second=new StageHandoffTracker();
+        var a=new java.util.concurrent.atomic.AtomicInteger();var b=new java.util.concurrent.atomic.AtomicInteger();
+        first.registerWakeSignal(a::incrementAndGet);second.registerWakeSignal(b::incrementAndGet);
+        first.onCommandAdmitted(new UUID(0,1));second.onCommandAdmitted(new UUID(0,2));
+        first.clear();second.onCommandAdmitted(new UUID(0,3));
+        assertEquals(1,a.get());assertEquals(2,b.get());
+        assertEquals(0,((java.util.List<?>)first.snapshot(10,null).get("records")).size());
+        assertEquals(2,((java.util.List<?>)second.snapshot(10,null).get("records")).size());
     }
 
     @Test
@@ -194,7 +205,7 @@ class StageHandoffTrackerTest {
     @Test
     void testDetailedMilestoneDecompositionA1ToA4() {
         UUID cmdId = UUID.randomUUID();
-        var def = V3ConsumptionCatalogConfiguration.definitions().getFirst(); // Command
+        var def = com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions().getFirst(); // Command
 
         // T0: Admission
         tracker.onCommandAdmitted(cmdId);

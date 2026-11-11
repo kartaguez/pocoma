@@ -1,10 +1,9 @@
-package com.kartaguez.pocoma.runtime.consumption.v3;
+package com.kartaguez.pocoma.infra.observability.micrometer.v3;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.*;
 
@@ -49,8 +48,8 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
         };
         var labels = new LinkedHashMap<ConsumptionId, String>();
         var authorityLabels = new LinkedHashMap<ConsumptionId, String>();
-        var defs = new ArrayList<>(V3ConsumptionCatalogConfiguration.definitions());
-        defs.addAll(V3ConsumptionWorkerSettings.probeDefinitions());
+        var defs = new ArrayList<>(com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions());
+        defs.addAll(com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.probeDefinitions());
         for (int i = 0; i < defs.size(); i++) {
             var d = defs.get(i);
             labels.put(

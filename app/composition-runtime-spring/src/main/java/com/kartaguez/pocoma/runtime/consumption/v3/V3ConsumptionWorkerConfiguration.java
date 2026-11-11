@@ -1,4 +1,7 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3HttpSecurityConfiguration;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.MicrometerV3ConsumptionObservation;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
@@ -38,7 +41,7 @@ import java.util.*;
 
 /** Always imported preflight; only the inner resource configuration is profile-dependent. */
 @Configuration(proxyBeanMethods = false)
-@Import({V3ConsumptionWorkerConfiguration.Active.class, V3ReadFacadeConfiguration.class})
+@Import({V3ObservabilityConfiguration.class, V3ConsumptionWorkerConfiguration.Active.class, V3ReadFacadeConfiguration.class})
 public class V3ConsumptionWorkerConfiguration {
     @Bean
     static BeanFactoryPostProcessor v3WorkerPreflight(Environment env) {
@@ -324,8 +327,8 @@ public class V3ConsumptionWorkerConfiguration {
 
         @Bean
         @Conditional(HasPairs.class)
-        MicrometerV3ConsumptionObservation v3WorkerObservation(MeterRegistry registry) {
-            StageHandoffTracker.getInstance().bindRegistry(registry);
+        MicrometerV3ConsumptionObservation v3WorkerObservation(MeterRegistry registry,StageHandoffTracker tracker) {
+            tracker.bindRegistry(registry);
             return new MicrometerV3ConsumptionObservation(registry);
         }
 
@@ -337,7 +340,7 @@ public class V3ConsumptionWorkerConfiguration {
                 V3BootstrapGuard guard,
                 WorkerCapacity capacity,
                 ConsumptionObservation observation,
-                org.springframework.core.env.Environment env) {
+                org.springframework.core.env.Environment env,StageHandoffTracker tracker) {
             var bindings = new ArrayList<V3ConsumptionWorker.Binding>();
             var ds =
                     new DiscoverySettings(
@@ -386,7 +389,7 @@ public class V3ConsumptionWorkerConfiguration {
                                     resources.writeControl,
                                     resources.writeTechnical,
                                     ds,
-                                    V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+                                    V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY, tracker);
                 } else if (name.equals("Command")) {
                     boolean real = settings.identityAuthority().equals("real");
                     if (real) guard.validateIdentitySource(resources.writeBusiness);
@@ -411,7 +414,7 @@ public class V3ConsumptionWorkerConfiguration {
                                             : new com.kartaguez.pocoma.infra.persistence.primary.jpa
                                                     .v3.JdbcInvitationStore(
                                                     resources.writeBusiness,
-                                                    V3InvitationConfiguration.keys(env)));
+                                                    V3InvitationConfiguration.keys(env)), tracker::linkCommandEvents);
                     discovery =
                             V3ConsumptionDiscoveryComposition.requests(
                                     guard,
@@ -419,7 +422,7 @@ public class V3ConsumptionWorkerConfiguration {
                                     resources.writeControl,
                                     resources.writeTechnical,
                                     ds,
-                                    V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+                                    V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY, tracker);
                 } else if (V3ConsumptionWorkerSettings.READ_NAMES.contains(name)) {
                     var participant =
                             name.equals("MaterializeInvitation")
@@ -495,11 +498,11 @@ public class V3ConsumptionWorkerConfiguration {
                             settings.polling(),
                             observation,
                             resources::close,
-                            StageHandoffTracker.getInstance(), com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionSafety::new);
+                            tracker, com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionSafety::new);
             resources.worker = worker;
             if (observation instanceof MicrometerV3ConsumptionObservation metrics)
                 metrics.bind(worker);
-            StageHandoffTracker.getInstance().registerWakeSignal(worker::signal);
+            tracker.registerWakeSignal(worker::signal);
             return worker;
         }
 

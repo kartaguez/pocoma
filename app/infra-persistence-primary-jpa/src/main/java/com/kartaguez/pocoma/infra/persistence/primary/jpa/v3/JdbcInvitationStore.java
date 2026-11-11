@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;

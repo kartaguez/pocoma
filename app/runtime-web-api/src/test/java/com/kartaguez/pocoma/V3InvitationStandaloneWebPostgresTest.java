@@ -5,7 +5,7 @@ import static com.kartaguez.pocoma.V3ReadHttpFixture.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.InvitationCryptography;
+import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.flywaydb.core.Flyway;

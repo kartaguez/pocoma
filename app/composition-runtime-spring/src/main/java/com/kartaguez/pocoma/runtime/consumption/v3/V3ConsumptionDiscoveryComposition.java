@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
@@ -41,6 +42,16 @@ public final class V3ConsumptionDiscoveryComposition {
             SpringAttemptTransactions owner,
             DiscoverySettings settings,
             V3BootstrapGuard.Privileges privileges) {
+        return requests(guard,definition,source,owner,settings,privileges,com.kartaguez.pocoma.contract.consumption.observation.DiscoveryListener.NOOP);
+    }
+
+    public static DiscoveryEngine requests(
+            V3BootstrapGuard guard,
+            ConsumptionDefinition definition,
+            DataSource source,
+            SpringAttemptTransactions owner,
+            DiscoverySettings settings,
+            V3BootstrapGuard.Privileges privileges, com.kartaguez.pocoma.contract.consumption.observation.DiscoveryListener listener) {
         if (definition.family() != ConsumableFamily.COMMAND
                 && definition.family() != ConsumableFamily.IDENTITY_REQUEST)
             throw new IllegalArgumentException(
@@ -55,7 +66,7 @@ public final class V3ConsumptionDiscoveryComposition {
                 definition.family() == ConsumableFamily.IDENTITY_REQUEST
                         ? new JdbcIdentityRequestDiscoveryReferences(source, settings)
                         : new JdbcCommandDiscoveryReferences(source, settings),
-                StageHandoffTracker.getInstance());
+                listener);
     }
 
     public static boolean relevant(

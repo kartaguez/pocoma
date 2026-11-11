@@ -188,7 +188,7 @@ final class V3QuotaHttpFixture implements AutoCloseable {
         seed(id(304), 1, 0, Set.of(OWNER), false, true, true, "x".repeat(4_194_304));
         admin.update("insert into read_identity_request_result values (?,'UNLINK',?,?,'CHANGED',?,?,2,null)", id(407), issuer, "owner", issuer, "owner");
     }
-    HikariDataSource pool() { return context.getBean(HikariDataSource.class); }
+    HikariDataSource pool() { return context.getBean("v3HttpReadPool", HikariDataSource.class); }
     V3ReadFacadeComposition.Services services() { return context.getBean(V3ReadFacadeComposition.Services.class); }
     long activeBackends() { return admin.queryForObject("select count(*) from pg_stat_activity where usename=? and state<>'idle'", Long.class, role); }
     List<Map<String, Object>> sqlStats() { return admin.queryForList("select query,calls,rows,total_exec_time from public.pg_stat_statements where userid=(select oid from pg_roles where rolname=?) order by query", role); }

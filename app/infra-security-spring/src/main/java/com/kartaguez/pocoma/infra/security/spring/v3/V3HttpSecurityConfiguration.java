@@ -1,10 +1,6 @@
-package com.kartaguez.pocoma.runtime.consumption.v3;
+package com.kartaguez.pocoma.infra.security.spring.v3;
 
 import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.supra.web.read.v3.V3ReadTransport;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.Timer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -44,53 +40,16 @@ import java.util.*;
             "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration",
             "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration"
         })
-@Profile({V3ReadHttpConfiguration.PROFILE, V3AdmissionHttpConfiguration.PROFILE})
+@Profile({"v3-http-read", "v3-http-admission"})
 public class V3HttpSecurityConfiguration {
-
-    private static final Duration[] READ_SLO_BUCKETS = {
-        Duration.ofMillis(1),
-        Duration.ofMillis(5),
-        Duration.ofMillis(10),
-        Duration.ofMillis(50),
-        Duration.ofMillis(100),
-        Duration.ofMillis(500),
-        Duration.ofSeconds(1),
-        Duration.ofSeconds(2),
-        Duration.ofSeconds(5),
-        Duration.ofSeconds(30),
-        Duration.ofSeconds(60),
-        Duration.ofSeconds(120)
-    };
-
-    @Bean
-    V3ReadTransport v3ReadTransport(
-            Environment env,
-            org.springframework.beans.factory.ObjectProvider<MeterRegistry> meterRegistry) {
-        V3ReadTransport.Telemetry telemetry =
-                (endpoint, status, durationNanos) -> {
-                    var registry = meterRegistry.getIfAvailable();
-                    if (registry != null) {
-                        Tags tags = Tags.of("endpoint", endpoint, "status", String.valueOf(status));
-                        Timer.builder("pocoma.v3.read.http.duration")
-                                .tags(tags)
-                                .publishPercentileHistogram()
-                                .serviceLevelObjectives(READ_SLO_BUCKETS)
-                                .register(registry)
-                                .record(Duration.ofNanos(durationNanos));
-                    }
-                };
-        return new V3ReadTransport(
-                Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission"),
-                telemetry);
+    private static void securityError(jakarta.servlet.http.HttpServletResponse response,int status) throws java.io.IOException {
+        String code=status==401?"INVALID_TOKEN":"NOT_FOUND";
+        byte[] body=("{\"code\":\""+code+"\",\"message\":\"Request unavailable\",\"traceId\":\""+UUID.randomUUID()+"\"}").getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        response.resetBuffer();response.setStatus(status);response.setContentType("application/json");
+        response.setHeader("Cache-Control","no-store");response.setContentLength(body.length);
+        response.getOutputStream().write(body);response.flushBuffer();
     }
 
-    @Bean
-    FilterRegistrationBean<V3ReadTransport> v3ReadFilter(V3ReadTransport transport) {
-        var registration = new FilterRegistrationBean<>(transport);
-        registration.setOrder(-90);
-        registration.addUrlPatterns("/api/v3/*");
-        return registration;
-    }
 
     @Bean
     WebServerFactoryCustomizer<TomcatServletWebServerFactory> v3HttpServerBounds() {
@@ -184,12 +143,12 @@ public class V3HttpSecurityConfiguration {
                                 o.jwt(j -> j.decoder(v3ReadJwtDecoder))
                                         .authenticationEntryPoint(
                                                 (request, response, error) ->
-                                                        V3ReadTransport.error(response, 401)))
+                                                        securityError(response, 401)))
                 .exceptionHandling(
                         e ->
                                 e.accessDeniedHandler(
                                         (request, response, error) ->
-                                                V3ReadTransport.error(response, 404)));
+                                                securityError(response, 404)));
         return http.build();
     }
 
@@ -218,11 +177,11 @@ public class V3HttpSecurityConfiguration {
                 WebDataBinderFactory binder) {
             if (!(SecurityContextHolder.getContext().getAuthentication()
                     instanceof JwtAuthenticationToken token))
-                throw new V3ReadTransport.Failure(401);
+                throw new org.springframework.security.authentication.BadCredentialsException("Invalid authenticated principal");
             try {
                 return principal(token.getToken());
             } catch (RuntimeException invalid) {
-                throw new V3ReadTransport.Failure(401);
+                throw new org.springframework.security.authentication.BadCredentialsException("Invalid authenticated principal");
             }
         }
     }

@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;

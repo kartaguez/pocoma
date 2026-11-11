@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3HttpSecurityConfiguration;
 import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
 import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
 import com.kartaguez.pocoma.contract.readquery.BindingRead;
@@ -49,13 +51,59 @@ import java.util.*;
 /** Explicit V3 HTTP assembly. Standalone WEB owns only a two-connection READ pool. */
 @Configuration(proxyBeanMethods = false)
 @Profile(V3ReadHttpConfiguration.PROFILE)
-@Import({
+@Import({V3ObservabilityConfiguration.class, 
     V3HttpSecurityConfiguration.class,
     V3ReadController.class,
     V3InvitationController.class,
     V3StageHandoffController.class
 })
 public class V3ReadHttpConfiguration {
+    private static final Duration[] READ_SLO_BUCKETS = {
+        Duration.ofMillis(1),
+        Duration.ofMillis(5),
+        Duration.ofMillis(10),
+        Duration.ofMillis(50),
+        Duration.ofMillis(100),
+        Duration.ofMillis(500),
+        Duration.ofSeconds(1),
+        Duration.ofSeconds(2),
+        Duration.ofSeconds(5),
+        Duration.ofSeconds(30),
+        Duration.ofSeconds(60),
+        Duration.ofSeconds(120)
+    };
+
+    @Bean
+    V3ReadTransport v3ReadTransport(
+            Environment env,
+            org.springframework.beans.factory.ObjectProvider<MeterRegistry> meterRegistry) {
+        V3ReadTransport.Telemetry telemetry =
+                (endpoint, status, durationNanos) -> {
+                    var registry = meterRegistry.getIfAvailable();
+                    if (registry != null) {
+                        Tags tags = Tags.of("endpoint", endpoint, "status", String.valueOf(status));
+                        Timer.builder("pocoma.v3.read.http.duration")
+                                .tags(tags)
+                                .publishPercentileHistogram()
+                                .serviceLevelObjectives(READ_SLO_BUCKETS)
+                                .register(registry)
+                                .record(Duration.ofNanos(durationNanos));
+                    }
+                };
+        return new V3ReadTransport(
+                Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission"),
+                telemetry);
+    }
+
+    @Bean
+    FilterRegistrationBean<V3ReadTransport> v3ReadFilter(V3ReadTransport transport) {
+        var registration = new FilterRegistrationBean<>(transport);
+        registration.setOrder(-90);
+        registration.addUrlPatterns("/api/v3/*");
+        return registration;
+    }
+
+
     public static final String PROFILE = "v3-http-read";
 
     @Bean
@@ -150,12 +198,32 @@ public class V3ReadHttpConfiguration {
         return pool;
     }
 
+    /** Maintenance status must remain observable while both business query permits are held. */
+    @Bean(destroyMethod = "close")
+    @Profile("!v3-read-worker")
+    HikariDataSource v3HttpReadMaintenancePool(Environment env, Optional<MeterRegistry> registry) {
+        String p="pocoma.v3.http.read.";
+        var config=new HikariConfig();
+        config.setJdbcUrl(env.getRequiredProperty(p+"url"));
+        config.setUsername(env.getProperty(p+"maintenance.username",env.getRequiredProperty(p+"username")));
+        config.setPassword(env.getProperty(p+"maintenance.password",env.getRequiredProperty(p+"password")));
+        config.setPoolName("v3-http-read-maintenance");
+        config.setMaximumPoolSize(1);config.setMinimumIdle(1);config.setReadOnly(true);
+        config.setConnectionTimeout(1000);config.setValidationTimeout(500);
+        config.addDataSourceProperty("connectTimeout","2");config.addDataSourceProperty("socketTimeout","5");
+        config.addDataSourceProperty("ApplicationName","v3-http-read-maintenance");
+        config.addDataSourceProperty("options","-c lock_timeout=200 -c statement_timeout=500 -c transaction_timeout=1000");
+        var pool=new HikariDataSource(config);
+        registry.ifPresent(r -> pool.setMetricsTrackerFactory(new MicrometerMetricsTrackerFactory(r)));
+        return pool;
+    }
+
     @Bean
     @Profile("!v3-read-worker")
     com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority v3HttpReadMaintenanceAuthority(
-            HikariDataSource v3HttpReadPool) {
+            HikariDataSource v3HttpReadMaintenancePool) {
         return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority(
-                v3HttpReadPool);
+                v3HttpReadMaintenancePool);
     }
 
     @Bean
@@ -211,7 +279,7 @@ public class V3ReadHttpConfiguration {
 
     public record InvitationQueries(
             V3ReadFacadeComposition.Services services,
-            com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.InvitationCryptography crypto)
+            com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography crypto)
             implements InvitationRead.Queries {
         public ReadPotV3Result<InvitationRead.Link> link(ExternalIdentity eui, UUID request) {
             return services.invitationLink(

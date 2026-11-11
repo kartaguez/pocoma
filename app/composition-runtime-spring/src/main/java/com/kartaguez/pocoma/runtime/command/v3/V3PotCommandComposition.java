@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
@@ -62,7 +63,7 @@ public final class V3PotCommandComposition {
                         new JdbcPotCommandStore(
                                 writeSource,
                                 transactions,
-                                com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTracker.getInstance()::linkCommandEvents),
+                                (cmd, pot, ver, potEvent, completionEvent) -> {}),
                         new JdbcPotCommandObservation(writeSource),
                         identityAuthority,
                         new JdbcPotHistoryAdapter(writeSource),
@@ -149,13 +150,28 @@ public final class V3PotCommandComposition {
             WorkerCapacity capacity,
             com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation,
             com.kartaguez.pocoma.engine.write.pot.port.execution.v3.InvitationStore invitations) {
+        return assemble(business,effects,control,technical,identity,clock,guard,settings,capacity,observation,invitations,(cmd,pot,ver,potEvent,completionEvent) -> {});
+    }
+
+    public static ConsumptionEngine assemble(
+            com.zaxxer.hikari.HikariDataSource business,
+            SpringAttemptTransactions effects,
+            com.zaxxer.hikari.HikariDataSource control,
+            SpringAttemptTransactions technical,
+            PotActorAuthority identity,
+            Clock clock,
+            V3BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation,
+            com.kartaguez.pocoma.engine.write.pot.port.execution.v3.InvitationStore invitations, JdbcPotCommandStore.PublicationListener publicationListener) {
         effects.requireSource(business);
         var participant =
                 new ExecutePotCommand(
                         new JdbcPotCommandStore(
                                 business,
                                 effects,
-                                com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTracker.getInstance()::linkCommandEvents),
+                                publicationListener),
                         new JdbcPotCommandObservation(business),
                         identity,
                         new JdbcPotHistoryAdapter(business),
@@ -167,7 +183,7 @@ public final class V3PotCommandComposition {
                             new JdbcPotCommandStore(
                                     business,
                                     effects,
-                                    com.kartaguez.pocoma.runtime.consumption.v3.StageHandoffTracker.getInstance()::linkCommandEvents),
+                                    publicationListener),
                             new JdbcPotCommandObservation(business),
                             identity,
                             new JdbcPotHistoryAdapter(business),

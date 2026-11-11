@@ -98,17 +98,7 @@ public record V3ConsumptionWorkerSettings(
         allowedTargets = List.copyOf(allowedTargets);
     }
 
-    public static List<ConsumptionDefinition> probeDefinitions() {
-        return List.of(
-                new ConsumptionDefinition(
-                        new ConsumptionId(UUID.fromString("a5000000-0000-4000-8000-000000000001")),
-                        ConsumableFamily.POT_EVENT,
-                        Authority.READ),
-                new ConsumptionDefinition(
-                        new ConsumptionId(UUID.fromString("a5000000-0000-4000-8000-000000000002")),
-                        ConsumableFamily.COMMAND_COMPLETION_EVENT,
-                        Authority.READ));
-    }
+    public static List<ConsumptionDefinition> probeDefinitions() { return ConsumptionCatalog.probeDefinitions(); }
 
     public static boolean requested(Environment env) {
         boolean profile =

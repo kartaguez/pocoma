@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -16,6 +17,8 @@ import java.util.Map;
 @Profile({"v3-http-admission", "v3-http-read", "v3-read-worker"})
 @RestController
 public final class V3StageHandoffController {
+    private final StageHandoffTracker tracker;
+    public V3StageHandoffController(StageHandoffTracker tracker) {this.tracker=tracker;}
 
     @GetMapping({"/actuator/stage-handoffs", "/api/v3/diagnostics/stage-handoffs"})
     public Map<String, Object> stageHandoffs(
@@ -24,11 +27,11 @@ public final class V3StageHandoffController {
             @RequestParam(name = "sinceEpochMs", required = false) Long sinceEpochMs,
             @RequestParam(name = "clear", required = false, defaultValue = "false") boolean clear) {
         if (clear) {
-            StageHandoffTracker.getInstance().clear();
+            tracker.clear();
         }
         boolean authenticated = authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
-        return StageHandoffTracker.getInstance().snapshot(limit, sinceEpochMs, authenticated);
+        return tracker.snapshot(limit, sinceEpochMs, authenticated);
     }
 }
