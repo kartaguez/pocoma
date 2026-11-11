@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.runtime.command.v3;
 import com.kartaguez.pocoma.compose.polling.process.v3.dev.V3FixturePotActorAuthority;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
@@ -2074,60 +2075,41 @@ class V3WorkerResourcesPostgresTest {
                             "com.kartaguez.pocoma.supra.polling.consumption.v3.V3RenewalService$Call");
             var callConstructor = callClass.getDeclaredConstructors()[0];
             callConstructor.setAccessible(true);
-            var call =
-                    callConstructor.newInstance(
-                            def.authority(), 2, null, List.of(entry), System.nanoTime());
-            renewalCalls.add(call);
+            var safety = (ProtocolSafety) field(runtime.worker, "safety");
+            var engine = L2TestAccess.engine(b.engine());
+            var controlTx = (AttemptTransactions) field(engine, "controlTransactions");
+            var ownership = (PartitionOwnershipStore) field(engine, "ownership");
+            Callable<List<PartitionLease>> renew = () -> {
+                var permit = safety.beginRenewal(def.authority(), 2, null).orElseThrow();
+                var call = callConstructor.newInstance(
+                        def.authority(), 2, null, List.of(entry), System.nanoTime(), permit);
+                renewalCalls.add(call);
+                try {
+                    var renewed = controlTx.write(
+                            () -> ownership.renew(def, List.of(lease), Duration.ofSeconds(90)));
+                    assertTrue(safety.finishRenewal(permit, null).physicallyResolved());
+                    journal.observe(def.id(), ConsumptionObservation.Phase.RENEWAL_LEASE,
+                            ConsumptionObservation.Outcome.CONFIRMED, 1, Duration.ofMillis(1));
+                    return renewed;
+                } finally {
+                    renewalCalls.remove(call);
+                }
+            };
+            var omitted = renew.call();
+            var renewalTx = journal.attempts.getFirst().tx;
 
-            var renewalPid = new AtomicInteger();
-            var renewalXid = new AtomicReference<String>();
-            var renewalReturned = new AtomicReference<List<PartitionLease>>();
-
-            var controlTx = (AttemptTransactions) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "controlTransactions");
-            controlTx.write(
-                    () -> {
-                        try {
-                            var sql = new JdbcTemplate(pool);
-                            var row =
-                                    sql.queryForMap(
-                                            "select pg_backend_pid()"
-                                                    + " pid,pg_current_xact_id()::text xid");
-                            renewalPid.set(((Number) row.get("pid")).intValue());
-                            renewalXid.set(row.get("xid").toString());
-
-                            var storeProxy =
-                                    (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "ownership");
-                            var res = storeProxy.renew(def, List.of(lease), Duration.ofSeconds(90));
-                            renewalReturned.set(res);
-                            journal.observe(
-                                    def.id(),
-                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
-                                            .Phase.RENEWAL_LEASE,
-                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
-                                            .Outcome.CONFIRMED,
-                                    1,
-                                    Duration.ofMillis(1));
-                            return null;
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-
-            // Verify physical outcome: renewal was skipped because Discovery held row lock
-            assertNotEquals(
-                    discoveryPid.get(),
-                    renewalPid.get(),
+            // Verify physical outcome: renewal was skipped because Discovery held row lock.
+            assertNotEquals(discoveryPid.get(), renewalTx.pid,
                     "Discovery and Renewal on separate backends");
-            assertTrue(
-                    renewalReturned.get().isEmpty(),
+            assertTrue(omitted.isEmpty(),
                     "PostgreSQL SKIP LOCKED omitted the partition for Renewal");
             System.out.println(
                     "DISCOVERY_RENEWAL_INTERLEAVING"
                             + " discoveryPid=" + discoveryPid.get()
                             + " discoveryXid=" + discoveryXid.get()
-                            + " renewalPid=" + renewalPid.get()
-                            + " renewalXid=" + renewalXid.get()
-                            + " renewalReturned=" + renewalReturned.get().size());
+                            + " renewalPid=" + renewalTx.pid
+                            + " renewalXid=" + renewalTx.xid
+                            + " renewalReturned=" + omitted.size());
 
             // Step 6: Discovery completes and commits its transaction
             discoveryHold.countDown();
@@ -2155,29 +2137,7 @@ class V3WorkerResourcesPostgresTest {
                             .contains("B available physical window without same-token CAS"));
 
             // Step 8: Subsequent Renewal attempt without Discovery lock succeeds with same-token CAS
-            var call2 =
-                    callConstructor.newInstance(
-                            def.authority(), 2, null, List.of(entry), System.nanoTime());
-            renewalCalls.add(call2);
-            controlTx.write(
-                    () -> {
-                        try {
-                            var storeProxy =
-                                    (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "ownership");
-                            var res = storeProxy.renew(def, List.of(lease), Duration.ofSeconds(90));
-                            journal.observe(
-                                    def.id(),
-                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
-                                            .Phase.RENEWAL_LEASE,
-                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
-                                            .Outcome.CONFIRMED,
-                                    1,
-                                    Duration.ofMillis(1));
-                            return res;
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+            renew.call();
             assertEquals(2, journal.attempts.size());
             var attempt2 = journal.attempts.get(1);
             assertEquals(1, attempt2.returned.size());
@@ -2192,13 +2152,6 @@ class V3WorkerResourcesPostgresTest {
                             attempt2.storeStart, attempt2.storeEnd, conflictsAttempt2),
                     "Attempt 2 was free and available for renewal");
 
-            // Mark worker as STOPPED to allow clean runtime close without waiting
-            @SuppressWarnings("unchecked")
-            Class<Enum> stateClass =
-                    (Class<Enum>)
-                            Class.forName(
-                                    "com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker$State");
-            replace(runtime.worker, "state", Enum.valueOf(stateClass, "STOPPED"));
         }
     }
 
