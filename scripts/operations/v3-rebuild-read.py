@@ -486,7 +486,8 @@ def validate_and_restore_ready(operation_id, operator_id, target_prefix):
     print("   ✓ Authority atomically transitioned to READY (phase: IDLE).")
 
 
-def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False, watchdog_timeout=180, poll_interval=2):
+def run_destructive_reconstruction(operation_id, operator_id, read_url, is_recovery=False,
+                                   watchdog_timeout=180, poll_interval=2):
     """Executes canonical destructive rebuild sequence for fresh rebuilds or destructive recovery."""
     print("================================================================================")
     mode_label = "DESTRUCTIVE RECOVERY" if is_recovery else "FRESH RECONSTRUCTION"
@@ -704,7 +705,8 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
     print("15. Executing post-reconstruction discriminant HTTP smoke tests...")
     time.sleep(1)  # Allow filter cache invalidation
     curl_res = subprocess.run(
-        ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "http://127.0.0.1:8080/api/v3/me/binding"],
+        ["curl", "--silent", "--max-time", "5", "-o", "/dev/null", "-w", "%{http_code}",
+         read_url + "/api/v3/me/binding"],
         capture_output=True, text=True
     )
     http_code = curl_res.stdout.strip()
@@ -714,7 +716,7 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
     if http_code == "503":
         print("FATAL: HTTP service still returning 503 after READY transition!", file=sys.stderr)
         return 1
-    if http_code not in ("200", "401"):
+    if http_code != "401":
         print(f"WARNING: Unexpected HTTP response {http_code} after restoration", file=sys.stderr)
         return 1
 
@@ -839,17 +841,33 @@ def main():
         print("✓ Preflight checks passed. Dry run complete; no changes applied.")
         return 0
 
-    # The two restarted Materialize processes must belong to the same stack as READ.
+    # Replay workers and the HTTP probe use the stack that owns the READ database.
     model = json.loads(subprocess.check_output(
         ["docker", "compose", *COMPOSE_FILES, "config", "--format", "json"], text=True))
     postgres_service = model["services"]["postgres"]
     postgres_name = postgres_service.get("container_name", f'{model["name"]}-postgres-1')
     if postgres_name != POSTGRES_CONTAINER or not all(
-            worker in model["services"] for worker in READ_WORKERS):
+            service in model["services"] for service in (*READ_WORKERS, "pocoma-http-read")):
         print("FATAL: The READ worker stack does not match the configured PostgreSQL container.",
               file=sys.stderr)
         return 1
 
+
+    read_ports = [port for port in model["services"]["pocoma-http-read"].get("ports", [])
+                  if port.get("target") == 8082 and port.get("protocol", "tcp") == "tcp"]
+    if len(read_ports) != 1 or not str(read_ports[0].get("published", "")).isdigit():
+        print("FATAL: Configure one published HTTP READ port for the reconstruction probe.",
+              file=sys.stderr)
+        return 1
+    read_host = read_ports[0].get("host_ip", "127.0.0.1")
+    if read_host in ("0.0.0.0", "127.0.0.1"):
+        read_host = "127.0.0.1"
+    elif read_host in ("::", "::1"):
+        read_host = "[::1]"
+    else:
+        print("FATAL: HTTP READ probe requires a local published address.", file=sys.stderr)
+        return 1
+    read_url = f"http://{read_host}:{read_ports[0]['published']}"
 
     # -------------------------------------------------------------------------
     # ALL MUTATING ACTIONS ACQUIRE POSTGRESQL SESSION ADVISORY LOCK (AUD-L6-I2-14)
@@ -917,7 +935,7 @@ def main():
                     return 1
 
                 return run_destructive_reconstruction(
-                    operation_id, args.operator_id, is_recovery=True,
+                    operation_id, args.operator_id, read_url, is_recovery=True,
                     watchdog_timeout=args.watchdog_timeout, poll_interval=args.poll_interval
                 )
 
@@ -1068,7 +1086,7 @@ def main():
             print("   ✓ Atomic CAS succeeded: lock acquired (state: MAINTENANCE, phase: DRAINING)")
 
             return run_destructive_reconstruction(
-                operation_id, args.operator_id, is_recovery=False,
+                operation_id, args.operator_id, read_url, is_recovery=False,
                 watchdog_timeout=args.watchdog_timeout, poll_interval=args.poll_interval
             )
 
