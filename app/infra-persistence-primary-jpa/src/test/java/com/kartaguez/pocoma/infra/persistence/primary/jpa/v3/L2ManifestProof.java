@@ -1,13 +1,22 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.I2ReservedClaimFixture;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.JdbcConsumptionSlotStore;
@@ -169,9 +178,9 @@ class L2ManifestProof {
         return result;
     }
 
-    void unchanged(Map<String, String> before, ConsumptionEngine.Attempt attempt) throws Exception {
+    void unchanged(Map<String, String> before, ConsumptionProtocol.Attempt attempt) throws Exception {
         evidence.add("attempt=" + attempt);
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, attempt.status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, attempt.status());
         assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, attempt.resolution());
         assertEquals(before, vector());
     }
@@ -179,7 +188,7 @@ class L2ManifestProof {
     void committed() {
         var result = engine().execute(claim);
         evidence.add("attempt=" + result);
-        assertEquals(ConsumptionEngine.Status.COMMITTED, result.status(), result.toString());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, result.status(), result.toString());
         assertEquals(AttemptTransactions.Resolution.COMMITTED, result.resolution());
         assertEquals(
                 3L,
@@ -275,7 +284,7 @@ class L2ManifestProof {
         var before = vector();
         var wrong = new ClaimedSlot(claim.consumptionId(), claim.consumableId(), new UUID(99, 99));
         var result = engine().execute(wrong);
-        assertEquals(ConsumptionEngine.Status.CLAIM_LOST, result.status());
+        assertEquals(ConsumptionProtocol.Status.CLAIM_LOST, result.status());
         assertEquals(before, vector());
     }
 
@@ -652,7 +661,7 @@ class L2ManifestProof {
                         "create trigger fixture_i2_jpa_xid after insert or update or delete on "
                                 + table
                                 + " for each row execute function fixture_i2_jpa_xid_fn()");
-            assertEquals(ConsumptionEngine.Status.COMMITTED, wrappedEngine.execute(claim).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, wrappedEngine.execute(claim).status());
             assertEquals(
                     1L,
                     f.jdbc.queryForObject(
@@ -822,7 +831,7 @@ class L2ManifestProof {
                         if (commitBetweenReads) {
                             release.countDown();
                             assertEquals(
-                                    ConsumptionEngine.Status.COMMITTED,
+                                    ConsumptionProtocol.Status.COMMITTED,
                                     CommandExecutionPostgresTest.get(pending).status());
                         }
                         assertEquals(
@@ -838,7 +847,7 @@ class L2ManifestProof {
             release.countDown();
         }
         assertEquals(
-                ConsumptionEngine.Status.COMMITTED,
+                ConsumptionProtocol.Status.COMMITTED,
                 CommandExecutionPostgresTest.get(pending).status());
         assertEquals(RecoveryObservation.COMPLETED, engine().observe(claim));
         evidence.add(
@@ -862,7 +871,7 @@ class L2ManifestProof {
         var input = L1CommandStore.claim(c.requestId(), f.admit(c));
         long before = f.jdbc.queryForObject("select count(*) from v3_pot_event", Long.class);
         var attempt = engine().execute(input);
-        assertEquals(ConsumptionEngine.Status.COMMITTED, attempt.status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, attempt.status());
         assertEquals(
                 rejected ? "REJECTED" : "UNCHANGED",
                 f.jdbc.queryForObject(
@@ -955,7 +964,7 @@ class L2ManifestProof {
                 assertEquals(AttemptTransactions.Resolution.UNKNOWN, attempt.resolution());
                 if (fault == CommitAcknowledgementProxy.Fault.AFTER_COMMIT) {
                     assertEquals(1, proxy.committedReplies.get());
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, attempt.status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, attempt.status());
                     assertEquals(RecoveryObservation.COMPLETED, attempt.observation());
                     assertEquals(
                             0L,
@@ -970,7 +979,7 @@ class L2ManifestProof {
                                     Long.class,
                                     f.p.value()));
                 } else {
-                    assertEquals(ConsumptionEngine.Status.RECOVERY_PENDING, attempt.status());
+                    assertEquals(ConsumptionProtocol.Status.RECOVERY_PENDING, attempt.status());
                     assertEquals(RecoveryObservation.NOT_COMPLETED, attempt.observation());
                     assertEquals(before, vector());
                 }
@@ -1752,7 +1761,7 @@ class L2ManifestProof {
                     }
                 };
         var result = engine(participant, slots, owner).execute(claim);
-        assertEquals(ConsumptionEngine.Status.RECOVERY_PENDING, result.status());
+        assertEquals(ConsumptionProtocol.Status.RECOVERY_PENDING, result.status());
         assertEquals(RecoveryObservation.NOT_COMPLETED, result.observation());
         assertEquals(before, vector());
     }
@@ -1852,26 +1861,26 @@ class L2ManifestProof {
         new WriteRevisionPerformancePostgresTest().f201WriteDepthProfiles();
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

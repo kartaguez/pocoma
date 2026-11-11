@@ -1,4 +1,14 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,8 +17,6 @@ import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.projection.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
@@ -233,7 +241,7 @@ final class InterAuthorityPostgresFixture implements AutoCloseable {
         var lease = primaryLease(engine, definition, partition);
         var result = engine.execute(engine.acquire(lease, List.of(request)).claims().getFirst());
         assertEquals(
-                ConsumptionEngine.Status.COMMITTED, result.status(), () -> String.valueOf(result));
+                ConsumptionProtocol.Status.COMMITTED, result.status(), () -> String.valueOf(result));
         var row =
                 oracle.queryForMap(
                         "select e.event_id,p.position from v3_pot_event e join v3_event_position p"

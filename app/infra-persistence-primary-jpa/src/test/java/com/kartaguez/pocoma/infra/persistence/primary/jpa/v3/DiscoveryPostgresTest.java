@@ -1,13 +1,27 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
@@ -201,11 +215,11 @@ class DiscoveryPostgresTest {
                             capacity,
                             c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
                             null,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                     .noop());
             var lease = e.acquirePartition(0).orElseThrow();
             var settings =
-                    new DiscoveryEngine.Settings(
+                    new DiscoverySettings(
                             128, 32, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(10));
             var d =
                     new DiscoveryEngine(
@@ -223,7 +237,7 @@ class DiscoveryPostgresTest {
                 var claims = e.acquire(lease, ids.subList(offset, end)).claims();
                 assertEquals(end - offset, claims.size());
                 for (var claim : claims)
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claim).status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(claim).status());
             }
         } finally {
             emf.destroy();
@@ -288,7 +302,7 @@ class DiscoveryPostgresTest {
                                             DiscoveryPostgresFixture.P1.get(f.family))));
                     f.slot(f.q(3), false);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var r = f.engine().discoverEvents(f.lease(0));
                     assertEquals(1, r.checkpoint().orElseThrow());
@@ -401,11 +415,11 @@ class DiscoveryPostgresTest {
                     f.fixtureEvents(ids);
                     var lease = f.lease(0);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1, 32, 32, 1000, Duration.ofMillis(500), Duration.ofSeconds(2));
                     for (int w : List.of(1, 2, 3)) {
                         f.settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         w,
                                         32,
                                         32,
@@ -463,7 +477,7 @@ class DiscoveryPostgresTest {
                     assertEquals(2, d1.inserted());
                     proceed.countDown();
                     var stale = d2.get(8, TimeUnit.SECONDS);
-                    assertEquals(DiscoveryEngine.Status.STALE_CHECKPOINT, stale.status());
+                    assertEquals(DiscoveryReports.Status.STALE_CHECKPOINT, stale.status());
                     assertEquals(4, stale.checkpoint().orElseThrow());
                     assertEquals(2, f.slotIds().size());
                 });
@@ -508,7 +522,7 @@ class DiscoveryPostgresTest {
                                         }
                                     });
                     assertEquals(
-                            DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                            DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                             f.engine(f.admissions, events, null, f.target.tx)
                                     .discoverEvents(lease)
                                     .status());
@@ -528,7 +542,7 @@ class DiscoveryPostgresTest {
                         var ids = four(f);
                         var lease = f.lease(0);
                         f.settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         128,
                                         32,
                                         cap,
@@ -712,7 +726,7 @@ class DiscoveryPostgresTest {
                             before, f.target.oracle.queryForList("select * from consumption_slot"));
                     var next = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
                     assertNotEquals(original.claim().claimToken(), next.claim().claimToken());
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(next).status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(next).status());
                 });
     }
 
@@ -840,7 +854,7 @@ class DiscoveryPostgresTest {
                     assertTrue(held.await(8, TimeUnit.SECONDS));
                     try {
                         assertEquals(
-                                DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                                DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                                 f.engine().discoverRequests(lease).status());
                         assertTrue(f.slotIds().isEmpty());
                         f.locks("D1-held-partition");
@@ -860,7 +874,7 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(1));
                     f.pending(f.q(3));
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     var first = f.engine().discoverRequests(lease);
@@ -896,7 +910,7 @@ class DiscoveryPostgresTest {
                     for (var id : List.of(other, f.q(0), f.q(1), f.q(2))) f.pending(id);
                     f.slot(f.q(0), false);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     try (var locked = f.lockSource(f.q(1))) {
@@ -929,11 +943,11 @@ class DiscoveryPostgresTest {
                     for (var id : List.of(f.q(0), f.q(1), f.q(2))) f.pending(id);
                     f.slot(f.q(0), false);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     var stopped = f.engine().discoverRequests(lease);
-                    assertEquals(DiscoveryEngine.Status.CAPACITY, stopped.status());
+                    assertEquals(DiscoveryReports.Status.CAPACITY, stopped.status());
                     assertEquals(0, stopped.examined());
                     assertEquals(0, stopped.advanced());
                     assertEquals(0, stopped.committedAdmissions());
@@ -954,7 +968,7 @@ class DiscoveryPostgresTest {
                 f -> {
                     for (var id : List.of(f.q(0), f.q(1), f.q(2))) f.pending(id);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     var first = f.engine().discoverRequests(lease);
@@ -980,7 +994,7 @@ class DiscoveryPostgresTest {
                 f -> {
                     for (var id : List.of(f.q(0), f.q(1), f.q(4))) f.pending(id);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     2, 2, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     try (var locked = f.lockSource(f.q(1))) {
@@ -995,7 +1009,7 @@ class DiscoveryPostgresTest {
                             f.definition.id().value());
                     var next = f.lease(0);
                     assertEquals(
-                            DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                            DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                             f.engine().discoverRequests(lease).status());
                     var r = f.engine().discoverRequests(next);
                     assertEquals(2, r.committedAdmissions());
@@ -1013,7 +1027,7 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(1));
                     f.pending(f.q(3));
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     var r = f.engine().discoverRequests(lease);
@@ -1036,7 +1050,7 @@ class DiscoveryPostgresTest {
         final Connection control;
         final long key = BARRIER_KEYS.incrementAndGet();
         final int controlPid, pid;
-        final Future<ConsumptionEngine.Attempt> future;
+        final Future<ConsumptionProtocol.Attempt> future;
         final UUID id;
         boolean released;
 
@@ -1137,7 +1151,7 @@ class DiscoveryPostgresTest {
                             f.capacity,
                             c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                             null,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                     .noop());
             var claim = e.acquire(lease, List.of(id)).claims().getFirst();
             future = f.target.threads.submit(() -> e.execute(claim));
@@ -1177,7 +1191,7 @@ class DiscoveryPostgresTest {
             }
         }
 
-        ConsumptionEngine.Attempt finish() throws Exception {
+        ConsumptionProtocol.Attempt finish() throws Exception {
             release();
             return future.get(10, TimeUnit.SECONDS);
         }
@@ -1201,7 +1215,7 @@ class DiscoveryPostgresTest {
                     f.slot(f.q(0), false);
                     var lease = f.lease(0);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128,
                                     32,
                                     32,
@@ -1248,7 +1262,7 @@ class DiscoveryPostgresTest {
                             release.countDown();
                         }
                         assertEquals(0, d.get(8, TimeUnit.SECONDS).committedAdmissions());
-                        assertEquals(ConsumptionEngine.Status.COMMITTED, fin.finish().status());
+                        assertEquals(ConsumptionProtocol.Status.COMMITTED, fin.finish().status());
                         assertTrue(f.slotIds().isEmpty());
                     }
                 });
@@ -1275,8 +1289,8 @@ class DiscoveryPostgresTest {
                                 var result = fin.finish();
                                 assertEquals(
                                         rollback
-                                                ? ConsumptionEngine.Status.ROLLED_BACK
-                                                : ConsumptionEngine.Status.COMMITTED,
+                                                ? ConsumptionProtocol.Status.ROLLED_BACK
+                                                : ConsumptionProtocol.Status.COMMITTED,
                                         result.status());
                                 assertEquals(rollback ? before : Set.of(), f.slotIds());
                                 assertEquals(
@@ -1298,7 +1312,7 @@ class DiscoveryPostgresTest {
                         f.slot(f.q(2), true);
                         var lease = f.lease(0);
                         f.settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         128,
                                         32,
                                         32,
@@ -1434,7 +1448,7 @@ class DiscoveryPostgresTest {
                             var r =
                                     f.engine(store, null, f.requests, f.target.tx)
                                             .discoverRequests(lease);
-                            assertEquals(DiscoveryEngine.Status.CAPACITY, r.status());
+                            assertEquals(DiscoveryReports.Status.CAPACITY, r.status());
                             assertEquals(4, r.examined());
                             assertEquals(3, r.advanced());
                             assertEquals(1, r.committedAdmissions());
@@ -1469,8 +1483,8 @@ class DiscoveryPostgresTest {
                             var finalResult = fin.finish();
                             assertEquals(
                                     rollback
-                                            ? ConsumptionEngine.Status.ROLLED_BACK
-                                            : ConsumptionEngine.Status.COMMITTED,
+                                            ? ConsumptionProtocol.Status.ROLLED_BACK
+                                            : ConsumptionProtocol.Status.COMMITTED,
                                     finalResult.status());
                             if (rollback) f.complete(lease, f.q(0));
                             var next = f.engine().discoverRequests(lease);
@@ -1778,10 +1792,9 @@ class DiscoveryPostgresTest {
                                     f.capacity,
                                     c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
-                    assertEquals(ConsumptionEngine.Status.ROLLED_BACK, e.execute(claim).status());
+                    assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, e.execute(claim).status());
                     assertTrue(f.slotIds().contains(f.q(0)));
                     assertEquals(0, f.target.effects(f.q(0)));
                     f.target.oracle.update(
@@ -2001,8 +2014,7 @@ class DiscoveryPostgresTest {
                                     new WorkerCapacity(4, Map.of(w.definition.id(), 4)),
                                     c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     var claims = new ArrayList<ConsumptionEngine.AcquiredClaim>();
                     for (int n = 0; n < 2; n++) {
                         String actor = n == 0 ? "dense-a" : "dense-b";
@@ -2083,11 +2095,11 @@ class DiscoveryPostgresTest {
                     release.countDown();
                     assertEquals(
                             rollback
-                                    ? ConsumptionEngine.Status.ROLLED_BACK
-                                    : ConsumptionEngine.Status.COMMITTED,
+                                    ? ConsumptionProtocol.Status.ROLLED_BACK
+                                    : ConsumptionProtocol.Status.COMMITTED,
                             first.get(8, TimeUnit.SECONDS).status());
                     assertEquals(
-                            ConsumptionEngine.Status.COMMITTED,
+                            ConsumptionProtocol.Status.COMMITTED,
                             second.get(8, TimeUnit.SECONDS).status());
                     assertEquals(
                             rollback ? 5 : 6,
@@ -2117,7 +2129,7 @@ class DiscoveryPostgresTest {
                         four(f);
                         var lease = f.lease(0);
                         f.settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         128,
                                         32,
                                         32,
@@ -2224,10 +2236,10 @@ class DiscoveryPostgresTest {
                     var newLease = f.lease(0);
                     f.pending(f.q(1));
                     assertEquals(
-                            DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                            DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                             f.engine().discoverRequests(lease).status());
                     assertEquals(1, e.renewClaims(List.of(claim.claim())).size());
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claim).status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(claim).status());
                     assertEquals(
                             1, f.engine().discoverRequests(newLease).committedAdmissions());
                     assertEquals(Set.of(f.q(1)), f.slotIds());
@@ -2251,10 +2263,10 @@ class DiscoveryPostgresTest {
                                     + " '1 second' where consumption_id=? and partition_id=0",
                             f.definition.id().value());
                     assertEquals(
-                            DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                            DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                             f.engine().discoverEvents(lease).status());
                     assertEquals(1, e.renewClaims(List.of(claim.claim())).size());
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claim).status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(claim).status());
                     assertEquals(4, f.k(0));
                     assertFalse(f.slotIds().contains(f.q(0)));
                 });
@@ -2271,7 +2283,7 @@ class DiscoveryPostgresTest {
                     f.slot(f.q(1), false);
                     var lease = f.lease(0);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     assertEquals(1, f.count());
                     f.target.script(
@@ -2284,11 +2296,11 @@ class DiscoveryPostgresTest {
                                     f.q(0).toString()));
                     assertEquals(2, f.count());
                     assertEquals(
-                            DiscoveryEngine.Status.CAPACITY,
+                            DiscoveryReports.Status.CAPACITY,
                             f.engine().discoverRequests(lease).status());
                     f.complete(lease, f.q(1));
                     assertEquals(
-                            DiscoveryEngine.Status.CAPACITY,
+                            DiscoveryReports.Status.CAPACITY,
                             f.engine().discoverRequests(lease).status());
                     f.complete(lease, f.q(0));
                     assertEquals(0, f.count());
@@ -2309,7 +2321,7 @@ class DiscoveryPostgresTest {
                     var held = new CountDownLatch(1);
                     var release = new CountDownLatch(1);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128,
                                     32,
                                     32,
@@ -2341,7 +2353,7 @@ class DiscoveryPostgresTest {
                         release.countDown();
                     }
                     assertEquals(1, d.get(8, TimeUnit.SECONDS).committedAdmissions());
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claim).status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(claim).status());
                 });
     }
 
@@ -2833,7 +2845,7 @@ class DiscoveryPostgresTest {
                         f.target.blocked(pid.get());
                         f.target.await(() -> f.target.now().isAfter(deadline));
                         f.locks("A corrected source wait then expiry");
-                        assertEquals(ConsumptionEngine.Status.COMMITTED, fin.finish().status());
+                        assertEquals(ConsumptionProtocol.Status.COMMITTED, fin.finish().status());
                         assertEquals(
                                 AttemptTransactions.Resolution.ROLLED_BACK,
                                 d.get(8, TimeUnit.SECONDS).resolution());
@@ -2933,8 +2945,7 @@ class DiscoveryPostgresTest {
                                             f.capacity,
                                             c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                             null,
-                                            com.kartaguez.pocoma.engine.consumption.v3.port
-                                                    .ConsumptionObservation.noop());
+                                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                             var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
                             armed.set(true);
                             var result = e.execute(claim);
@@ -3092,8 +3103,7 @@ class DiscoveryPostgresTest {
                                                         AttemptFailureClassifier.FailureKind
                                                                 .NON_COUNTABLE,
                                                 null,
-                                                com.kartaguez.pocoma.engine.consumption.v3.port
-                                                        .ConsumptionObservation.noop());
+                                                com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                                 var second =
                                         finalizer
                                                 .acquire(lease, List.of(f.q(1)))
@@ -3117,7 +3127,7 @@ class DiscoveryPostgresTest {
                                 f.locks("F1 now counter wait; D already physically committed");
                                 counter.rollback();
                                 assertEquals(
-                                        ConsumptionEngine.Status.COMMITTED,
+                                        ConsumptionProtocol.Status.COMMITTED,
                                         first.finish().status());
                                 var result = other.get(10, TimeUnit.SECONDS);
                                 f.trace.add(
@@ -3127,7 +3137,7 @@ class DiscoveryPostgresTest {
                                                 + samePot
                                                 + " sameEUI="
                                                 + sameIdentity);
-                                if (result.status() != ConsumptionEngine.Status.COMMITTED) {
+                                if (result.status() != ConsumptionProtocol.Status.COMMITTED) {
                                     f.target.oracle.update(
                                             "update consumption_slot set"
                                                     + " claimed_until=clock_timestamp()-interval '1"
@@ -3293,8 +3303,7 @@ class DiscoveryPostgresTest {
                             }
 
                             public java.util.Optional<
-                                            com.kartaguez.pocoma.engine.consumption.v3.port
-                                                    .NonBurnableReferences.Reference>
+                                            com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences.Reference>
                                     find(
                                             java.util.UUID eventId,
                                             com.kartaguez.pocoma.port.transaction.v3
@@ -3333,7 +3342,7 @@ class DiscoveryPostgresTest {
                 for (int b : List.of(1, 16, 32))
                     for (long cap : List.of(1L, 64L)) {
                         var settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         w,
                                         32,
                                         b,
@@ -3429,8 +3438,9 @@ class DiscoveryPostgresTest {
                             assertTrue(sourceMeter.statements > 0);
                             assertEquals(
                                     Math.min(w, ids.size())
+                                            // set_config returns one row; the publication counter returns one.
                                             + (f.events instanceof JdbcEventDiscoveryReferences
-                                                    ? 3
+                                                    ? 2
                                                     : 1),
                                     sourceMeter.rows);
                             if (sample >= 0) {
@@ -3681,7 +3691,7 @@ class DiscoveryPostgresTest {
                             + " concurrency/composition proofs; no I5 pool guarantee");
         }
 
-        DiscoveryEngine.RequestProgress discover(PartitionLease lease) throws Exception {
+        DiscoveryReports.RequestProgress discover(PartitionLease lease) throws Exception {
             meter.reset();
             meter.enabled = true;
             try {
@@ -3789,7 +3799,7 @@ class DiscoveryPostgresTest {
                                             + " where state='AVAILABLE' and claim_token is null and"
                                             + " mod(abs(partition_hash::bigint),3)=1");
                             f.settings =
-                                    new DiscoveryEngine.Settings(
+                                    new DiscoverySettings(
                                             page,
                                             page,
                                             32,
@@ -3855,7 +3865,7 @@ class DiscoveryPostgresTest {
                     f.pending(other);
                     f.pending(f.q(0));
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     try (var cost = new CostDiscovery(f)) {
@@ -3893,7 +3903,7 @@ class DiscoveryPostgresTest {
                             assertEquals((long) size * (100 - percent) / 100, live);
                             f.pending(f.q(0));
                             f.settings =
-                                    new DiscoveryEngine.Settings(
+                                    new DiscoverySettings(
                                             128,
                                             32,
                                             32,
@@ -3910,7 +3920,7 @@ class DiscoveryPostgresTest {
                                     long ns = System.nanoTime() - start;
                                     long allocation = allocatedBytes() - allocatedBefore;
                                     long walBytes = walDelta(f, walBefore);
-                                    assertEquals(DiscoveryEngine.Status.CAPACITY, r.status());
+                                    assertEquals(DiscoveryReports.Status.CAPACITY, r.status());
                                     assertEquals(0, r.examined());
                                     f.trace.add(
                                             "P03 COUNT N="
@@ -4049,7 +4059,7 @@ class DiscoveryPostgresTest {
                         release.countDown();
                     }
                     assertEquals(
-                            DiscoveryEngine.Status.STALE_CHECKPOINT,
+                            DiscoveryReports.Status.STALE_CHECKPOINT,
                             second.get(8, TimeUnit.SECONDS).status());
                     assertEquals(before, f.slotIds());
                 });
@@ -4131,11 +4141,10 @@ class DiscoveryPostgresTest {
                                             f.capacity,
                                             c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                             null,
-                                            com.kartaguez.pocoma.engine.consumption.v3.port
-                                                    .ConsumptionObservation.noop());
+                                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                             var claim = e.acquire(lease, List.of(id)).claims().getFirst();
                             assertEquals(
-                                    ConsumptionEngine.Status.ROLLED_BACK,
+                                    ConsumptionProtocol.Status.ROLLED_BACK,
                                     e.execute(claim).status());
                             assertEquals(0, f.target.effects(id));
                             assertTrue(f.slotIds().contains(id));
@@ -4224,8 +4233,7 @@ class DiscoveryPostgresTest {
                                                         AttemptFailureClassifier.FailureKind
                                                                 .NON_COUNTABLE,
                                                 null,
-                                                com.kartaguez.pocoma.engine.consumption.v3.port
-                                                        .ConsumptionObservation.noop());
+                                                com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                                 var claim = e.acquire(lease, List.of(id)).claims().getFirst();
                                 armed.set(true);
                                 var result = e.execute(claim);
@@ -4259,7 +4267,7 @@ class DiscoveryPostgresTest {
                         if (stock63)
                             for (UUID id : input(f.family, 0).subList(0, 63)) f.slot(id, false);
                         f.settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         128,
                                         32,
                                         stock63 ? 32 : 1,
@@ -4381,7 +4389,7 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(0));
                     f.pending(f.q(1));
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(10));
                     var lease = f.lease(0);
                     var held = new CountDownLatch(1);
@@ -4407,7 +4415,7 @@ class DiscoveryPostgresTest {
                     assertTrue(held.await(8, TimeUnit.SECONDS));
                     try {
                         assertEquals(
-                                DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                                DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                                 f.engine().discoverRequests(lease).status());
                     } finally {
                         release.countDown();
@@ -4416,7 +4424,7 @@ class DiscoveryPostgresTest {
                     assertEquals(1, result.committedAdmissions());
                     assertEquals(1, f.count());
                     assertEquals(
-                            DiscoveryEngine.Status.CAPACITY,
+                            DiscoveryReports.Status.CAPACITY,
                             f.engine().discoverRequests(lease).status());
                     f.complete(lease, f.q(0));
                     assertEquals(1, f.engine().discoverRequests(lease).committedAdmissions());
@@ -4431,12 +4439,12 @@ class DiscoveryPostgresTest {
                     for (int n = 0; n < 3; n++) f.pending(f.q(n));
                     f.slot(f.q(0), false);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128, 32, 32, 1, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     try (var locked = f.lockSource(f.q(1))) {
                         var result = f.engine().discoverRequests(lease);
-                        assertEquals(DiscoveryEngine.Status.CAPACITY, result.status());
+                        assertEquals(DiscoveryReports.Status.CAPACITY, result.status());
                         assertEquals(0, result.examined());
                         f.complete(lease, f.q(0));
                         locked.rollback();
@@ -4456,7 +4464,7 @@ class DiscoveryPostgresTest {
                     f.pending(f.q(1));
                     f.pending(f.q(3));
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1, 1, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
                     var lease = f.lease(0);
                     var r = f.engine().discoverRequests(lease);
@@ -4488,7 +4496,7 @@ class DiscoveryPostgresTest {
                         four(f);
                         var lease = f.lease(0);
                         f.settings =
-                                new DiscoveryEngine.Settings(
+                                new DiscoverySettings(
                                         128,
                                         32,
                                         32,
@@ -4686,14 +4694,14 @@ class DiscoveryPostgresTest {
                             capacity,
                             c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                             null,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                     .noop());
             var claim = e.acquire(lease, List.of(f.q(0))).claims().getFirst();
             var result = e.execute(claim);
             assertEquals(
                     n == 2
-                            ? ConsumptionEngine.Status.ROLLED_BACK
-                            : ConsumptionEngine.Status.COMMITTED,
+                            ? ConsumptionProtocol.Status.ROLLED_BACK
+                            : ConsumptionProtocol.Status.COMMITTED,
                     result.status());
             assertEquals(
                     n == 2 ? 0 : 1,
@@ -4735,10 +4743,9 @@ class DiscoveryPostgresTest {
                                 capacity,
                                 c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                 null,
-                                com.kartaguez.pocoma.engine.consumption.v3.port
-                                        .ConsumptionObservation.noop());
+                                com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                 assertEquals(
-                        ConsumptionEngine.Status.COMMITTED,
+                        ConsumptionProtocol.Status.COMMITTED,
                         retry.execute(retry.acquire(lease, List.of(f.q(0))).claims().getFirst())
                                 .status());
             }
@@ -4823,7 +4830,7 @@ class DiscoveryPostgresTest {
                         var lease = f.lease(0);
                         try (var cost = new CostDiscovery(f)) {
                             var progress = cost.discover(lease);
-                            assertEquals(DiscoveryEngine.Status.COMMITTED, progress.status());
+                            assertEquals(DiscoveryReports.Status.COMMITTED, progress.status());
                             assertEquals(1, progress.examined());
                             assertEquals(1, progress.advanced());
                             assertEquals(1, progress.committedAdmissions());
@@ -4944,12 +4951,12 @@ class DiscoveryPostgresTest {
                                     "select max(position) from " + posTable, Long.class));
                     // Stale lease must be rejected
                     assertEquals(
-                            DiscoveryEngine.Status.BUSY_OR_NOT_OWNER,
+                            DiscoveryReports.Status.BUSY_OR_NOT_OWNER,
                             f.engine().discoverRequests(staleLease).status());
                     // Reacquire partition 0 lease after restart; set windowSize=16, insertBatchSize=8, softCap=10
                     var recoveredP0Lease = f.lease(0);
                     f.settings =
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     16,
                                     16,
                                     8,
@@ -4959,7 +4966,7 @@ class DiscoveryPostgresTest {
                     // Complete pre-existing active, expired, and available slots on p0
                     for (var c : activeClaims)
                         assertEquals(
-                                ConsumptionEngine.Status.COMMITTED,
+                                ConsumptionProtocol.Status.COMMITTED,
                                 lifecycle.execute(c).status());
                     for (UUID id : p0Extra.subList(2, 6)) f.complete(recoveredP0Lease, id);
                     assertEquals(0, f.count());
@@ -4967,8 +4974,8 @@ class DiscoveryPostgresTest {
                     while (f.k(0) < expectedFinalPosition || f.count() > 0) {
                         var prog = f.engine().discoverRequests(recoveredP0Lease);
                         assertTrue(
-                                prog.status() == DiscoveryEngine.Status.COMMITTED
-                                        || prog.status() == DiscoveryEngine.Status.CAPACITY);
+                                prog.status() == DiscoveryReports.Status.COMMITTED
+                                        || prog.status() == DiscoveryReports.Status.CAPACITY);
                         var slotIds =
                                 f.target.oracle.queryForList(
                                         "select consumable_id from consumption_slot where"
@@ -4980,7 +4987,7 @@ class DiscoveryPostgresTest {
                     }
                     while (f.k(1) < expectedFinalPosition) {
                         var prog = f.engine().discoverRequests(validP1Lease);
-                        assertEquals(DiscoveryEngine.Status.COMMITTED, prog.status());
+                        assertEquals(DiscoveryReports.Status.COMMITTED, prog.status());
                         var slotIds =
                                 f.target.oracle.queryForList(
                                         "select consumable_id from consumption_slot where"
@@ -5041,26 +5048,26 @@ class DiscoveryPostgresTest {
                 .longValueExact();
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

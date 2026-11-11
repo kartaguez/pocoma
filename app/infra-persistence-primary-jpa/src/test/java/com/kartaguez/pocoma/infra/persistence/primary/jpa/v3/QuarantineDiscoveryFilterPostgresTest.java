@@ -1,11 +1,16 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
 import com.kartaguez.pocoma.domain.consumption.v3.RoutingV1;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.JdbcSlotKeyNavigation;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 
@@ -56,8 +61,8 @@ class QuarantineDiscoveryFilterPostgresTest {
                 ConsumptionObservation.noop());
     }
 
-    private SlotKeyNavigation.Page page(
-            ConsumptionLifecyclePostgresFixture f, int p, SlotKeyNavigation.Walk walk, int limit) {
+    private ConsumptionNavigation.Page page(
+            ConsumptionLifecyclePostgresFixture f, int p, ConsumptionNavigation.Walk walk, int limit) {
         return f.tx.read(
                 c ->
                         new JdbcSlotKeyNavigation(f.source, f.settings)
@@ -98,13 +103,13 @@ class QuarantineDiscoveryFilterPostgresTest {
             }
             ids.sort(SlotKeyNavigation::compare);
 
-            var walk = SlotKeyNavigation.Walk.fresh();
+            var walk = ConsumptionNavigation.Walk.fresh();
             var discovered = new ArrayList<UUID>();
             while (true) {
                 var p = page(f, 0, walk, 4);
                 if (p.keys().isEmpty()) break;
                 discovered.addAll(p.keys());
-                walk = new SlotKeyNavigation.Walk(Optional.of(p.keys().getLast()), p.upperInclusive());
+                walk = new ConsumptionNavigation.Walk(Optional.of(p.keys().getLast()), p.upperInclusive());
             }
 
             assertEquals(ids, discovered, "All 8 available slots discovered in exact order");
@@ -118,7 +123,7 @@ class QuarantineDiscoveryFilterPostgresTest {
             assertEquals(803, countQuarantined(f));
 
             for (int p = 0; p < 4; p++) {
-                var res = page(f, p, SlotKeyNavigation.Walk.fresh(), 32);
+                var res = page(f, p, ConsumptionNavigation.Walk.fresh(), 32);
                 assertTrue(res.keys().isEmpty(), "No quarantined slots must be returned for partition " + p);
                 assertTrue(res.upperInclusive().isEmpty(), "Upper bound must be empty when only quarantines exist");
             }
@@ -133,7 +138,7 @@ class QuarantineDiscoveryFilterPostgresTest {
 
             var singleAvailable = f.seed(0);
 
-            var firstPage = page(f, 0, SlotKeyNavigation.Walk.fresh(), 4);
+            var firstPage = page(f, 0, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(1, firstPage.keys().size(), "Must discover exactly 1 slot without traversing 803 pages");
             assertEquals(singleAvailable, firstPage.keys().getFirst());
             assertEquals(Optional.of(singleAvailable), firstPage.upperInclusive());
@@ -152,21 +157,21 @@ class QuarantineDiscoveryFilterPostgresTest {
             }
             available.sort(SlotKeyNavigation::compare);
 
-            var page1 = page(f, 0, SlotKeyNavigation.Walk.fresh(), 4);
+            var page1 = page(f, 0, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(4, page1.keys().size(), "Page 1 must fill quantum of 4");
             assertEquals(available.subList(0, 4), page1.keys());
 
-            var walk2 = new SlotKeyNavigation.Walk(Optional.of(page1.keys().getLast()), page1.upperInclusive());
+            var walk2 = new ConsumptionNavigation.Walk(Optional.of(page1.keys().getLast()), page1.upperInclusive());
             var page2 = page(f, 0, walk2, 4);
             assertEquals(4, page2.keys().size(), "Page 2 must fill quantum of 4");
             assertEquals(available.subList(4, 8), page2.keys());
 
-            var walk3 = new SlotKeyNavigation.Walk(Optional.of(page2.keys().getLast()), page2.upperInclusive());
+            var walk3 = new ConsumptionNavigation.Walk(Optional.of(page2.keys().getLast()), page2.upperInclusive());
             var page3 = page(f, 0, walk3, 4);
             assertEquals(2, page3.keys().size(), "Page 3 must return remaining 2");
             assertEquals(available.subList(8, 10), page3.keys());
 
-            var walk4 = new SlotKeyNavigation.Walk(Optional.of(page3.keys().getLast()), page3.upperInclusive());
+            var walk4 = new ConsumptionNavigation.Walk(Optional.of(page3.keys().getLast()), page3.upperInclusive());
             var page4 = page(f, 0, walk4, 4);
             assertTrue(page4.keys().isEmpty(), "Page 4 must be empty (tour finished)");
         }
@@ -179,7 +184,7 @@ class QuarantineDiscoveryFilterPostgresTest {
 
             long start = System.nanoTime();
             for (int i = 0; i < 50; i++) {
-                var p = page(f, 0, SlotKeyNavigation.Walk.fresh(), 4);
+                var p = page(f, 0, ConsumptionNavigation.Walk.fresh(), 4);
                 assertTrue(p.keys().isEmpty());
             }
             long elapsedMs = (System.nanoTime() - start) / 1_000_000;
@@ -194,7 +199,7 @@ class QuarantineDiscoveryFilterPostgresTest {
             insertQuarantined(f, qId);
             int partition = RoutingV1.partition(RoutingV1.hash(f.definition.family(), qId), 4);
 
-            var before = page(f, partition, SlotKeyNavigation.Walk.fresh(), 4);
+            var before = page(f, partition, ConsumptionNavigation.Walk.fresh(), 4);
             assertTrue(before.keys().isEmpty(), "Slot is quarantined; must not be discovered");
 
             // Administrative reactivation
@@ -202,7 +207,7 @@ class QuarantineDiscoveryFilterPostgresTest {
                     "update consumption_slot set state='AVAILABLE', attempt_count=0 where consumable_id=?",
                     qId);
 
-            var after = page(f, partition, SlotKeyNavigation.Walk.fresh(), 4);
+            var after = page(f, partition, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(1, after.keys().size(), "Reactivated slot must immediately become discoverable");
             assertEquals(qId, after.keys().getFirst());
         }
@@ -230,7 +235,7 @@ class QuarantineDiscoveryFilterPostgresTest {
                     s0);
 
             // Advance cursor to s1 on first page
-            var p1 = page(f, 0, SlotKeyNavigation.Walk.fresh(), 1);
+            var p1 = page(f, 0, ConsumptionNavigation.Walk.fresh(), 1);
             assertEquals(s1, p1.keys().getFirst(), "First available key is s1 since s0 is quarantined");
             UUID cursor = s1;
 
@@ -240,11 +245,11 @@ class QuarantineDiscoveryFilterPostgresTest {
                     s0);
 
             // Continuing current tour with afterExclusive=cursor cannot see s0 because s0 < cursor
-            var pContinue = page(f, 0, new SlotKeyNavigation.Walk(Optional.of(cursor), p1.upperInclusive()), 10);
+            var pContinue = page(f, 0, new ConsumptionNavigation.Walk(Optional.of(cursor), p1.upperInclusive()), 10);
             assertEquals(List.of(s2, s3), pContinue.keys());
 
             // When tour completes, a fresh walk starts from the beginning and rediscovers s0!
-            var pNextTour = page(f, 0, SlotKeyNavigation.Walk.fresh(), 10);
+            var pNextTour = page(f, 0, ConsumptionNavigation.Walk.fresh(), 10);
             assertEquals(s0, pNextTour.keys().getFirst(), "s0 is discovered at the start of the next circular tour");
             assertTrue(pNextTour.keys().containsAll(List.of(s0, s1, s2, s3)));
         }
@@ -262,26 +267,26 @@ class QuarantineDiscoveryFilterPostgresTest {
             var e = engine(f);
 
             var l1 = e.acquirePartition(1).orElseThrow();
-            var page1 = e.navigate(l1, SlotKeyNavigation.Walk.fresh(), 4);
+            var page1 = e.navigate(l1, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(1, page1.keys().size());
             assertEquals(p1Cmd, page1.keys().getFirst());
             var acq1 = e.acquire(l1, page1.keys());
             assertEquals(1, acq1.claims().size());
-            assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(acq1.claims().getFirst()).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(acq1.claims().getFirst()).status());
 
             var l3 = e.acquirePartition(3).orElseThrow();
-            var page3 = e.navigate(l3, SlotKeyNavigation.Walk.fresh(), 4);
+            var page3 = e.navigate(l3, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(1, page3.keys().size());
             assertEquals(p3Cmd, page3.keys().getFirst());
             var acq3 = e.acquire(l3, page3.keys());
             assertEquals(1, acq3.claims().size());
-            assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(acq3.claims().getFirst()).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(acq3.claims().getFirst()).status());
 
             // Partitions 0 and 2 are empty of available slots and return empty pages cleanly
             var l0 = e.acquirePartition(0).orElseThrow();
-            assertTrue(e.navigate(l0, SlotKeyNavigation.Walk.fresh(), 4).keys().isEmpty());
+            assertTrue(e.navigate(l0, ConsumptionNavigation.Walk.fresh(), 4).keys().isEmpty());
             var l2 = e.acquirePartition(2).orElseThrow();
-            assertTrue(e.navigate(l2, SlotKeyNavigation.Walk.fresh(), 4).keys().isEmpty());
+            assertTrue(e.navigate(l2, ConsumptionNavigation.Walk.fresh(), 4).keys().isEmpty());
         }
     }
 
@@ -338,14 +343,14 @@ class QuarantineDiscoveryFilterPostgresTest {
             f.expire(id);
 
             // Expired slot must still be discoverable because state is AVAILABLE
-            var p = page(f, 0, SlotKeyNavigation.Walk.fresh(), 4);
+            var p = page(f, 0, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(1, p.keys().size());
             assertEquals(id, p.keys().getFirst());
 
             // New acquisition must successfully reclaim the expired slot
             var acqReclaimed = e.acquire(lease, List.of(id));
             assertEquals(1, acqReclaimed.claims().size(), "Expired lease must be successfully reclaimed");
-            assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(acqReclaimed.claims().getFirst()).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(acqReclaimed.claims().getFirst()).status());
         }
     }
 
@@ -355,7 +360,7 @@ class QuarantineDiscoveryFilterPostgresTest {
             var id = f.seed(0);
 
             // Discovered as AVAILABLE
-            var p = page(f, 0, SlotKeyNavigation.Walk.fresh(), 4);
+            var p = page(f, 0, ConsumptionNavigation.Walk.fresh(), 4);
             assertEquals(1, p.keys().size());
             assertEquals(id, p.keys().getFirst());
 
@@ -390,11 +395,11 @@ class QuarantineDiscoveryFilterPostgresTest {
             var e = engine(f);
             for (int p = 0; p < 4; p++) {
                 var l = e.acquirePartition(p).orElseThrow();
-                var pge = e.navigate(l, SlotKeyNavigation.Walk.fresh(), 4);
+                var pge = e.navigate(l, ConsumptionNavigation.Walk.fresh(), 4);
                 assertEquals(1, pge.keys().size());
                 var acq = e.acquire(l, pge.keys());
                 assertEquals(1, acq.claims().size());
-                assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(acq.claims().getFirst()).status());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(acq.claims().getFirst()).status());
             }
 
             // CRITICAL VERIFICATION: All 803 quarantined slots must still be present in the database!

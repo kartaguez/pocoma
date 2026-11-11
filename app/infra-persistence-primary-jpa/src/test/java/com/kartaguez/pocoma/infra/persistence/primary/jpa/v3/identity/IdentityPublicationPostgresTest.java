@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,7 +8,6 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consume.registration.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 
 import org.junit.jupiter.api.*;
@@ -59,7 +60,7 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
         admitRequest(req);
         installFailure("after_positions");
         var before = businessVector();
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, execute(req).status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, execute(req).status());
         clearFailure();
         assertEquals(before, businessVector());
         execute(req);
@@ -131,7 +132,7 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                 blocker.rollback();
             }
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED, future.get(20, TimeUnit.SECONDS).status());
+                    ConsumptionProtocol.Status.COMMITTED, future.get(20, TimeUnit.SECONDS).status());
         }
     }
 
@@ -153,7 +154,7 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                     "create trigger i3_bad_position before insert on v3_event_position for each row"
                             + " execute function i3_bad_position()");
             try {
-                assertEquals(ConsumptionEngine.Status.ROLLED_BACK, execute(req).status());
+                assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, execute(req).status());
                 assertEquals(before, businessVector());
                 assertPendingWithSlot(req.requestId());
             } finally {
@@ -270,9 +271,9 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                 release.countDown();
             }
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED, one.get(15, TimeUnit.SECONDS).status());
+                    ConsumptionProtocol.Status.COMMITTED, one.get(15, TimeUnit.SECONDS).status());
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED, two.get(15, TimeUnit.SECONDS).status());
+                    ConsumptionProtocol.Status.COMMITTED, two.get(15, TimeUnit.SECONDS).status());
             hook = boundary -> {};
             var positions =
                     admin.queryForList(
@@ -329,7 +330,7 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                         RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, request.requestId()), 4);
         var handle =
                 worker.acquire(lease(partition), List.of(request.requestId())).claims().getFirst();
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, worker.execute(handle).status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, worker.execute(handle).status());
         hook = b -> {};
         assertEquals(before, businessVector());
         assertTrue(sqlTrace.stream().noneMatch(x -> x.contains("update v3_event_counter")));
@@ -359,7 +360,7 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                                 () -> authority.lockInCanonicalOrder(List.of(key("late"))));
                     }
                 };
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, execute(req).status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, execute(req).status());
         hook = b -> {};
         assertEquals(before, businessVector());
     }

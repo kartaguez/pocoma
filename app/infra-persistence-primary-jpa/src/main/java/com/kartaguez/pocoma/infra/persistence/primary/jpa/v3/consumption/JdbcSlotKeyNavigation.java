@@ -1,8 +1,9 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.engine.consumption.v3.LifecycleSettings;
-import com.kartaguez.pocoma.engine.consumption.v3.port.SlotKeyNavigation;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 

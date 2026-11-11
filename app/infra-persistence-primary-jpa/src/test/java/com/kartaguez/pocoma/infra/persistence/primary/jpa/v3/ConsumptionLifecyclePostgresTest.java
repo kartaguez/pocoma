@@ -1,12 +1,23 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
@@ -101,7 +112,7 @@ class ConsumptionLifecyclePostgresTest {
             ConsumptionLifecyclePostgresFixture f,
             ConsumptionEngine e,
             ConsumptionEngine.AcquiredClaim claim) {
-        assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claim).status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(claim).status());
         assertEquals(1, f.effects(claim.claim().consumableId()));
         assertEquals(
                 0,
@@ -350,7 +361,7 @@ class ConsumptionLifecyclePostgresTest {
                             next = result.getFirst();
                         }
                         assertNotEquals(old.claim().claimToken(), next.claim().claimToken());
-                        assertEquals(ConsumptionEngine.Status.CLAIM_LOST, a.execute(old).status());
+                        assertEquals(ConsumptionProtocol.Status.CLAIM_LOST, a.execute(old).status());
                         completed(f, renewalFirst ? a : worker, next);
                         f.trace.add(
                                 "concurrent expired renewal/acquisition lock order renewalFirst="
@@ -399,7 +410,7 @@ class ConsumptionLifecyclePostgresTest {
                         finish.countDown();
                     }
                     assertEquals(
-                            ConsumptionEngine.Status.COMMITTED,
+                            ConsumptionProtocol.Status.COMMITTED,
                             task.get(8, TimeUnit.SECONDS).status());
                     assertEquals(1, f.effects(id));
                     assertTrue(f.engine().acquire(lease, List.of(id)).claims().isEmpty());
@@ -472,7 +483,7 @@ class ConsumptionLifecyclePostgresTest {
                         f.await(() -> f.now().isAfter(finalDeadline));
                         lock.rollback();
                         assertEquals(
-                                ConsumptionEngine.Status.CLAIM_LOST,
+                                ConsumptionProtocol.Status.CLAIM_LOST,
                                 task.get(8, TimeUnit.SECONDS).status());
                     }
                     f.noEffects(other);
@@ -496,7 +507,7 @@ class ConsumptionLifecyclePostgresTest {
                     assertTrue(
                             f.technical(() -> f.slots.cede(old.claim(), f.settings.retry()))
                                     .isEmpty());
-                    assertEquals(ConsumptionEngine.Status.CLAIM_LOST, a.execute(old).status());
+                    assertEquals(ConsumptionProtocol.Status.CLAIM_LOST, a.execute(old).status());
                     assertEquals(before, f.row(id));
                     completed(f, b, next);
                 });
@@ -568,7 +579,7 @@ class ConsumptionLifecyclePostgresTest {
                             f.expire(id);
                             var next = acquire(f, b, lease, id);
                             assertEquals(
-                                    ConsumptionEngine.Status.CLAIM_LOST, a.execute(old).status());
+                                    ConsumptionProtocol.Status.CLAIM_LOST, a.execute(old).status());
                             completed(f, b, next);
                         } else {
                             assertTrue(b.acquire(lease, List.of(id)).claims().isEmpty());
@@ -977,7 +988,7 @@ class ConsumptionLifecyclePostgresTest {
         var id = f.seed(0);
         var h = acquire(f, e, lease, id);
         var attempt = e.execute(h);
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, attempt.status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, attempt.status());
         assertEquals(Resolution.ROLLED_BACK, attempt.resolution());
         assertNotNull(attempt.cession());
         assertEquals(n, attempt.cession().attemptCount());
@@ -1142,7 +1153,7 @@ class ConsumptionLifecyclePostgresTest {
         var bad = f.engine(f.participant, owner, f.slots);
         var h = acquire(f, bad, lease, original);
         var first = bad.execute(h);
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, first.status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, first.status());
         assertEquals(AttemptFailureClassifier.FailureKind.COLLISION, first.failureKind());
         assertEquals(1, first.cession().attemptCount());
         assertEquals(0, f.effects(original));
@@ -1192,7 +1203,7 @@ class ConsumptionLifecyclePostgresTest {
         var h = acquire(f, e, lease, id);
         var result = e.execute(h);
         assertEquals(Resolution.ROLLED_BACK, result.resolution());
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, result.status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, result.status());
         assertEquals(1, result.cession().attemptCount());
         assertEquals(Resolution.COMMITTED, result.cessionResolution());
         f.noEffects(id);
@@ -1421,8 +1432,7 @@ class ConsumptionLifecyclePostgresTest {
                                                         + " cession");
                                     },
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     var h = acquire(f, e, lease, id);
@@ -1551,8 +1561,7 @@ class ConsumptionLifecyclePostgresTest {
                                         f.capacity,
                                         classifier,
                                         null,
-                                        com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .ConsumptionObservation.noop());
+                                        com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                         var id = f.seed(0);
                         var result = e.execute(acquire(f, e, lease, id));
                         assertEquals(Resolution.ROLLED_BACK, result.resolution());
@@ -1882,8 +1891,7 @@ class ConsumptionLifecyclePostgresTest {
                                     new WorkerCapacity(4, Map.of(id, 2)),
                                     cause -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     int p =
                             f.oracle.queryForObject(
                                     "select partition_id from consumption_slot where"
@@ -1893,7 +1901,7 @@ class ConsumptionLifecyclePostgresTest {
                                     key);
                     var l = separate.acquirePartition(p).orElseThrow();
                     assertEquals(
-                            ConsumptionEngine.Status.COMMITTED,
+                            ConsumptionProtocol.Status.COMMITTED,
                             separate.execute(separate.acquire(l, List.of(key)).claims().getFirst())
                                     .status());
                     assertEquals(
@@ -2055,8 +2063,7 @@ class ConsumptionLifecyclePostgresTest {
                                     f.capacity,
                                     c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     f.expireLease(0);
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
@@ -2228,7 +2235,7 @@ class ConsumptionLifecyclePostgresTest {
                             capacity,
                             c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
                             null,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                     .noop());
             f.expireLease(0);
             var lease = e.acquirePartition(0).orElseThrow();
@@ -2358,7 +2365,7 @@ class ConsumptionLifecyclePostgresTest {
                             capacity,
                             c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                             null,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                     .noop());
             var h2 = acquire(f, active, lease, id);
             var task =
@@ -2452,7 +2459,7 @@ class ConsumptionLifecyclePostgresTest {
                         capacity,
                         c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
                         null,
-                        com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                        com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                 .noop());
         f.expireLease(0);
         var lease = e.acquirePartition(0).orElseThrow();
@@ -2547,7 +2554,7 @@ class ConsumptionLifecyclePostgresTest {
                         capacity,
                         c -> AttemptFailureClassifier.FailureKind.TECHNICAL,
                         null,
-                        com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                        com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                 .noop());
         f.expireLease(0);
         var lease = e.acquirePartition(0).orElseThrow();
@@ -2636,8 +2643,7 @@ class ConsumptionLifecyclePostgresTest {
                                             return null;
                                         },
                                         null,
-                                        com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .ConsumptionObservation.noop());
+                                        com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                         f.expireLease(0);
                         var lease = e.acquirePartition(0).orElseThrow();
                         var id = f.seed(0);
@@ -2707,8 +2713,7 @@ class ConsumptionLifecyclePostgresTest {
                                         throw fault;
                                     },
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     var h = acquire(f, e, lease, id);
@@ -2822,8 +2827,7 @@ class ConsumptionLifecyclePostgresTest {
                                             return AttemptFailureClassifier.FailureKind.TECHNICAL;
                                         },
                                         null,
-                                        com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .ConsumptionObservation.noop());
+                                        com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                         f.expireLease(0);
                         var lease = e.acquirePartition(0).orElseThrow();
                         var id = f.seed(0);
@@ -2927,8 +2931,7 @@ class ConsumptionLifecyclePostgresTest {
                                     capacity,
                                     c -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                                     null,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .ConsumptionObservation.noop());
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     try (var lock = f.lock(id)) {
@@ -3098,26 +3101,26 @@ class ConsumptionLifecyclePostgresTest {
                 });
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

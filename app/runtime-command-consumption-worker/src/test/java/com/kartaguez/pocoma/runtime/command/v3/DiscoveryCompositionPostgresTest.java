@@ -1,12 +1,22 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
@@ -41,8 +51,8 @@ class DiscoveryCompositionPostgresTest {
     final List<String> trace = new ArrayList<>();
     static final V3BootstrapGuard.Privileges COMBINED =
             V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY;
-    static final DiscoveryEngine.Settings SETTINGS =
-            new DiscoveryEngine.Settings(
+    static final DiscoverySettings SETTINGS =
+            new DiscoverySettings(
                     128, 32, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
 
     @BeforeEach
@@ -209,7 +219,7 @@ class DiscoveryCompositionPostgresTest {
             var lease = lifecycle.acquirePartition(0).orElseThrow();
             assertEquals(1, discovery.discoverRequests(lease).committedAdmissions());
             var claim = lifecycle.acquire(lease, List.of(id)).claims().getFirst();
-            assertEquals(ConsumptionEngine.Status.COMMITTED, lifecycle.execute(claim).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, lifecycle.execute(claim).status());
             assertEquals(0, discovery.discoverRequests(lease).committedAdmissions());
             var event = definition(ConsumableFamily.POT_EVENT);
             var readDiscovery =
@@ -325,10 +335,9 @@ class DiscoveryCompositionPostgresTest {
                             LifecycleSettings.pilot(),
                             capacity,
                             c ->
-                                    com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                                    com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                             null,
-                            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                     .noop());
             assertSame(read, field(readLifecycle, "transactions"));
             assertSame(capacity, field(readLifecycle, "capacity"));
@@ -353,7 +362,7 @@ class DiscoveryCompositionPostgresTest {
                             .claims()
                             .getFirst();
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED, readLifecycle.execute(readClaim).status());
+                    ConsumptionProtocol.Status.COMMITTED, readLifecycle.execute(readClaim).status());
             assertEquals(
                     1,
                     f.read.queryForObject(
@@ -500,26 +509,26 @@ class DiscoveryCompositionPostgresTest {
                         + " identities, no SQL mutation by construction");
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

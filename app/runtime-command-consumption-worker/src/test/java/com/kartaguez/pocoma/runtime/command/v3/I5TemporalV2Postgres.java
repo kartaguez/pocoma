@@ -1,12 +1,15 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
 
 import static com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test.*;
 import static com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -261,7 +264,7 @@ final class I5TemporalV2Postgres {
             runtime = r;
             for (var b : r.bindings) {
                 String authority = b.definition().authority().toString();
-                for (var component : List.of(b.engine(), b.discovery())) {
+                for (var component : List.of(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(b.discovery()))) {
                     String ownerField =
                             component instanceof ConsumptionEngine
                                     ? "controlTransactions"

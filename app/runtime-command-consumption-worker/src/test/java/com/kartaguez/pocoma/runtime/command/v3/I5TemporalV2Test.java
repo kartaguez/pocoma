@@ -116,7 +116,7 @@ class I5TemporalV2Test {
             java.util.function.Consumer<I5TemporalV2Postgres.Attempt> mutator) {
         var now = Instant.parse("2026-10-31T00:00:00Z");
         var lease =
-                new com.kartaguez.pocoma.engine.consumption.v3.PartitionLease(
+                new com.kartaguez.pocoma.contract.consumption.spi.PartitionLease(
                         new com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId(UUID.randomUUID()),
                         0,
                         UUID.randomUUID(),

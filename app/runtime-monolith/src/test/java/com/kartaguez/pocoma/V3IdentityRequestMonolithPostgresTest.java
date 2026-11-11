@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,8 +9,6 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
@@ -482,7 +482,7 @@ class V3IdentityRequestMonolithPostgresTest {
             worker(ctx).requestDrain(callback::incrementAndGet);
             await(
                     () ->
-                            worker(ctx).snapshot().state() == V3ConsumptionWorker.State.STOPPED
+                            worker(ctx).snapshot().state() == WorkerView.State.STOPPED
                                     && callback.get() == 1);
             assertEquals(1, callback.get());
             ctx.close();

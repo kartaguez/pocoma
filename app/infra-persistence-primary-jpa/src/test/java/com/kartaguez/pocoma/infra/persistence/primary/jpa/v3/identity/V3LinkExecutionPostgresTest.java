@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.HmacAdmissionProtection;
 import com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput;
 
@@ -9,7 +10,7 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.admit.registration.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import org.flywaydb.core.Flyway;
@@ -25,6 +26,11 @@ import java.nio.file.Path;
 @Testcontainers
 class V3LinkExecutionPostgresTest extends IdentityEngineFixture {
     AdmitLinkProposal links;
+    @Override String[] migrationLocations() {
+        var locations = new ArrayList<>(Arrays.asList(super.migrationLocations()));
+        locations.add("classpath:db/v3-admission/migration");
+        return locations.toArray(String[]::new);
+    }
     @BeforeEach void admission() throws Exception {
         Flyway.configure().dataSource(adminSource).defaultSchema(schema).schemas(schema)
             .locations("classpath:db/v3-pot/migration","classpath:db/v3-pot-execution/migration",
@@ -54,7 +60,7 @@ class V3LinkExecutionPostgresTest extends IdentityEngineFixture {
     }
     IdentityRequest admitted(UUID id) { return tx.read(c->store.load(id).orElseThrow().request()); }
     void process(UUID id,String outcome) {
-        var result=execute(admitted(id));assertEquals(ConsumptionEngine.Status.COMMITTED,result.status(),()->String.valueOf(result.cause()));
+        var result=execute(admitted(id));assertEquals(ConsumptionProtocol.Status.COMMITTED,result.status(),()->String.valueOf(result.cause()));
         assertEquals(outcome,admin.queryForObject("select outcome from v3_identity_request_result where request_id=?",String.class,id));
     }
     @Test void acceptedLinkReplayAfterTerminalAndUnlink() {

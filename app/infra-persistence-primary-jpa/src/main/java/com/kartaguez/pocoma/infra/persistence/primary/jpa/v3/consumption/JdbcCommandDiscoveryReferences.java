@@ -1,8 +1,8 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily;
-import com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine.Settings;
-import com.kartaguez.pocoma.engine.consumption.v3.port.BurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 public final class JdbcCommandDiscoveryReferences implements BurnableReferences {
     private final DataSource source;
     private final JdbcTemplate jdbc;
-    private final Settings settings;
+    private final DiscoverySettings settings;
 
-    public JdbcCommandDiscoveryReferences(DataSource source, Settings settings) {
+    public JdbcCommandDiscoveryReferences(DataSource source, DiscoverySettings settings) {
         this.source = Objects.requireNonNull(source);
         this.jdbc = new JdbcTemplate(source);
         this.settings = Objects.requireNonNull(settings);

@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.runtime.command.v3;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.engine.consumption.v3.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 
 import org.junit.jupiter.api.Test;
 

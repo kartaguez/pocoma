@@ -1,4 +1,13 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,8 +17,6 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequest;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
@@ -476,7 +483,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         worker(ctx).requestDrain(callback::incrementAndGet);
         await(
                 () ->
-                        worker(ctx).snapshot().state() == V3ConsumptionWorker.State.STOPPED
+                        worker(ctx).snapshot().state() == WorkerView.State.STOPPED
                                 && callback.get() == 1);
         assertEquals(1, callback.get());
         ctx.close();
@@ -566,7 +573,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         producerLeases.put(name + partition, lease);
         var result = engine.execute(engine.acquire(lease, List.of(id)).claims().getFirst());
         assertEquals(
-                ConsumptionEngine.Status.COMMITTED,
+                ConsumptionProtocol.Status.COMMITTED,
                 result.status(),
                 () -> name + " producer: " + result.cause());
     }

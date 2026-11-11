@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.runtime.task.v3.SubobjectPostgresFixture.*;
@@ -49,7 +50,7 @@ class SubobjectMigrationPostgresTest {
             assertEquals(v1,extension.oracle.queryForMap("select * from flyway_schema_history where version='1'"));
             assertEquals(List.of("1","2"),extension.oracle.queryForList("select version from flyway_schema_history where version is not null order by installed_rank",String.class));
             assertEquals(catalog(fresh,true),catalog(extension,true));
-            assertEquals(com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.Status.COMMITTED,engine.execute(handle).status());
+            assertEquals(com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol.Status.COMMITTED,engine.execute(handle).status());
             assertEquals(0,extension.slotCount(id));assertEquals(8,extension.read(values).size());
             // Reconnected runtime sessions retain the untouched L2 checkpoints and business rows.
             var reconnect=new JdbcTemplate(extension.datasource(extension.runtimeRole));

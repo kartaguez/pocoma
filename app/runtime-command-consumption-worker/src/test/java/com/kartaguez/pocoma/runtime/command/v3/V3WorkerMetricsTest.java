@@ -1,11 +1,14 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
@@ -147,7 +150,7 @@ class V3WorkerMetricsTest {
             assertEquals(4, cardinalities.get("pocoma.v3.worker.state"));
             var worker = ctx.getBean(V3ConsumptionWorker.class);
             worker.requestDrain();
-            await(() -> worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
+            await(() -> worker.snapshot().state() == WorkerView.State.STOPPED);
             assertEquals(
                     1,
                     registry.get("pocoma.v3.worker.state").tag("state", "stopped").gauge().value());
@@ -265,9 +268,9 @@ class V3WorkerMetricsTest {
                         for (int i = 0; i < 3; i++)
                             requests.add(pendingAtPartition(f, 700000 + i * 100, 0));
                     replace(
-                            binding.discovery(),
+                            com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()),
                             "settings",
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     1,
                                     1,
                                     32,
@@ -278,11 +281,7 @@ class V3WorkerMetricsTest {
                             runtime.worker,
                             "bindings",
                             List.of(
-                                    new V3ConsumptionWorker.Binding(
-                                            definition,
-                                            binding.engine(),
-                                            binding.discovery(),
-                                            List.of(0))));
+                                    new V3ConsumptionWorker.Binding(definition, com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionProtocols.forDefinition(definition, com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery())), List.of(0))));
                     if (scenario.equals("no-owner"))
                         f.write.update(
                                 "update partition_ownership set"
@@ -293,9 +292,9 @@ class V3WorkerMetricsTest {
                     if (scenario.equals("rollback")) {
                         var owner =
                                 (com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions)
-                                        field(binding.discovery(), "effects");
+                                        field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "effects");
                         replace(
-                                binding.discovery(),
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()),
                                 "effects",
                                 new com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions() {
                                     public <T> T read(
@@ -333,7 +332,7 @@ class V3WorkerMetricsTest {
                                     }
                                 });
                     }
-                    replace(runtime.worker, "state", V3ConsumptionWorker.State.RUNNING);
+                    replace(runtime.worker, "state", WorkerView.State.RUNNING);
                     var loop =
                             (com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3DiscoveryLoop)
                                     field(runtime.worker, "discovery");
@@ -427,7 +426,7 @@ class V3WorkerMetricsTest {
                         // The manual fixture launches no schedulers; start the existing drain path
                         // for resource closure.
                         replace(runtime.worker, "bindings", runtime.bindings);
-                        replace(runtime.worker, "state", V3ConsumptionWorker.State.STARTING);
+                        replace(runtime.worker, "state", WorkerView.State.STARTING);
                     }
                 }
             }

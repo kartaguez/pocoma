@@ -31,6 +31,7 @@
 	</scm>
 
 	<modules>
+<module>contract-consumption</module>
         <module>contract-write-admission</module>
         <module>contract-read-query</module>
 		<module>domain-authorization</module>

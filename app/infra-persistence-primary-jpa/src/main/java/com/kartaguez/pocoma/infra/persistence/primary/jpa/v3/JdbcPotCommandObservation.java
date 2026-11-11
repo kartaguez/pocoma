@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
 
-import com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandObservation;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;

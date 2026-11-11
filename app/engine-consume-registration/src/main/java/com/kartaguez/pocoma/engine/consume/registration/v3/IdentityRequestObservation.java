@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.consume.registration.v3;
 
-import com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
 import java.util.UUID;

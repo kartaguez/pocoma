@@ -1,8 +1,10 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotActorAuthority;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
@@ -120,7 +122,7 @@ public final class V3PotCommandComposition {
             V3BootstrapGuard guard,
             LifecycleSettings settings,
             WorkerCapacity capacity,
-            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation) {
         return assemble(
                 business,
                 effects,
@@ -145,7 +147,7 @@ public final class V3PotCommandComposition {
             V3BootstrapGuard guard,
             LifecycleSettings settings,
             WorkerCapacity capacity,
-            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation,
+            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation,
             com.kartaguez.pocoma.engine.write.pot.port.execution.v3.InvitationStore invitations) {
         effects.requireSource(business);
         var participant =

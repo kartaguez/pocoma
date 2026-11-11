@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.readquery.BindingRead;
 import com.kartaguez.pocoma.contract.readquery.InvitationRead;
 import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
@@ -39,7 +40,7 @@ public final class V3ReadFacadeComposition {
             SpringAttemptTransactions owner,
             ReadLimitsV3 limits,
             Set<String> active,
-            Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker) {
+            Supplier<Optional<WorkerView.Snapshot>> worker) {
         return create(read, owner, limits, active, worker, false, null);
     }
 
@@ -49,7 +50,7 @@ public final class V3ReadFacadeComposition {
             SpringAttemptTransactions owner,
             ReadLimitsV3 limits,
             Set<String> active,
-            Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+            Supplier<Optional<WorkerView.Snapshot>> worker,
             boolean httpBounds) {
         return create(read, owner, limits, active, worker, httpBounds, null);
     }
@@ -59,7 +60,7 @@ public final class V3ReadFacadeComposition {
             SpringAttemptTransactions owner,
             ReadLimitsV3 limits,
             Set<String> active,
-            Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+            Supplier<Optional<WorkerView.Snapshot>> worker,
             boolean httpBounds,
             MeterRegistry registry) {
         owner.requireSource(read);
@@ -94,7 +95,7 @@ public final class V3ReadFacadeComposition {
         private final GetCommandTerminalResult commandReader;
         private final GetIdentityTerminalResult identityReader;
         private final Set<String> active;
-        private final Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker;
+        private final Supplier<Optional<WorkerView.Snapshot>> worker;
         // Q=2 is the existing Business consultation allocation, never Control.
         public static final int SQL_PERMITS = 2;
         private final Semaphore quota = new Semaphore(SQL_PERMITS);
@@ -127,7 +128,7 @@ public final class V3ReadFacadeComposition {
                 GetCommandTerminalResult command,
                 GetIdentityTerminalResult identity,
                 Set<String> active,
-                Supplier<Optional<V3ConsumptionWorker.Snapshot>> worker,
+                Supplier<Optional<WorkerView.Snapshot>> worker,
                 ReadLimitsV3 limits,
                 DataSource source,
                 boolean httpBounds,
@@ -158,7 +159,7 @@ public final class V3ReadFacadeComposition {
             return active;
         }
 
-        public Optional<V3ConsumptionWorker.Snapshot> workerState() {
+        public Optional<WorkerView.Snapshot> workerState() {
             return worker.get();
         }
 

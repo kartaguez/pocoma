@@ -11,6 +11,7 @@
   <name>pocoma-composition-runtime-spring</name>
   <description>Reusable Spring composition fragments for Pocoma deployment roots.</description>
   <dependencies>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-consumption</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-projection</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-read-query</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-write-admission</artifactId><version>${project.version}</version></dependency>

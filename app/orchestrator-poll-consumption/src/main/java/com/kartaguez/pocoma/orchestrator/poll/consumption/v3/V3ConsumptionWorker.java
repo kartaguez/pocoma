@@ -1,9 +1,14 @@
 package com.kartaguez.pocoma.orchestrator.poll.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.*;
+import com.kartaguez.pocoma.contract.consumption.observation.AttemptObservation;
+import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
+import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation.*;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.*;
 
 import java.time.Duration;
@@ -11,53 +16,26 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /** Local lifecycle only. Engine alone owns all reservations and durable decisions. */
-public final class V3ConsumptionWorker {
-    public interface AttemptHook {
-        default void onSlotAcquired(
-                ConsumptionId id, UUID consumableId, int partition, long startNanos) {}
+public final class V3ConsumptionWorker implements com.kartaguez.pocoma.contract.consumption.invocation.WorkerView {
 
-        void onAttemptStarting(ConsumptionId id, UUID consumableId, long startNanos);
-        void onAttemptFinished(
-                ConsumptionId id,
-                UUID consumableId,
-                ConsumptionEngine.Status status,
-                long finishNanos);
 
-        AttemptHook NOOP = new AttemptHook() {
-            @Override
-            public void onAttemptStarting(ConsumptionId id, UUID consumableId, long startNanos) {}
 
-            @Override
-            public void onAttemptFinished(
-                    ConsumptionId id,
-                    UUID consumableId,
-                    ConsumptionEngine.Status status,
-                    long finishNanos) {}
-        };
-    }
-
-    public enum State {
-        STARTING,
-        RUNNING,
-        DRAINING,
-        STOPPED
-    }
 
     public record Binding(
             ConsumptionDefinition definition,
-            ConsumptionEngine engine,
-            DiscoveryEngine discovery,
+            ConsumptionProtocol protocol,
             List<Integer> partitions) {
         public Binding {
             Objects.requireNonNull(definition);
-            Objects.requireNonNull(engine);
-            Objects.requireNonNull(discovery);
+            Objects.requireNonNull(protocol);
             partitions = List.copyOf(partitions);
             if (partitions.isEmpty()
                     || new HashSet<>(partitions).size() != partitions.size()
                     || partitions.stream().anyMatch(p -> p < 0 || p >= definition.partitionCount()))
                 throw new IllegalArgumentException("invalid candidate partitions");
         }
+        public ConsumptionProtocol engine() { return protocol; }
+        public ConsumptionProtocol discovery() { return protocol; }
     }
 
     public record Settings(
@@ -106,13 +84,13 @@ public final class V3ConsumptionWorker {
 
     static final class LeaseEntry {
         final Pair pair;
-        PartitionLease lease;
+        ConsumptionProtocol.Partition lease;
         boolean usable = true;
         long renewedAt = System.nanoTime();
         long retryUntil; // Local work budget after a qualified omission, never a DB deadline.
         long retryDue; // Preserve the original opportunity for complete lag/service measurement.
 
-        LeaseEntry(Pair pair, PartitionLease lease) {
+        LeaseEntry(Pair pair, ConsumptionProtocol.Partition lease) {
             this.pair = pair;
             this.lease = lease;
         }
@@ -127,12 +105,12 @@ public final class V3ConsumptionWorker {
 
     final class Envelope implements Runnable {
         final Binding binding;
-        final ConsumptionEngine.AcquiredClaim handle;
+        final ConsumptionProtocol.Handle handle;
         Phase phase = Phase.WAITING;
         boolean cleanupAssigned, cleanupDone, wrapperExited, submissionDecided;
         long renewedAt = System.nanoTime();
 
-        Envelope(Binding binding, ConsumptionEngine.AcquiredClaim handle) {
+        Envelope(Binding binding, ConsumptionProtocol.Handle handle) {
             this.binding = binding;
             this.handle = handle;
         }
@@ -150,7 +128,7 @@ public final class V3ConsumptionWorker {
             try {
                 if (start) {
                     var cid = binding.definition().id();
-                    var consumableId = handle.claim().consumableId();
+                    var consumableId = handle.consumableId();
                     long startNanos = System.nanoTime();
                     attemptHook.onAttemptStarting(cid, consumableId, startNanos);
                     event(
@@ -162,10 +140,7 @@ public final class V3ConsumptionWorker {
                     var attempt = binding.engine().execute(handle);
                     long finishNanos = System.nanoTime();
                     attemptHook.onAttemptFinished(cid, consumableId, attempt.status(), finishNanos);
-                    if (attempt.status() == ConsumptionEngine.Status.INCONSISTENT
-                            || attempt.resolution()
-                                    == com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
-                                            .Resolution.UNKNOWN) requestDrain();
+                    if (safety.attemptOutcome(attempt).requestDrain()) requestDrain();
                 }
             } catch (RuntimeException | Error failure) {
                 // An unqualified Engine exit cannot be converted into a release or re-execution.
@@ -181,21 +156,12 @@ public final class V3ConsumptionWorker {
         }
     }
 
-    public record Snapshot(
-            State state,
-            int handles,
-            int started,
-            int localExited,
-            int operations,
-            int submissions,
-            int cleanups,
-            int renewalCalls,
-            int unknownRenewals,
-            boolean deadlineExceeded) {}
+
 
     final Object monitor = new Object();
     final List<Binding> bindings;
-    final WorkerCapacity capacity;
+    final CapacityView capacity;
+    final ProtocolSafety safety;
     final Map<ConsumptionId, Integer> limits;
     final Settings settings;
     final ConsumptionObservation observation;
@@ -208,7 +174,7 @@ public final class V3ConsumptionWorker {
     final ConditionConsumptionWaiter maintenanceWait = new ConditionConsumptionWaiter();
     private final List<Runnable> stoppedCallbacks = new ArrayList<>();
     private final ThreadPoolExecutor executor;
-    private final AttemptHook attemptHook;
+    private final AttemptObservation attemptHook;
     private final Runnable closeResources;
     private final V3RenewalService renewals;
     private final V3DiscoveryLoop discovery;
@@ -225,22 +191,24 @@ public final class V3ConsumptionWorker {
 
     public V3ConsumptionWorker(
             List<Binding> bindings,
-            WorkerCapacity capacity,
-            Map<ConsumptionId, Integer> limits,
-            Settings settings,
-            ConsumptionObservation observation,
-            Runnable closeResources) {
-        this(bindings, capacity, limits, settings, observation, closeResources, AttemptHook.NOOP);
-    }
-
-    public V3ConsumptionWorker(
-            List<Binding> bindings,
-            WorkerCapacity capacity,
+            CapacityView capacity,
             Map<ConsumptionId, Integer> limits,
             Settings settings,
             ConsumptionObservation observation,
             Runnable closeResources,
-            AttemptHook attemptHook) {
+            ProtocolSafety.Factory safetyFactory) {
+        this(bindings, capacity, limits, settings, observation, closeResources, AttemptObservation.NOOP, safetyFactory);
+    }
+
+    public V3ConsumptionWorker(
+            List<Binding> bindings,
+            CapacityView capacity,
+            Map<ConsumptionId, Integer> limits,
+            Settings settings,
+            ConsumptionObservation observation,
+            Runnable closeResources,
+            AttemptObservation attemptHook,
+            ProtocolSafety.Factory safetyFactory) {
         this(
                 bindings,
                 capacity,
@@ -256,17 +224,18 @@ public final class V3ConsumptionWorker {
                         TimeUnit.MILLISECONDS,
                         new SynchronousQueue<>(),
                         namedFactory("v3-attempt"),
-                        new ThreadPoolExecutor.AbortPolicy()));
+                        new ThreadPoolExecutor.AbortPolicy()), safetyFactory);
     }
 
     V3ConsumptionWorker(
             List<Binding> bindings,
-            WorkerCapacity capacity,
+            CapacityView capacity,
             Map<ConsumptionId, Integer> limits,
             Settings settings,
             ConsumptionObservation observation,
             Runnable closeResources,
-            ThreadPoolExecutor executor) {
+            ThreadPoolExecutor executor,
+            ProtocolSafety.Factory safetyFactory) {
         this(
                 bindings,
                 capacity,
@@ -274,21 +243,24 @@ public final class V3ConsumptionWorker {
                 settings,
                 observation,
                 closeResources,
-                AttemptHook.NOOP,
-                executor);
+                AttemptObservation.NOOP,
+                executor, safetyFactory);
     }
 
     V3ConsumptionWorker(
             List<Binding> bindings,
-            WorkerCapacity capacity,
+            CapacityView capacity,
             Map<ConsumptionId, Integer> limits,
             Settings settings,
             ConsumptionObservation observation,
             Runnable closeResources,
-            AttemptHook attemptHook,
-            ThreadPoolExecutor executor) {
+            AttemptObservation attemptHook,
+            ThreadPoolExecutor executor,
+            ProtocolSafety.Factory safetyFactory) {
         this.bindings = List.copyOf(bindings);
         this.capacity = Objects.requireNonNull(capacity);
+        this.safety = Objects.requireNonNull(safetyFactory).create(
+                this.bindings.stream().map(Binding::protocol).toList(), capacity);
         this.limits = Map.copyOf(limits);
         this.settings = Objects.requireNonNull(settings);
         this.observation = Objects.requireNonNull(observation);
@@ -396,16 +368,7 @@ public final class V3ConsumptionWorker {
     }
 
     void endOperation(Throwable failure) {
-        boolean resolved =
-                failure == null
-                        || (failure
-                                        instanceof
-                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
-                                                                .Failure
-                                                        tx
-                                && tx.resolution()
-                                        != com.kartaguez.pocoma.port.transaction.v3
-                                                .AttemptTransactions.Resolution.UNKNOWN);
+        boolean resolved = safety.opportunityOutcome(failure).physicallyResolved();
         if (!resolved) {
             // L1 remains outstanding after an unqualified local return. These ports expose
             // no physical witness for the whole opportunity; neither time nor a released
@@ -431,7 +394,7 @@ public final class V3ConsumptionWorker {
         maintenanceWait.signal();
     }
 
-    PartitionLease lease(Binding binding, int partition) {
+    ConsumptionProtocol.Partition lease(Binding binding, int partition) {
         var pair = new Pair(binding, partition);
         synchronized (monitor) {
             var existing = leases.get(pair);
@@ -451,7 +414,7 @@ public final class V3ConsumptionWorker {
         return pairLocks.computeIfAbsent(pair, ignored -> new Object());
     }
 
-    void suspend(Binding binding, PartitionLease lease) {
+    void suspend(Binding binding, ConsumptionProtocol.Partition lease) {
         boolean changed = false;
         synchronized (monitor) {
             var current = leases.get(new Pair(binding, lease.partitionId()));
@@ -479,7 +442,7 @@ public final class V3ConsumptionWorker {
         return !executor.isShutdown() && executor.getActiveCount() < executor.getMaximumPoolSize();
     }
 
-    void dispatch(Binding binding, List<ConsumptionEngine.AcquiredClaim> handles) {
+    void dispatch(Binding binding, List<ConsumptionProtocol.Handle> handles) {
         int transferred = 0;
         try {
             for (var handle : handles) {
@@ -656,8 +619,7 @@ public final class V3ConsumptionWorker {
         }
     }
 
-    public record RenewalSnapshot(
-            ConsumptionDefinition.Authority authority, int lane, boolean unknown) {}
+
 
     public List<RenewalSnapshot> renewalSnapshot() {
         synchronized (monitor) {
@@ -696,7 +658,7 @@ public final class V3ConsumptionWorker {
         renewals.signal();
     }
 
-    AttemptHook attemptHook() {
+    AttemptObservation attemptHook() {
         return attemptHook;
     }
 
@@ -800,7 +762,7 @@ public final class V3ConsumptionWorker {
                                     && cleanups == 0
                                     && envelopes.isEmpty()
                                     && used == 0
-                                    && renewalCalls.isEmpty()
+                                    && renewalCalls.isEmpty() && safety.renewalsQuiescent()
                                     && !unresolvedRecovery
                                     && executor.isTerminated();
                     if (ready) renewalsAllowed = false;

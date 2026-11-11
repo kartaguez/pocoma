@@ -74,7 +74,7 @@ class V3InvitationWritePostgresTest extends V3InvitationFixture {
         var source = f.worker.write.getDataSource();
         var owner = V3InvitationReadPostgresTest.owner(source);
         assertEquals(
-                com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation.COMPLETED,
+                com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation.COMPLETED,
                 owner.read(
                         c ->
                                 new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3

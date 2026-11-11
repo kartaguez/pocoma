@@ -495,7 +495,7 @@ public final class V3WorkerDevelopmentTools {
                 var tx = new SpringAttemptTransactions(source, manager(source), 5);
                 var observation = new JdbcIdentityRequestObservation(source);
                 if (tx.read(ctx -> observation.observe(id, ctx))
-                                != com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation
+                                != com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation
                                         .COMPLETED
                         || sql.queryForObject(
                                         "select count(*) from consumption_slot where"

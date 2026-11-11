@@ -1,7 +1,8 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
@@ -36,7 +37,7 @@ public final class V3ConsumptionDiscoveryComposition {
             ConsumptionDefinition definition,
             DataSource source,
             SpringAttemptTransactions owner,
-            DiscoveryEngine.Settings settings,
+            DiscoverySettings settings,
             V3BootstrapGuard.Privileges privileges) {
         if (definition.family() != ConsumableFamily.COMMAND
                 && definition.family() != ConsumableFamily.IDENTITY_REQUEST)
@@ -57,7 +58,7 @@ public final class V3ConsumptionDiscoveryComposition {
 
     public static boolean relevant(
             ConsumptionDefinition definition,
-            com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences.Reference
+            com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences.Reference
                     reference) {
         return definition.family() != ConsumableFamily.IDENTITY_EVENT
                 || reference.subjectType().equals("EXTERNAL_USER_IDENTITY");
@@ -70,7 +71,7 @@ public final class V3ConsumptionDiscoveryComposition {
             SpringAttemptTransactions effectsOwner,
             DataSource writeSource,
             SpringAttemptTransactions sourceReads,
-            DiscoveryEngine.Settings settings,
+            DiscoverySettings settings,
             V3BootstrapGuard.Privileges privileges) {
         if (definition.family() != ConsumableFamily.INVITATION_EVENT
                 && definition.family() != ConsumableFamily.POT_EVENT

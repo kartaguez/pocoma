@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
 import static com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.*;
@@ -6,7 +7,6 @@ import static com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
@@ -57,7 +57,7 @@ public final class ReadI8Child {
             fault.armed.set(true);
             await(() -> worker.snapshot().unknownRenewals() > 0, Duration.ofSeconds(15));
             worker.requestDrain();
-            assertEquals(V3ConsumptionWorker.State.DRAINING, worker.snapshot().state());
+            assertEquals(WorkerView.State.DRAINING, worker.snapshot().state());
             assertFalse(context.getBean("readControl", HikariDataSource.class).isClosed());
             System.out.println(
                     "I8_RENEW_UNKNOWN pid="

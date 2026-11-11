@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.runtime.consumption.v3;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consume.projectiontask.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.engine.materialize.commandresult.v3.MaterializeCommandResult;
 import com.kartaguez.pocoma.engine.materialize.currentbinding.v3.MaterializeCurrentBinding;
 import com.kartaguez.pocoma.engine.materialize.registrationresult.v3.MaterializeIdentityRequestResult;

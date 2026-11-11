@@ -1,10 +1,12 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.ClaimedSlot;
-import com.kartaguez.pocoma.engine.consumption.v3.LifecycleSettings.RetryPolicy;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings.RetryPolicy;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 

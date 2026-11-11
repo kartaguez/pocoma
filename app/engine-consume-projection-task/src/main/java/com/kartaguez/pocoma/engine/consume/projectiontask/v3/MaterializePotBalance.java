@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma.engine.consume.projectiontask.v3;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
 import com.kartaguez.pocoma.domain.pot.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.port.projection.v3.PotBalanceStore;
 import java.util.*;
 public final class MaterializePotBalance implements ConsumptionParticipant {

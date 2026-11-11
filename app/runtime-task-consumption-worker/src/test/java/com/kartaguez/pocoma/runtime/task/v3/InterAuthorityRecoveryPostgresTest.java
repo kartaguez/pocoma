@@ -1,4 +1,18 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static com.kartaguez.pocoma.runtime.task.v3.SubobjectPostgresFixture.*;
 
@@ -6,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.projection.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.JdbcSubobjectVersionStore;
 import com.kartaguez.pocoma.port.transaction.v3.*;
@@ -360,7 +372,7 @@ class InterAuthorityRecoveryPostgresTest {
                             + " cause="
                             + identityAttempt.cause());
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED,
+                    ConsumptionProtocol.Status.COMMITTED,
                     identityAttempt.status(),
                     () -> String.valueOf(identityAttempt.cause()));
             var mappings =
@@ -541,7 +553,7 @@ class InterAuthorityRecoveryPostgresTest {
                                 r -> true);
                 assertEquals(1, discovery.discoverEvents(lease).inserted());
                 assertEquals(
-                        ConsumptionEngine.Status.COMMITTED,
+                        ConsumptionProtocol.Status.COMMITTED,
                         writer.execute(
                                         writer.acquire(lease, List.of(p.event()))
                                                 .claims()
@@ -802,7 +814,7 @@ class InterAuthorityRecoveryPostgresTest {
                             List.of(
                                     new com.kartaguez.pocoma.orchestrator.poll.consumption.v3
                                             .V3ConsumptionWorker.Binding(
-                                            f.read.definition, e, discovery, List.of(partition))),
+                                            f.read.definition, com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionProtocols.forDefinition(f.read.definition, e, discovery), List.of(partition))),
                             cap,
                             Map.of(f.read.definition.id(), 1),
                             settings,
@@ -810,7 +822,7 @@ class InterAuthorityRecoveryPostgresTest {
                             () -> {
                                 closed.set(true);
                                 stopped.countDown();
-                            });
+                            }, com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionSafety::new);
             worker.start();
             try {
                 await(sourceEntered);
@@ -839,8 +851,7 @@ class InterAuthorityRecoveryPostgresTest {
                 worker.requestDrain();
                 await(deadline);
                 assertEquals(
-                        com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker
-                                .State.DRAINING,
+                        com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.State.DRAINING,
                         worker.snapshot().state());
                 assertTrue(worker.snapshot().deadlineExceeded());
                 assertFalse(closed.get());

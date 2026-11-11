@@ -1,7 +1,8 @@
 package com.kartaguez.pocoma.orchestrator.poll.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
 
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.SlotKeyNavigation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
 
 import java.time.Duration;
 import java.util.*;
@@ -11,7 +12,7 @@ public final class V3ConsumptionLoop {
     private final V3ConsumptionWorker worker;
     private final int[] nextPartitions;
     private final long[] errorUntilNanos;
-    private final Map<V3ConsumptionWorker.Pair, SlotKeyNavigation.Walk> walks = new HashMap<>();
+    private final Map<V3ConsumptionWorker.Pair, ConsumptionNavigation.Walk> walks = new HashMap<>();
     private int nextConsumption;
     private final long[] lastOpportunity;
     private final boolean[] consumptionSaturated;
@@ -99,15 +100,15 @@ public final class V3ConsumptionLoop {
             synchronized (worker.pairLock(pair)) {
                 var lease = worker.lease(binding, p);
                 if (lease == null) return false;
-                var previous = walks.getOrDefault(pair, SlotKeyNavigation.Walk.fresh());
+                var previous = walks.getOrDefault(pair, ConsumptionNavigation.Walk.fresh());
                 var page = binding.engine().navigate(lease, previous, worker.settings.pageSize());
                 // U is remembered, but reading keys never advances afterExclusive.
                 var bounded =
-                        new SlotKeyNavigation.Walk(
+                        new ConsumptionNavigation.Walk(
                                 previous.afterExclusive(), page.upperInclusive());
                 walks.put(pair, bounded);
                 if (page.keys().isEmpty()) {
-                    walks.put(pair, SlotKeyNavigation.Walk.fresh());
+                    walks.put(pair, ConsumptionNavigation.Walk.fresh());
                     worker.event(
                             binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
                     errorUntilNanos[selected] = 0;
@@ -125,7 +126,7 @@ public final class V3ConsumptionLoop {
                         worker.attemptHook()
                                 .onSlotAcquired(
                                         binding.definition().id(),
-                                        handle.claim().consumableId(),
+                                        handle.consumableId(),
                                         lease.partitionId(),
                                         acquiredNanos);
                     }
@@ -137,7 +138,7 @@ public final class V3ConsumptionLoop {
                         if (e > 0)
                             walks.put(
                                     pair,
-                                    new SlotKeyNavigation.Walk(
+                                    new ConsumptionNavigation.Walk(
                                             Optional.of(keys.get(e - 1)), page.upperInclusive()));
                         if (e == 0) worker.suspend(binding, lease);
                     } finally {
@@ -172,9 +173,9 @@ public final class V3ConsumptionLoop {
         }
     }
 
-    SlotKeyNavigation.Walk walk(V3ConsumptionWorker.Binding binding, int partition) {
+    ConsumptionNavigation.Walk walk(V3ConsumptionWorker.Binding binding, int partition) {
         return walks.getOrDefault(
-                new V3ConsumptionWorker.Pair(binding, partition), SlotKeyNavigation.Walk.fresh());
+                new V3ConsumptionWorker.Pair(binding, partition), ConsumptionNavigation.Walk.fresh());
     }
 
     int nextConsumption() {

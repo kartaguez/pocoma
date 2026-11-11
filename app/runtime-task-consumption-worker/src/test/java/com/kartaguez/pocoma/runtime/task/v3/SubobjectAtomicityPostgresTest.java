@@ -1,13 +1,19 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import static com.kartaguez.pocoma.runtime.task.v3.SubobjectPostgresFixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.projection.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
@@ -62,8 +68,8 @@ class SubobjectAtomicityPostgresTest {
             }
         };
     }
-    void rolledBack(SubobjectPostgresFixture f,UUID id,ConsumptionEngine.Attempt attempt,int prior) {
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK,attempt.status(),()->String.valueOf(attempt));
+    void rolledBack(SubobjectPostgresFixture f,UUID id,ConsumptionProtocol.Attempt attempt,int prior) {
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK,attempt.status(),()->String.valueOf(attempt));
         assertEquals(AttemptTransactions.Resolution.ROLLED_BACK,attempt.resolution());
         assertEquals(prior,f.count()); assertEquals(1,f.slotCount(id));
         assertEquals(
@@ -134,7 +140,7 @@ class SubobjectAtomicityPostgresTest {
                                 });
                 assertTrue(get(contender));
             } finally {release.countDown();}
-            var attempt=get(task);assertEquals(ConsumptionEngine.Status.COMMITTED,attempt.status());
+            var attempt=get(task);assertEquals(ConsumptionProtocol.Status.COMMITTED,attempt.status());
             assertEquals(Map.of("effects",8L,"slots",0L,"witnesses",9L),f.snapshot(id));
             assertEquals(new HashSet<>(values),new HashSet<>(f.read(values).values()));f.assertWitnesses(owner.get(),8,1);
             assertTrue(
@@ -211,7 +217,7 @@ class SubobjectAtomicityPostgresTest {
                 } else {
                     // Existing L2 conservatively retains UNKNOWN for a callback in Spring's commit phase.
                     assertEquals(AttemptTransactions.Resolution.UNKNOWN,result.resolution());
-                    assertEquals(ConsumptionEngine.Status.RECOVERY_PENDING,result.status());
+                    assertEquals(ConsumptionProtocol.Status.RECOVERY_PENDING,result.status());
                     assertEquals(RecoveryObservation.NOT_COMPLETED,result.observation());
                     assertEquals("I1 injected before commit",result.cause().getMessage());
                     assertEquals(Map.of("effects",0L,"slots",1L,"witnesses",0L),f.snapshot(id));
@@ -423,7 +429,7 @@ class SubobjectAtomicityPostgresTest {
         try(var f=new SubobjectPostgresFixture(PG,"expiredCompletion")) {
             f.installWitnesses();var id=f.seed(eight(UUID.randomUUID()));var captured=new AtomicReference<SlotCompletion>();
             var engine=f.engine(f.participant((point,key,c)->{if(point==Point.AFTER_DELETE)captured.set(c);}));
-            assertEquals(ConsumptionEngine.Status.COMMITTED,engine.execute(f.acquire(engine,id)).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED,engine.execute(f.acquire(engine,id)).status());
             assertThrows(IllegalStateException.class,()->captured.get().complete());assertEquals(8,f.count());assertEquals(0,f.slotCount(id));
         }
     }
@@ -481,7 +487,7 @@ class SubobjectAtomicityPostgresTest {
                                             if (rollback) fault("independent orphan");
                                         },
                                         () -> f.store.requireStored(List.of(value))));
-                var attempt=engine.execute(f.acquire(engine,id));assertEquals(rollback ? ConsumptionEngine.Status.ROLLED_BACK : ConsumptionEngine.Status.COMMITTED,attempt.status());
+                var attempt=engine.execute(f.acquire(engine,id));assertEquals(rollback ? ConsumptionProtocol.Status.ROLLED_BACK : ConsumptionProtocol.Status.COMMITTED,attempt.status());
                 assertEquals(1,f.count());assertEquals(rollback ? 1 : 0,f.slotCount(id));
                 assertThrows(AssertionError.class,()->f.assertWitnesses(owner.get(),1,rollback ? 0 : 1));
                 f.trace.add("COUNTER-ORACLE REJECTED two physical units; orphan="+rollback);
@@ -517,8 +523,8 @@ class SubobjectAtomicityPostgresTest {
                 var a=f.acquire(engine,first);var b=f.acquire(engine,second);var t1=f.threads.submit(()->engine.execute(a));await(inserted);
                 var t2=f.threads.submit(()->engine.execute(b));
                 try{await(started);f.waitForLock(loserPid.get());}finally{release.countDown();}
-                assertEquals(ConsumptionEngine.Status.COMMITTED,get(t1).status());
-                var result=get(t2);assertEquals(divergent ? ConsumptionEngine.Status.ROLLED_BACK : ConsumptionEngine.Status.COMMITTED,result.status());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED,get(t1).status());
+                var result=get(t2);assertEquals(divergent ? ConsumptionProtocol.Status.ROLLED_BACK : ConsumptionProtocol.Status.COMMITTED,result.status());
                 assertEquals(1,f.count());assertEquals(0,f.slotCount(first));assertEquals(divergent ? 1 : 0,f.slotCount(second));
                 assertEquals(
                         "false",
@@ -661,7 +667,7 @@ class SubobjectAtomicityPostgresTest {
                     assertEquals(1,f.capacity.snapshot().worker());
                     boolean committed=fault==CommitAcknowledgementProxy.Fault.AFTER_COMMIT;
                     assertEquals(unavailable ? RecoveryObservation.UNAVAILABLE : committed ? RecoveryObservation.COMPLETED : RecoveryObservation.NOT_COMPLETED,attempt.observation());
-                    assertEquals(committed && !unavailable ? ConsumptionEngine.Status.COMMITTED : ConsumptionEngine.Status.RECOVERY_PENDING,attempt.status());
+                    assertEquals(committed && !unavailable ? ConsumptionProtocol.Status.COMMITTED : ConsumptionProtocol.Status.RECOVERY_PENDING,attempt.status());
                     assertEquals(committed ? 8 : 0,f.count());assertEquals(committed ? 0 : 1,f.slotCount(id));
                     if (committed) f.assertWitnesses(witness.get(), 8, 1);
                     else
@@ -686,26 +692,26 @@ class SubobjectAtomicityPostgresTest {
             }
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

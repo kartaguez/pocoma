@@ -248,7 +248,7 @@ class ConsumptionBootstrapPostgresTest {
                 assertNotNull(context.getBean(V3BootstrapGuard.class));
                 assertTrue(
                         context.getBeansOfType(
-                                        com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine
+                                        com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine
                                                 .class)
                                 .isEmpty());
                 assertTrue(
@@ -423,7 +423,7 @@ class ConsumptionBootstrapPostgresTest {
                                 .class,
                         com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.class,
                         com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand.class,
-                        com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.class,
+                        com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.class,
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcConsumptionSlotStore.class,
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.v3

@@ -1,11 +1,16 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult;
 import com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult;
@@ -76,7 +81,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 assertEquals(before,f.vector(),participant+" no partial business prefix "+mode); assertEquals(1,f.slots(name,event));
                 assertEquals(0,f.f.read.oracle.queryForObject("select count(*) from l4_witness",Integer.class));
             } else {
-                assertEquals(ConsumptionEngine.Status.COMMITTED,result.status(),()->String.valueOf(result.cause()));
+                assertEquals(ConsumptionProtocol.Status.COMMITTED,result.status(),()->String.valueOf(result.cause()));
                 assertEquals(0,f.slots(name,event));
                 assertEquals(RecoveryObservation.COMPLETED,engine.observe(acquired.claim()));
                 var witness=f.f.read.oracle.queryForList("select * from l4_witness");
@@ -357,7 +362,7 @@ class ReadParticipantsIntegrationPostgresTest {
                     }
                     assertEquals(2,f.capacity.snapshot().worker(),"long physical source callbacks retain reservations");
                 } finally { release.countDown(); }
-                assertEquals(ConsumptionEngine.Status.COMMITTED,a.get(20,TimeUnit.SECONDS).status()); assertEquals(ConsumptionEngine.Status.COMMITTED,b.get(20,TimeUnit.SECONDS).status());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED,a.get(20,TimeUnit.SECONDS).status()); assertEquals(ConsumptionProtocol.Status.COMMITTED,b.get(20,TimeUnit.SECONDS).status());
             }
             assertEquals(0,f.capacity.snapshot().worker());
             for(var name:Name.values()) assertTrue(f.capacity.supports(f.participants.get(name).definition().id()));

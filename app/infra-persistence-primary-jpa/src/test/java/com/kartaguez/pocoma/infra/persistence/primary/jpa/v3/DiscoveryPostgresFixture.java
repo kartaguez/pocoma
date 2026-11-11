@@ -1,12 +1,26 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
@@ -28,8 +42,8 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
     final ConsumableFamily family;
     final ConsumptionDefinition definition;
     final List<String> trace = new CopyOnWriteArrayList<>();
-    DiscoveryEngine.Settings settings =
-            new DiscoveryEngine.Settings(
+    DiscoverySettings settings =
+            new DiscoverySettings(
                     128, 32, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
     final JdbcDiscoveryAdmissionStore admissions;
     final NonBurnableReferences events;
@@ -119,8 +133,7 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                         }
 
                         public java.util.Optional<
-                                        com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .NonBurnableReferences.Reference>
+                                        com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences.Reference>
                                 find(
                                         java.util.UUID eventId,
                                         com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext
@@ -758,7 +771,7 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
         var e = lifecycle();
         var claims = e.acquire(lease, List.of(id)).claims();
         assertEquals(1, claims.size());
-        assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(claims.getFirst()).status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(claims.getFirst()).status());
         assertFalse(slotIds().contains(id));
     }
 
@@ -958,26 +971,26 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
         write.close();
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

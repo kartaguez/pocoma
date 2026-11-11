@@ -6,7 +6,6 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consume.registration.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 
 import org.junit.jupiter.api.*;

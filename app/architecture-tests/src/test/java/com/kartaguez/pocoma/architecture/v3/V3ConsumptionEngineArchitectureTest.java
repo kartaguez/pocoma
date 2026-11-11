@@ -173,7 +173,7 @@ class V3ConsumptionEngineArchitectureTest {
     }
 
     static class BadWorkerTicket {
-        com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity.Ticket ticket;
+        com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity.Ticket ticket;
     }
 
     static class BadWorkerOwner {
@@ -301,17 +301,17 @@ class V3ConsumptionEngineArchitectureTest {
 
     @Test
     void lifecycleHasOneHandleAndNoSchedulerOrOwner() throws Exception {
-        var engine = com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.class;
+        var engine = com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.class;
         assertThrows(
                 NoSuchMethodException.class,
                 () ->
                         engine.getMethod(
                                 "execute",
-                                com.kartaguez.pocoma.engine.consumption.v3.ClaimedSlot.class));
+                                com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot.class));
         assertNotNull(
                 engine.getMethod(
                         "execute",
-                        com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.AcquiredClaim
+                        com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.AcquiredClaim
                                 .class));
         var lifecycle =
                 select(
@@ -512,13 +512,13 @@ class V3ConsumptionEngineArchitectureTest {
                         .collect(java.util.stream.Collectors.toSet()));
         for (var type :
                 List.of(
-                        com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences
+                        com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences
                                 .Reference.class,
-                        com.kartaguez.pocoma.engine.consumption.v3.port.NonBurnableReferences.Window
+                        com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences.Window
                                 .class,
-                        com.kartaguez.pocoma.engine.consumption.v3.port.BurnableReferences
+                        com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences
                                 .Reference.class,
-                        com.kartaguez.pocoma.engine.consumption.v3.port.BurnableReferences.Window
+                        com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences.Window
                                 .class,
                         com.kartaguez.pocoma.domain.projection.v3.SubobjectVersion.class,
                         com.kartaguez.pocoma.domain.projection.v3.SubobjectKey.class)) {

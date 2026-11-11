@@ -1,4 +1,13 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
 import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
@@ -9,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
@@ -258,7 +265,7 @@ class ReadWorkerResourcesPostgresTest {
                     latch(finalized, "physical final transaction held");
                     worker.requestDrain();
                     assertEquals(
-                            V3ConsumptionWorker.State.DRAINING,
+                            WorkerView.State.DRAINING,
                             worker.snapshot().state(),
                             "cannot report STOPPED while final transaction is retained");
                     assertFalse(
@@ -919,7 +926,7 @@ class ReadWorkerResourcesPostgresTest {
                             "admissions",
                             new JdbcDiscoveryAdmissionStore(
                                     fault,
-                                    new DiscoveryEngine.Settings(
+                                    new DiscoverySettings(
                                             128,
                                             batch,
                                             batch,
@@ -978,7 +985,7 @@ class ReadWorkerResourcesPostgresTest {
                                     capacity.snapshot().worker() >= 1, "UNKNOWN retains capacity");
                             worker.requestDrain();
                             assertEquals(
-                                    V3ConsumptionWorker.State.DRAINING,
+                                    WorkerView.State.DRAINING,
                                     worker.snapshot().state(),
                                     "UNKNOWN cannot fake STOPPED");
                             assertFalse(

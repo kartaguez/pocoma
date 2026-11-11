@@ -1,4 +1,12 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
@@ -8,8 +16,6 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequest;
@@ -86,9 +92,9 @@ final class ReadParticipantsFixture implements AutoCloseable {
         var d=participants.get(name).definition(); int p=RoutingV1.partition(RoutingV1.hash(d.family(),event),4);
         var claims=engine.acquire(lease(name,engine,p),List.of(event)).claims(); assertEquals(1,claims.size(),name+" acquire "+event); return claims.getFirst();
     }
-    ConsumptionEngine.Attempt execute(Name name,UUID event) {
+    ConsumptionProtocol.Attempt execute(Name name,UUID event) {
         var e=engines.get(name); var result=e.execute(acquire(name,e,event));
-        assertEquals(ConsumptionEngine.Status.COMMITTED,result.status(),() -> name+" "+result+" cause="+result.cause());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED,result.status(),() -> name+" "+result+" cause="+result.cause());
         return result;
     }
     int slots(Name name,UUID event) {
@@ -125,7 +131,7 @@ final class ReadParticipantsFixture implements AutoCloseable {
     void executeWrite(ConsumptionDefinition d,UUID id,ConsumptionParticipant participant) {
         var e=new ConsumptionEngine(d,f.sourceOwner,new JdbcConsumptionSlotStore(f.primary),participant,new JdbcPartitionOwnershipStore(f.primary),f.read.settings,new WorkerCapacity(1,Map.of(d.id(),1)),fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);
         int p=RoutingV1.partition(RoutingV1.hash(d.family(),id),4); var lease=f.primaryLease(e,d,p);
-        var result=e.execute(e.acquire(lease,List.of(id)).claims().getFirst()); assertEquals(ConsumptionEngine.Status.COMMITTED,result.status(),() -> String.valueOf(result.cause()));
+        var result=e.execute(e.acquire(lease,List.of(id)).claims().getFirst()); assertEquals(ConsumptionProtocol.Status.COMMITTED,result.status(),() -> String.valueOf(result.cause()));
     }
     void witnesses() {
         f.read.oracle.execute("create table l4_witness(t text,op text,pid integer,xid text)");

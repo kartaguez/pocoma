@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.engine.consume.projectiontask.v3;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.port.projection.v3.InvitationStore;
 
 import java.util.*;

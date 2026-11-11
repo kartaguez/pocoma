@@ -1,11 +1,16 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static com.kartaguez.pocoma.runtime.task.v3.SubobjectPostgresFixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotHistoryAdapter;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
@@ -563,7 +568,7 @@ class InterAuthorityPreparationPostgresTest {
             var exited = new CountDownLatch(1);
             var pid = new AtomicInteger();
             var thread = new AtomicReference<Thread>();
-            var returned = new AtomicReference<ConsumptionEngine.Attempt>();
+            var returned = new AtomicReference<ConsumptionProtocol.Attempt>();
             blocker.setAutoCommit(false);
             try (var statement = blocker.createStatement()) {
                 statement.execute("select pg_advisory_xact_lock(731019)");
@@ -925,8 +930,8 @@ class InterAuthorityPreparationPostgresTest {
                 f.assertPhysical(p, stage == 2);
                 assertEquals(
                         stage == 2
-                                ? ConsumptionEngine.Status.COMMITTED
-                                : ConsumptionEngine.Status.RECOVERY_PENDING,
+                                ? ConsumptionProtocol.Status.COMMITTED
+                                : ConsumptionProtocol.Status.RECOVERY_PENDING,
                         result.status());
             }
     }

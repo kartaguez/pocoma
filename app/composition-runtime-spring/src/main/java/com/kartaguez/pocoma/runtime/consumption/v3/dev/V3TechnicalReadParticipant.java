@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma.runtime.consumption.v3.dev;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings;
 

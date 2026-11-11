@@ -4,7 +4,7 @@ import static com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.engine.consumption.v3.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 

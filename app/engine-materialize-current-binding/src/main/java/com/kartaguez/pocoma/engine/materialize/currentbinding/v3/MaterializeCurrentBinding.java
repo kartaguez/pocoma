@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.engine.materialize.currentbinding.v3;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 import com.kartaguez.pocoma.port.projection.v3.CurrentBindingStore;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import java.util.*;
 public final class MaterializeCurrentBinding implements ConsumptionParticipant {
     private final CurrentBindingSource source; private final CurrentBindingStore store;

@@ -1,4 +1,17 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,9 +20,7 @@ import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.useridentity.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consume.registration.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
@@ -30,7 +41,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
         admitRequest(req);
         assertEquals(0, count("consumption_slot"));
         assertEquals(0, count("v3_eui_authority"));
-        assertEquals(ConsumptionEngine.Status.COMMITTED, execute(req).status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, execute(req).status());
         assertCounts(1, 1, 1, 2, 1);
         assertEquals(
                 RecoveryObservation.COMPLETED,
@@ -124,7 +135,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                 var result = engine.execute(claim);
                 clearFailure();
                 assertEquals(
-                        ConsumptionEngine.Status.ROLLED_BACK,
+                        ConsumptionProtocol.Status.ROLLED_BACK,
                         result.status(),
                         boundary + " " + result.cause());
                 assertEquals(before, businessVector(), op + "/" + boundary);
@@ -159,9 +170,9 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
             var before = businessVector();
             var result = engine.execute(claim);
             if (change.equals("partition"))
-                assertEquals(ConsumptionEngine.Status.COMMITTED, result.status());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED, result.status());
             else {
-                assertEquals(ConsumptionEngine.Status.CLAIM_LOST, result.status());
+                assertEquals(ConsumptionProtocol.Status.CLAIM_LOST, result.status());
                 assertEquals(before, businessVector());
             }
         }
@@ -238,8 +249,8 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
         } finally {
             release.countDown();
         }
-        assertEquals(ConsumptionEngine.Status.COMMITTED, one.get(15, TimeUnit.SECONDS).status());
-        assertEquals(ConsumptionEngine.Status.COMMITTED, two.get(15, TimeUnit.SECONDS).status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, one.get(15, TimeUnit.SECONDS).status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, two.get(15, TimeUnit.SECONDS).status());
         assertCounts(1, 1, 2, 2, 2);
         assertEquals(
                 1,
@@ -256,7 +267,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
         for (int i = 1; i <= 3; i++) {
             var c = claim(req);
             installFailure("before_apply");
-            assertEquals(ConsumptionEngine.Status.ROLLED_BACK, engine.execute(c).status());
+            assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, engine.execute(c).status());
             clearFailure();
             assertEquals(
                     i,
@@ -278,7 +289,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                     + " state='AVAILABLE',attempt_count=0,retry_after=null,claim_token=null,claimed_until=null"
                     + " where consumable_id=?",
                 req.requestId());
-        assertEquals(ConsumptionEngine.Status.COMMITTED, engine.execute(claim(req)).status());
+        assertEquals(ConsumptionProtocol.Status.COMMITTED, engine.execute(claim(req)).status());
         assertCounts(1, 1, 1, 2, 1);
     }
 
@@ -306,7 +317,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                 worker.acquire(lease(partition), List.of(request.requestId())).claims().getFirst();
         var before = businessVector();
         var result = worker.execute(handle);
-        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, result.status());
+        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, result.status());
         assertEquals(before, businessVector());
         assertPendingWithSlot(request.requestId());
         assertTrue(allMessages(result.cause()).contains("23505"));
@@ -388,7 +399,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                             .getFirst();
             var before = businessVector();
             assertEquals(
-                    ConsumptionEngine.Status.ROLLED_BACK,
+                    ConsumptionProtocol.Status.ROLLED_BACK,
                     alteredEngine.execute(claim).status(),
                     mode);
             assertEquals(before, businessVector());
@@ -453,7 +464,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                         blocker.commit();
                     }
                     assertEquals(
-                            ConsumptionEngine.Status.CLAIM_LOST,
+                            ConsumptionProtocol.Status.CLAIM_LOST,
                             future.get(15, TimeUnit.SECONDS).status());
                     assertPendingWithSlot(request.requestId());
                 }
@@ -470,7 +481,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                                         request.requestId());
                             }
                         };
-                assertEquals(ConsumptionEngine.Status.COMMITTED, engine.execute(handle).status());
+                assertEquals(ConsumptionProtocol.Status.COMMITTED, engine.execute(handle).status());
                 hook = boundary -> {};
             }
         }
@@ -630,8 +641,8 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
                     new ConsumptionId(CONSUMPTION),
                     ConsumableFamily.IDENTITY_REQUEST,
                     ConsumptionDefinition.Authority.WRITE);
-    final DiscoveryEngine.Settings discoverySettings =
-            new DiscoveryEngine.Settings(
+    final DiscoverySettings discoverySettings =
+            new DiscoverySettings(
                     128, 32, 32, 128, Duration.ofSeconds(5), Duration.ofSeconds(15));
     final LifecycleSettings lifecycle =
             new LifecycleSettings(
@@ -842,7 +853,7 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
         return engine.acquire(lease(partition), List.of(request.requestId())).claims().getFirst();
     }
 
-    ConsumptionEngine.Attempt execute(IdentityRequest request) {
+    ConsumptionProtocol.Attempt execute(IdentityRequest request) {
         var result = engine.execute(claim(request));
         evidence.add(
                 "real Engine="
@@ -860,7 +871,7 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
         admitRequest(request);
         var result = execute(request);
         assertEquals(
-                ConsumptionEngine.Status.COMMITTED,
+                ConsumptionProtocol.Status.COMMITTED,
                 result.status(),
                 () -> String.valueOf(result.cause()));
     }
@@ -893,26 +904,26 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
         }
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

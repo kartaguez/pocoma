@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
@@ -139,7 +139,7 @@ class ExecutePotCommandTest {
         return new ExecutePotCommand(
                 store(),
                 (id, context) ->
-                        com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation.COMPLETED,
+                        com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation.COMPLETED,
                 authority,
                 history,
                 revisions,

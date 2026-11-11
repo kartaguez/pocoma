@@ -1,12 +1,24 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
 
 import static com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 import com.zaxxer.hikari.*;
@@ -141,23 +153,23 @@ class V3WorkerResourcesPostgresTest {
                                     .Authority.WRITE
                             : com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition
                                     .Authority.READ)) {
-                replace(binding.engine(), "controlTransactions", owner);
+                replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "controlTransactions", owner);
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "controlSlots",
                         new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcConsumptionSlotStore(source));
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "ownership",
                         new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcPartitionOwnershipStore(source));
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "navigation",
                         new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcSlotKeyNavigation(
-                                source, (LifecycleSettings) field(binding.engine(), "settings")));
+                                source, (LifecycleSettings) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "settings")));
             }
         return source;
     }
@@ -213,9 +225,9 @@ class V3WorkerResourcesPostgresTest {
                                     .Authority.WRITE
                             : com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition
                                     .Authority.READ)) {
-                replace(binding.engine(), "transactions", owner);
+                replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "transactions", owner);
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "slots",
                         new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcConsumptionSlotStore(source));
@@ -235,32 +247,32 @@ class V3WorkerResourcesPostgresTest {
                                         Clock.systemUTC())
                                 : new com.kartaguez.pocoma.runtime.consumption.v3.dev
                                         .V3TechnicalReadParticipant(source, binding.definition());
-                replace(binding.engine(), "participant", participant);
+                replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "participant", participant);
                 if (!write)
                     replace(
-                            binding.engine(),
+                            com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                             "admissions",
                             new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                     .JdbcDiscoveryAdmissionStore(
                                     source,
-                                    (DiscoveryEngine.Settings)
-                                            field(binding.discovery(), "settings")));
+                                    (DiscoverySettings)
+                                            field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "settings")));
             }
             if (write
                     && binding.definition().authority()
                             == com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition
                                     .Authority.READ) {
-                replace(binding.discovery(), "sourceReads", owner);
-                replace(binding.engine(), "sourceTransactions", owner);
+                replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "sourceReads", owner);
+                replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "sourceTransactions", owner);
                 var references =
                         new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
                                 .JdbcEventDiscoveryReferences(
                                 source,
                                 binding.definition().family(),
-                                (DiscoveryEngine.Settings) field(binding.discovery(), "settings"));
-                replace(binding.engine(), "recoverySource", Optional.of(references));
+                                (DiscoverySettings) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "settings"));
+                replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "recoverySource", Optional.of(references));
                 replace(
-                        binding.discovery(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()),
                         "events",
                         references);
             }
@@ -379,14 +391,14 @@ class V3WorkerResourcesPostgresTest {
         void attach(V3WorkerPostgresTest.Runtime runtime) throws Exception {
             this.runtime = runtime;
             for (var binding : runtime.bindings) {
-                var settings = (LifecycleSettings) field(binding.engine(), "settings");
+                var settings = (LifecycleSettings) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "settings");
                 assertEquals(I5TemporalBudgetTest.limit("lease"), settings.leaseDuration());
                 assertEquals(I5TemporalBudgetTest.limit("claim"), settings.claimDuration());
                 assertEquals(I5TemporalBudgetTest.limit("cadence"), settings.renewalInterval());
                 assertEquals(batch, settings.batchSize());
-                var owner = (PartitionOwnershipStore) field(binding.engine(), "ownership");
+                var owner = (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "ownership");
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "ownership",
                         java.lang.reflect.Proxy.newProxyInstance(
                                 getClass().getClassLoader(),
@@ -429,9 +441,9 @@ class V3WorkerResourcesPostgresTest {
                                     }
                                     return result;
                                 }));
-                var slots = (ConsumptionSlotStore) field(binding.engine(), "controlSlots");
+                var slots = (ConsumptionSlotStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "controlSlots");
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "controlSlots",
                         java.lang.reflect.Proxy.newProxyInstance(
                                 getClass().getClassLoader(),
@@ -935,22 +947,20 @@ class V3WorkerResourcesPostgresTest {
                     var cid = binding.definition().id().value();
                     watched.set(cid);
                     var original =
-                            (com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .PartitionOwnershipStore)
-                                    field(binding.engine(), "ownership");
+                            (com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore)
+                                    field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "ownership");
                     var omitted = new CountDownLatch(1);
                     var allowReturn = new CountDownLatch(1);
                     var armed = new AtomicBoolean();
                     var targetCalls = new AtomicInteger();
                     var renewalPid = new AtomicInteger();
                     replace(
-                            binding.engine(),
+                            com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                             "ownership",
                             java.lang.reflect.Proxy.newProxyInstance(
                                     getClass().getClassLoader(),
                                     new Class[] {
-                                        com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .PartitionOwnershipStore.class
+                                        com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore.class
                                     },
                                     (proxy, method, args) -> {
                                         Object result;
@@ -1146,8 +1156,7 @@ class V3WorkerResourcesPostgresTest {
                 await(
                         () ->
                                 runtime.worker.snapshot().state()
-                                        == com.kartaguez.pocoma.orchestrator.poll.consumption.v3
-                                                .V3ConsumptionWorker.State.STOPPED);
+                                        == com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.State.STOPPED);
                 assertEquals(
                         "TERMINAL",
                         f.write.queryForObject(
@@ -1273,8 +1282,7 @@ class V3WorkerResourcesPostgresTest {
                                             .isAfter(initial.get(s2)));
                     await(() -> rolledBack.get() > 0);
                     assertEquals(
-                            com.kartaguez.pocoma.orchestrator.poll.consumption.v3
-                                    .V3ConsumptionWorker.State.RUNNING,
+                            com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.State.RUNNING,
                             runtime.worker.snapshot().state());
                     try (var q = blocker.createStatement()) {
                         q.execute("select pg_advisory_unlock_all()");
@@ -1337,9 +1345,9 @@ class V3WorkerResourcesPostgresTest {
                                             .ConsumptionDefinition.Authority.WRITE
                                     : com.kartaguez.pocoma.domain.consumption.v3
                                             .ConsumptionDefinition.Authority.READ)) {
-                        var real = (ConsumptionParticipant) field(binding.engine(), "participant");
+                        var real = (ConsumptionParticipant) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "participant");
                         replace(
-                                binding.engine(),
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                                 "participant",
                                 new ConsumptionParticipant() {
                                     public Optional<Prepared> prepare(
@@ -1359,17 +1367,15 @@ class V3WorkerResourcesPostgresTest {
                                     }
                                 });
                         var ownership =
-                                (com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .PartitionOwnershipStore)
-                                        field(binding.engine(), "ownership");
+                                (com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore)
+                                        field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "ownership");
                         replace(
-                                binding.engine(),
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                                 "ownership",
                                 java.lang.reflect.Proxy.newProxyInstance(
                                         getClass().getClassLoader(),
                                         new Class[] {
-                                            com.kartaguez.pocoma.engine.consumption.v3.port
-                                                    .PartitionOwnershipStore.class
+                                            com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore.class
                                         },
                                         (p, m, a) -> {
                                             try {
@@ -1392,9 +1398,9 @@ class V3WorkerResourcesPostgresTest {
                                                 throw e.getCause();
                                             }
                                         }));
-                        var slots = (ConsumptionSlotStore) field(binding.engine(), "controlSlots");
+                        var slots = (ConsumptionSlotStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "controlSlots");
                         replace(
-                                binding.engine(),
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                                 "controlSlots",
                                 java.lang.reflect.Proxy.newProxyInstance(
                                         getClass().getClassLoader(),
@@ -1413,17 +1419,15 @@ class V3WorkerResourcesPostgresTest {
                                             }
                                         }));
                         var admissions =
-                                (com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .DiscoveryAdmissionStore)
-                                        field(binding.discovery(), "admissions");
+                                (com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore)
+                                        field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "admissions");
                         replace(
-                                binding.discovery(),
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()),
                                 "admissions",
                                 java.lang.reflect.Proxy.newProxyInstance(
                                         getClass().getClassLoader(),
                                         new Class[] {
-                                            com.kartaguez.pocoma.engine.consumption.v3.port
-                                                    .DiscoveryAdmissionStore.class
+                                            com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore.class
                                         },
                                         (p, m, a) -> {
                                             try {
@@ -1500,8 +1504,7 @@ class V3WorkerResourcesPostgresTest {
                     await(
                             () ->
                                     runtime.worker.snapshot().state()
-                                            == com.kartaguez.pocoma.orchestrator.poll.consumption.v3
-                                                    .V3ConsumptionWorker.State.STOPPED);
+                                            == com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.State.STOPPED);
                     assertEquals(
                             4,
                             sql.queryForObject(
@@ -1595,10 +1598,10 @@ class V3WorkerResourcesPostgresTest {
                 var handles = new ArrayList<ConsumptionEngine.AcquiredClaim>();
                 var leases = new ArrayList<PartitionLease>();
                 for (int p = 0; p < 4 && handles.size() < 2; p++) {
-                    var lease = binding.engine().acquirePartition(p).orElseThrow();
+                    var lease = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquirePartition(p).orElseThrow();
                     leases.add(lease);
-                    if (write) binding.discovery().discoverRequests(lease);
-                    else binding.discovery().discoverEvents(lease);
+                    if (write) com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverRequests(lease);
+                    else com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverEvents(lease);
                     var keys =
                             sql.queryForList(
                                     "select consumable_id from consumption_slot where"
@@ -1609,7 +1612,7 @@ class V3WorkerResourcesPostgresTest {
                                     p,
                                     2 - handles.size());
                     if (!keys.isEmpty())
-                        handles.addAll(binding.engine().acquire(lease, keys).claims());
+                        handles.addAll(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquire(lease, keys).claims());
                 }
                 assertEquals(2, handles.size());
                 var pool = runtime.pool(write ? "writeControl" : "readControl");
@@ -1618,9 +1621,9 @@ class V3WorkerResourcesPostgresTest {
                 var release = new CountDownLatch(1);
                 var real =
                         (com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions)
-                                field(binding.engine(), "controlTransactions");
+                                field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "controlTransactions");
                 replace(
-                        binding.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "controlTransactions",
                         new ForwardingTransactions(real) {
                             public <T> T write(
@@ -1656,7 +1659,7 @@ class V3WorkerResourcesPostgresTest {
                                                                 "i5-test-reserved-"
                                                                         + handle.claim()
                                                                                 .consumableId());
-                                                return binding.engine()
+                                                return com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine())
                                                         .renewClaims(List.of(handle.claim()));
                                             }));
                         futures.add(
@@ -1664,7 +1667,7 @@ class V3WorkerResourcesPostgresTest {
                                         () -> {
                                             Thread.currentThread()
                                                     .setName("i5-test-reserved-leases");
-                                            return binding.engine().renewPartitions(leases);
+                                            return com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).renewPartitions(leases);
                                         }));
                         latch(entered);
                         assertEquals(10, pool.getHikariPoolMXBean().getActiveConnections());
@@ -1679,7 +1682,7 @@ class V3WorkerResourcesPostgresTest {
                                                 assertThrows(
                                                         RuntimeException.class,
                                                         () ->
-                                                                binding.engine()
+                                                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine())
                                                                         .renewClaims(
                                                                                 List.of(
                                                                                         handles.getFirst()
@@ -1697,7 +1700,7 @@ class V3WorkerResourcesPostgresTest {
                         for (var loan : loans) loan.close();
                     }
                 }
-                for (var handle : handles) binding.engine().abandon(handle);
+                for (var handle : handles) com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).abandon(handle);
                 f.evidence("i5_r02-P2-" + (write ? "WRITE" : "READ"));
             }
         }
@@ -1717,11 +1720,11 @@ class V3WorkerResourcesPostgresTest {
                 journal.attach(runtime.pool(name));
             var real =
                     (ConsumptionParticipant)
-                            field(runtime.bindings.getFirst().engine(), "participant");
+                            field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine()), "participant");
             var poison = new AtomicReference<UUID>();
             var failOnce = new AtomicBoolean(true);
             replace(
-                    runtime.bindings.getFirst().engine(),
+                    com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine()),
                     "participant",
                     new ConsumptionParticipant() {
                         public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
@@ -1747,7 +1750,7 @@ class V3WorkerResourcesPostgresTest {
                     });
             // Lost callback after real commit drives actual inspect/R9, without pretending this is
             // a network proof.
-            var engine = runtime.bindings.getFirst().engine();
+            var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine());
             var effects = (AttemptTransactions) field(engine, "transactions");
             var uncertainOnce = new AtomicBoolean(true);
             replace(
@@ -1990,11 +1993,11 @@ class V3WorkerResourcesPostgresTest {
             seedPublications(f, runtime, 2);
             var b = runtime.bindings.getFirst();
             var def = b.definition();
-            var store = (PartitionOwnershipStore) field(b.engine(), "ownership");
+            var store = (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "ownership");
             var pool = runtime.pool("writeControl");
 
             // Setup lease on partition 0
-            var optLease = b.engine().acquirePartition(0);
+            var optLease = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()).acquirePartition(0);
             assertTrue(optLease.isPresent(), "initial acquire on partition 0");
             var lease = optLease.get();
             var token = lease.ownerToken();
@@ -2014,7 +2017,7 @@ class V3WorkerResourcesPostgresTest {
                             () -> {
                                 try {
                                     var effects =
-                                            (AttemptTransactions) field(b.discovery(), "effects");
+                                            (AttemptTransactions) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(b.discovery()), "effects");
                                     effects.write(
                                             () -> {
                                                 try {
@@ -2031,7 +2034,7 @@ class V3WorkerResourcesPostgresTest {
                                                     var storeProxy =
                                                             (PartitionOwnershipStore)
                                                                     field(
-                                                                            b.discovery(),
+                                                                            com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(b.discovery()),
                                                                             "ownership");
                                                     var locked =
                                                             storeProxy.protectAcquisition(
@@ -2086,7 +2089,7 @@ class V3WorkerResourcesPostgresTest {
             var renewalXid = new AtomicReference<String>();
             var renewalReturned = new AtomicReference<List<PartitionLease>>();
 
-            var controlTx = (AttemptTransactions) field(b.engine(), "controlTransactions");
+            var controlTx = (AttemptTransactions) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "controlTransactions");
             controlTx.write(
                     () -> {
                         try {
@@ -2099,14 +2102,14 @@ class V3WorkerResourcesPostgresTest {
                             renewalXid.set(row.get("xid").toString());
 
                             var storeProxy =
-                                    (PartitionOwnershipStore) field(b.engine(), "ownership");
+                                    (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "ownership");
                             var res = storeProxy.renew(def, List.of(lease), Duration.ofSeconds(90));
                             renewalReturned.set(res);
                             journal.observe(
                                     def.id(),
-                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                             .Phase.RENEWAL_LEASE,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                             .Outcome.CONFIRMED,
                                     1,
                                     Duration.ofMillis(1));
@@ -2166,13 +2169,13 @@ class V3WorkerResourcesPostgresTest {
                     () -> {
                         try {
                             var storeProxy =
-                                    (PartitionOwnershipStore) field(b.engine(), "ownership");
+                                    (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "ownership");
                             var res = storeProxy.renew(def, List.of(lease), Duration.ofSeconds(90));
                             journal.observe(
                                     def.id(),
-                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                             .Phase.RENEWAL_LEASE,
-                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                    com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                             .Outcome.CONFIRMED,
                                     1,
                                     Duration.ofMillis(1));
@@ -2241,10 +2244,9 @@ class V3WorkerResourcesPostgresTest {
             f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "90000");
             try (var runtime = new V3WorkerPostgresTest.Runtime(f, ConsumptionObservation.noop())) {
                 for (var binding : runtime.bindings) {
-                    var engine = binding.engine();
+                    var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine());
                     var ownership =
-                            (com.kartaguez.pocoma.engine.consumption.v3.port
-                                            .PartitionOwnershipStore)
+                            (com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore)
                                     field(engine, "ownership");
                     var pool =
                             runtime.pool(
@@ -2259,8 +2261,7 @@ class V3WorkerResourcesPostgresTest {
                             java.lang.reflect.Proxy.newProxyInstance(
                                     getClass().getClassLoader(),
                                     new Class[] {
-                                        com.kartaguez.pocoma.engine.consumption.v3.port
-                                                .PartitionOwnershipStore.class
+                                        com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore.class
                                     },
                                     (p, method, args) -> {
                                         try {
@@ -2315,8 +2316,7 @@ class V3WorkerResourcesPostgresTest {
                             () -> leasesAdvanced(f.write, write) && leasesAdvanced(f.read, read),
                             Duration.ofSeconds(75));
                     assertEquals(
-                            com.kartaguez.pocoma.orchestrator.poll.consumption.v3
-                                    .V3ConsumptionWorker.State.RUNNING,
+                            com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.State.RUNNING,
                             runtime.worker.snapshot().state());
                     for (var authority : List.of("WRITE", "READ")) {
                         var sql = authority.equals("WRITE") ? f.write : f.read;
@@ -2651,17 +2651,17 @@ class V3WorkerResourcesPostgresTest {
                         var binding = runtime.bindings.get(write ? 0 : 1);
                         var sql = write ? f.write : f.read;
                         int partition = write ? 0 : sqlPartition(f, binding, id);
-                        var held = binding.engine().acquirePartition(partition).orElseThrow();
-                        if (write) binding.discovery().discoverRequests(held);
-                        else binding.discovery().discoverEvents(held);
+                        var held = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquirePartition(partition).orElseThrow();
+                        if (write) com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverRequests(held);
+                        else com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverEvents(held);
                         var handle =
-                                binding.engine().acquire(held, List.of(id)).claims().getFirst();
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquire(held, List.of(id)).claims().getFirst();
                         var initial = deadlines(sql);
                         wire.armed.set(mode);
                         long begin = System.nanoTime();
                         assertThrows(
                                 AttemptTransactions.Failure.class,
-                                () -> binding.engine().renewClaims(List.of(handle.claim())));
+                                () -> com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).renewClaims(List.of(handle.claim())));
                         assertEquals(1, wire.intercepted.get());
                         assertEquals(
                                 1,
@@ -2716,7 +2716,7 @@ class V3WorkerResourcesPostgresTest {
                                                         .toInstant()
                                                         .equals(initial.get(id)));
                         if (mode == Wire.Fault.AFTER) assertEquals(1, wire.committed.get());
-                        binding.engine().abandon(handle);
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).abandon(handle);
                         assertEquals(0, runtime.capacity.snapshot().worker());
                         f.trace.add(
                                 "P5 authority="
@@ -2816,26 +2816,26 @@ class V3WorkerResourcesPostgresTest {
             }
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
 
 import com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestObservation;
-import com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 

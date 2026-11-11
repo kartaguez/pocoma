@@ -1,9 +1,12 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.observation.AttemptObservation;
+import com.kartaguez.pocoma.contract.consumption.observation.DiscoveryListener;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine;
-import com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -21,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * A (T1 - T0), B (T2 - T1), C (T3 - T2), D (T4 - T3), and aggregates C-03 readiness.
  */
 public final class StageHandoffTracker
-        implements V3ConsumptionWorker.AttemptHook, DiscoveryEngine.DiscoveryListener {
+        implements AttemptObservation, DiscoveryListener {
 
     private static final StageHandoffTracker INSTANCE = new StageHandoffTracker();
     private static final int MAX_TRACKED_COMMANDS = 10_000;
@@ -82,7 +85,7 @@ public final class StageHandoffTracker
 
         public volatile Integer partition;
         public volatile int attempts = 0;
-        public volatile ConsumptionEngine.Status terminalStatus;
+        public volatile ConsumptionProtocol.Status terminalStatus;
 
         public volatile long t0Nanos;
         public volatile long t0EpochMs;
@@ -522,7 +525,7 @@ public final class StageHandoffTracker
     public void onAttemptFinished(
             ConsumptionId id,
             UUID consumableId,
-            ConsumptionEngine.Status status,
+            ConsumptionProtocol.Status status,
             long finishNanos) {
         if (id == null || consumableId == null) return;
         String name = consumptionNames.getOrDefault(id, id.value().toString());
@@ -533,7 +536,7 @@ public final class StageHandoffTracker
             var rec = commands.get(consumableId);
             if (rec != null) {
                 rec.terminalStatus = status;
-                if (status == ConsumptionEngine.Status.COMMITTED && rec.t2Nanos == 0) {
+                if (status == ConsumptionProtocol.Status.COMMITTED && rec.t2Nanos == 0) {
                     rec.t2Nanos = finishNanos;
                     rec.t2EpochMs = epoch;
                     if (rec.t1Nanos > 0 && finishNanos >= rec.t1Nanos) {
@@ -559,7 +562,7 @@ public final class StageHandoffTracker
             }
         } else {
             // T4: Read projection write transaction commit confirmed
-            if (status != ConsumptionEngine.Status.COMMITTED) return;
+            if (status != ConsumptionProtocol.Status.COMMITTED) return;
             Double procMs = null;
             var eventProjMap =
                     eventProjections.computeIfAbsent(consumableId, k -> new ConcurrentHashMap<>());

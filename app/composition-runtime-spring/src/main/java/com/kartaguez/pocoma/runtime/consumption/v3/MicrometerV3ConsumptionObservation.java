@@ -1,8 +1,9 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.*;
@@ -80,11 +81,11 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
         capacityChanges = Map.copyOf(changes);
     }
 
-    public void bindCapacity(WorkerCapacity capacity, Map<ConsumptionId, Integer> limits) {
+    public void bindCapacity(CapacityView capacity, Map<ConsumptionId, Integer> limits) {
         Gauge.builder("pocoma.v3.capacity.used", capacity, c -> c.snapshot().worker())
                 .tag("scope", "worker")
                 .register(registry);
-        Gauge.builder("pocoma.v3.capacity.limit", capacity, WorkerCapacity::workerLimit)
+        Gauge.builder("pocoma.v3.capacity.limit", capacity, CapacityView::workerLimit)
                 .tag("scope", "worker")
                 .register(registry);
         for (var entry : limits.entrySet()) {
@@ -108,8 +109,8 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
         }
     }
 
-    public void bind(V3ConsumptionWorker worker) {
-        for (var state : V3ConsumptionWorker.State.values())
+    public void bind(WorkerView worker) {
+        for (var state : WorkerView.State.values())
             Gauge.builder(
                             "pocoma.v3.worker.state",
                             worker,
@@ -181,7 +182,7 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
         var name = names.get(id);
         if (name == null) throw new IllegalArgumentException("unknown metric Consumption");
         if (phase == Phase.CAPACITY_RESERVED || phase == Phase.CAPACITY_RETURNED) {
-            // Called inside WorkerCapacity's monitor: no registry registration/lookup or other
+            // Called inside CapacityView's monitor: no registry registration/lookup or other
             // lock.
             capacityChanges.get(id)[phase == Phase.CAPACITY_RESERVED ? 0 : 1].increment(amount);
             return;

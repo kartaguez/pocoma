@@ -1,4 +1,13 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -6,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
@@ -183,7 +190,7 @@ class V3IdentityPotCommandPostgresTest {
                             definition,
                             control,
                             new SpringAttemptTransactions(control, technicalManager, 5),
-                            new DiscoveryEngine.Settings(
+                            new DiscoverySettings(
                                     128,
                                     32,
                                     32,
@@ -246,12 +253,12 @@ class V3IdentityPotCommandPostgresTest {
             return claim;
         }
 
-        ConsumptionEngine.Attempt execute(PotCommand command) {
+        ConsumptionProtocol.Attempt execute(PotCommand command) {
             return engine.execute(acquire(command));
         }
 
         void completed(PotCommand command, String outcome, String rejection) throws Exception {
-            assertEquals(ConsumptionEngine.Status.COMMITTED, execute(command).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, execute(command).status());
             f.verifyCommand(command, outcome, rejection);
         }
 
@@ -525,7 +532,7 @@ class V3IdentityPotCommandPostgresTest {
                                 pot.value());
                     };
             var attempt = h.execute(command);
-            assertEquals(ConsumptionEngine.Status.ROLLED_BACK, attempt.status());
+            assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, attempt.status());
             assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, attempt.resolution());
             assertTrue(
                     messages(attempt.cause())
@@ -576,7 +583,7 @@ class V3IdentityPotCommandPostgresTest {
                     release.countDown();
                 }
                 var attempt = first.get(20, TimeUnit.SECONDS);
-                assertEquals(ConsumptionEngine.Status.ROLLED_BACK, attempt.status());
+                assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, attempt.status());
                 assertEquals(AttemptFailureClassifier.FailureKind.COLLISION, attempt.failureKind());
                 h.pending(command);
                 assertEquals(
@@ -668,8 +675,8 @@ class V3IdentityPotCommandPostgresTest {
                     var resolved = attempt.get(20, TimeUnit.SECONDS);
                     assertEquals(
                             rollback
-                                    ? ConsumptionEngine.Status.ROLLED_BACK
-                                    : ConsumptionEngine.Status.COMMITTED,
+                                    ? ConsumptionProtocol.Status.ROLLED_BACK
+                                    : ConsumptionProtocol.Status.COMMITTED,
                             resolved.status());
                     if (rollback) {
                         assertEquals(
@@ -744,7 +751,7 @@ class V3IdentityPotCommandPostgresTest {
                                 throw new IllegalStateException("injected " + boundary);
                         };
                 var attempt = h.execute(command);
-                assertEquals(ConsumptionEngine.Status.ROLLED_BACK, attempt.status(), boundary);
+                assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, attempt.status(), boundary);
                 assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, attempt.resolution());
                 h.protectedEui = () -> {};
                 h.sqlHook = (s, after) -> {};
@@ -830,7 +837,7 @@ class V3IdentityPotCommandPostgresTest {
                     release.countDown();
                 }
                 var attempt = result.get(20, TimeUnit.SECONDS);
-                assertEquals(ConsumptionEngine.Status.ROLLED_BACK, attempt.status());
+                assertEquals(ConsumptionProtocol.Status.ROLLED_BACK, attempt.status());
                 assertEquals(AttemptFailureClassifier.FailureKind.COLLISION, attempt.failureKind());
                 h.pending(command);
                 assertEquals(
@@ -959,10 +966,10 @@ class V3IdentityPotCommandPostgresTest {
                 }
                 var attempt = h.engine.execute(handle);
                 if (variant.equals("partition-handover")) {
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, attempt.status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, attempt.status());
                     h.f.verifyCommand(command, "CHANGED", null);
                 } else {
-                    assertEquals(ConsumptionEngine.Status.CLAIM_LOST, attempt.status());
+                    assertEquals(ConsumptionProtocol.Status.CLAIM_LOST, attempt.status());
                     assertEquals(
                             AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
                             attempt.failureKind());
@@ -1102,7 +1109,7 @@ class V3IdentityPotCommandPostgresTest {
                     var fresh = h.acquire(command);
                     assertNotEquals(handle.claim().claimToken(), fresh.claim().claimToken());
                     assertEquals(
-                            ConsumptionEngine.Status.COMMITTED, h.engine.execute(fresh).status());
+                            ConsumptionProtocol.Status.COMMITTED, h.engine.execute(fresh).status());
                     h.f.verifyCommand(command, "CHANGED", null);
                 }
                 assertEquals(

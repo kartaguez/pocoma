@@ -281,6 +281,14 @@ abstract class IdentityPostgresFixture {
         }
     }
 
+    String[] migrationLocations() {
+        return new String[] {
+                "classpath:db/v3-pot/migration",
+                "classpath:db/v3-pot-execution/migration",
+                "classpath:db/v3-consumption-write/migration",
+                "classpath:db/v3-identity/migration"};
+    }
+
     @BeforeEach
     void setup() {
         schema = "l3_i2_" + UUID.randomUUID().toString().replace("-", "");
@@ -300,11 +308,7 @@ abstract class IdentityPostgresFixture {
                 .defaultSchema(schema)
                 .schemas(schema)
                 .createSchemas(true)
-                .locations(
-                        "classpath:db/v3-pot/migration",
-                        "classpath:db/v3-pot-execution/migration",
-                        "classpath:db/v3-consumption-write/migration",
-                        "classpath:db/v3-identity/migration")
+                .locations(migrationLocations())
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

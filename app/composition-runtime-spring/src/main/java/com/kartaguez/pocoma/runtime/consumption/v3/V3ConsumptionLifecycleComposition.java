@@ -1,9 +1,15 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier;
-import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 
@@ -92,7 +98,7 @@ public final class V3ConsumptionLifecycleComposition {
             LifecycleSettings settings,
             WorkerCapacity capacity,
             AttemptFailureClassifier classifier,
-            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation) {
         if (business == control
                 || business.getMaximumPoolSize() < capacity.workerLimit() + 2
                 || control.getMaximumPoolSize() < capacity.workerLimit() + 6)
@@ -128,11 +134,11 @@ public final class V3ConsumptionLifecycleComposition {
             com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions technical,
             DataSource writeSource,
             com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions sourceReads,
-            DiscoveryEngine.Settings discoverySettings,
+            DiscoverySettings discoverySettings,
             LifecycleSettings settings,
             WorkerCapacity capacity,
             AttemptFailureClassifier classifier,
-            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+            com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation) {
         if (definition.authority() != ConsumptionDefinition.Authority.READ)
             throw new IllegalArgumentException("Explicit event recovery is READ only");
         if (business == control

@@ -1,8 +1,10 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
@@ -18,9 +20,9 @@ import javax.sql.DataSource;
 public final class JdbcDiscoveryAdmissionStore implements DiscoveryAdmissionStore {
     private final DataSource source;
     private final JdbcTemplate jdbc;
-    private final DiscoveryEngine.Settings settings;
+    private final DiscoverySettings settings;
 
-    public JdbcDiscoveryAdmissionStore(DataSource source, DiscoveryEngine.Settings settings) {
+    public JdbcDiscoveryAdmissionStore(DataSource source, DiscoverySettings settings) {
         this.source = Objects.requireNonNull(source);
         this.jdbc = new JdbcTemplate(source);
         this.settings = Objects.requireNonNull(settings);

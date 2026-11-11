@@ -1,7 +1,8 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
-import com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,25 +53,25 @@ class StageHandoffTrackerTest {
 
         // T2: Command write transaction commits
         long t2 = t1 + 5_000_000L; // +5ms
-        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionEngine.Status.COMMITTED, t2);
+        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionProtocol.Status.COMMITTED, t2);
 
         // T3 & T4: PotVersion projection
         long t3Pv = t2 + 3_000_000L; // +3ms wait
         tracker.onAttemptStarting(POT_VERSION_ID, potEventId, t3Pv);
         long t4Pv = t3Pv + 4_000_000L; // +4ms processing
-        tracker.onAttemptFinished(POT_VERSION_ID, potEventId, ConsumptionEngine.Status.COMMITTED, t4Pv);
+        tracker.onAttemptFinished(POT_VERSION_ID, potEventId, ConsumptionProtocol.Status.COMMITTED, t4Pv);
 
         // T3 & T4: PotBalance projection
         long t3Pb = t2 + 4_000_000L; // +4ms wait
         tracker.onAttemptStarting(POT_BALANCE_ID, potEventId, t3Pb);
         long t4Pb = t3Pb + 3_500_000L; // +3.5ms processing
-        tracker.onAttemptFinished(POT_BALANCE_ID, potEventId, ConsumptionEngine.Status.COMMITTED, t4Pb);
+        tracker.onAttemptFinished(POT_BALANCE_ID, potEventId, ConsumptionProtocol.Status.COMMITTED, t4Pb);
 
         // T3 & T4: CommandResult projection
         long t3Cr = t2 + 2_000_000L; // +2ms wait
         tracker.onAttemptStarting(COMMAND_RESULT_ID, completionEventId, t3Cr);
         long t4Cr = t3Cr + 2_500_000L; // +2.5ms processing
-        tracker.onAttemptFinished(COMMAND_RESULT_ID, completionEventId, ConsumptionEngine.Status.COMMITTED, t4Cr);
+        tracker.onAttemptFinished(COMMAND_RESULT_ID, completionEventId, ConsumptionProtocol.Status.COMMITTED, t4Cr);
 
         // Verify snapshot
         var snapshot = tracker.snapshot(10, null);
@@ -134,7 +135,7 @@ class StageHandoffTrackerTest {
 
         // Rolled back attempt
         long t2 = t1 + 3_000_000L;
-        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionEngine.Status.ROLLED_BACK, t2);
+        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionProtocol.Status.ROLLED_BACK, t2);
 
         var snapshot = tracker.snapshot(10, null);
         @SuppressWarnings("unchecked")
@@ -166,7 +167,7 @@ class StageHandoffTrackerTest {
         tracker.onAttemptStarting(COMMAND_ID, cmdId, t1);
         tracker.linkCommandEvents(cmdId, potId, 1L, potEventId, completionEventId);
         long t2 = t1 + 5_000_000L;
-        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionEngine.Status.COMMITTED, t2);
+        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionProtocol.Status.COMMITTED, t2);
 
         // Authenticated snapshot contains business IDs
         var authSnapshot = tracker.snapshot(10, null, true);
@@ -221,7 +222,7 @@ class StageHandoffTrackerTest {
 
         // T2: Attempt finished
         long t2 = t1 + 4_000_000L; // +4.0ms
-        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionEngine.Status.COMMITTED, t2);
+        tracker.onAttemptFinished(COMMAND_ID, cmdId, ConsumptionProtocol.Status.COMMITTED, t2);
 
         var snapshot = tracker.snapshot(10, null);
         @SuppressWarnings("unchecked")

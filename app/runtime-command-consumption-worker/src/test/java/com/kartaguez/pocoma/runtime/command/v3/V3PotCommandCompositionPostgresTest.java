@@ -1,4 +1,11 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.CommandReservedClaimFixture;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,10 +25,9 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier;
-import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.CalculatePotBalances;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
@@ -246,7 +252,7 @@ class V3PotCommandCompositionPostgresTest {
                         + " from (select ?::uuid id,?::uuid token) x) y",
                     request, claim);
             var result = CommandReservedClaimFixture.execute(execution, claim(request, claim));
-            assertEquals(ConsumptionEngine.Status.COMMITTED, result.status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, result.status());
             assertEquals(
                     1L,
                     sql.queryForObject(
@@ -268,7 +274,7 @@ class V3PotCommandCompositionPostgresTest {
                     sql.queryForObject(
                             "select count(*) from v3_command_completion_event", Integer.class));
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED,
+                    ConsumptionProtocol.Status.COMMITTED,
                     CommandReservedClaimFixture.execute(execution, claim(request, claim)).status());
             // E: actual Spring/JPA composition also executes finance and historical calculation.
             var a = new ShareholderId(UUID.randomUUID());
@@ -311,7 +317,7 @@ class V3PotCommandCompositionPostgresTest {
                                 id, token);
                         var completed =
                                 CommandReservedClaimFixture.execute(execution, claim(id, token));
-                        assertEquals(ConsumptionEngine.Status.COMMITTED, completed.status());
+                        assertEquals(ConsumptionProtocol.Status.COMMITTED, completed.status());
                         assertEquals(
                                 observed + 1,
                                 sql.queryForObject(

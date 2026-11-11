@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.runtime.command.v3;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException;
-import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionLifecycleComposition;
 

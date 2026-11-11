@@ -5,7 +5,7 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest.*;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 import org.junit.jupiter.api.Test;
 

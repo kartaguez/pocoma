@@ -1,12 +1,13 @@
 package com.kartaguez.pocoma.engine.consume.registration.v3;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.useridentity.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,12 +1,24 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.PreparationReads;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
@@ -402,7 +414,7 @@ class V3WorkerPostgresTest {
             worker(ctx).requestDrain(callback::incrementAndGet);
             await(
                     () ->
-                            worker(ctx).snapshot().state() == V3ConsumptionWorker.State.STOPPED
+                            worker(ctx).snapshot().state() == WorkerView.State.STOPPED
                                     && callback.get() == 1);
             assertEquals(1, callback.get());
             ctx.close();
@@ -436,12 +448,14 @@ class V3WorkerPostgresTest {
     }
 
     static Object field(Object target, String name) throws Exception {
+        target = L2TestAccess.unwrap(target);
         var f = target.getClass().getDeclaredField(name);
         f.setAccessible(true);
-        return f.get(target);
+        return L2TestAccess.unwrap(f.get(target));
     }
 
     static void replace(Object target, String name, Object value) throws Exception {
+        target = L2TestAccess.unwrap(target);
         var f = target.getClass().getDeclaredField(name);
         f.setAccessible(true);
         f.set(target, value);
@@ -541,7 +555,7 @@ class V3WorkerPostgresTest {
                                 V3ConsumptionWorkerSettings.class,
                                 V3BootstrapGuard.class,
                                 WorkerCapacity.class,
-                                com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation
                                         .class,
                                 org.springframework.core.env.Environment.class);
                 factory.setAccessible(true);
@@ -575,7 +589,7 @@ class V3WorkerPostgresTest {
         }
 
         void prepareBarrier(int index, Consumer<UUID> barrier) throws Exception {
-            var engine = bindings.get(index).engine();
+            var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(bindings.get(index).engine());
             var real = (ConsumptionParticipant) field(engine, "participant");
             replace(
                     engine,
@@ -604,12 +618,12 @@ class V3WorkerPostgresTest {
 
         public void close() throws Exception {
             if (worker != null) {
-                if (worker.snapshot().state() == V3ConsumptionWorker.State.STARTING) {
+                if (worker.snapshot().state() == WorkerView.State.STARTING) {
                     worker.requestDrain();
                     worker.start();
                 }
                 worker.requestDrain();
-                await(() -> worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
+                await(() -> worker.snapshot().state() == WorkerView.State.STOPPED);
             }
             if (resources != null) {
                 try {
@@ -718,11 +732,11 @@ class V3WorkerPostgresTest {
                             4);
             var lease =
                     leases.computeIfAbsent(
-                            partition, p -> binding.engine().acquirePartition(p).orElseThrow());
-            binding.discovery().discoverRequests(lease);
-            var claim = binding.engine().acquire(lease, List.of(id)).claims().getFirst();
+                            partition, p -> com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquirePartition(p).orElseThrow());
+            com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverRequests(lease);
+            var claim = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquire(lease, List.of(id)).claims().getFirst();
             assertEquals(
-                    ConsumptionEngine.Status.COMMITTED, binding.engine().execute(claim).status());
+                    ConsumptionProtocol.Status.COMMITTED, com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).execute(claim).status());
         }
         assertEquals(0, runtime.capacity.snapshot().worker());
         // Disposable fixture setup ends the manually acquired leases; no claim or checkpoint reset.
@@ -742,8 +756,8 @@ class V3WorkerPostgresTest {
                 f.write.queryForObject(
                         "select ((consumption_hash_v1('COMMAND',?)::bigint%4+4)%4)::int",
                         Integer.class, id);
-        var lease = b.engine().acquirePartition(p).orElseThrow();
-        b.discovery().discoverRequests(lease);
+        var lease = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()).acquirePartition(p).orElseThrow();
+        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(b.discovery()).discoverRequests(lease);
         f.write.update(
                 "update partition_ownership set owned_until=clock_timestamp()-interval '1 second'"
                         + " where consumption_id=? and partition_id=?",
@@ -845,7 +859,7 @@ class V3WorkerPostgresTest {
     void i5_w04() throws Exception {
         try (var f = new Fixture(PG)) {
             var capacity = new AtomicReference<WorkerCapacity>();
-            var samples = new CopyOnWriteArrayList<WorkerCapacity.Snapshot>();
+            var samples = new CopyOnWriteArrayList<CapacityView.Snapshot>();
             ConsumptionObservation observer =
                     (id, p, o, n, d) -> {
                         if (capacity.get() != null) samples.add(capacity.get().snapshot());
@@ -884,9 +898,9 @@ class V3WorkerPostgresTest {
 
     static void retryWithoutDelay(Runtime runtime) throws Exception {
         for (var b : runtime.bindings) {
-            var settings = (LifecycleSettings) field(b.engine(), "settings");
+            var settings = (LifecycleSettings) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "settings");
             replace(
-                    b.engine(),
+                    com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()),
                     "settings",
                     new LifecycleSettings(
                             settings.batchSize(),
@@ -907,10 +921,10 @@ class V3WorkerPostgresTest {
             var failures = new AtomicInteger();
             var real =
                     (ConsumptionParticipant)
-                            field(runtime.bindings.getFirst().engine(), "participant");
+                            field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine()), "participant");
             var poisoned = new AtomicReference<UUID>();
             replace(
-                    runtime.bindings.getFirst().engine(),
+                    com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine()),
                     "participant",
                     new ConsumptionParticipant() {
                         public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
@@ -934,9 +948,9 @@ class V3WorkerPostgresTest {
                     });
             var classifier =
                     (AttemptFailureClassifier)
-                            field(runtime.bindings.getFirst().engine(), "classifier");
+                            field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine()), "classifier");
             replace(
-                    runtime.bindings.getFirst().engine(),
+                    com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine()),
                     "classifier",
                     (AttemptFailureClassifier)
                             cause -> {
@@ -1091,7 +1105,7 @@ class V3WorkerPostgresTest {
                 latch(entered);
                 runtime.worker.requestDrain(callbacks::incrementAndGet);
                 runtime.worker.requestDrain(callbacks::incrementAndGet);
-                assertEquals(V3ConsumptionWorker.State.DRAINING, runtime.worker.snapshot().state());
+                assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
                 assertEquals(0, callbacks.get());
                 assertEquals(1, runtime.capacity.snapshot().worker());
                 assertFalse(runtime.pool("writeBusiness").isClosed());
@@ -1099,7 +1113,7 @@ class V3WorkerPostgresTest {
                 await(
                         () ->
                                 runtime.worker.snapshot().state()
-                                                == V3ConsumptionWorker.State.STOPPED
+                                                == WorkerView.State.STOPPED
                                         && callbacks.get() == 2);
                 assertEquals(2, callbacks.get());
                 assertTrue(runtime.pool("writeBusiness").isClosed());
@@ -1135,7 +1149,7 @@ class V3WorkerPostgresTest {
                         prepared.countDown();
                         latch(finishBusiness);
                     });
-            var engine = runtime.bindings.getFirst().engine();
+            var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine());
             var real = (AttemptTransactions) field(engine, "controlTransactions");
             replace(
                     engine,
@@ -1250,9 +1264,9 @@ class V3WorkerPostgresTest {
                         };
                 ((ThreadPoolExecutor) field(runtime.worker, "executor")).shutdown();
                 replace(runtime.worker, "executor", executor);
-                var owner = (AttemptTransactions) field(target.engine(), "controlTransactions");
+                var owner = (AttemptTransactions) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(target.engine()), "controlTransactions");
                 replace(
-                        target.engine(),
+                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(target.engine()),
                         "controlTransactions",
                         new ForwardingTransactions(owner) {
                             public <T> T write(
@@ -1278,14 +1292,14 @@ class V3WorkerPostgresTest {
                     runtime.worker.requestDrain();
                     await(() -> runtime.capacity.snapshot().worker() == 0);
                     assertEquals(
-                            V3ConsumptionWorker.State.DRAINING, runtime.worker.snapshot().state());
+                            WorkerView.State.DRAINING, runtime.worker.snapshot().state());
                     enter.countDown();
                     await(() -> runtime.worker.snapshot().handles() == 0);
                     reply.countDown();
                     await(
                             () ->
                                     runtime.worker.snapshot().state()
-                                            == V3ConsumptionWorker.State.STOPPED);
+                                            == WorkerView.State.STOPPED);
                     var sql = write ? f.write : f.read;
                     var cid = target.definition().id().value();
                     assertEquals(
@@ -1327,7 +1341,7 @@ class V3WorkerPostgresTest {
             try (var runtime = new Runtime(f, ConsumptionObservation.noop())) {
                 int index = write ? 0 : 1;
                 if (!write) seedPublications(f, runtime, 1);
-                var engine = runtime.bindings.get(index).engine();
+                var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.get(index).engine());
                 var sql = write ? f.write : f.read;
                 var cid = runtime.bindings.get(index).definition().id().value();
                 var firstPrepared = new CountDownLatch(1);
@@ -1499,7 +1513,7 @@ class V3WorkerPostgresTest {
             var acquired = new CountDownLatch(1);
             var returned = new CountDownLatch(1);
             var arm = new AtomicBoolean();
-            var engine = runtime.bindings.getFirst().engine();
+            var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine());
             var realStore = (ConsumptionSlotStore) field(engine, "controlSlots");
             replace(
                     engine,
@@ -1551,7 +1565,7 @@ class V3WorkerPostgresTest {
                 assertTrue(operations >= 1 && operations <= 2);
                 assertEquals(1, runtime.capacity.snapshot().worker());
                 returned.countDown();
-                await(() -> runtime.worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
+                await(() -> runtime.worker.snapshot().state() == WorkerView.State.STOPPED);
                 assertEquals(0, runtime.worker.snapshot().handles());
                 assertEquals(0, runtime.capacity.snapshot().worker());
                 assertEquals(
@@ -1600,7 +1614,7 @@ class V3WorkerPostgresTest {
                 assertEquals(1, runtime.worker.snapshot().started());
                 assertEquals(1, runtime.capacity.snapshot().worker());
                 enterEngine.countDown();
-                await(() -> runtime.worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
+                await(() -> runtime.worker.snapshot().state() == WorkerView.State.STOPPED);
                 assertEquals(
                         "TERMINAL",
                         f.write.queryForObject(
@@ -1637,7 +1651,7 @@ class V3WorkerPostgresTest {
                     var enterFinal = new CountDownLatch(1);
                     var finalLocked = new CountDownLatch(1);
                     var finishFinal = new CountDownLatch(1);
-                    var engine = binding.engine();
+                    var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine());
                     var real = (ConsumptionParticipant) field(engine, "participant");
                     replace(
                             engine,
@@ -1760,9 +1774,9 @@ class V3WorkerPostgresTest {
                                         binding.definition().id().value(),
                                         partition);
                                 var takeover =
-                                        other.engine().acquirePartition(partition).orElseThrow();
+                                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(other.engine()).acquirePartition(partition).orElseThrow();
                                 assertTrue(
-                                        other.engine()
+                                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(other.engine())
                                                 .acquire(takeover, List.of(id))
                                                 .claims()
                                                 .isEmpty(),
@@ -1773,7 +1787,7 @@ class V3WorkerPostgresTest {
                             await(
                                     () ->
                                             a.worker.snapshot().state()
-                                                    == V3ConsumptionWorker.State.STOPPED);
+                                                    == WorkerView.State.STOPPED);
                             if (boundary < 2) {
                                 assertEquals(
                                         0,
@@ -1805,16 +1819,16 @@ class V3WorkerPostgresTest {
                                         binding.definition().id().value(),
                                         partition);
                                 var lease =
-                                        other.engine().acquirePartition(partition).orElseThrow();
+                                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(other.engine()).acquirePartition(partition).orElseThrow();
                                 var fresh =
-                                        other.engine()
+                                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(other.engine())
                                                 .acquire(lease, List.of(id))
                                                 .claims()
                                                 .getFirst();
                                 assertNotEquals(row.get("claim_token"), fresh.claim().claimToken());
                                 assertEquals(
-                                        ConsumptionEngine.Status.COMMITTED,
-                                        other.engine().execute(fresh).status());
+                                        ConsumptionProtocol.Status.COMMITTED,
+                                        com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(other.engine()).execute(fresh).status());
                             }
                             assertEquals(
                                     1,
@@ -1898,7 +1912,7 @@ class V3WorkerPostgresTest {
                                         runtime, write, selected)
                                 : V3WorkerResourcesPostgresTest.businessFault(
                                         runtime, write, selected);
-                var engine = runtime.bindings.get(index).engine();
+                var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.get(index).engine());
                 var original = (ConsumptionParticipant) field(engine, "participant");
                 var renewalCommitted = new CountDownLatch(1);
                 var returnRenewal = new CountDownLatch(1);
@@ -2042,7 +2056,7 @@ class V3WorkerPostgresTest {
                     if (deadline) {
                         await(() -> runtime.worker.snapshot().deadlineExceeded());
                         assertEquals(
-                                V3ConsumptionWorker.State.DRAINING,
+                                WorkerView.State.DRAINING,
                                 runtime.worker.snapshot().state());
                         assertFalse(
                                 runtime.pool(write ? "writeControl" : "readControl").isClosed());
@@ -2087,14 +2101,14 @@ class V3WorkerPostgresTest {
                                                 && runtime.worker.snapshot().handles() == 0);
                         assertEquals(0, callbacks.get());
                         assertEquals(
-                                V3ConsumptionWorker.State.DRAINING,
+                                WorkerView.State.DRAINING,
                                 runtime.worker.snapshot().state());
                         returnRenewal.countDown();
                     }
                     await(
                             () ->
                                     runtime.worker.snapshot().state()
-                                                    == V3ConsumptionWorker.State.STOPPED
+                                                    == WorkerView.State.STOPPED
                                             && callbacks.get() == 1);
                     assertEquals(0, runtime.capacity.snapshot().worker());
                     assertEquals(0, engine.settlePending());
@@ -2211,7 +2225,7 @@ class V3WorkerPostgresTest {
             int partition = Integer.parseInt(mode[4]);
             UUID id = UUID.fromString(mode[5]);
             var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var engine = runtime.bindings.get(write ? 0 : 1).engine();
+            var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.get(write ? 0 : 1).engine());
             var lease = engine.acquirePartition(partition).orElseThrow();
             var handle = engine.acquire(lease, List.of(id)).claims().getFirst();
             var business = (AttemptTransactions) field(engine, "transactions");
@@ -2260,7 +2274,7 @@ class V3WorkerPostgresTest {
                 Thread.sleep(10);
             }
             assertEquals(1, runtime.capacity.snapshot().worker());
-            assertEquals(V3ConsumptionWorker.State.DRAINING, runtime.worker.snapshot().state());
+            assertEquals(WorkerView.State.DRAINING, runtime.worker.snapshot().state());
             assertEquals(0, closes.get());
             assertEquals(0, stopped.get());
             System.out.println(
@@ -2314,7 +2328,7 @@ class V3WorkerPostgresTest {
             await(() -> fault.physical.get() != null);
             runtime.worker.requestDrain(stopped::incrementAndGet);
             await(() -> runtime.worker.snapshot().operations() == 1);
-            if (runtime.worker.snapshot().state() != V3ConsumptionWorker.State.DRAINING
+            if (runtime.worker.snapshot().state() != WorkerView.State.DRAINING
                     || runtime.capacity.snapshot().worker() != 0
                     || closes.get() != 0)
                 throw new AssertionError("Control UNKNOWN lost L1 or started pool closure");
@@ -2354,7 +2368,7 @@ class V3WorkerPostgresTest {
                                 fault.physical.get() != null
                                         && runtime.worker.snapshot().localExited() == 1
                                         && runtime.worker.snapshot().state()
-                                                == V3ConsumptionWorker.State.DRAINING,
+                                                == WorkerView.State.DRAINING,
                         Duration.ofSeconds(30));
             } catch (Throwable failure) {
                 System.out.println(
@@ -2373,7 +2387,7 @@ class V3WorkerPostgresTest {
             if (!fault.readOnly.get() || runtime.capacity.snapshot().worker() != 1)
                 throw new AssertionError("physical read-only preparation lost its reservation");
             for (var binding : runtime.bindings)
-                if (binding.engine().settlePending() != 0)
+                if (com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).settlePending() != 0)
                     throw new AssertionError("read-only unit settled from slot state");
             System.out.println(
                     "READ_PREPARATION_UNKNOWN pid="
@@ -2384,7 +2398,7 @@ class V3WorkerPostgresTest {
             System.out.flush();
             while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
             for (var binding : runtime.bindings)
-                if (binding.engine().settlePending() != 0)
+                if (com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).settlePending() != 0)
                     throw new AssertionError(
                             "external observation cannot qualify old read unit through current"
                                     + " Engine ports");
@@ -2401,7 +2415,7 @@ class V3WorkerPostgresTest {
         if (args[0].startsWith("crash-")) {
             String boundary = args[0].substring(6);
             var runtime = new Runtime(values, ConsumptionObservation.noop());
-            var engine = runtime.bindings.getFirst().engine();
+            var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(runtime.bindings.getFirst().engine());
             Runnable stop =
                     () -> {
                         System.out.println("CRASH_BOUNDARY " + boundary);
@@ -2453,7 +2467,7 @@ class V3WorkerPostgresTest {
                                 return control.write(work, guard);
                             }
                         });
-                var discovery = runtime.bindings.getFirst().discovery();
+                var discovery = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(runtime.bindings.getFirst().discovery());
                 var owner = (AttemptTransactions) field(discovery, "effects");
                 replace(
                         discovery,
@@ -2615,8 +2629,8 @@ class V3WorkerPostgresTest {
                                             "select request_id from v3_command", UUID.class);
                             var binding = setup.bindings.get(1);
                             for (int p = 0; p < 4; p++) {
-                                var lease = binding.engine().acquirePartition(p).orElseThrow();
-                                binding.discovery().discoverEvents(lease);
+                                var lease = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()).acquirePartition(p).orElseThrow();
+                                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverEvents(lease);
                             }
                             var row =
                                     f.read.queryForMap(
@@ -2998,7 +3012,7 @@ class V3WorkerPostgresTest {
         while (System.nanoTime() < deadline) {
             Thread.sleep(1000);
             observations++;
-            assertEquals(V3ConsumptionWorker.State.RUNNING, runtime.worker.snapshot().state());
+            assertEquals(WorkerView.State.RUNNING, runtime.worker.snapshot().state());
             assertEquals(0, runtime.capacity.snapshot().worker());
             for (String name :
                     List.of("writeBusiness", "readBusiness", "writeControl", "readControl"))
@@ -3072,11 +3086,11 @@ class V3WorkerPostgresTest {
             UUID quarantined, extra;
             try (var runtime = new Runtime(f, ConsumptionObservation.noop())) {
                 var binding = runtime.bindings.getFirst();
-                var engine = binding.engine();
+                var engine = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine());
                 var original = (ConsumptionParticipant) field(engine, "participant");
                 quarantined = pendingAtPartitionZero(f, 8000);
                 var lease = engine.acquirePartition(0).orElseThrow();
-                binding.discovery().discoverRequests(lease);
+                com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()).discoverRequests(lease);
                 replace(
                         engine,
                         "participant",
@@ -3153,7 +3167,7 @@ class V3WorkerPostgresTest {
                     await(
                             () ->
                                     runtime.worker.snapshot().state()
-                                            == V3ConsumptionWorker.State.STOPPED);
+                                            == WorkerView.State.STOPPED);
                     assertEquals(
                             3,
                             f.write.queryForObject(
@@ -3343,7 +3357,7 @@ class V3WorkerPostgresTest {
                 await(
                         () ->
                                 runtime.worker.snapshot().state()
-                                                == V3ConsumptionWorker.State.STOPPED
+                                                == WorkerView.State.STOPPED
                                         && callbacks.get() == 1);
                 assertEquals(
                         1,
@@ -3565,13 +3579,13 @@ class V3WorkerPostgresTest {
                     assertEquals(0, runtime.capacity.snapshot().worker());
                     assertEquals(0, callbacks.get());
                     assertEquals(
-                            V3ConsumptionWorker.State.DRAINING, runtime.worker.snapshot().state());
+                            WorkerView.State.DRAINING, runtime.worker.snapshot().state());
                     assertFalse(runtime.pool("writeControl").isClosed());
                     release.countDown();
                     await(
                             () ->
                                     runtime.worker.snapshot().state()
-                                                    == V3ConsumptionWorker.State.STOPPED
+                                                    == WorkerView.State.STOPPED
                                             && callbacks.get() == 1);
                     assertEquals(0, runtime.worker.snapshot().handles());
                     assertEquals(0, runtime.worker.snapshot().cleanups());
@@ -3633,26 +3647,26 @@ class V3WorkerPostgresTest {
         }
     }
 
-    private static com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+    private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
             evidence(RecoveryObservation value) {
         return switch (value) {
             case COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .SATISFIED;
             case NOT_COMPLETED ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .MISSING;
             case INCONSISTENT ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .DIVERGENT;
             case UNAVAILABLE ->
-                    com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+                    com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                             .UNAVAILABLE;
         };
     }
 
     private static RecoveryObservation legacy(
-            com.kartaguez.pocoma.engine.consumption.v3.ConsumptionParticipant.EffectEvidence
+            com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence
                     value) {
         return switch (value) {
             case SATISFIED -> RecoveryObservation.COMPLETED;

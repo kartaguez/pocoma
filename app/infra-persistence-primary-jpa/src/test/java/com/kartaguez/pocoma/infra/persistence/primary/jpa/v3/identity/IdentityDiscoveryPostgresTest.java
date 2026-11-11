@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,7 +8,6 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.useridentity.v3.*;
 import com.kartaguez.pocoma.engine.consume.registration.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 
 import org.junit.jupiter.api.*;
@@ -29,7 +30,12 @@ class IdentityDiscoveryPostgresTest extends IdentityEngineFixture {
         execute(req);
         discover(req);
         assertEquals(0, count("consumption_slot"));
-        assertEquals(0, count("discovery_checkpoint"));
+        assertEquals(1, count("discovery_checkpoint"));
+        int partition = RoutingV1.partition(
+                RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, req.requestId()), 4);
+        assertEquals(1L, admin.queryForObject(
+                "select position from discovery_checkpoint where consumption_id=? and partition_id=?",
+                Long.class, CONSUMPTION, partition), "K retains the covered published request after terminalization");
     }
 
     @Test
@@ -63,7 +69,7 @@ class IdentityDiscoveryPostgresTest extends IdentityEngineFixture {
             finish.countDown();
         }
         assertEquals(
-                ConsumptionEngine.Status.COMMITTED, finalizer.get(15, TimeUnit.SECONDS).status());
+                ConsumptionProtocol.Status.COMMITTED, finalizer.get(15, TimeUnit.SECONDS).status());
         discover(req);
         assertEquals(0, count("consumption_slot"));
     }

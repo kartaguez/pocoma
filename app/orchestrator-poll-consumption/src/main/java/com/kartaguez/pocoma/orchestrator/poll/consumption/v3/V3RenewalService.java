@@ -1,10 +1,10 @@
 package com.kartaguez.pocoma.orchestrator.poll.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition.Authority;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation.*;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
-import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.*;
 
 import java.time.Duration;
 import java.util.*;
@@ -20,6 +20,7 @@ public final class V3RenewalService {
         final List<V3ConsumptionWorker.LeaseEntry> leases;
         final long began = System.nanoTime();
         final long due;
+        final ProtocolSafety.RenewalPermit permit;
         boolean unknown;
 
         Call(
@@ -27,8 +28,9 @@ public final class V3RenewalService {
                 int lane,
                 V3ConsumptionWorker.Envelope envelope,
                 List<V3ConsumptionWorker.LeaseEntry> leases,
-                long due) {
+                long due, ProtocolSafety.RenewalPermit permit) {
             this.due = due;
+            this.permit = Objects.requireNonNull(permit);
             this.authority = authority;
             this.lane = lane;
             this.envelope = envelope;
@@ -131,13 +133,15 @@ public final class V3RenewalService {
                         || e.phase == V3ConsumptionWorker.Phase.ABANDONED
                         || now - e.renewedAt < worker.settings.renewalInterval().toNanos()
                         || worker.renewalCalls.stream().anyMatch(c -> c.envelope == e)) continue;
+                var permit = worker.safety.beginRenewal(authority, lane, e.handle);
+                if (permit.isEmpty()) continue;
                 call =
                         new Call(
                                 authority,
                                 lane,
                                 e,
                                 List.of(),
-                                e.renewedAt + worker.settings.renewalInterval().toNanos());
+                                e.renewedAt + worker.settings.renewalInterval().toNanos(), permit.get());
                 worker.renewalCalls.add(call);
                 e.renewedAt = now;
                 nextClaim[authority.ordinal()] = index + 1;
@@ -145,18 +149,14 @@ public final class V3RenewalService {
             }
         }
         if (call == null) return false;
-        boolean certain = false;
+        Throwable fault = null;
         try {
-            // Result is diagnostic only: it cannot upsert handles, release tickets or authorize
-            // execution.
-            call.envelope.binding.engine().renewClaims(List.of(call.envelope.handle.claim()));
-            certain = true;
-        } catch (Failure failure) {
-            certain = failure.resolution() != Resolution.UNKNOWN;
+            // Renewal remains diagnostic: it never upserts a handle or authorizes execution.
+            call.envelope.binding.engine().renewClaim(call.envelope.handle);
         } catch (RuntimeException | Error failure) {
-            /* Unknown: keep call and candidate excluded. */
+            fault = failure;
         } finally {
-            finish(call, certain);
+            finish(call, worker.safety.finishRenewal(call.permit, fault));
         }
         return true;
     }
@@ -197,93 +197,56 @@ public final class V3RenewalService {
                             .sorted(oldest)
                             .limit(worker.settings.pageSize())
                             .toList();
+            var permit = worker.safety.beginRenewal(authority, 2, null);
+            if (permit.isEmpty()) return false;
             call =
                     new Call(
                             authority,
                             2,
                             null,
                             batch,
-                            batch.stream().mapToLong(this::leaseDue).min().orElseThrow());
+                            batch.stream().mapToLong(this::leaseDue).min().orElseThrow(), permit.get());
             worker.renewalCalls.add(call);
             for (var e : batch) e.renewedAt = now;
         }
-        boolean certain = false;
-        List<PartitionLease> result = List.of();
+        Throwable fault = null;
+        List<ConsumptionProtocol.Partition> result = List.of();
         int suspended = 0;
         try {
-            result =
-                    call.leases
-                            .getFirst()
-                            .pair
-                            .binding()
-                            .engine()
-                            .renewPartitions(call.leases.stream().map(e -> e.lease).toList());
-            certain = true;
-        } catch (Failure failure) {
-            certain = failure.resolution() != Resolution.UNKNOWN;
+            result = call.leases.getFirst().pair.binding().engine()
+                    .renewPartitions(call.leases.stream().map(e -> e.lease).toList());
         } catch (RuntimeException | Error failure) {
-            /* No inferred physical resolution. */
+            fault = failure;
         } finally {
+            var verdict = worker.safety.finishRenewal(call.permit, fault);
             synchronized (worker.monitor) {
                 for (var entry : call.leases) {
                     if (worker.leases.get(entry.pair) != entry) continue;
-                    var renewed =
-                            result.stream()
-                                    .filter(
-                                            l ->
-                                                    l.consumptionId()
-                                                                    .equals(
-                                                                            entry.lease
-                                                                                    .consumptionId())
-                                                            && l.partitionId()
-                                                                    == entry.lease.partitionId()
-                                                            && l.ownerToken()
-                                                                    .equals(
-                                                                            entry.lease
-                                                                                    .ownerToken()))
-                                    .findFirst();
-                    if (renewed.isPresent() && certain && worker.running()) {
-                        entry.lease = renewed.get();
-                        entry.usable = true;
-                        entry.retryUntil = 0;
-                        entry.retryDue = 0;
-                    } else if (certain && worker.running()) {
-                        // SKIP LOCKED can omit a still-valid incarnation. Suspend new uses;
-                        // only a later positive CAS can restore them. A bounded local window
-                        // permits fresh, physically resolved renewals, never an UNKNOWN retry.
-                        long returnedAt = System.nanoTime();
-                        if (entry.retryUntil == 0) {
-                            entry.retryDue = call.due;
-                            entry.retryUntil =
-                                    returnedAt + worker.settings.renewalBudget().toNanos();
-                        }
-                        if (returnedAt - entry.retryUntil < 0) {
-                            if (entry.usable) suspended++;
-                            entry.usable = false;
-                            entry.renewedAt =
-                                    now
-                                            - worker.settings.renewalInterval().toNanos()
-                                            + worker.settings.minPoll().toNanos();
-                        } else worker.leases.remove(entry.pair);
-                    } else
-                        worker.leases.remove(
-                                entry.pair); // Never reinsert an incarnation removed during this
-                    // call.
+                    var decision = worker.safety.settleLease(entry.lease, result, verdict,
+                            worker.running(), entry.usable, entry.retryUntil, entry.retryDue,
+                            call.due, now, entry.renewedAt, worker.settings.renewalBudget(),
+                            worker.settings.renewalInterval(), worker.settings.minPoll());
+                    if (decision.remove()) worker.leases.remove(entry.pair);
+                    else {
+                        entry.lease = decision.lease();
+                        entry.usable = decision.usable();
+                        entry.retryUntil = decision.retryUntil();
+                        entry.retryDue = decision.retryDue();
+                        entry.renewedAt = decision.renewedAt();
+                    }
+                    if (decision.suspended()) suspended++;
                 }
             }
             if (suspended > 0)
-                worker.event(
-                        call.leases.getFirst().pair.binding(),
-                        Phase.LEASE_SUSPEND,
-                        Outcome.BUSY,
-                        suspended,
-                        Duration.ZERO);
-            finish(call, certain);
+                worker.event(call.leases.getFirst().pair.binding(), Phase.LEASE_SUSPEND,
+                        Outcome.BUSY, suspended, Duration.ZERO);
+            finish(call, verdict);
         }
         return true;
     }
 
-    private void finish(Call call, boolean certain) {
+    private void finish(Call call, ProtocolSafety.PhysicalOutcome verdict) {
+        boolean certain = verdict.physicallyResolved();
         synchronized (worker.monitor) {
             if (certain) worker.renewalCalls.remove(call);
             else call.unknown = true;
@@ -313,7 +276,7 @@ public final class V3RenewalService {
                 outcome,
                 1,
                 Duration.ofNanos(call.began - call.due));
-        if (!certain) worker.requestDrain();
+        if (verdict.requestDrain()) worker.requestDrain();
         worker.maintenanceWait.signal();
     }
 

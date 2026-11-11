@@ -1,10 +1,15 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.RoutingV1;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 
@@ -62,8 +67,8 @@ class SlotNavigationPostgresTest {
             }
     }
 
-    SlotKeyNavigation.Page page(
-            ConsumptionLifecyclePostgresFixture f, int p, SlotKeyNavigation.Walk walk, int limit) {
+    ConsumptionNavigation.Page page(
+            ConsumptionLifecyclePostgresFixture f, int p, ConsumptionNavigation.Walk walk, int limit) {
         return f.tx.read(
                 c ->
                         new JdbcSlotKeyNavigation(f.source, f.settings)
@@ -137,13 +142,13 @@ class SlotNavigationPostgresTest {
                     for (int p = 0; p < 4; p++) {
                         var expected = raw(f, p);
                         var actual = new ArrayList<UUID>();
-                        var walk = SlotKeyNavigation.Walk.fresh();
+                        var walk = ConsumptionNavigation.Walk.fresh();
                         while (true) {
                             var result = page(f, p, walk, 3);
                             if (result.keys().isEmpty()) break;
                             actual.addAll(result.keys());
                             walk =
-                                    new SlotKeyNavigation.Walk(
+                                    new ConsumptionNavigation.Walk(
                                             Optional.of(result.keys().getLast()),
                                             result.upperInclusive());
                         }
@@ -185,7 +190,7 @@ class SlotNavigationPostgresTest {
                             q.setObject(1, ids.get(1));
                             q.executeQuery().close();
                         }
-                        assertEquals(ids.subList(0, 5), page(f, 0, SlotKeyNavigation.Walk.fresh(), 32).keys());
+                        assertEquals(ids.subList(0, 5), page(f, 0, ConsumptionNavigation.Walk.fresh(), 32).keys());
                         var got = e.acquire(lease, ids);
                         assertEquals(2, got.examinedCount());
                         assertEquals(1, got.claims().size());
@@ -205,13 +210,13 @@ class SlotNavigationPostgresTest {
         both(
                 f -> {
                     for (long n = 20; n < 100; n++) insert(f, new UUID(0, n));
-                    var first = page(f, 0, SlotKeyNavigation.Walk.fresh(), 1);
+                    var first = page(f, 0, ConsumptionNavigation.Walk.fresh(), 1);
                     var upper = first.upperInclusive();
                     var after = first.keys().getLast();
                     for (long n = 1; n < 20; n++) insert(f, new UUID(0, n));
                     for (long n = 100; n < 120; n++) insert(f, new UUID(0, n));
                     var next =
-                            page(f, 0, new SlotKeyNavigation.Walk(Optional.of(after), upper), 32);
+                            page(f, 0, new ConsumptionNavigation.Walk(Optional.of(after), upper), 32);
                     assertEquals(upper, next.upperInclusive());
                     assertTrue(
                             next.keys().stream()
@@ -221,7 +226,7 @@ class SlotNavigationPostgresTest {
                                                             && SlotKeyNavigation.compare(
                                                                             k, upper.orElseThrow())
                                                                     <= 0));
-                    var fresh = page(f, 0, SlotKeyNavigation.Walk.fresh(), 32);
+                    var fresh = page(f, 0, ConsumptionNavigation.Walk.fresh(), 32);
                     assertTrue(SlotKeyNavigation.compare(fresh.keys().getFirst(), after) < 0);
                     assertTrue(
                             SlotKeyNavigation.compare(
@@ -236,22 +241,22 @@ class SlotNavigationPostgresTest {
         both(
                 f -> {
                     var id = f.seed(0);
-                    var result = page(f, 0, SlotKeyNavigation.Walk.fresh(), 32);
+                    var result = page(f, 0, ConsumptionNavigation.Walk.fresh(), 32);
                     var e = engine(f, f.tx);
                     var lease = e.acquirePartition(0).orElseThrow();
                     var h = e.acquire(lease, List.of(id)).claims().getFirst();
-                    assertEquals(ConsumptionEngine.Status.COMMITTED, e.execute(h).status());
+                    assertEquals(ConsumptionProtocol.Status.COMMITTED, e.execute(h).status());
                     assertTrue(
                             page(
                                             f,
                                             0,
-                                            new SlotKeyNavigation.Walk(
+                                            new ConsumptionNavigation.Walk(
                                                     Optional.of(id), result.upperInclusive()),
                                             32)
                                     .keys()
                                     .isEmpty());
                     assertTrue(
-                            page(f, 0, SlotKeyNavigation.Walk.fresh(), 32)
+                            page(f, 0, ConsumptionNavigation.Walk.fresh(), 32)
                                     .upperInclusive()
                                     .isEmpty());
                     assertEquals(0, f.capacity.snapshot().worker());
@@ -410,7 +415,7 @@ class SlotNavigationPostgresTest {
                                             after = keys.get(Math.max(0, keys.size() / 2 - 1));
                                     assertEquals(
                                             keys.subList(0, Math.min(batch, keys.size())),
-                                            page(f, 0, SlotKeyNavigation.Walk.fresh(), batch)
+                                            page(f, 0, ConsumptionNavigation.Walk.fresh(), batch)
                                                     .keys());
                                     // Administrator-only disposable comparison. Rollback restores
                                     // walk index.
@@ -552,12 +557,12 @@ class SlotNavigationPostgresTest {
                 f -> {
                     var first = f.seed(0);
                     var second = f.seed(0);
-                    var before = page(f, 0, SlotKeyNavigation.Walk.fresh(), 1);
+                    var before = page(f, 0, ConsumptionNavigation.Walk.fresh(), 1);
                     var continued =
                             page(
                                     f,
                                     0,
-                                    new SlotKeyNavigation.Walk(
+                                    new ConsumptionNavigation.Walk(
                                             Optional.of(first), before.upperInclusive()),
                                     1);
                     assertEquals(List.of(second), continued.keys());
@@ -566,7 +571,7 @@ class SlotNavigationPostgresTest {
                             engine(f, f.tx)
                                     .navigate(
                                             engine(f, f.tx).acquirePartition(0).orElseThrow(),
-                                            SlotKeyNavigation.Walk.fresh(),
+                                            ConsumptionNavigation.Walk.fresh(),
                                             1)
                                     .keys());
                     assertEquals(List.of(first, second), raw(f, 0));

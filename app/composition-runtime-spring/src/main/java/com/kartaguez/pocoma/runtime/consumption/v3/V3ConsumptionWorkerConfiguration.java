@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
 import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
 import com.kartaguez.pocoma.contract.readquery.BindingRead;
@@ -6,8 +11,7 @@ import com.kartaguez.pocoma.contract.readquery.InvitationRead;
 import com.kartaguez.pocoma.contract.readquery.PotRead;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.JdbcIdentityPotActorAuthority;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
@@ -336,7 +340,7 @@ public class V3ConsumptionWorkerConfiguration {
                 org.springframework.core.env.Environment env) {
             var bindings = new ArrayList<V3ConsumptionWorker.Binding>();
             var ds =
-                    new DiscoveryEngine.Settings(
+                    new DiscoverySettings(
                             128,
                             settings.lifecycle().batchSize(),
                             settings.lifecycle().batchSize(),
@@ -481,8 +485,7 @@ public class V3ConsumptionWorkerConfiguration {
                                     V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
                 }
                 bindings.add(
-                        new V3ConsumptionWorker.Binding(
-                                definition, engine, discovery, settings.partitions().get(name)));
+                        new V3ConsumptionWorker.Binding(definition, com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionProtocols.forDefinition(definition, engine, discovery), settings.partitions().get(name)));
             }
             var worker =
                     new V3ConsumptionWorker(
@@ -492,7 +495,7 @@ public class V3ConsumptionWorkerConfiguration {
                             settings.polling(),
                             observation,
                             resources::close,
-                            StageHandoffTracker.getInstance());
+                            StageHandoffTracker.getInstance(), com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionSafety::new);
             resources.worker = worker;
             if (observation instanceof MicrometerV3ConsumptionObservation metrics)
                 metrics.bind(worker);
@@ -521,7 +524,7 @@ public class V3ConsumptionWorkerConfiguration {
             return () -> {
                 var snapshot = worker.snapshot();
                 var health =
-                        snapshot.state() == V3ConsumptionWorker.State.RUNNING
+                        snapshot.state() == WorkerView.State.RUNNING
                                 ? Health.up()
                                 : Health.down();
                 return health.withDetail("workerState", snapshot.state().name())
@@ -666,8 +669,8 @@ public class V3ConsumptionWorkerConfiguration {
 
         synchronized void closeIfSafe() {
             if (worker == null
-                    || worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED
-                    || worker.snapshot().state() == V3ConsumptionWorker.State.STARTING) close();
+                    || worker.snapshot().state() == WorkerView.State.STOPPED
+                    || worker.snapshot().state() == WorkerView.State.STARTING) close();
         }
 
         synchronized void close() {
