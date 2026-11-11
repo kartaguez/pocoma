@@ -237,7 +237,13 @@ class V3ReadQuotaPostgresTest {
         String rss = new String(process.getInputStream().readAllBytes(),StandardCharsets.UTF_8).trim(); assertEquals(0,process.waitFor());
         return Map.of("nanoTime",System.nanoTime(),"heapUsed",ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed(),"rssKiB",rss,"platformAllocatedBytesByThread",allocated,"httpWorkerAllocatedBytesByThread",http,"activeReadConnections",f.pool().getHikariPoolMXBean().getActiveConnections(),"httpPermitsAvailable",f.context.getBean(V3ReadTransport.class).availableCapacity());
     }
-    long businessCalls() { return f.sqlStats().stream().filter(s -> s.get("query").toString().toLowerCase(Locale.ROOT).startsWith("select") && s.get("query").toString().contains("read_")).mapToLong(s -> ((Number) s.get("calls")).longValue()).sum(); }
+    static boolean isBusinessQuery(String query) {
+        String normalized=query.replaceAll("\\s+", " ").trim().toLowerCase(Locale.ROOT);
+        // Keep every business SELECT visible; exclude only the exact maintenance gate probe.
+        if(normalized.equals("select state, phase, target_prefix::text as target_prefix_text, operator_id, operation_id, started_at, updated_at, error_detail from public.read_maintenance_state where id = $1")) return false;
+        return normalized.startsWith("select") && normalized.contains("read_");
+    }
+    long businessCalls() { return f.sqlStats().stream().filter(s -> isBusinessQuery(s.get("query").toString())).mapToLong(s -> ((Number) s.get("calls")).longValue()).sum(); }
     @Test void jdbcCountsAndCosts() throws Exception {
         long before = businessCalls(); var batch = f.post(f.path(POT, 1) + "/expenses/query", f.batch(50, 1)); assertEquals(200, batch.statusCode()); assertEquals(3, businessCalls() - before, "binding + exact Pot + grouped subobjects, no N+1");
         f.seed(id(779), 1, 2000, 100, Set.of(OWNER), false, true, true, "grand");

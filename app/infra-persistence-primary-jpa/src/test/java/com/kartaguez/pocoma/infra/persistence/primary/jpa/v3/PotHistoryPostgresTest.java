@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort.*;
+import com.kartaguez.pocoma.domain.pot.v3.PotHistory.*;
 
 import jakarta.persistence.*;
 

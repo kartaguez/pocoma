@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
@@ -766,8 +767,7 @@ class V3IdentityRequestCompositionPostgresTest {
                             .findFirst()
                             .orElseThrow();
             var ownership =
-                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                            .JdbcPartitionOwnershipStore(read);
+                    new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcPartitionOwnershipStore(read);
             var discovery =
                     V3ConsumptionDiscoveryComposition.events(
                             guard,

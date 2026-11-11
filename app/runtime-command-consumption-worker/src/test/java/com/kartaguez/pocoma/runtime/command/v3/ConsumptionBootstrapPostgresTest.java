@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -424,8 +425,7 @@ class ConsumptionBootstrapPostgresTest {
                         com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.class,
                         com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand.class,
                         com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.class,
-                        com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcConsumptionSlotStore.class,
+                        com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore.class,
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
                                 .JdbcPotCommandObservation.class,
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption

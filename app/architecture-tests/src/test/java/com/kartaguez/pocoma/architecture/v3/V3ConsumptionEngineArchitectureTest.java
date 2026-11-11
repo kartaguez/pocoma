@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.architecture.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 

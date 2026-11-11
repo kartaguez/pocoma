@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
@@ -120,8 +121,7 @@ class SlotNavigationPostgresTest {
                 r -> true,
                 f.write
                         ? null
-                        : new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcDiscoveryAdmissionStore(
+                        : new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcDiscoveryAdmissionStore(
                                 f.source, ConsumptionLifecyclePostgresFixture.discoverySettings()),
                 control,
                 f.slots,

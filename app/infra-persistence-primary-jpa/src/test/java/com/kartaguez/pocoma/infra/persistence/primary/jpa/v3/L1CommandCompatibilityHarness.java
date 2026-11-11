@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.I2ReservedClaimFixture;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
@@ -11,7 +12,7 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.Result;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;

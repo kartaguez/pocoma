@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -304,8 +306,7 @@ class ConsumptionLifecycleCompositionPostgresTest {
                 V3PotCommandComposition.class.isAnnotationPresent(
                         org.springframework.context.annotation.Configuration.class));
         var slots =
-                new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                        .JdbcConsumptionSlotStore(target.source());
+                new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore(target.source());
         assertThrows(
                 RuntimeException.class,
                 () -> slots.renew(List.of(), java.time.Duration.ofSeconds(60)));

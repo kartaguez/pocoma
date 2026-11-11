@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;

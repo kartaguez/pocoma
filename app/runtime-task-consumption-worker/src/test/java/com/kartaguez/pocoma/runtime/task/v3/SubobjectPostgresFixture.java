@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;

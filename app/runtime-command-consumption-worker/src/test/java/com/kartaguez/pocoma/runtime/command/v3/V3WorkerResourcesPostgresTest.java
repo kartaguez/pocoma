@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
@@ -157,18 +159,15 @@ class V3WorkerResourcesPostgresTest {
                 replace(
                         com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "controlSlots",
-                        new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcConsumptionSlotStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore(source));
                 replace(
                         com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "ownership",
-                        new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcPartitionOwnershipStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcPartitionOwnershipStore(source));
                 replace(
                         com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "navigation",
-                        new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcSlotKeyNavigation(
+                        new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcSlotKeyNavigation(
                                 source, (LifecycleSettings) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "settings")));
             }
         return source;
@@ -229,8 +228,7 @@ class V3WorkerResourcesPostgresTest {
                 replace(
                         com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                         "slots",
-                        new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcConsumptionSlotStore(source));
+                        new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore(source));
                 ConsumptionParticipant participant =
                         write
                                 ? new com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand(
@@ -252,8 +250,7 @@ class V3WorkerResourcesPostgresTest {
                     replace(
                             com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()),
                             "admissions",
-                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                    .JdbcDiscoveryAdmissionStore(
+                            new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcDiscoveryAdmissionStore(
                                     source,
                                     (DiscoverySettings)
                                             field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "settings")));
@@ -265,8 +262,7 @@ class V3WorkerResourcesPostgresTest {
                 replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "sourceReads", owner);
                 replace(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(binding.engine()), "sourceTransactions", owner);
                 var references =
-                        new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcEventDiscoveryReferences(
+                        new com.kartaguez.pocoma.infra.postgres.source.v3.JdbcEventDiscoveryReferences(
                                 source,
                                 binding.definition().family(),
                                 (DiscoverySettings) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(binding.discovery()), "settings"));

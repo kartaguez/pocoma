@@ -31,6 +31,10 @@
 	</scm>
 
 	<modules>
+<module>engine-read-execution</module>
+<module>infra-observability-micrometer</module>
+<module>infra-postgres-core</module>
+<module>infra-postgres-write-source-read</module>
 <module>contract-consumption</module>
         <module>contract-write-admission</module>
         <module>contract-read-query</module>

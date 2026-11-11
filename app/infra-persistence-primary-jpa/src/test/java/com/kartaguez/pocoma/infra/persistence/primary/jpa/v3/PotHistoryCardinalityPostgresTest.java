@@ -1,9 +1,10 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException;
-import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort.Selection;
+import com.kartaguez.pocoma.domain.pot.v3.PotHistory.Selection;
 
 import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

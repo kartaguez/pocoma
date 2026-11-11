@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
@@ -192,9 +194,7 @@ final class InterAuthorityPostgresFixture implements AutoCloseable {
         var request = UUID.randomUUID();
         var pot = UUID.randomUUID();
         oracle.update(
-                "insert into"
-                    + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                    + " values (?,'i2','actor','fixture',?,0,'CreatePot',?::jsonb)",
+                "with cmd as (insert into v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) values (?,'i2','actor','fixture',?,0,'CreatePot',?::jsonb) returning request_id), pos as (update v3_request_counter set position=position+1 where family='COMMAND' returning position) insert into v3_request_position(family,position,request_id) select 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                 request,
                 pot,
                 PotCommandJson.encode(new PotCommand.CreatePot(new Label("I2 source"))));

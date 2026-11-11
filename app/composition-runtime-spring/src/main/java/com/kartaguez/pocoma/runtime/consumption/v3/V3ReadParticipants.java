@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.identity.*;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.materialize.pot.v3.*;

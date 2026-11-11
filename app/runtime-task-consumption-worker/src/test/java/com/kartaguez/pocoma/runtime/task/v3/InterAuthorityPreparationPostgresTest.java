@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -344,8 +346,7 @@ class InterAuthorityPreparationPostgresTest {
                                 "i2-fixture");
                 var uncertain = owner(ds);
                 var refs =
-                        new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                .JdbcEventDiscoveryReferences(
+                        new com.kartaguez.pocoma.infra.postgres.source.v3.JdbcEventDiscoveryReferences(
                                 ds,
                                 com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily
                                         .POT_EVENT,
@@ -713,10 +714,7 @@ class InterAuthorityPreparationPostgresTest {
                             + " fixture_actor values(1);grant select on fixture_actor to "
                             + f.role);
             f.oracle.update(
-                    "insert into"
-                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values"
-                        + " (?,'i2','actor','fixture',?,1,'UpdatePotDetails','{\"label\":\"candidate\"}'::jsonb)",
+                    "with cmd as (insert into v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) values (?,'i2','actor','fixture',?,1,'UpdatePotDetails','{\"label\":\"candidate\"}'::jsonb) returning request_id), pos as (update v3_request_counter set position=position+1 where family='COMMAND' returning position) insert into v3_request_position(family,position,request_id) select 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                     id,
                     p.pot());
             var definition =
@@ -825,11 +823,9 @@ class InterAuthorityPreparationPostgresTest {
                     new ConsumptionEngine(
                             definition,
                             f.sourceOwner,
-                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                    .JdbcConsumptionSlotStore(f.primary),
+                            new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore(f.primary),
                             participant,
-                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
-                                    .JdbcPartitionOwnershipStore(f.primary),
+                            new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcPartitionOwnershipStore(f.primary),
                             f.read.settings,
                             new WorkerCapacity(1, Map.of(definition.id(), 1)),
                             fault -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE);

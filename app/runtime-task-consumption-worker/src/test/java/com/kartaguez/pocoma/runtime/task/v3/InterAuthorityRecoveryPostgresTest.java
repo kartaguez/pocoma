@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
@@ -322,10 +324,7 @@ class InterAuthorityRecoveryPostgresTest {
                     new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity
                             .JdbcIdentityRequestStore(f.primary, f.sourceOwner);
             f.oracle.update(
-                    "insert into"
-                        + " v3_identity_request(request_id,requester_issuer,requester_subject,operation,target_issuer,target_subject,admission_context,created_at)"
-                        + " values"
-                        + " (?,'i2','registration','REGISTRATION','i2','registration',?::jsonb,?)",
+                    "with req as (insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,target_issuer,target_subject,admission_context,created_at) values (?,'i2','registration','REGISTRATION','i2','registration',?::jsonb,?) returning request_id), pos as (update v3_request_counter set position=position+1 where family='IDENTITY_REQUEST' returning position) insert into v3_request_position(family,position,request_id) select 'IDENTITY_REQUEST',pos.position,req.request_id from req,pos",
                     id,
                     com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity
                             .IdentityRequestJson.encode(request.admission()),
@@ -1039,10 +1038,7 @@ class InterAuthorityRecoveryPostgresTest {
                         UUID request = terminal ? published.request() : UUID.randomUUID();
                         if (!terminal)
                             f.oracle.update(
-                                    "insert into"
-                                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                                        + " values"
-                                        + " (?,'i2','pending','fixture',?,0,'CreatePot','{\"label\":\"pending\"}'::jsonb)",
+                                    "with cmd as (insert into v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) values (?,'i2','pending','fixture',?,0,'CreatePot','{\"label\":\"pending\"}'::jsonb) returning request_id), pos as (update v3_request_counter set position=position+1 where family='COMMAND' returning position) insert into v3_request_position(family,position,request_id) select 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                                     request,
                                     UUID.randomUUID());
                         var definition =

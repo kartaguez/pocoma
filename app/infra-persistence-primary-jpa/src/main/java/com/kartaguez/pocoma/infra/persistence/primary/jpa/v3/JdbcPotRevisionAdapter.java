@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 
-import static com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryRows.*;
+import static com.kartaguez.pocoma.infra.postgres.core.v3.PotHistoryRows.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;

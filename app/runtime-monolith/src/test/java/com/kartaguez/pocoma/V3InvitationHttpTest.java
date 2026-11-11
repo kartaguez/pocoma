@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

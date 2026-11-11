@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.task.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -100,7 +101,7 @@ class ReadParticipantsIntegrationPostgresTest {
                 if(name==Name.POT_VERSION) {
                     f.f.read.oracle.update("update read_pot_version set payload='{}'::jsonb");
                     assertEquals(RecoveryObservation.INCONSISTENT,engine.observe(acquired.claim()),"malformed JSON is positive corruption, not SQL unavailability");
-                    var expected=f.f.sourceOwner.read(c -> new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotVersionSource(f.f.primary).composition(event,c));
+                    var expected=f.f.sourceOwner.read(c -> new com.kartaguez.pocoma.infra.postgres.source.v3.JdbcPotVersionSource(f.f.primary).composition(event,c));
                     f.f.read.oracle.update("update read_pot_version set payload=?::jsonb",PotVersionJson.encode(expected));
                     f.f.read.oracle.execute("alter table read_subobject_version disable trigger user");
                     f.f.read.oracle.update("update read_subobject_version set payload=jsonb_set(payload,'{label}','\"\"') where kind='POT_DETAILS'");

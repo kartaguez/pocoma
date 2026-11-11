@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;

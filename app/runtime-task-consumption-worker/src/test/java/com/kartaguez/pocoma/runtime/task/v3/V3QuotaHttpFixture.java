@@ -79,6 +79,9 @@ final class V3QuotaHttpFixture implements AutoCloseable {
             .locations("classpath:db/v3-consumption-read/migration", "classpath:db/v3-read-business/migration")
             .placeholders(Map.of("expectedDatabase", "i1_read", "expectedSchema", schema, "expectedAdmin", pg.getUsername(), "expectedRuntime", role)).load().migrate();
         var ds = new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword()); admin = new JdbcTemplate(ds);
+        new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority(admin).ensureInitialized();
+        admin.execute("revoke all on public.read_maintenance_state from public");
+        admin.execute("grant select on public.read_maintenance_state to " + role);
         // Fixture HTTP role can only SELECT; injector and independent observer retain separate authority.
         admin.execute("revoke all on all tables in schema " + schema + " from " + role);
         admin.execute("grant usage on schema " + schema + " to " + role);
