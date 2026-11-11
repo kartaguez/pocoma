@@ -104,7 +104,7 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                         : new String[] {
                             "filesystem:"
                                     + ROOT.resolve(
-                                            "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration")
+                                            "app/infra-postgres-read/src/main/resources/db/v3-consumption-read/migration")
                         };
         Flyway.configure()
                 .dataSource(admin)

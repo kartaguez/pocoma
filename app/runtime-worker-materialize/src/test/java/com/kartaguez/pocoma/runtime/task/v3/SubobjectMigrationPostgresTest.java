@@ -150,7 +150,7 @@ class SubobjectMigrationPostgresTest {
             var id=f.seed(eight(UUID.randomUUID()));var before=l2Rows(f);
             f.oracle.execute("alter table flyway_schema_history rename to fixture_saved_history");
             assertThrows(RuntimeException.class,()->f.migrate(true));
-            String v1=Files.readString(ROOT.resolve("app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql"));
+            String v1=Files.readString(ROOT.resolve("app/infra-postgres-read/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql"));
             for(var e:Map.of("expectedDatabase",PG.getDatabaseName(),"expectedSchema",f.schema,"expectedAdmin",f.adminRole,"expectedRuntime",f.runtimeRole).entrySet()) v1=v1.replace("${"+e.getKey()+"}",e.getValue());
             String replay=v1;
             assertEquals("23514",state(assertThrows(RuntimeException.class,()->f.oracle.execute(replay))));

@@ -596,8 +596,8 @@ class CommandExecutionPostgresTest {
         assertTrue(catalog.stream().allMatch(r -> Boolean.TRUE.equals(r.get("condeferred"))));
         var code =
                 Files.readString(
-                        Path.of(
-                                "src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java"));
+                        Path.of("src/main/java",
+                                JdbcPotCommandStore.class.getName().replace('.', '/') + ".java"));
         var start = code.indexOf("set constraints\n");
         var end = code.indexOf("immediate", start);
         var explicit =
