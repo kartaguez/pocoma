@@ -570,6 +570,7 @@ class V3ConsumptionWorkerTest {
             await(() -> f.effects.get(0).get() == 1);
             assertEquals(Optional.of(k2), loop.walk(b0, 0).afterExclusive());
             // Per-binding errorPoll isolation: a rolled-back failure on binding 0 does not block binding 1.
+            await(() -> awaitingHandoff(f));
             f.failAcquire = true;
             assertThrows(AttemptTransactions.Failure.class, () -> {
                 // Advance rotation back to binding 0
