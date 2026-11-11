@@ -374,9 +374,7 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
         // Controlled internal fixture admission; the Identity-only injector has no Command
         // grant.
         write.update(
-                "insert into"
-                    + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                    + " values (?,?,?,?,?,?,?,?::jsonb)",
+                "with cmd as (insert into v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) values (?,?,?,?,?,?,?,?::jsonb) returning request_id), pos as (update v3_request_counter set position=position+1 where family='COMMAND' returning position) insert into v3_request_position(family,position,request_id) select 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                 command.requestId(),
                 command.requester().issuer(),
                 command.requester().subject(),

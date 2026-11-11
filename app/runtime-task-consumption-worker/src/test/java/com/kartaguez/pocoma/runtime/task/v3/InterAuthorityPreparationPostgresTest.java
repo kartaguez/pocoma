@@ -708,10 +708,7 @@ class InterAuthorityPreparationPostgresTest {
                             + " fixture_actor values(1);grant select on fixture_actor to "
                             + f.role);
             f.oracle.update(
-                    "insert into"
-                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values"
-                        + " (?,'i2','actor','fixture',?,1,'UpdatePotDetails','{\"label\":\"candidate\"}'::jsonb)",
+                    "with cmd as (insert into v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) values (?,'i2','actor','fixture',?,1,'UpdatePotDetails','{\"label\":\"candidate\"}'::jsonb) returning request_id), pos as (update v3_request_counter set position=position+1 where family='COMMAND' returning position) insert into v3_request_position(family,position,request_id) select 'COMMAND',pos.position,cmd.request_id from cmd,pos",
                     id,
                     p.pot());
             var definition =
