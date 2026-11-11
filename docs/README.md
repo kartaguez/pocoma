@@ -1,5 +1,7 @@
 # Documentation Pocoma
 
+- [Audit de couverture et plan de certification L7.1](v3/L7_I1_Certification_Coverage_and_Execution_Plan.md) · [matrice des exigences et preuves](v3/L7_I1_Certification_Coverage_Matrix.csv) · [registre des réserves](v3/L7_I1_Residual_Reservations_Register.md).
+
 - [Implémentation et qualification L7](v3/L7_Modular_Refactoring_Implementation_and_Qualification_Report.md) — migration du réacteur V3, preuves, résultats et limites.
 - [Architecture modulaire cible et plan de migration L7](v3/L7_Target_Modular_Architecture_and_Migration_Plan.md) — référence normative des 42 modules, de la matrice de dépendances et du scénario B Consumption.
 
@@ -95,7 +97,7 @@
 
 - [Arbitrage L3/I2](v3/L3_I2_Acceptance_Decision_2026-10-30.md) : **ACCEPTED WITH EXPLICIT RESERVATIONS**, GO borné L3/I3 après publication documentaire ; I3 non commencé par cette publication. [Livraison et preuves I2](v3/L3_I2_Execution_Report.md) : 27 tests PostgreSQL et 21 contrôles ciblés PASS ; gate canonique **FAIL sur `i5_r12`**, Architecture **SKIPPED** ; aucun I2 LOCAL BOUNDED PASS ni PASS technique canonique ou global, aucune certification du participant IdentityRequest ou du runtime futur.
 
-- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne ; L2 ACCEPTED WITH EXPLICIT RESERVATIONS ; **L3 CLOSED WITH EXPLICIT RESERVATIONS** ; **L4 CLOSED WITH EXPLICIT RESERVATIONS — COMPOSITE INTERNAL QUALIFICATION ACCEPTED** ; **L5 CLOSED WITH EXPLICIT RESERVATIONS — GLOBAL CERTIFICATION PASS, Q5-C AUDIT ACCEPTED, OPTIMIZATIONS DEFERRED UNTIL AFTER L6** selon l'[acte Q5-D](v3/L5_Q5D_Formal_Closure_Decision.md) ; L6 : OPEN (I1 & I2 CLOSED WITH EXPLICIT RESERVATIONS, I3 BOUNDED LOCAL PASS, G6 PENDING) ; L7–L8 DESIGN PENDING.
+- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne ; L2 ACCEPTED WITH EXPLICIT RESERVATIONS ; **L3 CLOSED WITH EXPLICIT RESERVATIONS** ; **L4 CLOSED WITH EXPLICIT RESERVATIONS — COMPOSITE INTERNAL QUALIFICATION ACCEPTED** ; **L5 CLOSED WITH EXPLICIT RESERVATIONS — GLOBAL CERTIFICATION PASS, Q5-C AUDIT ACCEPTED, OPTIMIZATIONS DEFERRED UNTIL AFTER L6** selon l'[acte Q5-D](v3/L5_Q5D_Formal_Closure_Decision.md) ; L6 : OPEN (I1 & I2 CLOSED WITH EXPLICIT RESERVATIONS, I3 BOUNDED LOCAL PASS, G6 PENDING) ; L7 : réacteur modulaire livré, certification finale en préparation. L8 : DESIGN PENDING.
 - [Arbitrage L3/I1 et GO I2](v3/L3_I1_Arbitration_and_I2_GO.md) : 35 nouveaux tests PASS, gate COMMAND + Architecture FAIL (`i5_r05`, `i5_r12`), aucun I1 LOCAL BOUNDED PASS ; réserves et gates ultérieures conservées.
 - [Canon et SPEC](v3/V3_Canon_and_Roadmap.md) : décisions normatives V3.
 - [Clôture officielle L2](v3/L2_Documentary_Closure.md) : décision humaine, statuts I1–I7, réserves R-L2-01 à R-L2-05, SHAs testés et transition L3. G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. [Plan L2](v3/L2_Design_and_Verification_Plan.md), [dossier historique I6](v3/L2_I6_I7_Consolidation.md) et [récupération des preuves](testing/Evidence_Recovery.md). La clôture L3 courante est portée par le plan directeur et l’acte unique L3 ci-dessus.
