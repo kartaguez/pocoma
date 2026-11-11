@@ -2136,6 +2136,10 @@ class V3WorkerResourcesPostgresTest {
                     err.getMessage()
                             .contains("B available physical window without same-token CAS"));
 
+            // Honor the same earliest retry time as the scheduler before measuring its bound.
+            long eligible = Math.max(attempt1.start + I5TemporalV2Test.ns("poll"), attempt1.end);
+            await(() -> System.nanoTime() - eligible >= 0);
+
             // Step 8: Subsequent Renewal attempt without Discovery lock succeeds with same-token CAS
             renew.call();
             assertEquals(2, journal.attempts.size());
@@ -2151,7 +2155,6 @@ class V3WorkerResourcesPostgresTest {
                     I5TemporalV2Test.free(
                             attempt2.storeStart, attempt2.storeEnd, conflictsAttempt2),
                     "Attempt 2 was free and available for renewal");
-
         }
     }
 
