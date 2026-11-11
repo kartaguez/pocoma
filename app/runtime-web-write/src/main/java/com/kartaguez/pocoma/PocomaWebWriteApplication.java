@@ -11,8 +11,9 @@ public class PocomaWebWriteApplication {
     public static void main(String[] args){SpringApplication.run(PocomaWebWriteApplication.class,args);}
     @Bean static BeanFactoryPostProcessor hostingSelection(Environment env) {
         return factory -> {
-            var allowed=Set.of("v3-http-admission");
-            for(String profile:env.getActiveProfiles())if(!allowed.contains(profile))throw new IllegalStateException("Unsupported Runtime selection: "+profile);
+            var profiles = Set.of(env.getActiveProfiles());
+            if (!profiles.equals(Set.of("v3-http-admission")))
+                throw new IllegalStateException("Unsupported Runtime selection: " + profiles);
         };
     }
 }

@@ -163,15 +163,15 @@ class V3WorkerMonolithPostgresTest {
             properties.put(prefix + "fixture-identity", "true");
             properties.put(prefix + "identity-authority", "fixture");
             properties.put(prefix + "command-enabled", "true");
-            properties.put(prefix + "technical-probes", "true");
+            properties.put(prefix + "technical-probes", "false");
             properties.put(prefix + "worker-name", "i5-test");
             properties.put(prefix + "worker-limit", "4");
             properties.put(
                     prefix + "consumption-limits",
-                    "Command=1,I5ReadPotProbe=2,I5ReadCompletionProbe=3");
+                    "Command=1");
             properties.put(
                     prefix + "partitions",
-                    "Command=0|1|2|3;I5ReadPotProbe=0|1|2|3;I5ReadCompletionProbe=0|1|2|3");
+                    "Command=0|1|2|3");
             var identity =
                     write.queryForMap(
                             "select inet_server_addr()::text addr,inet_server_port() port");
@@ -291,18 +291,26 @@ class V3WorkerMonolithPostgresTest {
                     new JdbcTemplate(
                             new DriverManagerDataSource(writeUrl, injectorRole, "i5-fixture"));
             injection.update(
-                    "insert into"
-                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values"
-                        + " (?,'i5-dev','actor','i5-development-fixture',?,0,'CreatePot',?::jsonb)",
+                    """
+                    with next_position as (
+                        update v3_request_counter set position=position+1
+                        where family='COMMAND' returning position
+                    ), admitted as (
+                        insert into v3_command(request_id,requester_issuer,requester_subject,
+                            binding_token,pot_id,observed_version,operation,payload)
+                        values (?,'i5-dev','actor','i5-development-fixture',?,0,'CreatePot',?::jsonb)
+                        returning request_id
+                    )
+                    insert into v3_request_position(family,position,request_id)
+                    select 'COMMAND', position, request_id from next_position cross join admitted
+                    """,
                     id,
                     pot,
                     PotCommandJson.encode(new PotCommand.CreatePot(new Label("I5 expected"))));
             trace.add(
                     "injected internal PENDING request="
                             + id
-                            + " expected one PotV1 plus POT/COMPLETION, two technical READ"
-                            + " effects");
+                            + " expected one PotV1 plus POT/COMPLETION");
             return id;
         }
 
@@ -325,16 +333,7 @@ class V3WorkerMonolithPostgresTest {
                             id,
                             id);
             assertEquals(2, eventIds.size());
-            await(
-                    () ->
-                            read.queryForObject(
-                                            "select count(*) from i5_read_probe_effect where"
-                                                    + " consumable_id in (?,?)",
-                                            Integer.class,
-                                            eventIds.get(0),
-                                            eventIds.get(1))
-                                    == 2,
-                    Duration.ofSeconds(90));
+
             assertEquals(
                     1,
                     write.queryForObject(
@@ -486,8 +485,11 @@ class V3WorkerMonolithPostgresTest {
             var ctx = f.start();
             var id = f.inject(100);
             f.verify(id);
-            assertEquals(4, ctx.getBeansOfType(HikariDataSource.class).size());
-            assertEquals(1, ctx.getBeansOfType(WorkerCapacity.class).size());
+            assertTrue(ctx.getBeansOfType(HikariDataSource.class).isEmpty());
+            var resources = ReadMonolithI8Fixture.process(ctx);
+            assertNotSame(resources.writeBusiness, resources.writeControl);
+            assertTrue(resources.capacityView().isPresent());
+            assertFalse(ctx.containsBean("materializeResources"));
             for (String name : ctx.getBeanDefinitionNames()) {
                 var type = ctx.getType(name, false);
                 if (type == null) continue;
@@ -503,7 +505,7 @@ class V3WorkerMonolithPostgresTest {
             var restart = f.start();
             f.verify(id);
             assertEquals(
-                    2,
+                    0,
                     f.read.queryForObject(
                             "select count(*) from i5_read_probe_effect", Integer.class));
             f.drain(restart);
@@ -519,7 +521,7 @@ class V3WorkerMonolithPostgresTest {
                                     p + "fixture-identity",
                                     "false",
                                     p + "technical-probes",
-                                    "false",
+                                    "true",
                                     p + "consumption-limits",
                                     "a5000000-0000-4000-8000-000000000001=1",
                                     p + "partitions",
@@ -540,7 +542,7 @@ class V3WorkerMonolithPostgresTest {
                     f.properties.put(key, saved);
                 }
             }
-            refused(f, "", Map.of());
+            refused(f, "v3-consumption-pilot", Map.of());
             refused(f, "v3-consumption-pilot,v3-consumption-worker-dev", Map.of());
             refused(f, "postgres,v3-consumption-worker-dev", Map.of());
             constructed.set(0);
@@ -549,7 +551,7 @@ class V3WorkerMonolithPostgresTest {
             var saved = new LinkedHashMap<>(f.properties);
             f.properties.keySet().removeIf(k -> k.startsWith(p));
             try {
-                refused(f, "", Map.of(), ForbiddenFixture.class);
+                refused(f, "v3-consumption-pilot", Map.of(), ForbiddenFixture.class);
                 assertEquals(0, constructed.get());
             } finally {
                 f.properties.clear();
@@ -562,12 +564,12 @@ class V3WorkerMonolithPostgresTest {
                 refused(f, "v3-consumption-worker-dev", Map.of(p + "consumption-limits", enabled));
             refused(
                     f,
-                    "",
+                    "v3-consumption-pilot",
                     Map.of(p + "enabled", "false", p + "environment", "PROD"),
                     ForbiddenFixture.class);
-            for (boolean write : List.of(true, false)) {
-                var sql = write ? f.write : f.read;
-                String role = write ? f.writeRole : f.readRole;
+            {
+                var sql = f.write;
+                String role = f.writeRole;
                 sql.execute("grant create on schema " + f.schema + " to " + role);
                 refused(f, "v3-consumption-worker-dev", Map.of());
                 sql.execute("revoke create on schema " + f.schema + " from " + role);
@@ -601,16 +603,10 @@ class V3WorkerMonolithPostgresTest {
                         "alter table consumption_routing_contract enable trigger"
                                 + " consumption_contract_immutable");
                 f.trace.add(
-                        "negative no DML/threads: DDL and inherited-role excess, canonical/probe"
-                                + " metadata mismatch authority="
-                                + (write ? "WRITE" : "READ"));
+                        "negative no DML/threads: DDL and inherited-role excess, WRITE catalog mismatch");
             }
-            f.read.execute(
-                    "insert into consumption_routing_contract"
-                        + " values('a5000000-0000-4000-8000-000000000003','POT_EVENT','sha256-v1',4)");
-            refused(f, "v3-consumption-worker-dev", Map.of());
             f.trace.add(
-                    "real monolith root: only real Command plus separate technical READ probes;"
+                    "real monolith root: Command only; READ technical probes are refused;"
                         + " both flags/profile conjunction and indirect fixture rejection precede"
                         + " threads/DML; no HTTP business controller");
             f.evidence("i5_mono01");

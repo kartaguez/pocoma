@@ -1,0 +1,12 @@
+{
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.Status": "com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol.Status",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.Attempt": "com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol.Attempt",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine.Settings": "com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine.Status": "com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.Status",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine.EventProgress": "com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.EventProgress",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine.DiscoveryListener": "com.kartaguez.pocoma.contract.consumption.observation.DiscoveryListener",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine.RequestProgress": "com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.RequestProgress",
+  "com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity.Snapshot": "com.kartaguez.pocoma.contract.consumption.invocation.CapacityView.Snapshot",
+  "com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation.Walk": "com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.Walk",
+  "com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation.Page": "com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.Page"
+}

@@ -1,0 +1,28 @@
+{
+  "version": "17.11",
+  "database": "pocoma_write",
+  "sourceSelectPosition": true,
+  "sourceCannotReadCommandToken": true,
+  "sourceCannotMutate": true,
+  "readWorkerCannotReadIdentitySource": true,
+  "runtimeConnections": [
+    {
+      "datname": "pocoma_read",
+      "usename": "pocoma_read_http",
+      "application_name": "v3-http-read",
+      "count": 2
+    },
+    {
+      "datname": "pocoma_read",
+      "usename": "pocoma_read_status",
+      "application_name": "v3-http-read-maintenance",
+      "count": 1
+    },
+    {
+      "datname": "pocoma_write",
+      "usename": "pocoma_admission",
+      "application_name": "v3-http-admission",
+      "count": 1
+    }
+  ]
+}

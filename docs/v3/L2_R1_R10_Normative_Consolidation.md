@@ -42,7 +42,19 @@
 **R3-09** Perte de propriété partition et incompatibilité future ne suppriment pas le fencing de claims individuels déjà valides ; reconfiguration incompatible sous procédure explicitement revue.
 **R3-10** Les Workers peuvent différer par partitions candidates, polling et plafonds locaux : seul le contrat de routage est commun.
 
-## 4. R4 — Discovery burnable, option A
+## 4. R4 — Discovery burnable
+
+**Règle actuelle L7/I2, consolidée par L7 §1.3 :** Command et IdentityRequest
+possèdent une publication transactionnelle dense et un checkpoint durable de
+découverte par `(C,p)`. L'enrôlement idempotent et l'avance de K sont atomiques
+sur le seul préfixe couvert ; un PENDING requis non couvert bloque l'avance.
+Un slot QUARANTINED existant reste couvert et durable. K ne prouve aucune
+terminaison métier. Reprise et takeover repartent du checkpoint durable.
+Les détails normatifs actuels figurent dans [SPEC-05 §2](SPEC-05_Consumption_Discovery.md).
+
+Les R4-01 à R4-10 ci-dessous conservent **l'arbitrage historique du parcours
+volatil**, remplacé pour les deux Burnables par cette règle. Ils ne permettent
+pas de supprimer le checkpoint livré dans L7/I2.
 
 **R4-01** Aucun checkpoint burnable durable. Par instance et `(C,p)`, `cursor` et borne haute `U` sont uniquement volatils.
 **R4-02** Parcours keyset sur clé stable et totale, par exemple UUID natif PostgreSQL ; les UUID ne sont pas chronologiques.

@@ -1,0 +1,128 @@
+diff --git a/app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/v3/V3ReadHttpConfiguration.java b/app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/v3/V3ReadHttpConfiguration.java
+index 5a7beeef..a593d46f 100644
+--- a/app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/v3/V3ReadHttpConfiguration.java
++++ b/app/compose-web-read-postgres/src/main/java/com/kartaguez/pocoma/compose/web/read/v3/V3ReadHttpConfiguration.java
+@@ -125,11 +125,10 @@ public class V3ReadHttpConfiguration {
+                     || env.getProperty("management.health.db.enabled", Boolean.class, true))
+                 throw new IllegalStateException(
+                         "V3 HTTP requires migrations, OSIV and DB health disabled");
+-            boolean monolith = Arrays.stream(factory.getBeanDefinitionNames())
+-                    .map(n -> factory.getType(n, false))
+-                    .filter(Objects::nonNull)
+-                    .anyMatch(t -> t.getName().equals("com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
+-            if (!monolith && Arrays.stream(factory.getBeanDefinitionNames())
++            var profiles = Set.of(env.getActiveProfiles());
++            boolean workerSelected = profiles.contains("v3-consumption-worker-dev")
++                    || profiles.contains("v3-read-worker");
++            if (!workerSelected && Arrays.stream(factory.getBeanDefinitionNames())
+                     .map(n -> factory.getType(n, false))
+                     .filter(Objects::nonNull)
+                     .anyMatch(
+diff --git a/app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/v3/V3AdmissionHttpConfiguration.java b/app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/v3/V3AdmissionHttpConfiguration.java
+index 2f4a132d..901dfd08 100644
+--- a/app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/v3/V3AdmissionHttpConfiguration.java
++++ b/app/compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/v3/V3AdmissionHttpConfiguration.java
+@@ -49,23 +49,14 @@ public class V3AdmissionHttpConfiguration {
+         @Override
+         public void postProcessBeanFactory(
+                 org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
+-            boolean root =
+-                    Arrays.stream(factory.getBeanDefinitionNames())
+-                            .map(n -> factory.getType(n, false))
+-                            .filter(Objects::nonNull)
+-                            .map(Class::getName)
+-                            .anyMatch(
+-                                    n ->
+-                                            Set.of(
+-                                                            "com.kartaguez.pocoma.PocomaWebApiApplication",
+-                                                            "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
+-                                                    .contains(n));
+-            if (!root) throw new IllegalStateException("Admission requires WEB or Monolith root");
+-            boolean monolith = Arrays.stream(factory.getBeanDefinitionNames())
+-                    .map(n -> factory.getType(n, false))
+-                    .filter(Objects::nonNull)
+-                    .anyMatch(t -> t.getName().equals("com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
+-            if (!monolith && Arrays.stream(factory.getBeanDefinitionNames())
++            if (env.getProperty("spring.flyway.enabled", Boolean.class, true)
++                    || env.getProperty("spring.jpa.open-in-view", Boolean.class, true)
++                    || env.getProperty("management.health.db.enabled", Boolean.class, true))
++                throw new IllegalStateException("V3 HTTP requires migrations, OSIV and DB health disabled");
++            var profiles = Set.of(env.getActiveProfiles());
++            boolean workerSelected = profiles.contains("v3-consumption-worker-dev")
++                    || profiles.contains("v3-read-worker");
++            if (!workerSelected && Arrays.stream(factory.getBeanDefinitionNames())
+                     .map(n -> factory.getType(n, false))
+                     .filter(Objects::nonNull)
+                     .anyMatch(
+@@ -98,7 +89,10 @@ public class V3AdmissionHttpConfiguration {
+                     List.of(
+                             "pocoma.v3.worker.write-business.username",
+                             "pocoma.v3.worker.write-control.username",
+-                            "pocoma.v3.http.read.username"))
++                            "pocoma.v3.process.write-business.username",
++                            "pocoma.v3.process.write-control.username",
++                            "pocoma.v3.http.read.username",
++                            "pocoma.v3.http.read.maintenance.username"))
+                 if (role.equals(env.getProperty(key)))
+                     throw new IllegalStateException("Admission SQL role must be distinct");
+         }
+diff --git a/app/runtime-monolith/pom.xml b/app/runtime-monolith/pom.xml
+index 2f531830..3f5eb9f1 100644
+--- a/app/runtime-monolith/pom.xml
++++ b/app/runtime-monolith/pom.xml
+@@ -83,6 +83,7 @@
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-maven-plugin</artifactId>
+                 <configuration>
++                    <skip>false</skip>
+                     <classifier>exec</classifier>
+                     <mainClass>com.kartaguez.pocoma.PocomaRuntimeMonolithApplication</mainClass>
+                 </configuration>
+diff --git a/app/runtime-web-read/pom.xml b/app/runtime-web-read/pom.xml
+index b66fc0f6..0f63db89 100644
+--- a/app/runtime-web-read/pom.xml
++++ b/app/runtime-web-read/pom.xml
+@@ -92,6 +92,7 @@
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-maven-plugin</artifactId>
+                 <configuration>
++                    <skip>false</skip>
+                     <classifier>exec</classifier>
+                     <mainClass>com.kartaguez.pocoma.PocomaWebReadApplication</mainClass>
+                 </configuration>
+diff --git a/app/runtime-web-write/pom.xml b/app/runtime-web-write/pom.xml
+index 0edc57b0..e475b94d 100644
+--- a/app/runtime-web-write/pom.xml
++++ b/app/runtime-web-write/pom.xml
+@@ -62,6 +62,7 @@
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-maven-plugin</artifactId>
+                 <configuration>
++                    <skip>false</skip>
+                     <classifier>exec</classifier>
+                     <mainClass>com.kartaguez.pocoma.PocomaWebWriteApplication</mainClass>
+                 </configuration>
+diff --git a/app/runtime-worker-materialize/pom.xml b/app/runtime-worker-materialize/pom.xml
+index c999aa50..373a14b3 100644
+--- a/app/runtime-worker-materialize/pom.xml
++++ b/app/runtime-worker-materialize/pom.xml
+@@ -116,6 +116,7 @@
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-maven-plugin</artifactId>
+                 <configuration>
++                    <skip>false</skip>
+                     <classifier>exec</classifier>
+                     <mainClass>com.kartaguez.pocoma.PocomaMaterializeWorkerApplication</mainClass>
+                 </configuration>
+diff --git a/app/runtime-worker-process/pom.xml b/app/runtime-worker-process/pom.xml
+index bafbbeb4..04c18831 100644
+--- a/app/runtime-worker-process/pom.xml
++++ b/app/runtime-worker-process/pom.xml
+@@ -74,6 +74,7 @@
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-maven-plugin</artifactId>
+                 <configuration>
++                    <skip>false</skip>
+                     <classifier>exec</classifier>
+                     <mainClass>com.kartaguez.pocoma.PocomaProcessWorkerApplication</mainClass>
+                 </configuration>

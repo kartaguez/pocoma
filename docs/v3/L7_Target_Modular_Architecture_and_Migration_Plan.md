@@ -2,13 +2,13 @@
 
 Mandat : `GO_L7_MODULAR_ARCHITECTURE_CONSOLIDATION` · Date : 2026-11-10.
 
-Statut : **NORMATIF POUR LA CIBLE — DOCUMENTATION ONLY — NO IMPLEMENTATION**.
+Statut : **NORMATIF POUR LA CIBLE**.
 
 Dépôt : `kartaguez/pocoma` · Branche : `feat/v3-architecture`.
 
 Référence initiale : `9823f88b57bfa312f2deb90d4a8eaf99ba8f28e2`.
 
-La cible comprend **42 modules enfants Maven et un agrégateur, soit 43 projets**. Le présent document est la référence unique de la modularisation cible ; les audits restent des constats historiques. Il fixe des frontières et des critères de migration, sans affirmer que les futurs modules compilent déjà, sans modifier les contrats de sûreté et sans accorder de GO d'implémentation.
+La cible comprend **42 modules enfants Maven et un agrégateur, soit 43 projets**. Le présent document est la référence unique de la modularisation cible ; les audits restent des constats historiques. Les décisions et preuves d’exécution sont consignées dans le [rapport d’implémentation et de qualification](L7_Modular_Refactoring_Implementation_and_Qualification_Report.md).
 
 ## 1. Sources, précédence et décisions consolidées
 

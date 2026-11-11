@@ -25,6 +25,17 @@ class L7DeploymentArchitectureTest {
             assertEquals("pocoma-"+expected.getValue(),args.get("RUNTIME_ARTIFACT"));
             assertFalse(service.get("volumes").toString().contains("pocoma-runtime.jar"),"image cannot be replaced by another Runtime's jar");
         }
+        var executableModules = new HashSet<>(runtimes.values());
+        executableModules.add("runtime-monolith");
+        for (String module : executableModules) {
+            var pom = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                    .parse(root.resolve("app").resolve(module).resolve("pom.xml").toFile());
+            var xpath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+            String plugin = "/project/build/plugins/plugin[artifactId='spring-boot-maven-plugin']/configuration/";
+            assertEquals("exec", xpath.evaluate(plugin + "classifier", pom), module);
+            assertEquals("false", xpath.evaluate(plugin + "skip", pom), module);
+            assertTrue(xpath.evaluate(plugin + "mainClass", pom).startsWith("com.kartaguez.pocoma."), module);
+        }
         var config=root.resolve("docker/v3-five-runtimes");
         for(String name:List.of("results-worker","business-read-worker")) {
             var p=props(config.resolve(name+".properties"));

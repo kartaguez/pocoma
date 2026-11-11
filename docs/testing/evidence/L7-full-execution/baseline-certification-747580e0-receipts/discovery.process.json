@@ -1,0 +1,13 @@
+{
+  "pid": 22540,
+  "process_group": 22540,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=3f5d5d9834624441bfc317581f4de439",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L7-full-execution/baseline-certification-747580e0/reports",
+    "help:effective-pom",
+    "-Doutput=/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L7-full-execution/baseline-certification-747580e0/effective-pom.xml"
+  ]
+}

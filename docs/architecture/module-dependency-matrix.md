@@ -1,4 +1,7 @@
-# Matrice des dépendances des modules
+# Matrice des dépendances des modules V2 — archive
+
+Référence du réacteur courant. [Architecture et matrice normatives V3](../v3/L7_Target_Modular_Architecture_and_Migration_Plan.md)
+
 
 ## Direction générale
 

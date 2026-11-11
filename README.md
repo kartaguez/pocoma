@@ -117,7 +117,7 @@ domain → engines/projectors → ports → adapters/supras → runtime composit
 - **Adapters and supras** bind PostgreSQL, transactions, HTTP, authentication, and worker-specific recipes.
 - **Runtimes** assemble one deployable capability and activate only its own loop or API.
 
-See the canonical [Architecture](docs/architecture/Architecture.md) for the delivered chains and [module dependency matrix](docs/architecture/module-dependency-matrix.md) for ownership detail.
+See the [V3 architecture catalogue and dependency matrix](docs/v3/L7_Target_Modular_Architecture_and_Migration_Plan.md) and the [L7 implementation and qualification report](docs/v3/L7_Modular_Refactoring_Implementation_and_Qualification_Report.md).
 
 ## Running Locally
 
@@ -127,14 +127,9 @@ Prerequisites:
 - Docker for PostgreSQL and integration tests;
 - an OAuth2/OIDC issuer when exercising authenticated HTTP endpoints.
 
-Start the local PostgreSQL service:
-
-```bash
-cd app
-docker compose -f docker-compose.postgres.yml up -d
-```
-
-Pocoma is composed of independent runtimes rather than one required monolith. Use the [runtime start commands](docs/operations/cmd-start-runtimes.md) for the Web, Command, Event, and ProjectionTask processes, and enable the additional consumers needed by the scenario being exercised.
+Start PostgreSQL and Keycloak, provision the V3 schemas and roles, then start the five local
+processes. The runbook lists the configuration and the independent Web Write, Web Read, Process
+and Materialize runtime artifacts. [Runtime start commands](docs/operations/cmd-start-runtimes.md)
 
 ## Validation
 

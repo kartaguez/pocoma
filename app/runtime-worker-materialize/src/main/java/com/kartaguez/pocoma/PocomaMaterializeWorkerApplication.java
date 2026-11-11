@@ -19,8 +19,9 @@ public class PocomaMaterializeWorkerApplication {
                         || jakarta.persistence.EntityManagerFactory.class.isAssignableFrom(type)))
                     throw new IllegalStateException("Unallocated worker authority bean: "+name);
             }
-            var allowed=Set.of("v3-read-worker");
-            for(String profile:env.getActiveProfiles())if(!allowed.contains(profile))throw new IllegalStateException("Unsupported Runtime selection: "+profile);
+            var profiles = Set.of(env.getActiveProfiles());
+            if (!profiles.equals(Set.of("v3-read-worker")))
+                throw new IllegalStateException("Unsupported Runtime selection: " + profiles);
         };
     }
 }

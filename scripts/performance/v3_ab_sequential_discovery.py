@@ -13,6 +13,7 @@ Rules enforced:
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 import csv
 import json
 import math
@@ -35,20 +36,12 @@ import v3_populated_db_generator as db_gen
 WRITE_BASE_URL = os.environ.get("POCOMA_WRITE_URL", "http://127.0.0.1:8080")
 READ_BASE_URL = os.environ.get("POCOMA_READ_URL", "http://127.0.0.1:8082")
 
-RUNTIME_CONTAINERS = [
-    "pocoma-http-write",
-    "pocoma-command-worker",
-    "pocoma-results-worker",
-    "pocoma-business-read-worker",
-    "pocoma-http-read",
-]
-
+MANAGEMENT_PORTS = {"http-write": 18080, "http-read": 18082,
+                    "command-worker": 18083, "results-worker": 18084, "business-read-worker": 18085}
+RUNTIME_CONTAINERS = [db_gen.RUNTIME_PREFIX + "pocoma-" + name for name in MANAGEMENT_PORTS]
 PROMETHEUS_ENDPOINTS = {
-    "http-write": "http://127.0.0.1:18080/actuator/prometheus",
-    "command-worker": "http://127.0.0.1:18083/actuator/prometheus",
-    "results-worker": "http://127.0.0.1:18084/actuator/prometheus",
-    "business-read-worker": "http://127.0.0.1:18085/actuator/prometheus",
-    "http-read": "http://127.0.0.1:18082/actuator/prometheus",
+    name: f"http://127.0.0.1:{port + db_gen.MANAGEMENT_PORT_OFFSET}/actuator/prometheus"
+    for name, port in MANAGEMENT_PORTS.items()
 }
 
 R11_N1_BASELINE_FILE = (
@@ -152,7 +145,7 @@ def collect_docker_stats() -> List[Dict[str, str]]:
         [
             "docker", "stats", "--no-stream",
             "--format", "{{json .}}",
-            "pocoma-v3-postgres",
+            db_gen.POSTGRES_CONTAINER,
             *RUNTIME_CONTAINERS,
         ],
         capture_output=True,
@@ -189,6 +182,9 @@ def scrape_prometheus_discovery_metrics() -> Dict[str, Dict[str, float]]:
                         "pocoma_v3_attempt_outcomes_total",
                         "pocoma_v3_quarantine_transitions_total",
                         "pocoma_v3_claim_operations_total",
+                        "hikaricp_connections_",
+                        "pocoma_v3_capacity_used",
+                        "pocoma_v3_physical_pending",
                     )
                 ):
                     parts = line.rsplit(" ", 1)
@@ -201,6 +197,33 @@ def scrape_prometheus_discovery_metrics() -> Dict[str, Dict[str, float]]:
             pass
         out[rt] = metrics
     return out
+
+
+@contextmanager
+def resource_samples(enabled):
+    samples = []
+    if not enabled:
+        yield samples
+        return
+    stop = threading.Event()
+
+    def sample():
+        start = time.monotonic()
+        while not stop.is_set():
+            samples.append({
+                "elapsedSeconds": round(time.monotonic() - start, 3),
+                "docker": collect_docker_stats(),
+                "prometheus": scrape_prometheus_discovery_metrics(),
+            })
+            stop.wait(3)
+
+    thread = threading.Thread(target=sample, name="l7-resources", daemon=True)
+    thread.start()
+    try:
+        yield samples
+    finally:
+        stop.set()
+        thread.join(timeout=40)
 
 
 def capture_pg_explain_and_io() -> Dict[str, Any]:
@@ -248,6 +271,42 @@ def capture_pg_explain_and_io() -> Dict[str, Any]:
         "explainPublishedRange": json.loads(explain_range),
         "tableIoStats": json.loads(io_stats) if io_stats else [],
     }
+
+
+def poll_json(url, token, accept, binding_token=None, timeout=60):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            status, data = http_get(url, token, binding_token)
+            if status == 200 and accept(data):
+                return data
+        except urllib.error.HTTPError as error:
+            if error.code not in (404, 503):
+                raise
+        time.sleep(0.02)
+    raise TimeoutError(f"Qualification fixture did not converge: {url}")
+
+
+def fixture_binding(token, initialize):
+    url = f"{READ_BASE_URL}/api/v3/me/binding"
+    try:
+        _, data = http_get(url, token)
+        if data.get("active") and data.get("bindingToken"):
+            return data["bindingToken"]
+    except urllib.error.HTTPError as error:
+        if error.code != 404:
+            raise
+    if not initialize:
+        raise ValueError("Active binding required; use --initialize-binding for a disposable stack")
+    status, admission = http_post(
+        f"{WRITE_BASE_URL}/api/v3/identity/requests", {"operation": "Registration"},
+        token, "l7-ab-bootstrap-registration")
+    if status != 202:
+        raise ValueError(f"Registration expected HTTP 202, received {status}")
+    request_id = admission["requestId"]
+    poll_json(f"{READ_BASE_URL}/api/v3/identity/requests/{request_id}/result", token,
+              lambda data: data.get("outcome") in ("COMPLETED", "CHANGED"))
+    return poll_json(url, token, lambda data: data.get("active") and data.get("bindingToken"))["bindingToken"]
 
 
 def ensure_pot_pool(token: str, binding_token: str, min_pots: int = 25) -> List[Dict[str, Any]]:
@@ -299,14 +358,8 @@ def ensure_pot_pool(token: str, binding_token: str, min_pots: int = 25) -> List[
                 f"ab-cp-{pid}",
             )
             req1 = adm1["requestId"]
-            while True:
-                try:
-                    st, rdata = http_get(f"{READ_BASE_URL}/api/v3/commands/{req1}/result", token)
-                    if st == 200 and rdata.get("outcome") in ("COMPLETED", "CHANGED"):
-                        break
-                except urllib.error.HTTPError:
-                    pass
-                time.sleep(0.02)
+            poll_json(f"{READ_BASE_URL}/api/v3/commands/{req1}/result", token,
+                      lambda data: data.get("outcome") in ("COMPLETED", "CHANGED"))
 
             targets = [
                 {
@@ -330,23 +383,10 @@ def ensure_pot_pool(token: str, binding_token: str, min_pots: int = 25) -> List[
                 f"ab-as-{pid}",
             )
             req2 = adm2["requestId"]
-            while True:
-                try:
-                    st, rdata = http_get(f"{READ_BASE_URL}/api/v3/commands/{req2}/result", token)
-                    if st == 200 and rdata.get("outcome") in ("COMPLETED", "CHANGED"):
-                        break
-                except urllib.error.HTTPError:
-                    pass
-                time.sleep(0.02)
-            # Wait until READ projection has potVersion >= 2
-            while True:
-                try:
-                    st, pdata = http_get(f"{READ_BASE_URL}/api/v3/pots/{pid}?minVersion=2", token, binding_token)
-                    if st == 200 and pdata.get("potVersion", 0) >= 2:
-                        break
-                except urllib.error.HTTPError:
-                    pass
-                time.sleep(0.02)
+            poll_json(f"{READ_BASE_URL}/api/v3/commands/{req2}/result", token,
+                      lambda data: data.get("outcome") in ("COMPLETED", "CHANGED"))
+            poll_json(f"{READ_BASE_URL}/api/v3/pots/{pid}?minVersion=2", token,
+                      lambda data: data.get("potVersion", 0) >= 2, binding_token)
             pot_states.append({"potId": pid, "shareholders": shs, "currentVersion": 2})
 
     return pot_states
@@ -448,6 +488,7 @@ def run_workload_campaign(
     token_mgr: OidcTokenManager,
     binding_token: str,
     pot_states: List[Dict[str, Any]],
+    sample_resources: bool = False,
 ) -> Dict[str, Any]:
     print(f"\n--- Campaign [{profile}] @ {rate_cmd_s} cmd/s ({total_commands} commands) ---")
     clear_container_handoff_logs()
@@ -574,18 +615,23 @@ def run_workload_campaign(
                     "clientC03EpochMs": round(t_c03_epoch, 2) if t_c03_epoch else None,
                     "clientE2eMs": round(t_c03_epoch - t_send_epoch, 2) if t_c03_epoch else None,
                     "c03Valid": c03_ok,
+                    "resultAvailable": result_ok,
                 }
             )
 
     t_start = time.time()
     interval = 1.0 / rate_cmd_s
-    with ThreadPoolExecutor(max_workers=min(32, num_pots)) as executor:
-        futures = [
-            executor.submit(execute_one_command, i, t_start + i * interval)
-            for i in range(total_commands)
-        ]
-        for f in as_completed(futures):
-            f.result()
+    with resource_samples(sample_resources) as sampled:
+        with ThreadPoolExecutor(max_workers=min(32, num_pots)) as executor:
+            futures = [
+                executor.submit(execute_one_command, i, t_start + i * interval)
+                for i in range(total_commands)
+            ]
+            for f in as_completed(futures):
+                f.result()
+        workload_duration = time.time() - t_start
+    admissions = [d for d in dispatched if d["admitted"]]
+    results = sum(d.get("resultAvailable", False) for d in admissions)
 
     # Allow 1s settle for all projection logs to flush
     time.sleep(1.0)
@@ -762,6 +808,13 @@ def run_workload_campaign(
         "rateCmdPerSec": rate_cmd_s,
         "totalCommands": total_commands,
         "campaignDurationSeconds": campaign_duration_s,
+        "workloadDurationSeconds": round(workload_duration, 3),
+        "admittedCount": len(admissions),
+        "readResultCount": results,
+        "admittedPerSecondOverWorkload": len(admissions) / workload_duration,
+        "resultsPerSecondOverWorkload": results / workload_duration,
+        "admissionHttpMs": compute_stats([d["tAdmitEpochMs"] - d["tSendEpochMs"] for d in admissions]),
+        "dispatchFailures": [d for d in dispatched if not d["admitted"]],
         "correlatedCount": len(correlated_records),
         "oracleC03ValidCount": sum(1 for r in correlated_records if r.get("c03Valid")),
         "intervalsMs": intervals,
@@ -772,6 +825,7 @@ def run_workload_campaign(
         "prometheusBefore": prom_before,
         "prometheusAfter": prom_after,
         "dockerStats": docker_stats,
+        "workloadResourceSamples": sampled,
         "records": correlated_records,
     }
 
@@ -788,18 +842,26 @@ def main() -> None:
         default="1,10,50",
         help="Comma-separated rates in cmd/s (default: 1,10,50)",
     )
+    parser.add_argument("--output", required=True, type=Path, help="New evidence directory")
+    parser.add_argument("--initialize-binding", action="store_true")
+    parser.add_argument("--commands", type=int, help="Override sample size for each selected rate")
+    parser.add_argument("--sample-resources", action="store_true")
     args = parser.parse_args()
+    global EVIDENCE_DIR
+    EVIDENCE_DIR = args.output.resolve()
 
     profiles = [p.strip() for p in args.profiles.split(",") if p.strip()]
     rates = [float(r.strip()) for r in args.rates.split(",") if r.strip()]
+    if not profiles or not rates or any(r not in (1, 10, 50) for r in rates):
+        parser.error("select known profiles and at least one of 1,10,50 cmd/s")
+    if args.commands is not None and args.commands < 1:
+        parser.error("--commands must be positive")
 
-    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+    EVIDENCE_DIR.mkdir(parents=True, exist_ok=False)
 
     token_mgr = OidcTokenManager()
     token = token_mgr.get_token()
-    st, bdata = http_get(f"{READ_BASE_URL}/api/v3/me/binding", token)
-    assert st == 200, f"Failed to retrieve active binding: HTTP {st}"
-    binding_token = bdata["bindingToken"]
+    binding_token = fixture_binding(token, args.initialize_binding)
 
     pot_states = None
     all_campaigns: List[Dict[str, Any]] = []
@@ -819,7 +881,7 @@ def main() -> None:
         # For H2, H4, H5, run 1 cmd/s and 10 cmd/s (and 50 cmd/s on H4) to keep campaign duration bounded.
         profile_rates = rates if profile in ("H1", "H3", "H4") else [r for r in rates if r in (1.0, 10.0)]
         for rate in profile_rates:
-            total_cmds = 30 if rate == 1.0 else (60 if rate == 10.0 else 100)
+            total_cmds = args.commands or {1: 30, 10: 60, 50: 100}[rate]
             res = run_workload_campaign(
                 profile=profile,
                 rate_cmd_s=rate,
@@ -827,6 +889,7 @@ def main() -> None:
                 token_mgr=token_mgr,
                 binding_token=binding_token,
                 pot_states=pot_states,
+                sample_resources=args.sample_resources,
             )
             all_campaigns.append(res)
             (EVIDENCE_DIR / f"campaign_{profile}_rate_{int(rate)}.json").write_text(

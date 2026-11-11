@@ -58,7 +58,7 @@ class V3WorkerCompositionPostgresTest {
             Map<String, Object> changed,
             Class<?>... extra) {
         String before = vector(f);
-        var config = new LinkedHashMap<>(f.properties);
+        var config = f.processProperties();
         config.putAll(changed);
         var app = new SpringApplication(PocomaProcessWorkerApplication.class);
         app.setWebApplicationType(WebApplicationType.NONE);
@@ -115,8 +115,10 @@ class V3WorkerCompositionPostgresTest {
     void i5_c03() throws Exception {
         try (var f = new V3WorkerPostgresTest.Fixture(PG)) {
             var ctx = f.start();
-            assertEquals(4, ctx.getBeansOfType(HikariDataSource.class).size());
-            assertEquals(1, ctx.getBeansOfType(WorkerCapacity.class).size());
+            assertTrue(ctx.getBeansOfType(HikariDataSource.class).isEmpty());
+            var resources = ctx.getBean(
+                    com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources.class);
+            assertTrue(resources.capacityView().isPresent());
             assertEquals(1, ctx.getBeansOfType(V3ConsumptionWorker.class).size());
             for (String name : ctx.getBeanDefinitionNames()) {
                 var type = ctx.getType(name, false);
@@ -134,11 +136,9 @@ class V3WorkerCompositionPostgresTest {
                                 org.springframework.web.bind.annotation.RestController.class),
                         value);
             }
-            var actual = ctx.getBeansOfType(HikariDataSource.class);
-            var identities =
-                    Collections.newSetFromMap(new IdentityHashMap<HikariDataSource, Boolean>());
-            identities.addAll(actual.values());
-            assertEquals(4, identities.size());
+            assertNotSame(resources.writeBusiness, resources.writeControl);
+            assertEquals("i5-test-write-business", resources.writeBusiness.getPoolName());
+            assertEquals("i5-test-write-control", resources.writeControl.getPoolName());
             f.drain(ctx);
             f.evidence("i5_c03");
         }
@@ -155,8 +155,12 @@ class V3WorkerCompositionPostgresTest {
             // path.
             var ctx = f.start();
             var id = f.inject(404);
-            f.verify(id);
+            V3WorkerPostgresTest.await(() -> "TERMINAL".equals(f.write.queryForObject(
+                    "select status from v3_command where request_id=?", String.class, id)));
             f.drain(ctx);
+            assertEquals(1, f.write.queryForObject(
+                    "select count(*) from v3_command_result where request_id=?", Integer.class, id));
+            assertEquals(0, f.read.queryForObject("select count(*) from i5_read_probe_effect", Integer.class));
             assertThrows(AssertionError.class, () -> f.script("bootstrap-l2-worker-dev.sql", true));
             assertEquals(
                     "TERMINAL",
@@ -164,6 +168,18 @@ class V3WorkerCompositionPostgresTest {
                             "select status from v3_command where request_id=?", String.class, id));
             f.evidence("i5_c04");
         }
+    }
+
+    private static void refuseAuthority(V3WorkerPostgresTest.Fixture fixture, boolean write) {
+        if (write) {
+            refused(fixture, "v3-consumption-worker-dev", Map.of());
+            return;
+        }
+        String before = vector(fixture);
+        assertThrows(IllegalStateException.class,
+                () -> new V3WorkerPostgresTest.Runtime(fixture,
+                        com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop()));
+        assertEquals(before, vector(fixture));
     }
 
     static final AtomicInteger constructed = new AtomicInteger();
@@ -207,7 +223,7 @@ class V3WorkerCompositionPostgresTest {
                                     p + "fixture-identity",
                                     "false",
                                     p + "technical-probes",
-                                    "false",
+                                    "true",
                                     p + "consumption-limits",
                                     "a5000000-0000-4000-8000-000000000001=1",
                                     p + "partitions",
@@ -242,10 +258,10 @@ class V3WorkerCompositionPostgresTest {
                 var sql = write ? f.write : f.read;
                 String role = write ? f.writeRole : f.readRole;
                 sql.execute("grant create on schema " + f.schema + " to " + role);
-                refused(f, "v3-consumption-worker-dev", Map.of());
+                refuseAuthority(f, write);
                 sql.execute("revoke create on schema " + f.schema + " from " + role);
                 sql.execute("grant " + f.reactRole + " to " + role);
-                refused(f, "v3-consumption-worker-dev", Map.of());
+                refuseAuthority(f, write);
                 sql.execute("revoke " + f.reactRole + " from " + role);
                 var id =
                         sql.queryForObject(
@@ -265,7 +281,7 @@ class V3WorkerCompositionPostgresTest {
                         "update consumption_routing_contract set family=? where consumption_id=?",
                         family.equals("COMMAND") ? "POT_EVENT" : "COMMAND",
                         id);
-                refused(f, "v3-consumption-worker-dev", Map.of());
+                refuseAuthority(f, write);
                 sql.update(
                         "update consumption_routing_contract set family=? where consumption_id=?",
                         family,
@@ -295,7 +311,7 @@ class V3WorkerCompositionPostgresTest {
                         + " consumption_id='a5000000-0000-4000-8000-000000000002';alter table"
                         + " consumption_routing_contract enable trigger"
                         + " consumption_contract_immutable");
-            refused(f, "v3-consumption-worker-dev", Map.of());
+            refuseAuthority(f, false);
             f.evidence("i5_c05");
         }
     }

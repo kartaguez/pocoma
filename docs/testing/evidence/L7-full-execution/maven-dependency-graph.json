@@ -1,0 +1,1775 @@
+{
+  "aggregator": "pocoma",
+  "catalogue": {
+    "C01": {
+      "module": "domain-pot",
+      "category": "D/PF",
+      "normativeProductionDependencies": [],
+      "testDependencies": []
+    },
+    "C02": {
+      "module": "domain-identity",
+      "category": "D/PF",
+      "normativeProductionDependencies": [],
+      "testDependencies": []
+    },
+    "C03": {
+      "module": "domain-projection",
+      "category": "D/DC/PF",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02"
+      ],
+      "testDependencies": []
+    },
+    "C04": {
+      "module": "domain-consumption",
+      "category": "D/DC",
+      "normativeProductionDependencies": [],
+      "testDependencies": []
+    },
+    "C05": {
+      "module": "contract-authentication",
+      "category": "DC",
+      "normativeProductionDependencies": [
+        "C02"
+      ],
+      "testDependencies": []
+    },
+    "C06": {
+      "module": "contract-write-admission",
+      "category": "DC/CC",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C05"
+      ],
+      "testDependencies": []
+    },
+    "C07": {
+      "module": "contract-read-query",
+      "category": "DC/CC",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C05",
+        "C08"
+      ],
+      "testDependencies": []
+    },
+    "C08": {
+      "module": "port-transaction",
+      "category": "P",
+      "normativeProductionDependencies": [],
+      "testDependencies": []
+    },
+    "C09": {
+      "module": "port-projection",
+      "category": "P",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C08"
+      ],
+      "testDependencies": []
+    },
+    "C11": {
+      "module": "engine-admit-command",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C05",
+        "C06",
+        "C08"
+      ],
+      "testDependencies": []
+    },
+    "C12": {
+      "module": "engine-admit-identity",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C02",
+        "C05",
+        "C06",
+        "C08"
+      ],
+      "testDependencies": []
+    },
+    "C13": {
+      "module": "engine-write-pot",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C01",
+        "C04",
+        "C06",
+        "C08",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C14": {
+      "module": "engine-write-identity",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C02",
+        "C04",
+        "C06",
+        "C08",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C15": {
+      "module": "engine-materialize-pot",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C01",
+        "C03",
+        "C04",
+        "C08",
+        "C09",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C16": {
+      "module": "engine-materialize-identity",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C02",
+        "C03",
+        "C04",
+        "C08",
+        "C09",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C17": {
+      "module": "engine-materialize-results",
+      "category": "E/P",
+      "normativeProductionDependencies": [
+        "C03",
+        "C04",
+        "C08",
+        "C09",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C18": {
+      "module": "engine-read-pot",
+      "category": "E",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "testDependencies": []
+    },
+    "C19": {
+      "module": "engine-read-identity",
+      "category": "E",
+      "normativeProductionDependencies": [
+        "C02",
+        "C03",
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "testDependencies": []
+    },
+    "C20": {
+      "module": "engine-read-results",
+      "category": "E",
+      "normativeProductionDependencies": [
+        "C02",
+        "C03",
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "testDependencies": []
+    },
+    "C21": {
+      "module": "orchestrator-consumption",
+      "category": "O",
+      "normativeProductionDependencies": [
+        "C04",
+        "C08",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C22": {
+      "module": "supra-polling-consumption",
+      "category": "S",
+      "normativeProductionDependencies": [
+        "C04",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C23": {
+      "module": "supra-web-write",
+      "category": "S",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C05",
+        "C06"
+      ],
+      "testDependencies": []
+    },
+    "C24": {
+      "module": "supra-web-read",
+      "category": "S",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C05",
+        "C07",
+        "C09"
+      ],
+      "testDependencies": [
+        "C28"
+      ]
+    },
+    "C25": {
+      "module": "infra-tx-spring",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C08",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C26": {
+      "module": "infra-security-spring",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C05"
+      ],
+      "testDependencies": []
+    },
+    "C27": {
+      "module": "infra-postgres-write",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C06",
+        "C08",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C25",
+        "C26",
+        "C40"
+      ],
+      "testDependencies": [
+        "C03",
+        "C21",
+        "C41"
+      ]
+    },
+    "C28": {
+      "module": "infra-postgres-read",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C08",
+        "C09",
+        "C25",
+        "C40"
+      ],
+      "testDependencies": [
+        "C20"
+      ]
+    },
+    "C29": {
+      "module": "compose-web-write-postgres",
+      "category": "C",
+      "normativeProductionDependencies": [
+        "C05",
+        "C06",
+        "C11",
+        "C12",
+        "C23",
+        "C25",
+        "C26",
+        "C27",
+        "C42"
+      ],
+      "testDependencies": []
+    },
+    "C30": {
+      "module": "compose-polling-burnable-write-postgres",
+      "category": "C",
+      "normativeProductionDependencies": [
+        "C04",
+        "C08",
+        "C13",
+        "C14",
+        "C21",
+        "C22",
+        "C25",
+        "C27",
+        "C40",
+        "C42"
+      ],
+      "testDependencies": []
+    },
+    "C31": {
+      "module": "compose-polling-nonburnable-materialize-postgres",
+      "category": "C",
+      "normativeProductionDependencies": [
+        "C04",
+        "C08",
+        "C09",
+        "C15",
+        "C16",
+        "C17",
+        "C21",
+        "C22",
+        "C25",
+        "C28",
+        "C40",
+        "C41",
+        "C42"
+      ],
+      "testDependencies": []
+    },
+    "C32": {
+      "module": "compose-web-read-postgres",
+      "category": "C",
+      "normativeProductionDependencies": [
+        "C05",
+        "C07",
+        "C09",
+        "C18",
+        "C19",
+        "C20",
+        "C24",
+        "C25",
+        "C26",
+        "C28",
+        "C42",
+        "C43"
+      ],
+      "testDependencies": []
+    },
+    "C33": {
+      "module": "runtime-web-write",
+      "category": "R",
+      "normativeProductionDependencies": [
+        "C29"
+      ],
+      "testDependencies": []
+    },
+    "C34": {
+      "module": "runtime-web-read",
+      "category": "R",
+      "normativeProductionDependencies": [
+        "C32"
+      ],
+      "testDependencies": [
+        "C06",
+        "C11",
+        "C22",
+        "C23",
+        "C29"
+      ]
+    },
+    "C35": {
+      "module": "runtime-worker-process",
+      "category": "R",
+      "normativeProductionDependencies": [
+        "C30"
+      ],
+      "testDependencies": [
+        "C31",
+        "C41"
+      ]
+    },
+    "C36": {
+      "module": "runtime-worker-materialize",
+      "category": "R",
+      "normativeProductionDependencies": [
+        "C31"
+      ],
+      "testDependencies": [
+        "C06",
+        "C13",
+        "C14",
+        "C18",
+        "C19",
+        "C20",
+        "C24",
+        "C27",
+        "C32"
+      ]
+    },
+    "C37": {
+      "module": "runtime-monolith",
+      "category": "R",
+      "normativeProductionDependencies": [
+        "C29",
+        "C30",
+        "C31",
+        "C32"
+      ],
+      "testDependencies": [
+        "C36"
+      ]
+    },
+    "C38": {
+      "module": "architecture-tests",
+      "category": "Gate",
+      "normativeProductionDependencies": [],
+      "testDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "C06",
+        "C07",
+        "C08",
+        "C09",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23",
+        "C24",
+        "C25",
+        "C26",
+        "C27",
+        "C28",
+        "C29",
+        "C30",
+        "C31",
+        "C32",
+        "C33",
+        "C34",
+        "C35",
+        "C36",
+        "C37",
+        "C39",
+        "C40",
+        "C41",
+        "C42",
+        "C43"
+      ]
+    },
+    "C39": {
+      "module": "contract-consumption",
+      "category": "CC/DC/P",
+      "normativeProductionDependencies": [
+        "C04",
+        "C08"
+      ],
+      "testDependencies": []
+    },
+    "C40": {
+      "module": "infra-postgres-core",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C01",
+        "C04",
+        "C08",
+        "C25",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C41": {
+      "module": "infra-postgres-write-source-read",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C01",
+        "C02",
+        "C03",
+        "C08",
+        "C15",
+        "C16",
+        "C17",
+        "C25",
+        "C39",
+        "C40"
+      ],
+      "testDependencies": []
+    },
+    "C42": {
+      "module": "infra-observability-micrometer",
+      "category": "I",
+      "normativeProductionDependencies": [
+        "C04",
+        "C07",
+        "C39"
+      ],
+      "testDependencies": []
+    },
+    "C43": {
+      "module": "engine-read-execution",
+      "category": "E",
+      "normativeProductionDependencies": [
+        "C02",
+        "C03",
+        "C07",
+        "C08",
+        "C09"
+      ],
+      "testDependencies": []
+    }
+  },
+  "edges": [
+    {
+      "from": "C03",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C03",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C05",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C06",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C06",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C06",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C07",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C07",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C07",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C07",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C07",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C09",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C09",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C09",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C09",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C11",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C11",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C11",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C11",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C11",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C12",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C12",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C12",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C12",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C13",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C13",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C13",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C13",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C13",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C14",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C14",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C14",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C14",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C14",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C15",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C15",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C15",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C15",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C15",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C15",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C16",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C16",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C16",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C16",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C16",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C16",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C17",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C17",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C17",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C17",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C17",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C18",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C18",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C18",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C18",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C18",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C18",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C19",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C19",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C19",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C19",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C19",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C20",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C20",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C20",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C20",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C20",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C21",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C21",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C21",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C22",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C22",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C23",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C23",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C23",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C23",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C24",
+      "to": "C28",
+      "scope": "test"
+    },
+    {
+      "from": "C25",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C25",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C26",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C26",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C26",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C11",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C12",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C13",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C14",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C26",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C40",
+      "scope": "compile"
+    },
+    {
+      "from": "C27",
+      "to": "C03",
+      "scope": "test"
+    },
+    {
+      "from": "C27",
+      "to": "C21",
+      "scope": "test"
+    },
+    {
+      "from": "C27",
+      "to": "C41",
+      "scope": "test"
+    },
+    {
+      "from": "C28",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C40",
+      "scope": "compile"
+    },
+    {
+      "from": "C28",
+      "to": "C20",
+      "scope": "test"
+    },
+    {
+      "from": "C29",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C06",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C11",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C12",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C23",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C26",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C27",
+      "scope": "compile"
+    },
+    {
+      "from": "C29",
+      "to": "C42",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C13",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C14",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C21",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C22",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C27",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C40",
+      "scope": "compile"
+    },
+    {
+      "from": "C30",
+      "to": "C42",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C15",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C16",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C17",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C21",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C22",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C28",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C40",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C41",
+      "scope": "compile"
+    },
+    {
+      "from": "C31",
+      "to": "C42",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C05",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C09",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C18",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C19",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C20",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C24",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C26",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C28",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C42",
+      "scope": "compile"
+    },
+    {
+      "from": "C32",
+      "to": "C43",
+      "scope": "compile"
+    },
+    {
+      "from": "C33",
+      "to": "C29",
+      "scope": "compile"
+    },
+    {
+      "from": "C34",
+      "to": "C32",
+      "scope": "compile"
+    },
+    {
+      "from": "C34",
+      "to": "C06",
+      "scope": "test"
+    },
+    {
+      "from": "C34",
+      "to": "C11",
+      "scope": "test"
+    },
+    {
+      "from": "C34",
+      "to": "C22",
+      "scope": "test"
+    },
+    {
+      "from": "C34",
+      "to": "C23",
+      "scope": "test"
+    },
+    {
+      "from": "C34",
+      "to": "C29",
+      "scope": "test"
+    },
+    {
+      "from": "C35",
+      "to": "C30",
+      "scope": "compile"
+    },
+    {
+      "from": "C35",
+      "to": "C31",
+      "scope": "test"
+    },
+    {
+      "from": "C35",
+      "to": "C41",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C31",
+      "scope": "compile"
+    },
+    {
+      "from": "C36",
+      "to": "C06",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C13",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C14",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C18",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C19",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C20",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C24",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C27",
+      "scope": "test"
+    },
+    {
+      "from": "C36",
+      "to": "C32",
+      "scope": "test"
+    },
+    {
+      "from": "C37",
+      "to": "C29",
+      "scope": "compile"
+    },
+    {
+      "from": "C37",
+      "to": "C30",
+      "scope": "compile"
+    },
+    {
+      "from": "C37",
+      "to": "C31",
+      "scope": "compile"
+    },
+    {
+      "from": "C37",
+      "to": "C32",
+      "scope": "compile"
+    },
+    {
+      "from": "C37",
+      "to": "C36",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C01",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C02",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C03",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C04",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C05",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C06",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C07",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C08",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C09",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C11",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C12",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C13",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C14",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C15",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C16",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C17",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C18",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C19",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C20",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C21",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C22",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C23",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C24",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C25",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C26",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C27",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C28",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C29",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C30",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C31",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C32",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C33",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C34",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C35",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C36",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C37",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C39",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C40",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C41",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C42",
+      "scope": "test"
+    },
+    {
+      "from": "C38",
+      "to": "C43",
+      "scope": "test"
+    },
+    {
+      "from": "C39",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C39",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C40",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C40",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C40",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C40",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C40",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C01",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C15",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C16",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C17",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C25",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C41",
+      "to": "C40",
+      "scope": "compile"
+    },
+    {
+      "from": "C42",
+      "to": "C04",
+      "scope": "compile"
+    },
+    {
+      "from": "C42",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C42",
+      "to": "C39",
+      "scope": "compile"
+    },
+    {
+      "from": "C43",
+      "to": "C02",
+      "scope": "compile"
+    },
+    {
+      "from": "C43",
+      "to": "C03",
+      "scope": "compile"
+    },
+    {
+      "from": "C43",
+      "to": "C07",
+      "scope": "compile"
+    },
+    {
+      "from": "C43",
+      "to": "C08",
+      "scope": "compile"
+    },
+    {
+      "from": "C43",
+      "to": "C09",
+      "scope": "compile"
+    }
+  ],
+  "direction": "dependent to dependency"
+}

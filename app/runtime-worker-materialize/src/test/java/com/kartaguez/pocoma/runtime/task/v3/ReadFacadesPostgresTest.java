@@ -133,7 +133,7 @@ class ReadFacadesPostgresTest {
             ctx = f.start();
             try {
                 writeAcquisitions.set(writeBorrowCount());
-                read = new Observed(ctx.getBean("readBusiness", HikariDataSource.class));
+                read = new Observed(resources().readBusiness);
                 owner = new SpringAttemptTransactions(read, manager(read), 60);
                 pots = new JdbcPotVersionStore(read, owner);
                 objects = new JdbcSubobjectVersionStore(read, owner);
@@ -148,19 +148,16 @@ class ReadFacadesPostgresTest {
             }
         }
 
+        com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources resources() {
+            return ctx.getBean(com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources.class);
+        }
+
         long writeBorrowCount() {
             var registry = ctx.getBean(io.micrometer.core.instrument.MeterRegistry.class);
-            long count = 0;
-            for (String name : List.of("writeBusiness", "writeControl")) {
-                var pool = ctx.getBean(name, HikariDataSource.class);
-                var timer =
-                        registry.find("hikaricp.connections.acquire")
-                                .tag("pool", pool.getPoolName())
-                                .timer();
-                assertNotNull(timer, "physical borrow instrumentation: " + name);
-                count += timer.count();
-            }
-            return count;
+            var pool = resources().writeSourceRead;
+            var timer = registry.find("hikaricp.connections.acquire").tag("pool", pool.getPoolName()).timer();
+            assertNotNull(timer, "physical WRITE source borrow instrumentation");
+            return timer.count();
         }
 
         V3ReadFacadeComposition.Services withLimits(ReadLimitsV3 limits) {

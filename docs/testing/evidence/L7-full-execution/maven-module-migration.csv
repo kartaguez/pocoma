@@ -1,0 +1,61 @@
+id,source,operation,normativeDestinations,observedGitRenames,migrationNotes
+A01,domain-authorization,DELETE,,,Autorisation V2 ; invariants Pot V3 déjà dans C01.
+A02,domain-event,DELETE,,,Enveloppes V2 ; préserver la sémantique des événements V3.
+A03,domain-user-identity,RENAME,domain-identity,domain-identity (10),Identité V3 et valeurs partagées ; historique sous condition V2.
+A04,contracts-authentication,RENAME,contract-authentication,contract-authentication (1),Principal authentifié neutre.
+A05,domain-pot,KEEP,domain-pot,,Domaine Pot ; reçoit la fonction de visibilité A28.
+A06,domain-projection,KEEP,domain-projection,,Modèles de projection ; reçoit les résultats terminaux A14/A22.
+A07,domain-consumption,KEEP,domain-consumption,,Définitions/routage ; aucun changement d’identité durable.
+A08,port-transaction,KEEP,port-transaction,infra-tx-spring (1),Contrat transactionnel et contexte borné.
+A09,port-binding-authority,DELETE,,,Autorité de binding V2 ; ne pas supprimer les autorités Identity V3 A19.
+A10,engine-consumption,SPLIT,"orchestrator-consumption, contract-consumption","contract-consumption (13), orchestrator-consumption (7)",Implémentation L2/capacité interne → C21 ; API/participants/SPI → C39. Aucun C10 cible.
+A11,engine-consume-command,DELETE,,,Consommation Command V2 ; exécution V3 A25 conservée.
+A12,supra-consume-command,DELETE,,,Supra Command V2 ; remplacé au niveau V3 par C22/C30.
+A13,supra-consume-command-result,DELETE,,,Supra résultats Command V2 ; contrat de parcours V3 C31.
+A14,engine-read-command-result,SPLIT,"engine-read-results, domain-projection, port-projection, contract-read-query","domain-projection (1), engine-read-results (1), port-projection (1)",Requête → C20 ; résultat → C03 ; store → C09 ; capacité/vues → C07.
+A15,engine-materialize-command-result,MERGE,engine-materialize-results,engine-materialize-results (3),"Participant résultat Command et port source, fusion avec A23."
+A16,contracts-command,MERGE,contract-write-admission,"contract-write-admission (3), infra-postgres-write (1)","Contrats d’admission Command, fusion avec A17."
+A17,contracts-registration,MERGE,contract-write-admission,contract-write-admission (2),"IdentityRequest et LinkProposal, fusion avec A16."
+A18,engine-admit-registration,SPLIT,"engine-admit-identity, contract-write-admission","compose-web-write-postgres (1), contract-write-admission (2), engine-admit-identity (3)",Implémentations/ports locaux → C12 ; capacités et données d’opération communes → C06.
+A19,engine-consume-registration,RENAME,engine-write-identity,engine-write-identity (6),Participant WRITE Identity et ports locaux ; sans dépendance à l’implémentation C12.
+A20,supra-consume-registration,DELETE,,,Supra IdentityRequest V2.
+A21,supra-consume-registration-result,DELETE,,,Supra résultat Identity V2.
+A22,engine-read-registration-result,SPLIT,"engine-read-results, domain-projection, port-projection, contract-read-query","domain-projection (1), engine-read-results (1), port-projection (1)",Requête Identity → C20 ; résultat → C03 ; store → C09 ; capacité/vues → C07.
+A23,engine-materialize-registration-result,MERGE,engine-materialize-results,engine-materialize-results (3),"Participant résultat Identity et port source, fusion avec A15."
+A24,engine-produce-projection-task,DELETE,,,Producteur ProjectionTask V2 ; pas de recréation d’outbox V2.
+A25,engine-write-pot,SPLIT,"engine-write-pot, contract-write-admission","contract-write-admission (1), domain-pot (1)",Participant/ports WRITE Pot → C13 ; PotCommand → C06.
+A26,port-projection,KEEP,port-projection,,Ports READ ; reçoit stores partagés et statut de maintenance étroit.
+A27,engine-read-projection,DELETE,,,Lecture JSON Projection V2.
+A28,engine-consume-projection-task,SPLIT,"engine-materialize-pot, domain-pot","domain-pot (2), engine-materialize-pot (8)",Quatre participants et ports Source → C15 ; PotVisibilityRules → C01.
+A29,supra-consume-projection-task,DELETE,,,Supra ProjectionTask V2.
+A30,engine-read-pot,SPLIT,"engine-read-pot, contract-read-query",contract-read-query (2),"Requêtes/curseurs → C18 ; capacités, vues et erreurs partagées → C07."
+A31,projector-pot,DELETE,,,Projecteurs JSON V2 ; calculs purs V3 conservés dans C01/C03.
+A32,engine-read-current-binding,SPLIT,"engine-read-identity, contract-read-query",engine-read-identity (2),Lecteur CurrentBinding → C19 ; capacité requête → C07 ; pas de store fictif à déplacer.
+A33,engine-materialize-current-binding,SPLIT,"engine-materialize-identity, port-projection","engine-materialize-identity (2), port-projection (1)",Participant et Source → C16 ; CurrentBindingStore partagé → C09.
+A34,engine-materialize-latest-known-version,DELETE,,,LKV V2 ; ne pas confondre avec les versions des projections V3.
+A35,infra-persistence-read-jdbc,SPLIT,"infra-postgres-read, infra-postgres-core",infra-postgres-read (45),"Adaptateurs et migrations READ → C28 ; primitives L2 communes → C40, sans doublon."
+A36,contracts-observability,DELETE,,,TraceContext V2 ; observations V3 extraites d’A49 vers C39/C42.
+A37,infra-tx-spring,KEEP,infra-tx-spring,infra-tx-spring (1),Adaptateur TX physique ; remplacement de JPA traité séparément.
+A38,infra-persistence-primary-jpa,SPLIT,"infra-postgres-write, infra-postgres-core, infra-postgres-write-source-read","infra-postgres-core (6), infra-postgres-write (107), infra-postgres-write-source-read (6), infra-security-spring (1)",Mutation WRITE → C27 ; JDBC L2 commun → C40 ; lecteurs sources/décodeurs autonomes → C41.
+A39,infra-persistence-projection-jdbc,DELETE,,,Persistance projection JSON V2.
+A40,infra-projection-validation-networknt,DELETE,,,Validation JSON Schema V2 ; préserver les validations métier V3.
+A41,orchestrator-consumption,MERGE,orchestrator-consumption,,"Emplacement orchestrator réutilisé ; historique retiré sous condition, V3 reçu d’A10/A43/A49."
+A42,engine-admit-command,SPLIT,"engine-admit-command, contract-write-admission","compose-web-write-postgres (2), contract-write-admission (1)",Implémentation/Store → C11 ; capacité et données d’opération communes → C06.
+A43,orchestrator-poll-consumption,SPLIT,"supra-polling-consumption, orchestrator-consumption, contract-consumption","compose-polling-burnable-write-postgres (1), supra-polling-consumption (6)",Scheduling → C22 ; décisions sûres renewal/drain → C21 ; types d’invocation neutres → C39.
+A44,supra-consume-event,DELETE,,,Supra Event V2.
+A45,supra-consume-binding,DELETE,,,Supra Binding V2.
+A46,supra-consume-lkv,DELETE,,,Supra LKV V2.
+A47,supra-http-write,RENAME,supra-web-write,"compose-web-write-postgres (2), supra-web-write (3)",Transport WRITE ; injection par C06 ; suppression du hook global.
+A48,supra-http-read,RENAME,supra-web-read,supra-web-read (4),Transport READ ; injection C07 et statut C09.
+A49,composition-runtime-spring,SPLIT,"compose-web-write-postgres, compose-polling-burnable-write-postgres, compose-polling-nonburnable-materialize-postgres, compose-web-read-postgres, infra-security-spring, infra-postgres-read, infra-observability-micrometer, engine-read-execution, orchestrator-consumption, contract-consumption","architecture-tests (1), compose-polling-burnable-write-postgres (3), compose-polling-nonburnable-materialize-postgres (5), compose-web-read-postgres (2), compose-web-write-postgres (1), domain-consumption (1), infra-observability-micrometer (4), infra-postgres-core (1), infra-postgres-read (1), infra-security-spring (1), port-projection (2), runtime-worker-process (1), supra-web-read (2)",Quatre Compose ; sécurité → C26 ; maintenance SQL → C28 ; observations → C42/C39 ; politique READ → C43 ; règles L2 → C21. Aucune logique métier résiduelle.
+A50,runtime-monolith,KEEP,runtime-monolith,,Racine monolithe réduite à la sélection/hébergement des Compose.
+A51,runtime-web-api,SPLIT,"runtime-web-write, runtime-web-read",runtime-web-read (6),Deux racines HTTP par autorité ; conserver les contrats HTTP.
+A52,runtime-event-consumption-worker,DELETE,,,"Runtime Event V2, condition de support et gates historiques."
+A53,runtime-command-result-consumption-worker,DELETE,,,Runtime résultat Command V2.
+A54,runtime-registration-result-consumption-worker,DELETE,,,Runtime résultat Identity V2.
+A55,runtime-registration-consumption-worker,DELETE,,,Runtime Registration V2.
+A56,runtime-latest-known-version-consumption-worker,DELETE,,,Runtime LKV V2.
+A57,runtime-binding-consumption-worker,DELETE,,,Runtime Binding V2.
+A58,runtime-task-consumption-worker,RENAME,runtime-worker-materialize,runtime-worker-materialize (17),Runtime Materialize ; conserve sélection results/business-read.
+A59,runtime-command-consumption-worker,RENAME,runtime-worker-process,"architecture-tests (2), runtime-worker-process (17)",Runtime Process ; tests V3 L2/WRITE suivent ce propriétaire.
+A60,architecture-tests,KEEP,architecture-tests,,"Gate architecture ; migrer ses oracles, supprimer seulement les obligations V2 retirées explicitement."

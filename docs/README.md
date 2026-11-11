@@ -1,6 +1,7 @@
 # Documentation Pocoma
 
-- [Architecture modulaire cible et plan de migration L7](v3/L7_Target_Modular_Architecture_and_Migration_Plan.md) — **NORMATIF POUR LA CIBLE — READY_FOR_L7_MODULAR_REFACTORING_PLAN_REVIEW**, 10-11-2026. Consolidation des trois audits : 42 modules enfants + un agrégateur, matrice ALLOW / CONDITIONAL / FORBID, graphe de référence acyclique à 182 arêtes de production, correspondance exhaustive des 60 modules actuels et migration incrémentale. Scénario B Consumption retenu ; retrait V2 et qualification physique restent conditionnés. Publication documentaire uniquement, aucun GO d'implémentation.
+- [Implémentation et qualification L7](v3/L7_Modular_Refactoring_Implementation_and_Qualification_Report.md) — migration du réacteur V3, preuves, résultats et limites.
+- [Architecture modulaire cible et plan de migration L7](v3/L7_Target_Modular_Architecture_and_Migration_Plan.md) — référence normative des 42 modules, de la matrice de dépendances et du scénario B Consumption.
 
 - [Rapport de qualification de performance sous charge métier réaliste L6/I3-R5](v3/L6_I3_R5_Realistic_Business_Workload_Qualification_Report.md) — **L6/I3-R5 — REALISTIC BUSINESS WORKLOAD QUALIFIED — CAPACITY LIMIT CHARACTERIZED — I3 DEMEURE OUVERT POUR DÉCISION HUMAINE**, 08-11-2026. Qualification complète sous mandat `GO_L6_I3_R5_REALISTIC_BUSINESS_WORKLOAD_50_CPS`. Modélisation du mix métier réaliste (88% créations de dépenses, 10% corrections, 2% opérations rares), sérialisation fonctionnelle stricte par Pot (au plus 1 commande en vol par Pot avec attente de version terminale confirmée), suppression intégrale de la contention CAS artificielle (0% rejets en M1, 2,3% en M2, 1,7% en M5 contre 85,4% sous pipelining spéculatif R4). Capacité utile durable du mono-worker caractérisée à ~5,0 cmd/s appliquées avec succès (M2: 4,87 cmd/s appliquées, 97,0% succès, p50 e2e = 1,47 s, 0 starvation). Consigne cible à 50 cmd/s (M5, 250 Pots) régie par la loi de Little ($N_{\text{pots}} / W_{\text{terminal}} \approx 8,3\text{ cmd/s}$ plafond théorique), plafonnant l'admission utile à 5,59 cmd/s et 4,49 cmd/s appliquées sans dégradation READ ($p_{50} < 50\text{ ms}$) ni accumulation incontrôlée. Budget R5 : 772,1 s / 1 800 s. 9 CSVs et 9 diagrammes vectoriels SVG archivés dans `docs/testing/evidence/L6-I3/R5/charts/`.
 
@@ -100,9 +101,9 @@
 - [Clôture officielle L2](v3/L2_Documentary_Closure.md) : décision humaine, statuts I1–I7, réserves R-L2-01 à R-L2-05, SHAs testés et transition L3. G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. [Plan L2](v3/L2_Design_and_Verification_Plan.md), [dossier historique I6](v3/L2_I6_I7_Consolidation.md) et [récupération des preuves](testing/Evidence_Recovery.md). La clôture L3 courante est portée par le plan directeur et l’acte unique L3 ci-dessus.
 - [Clôture L1](v3/L1_Documentary_Closure.md), [plan L1](v3/L1_Design_and_Verification_Plan.md), [rapport final](v3/L1_E_Execution_Report.md) et [manifeste historique](v3/L1_Proof_Manifest.json) : preuves et limites, sans certificat V3 complet.
 
-## Architecture historique encore livrée
+## Architecture historique V2
 
-Les sources et plans ci-dessous décrivent l’architecture historique encore présente ; leurs anciens « courant/NEXT » ne pilotent pas V3. Les stratégies de migration A2/A2-1 sont supplantées pour V3 par le canon. Préserver leurs preuves, sans les assimiler à une certification V3.
+Les sources et plans ci-dessous décrivent l’architecture V2 archivée ; leurs anciens « courant/NEXT » ne pilotent pas V3. Les stratégies de migration A2/A2-1 sont supplantées pour V3 par le canon. Préserver leurs preuves, sans les assimiler à une certification V3.
 
 Sources de l’état historique livré :
 

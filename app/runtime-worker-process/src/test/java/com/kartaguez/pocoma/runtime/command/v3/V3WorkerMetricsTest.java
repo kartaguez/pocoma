@@ -49,8 +49,11 @@ class V3WorkerMetricsTest {
 
     @Test
     void i5_m01() throws Exception {
-        try (var f = new Fixture(PG); var registry = new SimpleMeterRegistry();
-                var runtime = new Runtime(f, new MicrometerV3ConsumptionObservation(registry))) {
+        var registry = new io.micrometer.prometheusmetrics.PrometheusMeterRegistry(
+                io.micrometer.prometheusmetrics.PrometheusConfig.DEFAULT);
+        try (var f = new Fixture(PG);
+                var runtime = new V3WorkerPostgresTest.Runtime(
+                        f, new MicrometerV3ConsumptionObservation(registry))) {
             runtime.worker.start();
             for (int n = 0; n < 3; n++) {
                 var id = f.inject(10000 + n);

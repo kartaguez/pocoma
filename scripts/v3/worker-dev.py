@@ -15,12 +15,11 @@ import subprocess
 import sys
 import tempfile
 import time
-import zipfile
 import uuid
 from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_JAR = ROOT / "app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar"
+DEFAULT_JAR = ROOT / "app/runtime-worker-process/target/pocoma-runtime-worker-process-0.0.1-SNAPSHOT-exec.jar"
 MAIN = "com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentTools"
 
 
@@ -38,28 +37,18 @@ def properties(path: Path) -> dict[str, str]:
 
 
 def java_operation(args, operation: str, *extra: str) -> None:
-    jar = args.jar.resolve()
-    if not jar.is_file():
-        raise ValueError("build the COMMAND exec jar first")
-    tracked = subprocess.check_output(["git", "ls-files", "app"], cwd=ROOT, text=True).splitlines()
-    sources = [ROOT / p for p in tracked if p.endswith((".java", ".xml", ".properties", ".sql")) and "/src/test/" not in p]
-    # Include new untracked production files too; never accept an older artifact silently.
-    for module in (ROOT / "app").iterdir():
-        if module.is_dir() and (module / "src/main").exists():
-            sources.extend(p for p in (module / "src/main").rglob("*") if p.is_file())
-    if any(p.exists() and p.stat().st_mtime > jar.stat().st_mtime for p in sources):
-        raise ValueError("jar older than production sources; rebuild explicitly")
-    with tempfile.TemporaryDirectory(prefix="pocoma-i5-cli-") as directory:
-        target = Path(directory)
-        with zipfile.ZipFile(jar) as archive:
-            for member in archive.infolist():
-                if member.filename.startswith(("BOOT-INF/classes/", "BOOT-INF/lib/")):
-                    destination = (target / member.filename).resolve()
-                    if not destination.is_relative_to(target.resolve()):
-                        raise ValueError("unsafe jar path")
-                    archive.extract(member, target)
-        classpath = os.pathsep.join((str(target / "BOOT-INF/classes"), str(target / "BOOT-INF/lib/*")))
-        subprocess.run(["java", "-cp", classpath, MAIN, operation, str(args.config.resolve()), *extra], check=True, cwd=ROOT)
+    if args.qualification_classpath is None:
+        raise ValueError("supply --qualification-classpath produced by architecture-tests dependency:build-classpath")
+    classes = ROOT / "app/architecture-tests/target/test-classes"
+    main_class = classes.joinpath(*MAIN.split(".")).with_suffix(".class")
+    if not main_class.is_file():
+        raise ValueError("compile architecture-tests test sources explicitly before DEV operations")
+    dependencies = args.qualification_classpath.read_text().strip()
+    if not dependencies:
+        raise ValueError("qualification classpath is empty")
+    classpath = os.pathsep.join((str(classes), dependencies))
+    subprocess.run(["java", "-cp", classpath, MAIN, operation,
+                    str(args.config.resolve()), *extra], check=True, cwd=ROOT)
 
 
 def prepare(args) -> None:
@@ -111,7 +100,7 @@ def prepare(args) -> None:
                 raise RuntimeError(f"administrative stage refused: {authority}/{script}; no automatic cleanup/reset")
             print(f"I5_DEV_STAGE {authority}/{script} completed")
     java_operation(args, "validate")
-    receipt = {"kind": "DEV preparation only, not certification", "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "jar_sha256": hashlib.sha256(args.jar.read_bytes()).hexdigest()}
+    receipt = {"kind": "DEV preparation only, not certification", "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "classpath_manifest_sha256": hashlib.sha256(args.qualification_classpath.read_bytes()).hexdigest()}
     path = args.config.with_suffix(".prepared.json")
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w") as file:
@@ -200,7 +189,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("operation", choices=("prepare", "validate", "inspect", "inject-command", "inject-identity", "verify-identity", "identity-token", "demo-identity", "verify", "stop"))
     parser.add_argument("--config", required=True, type=Path)
-    parser.add_argument("--jar", type=Path, default=DEFAULT_JAR)
+    parser.add_argument("--jar", type=Path, default=DEFAULT_JAR, help="Process JAR for the stop identity check")
+    parser.add_argument("--qualification-classpath", type=Path, help="Maven test dependency classpath file")
     parser.add_argument("--request-id")
     parser.add_argument("--intention-file", type=Path)
     parser.add_argument("--own-key-file", type=Path)

@@ -265,11 +265,23 @@ class V3ReadQuotaPostgresTest {
             workerFixture.select(List.of("MaterializeCurrentBinding"), false);
             var request = workerFixture.admit("REGISTRATION", "i1-worker", "i1-worker", null);
             var context = workerFixture.start();
-            var shared = context.getBean("readBusiness", com.zaxxer.hikari.HikariDataSource.class);
+            var resources = context.getBean(
+                    com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources.class);
+            workerFixture.read.execute("grant usage on schema " + workerFixture.schema + " to " + f.role);
+            workerFixture.read.execute("grant select on read_current_binding to " + f.role);
+            workerFixture.read.execute("grant select on public.read_maintenance_state to " + f.role);
+            workerFixture.read.update("insert into read_current_binding values (?,?,?,1,?,?)",
+                    f.issuer, "owner", UUID.randomUUID(), OWNER, TOKEN);
+            f.context.close();
+            f.properties.put("pocoma.v3.http.read.url", workerFixture.readUrl);
+            f.start(HttpRoot.class);
+            var readersPool = f.pool();
+            assertNotSame(readersPool, resources.readBusiness);
+            assertNotSame(readersPool, resources.readControl);
             var entered = new CountDownLatch(2); var release = new CountDownLatch(1);
             var acquisitions = new AtomicInteger();
             var observed = new org.springframework.jdbc.datasource.AbstractDataSource() {
-                public Connection getConnection() throws SQLException { acquisitions.incrementAndGet(); return wrap(shared.getConnection()); }
+                public Connection getConnection() throws SQLException { acquisitions.incrementAndGet(); return wrap(readersPool.getConnection()); }
                 public Connection getConnection(String user, String password) throws SQLException { return getConnection(); }
                 Connection wrap(Connection connection) {
                     return (Connection) java.lang.reflect.Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class<?>[]{Connection.class}, (proxy, method, args) -> {
@@ -294,15 +306,15 @@ class V3ReadQuotaPostgresTest {
             try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
                 var one = executor.submit(() -> readers.binding(f.eui("owner"), 0)); var two = executor.submit(() -> readers.binding(f.eui("owner"), 0));
                 try {
-                    assertTrue(entered.await(1, TimeUnit.SECONDS), "two actual READ callbacks retained on shared Business pool");
-                    assertEquals(2, acquisitions.get()); assertTrue(shared.getHikariPoolMXBean().getActiveConnections() >= 2);
+                    assertTrue(entered.await(1, TimeUnit.SECONDS), "two actual READ callbacks retained on the HTTP query pool");
+                    assertEquals(2, acquisitions.get()); assertTrue(readersPool.getHikariPoolMXBean().getActiveConnections() >= 2);
                     assertInstanceOf(Unavailable.class, readers.commandResult(id(401), f.eui("owner"))); assertEquals(2, acquisitions.get());
                     assertEquals(0, workerFixture.read.queryForObject("select count(*) from read_current_binding where subject='i1-worker'", Integer.class));
                     // Commit the source only after both HTTP query callbacks physically retain their connections.
                     workerFixture.produce(request);
                     await(() -> workerFixture.read.queryForObject("select count(*) from read_current_binding where subject='i1-worker'", Integer.class) == 1, Duration.ofSeconds(1));
-                    assertTrue(shared.getHikariPoolMXBean().getActiveConnections() >= 2, "worker advanced while readers still retained");
-                    f.evidence("Q10-shared-pool", Map.of("poolMaximum", shared.getMaximumPoolSize(), "httpAcquisitionsReadBusiness", acquisitions.get(), "httpControlOrWriteSources", 0, "sourceCommittedAfterReadersRetained", true, "workerResultRowsWhileHeld", 1));
+                    assertTrue(readersPool.getHikariPoolMXBean().getActiveConnections() >= 2, "worker advanced while readers still retained");
+                    f.evidence("Q10-independent-pools", Map.of("poolMaximum", readersPool.getMaximumPoolSize(), "httpAcquisitionsQueryPool", acquisitions.get(), "httpControlOrWriteSources", 0, "sourceCommittedAfterReadersRetained", true, "workerResultRowsWhileHeld", 1));
                 } finally { release.countDown(); }
                 assertInstanceOf(Available.class, one.get(5, TimeUnit.SECONDS)); assertInstanceOf(Available.class, two.get(5, TimeUnit.SECONDS));
             }

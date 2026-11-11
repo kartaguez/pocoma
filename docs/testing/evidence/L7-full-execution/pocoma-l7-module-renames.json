@@ -1,0 +1,460 @@
+{
+  "modules": {
+    "domain-user-identity": "domain-identity",
+    "contracts-authentication": "contract-authentication",
+    "engine-admit-registration": "engine-admit-identity",
+    "engine-consume-registration": "engine-write-identity",
+    "engine-consume-projection-task": "engine-materialize-pot",
+    "engine-materialize-current-binding": "engine-materialize-identity",
+    "engine-read-current-binding": "engine-read-identity",
+    "engine-read-command-result": "engine-read-results",
+    "engine-read-registration-result": "engine-read-results",
+    "engine-materialize-command-result": "engine-materialize-results",
+    "engine-materialize-registration-result": "engine-materialize-results",
+    "orchestrator-poll-consumption": "supra-polling-consumption",
+    "supra-http-write": "supra-web-write",
+    "supra-http-read": "supra-web-read"
+  },
+  "packages": {
+    "com.kartaguez.pocoma.domain.useridentity": "com.kartaguez.pocoma.domain.identity",
+    "com.kartaguez.pocoma.contracts.authentication": "com.kartaguez.pocoma.contract.authentication",
+    "com.kartaguez.pocoma.engine.admit.registration": "com.kartaguez.pocoma.engine.admit.identity",
+    "com.kartaguez.pocoma.engine.consume.registration": "com.kartaguez.pocoma.engine.write.identity",
+    "com.kartaguez.pocoma.engine.consume.projectiontask.v3": "com.kartaguez.pocoma.engine.materialize.pot.v3",
+    "com.kartaguez.pocoma.engine.materialize.currentbinding.v3": "com.kartaguez.pocoma.engine.materialize.identity.v3",
+    "com.kartaguez.pocoma.engine.read.currentbinding.v3": "com.kartaguez.pocoma.engine.read.identity.v3",
+    "com.kartaguez.pocoma.engine.read.commandresult.v3": "com.kartaguez.pocoma.engine.read.results.v3",
+    "com.kartaguez.pocoma.engine.read.registrationresult.v3": "com.kartaguez.pocoma.engine.read.results.v3",
+    "com.kartaguez.pocoma.engine.materialize.commandresult.v3": "com.kartaguez.pocoma.engine.materialize.results.v3",
+    "com.kartaguez.pocoma.engine.materialize.registrationresult.v3": "com.kartaguez.pocoma.engine.materialize.results.v3",
+    "com.kartaguez.pocoma.orchestrator.poll.consumption": "com.kartaguez.pocoma.supra.polling.consumption",
+    "com.kartaguez.pocoma.supra.http.write": "com.kartaguez.pocoma.supra.web.write",
+    "com.kartaguez.pocoma.supra.http.read": "com.kartaguez.pocoma.supra.web.read"
+  },
+  "java_paths": [
+    {
+      "from": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/registrationresult/v3/MaterializeIdentityRequestResult.java",
+      "to": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/v3/MaterializeIdentityRequestResult.java"
+    },
+    {
+      "from": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/registrationresult/v3/IdentityTerminalSource.java",
+      "to": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/v3/IdentityTerminalSource.java"
+    },
+    {
+      "from": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/commandresult/v3/MaterializeCommandResult.java",
+      "to": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/v3/MaterializeCommandResult.java"
+    },
+    {
+      "from": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/commandresult/v3/CommandTerminalSource.java",
+      "to": "app/engine-materialize-results/src/main/java/com/kartaguez/pocoma/engine/materialize/results/v3/CommandTerminalSource.java"
+    },
+    {
+      "from": "app/engine-materialize-results/src/test/java/com/kartaguez/pocoma/engine/materialize/registrationresult/v3/IdentityRequestResultV3ContractTest.java",
+      "to": "app/engine-materialize-results/src/test/java/com/kartaguez/pocoma/engine/materialize/results/v3/IdentityRequestResultV3ContractTest.java"
+    },
+    {
+      "from": "app/engine-materialize-results/src/test/java/com/kartaguez/pocoma/engine/materialize/commandresult/v3/CommandResultV3ContractTest.java",
+      "to": "app/engine-materialize-results/src/test/java/com/kartaguez/pocoma/engine/materialize/results/v3/CommandResultV3ContractTest.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/MaterializePotVisibility.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/MaterializePotVisibility.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/PotBalanceSource.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/PotBalanceSource.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/InvitationSource.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/InvitationSource.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/MaterializeInvitation.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/MaterializeInvitation.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/PotVisibilitySource.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/PotVisibilitySource.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/MaterializePotVersion.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/MaterializePotVersion.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/PotVersionSource.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/PotVersionSource.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/MaterializePotBalance.java",
+      "to": "app/engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/materialize/pot/v3/MaterializePotBalance.java"
+    },
+    {
+      "from": "app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/consume/projectiontask/v3/PotVisibilityRulesTest.java",
+      "to": "app/engine-materialize-pot/src/test/java/com/kartaguez/pocoma/engine/materialize/pot/v3/PotVisibilityRulesTest.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/ApiErrorResponse.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/ApiErrorResponse.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/AsyncCommandController.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/AsyncCommandController.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/WebApiExceptionHandler.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/WebApiExceptionHandler.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/AcceptedCommandResponse.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/AcceptedCommandResponse.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/SubmitCommandRequest.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/SubmitCommandRequest.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/RegistrationController.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/RegistrationController.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/InvalidRequestException.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/InvalidRequestException.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/CommandRequestSizeFilter.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/CommandRequestSizeFilter.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3LinkProposalController.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/v3/V3LinkProposalController.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionController.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/v3/V3AdmissionController.java"
+    },
+    {
+      "from": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java",
+      "to": "app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/v3/V3AdmissionTransport.java"
+    },
+    {
+      "from": "app/supra-web-write/src/test/java/com/kartaguez/pocoma/supra/http/write/AsyncCommandControllerTest.java",
+      "to": "app/supra-web-write/src/test/java/com/kartaguez/pocoma/supra/web/write/AsyncCommandControllerTest.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/ReadErrorResponse.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/ReadErrorResponse.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/CurrentBindingResponse.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/CurrentBindingResponse.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/PotResponse.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/PotResponse.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/RegistrationResultController.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/RegistrationResultController.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/PotQueryController.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/PotQueryController.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/CommandResultResponse.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/CommandResultResponse.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/CurrentBindingController.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/CurrentBindingController.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/CommandResultController.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/CommandResultController.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3InvitationController.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/v3/V3InvitationController.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadTransport.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/v3/V3ReadTransport.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadDtos.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/v3/V3ReadDtos.java"
+    },
+    {
+      "from": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3/V3ReadController.java",
+      "to": "app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/v3/V3ReadController.java"
+    },
+    {
+      "from": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/http/read/RegistrationResultControllerTest.java",
+      "to": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/RegistrationResultControllerTest.java"
+    },
+    {
+      "from": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/http/read/CurrentBindingControllerTest.java",
+      "to": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/CurrentBindingControllerTest.java"
+    },
+    {
+      "from": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/http/read/PotQueryControllerTest.java",
+      "to": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/PotQueryControllerTest.java"
+    },
+    {
+      "from": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/http/read/CommandResultControllerTest.java",
+      "to": "app/supra-web-read/src/test/java/com/kartaguez/pocoma/supra/web/read/CommandResultControllerTest.java"
+    },
+    {
+      "from": "app/engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/registrationresult/v3/GetIdentityTerminalResult.java",
+      "to": "app/engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/results/v3/GetIdentityTerminalResult.java"
+    },
+    {
+      "from": "app/engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/v3/GetCommandTerminalResult.java",
+      "to": "app/engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/results/v3/GetCommandTerminalResult.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/BindingRevision.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/BindingRevision.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/ExternalIdentityAttached.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalIdentityAttached.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/BindingAcquireResult.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/BindingAcquireResult.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/BindingId.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/BindingId.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/ExternalIdentityBindingFact.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalIdentityBindingFact.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/BindingDetachResult.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/BindingDetachResult.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/PocomaUserId.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/PocomaUserId.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/User.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/User.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/ExternalIdentityDetached.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalIdentityDetached.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/ExternalIdentity.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ExternalIdentity.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/ObservedBinding.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/ObservedBinding.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/currentbinding/CurrentBinding.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/currentbinding/CurrentBinding.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/currentbinding/CurrentBindingApplyResult.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/currentbinding/CurrentBindingApplyResult.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/currentbinding/CurrentBindingInvariantException.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/currentbinding/CurrentBindingInvariantException.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/currentbinding/CurrentBindingStatus.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/currentbinding/CurrentBindingStatus.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentityId.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/v3/ExternalUserIdentityId.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentity.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/v3/ExternalUserIdentity.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionResult.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/v3/IdentityTransitionResult.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitions.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/v3/IdentityTransitions.java"
+    },
+    {
+      "from": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/BindingToken.java",
+      "to": "app/domain-identity/src/main/java/com/kartaguez/pocoma/domain/identity/v3/BindingToken.java"
+    },
+    {
+      "from": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/UserIdentityModelTest.java",
+      "to": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/UserIdentityModelTest.java"
+    },
+    {
+      "from": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionsTest.java",
+      "to": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/v3/IdentityTransitionsTest.java"
+    },
+    {
+      "from": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityValueContractsTest.java",
+      "to": "app/domain-identity/src/test/java/com/kartaguez/pocoma/domain/identity/v3/IdentityValueContractsTest.java"
+    },
+    {
+      "from": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java",
+      "to": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3ConsumptionWorkerTest.java"
+    },
+    {
+      "from": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/engine/admit/registration/v3/V3LinkConsentContractTest.java",
+      "to": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/engine/admit/identity/v3/V3LinkConsentContractTest.java"
+    },
+    {
+      "from": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransportTest.java",
+      "to": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/supra/web/write/v3/V3AdmissionTransportTest.java"
+    },
+    {
+      "from": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/supra/http/write/v3/D4AdmissionCalibrationTest.java",
+      "to": "app/composition-runtime-spring/src/test/java/com/kartaguez/pocoma/supra/web/write/v3/D4AdmissionCalibrationTest.java"
+    },
+    {
+      "from": "app/engine-materialize-identity/src/main/java/com/kartaguez/pocoma/engine/materialize/currentbinding/v3/CurrentBindingSource.java",
+      "to": "app/engine-materialize-identity/src/main/java/com/kartaguez/pocoma/engine/materialize/identity/v3/CurrentBindingSource.java"
+    },
+    {
+      "from": "app/engine-materialize-identity/src/main/java/com/kartaguez/pocoma/engine/materialize/currentbinding/v3/MaterializeCurrentBinding.java",
+      "to": "app/engine-materialize-identity/src/main/java/com/kartaguez/pocoma/engine/materialize/identity/v3/MaterializeCurrentBinding.java"
+    },
+    {
+      "from": "app/engine-read-identity/src/main/java/com/kartaguez/pocoma/engine/read/currentbinding/v3/GetCurrentBindingV3.java",
+      "to": "app/engine-read-identity/src/main/java/com/kartaguez/pocoma/engine/read/identity/v3/GetCurrentBindingV3.java"
+    },
+    {
+      "from": "app/engine-read-identity/src/test/java/com/kartaguez/pocoma/engine/read/currentbinding/v3/CurrentBindingV3ContractTest.java",
+      "to": "app/engine-read-identity/src/test/java/com/kartaguez/pocoma/engine/read/identity/v3/CurrentBindingV3ContractTest.java"
+    },
+    {
+      "from": "app/contract-authentication/src/main/java/com/kartaguez/pocoma/contracts/authentication/AuthenticatedExternalPrincipal.java",
+      "to": "app/contract-authentication/src/main/java/com/kartaguez/pocoma/contract/authentication/AuthenticatedExternalPrincipal.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/RegistrationDiscoveryPort.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/RegistrationDiscoveryPort.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/UserCreatedFactPort.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/UserCreatedFactPort.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/RegistrationOutcomeRepository.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/RegistrationOutcomeRepository.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/RegistrationRequestReader.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/RegistrationRequestReader.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/RegistrationOutcome.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/RegistrationOutcome.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/ExecuteRegistrationService.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/ExecuteRegistrationService.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityAuthority.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/v3/IdentityAuthority.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestStore.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/v3/IdentityRequestStore.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequest.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/v3/ExecuteIdentityRequest.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestObservation.java",
+      "to": "app/engine-write-identity/src/main/java/com/kartaguez/pocoma/engine/write/identity/v3/IdentityRequestObservation.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/consume/registration/RegistrationPublicationContractTest.java",
+      "to": "app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/write/identity/RegistrationPublicationContractTest.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/consume/registration/v3/ExecuteIdentityRequestTest.java",
+      "to": "app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/write/identity/v3/ExecuteIdentityRequestTest.java"
+    },
+    {
+      "from": "app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestContractTest.java",
+      "to": "app/engine-write-identity/src/test/java/com/kartaguez/pocoma/engine/write/identity/v3/IdentityRequestContractTest.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/NoopConsumptionPollingWorkerObservation.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/NoopConsumptionPollingWorkerObservation.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/ConsumptionWorkerSettings.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionWorkerSettings.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/ConsumptionPollingWorkerObservation.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionPollingWorkerObservation.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/ConsumptionPollingWorker.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionPollingWorker.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/wait/ConditionConsumptionWaiter.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/wait/ConditionConsumptionWaiter.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/wait/ConsumptionWaiter.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/wait/ConsumptionWaiter.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorker.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3ConsumptionWorker.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3DiscoveryLoop.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionLoop.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3ConsumptionLoop.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3RenewalService.java",
+      "to": "app/supra-polling-consumption/src/main/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3RenewalService.java"
+    },
+    {
+      "from": "app/supra-polling-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/ConsumptionPollingWorkerTest.java",
+      "to": "app/supra-polling-consumption/src/test/java/com/kartaguez/pocoma/supra/polling/consumption/ConsumptionPollingWorkerTest.java"
+    },
+    {
+      "from": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/registration/RegistrationRequestRecorder.java",
+      "to": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/identity/RegistrationRequestRecorder.java"
+    },
+    {
+      "from": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/registration/AdmitRegistrationService.java",
+      "to": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/identity/AdmitRegistrationService.java"
+    },
+    {
+      "from": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitLinkProposal.java",
+      "to": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/identity/v3/AdmitLinkProposal.java"
+    },
+    {
+      "from": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/registration/v3/AdmitIdentityRequestV3.java",
+      "to": "app/engine-admit-identity/src/main/java/com/kartaguez/pocoma/engine/admit/identity/v3/AdmitIdentityRequestV3.java"
+    },
+    {
+      "from": "app/engine-admit-identity/src/test/java/com/kartaguez/pocoma/engine/admit/registration/v3/V3IdentityAdmissionInputTest.java",
+      "to": "app/engine-admit-identity/src/test/java/com/kartaguez/pocoma/engine/admit/identity/v3/V3IdentityAdmissionInputTest.java"
+    }
+  ]
+}

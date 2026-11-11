@@ -2,7 +2,10 @@
 
 Mandat : `GO_L7_MODULAR_REFACTORING_EXECUTION_PLANNING` · 2026-11-10.
 
-**DOCUMENTATION UNIQUEMENT — AUCUN GO D’IMPLÉMENTATION.**
+**Plan historique du 10 novembre.** Le mandat ultérieur
+`GO_L7_MODULAR_REFACTORING_FULL_EXECUTION` autorise la migration et la qualification intégrales.
+Le [rapport d’exécution](L7_Modular_Refactoring_Implementation_and_Qualification_Report.md)
+décrit l’état Git retenu, les corrections E00 et les preuves.
 
 Dépôt : `kartaguez/pocoma` · branche : `feat/v3-architecture` · HEAD audité :
 `3e8defeca282276f125fd9d37e561d7f71b4fdb4`.

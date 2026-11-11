@@ -100,7 +100,7 @@ class ConsumptionBootstrapPostgresTest {
                 .schemas(schema)
                 .defaultSchema(schema)
                 .locations(
-                        "filesystem:../infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration")
+                        "classpath:db/v3-consumption-read/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",
@@ -339,7 +339,7 @@ class ConsumptionBootstrapPostgresTest {
                 .schemas(other)
                 .defaultSchema(other)
                 .locations(
-                        "filesystem:../infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration")
+                        "classpath:db/v3-consumption-read/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

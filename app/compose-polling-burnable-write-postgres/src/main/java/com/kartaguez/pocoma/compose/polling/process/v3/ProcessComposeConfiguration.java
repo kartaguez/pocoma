@@ -34,7 +34,22 @@ public class ProcessComposeConfiguration {
         return factory -> {
             for(String disabled:List.of("spring.flyway.enabled","spring.jpa.open-in-view","management.health.db.enabled"))
                 if(!"false".equals(env.getProperty(disabled))) throw new IllegalStateException("Explicitly disable "+disabled);
-            ProcessSettings.from(env); // Validate the entire selected configuration before any resource is opened.
+            ProcessSettings.from(env);
+            var authorities = factory.getBeanNamesForType(
+                    com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotActorAuthority.class, false, false);
+            if (authorities.length > 0)
+                throw new IllegalStateException("Process owns its Pot actor authority");
+            for (String name : factory.getBeanDefinitionNames()) {
+                var factoryType = factory.getType("&" + name, false);
+                if (factoryType == null
+                        || !org.springframework.beans.factory.FactoryBean.class.isAssignableFrom(factoryType))
+                    continue;
+                var definition = factory.getBeanDefinition(name);
+                String owner = definition.getFactoryBeanName();
+                var ownerType = owner == null ? factoryType : factory.getType(owner, false);
+                if (ownerType != null && ownerType.getName().startsWith("com.kartaguez.pocoma."))
+                    throw new IllegalStateException("Unallocated Process FactoryBean: " + name);
+            }
         };
     }
     @Bean ProcessSettings processSettings(Environment env) {return ProcessSettings.from(env);}

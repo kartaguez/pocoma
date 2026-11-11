@@ -786,15 +786,16 @@ class V3AdmissionFlowPostgresTest {
         var output =
                 java.nio.file.Path.of(
                                 System.getProperty("pocoma.verification.reports", "target/reports"))
-                        .getParent()
-                        .resolve("bruno-b2");
+                        .toAbsolutePath()
+                        .getParent();
         java.nio.file.Files.createDirectories(output);
+        var brunoOutput = java.nio.file.Files.createTempDirectory(output, "bruno-b2-");
         var inputs = brunoInputs(repo);
         java.nio.file.Files.writeString(
-                output.resolve("inputs-before.json"),
+                brunoOutput.resolve("inputs-before.json"),
                 json.writerWithDefaultPrettyPrinter().writeValueAsString(inputs));
-        var signal = output.resolve("controlled-internal-link");
-        var receipts = output.resolve("requests.jsonl");
+        var signal = brunoOutput.resolve("controlled-internal-link");
+        var receipts = brunoOutput.resolve("requests.jsonl");
         try (var threads = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
             var link =
                     threads.submit(
@@ -838,7 +839,7 @@ class V3AdmissionFlowPostgresTest {
                             "developer",
                             "--noproxy",
                             "--reporter-json",
-                            output.resolve("bruno.json").toString(),
+                            brunoOutput.resolve("bruno.json").toString(),
                             "--reporter-skip-all-headers",
                             "--reporter-skip-body");
             var process =
@@ -858,7 +859,7 @@ class V3AdmissionFlowPostgresTest {
             long monotonic = System.nanoTime();
             var running =
                     process.redirectErrorStream(true)
-                            .redirectOutput(output.resolve("bruno.log").toFile())
+                            .redirectOutput(brunoOutput.resolve("bruno.log").toFile())
                             .start();
             boolean finished = running.waitFor(180, java.util.concurrent.TimeUnit.SECONDS);
             if (!finished) {
@@ -880,7 +881,7 @@ class V3AdmissionFlowPostgresTest {
                             .mapToObj(n -> "B" + n)
                             .toList();
             java.nio.file.Files.writeString(
-                    output.resolve("receipt.json"),
+                    brunoOutput.resolve("receipt.json"),
                     json.writerWithDefaultPrettyPrinter()
                             .writeValueAsString(
                                     Map.of(
@@ -934,7 +935,7 @@ class V3AdmissionFlowPostgresTest {
                                 + " and i.request_id is null",
                             Integer.class));
             java.nio.file.Files.writeString(
-                    output.resolve("sql-observer.json"),
+                    brunoOutput.resolve("sql-observer.json"),
                     json.writeValueAsString(
                             Map.of(
                                     "commands",

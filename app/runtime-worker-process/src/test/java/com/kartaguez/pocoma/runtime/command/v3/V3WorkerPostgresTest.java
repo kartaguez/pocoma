@@ -291,12 +291,23 @@ class V3WorkerPostgresTest {
                             + result.getExitCode());
         }
 
+        Map<String, Object> processProperties() {
+            var selected = new LinkedHashMap<>(properties);
+            String prefix = "pocoma.v3.worker.";
+            selected.computeIfPresent(prefix + "technical-probes", (key, value) -> "false");
+            selected.computeIfPresent(prefix + "consumption-limits", (key, value) -> "Command=1");
+            selected.computeIfPresent(prefix + "partitions", (key, value) -> "Command=0|1|2|3");
+            selected.computeIfPresent(prefix + "dev-targets", (key, value) -> value.toString().split(";")[0]);
+            selected.keySet().removeIf(key -> key.startsWith(prefix + "read-"));
+            return selected;
+        }
+
         ConfigurableApplicationContext start() {
             return start(Map.of());
         }
 
         ConfigurableApplicationContext start(Map<String, Object> overrides) {
-            var all = new LinkedHashMap<>(properties);
+            var all = processProperties();
             all.putAll(overrides);
             var app = new SpringApplication(PocomaProcessWorkerApplication.class);
             app.setWebApplicationType(WebApplicationType.NONE);

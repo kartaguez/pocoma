@@ -1,4 +1,7 @@
-# Architecture — CURRENT after WP6
+# Architecture V2 après WP6 — archive
+
+Référence du réacteur courant. [Architecture et matrice normatives V3](../v3/L7_Target_Modular_Architecture_and_Migration_Plan.md)
+
 
 Baseline architecture: final Modularity re-audit on branch `v2-make-it-pull`. This page describes the delivered runtime chains. The completed work-step archive preserves the [final topology](../steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), [CURRENT→TARGET traceability](../steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md), [WP6 report](../steps/completed/ARCHITECTURE/Modularity_WP6_Execution_Report.md) and [final PASS](../steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md).
 

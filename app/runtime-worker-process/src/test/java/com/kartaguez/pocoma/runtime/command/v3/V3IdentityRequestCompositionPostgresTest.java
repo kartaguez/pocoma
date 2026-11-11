@@ -1038,11 +1038,10 @@ class V3IdentityRequestCompositionPostgresTest {
     void l3_delivered_jpa_rejects_prebound_holder() throws Exception {
         try (var f = new Fixture(PG)) {
             var context = f.start();
-            var resources = context.getBean("processResources");
-            var field = resources.getClass().getDeclaredField("writeEffects");
-            field.setAccessible(true);
-            var owner = (SpringAttemptTransactions) field.get(resources);
-            var pool = context.getBean("writeBusiness", com.zaxxer.hikari.HikariDataSource.class);
+            var resources = context.getBean(
+                    com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources.class);
+            var owner = resources.writeEffects;
+            var pool = resources.writeBusiness;
             var authority = new JdbcIdentityAuthority(pool, owner);
             var key = new ExternalIdentity("prebound", "anchor");
             f.write.update(

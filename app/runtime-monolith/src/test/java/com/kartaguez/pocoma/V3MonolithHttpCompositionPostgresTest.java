@@ -32,9 +32,10 @@ class V3MonolithHttpCompositionPostgresTest {
             if (method.getBeanType().getName().startsWith("com.kartaguez.pocoma.supra.")) routes.addAll(info.getPatternValues()); })); return routes;
     }
     @Test void monolithRoot() throws Exception {
-        var invalidProfiles = new org.springframework.mock.env.MockEnvironment();
-        invalidProfiles.setActiveProfiles("v3-read-worker", "v3-http-read", "unexpected");
-        assertThrows(IllegalStateException.class, () -> ProcessSettings.requested(invalidProfiles));
+        var invalid = new SpringApplication(PocomaRuntimeMonolithApplication.class);
+        invalid.setWebApplicationType(WebApplicationType.NONE);
+        assertThrows(IllegalStateException.class,
+                () -> invalid.run("--spring.profiles.active=v3-read-worker,v3-http-read,unexpected"));
         initializeWorkerDatabase(PG);
         try (var fixture = new ReadMonolithI8Fixture(PG); var http = new V3CompositionHttpFixture(PG)) {
             fixture.select(List.of("MaterializeCurrentBinding"), false);

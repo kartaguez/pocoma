@@ -29,6 +29,15 @@ WRITE_SCHEMA = os.environ.get("WRITE_SCHEMA", "v3_write")
 READ_DB = os.environ.get("READ_DB", "pocoma_read")
 READ_SCHEMA = os.environ.get("READ_SCHEMA", "v3_read")
 
+RUNTIME_PREFIX = os.environ.get("POCOMA_RUNTIME_PREFIX", "")
+MANAGEMENT_PORT_OFFSET = int(os.environ.get("POCOMA_MANAGEMENT_PORT_OFFSET", "0"))
+WORKER_PORTS = {
+    "pocoma-command-worker": 18083,
+    "pocoma-results-worker": 18084,
+    "pocoma-business-read-worker": 18085,
+}
+
+
 COMMAND_CONSUMPTION_ID = "98f7268d-d340-581c-b83d-010926223e14"
 IDENTITY_CONSUMPTION_ID = "2999e75c-272d-5afe-a966-c9364ef021fe"
 
@@ -559,9 +568,8 @@ def retire_all_quarantines() -> None:
 def wait_workers_healthy(timeout_sec: float = 45.0) -> None:
     import urllib.request
     endpoints = {
-        "pocoma-command-worker": "http://127.0.0.1:18083/actuator/health",
-        "pocoma-results-worker": "http://127.0.0.1:18084/actuator/health",
-        "pocoma-business-read-worker": "http://127.0.0.1:18085/actuator/health",
+        RUNTIME_PREFIX + name: f"http://127.0.0.1:{port + MANAGEMENT_PORT_OFFSET}/actuator/health"
+        for name, port in WORKER_PORTS.items()
     }
     t0 = time.time()
     ready = set()
@@ -586,7 +594,7 @@ def apply_profile(profile_name: str) -> Dict[str, Any]:
         raise ValueError(f"Unknown profile {profile_name}; valid: {list(PROFILES.keys())}")
     target = PROFILES[profile_name]
     t0 = time.time()
-    workers = ["pocoma-command-worker", "pocoma-results-worker", "pocoma-business-read-worker"]
+    workers = [RUNTIME_PREFIX + name for name in WORKER_PORTS]
     print(f"[{profile_name}] Stopping worker containers for clean atomic population...")
     subprocess.run(["docker", "stop", *workers], capture_output=True, text=True, check=True)
     try:

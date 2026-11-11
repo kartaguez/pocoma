@@ -49,23 +49,14 @@ public class V3AdmissionHttpConfiguration {
         @Override
         public void postProcessBeanFactory(
                 org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
-            boolean root =
-                    Arrays.stream(factory.getBeanDefinitionNames())
-                            .map(n -> factory.getType(n, false))
-                            .filter(Objects::nonNull)
-                            .map(Class::getName)
-                            .anyMatch(
-                                    n ->
-                                            Set.of(
-                                                            "com.kartaguez.pocoma.PocomaWebApiApplication",
-                                                            "com.kartaguez.pocoma.PocomaRuntimeMonolithApplication")
-                                                    .contains(n));
-            if (!root) throw new IllegalStateException("Admission requires WEB or Monolith root");
-            boolean monolith = Arrays.stream(factory.getBeanDefinitionNames())
-                    .map(n -> factory.getType(n, false))
-                    .filter(Objects::nonNull)
-                    .anyMatch(t -> t.getName().equals("com.kartaguez.pocoma.PocomaRuntimeMonolithApplication"));
-            if (!monolith && Arrays.stream(factory.getBeanDefinitionNames())
+            if (env.getProperty("spring.flyway.enabled", Boolean.class, true)
+                    || env.getProperty("spring.jpa.open-in-view", Boolean.class, true)
+                    || env.getProperty("management.health.db.enabled", Boolean.class, true))
+                throw new IllegalStateException("V3 HTTP requires migrations, OSIV and DB health disabled");
+            var profiles = Set.of(env.getActiveProfiles());
+            boolean workerSelected = profiles.contains("v3-consumption-worker-dev")
+                    || profiles.contains("v3-read-worker");
+            if (!workerSelected && Arrays.stream(factory.getBeanDefinitionNames())
                     .map(n -> factory.getType(n, false))
                     .filter(Objects::nonNull)
                     .anyMatch(
@@ -98,7 +89,10 @@ public class V3AdmissionHttpConfiguration {
                     List.of(
                             "pocoma.v3.worker.write-business.username",
                             "pocoma.v3.worker.write-control.username",
-                            "pocoma.v3.http.read.username"))
+                            "pocoma.v3.process.write-business.username",
+                            "pocoma.v3.process.write-control.username",
+                            "pocoma.v3.http.read.username",
+                            "pocoma.v3.http.read.maintenance.username"))
                 if (role.equals(env.getProperty(key)))
                     throw new IllegalStateException("Admission SQL role must be distinct");
         }

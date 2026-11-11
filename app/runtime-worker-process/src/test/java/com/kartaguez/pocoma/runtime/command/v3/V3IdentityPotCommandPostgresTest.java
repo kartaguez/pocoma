@@ -170,7 +170,9 @@ class V3IdentityPotCommandPostgresTest {
                         }
                     };
             var settings = LifecycleSettings.pilot();
-            var guard = context.getBean(V3BootstrapGuard.class);
+            var resources = context.getBean(
+                    com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources.class);
+            var guard = resources.guard;
             var definition = ProcessSettings.definition("Command");
             engine =
                     V3PotCommandComposition.assemble(
@@ -183,7 +185,7 @@ class V3IdentityPotCommandPostgresTest {
                             new WorkerCapacity(4, Map.of(definition.id(), 4)),
                             8,
                             V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
-            var control = context.getBean("writeControl", com.zaxxer.hikari.HikariDataSource.class);
+            var control = resources.writeControl;
             var technicalManager = new DataSourceTransactionManager(control);
             technicalManager.setNestedTransactionAllowed(false);
             discovery =
@@ -1000,24 +1002,10 @@ class V3IdentityPotCommandPostgresTest {
 
     @Test
     void l3_unknown_commit() throws Exception {
-        // Reuse the existing runtime PostgreSQL wire proxy, without copying its protocol.
-        var type =
-                Class.forName(
-                        "com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.CommitAcknowledgementProxy");
-        var constructor = type.getDeclaredConstructor(String.class, int.class);
-        constructor.setAccessible(true);
-        var port = type.getDeclaredMethod("localPort");
-        port.setAccessible(true);
-        var armed = type.getDeclaredField("armed");
-        armed.setAccessible(true);
-        var committed = type.getDeclaredField("committedReplies");
-        committed.setAccessible(true);
-        var fault = Class.forName(type.getName() + "$Fault");
-        for (String variant : List.of("BEFORE_COMMIT", "AFTER_COMMIT")) {
-            try (var proxy =
-                            (AutoCloseable)
-                                    constructor.newInstance(PG.getHost(), PG.getMappedPort(5432));
-                    var h = new Harness("jdbc:postgresql://127.0.0.1:" + port.invoke(proxy))) {
+        for (var variant : List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,
+                CommitAcknowledgementProxy.Fault.AFTER_COMMIT)) {
+            try (var proxy = new CommitAcknowledgementProxy(PG.getHost(), PG.getMappedPort(5432));
+                    var h = new Harness("jdbc:postgresql://127.0.0.1:" + proxy.localPort())) {
                 String token = h.register("a");
                 var command =
                         h.command(
@@ -1028,14 +1016,8 @@ class V3IdentityPotCommandPostgresTest {
                                 new PotCommand.CreatePot(new Label("wire")));
                 h.sqlHook =
                         (s, after) -> {
-                            if (after && s.startsWith("insert into v3_event_position")) {
-                                var value =
-                                        Arrays.stream(fault.getEnumConstants())
-                                                .filter(e -> e.toString().equals(variant))
-                                                .findFirst()
-                                                .orElseThrow();
-                                ((AtomicReference<Object>) get(armed, proxy)).set(value);
-                            }
+                            if (after && s.startsWith("insert into v3_event_position"))
+                                proxy.armed.set(variant);
                         };
                 var handle = h.acquire(command);
                 var attempt = h.engine.execute(handle);
@@ -1043,15 +1025,15 @@ class V3IdentityPotCommandPostgresTest {
                 assertEquals(AttemptTransactions.Resolution.UNKNOWN, attempt.resolution());
                 assertThrows(IllegalArgumentException.class, () -> h.engine.execute(handle));
                 assertEquals(
-                        variant.equals("AFTER_COMMIT")
+                        variant == CommitAcknowledgementProxy.Fault.AFTER_COMMIT
                                 ? RecoveryObservation.COMPLETED
                                 : RecoveryObservation.NOT_COMPLETED,
                         attempt.observation());
                 assertEquals(1, h.engine.settlePending());
                 assertEquals(
                         AttemptFailureClassifier.FailureKind.NON_COUNTABLE, attempt.failureKind());
-                if (variant.equals("AFTER_COMMIT")) {
-                    assertEquals(1, ((AtomicInteger) get(committed, proxy)).get());
+                if (variant == CommitAcknowledgementProxy.Fault.AFTER_COMMIT) {
+                    assertEquals(1, proxy.committedReplies.get());
                     h.f.verifyCommand(command, "CHANGED", null);
                     assertEquals(
                             RecoveryObservation.COMPLETED,

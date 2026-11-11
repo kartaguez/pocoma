@@ -1,0 +1,12 @@
+{
+  "pid": 19111,
+  "process_group": 19111,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=69793883b81f4923b75e36b2d8799093",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/docs/testing/evidence/L7-full-execution/baseline-certification-96e0cd64/reports",
+    "test"
+  ]
+}

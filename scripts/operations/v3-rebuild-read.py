@@ -31,6 +31,7 @@ import argparse
 import getpass
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -40,7 +41,7 @@ import uuid
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Configurable environment with local safe defaults (AUD-L6-I2-18)
-POSTGRES_CONTAINER = os.environ.get("POSTGRES_CONTAINER", "pocoma-functional-postgres-1")
+POSTGRES_CONTAINER = os.environ.get("POSTGRES_CONTAINER", "pocoma-v3-postgres")
 POSTGRES_ADMIN_USER = os.environ.get("POSTGRES_ADMIN_USER", "pocoma")
 POSTGRES_ADMIN_PASSWORD = os.environ.get("POSTGRES_ADMIN_PASSWORD", "pocoma-local-only")
 POSTGRES_READ_USER = os.environ.get("POSTGRES_READ_USER", "pocoma_write_source_read")
@@ -51,12 +52,13 @@ WRITE_DB = os.environ.get("WRITE_DB", "pocoma_write")
 READ_SCHEMA = os.environ.get("READ_SCHEMA", "v3_read")
 WRITE_SCHEMA = os.environ.get("WRITE_SCHEMA", "v3_write")
 READ_ROLE = os.environ.get("READ_ROLE", "pocoma_read")
+READ_HTTP_ROLE = os.environ.get("READ_HTTP_ROLE", "pocoma_read_http")
+READ_STATUS_ROLE = os.environ.get("READ_STATUS_ROLE", "pocoma_read_status")
 ADVISORY_LOCK_KEY = int(os.environ.get("POCOMA_REBUILD_LOCK_KEY", "3847291054321"))
 
-COMPOSE_FILES = [
-    "-f", str(REPO_ROOT / "docker-compose.functional.yml"),
-    "-f", str(REPO_ROOT / "docker/compose/docker-compose.observability.yml"),
-]
+COMPOSE_FILES = ["-f", os.environ.get(
+    "POCOMA_REBUILD_COMPOSE_FILE", str(REPO_ROOT / "docker-compose.v3-five-runtimes.yml"))]
+READ_WORKERS = ("pocoma-results-worker", "pocoma-business-read-worker")
 
 # Canonical 7 read consumptions derived from V3ConsumptionCatalogConfiguration
 CANONICAL_READ_CONSUMPTIONS = {
@@ -499,8 +501,8 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
 
     # Step 3: Gracefully stopping active READ workers
     print("3. Neutralizing and stopping active READ workers...")
-    print("   • Local topology note: runtime-monolith co-locates READ and WRITE runtimes in one container. Stopping pauses WRITE admission during DDL in local single-container topology. (In distributed production topology, read-worker containers are stopped independently from write-admission).")
-    subprocess.run(["docker", "compose", *COMPOSE_FILES, "stop", "runtime-monolith"], check=True, capture_output=True)
+    subprocess.run(["docker", "compose", *COMPOSE_FILES, "stop", *READ_WORKERS],
+                   check=True, capture_output=True)
     print("   ✓ Worker processes stopped.")
 
     # Step 4: Graceful verification of SQL sessions (AUD-L6-I2-05)
@@ -537,9 +539,12 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
 
     # Step 5: Revoking permissions on schema v3_read
     print("5. Revoking USAGE permissions on schema v3_read...")
-    psql_admin(READ_DB, f"REVOKE ALL ON ALL TABLES IN SCHEMA {READ_SCHEMA} FROM {READ_ROLE};", check=False)
-    psql_admin(READ_DB, f"REVOKE USAGE ON SCHEMA {READ_SCHEMA} FROM {READ_ROLE};", check=False)
-    has_usage = psql_admin(READ_DB, f"SELECT has_schema_privilege('{READ_ROLE}', '{READ_SCHEMA}', 'USAGE');")
+    query_roles = f"{READ_ROLE}, {READ_HTTP_ROLE}"
+    psql_admin(READ_DB, f"REVOKE ALL ON ALL TABLES IN SCHEMA {READ_SCHEMA} FROM {query_roles};")
+    psql_admin(READ_DB, f"REVOKE USAGE ON SCHEMA {READ_SCHEMA} FROM {query_roles};")
+    has_usage = psql_admin(
+        READ_DB, f"SELECT has_schema_privilege('{READ_ROLE}', '{READ_SCHEMA}', 'USAGE') "
+        f"OR has_schema_privilege('{READ_HTTP_ROLE}', '{READ_SCHEMA}', 'USAGE');")
     if has_usage.lower() == "t":
         print(f"FATAL: Failed to revoke USAGE on {READ_SCHEMA} from {READ_ROLE}!", file=sys.stderr)
         return 1
@@ -616,8 +621,8 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
     ]
     scripts.append(("scripts/v3/grant-l7-http-read.sql", {
         "read_database": READ_DB, "read_schema": READ_SCHEMA,
-        "query_role": os.environ.get("READ_HTTP_ROLE", "pocoma_read_http"),
-        "status_role": os.environ.get("READ_STATUS_ROLE", "pocoma_read_status"),
+        "query_role": READ_HTTP_ROLE,
+        "status_role": READ_STATUS_ROLE,
     }))
     for script_file, variables in scripts:
         content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
@@ -662,7 +667,7 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
 
     # Step 12: Start Replay Worker
     print("12. Starting authorized replay worker...")
-    subprocess.run(["docker", "compose", *COMPOSE_FILES, "up", "-d", "runtime-monolith"], check=True, capture_output=True)
+    subprocess.run(["docker", "compose", *COMPOSE_FILES, "up", "-d", *READ_WORKERS], check=True, capture_output=True)
     print("    ✓ Replay worker active.")
 
     # Step 13: Watchdog & Convergence Monitoring via Readiness Oracle
@@ -777,6 +782,13 @@ def main():
     if args.status:
         return print_status()
 
+    # Names are used as identifiers in administrative SQL.
+    identifiers = (READ_DB, WRITE_DB, READ_SCHEMA, WRITE_SCHEMA,
+                   READ_ROLE, READ_HTTP_ROLE, READ_STATUS_ROLE)
+    if any(not re.fullmatch(r"[a-z][a-z0-9_]*", name) for name in identifiers):
+        print("FATAL: Invalid configured PostgreSQL identifier.", file=sys.stderr)
+        return 1
+
     # Preflight target database validation
     if READ_DB == WRITE_DB or "write" in READ_DB.lower():
         print(f"FATAL: Target database '{READ_DB}' violates WRITE isolation barrier!", file=sys.stderr)
@@ -801,19 +813,22 @@ def main():
         print("ERROR: public.read_maintenance_state table does not exist in pocoma_read.", file=sys.stderr)
         return 1
 
-    # Preflight Verify WRITE isolation and permissions for pocoma_read
+    # Inspect actual ACLs without issuing mutation on the WRITE database.
     try:
-        psql_write_readonly("SELECT count(*) FROM v3_write.v3_event_counter;", check=True)
-        mut_attempt = subprocess.run(
-            [
-                "docker", "exec", "-i", "-e", f"PGPASSWORD={POSTGRES_READ_PASSWORD}",
-                POSTGRES_CONTAINER,
-                "psql", "-X", "-U", POSTGRES_READ_USER, "-d", WRITE_DB, "-v", "ON_ERROR_STOP=1", "-c",
-                "UPDATE v3_write.v3_event_counter SET position = position WHERE family = 'POT';"
-            ],
-            capture_output=True, text=True
-        )
-        if mut_attempt.returncode == 0:
+        psql_write_readonly(f"SELECT count(*) FROM {WRITE_SCHEMA}.v3_event_counter;", check=True)
+        mutation_granted = psql_write_readonly("""
+            SELECT EXISTS (
+                SELECT 1 FROM pg_class relation JOIN pg_namespace namespace
+                    ON namespace.oid = relation.relnamespace
+                WHERE namespace.nspname NOT IN ('pg_catalog','information_schema')
+                  AND relation.relkind IN ('r','p','v','m','f')
+                  AND (has_table_privilege(current_user, relation.oid,
+                           'INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER,REFERENCES')
+                       OR has_any_column_privilege(current_user, relation.oid,
+                           'INSERT,UPDATE,REFERENCES'))
+            );
+        """, check=True)
+        if mutation_granted != "f":
             print("FATAL: WRITE-source principal has mutation rights on WRITE database!", file=sys.stderr)
             return 1
     except Exception as e:
@@ -823,6 +838,18 @@ def main():
     if args.dry_run:
         print("✓ Preflight checks passed. Dry run complete; no changes applied.")
         return 0
+
+    # The two restarted Materialize processes must belong to the same stack as READ.
+    model = json.loads(subprocess.check_output(
+        ["docker", "compose", *COMPOSE_FILES, "config", "--format", "json"], text=True))
+    postgres_service = model["services"]["postgres"]
+    postgres_name = postgres_service.get("container_name", f'{model["name"]}-postgres-1')
+    if postgres_name != POSTGRES_CONTAINER or not all(
+            worker in model["services"] for worker in READ_WORKERS):
+        print("FATAL: The READ worker stack does not match the configured PostgreSQL container.",
+              file=sys.stderr)
+        return 1
+
 
     # -------------------------------------------------------------------------
     # ALL MUTATING ACTIONS ACQUIRE POSTGRESQL SESSION ADVISORY LOCK (AUD-L6-I2-14)
@@ -961,7 +988,7 @@ def main():
                 # Resume replay
                 if not target_b:
                     print("Capturing target prefix B from WRITE event counters (isolated)...")
-                    raw_counters = psql_write_readonly("SELECT family, position FROM v3_write.v3_event_counter;")
+                    raw_counters = psql_write_readonly(f"SELECT family, position FROM {WRITE_SCHEMA}.v3_event_counter;")
                     target_b = {}
                     for line in raw_counters.splitlines():
                         p = line.split("|")
@@ -974,7 +1001,7 @@ def main():
                         transition("MAINTENANCE", "REBUILDING", "REPLAYING", operation_id, active_op)
 
                 print("Starting replay worker...")
-                subprocess.run(["docker", "compose", *COMPOSE_FILES, "up", "-d", "runtime-monolith"], check=True, capture_output=True)
+                subprocess.run(["docker", "compose", *COMPOSE_FILES, "up", "-d", *READ_WORKERS], check=True, capture_output=True)
 
                 print(f"Monitoring convergence towards target prefix B (timeout: {args.watchdog_timeout}s)...")
                 start_time = time.time()
@@ -1045,8 +1072,8 @@ def main():
                 watchdog_timeout=args.watchdog_timeout, poll_interval=args.poll_interval
             )
 
-    except RuntimeError as re:
-        print(f"FATAL: {re}", file=sys.stderr)
+    except RuntimeError as error:
+        print(f"FATAL: {error}", file=sys.stderr)
         return 1
 
 

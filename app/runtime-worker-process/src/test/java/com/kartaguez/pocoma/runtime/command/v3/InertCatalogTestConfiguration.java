@@ -23,7 +23,9 @@ public class InertCatalogTestConfiguration {
         return factory -> {
             for (String name : factory.getBeanDefinitionNames()) {
                 Class<?> type = factory.getType(name, false);
-                if (type != null) V3BootstrapGuard.requireInertType(type);
+                if (type != null && type != InertCatalogTestConfiguration.class
+                        && type != V3BootstrapGuard.class)
+                    V3BootstrapGuard.requireInertType(type);
             }
         };
     }
@@ -43,7 +45,11 @@ public class InertCatalogTestConfiguration {
         return () -> {
             for (String name : factory.getSingletonNames()) {
                 Object bean = factory.getSingleton(name);
-                if (bean != null) V3BootstrapGuard.requireInertType(bean.getClass());
+                if (bean != null && !(bean instanceof InertCatalogTestConfiguration)
+                        && !(bean instanceof V3BootstrapGuard)
+                        && !name.equals("rejectIncompatiblePilotDefinitions")
+                        && !name.equals("validateBothPilotAuthorities"))
+                    V3BootstrapGuard.requireInertType(bean.getClass());
             }
             guard.validate();
         };
