@@ -1,16 +1,16 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.process.v3.ProcessSettings;
 
 import static com.kartaguez.pocoma.V3CompositionHttpFixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
-import com.kartaguez.pocoma.domain.useridentity.*;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.domain.identity.*;
+import com.kartaguez.pocoma.domain.identity.v3.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.flywaydb.core.Flyway;
@@ -78,18 +78,17 @@ class V3AdmissionFlowPostgresTest {
         http.admissionProperties(worker.writeUrl, worker.schema, role);
         http.admissionObserver = worker.write;
         worker.select(
-                V3ConsumptionWorkerSettings.READ_NAMES.stream()
+                ProcessSettings.READ_NAMES.stream()
                         .filter(n -> !n.equals("MaterializeInvitation"))
                         .toList(),
                 true);
     }
 
     void start() {
-        var props = new LinkedHashMap<String, Object>(worker.properties);
-        props.putAll(http.properties);
-        props.put("pocoma.v3.worker.read-limits.navigation-page", "100");
+        http.useMaterializedRead(worker);
+        var props = worker.compositionProperties(http.properties);
         var app = new SpringApplication(PocomaRuntimeMonolithApplication.class);
-        app.setAdditionalProfiles("v3-read-worker", "v3-http-read", "v3-http-admission");
+        app.setAdditionalProfiles("v3-read-worker", "v3-consumption-worker-dev", "v3-http-read", "v3-http-admission");
         app.setDefaultProperties(props);
         app.addInitializers(
                 ctx ->
@@ -104,7 +103,9 @@ class V3AdmissionFlowPostgresTest {
         http.baseUrl =
                 "http://127.0.0.1:"
                         + ((WebServerApplicationContext) context).getWebServer().getPort();
-        assertEquals(5, context.getBeansOfType(HikariDataSource.class).size());
+        assertEquals(3, context.getBeansOfType(HikariDataSource.class).size());
+        assertNotSame(ReadMonolithI8Fixture.process(context).writeBusiness,
+                context.getBean("v3AdmissionPool", HikariDataSource.class));
         assertEquals(
                 1, context.getBean("v3AdmissionPool", HikariDataSource.class).getMaximumPoolSize());
     }
@@ -388,7 +389,7 @@ class V3AdmissionFlowPostgresTest {
                                     new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(
                                             memberShare);
                             var history =
-                                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                                    new com.kartaguez.pocoma.infra.postgres.write.v3
                                             .JdbcPotHistoryAdapter(fixtureSource);
                             var member =
                                     new com.kartaguez.pocoma.domain.pot.value.UserId(
@@ -417,8 +418,7 @@ class V3AdmissionFlowPostgresTest {
                                             .orElseThrow();
                             var target = selected.shareholders().get(shareholderId);
                             var details =
-                                    ((com.kartaguez.pocoma.engine.write.pot.port.persistence.v3
-                                                                    .ComponentRead.Present<
+                                    ((com.kartaguez.pocoma.domain.pot.v3.ComponentRead.Present<
                                                             com.kartaguez.pocoma.domain.pot.v3
                                                                     .ShareholderDetails>)
                                                     target.details())
@@ -444,11 +444,11 @@ class V3AdmissionFlowPostgresTest {
                 () -> {
                     var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
                     assertTrue(
-                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                            new com.kartaguez.pocoma.infra.postgres.write.v3
                                             .JdbcPotCommandStore(fixtureSource, fixtureOwner)
                                     .protectPot(potId, version));
                     var revisions =
-                            new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                            new com.kartaguez.pocoma.infra.postgres.write.v3
                                     .JdbcPotRevisionAdapter(fixtureSource);
                     revisions.recordVersion(potId, version, version + 1, Instant.now());
                     revisions.reviseShareholderDetails(potId, initialAffiliation);

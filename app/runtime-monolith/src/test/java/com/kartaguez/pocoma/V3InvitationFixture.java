@@ -5,7 +5,7 @@ import static com.kartaguez.pocoma.V3CompositionHttpFixture.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.compose.polling.process.v3.ProcessSettings;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
@@ -80,10 +80,10 @@ abstract class V3InvitationFixture {
         f.http.properties.put("pocoma.v3.invitation.key-ids", "fixture");
         f.http.properties.put(
                 "pocoma.v3.invitation.keys.fixture", Base64.getEncoder().encodeToString(key));
-        f.worker.select(V3ConsumptionWorkerSettings.READ_NAMES.subList(0, 3), true);
+        f.worker.select(ProcessSettings.READ_NAMES.subList(0, 3), true);
         f.worker.properties.put(
                 "pocoma.v3.worker.consumption-limits",
-                V3ConsumptionWorkerSettings.READ_NAMES.subList(0, 3).stream()
+                ProcessSettings.READ_NAMES.subList(0, 3).stream()
                                 .map(n -> n + "=1")
                                 .collect(java.util.stream.Collectors.joining(","))
                         + ",Command=4,IdentityRequest=1");
@@ -129,8 +129,8 @@ abstract class V3InvitationFixture {
 
     void startRoots() {
         f.start();
-        f.worker.select(V3ConsumptionWorkerSettings.READ_NAMES.subList(3, 7), false);
-        f.worker.root = PocomaTaskConsumptionWorkerApplication.class;
+        f.worker.select(ProcessSettings.READ_NAMES.subList(3, 7), false);
+        f.worker.root = PocomaMaterializeWorkerApplication.class;
         f.worker.start(Map.of("pocoma.v3.worker.worker-name", "i4-projection"));
     }
 

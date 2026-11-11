@@ -1,15 +1,19 @@
 package com.kartaguez.pocoma.engine.admit.command.v3;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.command.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 
 import java.time.*;
 import java.util.*;
 
 /** S-03 admission only. No business authority port is available here. */
-public final class AdmitCommandV3 {
+public final class AdmitCommandV3 implements com.kartaguez.pocoma.contract.writeadmission.AdmitCommand {
     public interface Store extends AdmissionAssociation.Store {
         void insert(PotCommand request);
     }

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +48,7 @@ class PotCommandIntentTest {
                                         Optional.empty(),
                                         new Weight(Fraction.ONE))));
         var c =
-                new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                new com.kartaguez.pocoma.contract.writeadmission.PotCommand(
                         UUID.randomUUID(),
                         new Eui("i", "s"),
                         "token",
@@ -62,7 +62,7 @@ class PotCommandIntentTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                        new com.kartaguez.pocoma.contract.writeadmission.PotCommand(
                                 c.requestId(),
                                 c.requester(),
                                 c.bindingToken(),
@@ -84,7 +84,7 @@ class PotCommandIntentTest {
                                                 new com.kartaguez.pocoma.domain.pot.value.UserId(
                                                         UUID.randomUUID())))));
         var c =
-                new com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand(
+                new com.kartaguez.pocoma.contract.writeadmission.PotCommand(
                         UUID.randomUUID(),
                         new Eui("i", "s"),
                         "token",

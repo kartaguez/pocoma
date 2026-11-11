@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.tx.spring.v3;
 
-import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
+import com.kartaguez.pocoma.infra.tx.spring.v3.fixture.FoundationTransactionRunner;
 
 import jakarta.persistence.EntityManagerFactory;
 
@@ -64,7 +64,7 @@ abstract class PostgresFoundationTestSupport {
         final Flyway flyway;
         final EntityManagerFactory emf;
         final JpaTransactionManager manager;
-        final SpringTransactionRunner runner;
+        final FoundationTransactionRunner runner;
         private final LocalContainerEntityManagerFactoryBean factory;
 
         Realm(String schema) {
@@ -101,7 +101,7 @@ abstract class PostgresFoundationTestSupport {
             emf = factory.getObject();
             manager = new JpaTransactionManager(emf);
             manager.setDataSource(dataSource);
-            runner = new SpringTransactionRunner(new TransactionTemplate(manager));
+            runner = new FoundationTransactionRunner(new TransactionTemplate(manager));
         }
 
         int observedEffects() {

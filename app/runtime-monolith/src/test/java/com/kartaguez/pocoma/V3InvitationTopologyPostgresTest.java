@@ -1,8 +1,11 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
+import static com.kartaguez.pocoma.ReadMonolithI8Fixture.materialize;
+import static com.kartaguez.pocoma.ReadMonolithI8Fixture.process;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.Test;
@@ -14,16 +17,17 @@ class V3InvitationTopologyPostgresTest extends V3InvitationFixture {
     @Test
     void invitationPrivilegePreflightsRejectColumnEscalation() throws Exception {
         startRoots();
-        var guard = f.http.context.getBean(V3BootstrapGuard.class);
-        var write = f.http.context.getBean("writeBusiness", HikariDataSource.class);
-        var read = f.http.context.getBean("readBusiness", HikariDataSource.class);
+        var process = process(f.http.context);
+        var materialize = materialize(f.http.context);
+        var write = process.writeBusiness;
+        var read = materialize.readBusiness;
         f.worker.write.execute(
                 "grant update(protected_link) on v3_invitation to " + f.worker.writeRole);
         try {
             assertThrows(
                     IllegalStateException.class,
                     () ->
-                            guard.validateLifecycleSource(
+                            process.guard.validateLifecycleSource(
                                     write,
                                     com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition
                                             .Authority.WRITE,
@@ -38,7 +42,7 @@ class V3InvitationTopologyPostgresTest extends V3InvitationFixture {
             assertThrows(
                     IllegalStateException.class,
                     () ->
-                            guard.validateLifecycleSource(
+                            materialize.guard.validateLifecycleSource(
                                     read,
                                     com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition
                                             .Authority.READ,
@@ -79,35 +83,41 @@ class V3InvitationTopologyPostgresTest extends V3InvitationFixture {
         assertEquals(2, roots.size());
         assertEquals(
                 3,
-                roots.get(0).getBean(V3ConsumptionWorkerSettings.class).readParticipants().size());
+                roots.get(0).getBean(MaterializeSettings.class).readParticipants().size());
         assertEquals(
                 4,
-                roots.get(1).getBean(V3ConsumptionWorkerSettings.class).readParticipants().size());
+                roots.get(1).getBean(MaterializeSettings.class).readParticipants().size());
         var pools = Collections.newSetFromMap(new IdentityHashMap<HikariDataSource, Boolean>());
         for (var root : roots) {
-            var settings = root.getBean(V3ConsumptionWorkerSettings.class);
+            var settings = root.getBean(MaterializeSettings.class);
             assertEquals(4, settings.workerLimit());
             assertEquals(Duration.ofSeconds(180), settings.lifecycle().leaseDuration());
             for (String name : settings.readParticipants())
                 assertEquals(List.of(0, 1, 2, 3), settings.partitions().get(name));
+            var materialize = materialize(root);
+            pools.addAll(List.of(materialize.readBusiness, materialize.readControl, materialize.writeSourceRead));
             pools.addAll(root.getBeansOfType(HikariDataSource.class).values());
         }
-        assertEquals(9, pools.size());
-        assertEquals(65, pools.stream().mapToInt(HikariDataSource::getMaximumPoolSize).sum());
+        var process = process(roots.getFirst());
+        pools.addAll(List.of(process.writeBusiness, process.writeControl));
+        assertEquals(11, pools.size());
+        assertEquals(64, pools.stream().mapToInt(HikariDataSource::getMaximumPoolSize).sum());
         ReadMonolithI8Fixture.await(
                 () ->
                         pools.stream()
                                         .mapToInt(
                                                 p -> p.getHikariPoolMXBean().getTotalConnections())
                                         .sum()
-                                == 65);
+                                == 64);
         assertEquals(
-                65L,
+                64L,
                 f.worker.write.queryForObject(
-                        "select count(*) from pg_stat_activity where usename in (?,?,?)",
+                        "select count(*) from pg_stat_activity where usename in (?,?,?,?,?)",
                         Long.class,
                         f.worker.writeRole,
                         f.worker.readRole,
+                        f.worker.sourceRole,
+                        f.http.role,
                         f.worker.schema + "_admission"));
         ReadMonolithI8Fixture.await(
                 () ->
@@ -139,9 +149,9 @@ class V3InvitationTopologyPostgresTest extends V3InvitationFixture {
                 f.worker.read.queryForObject(
                         "select count(*) from consumption_slot", Integer.class));
         // Conservative restart: retain the real 180s lease and wait for its normal expiry.
-        f.worker.select(V3ConsumptionWorkerSettings.READ_NAMES.subList(0, 3), true);
+        f.worker.select(MaterializeSettings.READ_NAMES.subList(0, 3), true);
         f.start();
-        f.worker.select(V3ConsumptionWorkerSettings.READ_NAMES.subList(3, 7), false);
+        f.worker.select(MaterializeSettings.READ_NAMES.subList(3, 7), false);
         f.worker.start(Map.of("pocoma.v3.worker.worker-name", "i4-projection-restart"));
         ReadMonolithI8Fixture.await(
                 () -> {

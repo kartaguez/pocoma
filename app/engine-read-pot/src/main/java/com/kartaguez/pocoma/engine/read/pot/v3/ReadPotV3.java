@@ -1,12 +1,16 @@
 package com.kartaguez.pocoma.engine.read.pot.v3;
+import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
+import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
+import com.kartaguez.pocoma.contract.readquery.PotRead;
+import com.kartaguez.pocoma.contract.readquery.PotRead.*;
 
 import static com.kartaguez.pocoma.domain.projection.v3.SubobjectContent.*;
 import static com.kartaguez.pocoma.domain.projection.v3.SubobjectKind.*;
-import static com.kartaguez.pocoma.engine.read.pot.v3.ReadPotV3Result.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
 import com.kartaguez.pocoma.domain.projection.v3.*;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.ExternalUserIdentity;
 import com.kartaguez.pocoma.port.projection.v3.*;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
@@ -15,18 +19,7 @@ import java.util.*;
 /** READ-only queries. The composition supplies one caller-owned RR snapshot per invocation. */
 public final class ReadPotV3 {
     /** Detached query boundary; composition owns snapshot, authority and quota. */
-    public interface Queries {
-        ReadPotV3Result<Pot> current(ExternalIdentity eui, String token, UUID id, long minimum);
-        ReadPotV3Result<Pot> at(ExternalIdentity eui, String token, UUID id, long version);
-        ReadPotV3Result<PotBalance> balance(ExternalIdentity eui, String token, UUID id, long version);
-        ReadPotV3Result<List<Expense>> expenses(ExternalIdentity eui, String token, UUID id, long version, List<ExpenseRef> references);
-        ReadPotV3Result<List<UUID>> visible(ExternalIdentity eui, String token, UUID after, int limit);
-    }
 
-    @FunctionalInterface
-    public interface BindingReader {
-        Optional<ExternalUserIdentity> read(ExternalIdentity eui, RecoveryReadContext context);
-    }
 
     private final PotVersionStore pots;
     private final SubobjectVersionStore objects;

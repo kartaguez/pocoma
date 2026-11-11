@@ -1,4 +1,7 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
 import static com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.*;
@@ -6,11 +9,9 @@ import static com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.springframework.boot.*;
@@ -32,16 +33,16 @@ public final class ReadI8Child {
         var app = new SpringApplication(Class.forName(args[0]));
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setDefaultProperties(values);
-        var context = app.run("--spring.profiles.active=v3-read-worker");
-        var worker = context.getBean(V3ConsumptionWorker.class);
-        var settings = context.getBean(V3ConsumptionWorkerSettings.class);
+        var context = app.run();
+        var worker = context.getBean("materializeWorker", V3ConsumptionWorker.class);
+        var settings = context.getBean(MaterializeSettings.class);
         long candidates = settings.partitions().values().stream().mapToInt(List::size).sum();
         await(
                 () ->
                         worker.localLeases().values().stream().mapToLong(Long::longValue).sum()
                                 == candidates);
         if (args[2].equals("renew-unknown")) {
-            var fault = new RetainingSource(context.getBean("readControl", HikariDataSource.class));
+            var fault = new RetainingSource(materialize(context).readControl);
             fault.selected = thread -> thread.startsWith("v3-renew-READ-2");
             var owner = new SpringAttemptTransactions(fault, manager(fault), 3);
             for (var binding : bindings(worker))
@@ -57,8 +58,8 @@ public final class ReadI8Child {
             fault.armed.set(true);
             await(() -> worker.snapshot().unknownRenewals() > 0, Duration.ofSeconds(15));
             worker.requestDrain();
-            assertEquals(V3ConsumptionWorker.State.DRAINING, worker.snapshot().state());
-            assertFalse(context.getBean("readControl", HikariDataSource.class).isClosed());
+            assertEquals(WorkerView.State.DRAINING, worker.snapshot().state());
+            assertFalse(materialize(context).readControl.isClosed());
             System.out.println(
                     "I8_RENEW_UNKNOWN pid="
                             + fault.pid
@@ -86,7 +87,8 @@ public final class ReadI8Child {
             config = directory.resolve("private.properties");
             log = directory.resolve("child.log");
             var properties = new Properties();
-            fixture.properties.forEach((k, v) -> properties.setProperty(k, v.toString()));
+            fixture.compositionProperties(Map.of()).forEach((k, v) -> properties.setProperty(k, v.toString()));
+            properties.setProperty("spring.profiles.active", String.join(",", fixture.workerProfiles()));
             try (var out = Files.newOutputStream(config)) {
                 properties.store(out, "private disposable fixture configuration");
             }

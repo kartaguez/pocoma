@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.architecture.v3;
+import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
@@ -43,11 +44,11 @@ class V3ConsumptionFoundationArchitectureTest {
         String write =
                 Files.readString(
                         Path.of(
-                                "../infra-persistence-primary-jpa/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql"));
+                                "../infra-postgres-write/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql"));
         String read =
                 Files.readString(
                         Path.of(
-                                "../infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql"));
+                                "../infra-postgres-read/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql"));
         String start = "do $$\nbegin\n  if to_regprocedure";
         assertEquals(
                 write.substring(write.indexOf(start), write.indexOf("-- Only the canonical"))
@@ -55,65 +56,19 @@ class V3ConsumptionFoundationArchitectureTest {
                 read.substring(read.indexOf(start), read.indexOf("-- I1 is inert")).trim());
         assertFalse(write.toLowerCase().contains("cascade"));
         assertFalse(read.toLowerCase().contains("cascade"));
-        for (String module :
-                new String[] {"runtime-command-consumption-worker", "runtime-monolith"}) {
-            String properties =
-                    Files.readString(
-                            Path.of(
-                                    "../"
-                                            + module
-                                            + "/src/main/resources/application-v3-consumption-pilot.properties"));
-            assertTrue(properties.contains("spring.flyway.enabled=false"));
-            assertTrue(properties.contains("DataSourceAutoConfiguration"));
-            String clazz =
-                    module.equals("runtime-monolith")
-                            ? "PocomaRuntimeMonolithApplication"
-                            : "PocomaCommandConsumptionWorkerApplication";
-            String code =
-                    Files.readString(
-                            Path.of(
-                                    "../"
-                                            + module
-                                            + "/src/main/java/com/kartaguez/pocoma/"
-                                            + clazz
-                                            + ".java"));
-            var application = Class.forName("com.kartaguez.pocoma." + clazz);
-            var legacy =
-                    java.util.Arrays.stream(application.getDeclaredClasses())
-                            .filter(type -> type.getSimpleName().equals("Legacy"))
-                            .findFirst()
-                            .orElseThrow();
-            var profiles =
-                    org.springframework.core.env.Profiles.of(
-                            legacy.getAnnotation(org.springframework.context.annotation.Profile.class)
-                                    .value());
-            assertTrue(profiles.matches(profile -> false), module + " legacy default remains enabled");
-            var excluded =
-                    module.equals("runtime-monolith")
-                            ? java.util.List.of(
-                                    "v3-consumption-pilot", "v3-consumption-worker-dev", "v3-read-worker")
-                            : java.util.List.of("v3-consumption-pilot", "v3-consumption-worker-dev");
-            for (int mask = 1; mask < (1 << excluded.size()); mask++) {
-                var active = new java.util.HashSet<String>();
-                for (int index = 0; index < excluded.size(); index++)
-                    if ((mask & (1 << index)) != 0) active.add(excluded.get(index));
-                assertFalse(profiles.matches(active::contains), module + " excludes " + active);
-            }
-            assertTrue(code.contains("V3ConsumptionCatalogConfiguration.class"));
-        }
     }
 
     @Test
     void discoveryFactoryIsExplicitAndKeepsTheNineDefinitions() {
         var factory =
-                com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionDiscoveryComposition.class;
+                com.kartaguez.pocoma.compose.polling.process.v3.V3ConsumptionDiscoveryComposition.class;
         assertEquals(0, factory.getAnnotations().length);
         assertTrue(
                 java.util.Arrays.stream(factory.getDeclaredMethods())
                         .allMatch(m -> java.lang.reflect.Modifier.isStatic(m.getModifiers())));
         assertEquals(
                 9,
-                com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration
+                com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog
                         .definitions()
                         .size());
         assertTrue(

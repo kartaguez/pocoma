@@ -23,7 +23,7 @@ class SelectionTests(unittest.TestCase):
         self.assertLess(set(plans[1]['expected']), set(plans[2]['expected']))
         self.assertIn('runtime-monolith', plans[2]['command'][4])
         self.assertNotIn('architecture-tests', plans[2]['command'][4])
-        self.assertEqual(plans[0]['command'][4], 'engine-consume-registration,domain-pot')
+        self.assertEqual(plans[0]['command'][4], 'domain-pot')
         self.assertTrue(all(p['expected'] and all(p['expected'].values()) for p in plans))
         for plan in plans:
             self.assertFalse(any('V3WorkerResourcesPostgresTest' in c for c in plan['expected']))
@@ -42,13 +42,13 @@ class SelectionTests(unittest.TestCase):
 
     def test_canonical_slices_remain_unfiltered(self):
         for level in ['CHANGE', 'INTEGRATION']:
-            plan = v.plan(level, 'COMMAND,EVENT')
-            self.assertEqual(plan['command'][3:], ['-pl', 'runtime-command-consumption-worker,runtime-event-consumption-worker', '-am', 'test'])
+            plan = v.plan(level, 'COMMAND,PROJECTION')
+            self.assertEqual(plan['command'][3:], ['-pl', 'runtime-worker-process,runtime-worker-materialize', '-am', 'test'])
             self.assertFalse(plan['filtered'])
 
     def test_explicit_architecture_gate_adds_monolith_and_never_filters(self):
         plan = v.plan('INTEGRATION', 'WEB,COMMAND,ARCHITECTURE')
-        self.assertEqual(plan['command'][3:], ['-pl', 'runtime-web-api,runtime-command-consumption-worker,architecture-tests,runtime-monolith', '-am', 'test'])
+        self.assertEqual(plan['command'][3:], ['-pl', 'runtime-web-write,runtime-web-read,runtime-worker-process,architecture-tests,runtime-monolith', '-am', 'test'])
         self.assertFalse(plan['filtered'])
         self.assertNotIn('architecture-tests', v.plan('CHANGE', 'WEB,COMMAND')['command'][4])
         with self.assertRaises(ValueError):
@@ -156,7 +156,7 @@ class AuditRegressionTests(unittest.TestCase):
             with patch.object(v, 'execute_maven', return_value=0) as run:
                 _, issues = v.effective_inventory(definition, output)
             self.assertEqual(issues, [])
-            self.assertEqual(sum(map(len, definition['expected'].values())), 32)
+            self.assertEqual(sum(map(len, definition['expected'].values())), 28)
         archive = v.ROOT / 'docs/testing/evidence/verification-independent-audit-d0927d94/audit-evidence.tar.gz'
         with tarfile.open(archive) as bundle:
             raw = bundle.extractfile('audit/foundation-hidden-filter-h2/raw.tar.gz').read()
@@ -170,7 +170,7 @@ class AuditRegressionTests(unittest.TestCase):
 
     def test_foundation_second_recipe_uses_shared_expansion(self):
         fast, change, integration = [v.plan(level, 'foundation') for level in ['FAST', 'CHANGE', 'INTEGRATION']]
-        self.assertEqual([sum(map(len, p['expected'].values())) for p in [fast, change, integration]], [4, 32, 32])
+        self.assertEqual([sum(map(len, p['expected'].values())) for p in [fast, change, integration]], [3, 28, 28])
         self.assertLess(set(fast['expected']), set(change['expected']))
         self.assertEqual(change['expected'], integration['expected'])
         self.assertTrue(all(p['filtered'] and not p['normative_gate'] for p in [fast, change, integration]))

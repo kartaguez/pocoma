@@ -70,7 +70,13 @@ services:
 
   pocoma-http-write:
     container_name: pocoma-http-write
-    image: pocoma-functional-runtime-monolith:latest
+    image: pocoma-l7-runtime-web-write:local
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_MODULE: runtime-web-write
+        RUNTIME_ARTIFACT: pocoma-runtime-web-write
     environment:
       SPRING_PROFILES_ACTIVE: v3-http-admission
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/http-write.properties
@@ -79,7 +85,6 @@ services:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:18080:18080"
     volumes:
-      - ./app/runtime-web-api/target/pocoma-runtime-web-api-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
       - ./docker/v3-five-runtimes/http-write.properties:/app/config/http-write.properties:ro
     networks:
       pocoma-v3-net:
@@ -103,7 +108,13 @@ services:
 
   pocoma-command-worker:
     container_name: pocoma-command-worker
-    image: pocoma-functional-runtime-monolith:latest
+    image: pocoma-l7-runtime-worker-process:local
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_MODULE: runtime-worker-process
+        RUNTIME_ARTIFACT: pocoma-runtime-worker-process
     environment:
       SPRING_PROFILES_ACTIVE: v3-consumption-worker-dev
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/command-worker.properties
@@ -111,7 +122,6 @@ services:
     ports:
       - "127.0.0.1:18083:18083"
     volumes:
-      - ./app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
       - ./docker/v3-five-runtimes/command-worker.properties:/app/config/command-worker.properties:ro
     networks:
       pocoma-v3-net:
@@ -133,7 +143,13 @@ services:
 
   pocoma-results-worker:
     container_name: pocoma-results-worker
-    image: pocoma-functional-runtime-monolith:latest
+    image: pocoma-l7-runtime-worker-materialize:local
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_MODULE: runtime-worker-materialize
+        RUNTIME_ARTIFACT: pocoma-runtime-worker-materialize
     environment:
       SPRING_PROFILES_ACTIVE: v3-read-worker
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/results-worker.properties
@@ -141,7 +157,6 @@ services:
     ports:
       - "127.0.0.1:18084:18084"
     volumes:
-      - ./app/runtime-task-consumption-worker/target/pocoma-runtime-task-consumption-worker-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
       - ./docker/v3-five-runtimes/results-worker.properties:/app/config/results-worker.properties:ro
     networks:
       pocoma-v3-net:
@@ -163,7 +178,13 @@ services:
 
   pocoma-business-read-worker:
     container_name: pocoma-business-read-worker
-    image: pocoma-functional-runtime-monolith:latest
+    image: pocoma-l7-runtime-worker-materialize:local
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_MODULE: runtime-worker-materialize
+        RUNTIME_ARTIFACT: pocoma-runtime-worker-materialize
     environment:
       SPRING_PROFILES_ACTIVE: v3-read-worker
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/business-read-worker.properties
@@ -171,7 +192,6 @@ services:
     ports:
       - "127.0.0.1:18085:18085"
     volumes:
-      - ./app/runtime-task-consumption-worker/target/pocoma-runtime-task-consumption-worker-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
       - ./docker/v3-five-runtimes/business-read-worker.properties:/app/config/business-read-worker.properties:ro
     networks:
       pocoma-v3-net:
@@ -193,7 +213,13 @@ services:
 
   pocoma-http-read:
     container_name: pocoma-http-read
-    image: pocoma-functional-runtime-monolith:latest
+    image: pocoma-l7-runtime-web-read:local
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_MODULE: runtime-web-read
+        RUNTIME_ARTIFACT: pocoma-runtime-web-read
     environment:
       SPRING_PROFILES_ACTIVE: v3-http-read
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/app/config/http-read.properties
@@ -202,7 +228,6 @@ services:
       - "127.0.0.1:8082:8082"
       - "127.0.0.1:18082:18082"
     volumes:
-      - ./app/runtime-web-api/target/pocoma-runtime-web-api-0.0.1-SNAPSHOT-exec.jar:/app/pocoma-runtime.jar:ro
       - ./docker/v3-five-runtimes/http-read.properties:/app/config/http-read.properties:ro
     networks:
       pocoma-v3-net:

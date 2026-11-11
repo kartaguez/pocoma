@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.architecture.v3;
+import com.kartaguez.pocoma.compose.web.write.v3.V3AdmissionHttpConfiguration;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
@@ -27,7 +28,7 @@ class V3AdmissionArchitectureTest {
                 .that()
                 .resideInAnyPackage(
                         ROOT + ".engine.admit.command.v3..",
-                        ROOT + ".engine.admit.registration.v3..")
+                        ROOT + ".engine.admit.identity.v3..")
                 .should()
                 .dependOnClassesThat(
                         new DescribedPredicate<JavaClass>("forbidden infrastructure or frameworks") {
@@ -104,14 +105,14 @@ class V3AdmissionArchitectureTest {
     @Test
     void httpAssemblyRemainsExplicitAndLinkPhysicalObjectsStayAbsent() throws Exception {
         String base =
-                "../composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/";
+                "../compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/v3/";
         String config = Files.readString(Path.of(base + "V3AdmissionHttpConfiguration.java"));
         assertTrue(config.contains("@Profile(V3AdmissionHttpConfiguration.PROFILE)"));
         assertTrue(config.contains("AdmissionSqlAuthority.verify"));
         String sql =
                 Files.readString(
                         Path.of(
-                                "../infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V7__public_admission.sql"));
+                                "../infra-postgres-write/src/main/resources/db/v3-admission/migration/V7__public_admission.sql"));
         assertTrue(sql.contains("deferrable initially deferred"));
         assertFalse(sql.contains("grant_fingerprint"));
         assertFalse(sql.contains("Consent"));
@@ -121,7 +122,7 @@ class V3AdmissionArchitectureTest {
         String transport =
                 Files.readString(
                         Path.of(
-                                "../supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java"));
-        assertFalse(transport.contains("supra.http.read"));
+                                "../supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/v3/V3AdmissionTransport.java"));
+        assertFalse(transport.contains("supra.web.read"));
     }
 }

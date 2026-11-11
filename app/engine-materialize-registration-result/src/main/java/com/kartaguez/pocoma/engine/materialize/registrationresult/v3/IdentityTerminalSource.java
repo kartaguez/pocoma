@@ -1,5 +1,0 @@
-package com.kartaguez.pocoma.engine.materialize.registrationresult.v3;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.IdentityTerminalResult;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
-import java.util.UUID;
-public interface IdentityTerminalSource { IdentityTerminalResult load(UUID event,RecoveryReadContext context); }

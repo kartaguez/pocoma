@@ -1,14 +1,24 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.V3ReadParticipants;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3InvitationConfiguration;
+import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
+import com.kartaguez.pocoma.infra.postgres.source.v3.*;
+import com.kartaguez.pocoma.infra.postgres.core.v3.*;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.Invitation;
-import com.kartaguez.pocoma.engine.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consumption.v3.port.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
@@ -104,7 +114,7 @@ class V3InvitationReadPostgresTest extends V3InvitationFixture {
         var first = source(event);
         var ds = f.worker.read.getDataSource();
         var owner = owner(ds);
-        var store = new com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.JdbcInvitationStore(ds);
+        var store = new com.kartaguez.pocoma.infra.postgres.read.v3.JdbcInvitationStore(ds);
         var crypto = V3InvitationConfiguration.keys(f.http.context.getEnvironment());
         var unsealed =
                 new Invitation(
@@ -209,7 +219,7 @@ class V3InvitationReadPostgresTest extends V3InvitationFixture {
             var definition = participant.definition();
             var settings = LifecycleSettings.pilot();
             var discoverySettings =
-                    new DiscoveryEngine.Settings(
+                    new DiscoverySettings(
                             128, 32, 32, 64, Duration.ofMillis(500), Duration.ofSeconds(2));
             var slots = new JdbcConsumptionSlotStore(read);
             var ownership = new JdbcPartitionOwnershipStore(read);
@@ -259,7 +269,7 @@ class V3InvitationReadPostgresTest extends V3InvitationFixture {
                     assertEquals(1, claims.size());
                     var attempt = engine.execute(claims.getFirst());
                     assertEquals(
-                            ConsumptionEngine.Status.COMMITTED,
+                            ConsumptionProtocol.Status.COMMITTED,
                             attempt.status(),
                             () -> "Replay: " + attempt.cause());
                 }

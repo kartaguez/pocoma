@@ -1,60 +1,34 @@
 package com.kartaguez.pocoma;
-
-import com.kartaguez.pocoma.runtime.binding.BindingRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.registration.RegistrationRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
-
-@SpringBootApplication(scanBasePackages = "com.kartaguez.pocoma.runtime.bootstrap")
-@Import({
-    PocomaRuntimeMonolithApplication.Legacy.class,
-    com.kartaguez.pocoma.runtime.consumption.v3.V3ReadHttpConfiguration.class,
-    com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration.class,
-    com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration.class,
-    com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration.class
-})
+import org.springframework.context.annotation.*;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.core.env.Environment;
+import java.util.*;
+@SpringBootApplication(scanBasePackages="com.kartaguez.pocoma.runtime.bootstrap.empty",excludeName={"org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration","org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration","org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration","org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration","org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration"})
+@Import({com.kartaguez.pocoma.compose.web.write.v3.V3AdmissionHttpConfiguration.class,com.kartaguez.pocoma.compose.web.read.v3.V3ReadHttpConfiguration.class,com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.class,com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.class})
 public class PocomaRuntimeMonolithApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(PocomaRuntimeMonolithApplication.class, args);
+    public static void main(String[] args){SpringApplication.run(PocomaRuntimeMonolithApplication.class,args);}
+    @Bean static BeanFactoryPostProcessor hostingSelection(Environment env) {
+        return factory -> {
+            var allowed=Set.of("v3-http-admission","v3-http-read","v3-consumption-worker-dev","v3-read-worker");
+            for(String profile:env.getActiveProfiles())if(!allowed.contains(profile))throw new IllegalStateException("Unsupported Runtime selection: "+profile);
+            // Sharing observations is an explicit host decision; providers remain independently constructible.
+            var names=List.of("webWriteHandoffs","webReadHandoffs","processHandoffs","materializeHandoffs");
+            String selected=null;
+            if(factory instanceof org.springframework.beans.factory.support.DefaultListableBeanFactory registry)
+                for(String candidate:names)if(registry.containsBeanDefinition(candidate)) {
+                    if(selected==null)selected=candidate;
+                    else {registry.removeBeanDefinition(candidate);registry.registerAlias(selected,candidate);}
+                }
+        };
     }
-
-    /** Legacy scanning and processing are mutually exclusive with the inert pilot. */
-    @org.springframework.context.annotation.Profile(
-            "!v3-consumption-pilot & !v3-consumption-worker-dev & !v3-read-worker & !v3-http-read & !v3-http-admission")
-    @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
-    @org.springframework.context.annotation.ComponentScan(
-            basePackages = "com.kartaguez.pocoma",
-            excludeFilters = {
-                // T11's test dependency must not introduce a second legacy application root.
-                @org.springframework.context.annotation.ComponentScan.Filter(
-                        type = org.springframework.context.annotation.FilterType.REGEX,
-                        pattern =
-                                "com[.]kartaguez[.]pocoma[.](PocomaTaskConsumptionWorkerApplication|PocomaWebApiApplication)([$].*)?"),
-                @org.springframework.context.annotation.ComponentScan.Filter(
-                        type = org.springframework.context.annotation.FilterType.CUSTOM,
-                        classes = org.springframework.boot.context.TypeExcludeFilter.class),
-                @org.springframework.context.annotation.ComponentScan.Filter(
-                        type = org.springframework.context.annotation.FilterType.CUSTOM,
-                        classes =
-                                org.springframework.boot.autoconfigure
-                                        .AutoConfigurationExcludeFilter.class)
-            })
-    @Import({
-        PocomaWebRuntimeConfiguration.class,
-        RegistrationRuntimeConfiguration.class,
-        RegistrationResultRuntimeConfiguration.class,
-        BindingRuntimeConfiguration.class,
-        CommandConsumptionRuntimeConfiguration.class,
-        CommandResultRuntimeConfiguration.class,
-        EventConsumptionRuntimeConfiguration.class,
-        CanonicalProjectionTaskRuntimeConfiguration.class
-    })
-    public static class Legacy {}
+    @Bean
+    @Profile("!v3-http-admission & !v3-http-read")
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication(type=org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET)
+    org.springframework.security.web.SecurityFilterChain workerManagementSecurity(
+            org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
+        return http.authorizeHttpRequests(r -> r.requestMatchers("/actuator/health/**","/actuator/prometheus").permitAll()
+                .anyRequest().denyAll()).build();
+    }
 }

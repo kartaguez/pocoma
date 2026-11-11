@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.architecture.v3;
+import com.kartaguez.pocoma.compose.polling.process.v3.V3IdentityRequestComposition;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
@@ -39,7 +40,7 @@ class V3IdentityAuthorityArchitectureTest {
                                                 && c.getTarget().getName().equals("guarded")));
         noClasses()
                 .that()
-                .resideInAPackage(ROOT + ".infra.persistence.primary.jpa.v3.identity..")
+                .resideInAPackage(ROOT + ".infra.postgres.write.v3.identity..")
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage(
@@ -48,7 +49,7 @@ class V3IdentityAuthorityArchitectureTest {
                         "org.springframework.orm.jpa..",
                         "jakarta.persistence..",
                         ROOT + ".runtime..",
-                        ROOT + ".infra.persistence.read..")
+                        ROOT + ".infra.postgres.read..")
                 .check(CLASSES);
         for (var c :
                 CLASSES.stream()
@@ -57,7 +58,7 @@ class V3IdentityAuthorityArchitectureTest {
                                         c.getPackageName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".infra.persistence.primary.jpa.v3.identity"))
+                                                                + ".infra.postgres.write.v3.identity"))
                         .toList()) {
             for (var dependency : c.getDirectDependenciesFromSelf()) {
                 if (dependency.getTargetClass().getPackageName().startsWith(ROOT + ".domain.pot")) {
@@ -75,7 +76,7 @@ class V3IdentityAuthorityArchitectureTest {
                                         c.getPackageName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".infra.persistence.primary.jpa.v3.identity"))
+                                                                + ".infra.postgres.write.v3.identity"))
                         .toList()) {
             assertFalse(
                     c.getMethodCallsFromSelf().stream()
@@ -133,8 +134,8 @@ class V3IdentityAuthorityArchitectureTest {
         var code =
                 Files.readString(
                         Path.of(
-                                "../infra-persistence-primary-jpa/src/main/java/"
-                                    + "com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/"
+                                "../infra-postgres-write/src/main/java/"
+                                    + "com/kartaguez/pocoma/infra/postgres/write/v3/identity/"
                                     + "JdbcIdentityPotActorAuthority.java"));
         assertFalse(code.toLowerCase(Locale.ROOT).contains("for update"));
         assertFalse(code.contains("pg_advisory"));
@@ -147,7 +148,7 @@ class V3IdentityAuthorityArchitectureTest {
     void l3_identity_participant_and_factory_keep_l2_ownership() {
         noClasses()
                 .that()
-                .haveNameMatching(".*engine.consume.registration.v3.ExecuteIdentityRequest.*")
+                .haveNameMatching(".*engine.write.identity.v3.ExecuteIdentityRequest.*")
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage(
@@ -160,7 +161,7 @@ class V3IdentityAuthorityArchitectureTest {
                 .check(CLASSES);
         noClasses()
                 .that()
-                .haveNameMatching(".*engine.consume.registration.v3.ExecuteIdentityRequest.*")
+                .haveNameMatching(".*engine.write.identity.v3.ExecuteIdentityRequest.*")
                 .should()
                 .dependOnClassesThat()
                 .haveFullyQualifiedName(ROOT + ".port.transaction.v3.AttemptTransactions")
@@ -193,7 +194,7 @@ class V3IdentityAuthorityArchitectureTest {
 
     @Test
     void l3_canonical_acquisition_is_the_only_eui_writer_path() throws Exception {
-        var root = Path.of("../infra-persistence-primary-jpa/src/main/java");
+        var root = Path.of("../infra-postgres-write/src/main/java");
         try (var files = Files.walk(root)) {
             for (var path : files.filter(p -> p.toString().endsWith(".java")).toList()) {
                 String code = Files.readString(path);
@@ -205,7 +206,7 @@ class V3IdentityAuthorityArchitectureTest {
         var code =
                 Files.readString(
                         root.resolve(
-                                "com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityAuthority.java"));
+                                "com/kartaguez/pocoma/infra/postgres/write/v3/identity/JdbcIdentityAuthority.java"));
         assertTrue(code.contains("ExternalUserIdentity::compareKeys"));
         assertTrue(code.contains("on conflict (issuer,subject) do nothing"));
         assertFalse(code.contains("pg_advisory"));

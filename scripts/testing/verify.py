@@ -492,6 +492,12 @@ def resolve(names, index):
     return resolved
 
 
+def anchor_modules(config, name):
+    """A slice may contain more than one independently packaged Runtime."""
+    value = config['anchors'][name]
+    return [value] if isinstance(value, str) else list(value)
+
+
 def plan(level, scope, config=None, root=ROOT):
     config = config or json.loads(CONFIG.read_text())
     base = ['./mvnw', '--batch-mode', '--no-transfer-progress']
@@ -512,7 +518,7 @@ def plan(level, scope, config=None, root=ROOT):
         if scope not in config['quarantine']:
             raise ValueError('Choose a registered nominative quarantine scenario')
         scenario = config['quarantine'][scope]
-        modules = [config['anchors'][scenario['anchor']]]
+        modules = anchor_modules(config, scenario['anchor'])
         matches = resolve([scenario['class'].split('.')[-1]], index)
         if scenario['class'] not in matches:
             raise ValueError('Quarantine class identity differs from source')
@@ -550,7 +556,7 @@ def plan(level, scope, config=None, root=ROOT):
             raise ValueError('Campaign invocation inventory differs from its adopted manifest')
     elif scope in config['recipes']:
         definition = config['recipes'][scope]
-        modules = definition.get('fast_modules', [config['anchors'][definition['anchor']]]) if level == 'FAST' else [config['anchors'][definition['anchor']]]
+        modules = definition.get('fast_modules', anchor_modules(config, definition['anchor'])) if level == 'FAST' else anchor_modules(config, definition['anchor'])
         names = []
         for step in ['FAST', 'CHANGE', 'INTEGRATION']:
             names += definition[step]
@@ -569,7 +575,7 @@ def plan(level, scope, config=None, root=ROOT):
         if any(s not in config['anchors'] and s not in gates for s in scopes):
             raise ValueError('Use a registered recipe, canonical slice or explicit gate identifier')
         modules = list(dict.fromkeys(module for scope in scopes for module in
-                                    ([config['anchors'][scope]] if scope in config['anchors'] else gates[scope])))
+                                    (anchor_modules(config, scope) if scope in config['anchors'] else gates[scope])))
     command = base + (['-pl', ','.join(modules), '-am'] if modules else [])
     if selectors:
         command += ['-Dtest=' + ','.join(selectors), '-Dsurefire.failIfNoSpecifiedTests=false']
