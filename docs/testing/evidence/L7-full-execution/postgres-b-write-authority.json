@@ -8,6 +8,30 @@
   "runtimeConnections": [
     {
       "datname": "pocoma_read",
+      "usename": "pocoma_read",
+      "application_name": "business-read-worker-read-business",
+      "count": 5
+    },
+    {
+      "datname": "pocoma_read",
+      "usename": "pocoma_read",
+      "application_name": "business-read-worker-read-control",
+      "count": 9
+    },
+    {
+      "datname": "pocoma_read",
+      "usename": "pocoma_read",
+      "application_name": "results-worker-read-business",
+      "count": 4
+    },
+    {
+      "datname": "pocoma_read",
+      "usename": "pocoma_read",
+      "application_name": "results-worker-read-control",
+      "count": 8
+    },
+    {
+      "datname": "pocoma_read",
       "usename": "pocoma_read_http",
       "application_name": "v3-http-read",
       "count": 2
@@ -23,6 +47,30 @@
       "usename": "pocoma_admission",
       "application_name": "v3-http-admission",
       "count": 1
+    },
+    {
+      "datname": "pocoma_write",
+      "usename": "pocoma_write",
+      "application_name": "command-worker-write-business",
+      "count": 4
+    },
+    {
+      "datname": "pocoma_write",
+      "usename": "pocoma_write",
+      "application_name": "command-worker-write-control",
+      "count": 8
+    },
+    {
+      "datname": "pocoma_write",
+      "usename": "pocoma_write_source_read",
+      "application_name": "business-read-worker-write-source-read",
+      "count": 5
+    },
+    {
+      "datname": "pocoma_write",
+      "usename": "pocoma_write_source_read",
+      "application_name": "results-worker-write-source-read",
+      "count": 4
     }
   ]
 }

@@ -24,7 +24,9 @@ public class InertCatalogTestConfiguration {
             for (String name : factory.getBeanDefinitionNames()) {
                 Class<?> type = factory.getType(name, false);
                 if (type != null && type != InertCatalogTestConfiguration.class
-                        && type != V3BootstrapGuard.class)
+                        && type != V3BootstrapGuard.class
+                        && !name.equals("rejectIncompatiblePilotDefinitions")
+                        && !name.equals("validateBothPilotAuthorities"))
                     V3BootstrapGuard.requireInertType(type);
             }
         };

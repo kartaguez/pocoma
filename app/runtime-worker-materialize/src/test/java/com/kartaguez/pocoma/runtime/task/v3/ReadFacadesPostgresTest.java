@@ -453,10 +453,13 @@ class ReadFacadesPostgresTest {
             var queryTimer = registry.find("pocoma.v3.read.query.duration").tag("operation", "current").tag("outcome", "available").timer();
             assertNotNull(queryTimer, "read query duration timer must exist");
             assertTrue(queryTimer.count() >= 3);
-            for (String name : List.of("writeBusiness", "writeControl", "readBusiness", "readControl")) {
-                var pool = q.ctx.getBean(name, HikariDataSource.class);
-                assertNotNull(registry.find("hikaricp.connections.active").tag("pool", pool.getPoolName()).gauge(), "active pool gauge: " + name);
-                assertNotNull(registry.find("hikaricp.connections.pending").tag("pool", pool.getPoolName()).gauge(), "pending pool gauge: " + name);
+            var resources = q.resources();
+            for (var pool : List.of(resources.writeSourceRead, resources.readBusiness, resources.readControl)) {
+                String name = pool.getPoolName();
+                assertNotNull(registry.find("hikaricp.connections.active").tag("pool", name).gauge(),
+                        "active pool gauge: " + name);
+                assertNotNull(registry.find("hikaricp.connections.pending").tag("pool", name).gauge(),
+                        "pending pool gauge: " + name);
             }
             UUID pot = UUID.randomUUID();
             q.seed(pot, 1, 2, Set.of(OWNER), false, true, true, "before");

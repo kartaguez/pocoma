@@ -27,11 +27,11 @@ def main():
         controls = v.control_inputs()
         definitions = {}
         for name, modules in [
-            ('WEB', 'runtime-web-api'),
-            ('COMMAND', 'runtime-command-consumption-worker'),
+            ('WEB', 'runtime-web-write,runtime-web-read'),
+            ('COMMAND', 'runtime-worker-process'),
             ('Architecture', 'architecture-tests'),
             ('Monolith', 'runtime-monolith'),
-            ('Combined', 'runtime-web-api,runtime-command-consumption-worker,architecture-tests,runtime-monolith'),
+            ('Combined', 'runtime-web-write,runtime-web-read,runtime-worker-process,architecture-tests,runtime-monolith'),
         ]:
             destination = output / name
             destination.mkdir()

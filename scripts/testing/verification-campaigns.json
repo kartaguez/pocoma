@@ -76,6 +76,7 @@
         "runtime-monolith"
       ],
       "fast_modules": [
+        "engine-write-identity",
         "domain-pot"
       ]
     },
@@ -106,8 +107,7 @@
       "CHANGE": [],
       "INTEGRATION": [],
       "fast_modules": [
-        "engine-admit-command",
-        "engine-write-pot"
+        "compose-web-write-postgres"
       ]
     },
     "l5-i2-codec": {

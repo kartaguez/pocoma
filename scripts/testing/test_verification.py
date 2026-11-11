@@ -23,7 +23,7 @@ class SelectionTests(unittest.TestCase):
         self.assertLess(set(plans[1]['expected']), set(plans[2]['expected']))
         self.assertIn('runtime-monolith', plans[2]['command'][4])
         self.assertNotIn('architecture-tests', plans[2]['command'][4])
-        self.assertEqual(plans[0]['command'][4], 'domain-pot')
+        self.assertEqual(plans[0]['command'][4], 'engine-write-identity,domain-pot')
         self.assertTrue(all(p['expected'] and all(p['expected'].values()) for p in plans))
         for plan in plans:
             self.assertFalse(any('V3WorkerResourcesPostgresTest' in c for c in plan['expected']))

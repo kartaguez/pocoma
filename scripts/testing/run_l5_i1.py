@@ -34,7 +34,7 @@ def main():
         if code != 0:
             receipt['verdict'] = 'T1_NON_PASS_B1_NOT_RUN'
             return code
-        classpath = (ROOT/'app/runtime-web-api/target/i1-classpath.txt').read_text()
+        classpath = (ROOT/'app/runtime-web-read/target/i1-classpath.txt').read_text()
         code = phase('B1', ['java', '-Xmx512m', '-cp', classpath, 'com.kartaguez.pocoma.V3ReadHttpFixture', str(ROOT), str(output/'B1')], ROOT)
         if code != 0:
             receipt['verdict'] = 'B1_NON_PASS'

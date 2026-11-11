@@ -14,7 +14,7 @@ Un seul environnement par campagne. `--env Qualification` remplace Local lorsqu'
 
 Le propriétaire du banc injecte hors Git les variables de processus : `POCOMA_I1_BASE_URL`, `POCOMA_I1_bearerOwner`, `POCOMA_I1_bearerOther`, `POCOMA_I1_bearerSameUser`, `POCOMA_I1_bearerInactive`, `POCOMA_I1_bearerAbsent`, `POCOMA_I1_bearerForged`, `POCOMA_I1_bindingOwner`, `POCOMA_I1_bindingOther`, `POCOMA_I1_REQUEST_RECEIPTS` (nouveau chemin JSONL) et `POCOMA_I1_PUBLISH_SIGNAL` (nouveau chemin de handshake B30). Absence = erreur, aucun skip. Aucun bearer/token en URL ou argument CLI. Les environnements suivis ne contiennent que des paramètres publics. Les headers/corps sont exclus du reporter et les fichiers produits sont contrôlés contre tous les secrets injectés avant archivage.
 
-Le banc reproductible livré est `V3ReadHttpFixture.main` dans les tests WEB : PostgreSQL 17 épinglé par digest, schéma/role jetables, injecteur et observateur administratifs distincts du rôle HTTP SELECT seul, JWKS/RSA éphémère, vrai Resource Server et vrai serveur HTTP. Le propriétaire de campagne le lance après T1 sur le classpath compilé conservé dans `runtime-web-api/target/i1-classpath.txt`, avec `java -Xmx512m`. Les clés privées/JWT ne sont jamais écrits. Le processus enfant Bruno reçoit les secrets uniquement dans son environnement. La fixture est détruite après la fin du CLI et l'arrêt du serveur.
+Le banc reproductible livré est `V3ReadHttpFixture.main` dans les tests WEB : PostgreSQL 17 épinglé par digest, schéma/role jetables, injecteur et observateur administratifs distincts du rôle HTTP SELECT seul, JWKS/RSA éphémère, vrai Resource Server et vrai serveur HTTP. Le propriétaire de campagne le lance après T1 sur le classpath compilé conservé dans `runtime-web-read/target/i1-classpath.txt`, avec `java -Xmx512m`. Les clés privées/JWT ne sont jamais écrits. Le processus enfant Bruno reçoit les secrets uniquement dans son environnement. La fixture est détruite après la fin du CLI et l'arrêt du serveur.
 
 Corpus : EUI `owner/other/same/inactive/absent` sous issuer local ; owner et same partagent le même User, leurs tokens/résultats restent distincts. UUID `...0300` Pot V1/V2, 200 Expenses et soldes ±1/3 ; `...0301` interdit ; `...0302` V1 lisible puis D=2 terminal sans Balance D ; `...0303` retard de Balance ; `...0304` Pot légitime trop gros refusé sans troncature ; navigation 205 IDs `...10001` à `...10205`, premier Pot ouvrable avec ses propres droits. Résultats `...0401/402` Command succès/rejet, `...0403/404` Registration succès/rejet, `...0407` Unlink réussi. Les fixtures ne dépendent d'aucune admission précédente ou V2.
 
@@ -40,7 +40,7 @@ L5/I2 ajoute `02 Admission and Commands` (B201–B224). La fixture complète est
 Premier IdP : configuration existante `docker/keycloak/pocoma-realm.json`, trois utilisateurs locaux de qualification (`bruno`, `link-e2`, `link-e3`) sans rôle métier spécifique. Préparer le banc jetable isolé, sans lancer l'ancien runtime compose :
 
 ```sh
-docker compose -p pocoma-l5-i3 -f docker-compose.functional.yml up -d postgres keycloak
+docker compose -f docker-compose.v3-five-runtimes.yml up -d --wait postgres keycloak
 python3 -B scripts/testing/verify.py INTEGRATION L5-I3-BRUNO --output /absolute/new/evidence-directory
 ```
 
@@ -49,5 +49,5 @@ Depuis la racine du dépôt. Laisser Keycloak prêt avant le lanceur ; utiliser 
 Nettoyage du seul projet de qualification créé pour I3 :
 
 ```sh
-docker compose -p pocoma-l5-i3 -f docker-compose.functional.yml down -v
+docker compose -f docker-compose.v3-five-runtimes.yml stop
 ```
