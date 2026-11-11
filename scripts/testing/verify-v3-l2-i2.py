@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the exact declared I2 gate; retain fresh XML, physical evidence and failed runs."""
+"""Verify the current L7 reactor at the slice selected by the former I2 gate."""
 import argparse
 import hashlib
 import json
@@ -88,8 +88,10 @@ def run_gate(gate, destination):
     return 0 if result["verdict"] == "PASS" else 1
 
 if __name__ == "__main__":
+    from l7_l2_gates import run
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("gate", choices=ANCHORS)
     parser.add_argument("destination", type=Path)
     args = parser.parse_args()
-    sys.exit(run_gate(args.gate, args.destination))
+    sys.exit(run(args.gate, args.destination))

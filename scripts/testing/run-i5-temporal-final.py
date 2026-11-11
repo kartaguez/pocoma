@@ -32,10 +32,10 @@ receipt = {'freeze': frozen, 'startedUtc': time.strftime('%Y-%m-%dT%H:%M:%SZ', t
            'inputs': before, 'stages': [], 'verdict': 'INCONCLUSIVE',
            'globalArchitectureGate': 'NOT REQUIRED', 'fullReactor': 'NOT RUN',
            'unexpectedSliceCrossing': 'NONE', 'declaredSlices': ['COMMAND', 'MONOLITH']}
-base = ['./mvnw', '-pl', 'runtime-command-consumption-worker', '-am']
+base = ['./mvnw', '-pl', 'runtime-worker-process', '-am']
 stages = [
     ('W2-B32-MW4', base + ['-Dtest=V3WorkerResourcesPostgresTest#i5_r12', '-Dsurefire.failIfNoSpecifiedTests=false', 'test'], 'i5_r12'),
-    ('COMMAND-MONOLITH-gate', ['./mvnw', '-pl', 'runtime-command-consumption-worker,runtime-monolith', '-am', 'test'], None),
+    ('COMMAND-MONOLITH-gate', ['./mvnw', '-pl', 'runtime-worker-process,runtime-monolith', '-am', 'test'], None),
 ]
 for name, command, required in stages:
     folder = OUT / name
@@ -58,14 +58,11 @@ for name, command, required in stages:
             suites.append({'class': case.get('classname'), 'method': case.get('name'),
                            'seconds': case.get('time'),
                            'status': 'FAIL' if case.find('failure') is not None or case.find('error') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'})
-    for p in (APP / 'runtime-command-consumption-worker/target/v3-i5-evidence').glob('temporal-v3-*'):
+    for p in (APP / 'runtime-worker-process/target/v3-i5-evidence').glob('temporal-v3-*'):
         if p.stat().st_mtime >= start_wall:
             shutil.copy2(p, folder / p.name)
     selected = [s for s in suites if s['method'] == required] if required else suites
     accepted = result.returncode == 0 and bool(selected) and all(s['status'] == 'PASS' for s in selected)
-    # Historical exploratory skips in the unfiltered gate remain visible and are not new required skips.
-    if required is None:
-        accepted = result.returncode == 0 and bool(selected) and all(s['status'] != 'FAIL' for s in selected)
     if required:
         traces = list(folder.glob('temporal-v3-*-final*'))
         proof = '\n'.join(p.read_text() for p in traces if p.is_file())

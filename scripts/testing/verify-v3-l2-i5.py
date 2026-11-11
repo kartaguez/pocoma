@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fresh bounded I5 evidence; no inherited PASS or inferred physical resolution."""
+"""Verify the current L7 reactor at the slice selected by the former I5 gate."""
 import argparse
 import hashlib
 import importlib.util
@@ -108,6 +108,10 @@ def run(gate, destination):
 
 
 if __name__ == '__main__':
+    from l7_l2_gates import run as run_l7
+
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('gate',choices=ANCHORS);parser.add_argument('--destination',type=Path,required=True)
-    args=parser.parse_args();sys.exit(run(args.gate,args.destination.resolve()))
+    args = parser.parse_args()
+    gate = {'C': 'command', 'R': 'read', 'M': 'monolith', 'A': 'architecture', 'F': 'full'}[args.gate]
+    sys.exit(run_l7(gate, args.destination))

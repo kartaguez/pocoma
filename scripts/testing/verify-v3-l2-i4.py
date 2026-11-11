@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the exact declared I4 gate; retain fresh XML, physical evidence and failed runs."""
+"""Verify the current L7 reactor or generate the independent I4 routing inputs."""
 import argparse
 import hashlib
 import json
@@ -188,6 +188,8 @@ def run_gate(gate, destination):
     return 0 if result["verdict"] == "PASS" else 1
 
 if __name__ == "__main__":
+    from l7_l2_gates import run
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("gate", choices=(*ANCHORS, "generate-inputs"))
     parser.add_argument("destination", type=Path)
@@ -195,4 +197,4 @@ if __name__ == "__main__":
     if args.gate == "generate-inputs":
         generate_performance_inputs(args.destination)
     else:
-        sys.exit(run_gate(args.gate, args.destination))
+        sys.exit(run(args.gate, args.destination))
