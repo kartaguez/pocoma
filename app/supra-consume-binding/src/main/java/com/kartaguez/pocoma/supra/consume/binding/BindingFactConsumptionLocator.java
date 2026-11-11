@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentityBindingFact;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.materialize.currentbinding.BindingFactCursor;

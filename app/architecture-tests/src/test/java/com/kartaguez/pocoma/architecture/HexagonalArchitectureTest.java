@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.architecture;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,8 +24,8 @@ class HexagonalArchitectureTest {
 	private static final String ROOT_PACKAGE = "com.kartaguez.pocoma";
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
 	private static final String AUTHORIZATION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.authorization..";
-	private static final String USER_IDENTITY_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.useridentity";
-	private static final String AUTHENTICATION_CONTRACT_PACKAGE = ROOT_PACKAGE + ".contracts.authentication";
+	private static final String USER_IDENTITY_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.identity";
+	private static final String AUTHENTICATION_CONTRACT_PACKAGE = ROOT_PACKAGE + ".contract.authentication";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
 	private static final String POT_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.projection.pot.definition";
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
@@ -336,10 +336,10 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.service.consumption..",
 						ROOT_PACKAGE + ".engine.service.transaction.consumption..",
 						ROOT_PACKAGE + ".orchestrator.consumption..",
-						ROOT_PACKAGE + ".orchestrator.poll.consumption..")
+						ROOT_PACKAGE + ".supra.polling.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.event..", ROOT_PACKAGE + ".domain.pot..",
-						ROOT_PACKAGE + ".domain.projection..", ROOT_PACKAGE + ".domain.useridentity..",
+						ROOT_PACKAGE + ".domain.projection..", ROOT_PACKAGE + ".domain.identity..",
 						ROOT_PACKAGE + ".engine.consume.command..", ROOT_PACKAGE + ".engine.registration..",
 						ROOT_PACKAGE + ".engine.consume.projectiontask..", ROOT_PACKAGE + ".engine.read..")
 				.check(CLASSES);
@@ -497,7 +497,7 @@ class HexagonalArchitectureTest {
 				(origin, target) -> origin.equals(taskPackage + ".v3")
 						&& v3ParticipantContracts.contains(target));
 		assertEquals(Set.of(), dependenciesOutsideProjectionTask,
-				"engine-consume-projection-task may use only generic Consumption orchestration");
+				"engine-materialize-pot may use only generic Consumption orchestration");
 
 		noClasses()
 				.that().resideInAPackage(taskPackage + "..")
@@ -558,7 +558,7 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra.http.write..",
+						ROOT_PACKAGE + ".supra.web.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.identity..",
@@ -648,7 +648,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.identity..",
 						ROOT_PACKAGE + ".infra.persistence.primary.jpa.repository.identity..")
 				.check(CLASSES);
-		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
+		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.web.write..")
 				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.currentbinding..")
 				.check(CLASSES);
 	}
@@ -702,7 +702,7 @@ class HexagonalArchitectureTest {
 				"only the Spring authentication supra and runtime composition may know Spring Security");
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.web.write..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.pot..",
 						ROOT_PACKAGE + ".engine.read.commandresult..",
@@ -712,7 +712,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.web.read..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.consume.command.port.out..",
 						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
@@ -1012,14 +1012,14 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra.http.write..",
+						ROOT_PACKAGE + ".supra.web.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						ROOT_PACKAGE + ".port.binding.authority.ExternalIdentityBindingPort")
 				.check(CLASSES);
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra.http.write..",
+						ROOT_PACKAGE + ".supra.web.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort")
@@ -1045,7 +1045,7 @@ class HexagonalArchitectureTest {
 				"COMMAND_RESULT GET must read only its immutable Result store");
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.web.read..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.primary.jpa..",
 						ROOT_PACKAGE + ".infra.tx..",
@@ -1053,13 +1053,13 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.consumption..")
 				.check(CLASSES);
 		Set<String> controllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.read.CommandResultController");
+				ROOT_PACKAGE + ".supra.web.read.CommandResultController");
 		assertFalse(controllerDependencies.contains(
 				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort"));
 		assertFalse(controllerDependencies.contains(
 				ROOT_PACKAGE + ".port.transaction.TransactionRunner"));
 		Set<String> bindingControllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.read.CurrentBindingController");
+				ROOT_PACKAGE + ".supra.web.read.CurrentBindingController");
 		assertTrue(bindingControllerDependencies.contains(
 				ROOT_PACKAGE + ".engine.read.currentbinding.GetCurrentBindingUseCase"));
 		assertFalse(bindingControllerDependencies.contains(
@@ -1079,11 +1079,11 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.consume.command.dispatch..",
 						ROOT_PACKAGE + ".engine.pot..",
 						ROOT_PACKAGE + ".domain.pot..",
-						ROOT_PACKAGE + ".supra.http..")
+						ROOT_PACKAGE + ".supra.web..")
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.poll.consumption..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.polling.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.consume.command..",
 						ROOT_PACKAGE + ".supra.consume.command..",
@@ -1204,7 +1204,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void httpControllersDoNotDependOnJpa() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.web..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.primary.jpa..",
 						"jakarta.persistence..")
@@ -1367,7 +1367,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void httpAdmissionCannotMutateThePotWriteModelDirectly() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.web.write..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.write.pot.usecase..",
 						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
@@ -1376,7 +1376,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> asyncControllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.write.AsyncCommandController");
+				ROOT_PACKAGE + ".supra.web.write.AsyncCommandController");
 		assertTrue(asyncControllerDependencies.stream()
 				.anyMatch(name -> name.endsWith(".SubmitRecordedCommandUseCase")));
 	}
@@ -1404,7 +1404,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.poll.consumption..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.polling.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".locator..",
 						ROOT_PACKAGE + ".domain.task..",

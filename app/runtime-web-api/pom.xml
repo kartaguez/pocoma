@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version='1.0' encoding='UTF-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.kartaguez.pocoma</groupId>
@@ -19,14 +18,14 @@
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-composition-runtime-spring</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-command</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-oauth2-resource-server</artifactId></dependency>
-<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-authentication</artifactId><version>${project.version}</version></dependency>
-<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-registration-result</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-authentication</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-results</artifactId><version>${project.version}</version></dependency>
 
-  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-current-binding</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-identity</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-admit-registration</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-admit-identity</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-engine-admit-command</artifactId>
@@ -40,11 +39,6 @@
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-infra-persistence-primary-jpa</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-read-command-result</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -69,12 +63,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-http-write</artifactId>
+			<artifactId>pocoma-supra-web-write</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-http-read</artifactId>
+			<artifactId>pocoma-supra-web-read</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -141,7 +135,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-orchestrator-poll-consumption</artifactId>
+			<artifactId>pocoma-supra-polling-consumption</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

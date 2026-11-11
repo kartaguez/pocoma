@@ -1,0 +1,184 @@
+package com.kartaguez.pocoma.supra.polling.consumption.v3;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
+
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
+
+import java.time.Duration;
+import java.util.*;
+
+/** C first, then p, then a raw circular key walk. No SQL, future joins or ticket authority. */
+public final class V3ConsumptionLoop {
+    private final V3ConsumptionWorker worker;
+    private final int[] nextPartitions;
+    private final long[] errorUntilNanos;
+    private final Map<V3ConsumptionWorker.Pair, ConsumptionNavigation.Walk> walks = new HashMap<>();
+    private int nextConsumption;
+    private final long[] lastOpportunity;
+    private final boolean[] consumptionSaturated;
+    private Phase globalSaturation;
+
+    V3ConsumptionLoop(V3ConsumptionWorker worker) {
+        this.worker = worker;
+        nextPartitions = new int[worker.bindings.size()];
+        errorUntilNanos = new long[worker.bindings.size()];
+        lastOpportunity = new long[worker.bindings.size()];
+        consumptionSaturated = new boolean[worker.bindings.size()];
+    }
+
+    boolean hasReadyBinding() {
+        long now = System.nanoTime();
+        for (long until : errorUntilNanos) if (now - until >= 0) return true;
+        return false;
+    }
+
+    public boolean runOnePass() {
+        if (!worker.running()) return false;
+        var capacity = worker.capacity.snapshot();
+        Phase saturated =
+                capacity.worker() >= worker.capacity.workerLimit()
+                        ? Phase.SATURATION_WORKER
+                        : !worker.dispatchAvailable() ? Phase.SATURATION_EXECUTOR : null;
+        if (saturated != null) {
+            if (globalSaturation != saturated)
+                worker.event(
+                        worker.bindings.get(nextConsumption),
+                        saturated,
+                        Outcome.CAPACITY,
+                        1,
+                        Duration.ZERO);
+            globalSaturation = saturated;
+            return false;
+        }
+        globalSaturation = null;
+        if (!worker.beginOperation()) return false;
+        long began = System.nanoTime();
+        int selected = nextConsumption;
+        if (worker.bindings.size() > 1) {
+            for (int i = 0; i < worker.bindings.size(); i++) {
+                int candidate = (nextConsumption + i) % worker.bindings.size();
+                if (began - errorUntilNanos[candidate] >= 0) {
+                    selected = candidate;
+                    break;
+                }
+            }
+        }
+        var binding = worker.bindings.get(selected);
+        nextConsumption =
+                (selected + 1)
+                        % worker.bindings.size(); // Consumed once, even when a slow call fails.
+        int p = binding.partitions().get(nextPartitions[selected]);
+        nextPartitions[selected] = (nextPartitions[selected] + 1) % binding.partitions().size();
+        Outcome outcome = Outcome.UNKNOWN;
+        Throwable exit = null;
+        if (lastOpportunity[selected] != 0)
+            worker.event(
+                    binding,
+                    Phase.OPPORTUNITY_WAIT,
+                    Outcome.CONFIRMED,
+                    1,
+                    Duration.ofNanos(began - lastOpportunity[selected]));
+        lastOpportunity[selected] = began;
+        worker.event(binding, Phase.CONSUMPTION_ROTATION, Outcome.CONFIRMED, 1, Duration.ZERO);
+        try {
+            if (capacity.consumptions().getOrDefault(binding.definition().id(), 0)
+                    >= worker.limits.get(binding.definition().id())) {
+                if (!consumptionSaturated[selected])
+                    worker.event(
+                            binding,
+                            Phase.SATURATION_CONSUMPTION,
+                            Outcome.CAPACITY,
+                            1,
+                            Duration.ZERO);
+                consumptionSaturated[selected] = true;
+                outcome = Outcome.CAPACITY;
+                return false;
+            }
+            consumptionSaturated[selected] = false;
+            outcome = Outcome.CONFIRMED;
+            var pair = new V3ConsumptionWorker.Pair(binding, p);
+            synchronized (worker.pairLock(pair)) {
+                var lease = worker.lease(binding, p);
+                if (lease == null) return false;
+                var previous = walks.getOrDefault(pair, ConsumptionNavigation.Walk.fresh());
+                var page = binding.engine().navigate(lease, previous, worker.settings.pageSize());
+                // U is remembered, but reading keys never advances afterExclusive.
+                var bounded =
+                        new ConsumptionNavigation.Walk(
+                                previous.afterExclusive(), page.upperInclusive());
+                walks.put(pair, bounded);
+                if (page.keys().isEmpty()) {
+                    walks.put(pair, ConsumptionNavigation.Walk.fresh());
+                    worker.event(
+                            binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
+                    errorUntilNanos[selected] = 0;
+                    return false;
+                }
+                int offset = 0;
+                int totalExamined = 0;
+                int totalClaims = 0;
+                while (offset < page.keys().size() && worker.running()) {
+                    int end = Math.min(offset + worker.settings.quantum(), page.keys().size());
+                    var keys = page.keys().subList(offset, end);
+                    var acquired = binding.engine().acquire(lease, keys);
+                    long acquiredNanos = System.nanoTime();
+                    for (var handle : acquired.claims()) {
+                        worker.attemptHook()
+                                .onSlotAcquired(
+                                        binding.definition().id(),
+                                        handle.consumableId(),
+                                        lease.partitionId(),
+                                        acquiredNanos);
+                    }
+                    int e;
+                    try {
+                        e = acquired.examinedCount();
+                        if (e < 0 || e > keys.size())
+                            throw new IllegalStateException("invalid examined prefix");
+                        if (e > 0)
+                            walks.put(
+                                    pair,
+                                    new ConsumptionNavigation.Walk(
+                                            Optional.of(keys.get(e - 1)), page.upperInclusive()));
+                        if (e == 0) worker.suspend(binding, lease);
+                    } finally {
+                        // Every confirmed handle transfers to registration/cleanup, even on a
+                        // validation failure.
+                        worker.dispatch(binding, acquired.claims());
+                    }
+                    totalExamined += e;
+                    totalClaims += acquired.claims().size();
+                    if (totalClaims > 0 || e < keys.size()) break;
+                    offset = end;
+                }
+                errorUntilNanos[selected] = 0;
+                return totalClaims > 0
+                        || (totalExamined > 0
+                                && page.keys().size() == worker.settings.pageSize());
+            }
+        } catch (RuntimeException | Error failure) {
+            exit = failure;
+            outcome = Outcome.UNKNOWN;
+            errorUntilNanos[selected] =
+                    System.nanoTime() + worker.settings.errorPoll().toNanos();
+            throw failure;
+        } finally {
+            worker.event(
+                    binding,
+                    Phase.OPPORTUNITY,
+                    outcome,
+                    1,
+                    Duration.ofNanos(System.nanoTime() - began));
+            worker.endOperation(exit);
+        }
+    }
+
+    ConsumptionNavigation.Walk walk(V3ConsumptionWorker.Binding binding, int partition) {
+        return walks.getOrDefault(
+                new V3ConsumptionWorker.Pair(binding, partition), ConsumptionNavigation.Walk.fresh());
+    }
+
+    int nextConsumption() {
+        return nextConsumption;
+    }
+}

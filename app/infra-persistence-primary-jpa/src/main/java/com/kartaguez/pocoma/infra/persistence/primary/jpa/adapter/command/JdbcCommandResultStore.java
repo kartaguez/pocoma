@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Component;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.read.commandresult.PublishedCommandResult;
 import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;

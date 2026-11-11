@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
@@ -356,7 +356,7 @@ class IdentityPotAuthorityPostgresTest extends IdentityPostgresFixture {
                             admit(
                                     unlink(
                                             key,
-                                            new com.kartaguez.pocoma.domain.useridentity.v3
+                                            new com.kartaguez.pocoma.domain.identity.v3
                                                     .BindingToken(token),
                                             key));
                 } else work = admit(registration(key));
@@ -455,7 +455,7 @@ class IdentityPotAuthorityPostgresTest extends IdentityPostgresFixture {
                             .toList();
             var sorted =
                     new TreeSet<ExternalIdentity>(
-                            com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentity
+                            com.kartaguez.pocoma.domain.identity.v3.ExternalUserIdentity
                                     ::compareKeys);
             sorted.addAll(keys);
             assertEquals(new ArrayList<>(sorted), keys);

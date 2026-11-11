@@ -15,8 +15,8 @@
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-read-query</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
-<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-user-identity</artifactId><version>${project.version}</version></dependency>
-<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-current-binding</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-identity</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-identity</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-authorization</artifactId>

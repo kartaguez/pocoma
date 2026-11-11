@@ -16,10 +16,10 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumpt
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.ConsumptionFailurePolicy;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
-import com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort.Cursor;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.write.identity.ExecuteRegistrationService;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationDiscoveryPort;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationDiscoveryPort.Cursor;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationOutcome;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;

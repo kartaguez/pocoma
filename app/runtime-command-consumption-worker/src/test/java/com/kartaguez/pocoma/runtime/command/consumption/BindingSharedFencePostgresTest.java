@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.contracts.command.*;
 import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.domain.consumption.claim.*;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.engine.consume.command.execution.*;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.consume.command.port.out.CommandOutcomePublicationPort;

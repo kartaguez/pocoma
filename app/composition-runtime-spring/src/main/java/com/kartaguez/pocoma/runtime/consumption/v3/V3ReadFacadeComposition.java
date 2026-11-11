@@ -11,14 +11,14 @@ import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.*;
-import com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.engine.read.results.v3.*;
+import com.kartaguez.pocoma.engine.read.identity.v3.GetCurrentBindingV3;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.*;
+import com.kartaguez.pocoma.engine.read.results.v3.*;
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
 import io.micrometer.core.instrument.*;

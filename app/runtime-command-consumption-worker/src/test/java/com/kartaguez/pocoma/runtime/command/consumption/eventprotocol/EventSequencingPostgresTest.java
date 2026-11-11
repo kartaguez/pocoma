@@ -37,7 +37,7 @@ import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventEnvelope;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcUserCreatedFactAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.JpaBusinessEventOutboxEntity;

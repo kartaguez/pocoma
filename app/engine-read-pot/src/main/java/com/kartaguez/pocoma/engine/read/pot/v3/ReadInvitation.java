@@ -8,7 +8,7 @@ import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.projection.v3.*;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.port.projection.v3.*;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 

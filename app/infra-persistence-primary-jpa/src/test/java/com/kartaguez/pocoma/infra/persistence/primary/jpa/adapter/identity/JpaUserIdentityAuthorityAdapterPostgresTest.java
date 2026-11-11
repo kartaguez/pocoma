@@ -25,7 +25,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityJdbcRepository;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.UserJdbcRepository;
 

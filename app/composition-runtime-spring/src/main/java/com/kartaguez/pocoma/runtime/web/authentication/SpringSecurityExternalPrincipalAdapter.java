@@ -11,7 +11,7 @@ import java.util.Set;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import com.kartaguez.pocoma.engine.admit.command.InvalidAuthenticatedExternalPrincipalException;
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 
 /** Adapts an authenticated Spring principal for both supported deployment topologies. */
 public final class SpringSecurityExternalPrincipalAdapter {

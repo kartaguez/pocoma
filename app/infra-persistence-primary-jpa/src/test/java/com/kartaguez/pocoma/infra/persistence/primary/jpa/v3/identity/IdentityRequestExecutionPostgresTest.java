@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.domain.useridentity.*;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.engine.consume.registration.v3.*;
+import com.kartaguez.pocoma.domain.identity.*;
+import com.kartaguez.pocoma.domain.identity.v3.*;
+import com.kartaguez.pocoma.engine.write.identity.v3.*;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;

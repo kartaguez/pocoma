@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.consume.command.execution;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Forces business transaction rollback before a fresh exact-authority check. */

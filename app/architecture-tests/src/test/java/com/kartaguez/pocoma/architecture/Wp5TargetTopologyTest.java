@@ -63,15 +63,15 @@ class Wp5TargetTopologyTest {
             if (source.startsWith("supra-")) assertFalse(deps.stream().anyMatch(d -> d.startsWith("infra-")), source);
             if (source.startsWith("projector-")) assertFalse(deps.stream().anyMatch(d -> d.startsWith("engine-") || d.startsWith("infra-") || d.startsWith("runtime-")), source);
         }
-        for (String module : Set.of("engine-consumption", "orchestrator-consumption", "orchestrator-poll-consumption")) {
+        for (String module : Set.of("engine-consumption", "orchestrator-consumption", "supra-polling-consumption")) {
             assertFalse(graph.get(module).stream().anyMatch(d -> d.startsWith("supra-consume-") ||
-                    d.startsWith("engine-consume-command") || d.startsWith("engine-consume-registration") ||
-                    d.startsWith("engine-consume-projection-task")), module);
+                    d.startsWith("engine-consume-command") || d.startsWith("engine-write-identity") ||
+                    d.startsWith("engine-materialize-pot")), module);
         }
         assertFalse(graph.get("engine-read-pot").contains("infra-persistence-primary-jpa"));
         assertFalse(graph.get("engine-read-pot").contains("port-binding-authority"));
-        assertFalse(graph.get("engine-read-current-binding").contains("port-binding-authority"));
-        assertFalse(graph.get("engine-materialize-current-binding").stream()
+        assertFalse(graph.get("engine-read-identity").contains("port-binding-authority"));
+        assertFalse(graph.get("engine-materialize-identity").stream()
                 .anyMatch(d -> d.contains("projection-task")), "CURRENT_BINDING -> ProjectionTask");
         assertFalse(graph.get("engine-materialize-latest-known-version").stream()
                 .anyMatch(d -> d.contains("projection-task") || d.equals("infra-persistence-primary-jpa")),
@@ -80,14 +80,14 @@ class Wp5TargetTopologyTest {
                 "LKV supra -> ProjectionTask");
         assertFalse(graph.get("runtime-event-consumption-worker").contains("engine-consume-command"),
                 "Event processing/runtime must not depend on the Command execution capability");
-        for (String module : Set.of("engine-produce-projection-task", "engine-consume-projection-task",
+        for (String module : Set.of("engine-produce-projection-task", "engine-materialize-pot",
                 "supra-consume-projection-task", "runtime-task-consumption-worker")) {
             assertFalse(graph.get(module).stream().anyMatch(d -> d.contains("latest-known-version") || d.equals("supra-consume-lkv")),
                     module + " -> LKV");
         }
-        for (String result : Set.of("engine-read-command-result", "engine-read-registration-result")) {
+        for (String result : Set.of("engine-read-results", "engine-read-results")) {
             assertFalse(graph.get(result).stream().anyMatch(d -> d.startsWith("engine-consume-") ||
-                    d.equals("engine-read-current-binding") || d.contains("projection-task")), result);
+                    d.equals("engine-read-identity") || d.contains("projection-task")), result);
         }
         Set<String> visited = new HashSet<>();
         for (String module : graph.keySet()) assertFalse(cycle(module, graph, visited, new HashSet<>()), module);

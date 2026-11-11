@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.port.binding.authority.*;
 import com.kartaguez.pocoma.port.transaction.*;
 

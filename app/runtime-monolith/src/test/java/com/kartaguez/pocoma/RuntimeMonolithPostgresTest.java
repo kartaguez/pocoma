@@ -24,7 +24,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.runtime.binding.BindingConsumptionProperties;
 import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionProperties;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionProperties;
@@ -131,7 +131,7 @@ class RuntimeMonolithPostgresTest {
             assertSame(context.getBean(jakarta.persistence.EntityManagerFactory.class),manager.getEntityManagerFactory());
             assertSame(sql.getDataSource(),manager.getDataSource());
             var protocol=context.getBean(com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol.class);
-            var identity=new com.kartaguez.pocoma.domain.useridentity.ExternalIdentity("monolith4d",java.util.UUID.randomUUID().toString());
+            var identity=new com.kartaguez.pocoma.domain.identity.ExternalIdentity("monolith4d",java.util.UUID.randomUUID().toString());
             var requestId=java.util.UUID.randomUUID();
             protocol.runner().runInTransaction(()->{context.getBean(com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationRequestStore.class)
                     .insert(new com.kartaguez.pocoma.contracts.registration.RegistrationRequest(requestId,identity,"{}",Instant.now()));return null;});
@@ -149,7 +149,7 @@ class RuntimeMonolithPostgresTest {
             var command=new com.kartaguez.pocoma.contracts.command.RecordedCommand(new com.kartaguez.pocoma.contracts.command.CommandId(java.util.UUID.randomUUID()),
                     new com.kartaguez.pocoma.contracts.command.CommandType("POT_CREATE_V1"),
                     "{\"label\":\"monolith4d\",\"creatorId\":\""+user+"\"}",Instant.now(),
-                    new com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope(identity,new com.kartaguez.pocoma.domain.useridentity.BindingId(binding),
+                    new com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope(identity,new com.kartaguez.pocoma.domain.identity.BindingId(binding),
                             new com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence(Set.of("pocoma:pot:create"),Instant.now().plusSeconds(60))));
             protocol.runner().runInTransaction(()->context.getBean(com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort.class).insert(command));
             context.getBean("commandConsumptionOrchestrator",com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator.class).run(input);

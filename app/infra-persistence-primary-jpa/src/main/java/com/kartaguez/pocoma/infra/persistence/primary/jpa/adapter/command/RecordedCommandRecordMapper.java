@@ -13,8 +13,8 @@ import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.contracts.command.CommandType;
 import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.command.RecordedCommandRow;
 

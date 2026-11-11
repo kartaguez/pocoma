@@ -32,11 +32,11 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.contracts.command.CommandId;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
 import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingId;
 import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandTypes;
@@ -45,9 +45,9 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.Jp
 import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeys;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=false",

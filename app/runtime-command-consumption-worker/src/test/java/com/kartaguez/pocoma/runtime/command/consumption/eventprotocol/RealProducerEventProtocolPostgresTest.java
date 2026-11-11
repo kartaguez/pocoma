@@ -25,7 +25,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.contracts.command.*;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.domain.pot.event.*;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.consumption.claim.*;
@@ -34,7 +34,7 @@ import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptio
 import com.kartaguez.pocoma.engine.consume.command.pot.publication.AppendBusinessEventService;
 import com.kartaguez.pocoma.engine.consume.command.model.*;
 import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
-import com.kartaguez.pocoma.engine.consume.registration.*;
+import com.kartaguez.pocoma.engine.write.identity.*;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.*;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.*;

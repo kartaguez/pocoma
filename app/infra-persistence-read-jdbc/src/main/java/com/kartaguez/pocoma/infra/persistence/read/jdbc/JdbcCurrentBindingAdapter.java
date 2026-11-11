@@ -9,16 +9,16 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingApplyResult;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingInvariantException;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.BindingRevision;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingApplyResult;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingInvariantException;
 import com.kartaguez.pocoma.engine.materialize.currentbinding.port.CurrentBindingWritePort;
 import com.kartaguez.pocoma.engine.read.currentbinding.port.CurrentBindingReadPort;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingStatus;
 
 public class JdbcCurrentBindingAdapter implements CurrentBindingWritePort, CurrentBindingReadPort {
 	private final JdbcOperations jdbc;

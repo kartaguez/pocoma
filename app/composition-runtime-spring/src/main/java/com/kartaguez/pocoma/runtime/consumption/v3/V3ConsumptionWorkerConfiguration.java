@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.JdbcIdentityPotActorAuthority;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.runtime.command.v3.V3PotCommandComposition;
 import com.kartaguez.pocoma.runtime.consumption.v3.dev.*;
 import com.zaxxer.hikari.*;
@@ -51,11 +51,11 @@ public class V3ConsumptionWorkerConfiguration {
                 "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration$Resources",
                 "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration$Preflight",
                 "com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3",
-                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3",
-                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal",
-                "com.kartaguez.pocoma.supra.http.write.v3.V3LinkProposalController",
-                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionController",
-                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransport");
+                "com.kartaguez.pocoma.engine.admit.identity.v3.AdmitIdentityRequestV3",
+                "com.kartaguez.pocoma.engine.admit.identity.v3.AdmitLinkProposal",
+                "com.kartaguez.pocoma.supra.web.write.v3.V3LinkProposalController",
+                "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionController",
+                "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionTransport");
     }
 
     private record Preflight(Environment env) implements BeanFactoryPostProcessor {
@@ -106,14 +106,14 @@ public class V3ConsumptionWorkerConfiguration {
                                 com.kartaguez.pocoma.contract.readquery.PotRead.Queries.class
                                         .getName(),
                                 V3ReadHttpConfiguration.HttpPreflight.class.getName(),
-                                com.kartaguez.pocoma.supra.http.read.v3.V3ReadController.class
+                                com.kartaguez.pocoma.supra.web.read.v3.V3ReadController.class
                                         .getName(),
-                                com.kartaguez.pocoma.supra.http.read.v3.V3InvitationController.class
+                                com.kartaguez.pocoma.supra.web.read.v3.V3InvitationController.class
                                         .getName(),
                                 com.kartaguez.pocoma.contract.readquery.InvitationRead.Queries.class
                                         .getName(),
                                 V3ReadHttpConfiguration.InvitationQueries.class.getName(),
-                                com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport.class
+                                com.kartaguez.pocoma.supra.web.read.v3.V3ReadTransport.class
                                         .getName(),
                                 com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority.class
                                         .getName(),
@@ -160,7 +160,7 @@ public class V3ConsumptionWorkerConfiguration {
                         V3TechnicalReadParticipant.class.isAssignableFrom(type)
                                 || V3FixturePotActorAuthority.class.isAssignableFrom(type)
                                 || value.startsWith(
-                                        "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.")
+                                        "com.kartaguez.pocoma.supra.polling.consumption.v3.")
                                 || type == Lifecycle.class
                                 || type == Resources.class;
                 if (!active && fixture)
@@ -782,11 +782,11 @@ public class V3ConsumptionWorkerConfiguration {
                                                                             .InvitationQueries)
                                                     || bean
                                                             instanceof
-                                                            com.kartaguez.pocoma.supra.http.read.v3
+                                                            com.kartaguez.pocoma.supra.web.read.v3
                                                                     .V3InvitationController
                                                     || bean
                                                             instanceof
-                                                            com.kartaguez.pocoma.supra.http.read.v3
+                                                            com.kartaguez.pocoma.supra.web.read.v3
                                                                     .V3ReadController
                                                     || bean
                                                             instanceof
@@ -794,7 +794,7 @@ public class V3ConsumptionWorkerConfiguration {
                                                                     .V3StageHandoffController
                                                     || bean
                                                             instanceof
-                                                            com.kartaguez.pocoma.supra.http.read.v3
+                                                            com.kartaguez.pocoma.supra.web.read.v3
                                                                     .V3ReadTransport
                                                     || (name.equals("v3HttpBinding")
                                                             && bean

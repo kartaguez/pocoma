@@ -43,7 +43,7 @@ import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoCo
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionProperties;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.PocomaProjectionMaterializationPolicy;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
 
 @Testcontainers
 class HistoricalEventRouteEvolutionPostgresTest {

@@ -1,5 +1,5 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.supra.http.write.CommandRequestSizeFilter;
+import com.kartaguez.pocoma.supra.web.write.CommandRequestSizeFilter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

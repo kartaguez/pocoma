@@ -4,7 +4,7 @@ import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
 import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;

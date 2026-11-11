@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.port.binding.authority;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentityBindingFact;
 
 /** Append-only persistence boundary for binding lifecycle facts. */
 public interface ExternalIdentityBindingFactPort {

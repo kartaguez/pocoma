@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.engine.admit.command.model;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.identity.BindingId;
 import com.kartaguez.pocoma.contracts.command.CommandType;
 
 public record SubmitRecordedCommandInput(

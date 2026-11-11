@@ -73,7 +73,9 @@ public final class CommandAdmissionInput {
                     var expiresAt = java.time.Instant.parse(text(p, "expiresAt"));
                     require(text(p, "expiresAt").endsWith("Z"));
                     require(expiresAt.getNano() % 1000 == 0);
-                    require(java.sql.Timestamp.from(expiresAt).toInstant().equals(expiresAt));
+                    // Preserve the former Timestamp round-trip range without an SQL type in the contract.
+                    require(expiresAt.getEpochSecond() >= Long.MIN_VALUE / 1000L
+                            && expiresAt.getEpochSecond() <= Long.MAX_VALUE / 1000L);
                     p.put("expiresAt", expiresAt.toString());
                     intent = new CreateInvitation(expiresAt);
                 }

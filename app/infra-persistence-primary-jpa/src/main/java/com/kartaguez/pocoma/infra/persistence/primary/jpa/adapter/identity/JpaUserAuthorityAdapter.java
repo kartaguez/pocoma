@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.domain.useridentity.User;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.User;
 import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.UserJdbcRepository;
 

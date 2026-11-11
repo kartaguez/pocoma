@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.engine.consume.registration.v3.*;
+import com.kartaguez.pocoma.domain.identity.v3.*;
+import com.kartaguez.pocoma.engine.write.identity.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
 
 import org.junit.jupiter.api.*;
@@ -294,11 +294,11 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
         // Contradictory unit through the real participant: a swallowed writer failure still
         // poisons.
         var bad =
-                (com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestStore)
+                (com.kartaguez.pocoma.engine.write.identity.v3.IdentityRequestStore)
                         java.lang.reflect.Proxy.newProxyInstance(
                                 getClass().getClassLoader(),
                                 new Class[] {
-                                    com.kartaguez.pocoma.engine.consume.registration.v3
+                                    com.kartaguez.pocoma.engine.write.identity.v3
                                             .IdentityRequestStore.class
                                 },
                                 (p, m, args) -> {

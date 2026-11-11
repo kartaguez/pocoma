@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.pot.intent.CreatePotCommand;

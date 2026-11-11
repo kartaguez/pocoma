@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.port.transaction.v3.*;

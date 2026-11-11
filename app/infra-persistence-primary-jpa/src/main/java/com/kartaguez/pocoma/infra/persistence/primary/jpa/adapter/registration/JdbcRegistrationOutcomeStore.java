@@ -8,10 +8,10 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcomeRepository;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationOutcomeRepository;
 
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.PrimaryWriteParticipation;
 

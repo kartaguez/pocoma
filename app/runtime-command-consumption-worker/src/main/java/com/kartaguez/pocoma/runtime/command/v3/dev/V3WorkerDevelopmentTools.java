@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.runtime.command.v3.dev;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;

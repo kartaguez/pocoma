@@ -4,7 +4,7 @@ import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.V3ReadHttpFixture.*;
 import com.fasterxml.jackson.databind.*;
-import com.kartaguez.pocoma.supra.http.read.v3.*;
+import com.kartaguez.pocoma.supra.web.read.v3.*;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.jwk.gen.*;

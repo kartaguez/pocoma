@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.runtime.consumption.v3;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition.Authority;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;

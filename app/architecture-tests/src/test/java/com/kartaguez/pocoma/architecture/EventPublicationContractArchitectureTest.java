@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.consume.command.port.out.*;
-import com.kartaguez.pocoma.engine.consume.registration.UserCreatedFactPort;
+import com.kartaguez.pocoma.engine.write.identity.UserCreatedFactPort;
 import com.kartaguez.pocoma.engine.write.pot.port.event.BusinessEventAppendPort;
 import com.kartaguez.pocoma.port.binding.authority.*;
 import com.kartaguez.pocoma.port.transaction.*;
@@ -317,7 +317,7 @@ class EventPublicationContractArchitectureTest {
         String name = type.getName();
         return WRITERS.contains(name)
                 || name.startsWith(ROOT + "engine.consume.command.")
-                || name.startsWith(ROOT + "engine.consume.registration.")
+                || name.startsWith(ROOT + "engine.write.identity.")
                 || name.startsWith(INFRA + "repository.identity.")
                 || name.equals(INFRA + "adapter.registration.JdbcRegistrationOutcomeStore");
     }

@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.port.binding.authority;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingDetachResult;
+import com.kartaguez.pocoma.domain.identity.BindingDetachResult;
 import com.kartaguez.pocoma.port.transaction.EventFamily;
 import com.kartaguez.pocoma.port.transaction.EventRef;
 

@@ -4,7 +4,7 @@
 <artifactId>pocoma-contract-write-admission</artifactId>
 <dependencies>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot</artifactId><version>${project.version}</version></dependency>
-<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-user-identity</artifactId><version>${project.version}</version></dependency>
-<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-authentication</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-identity</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-authentication</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
 </dependencies></project>

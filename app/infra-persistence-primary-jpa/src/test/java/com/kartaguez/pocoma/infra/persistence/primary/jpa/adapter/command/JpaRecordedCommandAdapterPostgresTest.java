@@ -44,9 +44,9 @@ import com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionC
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.contracts.command.CommandType;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;

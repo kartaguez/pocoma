@@ -7,15 +7,15 @@ import com.kartaguez.pocoma.contract.readquery.PotRead;
 import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
 import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.projection.v3.PotBalance;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult;
-import com.kartaguez.pocoma.engine.read.currentbinding.v3.GetCurrentBindingV3;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.engine.read.results.v3.GetCommandTerminalResult;
+import com.kartaguez.pocoma.engine.read.identity.v3.GetCurrentBindingV3;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult;
+import com.kartaguez.pocoma.engine.read.results.v3.GetIdentityTerminalResult;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.http.read.v3.*;
+import com.kartaguez.pocoma.supra.web.read.v3.*;
 import com.zaxxer.hikari.*;
 import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
 
@@ -92,7 +92,7 @@ public class V3ReadHttpConfiguration {
                     if (type == null) continue;
                     String val = type.getName();
                     if (name.equals("v3AdmissionPool")
-                            || val.startsWith("com.kartaguez.pocoma.supra.http.write.v3.")
+                            || val.startsWith("com.kartaguez.pocoma.supra.web.write.v3.")
                             || val.startsWith("com.kartaguez.pocoma.engine.admit.")) {
                         throw new IllegalStateException(
                                 "Admission component forbidden on HTTP READ runtime: " + val);
@@ -107,14 +107,14 @@ public class V3ReadHttpConfiguration {
                         Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission")
                                 && Set.of(
                                                 "com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3",
-                                                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3",
-                                                "com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal",
-                                                "com.kartaguez.pocoma.supra.http.write.v3.V3LinkProposalController",
-                                                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionController",
-                                                "com.kartaguez.pocoma.supra.http.write.v3.V3AdmissionTransport")
+                                                "com.kartaguez.pocoma.engine.admit.identity.v3.AdmitIdentityRequestV3",
+                                                "com.kartaguez.pocoma.engine.admit.identity.v3.AdmitLinkProposal",
+                                                "com.kartaguez.pocoma.supra.web.write.v3.V3LinkProposalController",
+                                                "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionController",
+                                                "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionTransport")
                                         .contains(value);
                 if (!admission
-                        && ((value.startsWith("com.kartaguez.pocoma.supra.http.")
+                        && ((value.startsWith("com.kartaguez.pocoma.supra.web.")
                                         && !value.contains(".read.v3."))
                                 || value.startsWith("com.kartaguez.pocoma.engine.admit.")
                                 || value.equals(

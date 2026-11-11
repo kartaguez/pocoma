@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.kartaguez.pocoma.engine.admit.registration.AdmitRegistrationService;
-import com.kartaguez.pocoma.engine.admit.registration.RegistrationRequestRecorder;
+import com.kartaguez.pocoma.engine.admit.identity.AdmitRegistrationService;
+import com.kartaguez.pocoma.engine.admit.identity.RegistrationRequestRecorder;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 
 @ConditionalOnProperty(prefix = "pocoma.registration-admission", name = "enabled", havingValue = "true", matchIfMissing = true)

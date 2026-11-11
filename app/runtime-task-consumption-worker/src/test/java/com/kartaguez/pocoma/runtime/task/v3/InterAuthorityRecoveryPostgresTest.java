@@ -295,7 +295,7 @@ class InterAuthorityRecoveryPostgresTest {
         try (var f = new InterAuthorityPostgresFixture(PG, "R04-families")) {
             var p = f.publish();
             var key =
-                    new com.kartaguez.pocoma.domain.useridentity.ExternalIdentity(
+                    new com.kartaguez.pocoma.domain.identity.ExternalIdentity(
                             "i2", "registration");
             var id = UUID.randomUUID();
             var request =
@@ -343,14 +343,14 @@ class InterAuthorityRecoveryPostgresTest {
                         + " consumption_hash_v1('IDENTITY_REQUEST',?) h)x",
                     definition.id().value(), id, id);
             var participant =
-                    new com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequest(
+                    new com.kartaguez.pocoma.engine.write.identity.v3.ExecuteIdentityRequest(
                             store,
                             new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity
                                     .JdbcIdentityRequestObservation(f.primary),
                             new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity
                                     .JdbcIdentityAuthority(f.primary, f.sourceOwner),
                             () ->
-                                    new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                                    new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                             "I2-generated-fixture-token"),
                             UUID::randomUUID);
             var e =
@@ -796,7 +796,7 @@ class InterAuthorityRecoveryPostgresTest {
                             f.references,
                             r -> true);
             var settings =
-                    new com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker
+                    new com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker
                             .Settings(
                             32,
                             1,
@@ -810,9 +810,9 @@ class InterAuthorityRecoveryPostgresTest {
             int partition =
                     RoutingV1.partition(RoutingV1.hash(ConsumableFamily.POT_EVENT, p.event()), 4);
             var worker =
-                    new com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker(
+                    new com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker(
                             List.of(
-                                    new com.kartaguez.pocoma.orchestrator.poll.consumption.v3
+                                    new com.kartaguez.pocoma.supra.polling.consumption.v3
                                             .V3ConsumptionWorker.Binding(
                                             f.read.definition, com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionProtocols.forDefinition(f.read.definition, e, discovery), List.of(partition))),
                             cap,

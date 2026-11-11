@@ -5,7 +5,7 @@ import static com.kartaguez.pocoma.V3ReadHttpFixture.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
-import com.kartaguez.pocoma.supra.http.write.v3.*;
+import com.kartaguez.pocoma.supra.web.write.v3.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.*;

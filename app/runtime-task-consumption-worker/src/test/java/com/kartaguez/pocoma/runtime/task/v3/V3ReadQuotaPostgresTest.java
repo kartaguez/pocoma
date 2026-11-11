@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.runtime.task.v3;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.runtime.task.v3.V3QuotaHttpFixture.*;
 import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
-import com.kartaguez.pocoma.supra.http.read.v3.*;
+import com.kartaguez.pocoma.supra.web.read.v3.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import jakarta.servlet.http.*;
 import org.junit.jupiter.api.*;

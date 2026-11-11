@@ -18,7 +18,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;

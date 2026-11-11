@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
 
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 
 import java.security.SecureRandom;
 import java.util.Base64;

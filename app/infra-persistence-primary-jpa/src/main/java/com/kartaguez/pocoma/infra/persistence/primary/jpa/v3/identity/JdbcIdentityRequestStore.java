@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestStore;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.*;
+import com.kartaguez.pocoma.engine.write.identity.v3.IdentityRequestStore;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
 import org.springframework.dao.DataAccessException;

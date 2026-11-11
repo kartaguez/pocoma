@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.architecture;
 
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,7 +61,7 @@ class Wa67BindingArchitectureTest {
 			}
 		}
 		String resultRead = Files.readString(appRoot().resolve(
-				"engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/GetCommandResultService.java"));
+				"engine-read-results/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/GetCommandResultService.java"));
 		assertTrue(!resultRead.contains("CurrentBinding"));
 		String command = Files.readString(appRoot().resolve(
 				"contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/RecordedCommand.java"));

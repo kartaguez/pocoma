@@ -9,11 +9,11 @@ import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.GetCommandTerminalResult;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.GetIdentityTerminalResult;
+import com.kartaguez.pocoma.engine.read.results.v3.GetCommandTerminalResult;
+import com.kartaguez.pocoma.engine.read.results.v3.GetIdentityTerminalResult;
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.*;
@@ -299,7 +299,7 @@ class ReadParticipantsIntegrationPostgresTest {
             assertEquals(0,f.f.read.oracle.queryForObject("select count(*) from read_current_pot",Integer.class));
             assertEquals(0,f.f.read.oracle.queryForObject("select count(*) from read_current_binding",Integer.class));
             var cg=new GetCommandTerminalResult(new JdbcCommandTerminalResultStore(f.f.read.source,f.f.read.tx));
-            var owner=new com.kartaguez.pocoma.domain.useridentity.ExternalIdentity("i2","actor");
+            var owner=new com.kartaguez.pocoma.domain.identity.ExternalIdentity("i2","actor");
             assertEquals(1L,f.f.read.tx.<Long>read(c -> cg.get(f.pot.request(),owner).orElseThrow().resultingPotVersion()));
             var ig=new GetIdentityTerminalResult(new JdbcIdentityTerminalResultStore(f.f.read.source,f.f.read.tx));
             assertEquals(1L,f.f.read.tx.<Long>read(c -> ig.get(f.identityRequest,f.eui).orElseThrow().targetVersion()));

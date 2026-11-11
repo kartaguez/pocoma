@@ -25,7 +25,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.*;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecution;
 import com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandTypes;

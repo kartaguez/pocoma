@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.admit.command.model.CommandAuthorizationTtl;
 

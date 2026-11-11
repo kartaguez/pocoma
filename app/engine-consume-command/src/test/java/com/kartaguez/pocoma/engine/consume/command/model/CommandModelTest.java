@@ -29,9 +29,9 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandUseCaseResult;
 
 class CommandModelTest {

@@ -1,8 +1,8 @@
 package com.kartaguez.pocoma.runtime.binding;
 
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding;
 import com.kartaguez.pocoma.engine.read.currentbinding.port.CurrentBindingReadPort;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,12 +31,12 @@ import com.kartaguez.pocoma.PocomaBindingConsumptionWorkerApplication;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.*;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.*;
+import com.kartaguez.pocoma.domain.identity.currentbinding.*;
 import com.kartaguez.pocoma.engine.materialize.currentbinding.*;
 import com.kartaguez.pocoma.supra.consume.binding.BindingFactConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;

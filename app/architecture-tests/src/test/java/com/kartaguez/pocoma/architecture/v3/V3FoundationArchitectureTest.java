@@ -132,7 +132,7 @@ class V3FoundationArchitectureTest {
     void productionImportsAreNonemptyAndExcludeFixtures() {
         for (String family :
                 new String[] {
-                    "domain.pot", "domain.useridentity", "domain.consumption", "engine", "port"
+                    "domain.pot", "domain.identity", "domain.consumption", "engine", "port"
                 }) {
             assertTrue(
                     PRODUCTION.stream()

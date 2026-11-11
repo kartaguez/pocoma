@@ -23,11 +23,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import com.kartaguez.pocoma.domain.useridentity.*;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.domain.identity.*;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationOutcome;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService;
-import com.kartaguez.pocoma.engine.consume.registration.UserCreatedFactPort;
+import com.kartaguez.pocoma.engine.write.identity.ExecuteRegistrationService;
+import com.kartaguez.pocoma.engine.write.identity.UserCreatedFactPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationRequestStore;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationOutcomeStore;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.*;

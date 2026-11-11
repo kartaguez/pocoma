@@ -43,9 +43,9 @@ import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMateri
 import com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunner;
 

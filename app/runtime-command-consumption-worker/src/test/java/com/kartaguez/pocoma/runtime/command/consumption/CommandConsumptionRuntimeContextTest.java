@@ -19,7 +19,7 @@ import com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedComm
 import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=false",

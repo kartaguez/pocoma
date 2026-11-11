@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentityBindingFact;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingFactPort;
 import com.kartaguez.pocoma.engine.materialize.currentbinding.BindingFactReadPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;

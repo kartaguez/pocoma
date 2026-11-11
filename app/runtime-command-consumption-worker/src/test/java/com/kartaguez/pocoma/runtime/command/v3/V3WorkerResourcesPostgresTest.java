@@ -2062,14 +2062,14 @@ class V3WorkerResourcesPostgresTest {
             // Step 3, 4, 5: Renewal attempts to renew exactly this partition under SKIP LOCKED
             var pairClass =
                     Class.forName(
-                            "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker$Pair");
+                            "com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker$Pair");
             var pairConstructor = pairClass.getDeclaredConstructors()[0];
             pairConstructor.setAccessible(true);
             var pair = pairConstructor.newInstance(b, 0);
 
             var entryClass =
                     Class.forName(
-                            "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker$LeaseEntry");
+                            "com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker$LeaseEntry");
             var entryConstructor = entryClass.getDeclaredConstructors()[0];
             entryConstructor.setAccessible(true);
             var entry = entryConstructor.newInstance(pair, lease);
@@ -2077,7 +2077,7 @@ class V3WorkerResourcesPostgresTest {
             var renewalCalls = (Collection<Object>) field(runtime.worker, "renewalCalls");
             var callClass =
                     Class.forName(
-                            "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3RenewalService$Call");
+                            "com.kartaguez.pocoma.supra.polling.consumption.v3.V3RenewalService$Call");
             var callConstructor = callClass.getDeclaredConstructors()[0];
             callConstructor.setAccessible(true);
             var call =
@@ -2203,7 +2203,7 @@ class V3WorkerResourcesPostgresTest {
             Class<Enum> stateClass =
                     (Class<Enum>)
                             Class.forName(
-                                    "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker$State");
+                                    "com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker$State");
             replace(runtime.worker, "state", Enum.valueOf(stateClass, "STOPPED"));
         }
     }
@@ -2734,7 +2734,7 @@ class V3WorkerResourcesPostgresTest {
 
     static int sqlPartition(
             Fixture f,
-            com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker.Binding
+            com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker.Binding
                     binding,
             UUID id) {
         return f.read.queryForObject(

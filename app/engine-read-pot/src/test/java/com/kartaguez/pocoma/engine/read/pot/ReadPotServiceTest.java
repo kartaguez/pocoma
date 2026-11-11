@@ -122,9 +122,9 @@ class ReadPotServiceTest {
 
 	@Test
 	void externalIdentityUsesConvergentBindingWithAuthAtVersion() {
-		var identity = new com.kartaguez.pocoma.domain.useridentity.ExternalIdentity("issuer", "subject");
+		var identity = new com.kartaguez.pocoma.domain.identity.ExternalIdentity("issuer", "subject");
 		UUID secondUser = UUID.randomUUID();
-		var projected = new java.util.concurrent.atomic.AtomicReference<com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding>();
+		var projected = new java.util.concurrent.atomic.AtomicReference<com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding>();
 		var bindingRead = new com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingService(ignored -> java.util.Optional.ofNullable(projected.get()));
 		ExactProjectionReadUseCase projections = (key, definition) -> key.projectionType().equals(AuthProjectionDefinition.PROJECTION_TYPE)
 				? readyAuth(USER_UUID, Map.of(SHAREHOLDER_A_UUID, secondUser))
@@ -137,22 +137,22 @@ class ReadPotServiceTest {
 		assertInstanceOf(ReadPotResult.Ready.class, service.read(identity, authorities, POT_ID, VERSION));
 		// A PRIMARY detach has committed, but the Binding worker has not projected it yet.
 		assertInstanceOf(ReadPotResult.Ready.class, service.read(identity, authorities, POT_ID, VERSION));
-		projected.set(new com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding(identity,
-				new com.kartaguez.pocoma.domain.useridentity.BindingRevision(2),
-				com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus.DETACHED,
+		projected.set(new com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding(identity,
+				new com.kartaguez.pocoma.domain.identity.BindingRevision(2),
+				com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingStatus.DETACHED,
 				null, null, UUID.randomUUID(), java.time.Instant.now()));
 		assertInstanceOf(ReadPotResult.Forbidden.class, service.read(identity, authorities, POT_ID, VERSION));
 		projected.set(binding(identity, secondUser, 3));
 		assertInstanceOf(ReadPotResult.Ready.class, service.read(identity, authorities, POT_ID, VERSION));
 	}
 
-	private static com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding binding(
-			com.kartaguez.pocoma.domain.useridentity.ExternalIdentity identity, UUID user, long revision) {
-		return new com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding(identity,
-				new com.kartaguez.pocoma.domain.useridentity.BindingRevision(revision),
-				com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus.ATTACHED,
-				new com.kartaguez.pocoma.domain.useridentity.PocomaUserId(user),
-				new com.kartaguez.pocoma.domain.useridentity.BindingId(UUID.randomUUID()), UUID.randomUUID(), java.time.Instant.now());
+	private static com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding binding(
+			com.kartaguez.pocoma.domain.identity.ExternalIdentity identity, UUID user, long revision) {
+		return new com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding(identity,
+				new com.kartaguez.pocoma.domain.identity.BindingRevision(revision),
+				com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingStatus.ATTACHED,
+				new com.kartaguez.pocoma.domain.identity.PocomaUserId(user),
+				new com.kartaguez.pocoma.domain.identity.BindingId(UUID.randomUUID()), UUID.randomUUID(), java.time.Instant.now());
 	}
 
 	private static ProjectionReadResult.Ready readyAuth(UUID creator, Map<UUID, UUID> members) {

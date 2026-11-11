@@ -45,10 +45,10 @@ import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTech
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerObservation;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorkerObservation;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;

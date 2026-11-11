@@ -2,11 +2,11 @@ package com.kartaguez.pocoma.contract.writeadmission;
 
 import java.time.Instant;
 import java.util.UUID;
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 
 public interface IssueLinkProposal {
-    public record Summary(UUID linkRequestId, com.kartaguez.pocoma.domain.useridentity.ExternalIdentity initiator,
-            com.kartaguez.pocoma.domain.useridentity.ExternalIdentity target, String action,
+    public record Summary(UUID linkRequestId, com.kartaguez.pocoma.domain.identity.ExternalIdentity initiator,
+            com.kartaguez.pocoma.domain.identity.ExternalIdentity target, String action,
             Instant createdAt, Instant expiresAt, String state, UUID requestId,
             Long potCount, Instant potCountAsOf) {}
     public record Created(UUID linkRequestId, Instant expiresAt) {}

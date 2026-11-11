@@ -4,13 +4,13 @@
   <artifactId>pocoma-runtime-binding-consumption-worker</artifactId>
   <dependencies>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-composition-runtime-spring</artifactId><version>${project.version}</version></dependency>
-  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-materialize-current-binding</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-materialize-identity</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-binding</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>
 
 
-    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-poll-consumption</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-polling-consumption</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-primary-jpa</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jdbc</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>

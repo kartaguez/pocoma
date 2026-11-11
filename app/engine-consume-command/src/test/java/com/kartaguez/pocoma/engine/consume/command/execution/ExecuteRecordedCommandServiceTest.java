@@ -23,10 +23,10 @@ import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
-import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
-import com.kartaguez.pocoma.domain.useridentity.BindingDetachResult;
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingAcquireResult;
+import com.kartaguez.pocoma.domain.identity.BindingDetachResult;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistry;
@@ -45,7 +45,7 @@ import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionAuthori
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.contracts.command.CommandType;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
@@ -63,8 +63,8 @@ class ExecuteRecordedCommandServiceTest {
 			new ExternalIdentity("https://issuer.example", "subject-1");
 	private static final BindingId BINDING_ID = new BindingId(UUID.randomUUID());
 	private static final PocomaUserId RESOLVED_USER = new PocomaUserId(UUID.randomUUID());
-	private static final com.kartaguez.pocoma.domain.useridentity.BindingRevision REVISION =
-			new com.kartaguez.pocoma.domain.useridentity.BindingRevision(7);
+	private static final com.kartaguez.pocoma.domain.identity.BindingRevision REVISION =
+			new com.kartaguez.pocoma.domain.identity.BindingRevision(7);
 
 	@Test
 	void missingRecordedCommandIsATechnicalFailure() {
@@ -445,16 +445,16 @@ class ExecuteRecordedCommandServiceTest {
 			throw new AssertionError("Initial TARGET_V2 observation must include revision");
 		}
 
-		@Override public Optional<com.kartaguez.pocoma.domain.useridentity.ObservedBinding> observeCurrentBinding(
+		@Override public Optional<com.kartaguez.pocoma.domain.identity.ObservedBinding> observeCurrentBinding(
 				ExternalIdentity identity, BindingId bindingId) {
 			observeCalls.incrementAndGet();
 			lockedIdentity.set(identity);
 			lockedBinding.set(bindingId);
-			return lockedUser.map(user -> new com.kartaguez.pocoma.domain.useridentity.ObservedBinding(user, REVISION));
+			return lockedUser.map(user -> new com.kartaguez.pocoma.domain.identity.ObservedBinding(user, REVISION));
 		}
 
 		@Override public boolean fenceObservedBinding(ExternalIdentity identity, PocomaUserId userId,
-				BindingId bindingId, com.kartaguez.pocoma.domain.useridentity.BindingRevision revision) {
+				BindingId bindingId, com.kartaguez.pocoma.domain.identity.BindingRevision revision) {
 			fenceCalls.incrementAndGet();
 			assertEquals(REVISION, revision);
 			assertEquals(lockedUser.orElseThrow(), userId);

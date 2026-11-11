@@ -147,7 +147,7 @@ class V3IdentityAuthorityArchitectureTest {
     void l3_identity_participant_and_factory_keep_l2_ownership() {
         noClasses()
                 .that()
-                .haveNameMatching(".*engine.consume.registration.v3.ExecuteIdentityRequest.*")
+                .haveNameMatching(".*engine.write.identity.v3.ExecuteIdentityRequest.*")
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage(
@@ -160,7 +160,7 @@ class V3IdentityAuthorityArchitectureTest {
                 .check(CLASSES);
         noClasses()
                 .that()
-                .haveNameMatching(".*engine.consume.registration.v3.ExecuteIdentityRequest.*")
+                .haveNameMatching(".*engine.write.identity.v3.ExecuteIdentityRequest.*")
                 .should()
                 .dependOnClassesThat()
                 .haveFullyQualifiedName(ROOT + ".port.transaction.v3.AttemptTransactions")

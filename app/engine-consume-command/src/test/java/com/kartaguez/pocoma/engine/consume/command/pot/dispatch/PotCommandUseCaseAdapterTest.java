@@ -45,7 +45,7 @@ import com.kartaguez.pocoma.engine.consume.command.execution.CommandExecutionInv
 import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthorization;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 import com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContext;
 import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;

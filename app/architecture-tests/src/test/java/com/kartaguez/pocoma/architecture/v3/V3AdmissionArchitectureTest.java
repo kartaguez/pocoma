@@ -27,7 +27,7 @@ class V3AdmissionArchitectureTest {
                 .that()
                 .resideInAnyPackage(
                         ROOT + ".engine.admit.command.v3..",
-                        ROOT + ".engine.admit.registration.v3..")
+                        ROOT + ".engine.admit.identity.v3..")
                 .should()
                 .dependOnClassesThat(
                         new DescribedPredicate<JavaClass>("forbidden infrastructure or frameworks") {
@@ -121,7 +121,7 @@ class V3AdmissionArchitectureTest {
         String transport =
                 Files.readString(
                         Path.of(
-                                "../supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java"));
-        assertFalse(transport.contains("supra.http.read"));
+                                "../supra-web-write/src/main/java/com/kartaguez/pocoma/supra/http/write/v3/V3AdmissionTransport.java"));
+        assertFalse(transport.contains("supra.web.read"));
     }
 }

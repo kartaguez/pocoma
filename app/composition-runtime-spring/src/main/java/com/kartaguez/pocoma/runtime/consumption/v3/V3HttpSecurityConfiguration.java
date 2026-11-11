@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.supra.http.read.v3.V3ReadTransport;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.supra.web.read.v3.V3ReadTransport;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;

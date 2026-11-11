@@ -8,10 +8,10 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.engine.admit.command.v3.*;
-import com.kartaguez.pocoma.engine.admit.registration.v3.*;
+import com.kartaguez.pocoma.engine.admit.identity.v3.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;

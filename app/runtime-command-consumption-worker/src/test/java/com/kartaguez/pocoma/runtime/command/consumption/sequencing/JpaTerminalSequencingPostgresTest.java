@@ -5,7 +5,7 @@ import java.util.*;
 import java.time.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.kartaguez.pocoma.contracts.command.*;
-import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.domain.consumption.claim.*;
 import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecution;

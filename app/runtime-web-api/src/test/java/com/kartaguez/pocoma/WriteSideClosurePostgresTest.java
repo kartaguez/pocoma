@@ -1,5 +1,5 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.supra.http.write.CommandRequestSizeFilter;
+import com.kartaguez.pocoma.supra.web.write.CommandRequestSizeFilter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -63,10 +63,10 @@ import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFail
 import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifier;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerObservation;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorkerObservation;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
 
 /**
  * Functional cross-runtime contract through committed PostgreSQL state. Both runtime roles are

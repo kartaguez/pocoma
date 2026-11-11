@@ -430,7 +430,7 @@ class ConsumptionBootstrapPostgresTest {
                                 .JdbcPotCommandObservation.class,
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption
                                 .JpaConsumptionLifecycleAdapter.class,
-                        com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker
+                        com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker
                                 .class)) {
             try (var context =
                     new org.springframework.context.annotation

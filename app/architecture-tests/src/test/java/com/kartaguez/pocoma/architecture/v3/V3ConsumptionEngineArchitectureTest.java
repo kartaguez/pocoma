@@ -103,7 +103,7 @@ class V3ConsumptionEngineArchitectureTest {
                         ROOT + ".runtime..",
                         ROOT + ".domain.pot..",
                         ROOT + ".domain.identity..",
-                        ROOT + ".domain.useridentity..",
+                        ROOT + ".domain.identity..",
                         ROOT + ".engine.write..");
     }
 
@@ -135,7 +135,7 @@ class V3ConsumptionEngineArchitectureTest {
                         ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket",
                         ROOT + ".domain.pot..",
                         ROOT + ".domain.identity..",
-                        ROOT + ".domain.useridentity..",
+                        ROOT + ".domain.identity..",
                         ROOT + ".engine.write..");
     }
 
@@ -144,7 +144,7 @@ class V3ConsumptionEngineArchitectureTest {
         var worker =
                 select(
                         PROD,
-                        c -> c.getPackageName().equals(ROOT + ".orchestrator.poll.consumption.v3"));
+                        c -> c.getPackageName().equals(ROOT + ".supra.polling.consumption.v3"));
         assertTrue(worker.size() >= 4);
         purePollWorker().check(worker);
         var sqlBad = new ClassFileImporter().importClasses(BadWorkerSql.class);
@@ -468,7 +468,7 @@ class V3ConsumptionEngineArchitectureTest {
 
     // Confined to architecture-tests; engine-consumption gains no business dependency.
     static class BadIdentityDependency {
-        com.kartaguez.pocoma.domain.useridentity.PocomaUserId user;
+        com.kartaguez.pocoma.domain.identity.PocomaUserId user;
     }
 
     static class BadBusinessEngineDependency {
@@ -492,7 +492,7 @@ class V3ConsumptionEngineArchitectureTest {
                                         || c.getName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".engine.consume.registration.v3.ExecuteIdentityRequest"));
+                                                                + ".engine.write.identity.v3.ExecuteIdentityRequest"));
         var guardRule =
                 noClasses()
                         .should()

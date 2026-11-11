@@ -4,12 +4,12 @@ import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.contract.writeadmission.LinkProposalInput;
 
 import static org.junit.jupiter.api.Assertions.*;
-import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
-import com.kartaguez.pocoma.engine.admit.registration.v3.*;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
+import com.kartaguez.pocoma.engine.admit.identity.v3.*;
 import org.junit.jupiter.api.*;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;

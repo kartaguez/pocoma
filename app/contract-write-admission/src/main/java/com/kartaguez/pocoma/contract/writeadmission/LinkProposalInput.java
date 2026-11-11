@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.contract.writeadmission;
 
 import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.*;
 import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import java.util.*;
 
 /** Closed, provider-neutral intention; no authority check at admission. */

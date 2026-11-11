@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.dev.*;
 import com.zaxxer.hikari.HikariDataSource;

@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.domain.projection.v3;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.ExternalUserIdentity;
 import java.util.*;
 public record IdentityTerminalResult(UUID requestId,String operation,ExternalIdentity requesterEui,
                                      String writeOutcome,ExternalIdentity targetEui,Long targetVersion,String rejection) {

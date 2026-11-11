@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3;
 import com.kartaguez.pocoma.domain.pot.v3.PotFinancialState;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotBalanceSource;
+import com.kartaguez.pocoma.engine.materialize.pot.v3.PotBalanceSource;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 import javax.sql.DataSource;

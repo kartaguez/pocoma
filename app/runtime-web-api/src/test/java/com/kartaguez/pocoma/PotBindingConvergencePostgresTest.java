@@ -21,12 +21,12 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.useridentity.BindingDetachResult;
-import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus;
+import com.kartaguez.pocoma.domain.identity.BindingDetachResult;
+import com.kartaguez.pocoma.domain.identity.BindingRevision;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingStatus;
 import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotForExternalIdentityService;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotResult;
@@ -95,10 +95,10 @@ class PotBindingConvergencePostgresTest {
         assertEquals(new UserId(u2.value()), seen.get());
     }
 
-    private com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted value) {
+    private com.kartaguez.pocoma.domain.identity.BindingAcquireResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted value) {
         value.fact().ifPresent(protocol.runner()::recordPublishedEvent);return value.result();
     }
-    private com.kartaguez.pocoma.domain.useridentity.BindingDetachResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted value) {
+    private com.kartaguez.pocoma.domain.identity.BindingDetachResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted value) {
         value.fact().ifPresent(protocol.runner()::recordPublishedEvent);return value.result();
     }
 }

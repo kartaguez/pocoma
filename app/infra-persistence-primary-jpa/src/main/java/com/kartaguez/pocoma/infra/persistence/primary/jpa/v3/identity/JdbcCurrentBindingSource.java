@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
-import com.kartaguez.pocoma.engine.materialize.currentbinding.v3.CurrentBindingSource;
+import com.kartaguez.pocoma.domain.identity.v3.*;
+import com.kartaguez.pocoma.engine.materialize.identity.v3.CurrentBindingSource;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 import org.springframework.jdbc.core.JdbcTemplate;

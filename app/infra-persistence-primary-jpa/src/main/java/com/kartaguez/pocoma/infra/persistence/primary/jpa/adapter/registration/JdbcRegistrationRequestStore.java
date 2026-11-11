@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.engine.admit.registration.RegistrationRequestRecorder;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationRequestReader;
+import com.kartaguez.pocoma.engine.admit.identity.RegistrationRequestRecorder;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationRequestReader;
 
 @Component
 public final class JdbcRegistrationRequestStore implements RegistrationRequestRecorder, RegistrationRequestReader {

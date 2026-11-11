@@ -5,7 +5,7 @@ import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTran
 import com.kartaguez.pocoma.domain.authorization.TokenCapabilities;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
 /** Resolves E against convergent CURRENT_BINDING before AUTH@V and READ_POT@V. */
 public final class ReadPotForExternalIdentityService implements ReadPotForExternalIdentityUseCase {

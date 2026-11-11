@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.kartaguez.pocoma.V3ReadHttpFixture.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
-import com.kartaguez.pocoma.engine.read.currentbinding.v3.*;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.*;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.*;
-import com.kartaguez.pocoma.supra.http.read.CurrentBindingController;
-import com.kartaguez.pocoma.supra.http.read.v3.*;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.engine.read.identity.v3.*;
+import com.kartaguez.pocoma.engine.read.results.v3.*;
+import com.kartaguez.pocoma.engine.read.results.v3.*;
+import com.kartaguez.pocoma.supra.web.read.CurrentBindingController;
+import com.kartaguez.pocoma.supra.web.read.v3.*;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.*;
@@ -95,8 +95,8 @@ class V3HttpCompositionPostgresTest {
             for (int n = 0; n < ids.getLength(); n++) if (ids.item(n).getParentNode().getNodeName().equals("dependency") && ids.item(n).getTextContent().startsWith("pocoma-")) edges.add(ids.item(n).getTextContent()); graph.put(name, edges);
         }
         for (String node : graph.keySet()) visit(node, graph, new HashSet<>(), new HashSet<>());
-        String httpPom = Files.readString(app.resolve("supra-http-read/pom.xml")); assertFalse(httpPom.contains("composition-runtime-spring")); assertFalse(httpPom.contains("engine-write"));
-        for (var file : Files.walk(app.resolve("supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3")).filter(p -> p.toString().endsWith(".java")).toList()) {
+        String httpPom = Files.readString(app.resolve("supra-web-read/pom.xml")); assertFalse(httpPom.contains("composition-runtime-spring")); assertFalse(httpPom.contains("engine-write"));
+        for (var file : Files.walk(app.resolve("supra-web-read/src/main/java/com/kartaguez/pocoma/supra/http/read/v3")).filter(p -> p.toString().endsWith(".java")).toList()) {
             String source = Files.readString(file); for (String forbidden : List.of("com.kartaguez.pocoma.runtime.", "com.kartaguez.pocoma.infra.", "engine.write", "engine.admit", "javax.sql", "RecoveryReadContext")) assertFalse(source.contains(forbidden), file + " " + forbidden);
         }
         for (Class<?> port : List.of(PotRead.Queries.class, BindingRead.Query.class, CommandResultRead.Query.class, IdentityResultRead.Query.class)) for (var method : port.getMethods()) for (Class<?> parameter : method.getParameterTypes()) assertFalse(parameter.getName().contains("Context"), "no owner/context crosses HTTP");
@@ -114,7 +114,7 @@ class V3HttpCompositionPostgresTest {
             assertEquals(205, f.admin.queryForObject("select count(*) from read_user_pot where user_id=?", Integer.class, OWNER));
             assertEquals(200, f.get("/commands/" + id(401) + "/result").statusCode());
             assertEquals(404, f.request("GET", "/commands/" + id(401) + "/result", f.jwt("same"), null, null, Map.of()).statusCode());
-            assertFalse(f.context.containsBean("injector")); assertTrue(f.context.getBeansOfType(com.kartaguez.pocoma.engine.admit.registration.AdmitRegistrationService.class).isEmpty());
+            assertFalse(f.context.containsBean("injector")); assertTrue(f.context.getBeansOfType(com.kartaguez.pocoma.engine.admit.identity.AdmitRegistrationService.class).isEmpty());
             f.evidence("C06-fixture", Map.of("provenance", "READ_FIXTURE — NO PUBLIC ADMISSION PROOF", "commandOutcome", "COMPLETED", "resultVersion", 2, "navigationRows", 205, "sameUserOtherEui", 404));
         }
     }

@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthoriz
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandAppliedResult;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 
 class CommandDispatcherTest {
 

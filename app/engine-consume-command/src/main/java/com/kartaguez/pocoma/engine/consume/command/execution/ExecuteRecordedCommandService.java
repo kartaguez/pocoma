@@ -11,7 +11,7 @@ import java.util.Optional;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
-import com.kartaguez.pocoma.domain.useridentity.ObservedBinding;
+import com.kartaguez.pocoma.domain.identity.ObservedBinding;
 import com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandUseCaseResult;

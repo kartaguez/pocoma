@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma.infra.persistence.read.jdbc.v3;
 import com.kartaguez.pocoma.domain.projection.v3.CommandTerminalResult;
 import com.kartaguez.pocoma.domain.projection.v3.IdentityTerminalResult;
-import com.kartaguez.pocoma.engine.read.commandresult.v3.*;
-import com.kartaguez.pocoma.engine.read.registrationresult.v3.*;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.engine.read.results.v3.*;
+import com.kartaguez.pocoma.engine.read.results.v3.*;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;

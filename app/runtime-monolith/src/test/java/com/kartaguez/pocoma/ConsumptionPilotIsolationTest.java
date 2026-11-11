@@ -205,7 +205,7 @@ class ConsumptionPilotIsolationTest {
                                 .isEmpty());
                 assertTrue(
                         context.getBeansOfType(
-                                        com.kartaguez.pocoma.orchestrator.poll.consumption
+                                        com.kartaguez.pocoma.supra.polling.consumption
                                                 .ConsumptionPollingWorker.class)
                                 .isEmpty());
                 assertEquals(

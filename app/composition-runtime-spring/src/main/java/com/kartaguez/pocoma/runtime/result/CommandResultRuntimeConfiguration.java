@@ -27,8 +27,8 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.*;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.supra.polling.consumption.*;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunner;
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionTerminalParticipant;

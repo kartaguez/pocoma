@@ -9,7 +9,7 @@ import static com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
 import io.micrometer.core.instrument.*;
@@ -334,7 +334,7 @@ class V3WorkerMetricsTest {
                     }
                     replace(runtime.worker, "state", WorkerView.State.RUNNING);
                     var loop =
-                            (com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3DiscoveryLoop)
+                            (com.kartaguez.pocoma.supra.polling.consumption.v3.V3DiscoveryLoop)
                                     field(runtime.worker, "discovery");
                     try {
                         if (scenario.equals("rollback")) {

@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.port.binding.authority;
 
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.domain.useridentity.User;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.User;
 
 import java.util.Optional;
 

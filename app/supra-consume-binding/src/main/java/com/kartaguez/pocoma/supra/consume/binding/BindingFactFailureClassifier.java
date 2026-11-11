@@ -5,7 +5,7 @@ import java.time.Clock;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
-import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingInvariantException;
+import com.kartaguez.pocoma.domain.identity.currentbinding.CurrentBindingInvariantException;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionTechnicalFailureClassifier;
 
 public final class BindingFactFailureClassifier implements ConsumptionTechnicalFailureClassifier {

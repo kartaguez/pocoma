@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.contracts.command;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 
 /** Target V2 envelope captured without resolving a Pocoma User at admission. */
 public record TargetCommandEnvelope(

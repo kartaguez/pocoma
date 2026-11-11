@@ -10,13 +10,13 @@ import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.*;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
@@ -1095,21 +1095,21 @@ class V3IdentityRequestCompositionPostgresTest {
                         AttemptTransactions.Failure.class,
                         () -> owner.write(() -> authority.current(key)));
                 var id =
-                        new com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentityId(
+                        new com.kartaguez.pocoma.domain.identity.v3.ExternalUserIdentityId(
                                 f.write.queryForObject(
                                         "select eui_id from v3_eui_authority where"
                                             + " issuer='prebound' and subject='anchor'",
                                         UUID.class));
                 var change =
-                        new com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionResult
+                        new com.kartaguez.pocoma.domain.identity.v3.IdentityTransitionResult
                                 .Changed(
                                 Optional.empty(),
-                                new com.kartaguez.pocoma.domain.useridentity.v3
+                                new com.kartaguez.pocoma.domain.identity.v3
                                         .ExternalUserIdentity(
                                         id,
                                         key,
                                         1,
-                                        new com.kartaguez.pocoma.domain.useridentity.PocomaUserId(
+                                        new com.kartaguez.pocoma.domain.identity.PocomaUserId(
                                                 UUID.randomUUID()),
                                         new BindingToken("prebound-negative-fixture")));
                 var unprotected =
@@ -1370,11 +1370,10 @@ class V3IdentityRequestCompositionPostgresTest {
                                                         authority.lockInCanonicalOrder(
                                                                 List.of(req.target()));
                                                 var change =
-                                                        (com.kartaguez.pocoma.domain.useridentity.v3
+                                                        (com.kartaguez.pocoma.domain.identity.v3
                                                                         .IdentityTransitionResult
                                                                         .Changed)
-                                                                com.kartaguez.pocoma.domain
-                                                                        .useridentity.v3
+                                                                com.kartaguez.pocoma.domain.identity.v3
                                                                         .IdentityTransitions
                                                                         .registration(
                                                                                 req.target(),
@@ -1384,10 +1383,7 @@ class V3IdentityRequestCompositionPostgresTest {
                                                                                 ids.get(
                                                                                         req
                                                                                                 .target()),
-                                                                                new com.kartaguez
-                                                                                        .pocoma
-                                                                                        .domain
-                                                                                        .useridentity
+                                                                                new com.kartaguez.pocoma.domain.identity
                                                                                         .PocomaUserId(
                                                                                         UUID
                                                                                                 .randomUUID()),

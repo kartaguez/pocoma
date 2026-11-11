@@ -23,15 +23,15 @@ class Wp4BoundaryTest {
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
             .importPackages(ROOT);
     private static final Map<String, String> MODULE_PACKAGES = Map.of(
-            "engine-materialize-command-result", ROOT + ".engine.materialize.commandresult",
-            "engine-read-command-result", ROOT + ".engine.read.commandresult",
+            "engine-materialize-results", ROOT + ".engine.materialize.commandresult",
+            "engine-read-results", ROOT + ".engine.read.commandresult",
             "supra-consume-command-result", ROOT + ".supra.consume.commandresult",
-            "engine-materialize-registration-result", ROOT + ".engine.materialize.registrationresult",
-            "engine-read-registration-result", ROOT + ".engine.read.registrationresult",
+            "engine-materialize-results", ROOT + ".engine.materialize.registrationresult",
+            "engine-read-results", ROOT + ".engine.read.registrationresult",
             "supra-consume-registration-result", ROOT + ".supra.consume.registrationresult",
             "engine-read-pot", ROOT + ".engine.read.pot",
-            "supra-http-write", ROOT + ".supra.http.write",
-            "supra-http-read", ROOT + ".supra.http.read");
+            "supra-web-write", ROOT + ".supra.web.write",
+            "supra-web-read", ROOT + ".supra.web.read");
 
     @Test void directResultsStayOutOfProjectionAndCurrentBinding() {
         for (String pkg : new String[] {"engine.materialize.commandresult", "engine.read.commandresult",
@@ -41,7 +41,7 @@ class Wp4BoundaryTest {
                             ROOT + ".port.projection..", ROOT + ".engine.produce.projectiontask..",
                             ROOT + ".engine.consume.projectiontask..", ROOT + ".projector.pot..",
                             ROOT + ".engine.read.currentbinding..", ROOT + ".port.binding.authority..",
-                            ROOT + ".runtime..", ROOT + ".supra.http..")
+                            ROOT + ".runtime..", ROOT + ".supra.web..")
                     .check(CLASSES);
         }
     }
@@ -51,7 +51,7 @@ class Wp4BoundaryTest {
                 "engine.materialize.registrationresult", "engine.read.registrationresult", "engine.read.pot"}) {
             noClasses().that().resideInAPackage(ROOT + "." + pkg + "..")
                     .should().dependOnClassesThat().resideInAnyPackage(
-                            ROOT + ".runtime..", ROOT + ".supra.http..", ROOT + ".infra..",
+                            ROOT + ".runtime..", ROOT + ".supra.web..", ROOT + ".infra..",
                             "org.springframework..", "jakarta.persistence..")
                     .check(CLASSES);
         }
@@ -59,7 +59,7 @@ class Wp4BoundaryTest {
 
     @Test void specificConsumersAndHttpHaveNoConcretePersistence() {
         for (String pkg : new String[] {"supra.consume.commandresult", "supra.consume.registrationresult",
-                "supra.http.write", "supra.http.read"}) {
+                "supra.web.write", "supra.web.read"}) {
             noClasses().that().resideInAPackage(ROOT + "." + pkg + "..")
                     .should().dependOnClassesThat().resideInAnyPackage(
                             ROOT + ".infra.persistence..", "org.springframework.jdbc..")
@@ -69,11 +69,11 @@ class Wp4BoundaryTest {
 
     @Test void moduleDependenciesProtectDirectResultBoundary() throws IOException {
         Path reactor = reactor();
-        for (String module : new String[] {"engine-materialize-command-result", "engine-read-command-result",
-                "engine-materialize-registration-result", "engine-read-registration-result"}) {
+        for (String module : new String[] {"engine-materialize-results", "engine-read-results",
+                "engine-materialize-results", "engine-read-results"}) {
             String pom = Files.readString(reactor.resolve(module).resolve("pom.xml"));
             for (String forbidden : new String[] {"port-projection", "engine-produce-projection-task",
-                    "engine-consume-projection-task", "projector-pot", "engine-read-current-binding",
+                    "engine-materialize-pot", "projector-pot", "engine-read-identity",
                     "port-binding-authority", "runtime-"}) {
                 assertFalse(pom.contains("<artifactId>pocoma-" + forbidden), module + " -> " + forbidden);
             }

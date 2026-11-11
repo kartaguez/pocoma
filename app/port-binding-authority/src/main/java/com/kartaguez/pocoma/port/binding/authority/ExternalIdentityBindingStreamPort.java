@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.port.binding.authority;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.BindingRevision;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 
 import java.util.Optional;
 

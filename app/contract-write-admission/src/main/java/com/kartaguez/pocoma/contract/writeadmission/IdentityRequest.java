@@ -1,8 +1,8 @@
 package com.kartaguez.pocoma.contract.writeadmission;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
-import com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.v3.ExternalUserIdentity;
 
 import java.time.Instant;
 import java.util.Map;

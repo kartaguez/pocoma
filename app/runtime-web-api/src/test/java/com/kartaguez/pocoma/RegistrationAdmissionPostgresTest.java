@@ -28,10 +28,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.read.registrationresult.ImmutableRegistrationResult;
 import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.read.registrationresult.RegistrationResultStore;
 
 @SpringBootTest(properties = {

@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.projection.v3.*;
 import com.kartaguez.pocoma.domain.projection.v3.SubobjectContent.*;
-import com.kartaguez.pocoma.engine.consume.projectiontask.v3.PotVersionSource;
+import com.kartaguez.pocoma.engine.materialize.pot.v3.PotVersionSource;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 import org.springframework.jdbc.support.SqlArrayValue;

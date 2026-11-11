@@ -3,7 +3,7 @@ import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
-import com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequest;
+import com.kartaguez.pocoma.engine.write.identity.v3.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;

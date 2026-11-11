@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;

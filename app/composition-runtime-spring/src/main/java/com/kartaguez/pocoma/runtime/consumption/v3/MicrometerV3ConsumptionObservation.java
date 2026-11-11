@@ -4,7 +4,7 @@ import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
-import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 
 import io.micrometer.core.instrument.*;
 

@@ -1,11 +1,11 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.engine.consume.projectiontask.v3.*;
+import com.kartaguez.pocoma.engine.materialize.pot.v3.*;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
-import com.kartaguez.pocoma.engine.materialize.commandresult.v3.MaterializeCommandResult;
-import com.kartaguez.pocoma.engine.materialize.currentbinding.v3.MaterializeCurrentBinding;
-import com.kartaguez.pocoma.engine.materialize.registrationresult.v3.MaterializeIdentityRequestResult;
+import com.kartaguez.pocoma.engine.materialize.results.v3.MaterializeCommandResult;
+import com.kartaguez.pocoma.engine.materialize.identity.v3.MaterializeCurrentBinding;
+import com.kartaguez.pocoma.engine.materialize.results.v3.MaterializeIdentityRequestResult;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.*;

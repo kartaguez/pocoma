@@ -37,26 +37,26 @@ class PostWp4OwnershipArchitectureTest {
         assertFalse(pom("contracts-command").matches("(?s).*(spring|jpa|jdbc|runtime|infra|result|engine).*"));
         assertFalse(sources("contracts-command").contains("Outcome"));
         assertFalse(sources("contracts-registration").contains("RegistrationOutcome"));
-        assertFalse(pom("contracts-registration").contains("engine-consume-registration"));
+        assertFalse(pom("contracts-registration").contains("engine-write-identity"));
         assertTrue(sources("engine-consume-command").contains("interface CommandOutcome"));
-        assertTrue(sources("engine-consume-registration").contains("interface RegistrationOutcome"));
+        assertTrue(sources("engine-write-identity").contains("interface RegistrationOutcome"));
     }
     @Test void admissionAndPublishedReadsDoNotImportExecution() throws IOException {
         assertFalse(pom("engine-admit-command").contains("pocoma-engine-consume-command"));
-        assertFalse(pom("engine-read-command-result").contains("pocoma-engine-consume-command"));
-        assertFalse(pom("engine-read-registration-result").contains("pocoma-engine-consume-registration"));
-        assertFalse(sources("engine-read-command-result").contains("CommandOutcome"));
-        assertFalse(sources("engine-read-registration-result").contains("RegistrationOutcome"));
+        assertFalse(pom("engine-read-results").contains("pocoma-engine-consume-command"));
+        assertFalse(pom("engine-read-results").contains("pocoma-engine-write-identity"));
+        assertFalse(sources("engine-read-results").contains("CommandOutcome"));
+        assertFalse(sources("engine-read-results").contains("RegistrationOutcome"));
         assertTrue(sources("engine-admit-command").contains("interface RecordedCommandInsertionPort"));
         assertTrue(sources("engine-consume-command").contains("interface RecordedCommandPort"));
         assertFalse(sources("engine-consume-command").contains("void insert(RecordedCommand"));
     }
     @Test void potReadsProjectedBindingAndResultsReadNeitherBindingNorTask() throws IOException {
-        assertTrue(pom("engine-read-pot").contains("pocoma-engine-read-current-binding"));
+        assertTrue(pom("engine-read-pot").contains("pocoma-engine-read-identity"));
         assertFalse(pom("engine-read-pot").contains("pocoma-port-binding-authority"));
         assertFalse(pom("engine-read-pot").contains("pocoma-infra-persistence"));
         assertFalse(sources("engine-read-pot").contains("ExternalIdentityResolverPort"));
-        for (String module : Set.of("engine-read-command-result", "engine-read-registration-result")) {
+        for (String module : Set.of("engine-read-results", "engine-read-results")) {
             assertFalse(sources(module).contains("CurrentBinding"));
             assertFalse(sources(module).contains("ProjectionTask"));
             assertFalse(sources(module).contains("BindingAuthority"));

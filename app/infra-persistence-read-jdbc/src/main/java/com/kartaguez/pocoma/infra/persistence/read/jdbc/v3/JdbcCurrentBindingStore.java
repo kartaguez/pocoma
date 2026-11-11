@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.read.jdbc.v3;
-import com.kartaguez.pocoma.domain.useridentity.*;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
+import com.kartaguez.pocoma.domain.identity.*;
+import com.kartaguez.pocoma.domain.identity.v3.*;
 import com.kartaguez.pocoma.port.projection.v3.CurrentBindingStore;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;

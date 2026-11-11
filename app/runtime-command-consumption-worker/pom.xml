@@ -8,7 +8,7 @@
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-consumption</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-write-admission</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
-    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-consume-registration</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-write-identity</artifactId><version>${project.version}</version></dependency>
         <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jdbc</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-composition-runtime-spring</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
@@ -16,7 +16,7 @@
 
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-write-pot</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-command</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-poll-consumption</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-polling-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-primary-jpa</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>

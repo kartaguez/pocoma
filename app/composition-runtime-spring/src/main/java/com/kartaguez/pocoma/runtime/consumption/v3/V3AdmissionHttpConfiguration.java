@@ -4,11 +4,11 @@ import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
 
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3;
-import com.kartaguez.pocoma.engine.admit.registration.v3.AdmitIdentityRequestV3;
-import com.kartaguez.pocoma.engine.admit.registration.v3.AdmitLinkProposal;
+import com.kartaguez.pocoma.engine.admit.identity.v3.AdmitIdentityRequestV3;
+import com.kartaguez.pocoma.engine.admit.identity.v3.AdmitLinkProposal;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.http.write.v3.*;
+import com.kartaguez.pocoma.supra.web.write.v3.*;
 import com.zaxxer.hikari.*;
 import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
 
@@ -78,8 +78,8 @@ public class V3AdmissionHttpConfiguration {
                     Class<?> type = factory.getType(name, false);
                     if (type == null) continue;
                     String val = type.getName();
-                    if (val.startsWith("com.kartaguez.pocoma.supra.http.read.v3.V3ReadController")
-                            || val.startsWith("com.kartaguez.pocoma.supra.http.read.v3.V3InvitationController")
+                    if (val.startsWith("com.kartaguez.pocoma.supra.web.read.v3.V3ReadController")
+                            || val.startsWith("com.kartaguez.pocoma.supra.web.read.v3.V3InvitationController")
                             || name.equals("v3HttpReadPool")) {
                         throw new IllegalStateException(
                                 "READ component forbidden on HTTP WRITE runtime: " + val);

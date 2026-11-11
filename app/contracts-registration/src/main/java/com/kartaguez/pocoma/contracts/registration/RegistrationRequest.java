@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 
 /** The immutable authenticated intention. The current Canon defines no profile fields. */
 public record RegistrationRequest(UUID requestId, ExternalIdentity requesterExternalIdentity,

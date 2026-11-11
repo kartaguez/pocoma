@@ -121,10 +121,10 @@ class Pcl6MonolithAbsenceTest {
 				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JpaRecordedCommandAdapter.java",
 				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java",
 				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java",
-				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/CalculatePotBalancesAtVersionService.java",
-				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/ReadPotProjectionInputLoader.java",
-				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/engine/ProjectionEngineService.java",
-				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/ProjectionTaskConsumptionOrchestrator.java",
+				"engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/CalculatePotBalancesAtVersionService.java",
+				"engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/ReadPotProjectionInputLoader.java",
+				"engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/engine/ProjectionEngineService.java",
+				"engine-materialize-pot/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/ProjectionTaskConsumptionOrchestrator.java",
 				"composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
 				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java");
 		for (String protectedFile : protectedFiles) {

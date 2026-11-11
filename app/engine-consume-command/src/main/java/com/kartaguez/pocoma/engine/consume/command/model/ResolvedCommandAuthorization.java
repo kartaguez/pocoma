@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.authorization.Permission;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 
 /** Execution-only authorization prepared from the current binding occurrence. */
 public record ResolvedCommandAuthorization(

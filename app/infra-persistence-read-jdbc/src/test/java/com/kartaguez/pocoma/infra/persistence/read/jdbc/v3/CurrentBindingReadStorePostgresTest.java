@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.read.jdbc.v3;
-import com.kartaguez.pocoma.domain.useridentity.*;
-import com.kartaguez.pocoma.domain.useridentity.v3.*;
+import com.kartaguez.pocoma.domain.identity.*;
+import com.kartaguez.pocoma.domain.identity.v3.*;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;

@@ -9,9 +9,9 @@ import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort.Candidate;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort.Cursor;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationDiscoveryPort;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationDiscoveryPort.Candidate;
+import com.kartaguez.pocoma.engine.write.identity.RegistrationDiscoveryPort.Cursor;
 
 /** Metadata-only discovery; execution reloads the immutable request. */
 @Component

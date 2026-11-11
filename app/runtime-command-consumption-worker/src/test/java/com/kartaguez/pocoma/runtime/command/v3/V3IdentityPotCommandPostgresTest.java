@@ -404,7 +404,7 @@ class V3IdentityPotCommandPostgresTest {
                             "UNLINK",
                             "free",
                             "free",
-                            new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                            new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                     freeToken)));
             for (String kind : List.of("absent", "zero", "free", "invalid")) {
                 String subject = kind.equals("invalid") ? "a" : kind;
@@ -577,7 +577,7 @@ class V3IdentityPotCommandPostgresTest {
                                     "UNLINK",
                                     "a",
                                     "a",
-                                    new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                                    new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                             token)));
                 } finally {
                     release.countDown();
@@ -653,7 +653,7 @@ class V3IdentityPotCommandPostgresTest {
                                 "UNLINK",
                                 subject,
                                 subject,
-                                new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                                new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                         acting));
                         V3IdentityRequestCompositionPostgresTest.await(
                                 () ->
@@ -789,7 +789,7 @@ class V3IdentityPotCommandPostgresTest {
                                     "UNLINK",
                                     "target",
                                     "target",
-                                    new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                                    new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                             old)));
                 }
                 String initiator = initial.equals("same-user-relink") ? h.register("a") : null;
@@ -800,7 +800,7 @@ class V3IdentityPotCommandPostgresTest {
                                     "LINK",
                                     "a",
                                     "target",
-                                    new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                                    new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                             initiator)));
                     token = h.f.ownToken("target").value();
                     user = h.f.user("target");
@@ -826,7 +826,7 @@ class V3IdentityPotCommandPostgresTest {
                     if (initiator == null) h.register("target");
                     else {
                         var authority =
-                                new com.kartaguez.pocoma.domain.useridentity.v3.BindingToken(
+                                new com.kartaguez.pocoma.domain.identity.v3.BindingToken(
                                         initiator);
                         h.f.verify(h.f.admit("UNLINK", "a", "target", authority));
                         h.f.verify(h.f.admit("LINK", "a", "target", authority));

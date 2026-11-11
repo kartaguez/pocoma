@@ -27,16 +27,16 @@ class Wp3BoundaryTest {
             "engine-consume-command", ROOT + ".engine.consume.command",
             "supra-consume-command", ROOT + ".supra.consume.command",
             "engine-admit-command", ROOT + ".engine.admit.command",
-            "engine-admit-registration", ROOT + ".engine.admit.registration",
-            "engine-consume-registration", ROOT + ".engine.consume.registration",
+            "engine-admit-identity", ROOT + ".engine.admit.identity",
+            "engine-write-identity", ROOT + ".engine.write.identity",
             "supra-consume-registration", ROOT + ".supra.consume.registration");
 
     @Test void enginesDoNotImportRuntimeHttpOrConcreteInfrastructure() {
         for (String pkg : new String[] {"engine.write.pot", "engine.consume.command",
-                "engine.admit.command", "engine.admit.registration", "engine.consume.registration"}) {
+                "engine.admit.command", "engine.admit.identity", "engine.write.identity"}) {
             noClasses().that().resideInAPackage(ROOT + "." + pkg + "..")
                     .should().dependOnClassesThat().resideInAnyPackage(
-                            ROOT + ".runtime..", ROOT + ".infra..", ROOT + ".supra.http..",
+                            ROOT + ".runtime..", ROOT + ".infra..", ROOT + ".supra.web..",
                             "org.springframework..", "jakarta.persistence..")
                     .check(CLASSES);
         }
@@ -46,7 +46,7 @@ class Wp3BoundaryTest {
     }
 
     @Test void admissionEnginesDoNotImportSpringSecurity() {
-        for (String pkg : new String[] {"engine.admit.command", "engine.admit.registration"}) {
+        for (String pkg : new String[] {"engine.admit.command", "engine.admit.identity"}) {
             noClasses().that().resideInAPackage(ROOT + "." + pkg + "..")
                     .should().dependOnClassesThat().resideInAPackage("org.springframework.security..")
                     .check(CLASSES);

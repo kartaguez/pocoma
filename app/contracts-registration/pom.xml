@@ -5,6 +5,6 @@
  <parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
  <artifactId>pocoma-contracts-registration</artifactId>
  <dependencies>
-  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-user-identity</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-identity</artifactId><version>${project.version}</version></dependency>
  </dependencies>
 </project>

@@ -8,12 +8,12 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityAttached;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityDetached;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.identity.BindingId;
+import com.kartaguez.pocoma.domain.identity.BindingRevision;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentityAttached;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentityDetached;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 
 class ExternalIdentityBindingFactRecordMapperTest {
 	private static final UUID EVENT_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");

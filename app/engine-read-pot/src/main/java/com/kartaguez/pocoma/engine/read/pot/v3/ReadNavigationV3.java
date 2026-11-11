@@ -4,7 +4,7 @@ import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.port.projection.v3.PotVisibilityStore;
 import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
