@@ -255,16 +255,17 @@ class V3ReadReconstructionPostgresTest {
 
             // 4. Run replay worker
             f.select(MaterializeSettings.READ_NAMES, false);
+            var oracle = new ReadinessOracle();
             var ctx = f.start();
             await(() -> {
                 Integer potCount = f.read.queryForObject("SELECT count(*) FROM read_current_pot", Integer.class);
                 Integer slotCount = f.read.queryForObject("SELECT count(*) FROM consumption_slot", Integer.class);
-                return potCount != null && potCount >= 1 && slotCount != null && slotCount == 0;
+                return potCount != null && potCount >= 1 && slotCount != null && slotCount == 0
+                        && oracle.evaluate(f.read, f.write, targetB).ready();
             }, Duration.ofSeconds(30));
             f.drain(ctx);
 
-            // 5. Evaluate Readiness Oracle
-            var oracle = new ReadinessOracle();
+            // 5. Recheck durable readiness after the replay worker has drained.
             var eval = oracle.evaluate(f.read, f.write, targetB);
 
             assertTrue(eval.checkpointsSatisfied(), eval.diagnostic());
