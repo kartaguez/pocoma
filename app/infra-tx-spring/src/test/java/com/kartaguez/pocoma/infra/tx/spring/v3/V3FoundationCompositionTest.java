@@ -9,18 +9,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
-import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
-import com.kartaguez.pocoma.port.transaction.TransactionRunner;
+import com.kartaguez.pocoma.infra.tx.spring.v3.fixture.FoundationTransactionRunner;
+import com.kartaguez.pocoma.infra.tx.spring.v3.fixture.FoundationTransactionConfiguration;
+import com.kartaguez.pocoma.infra.tx.spring.v3.fixture.FoundationRunner;
 
 class V3FoundationCompositionTest extends PostgresFoundationTestSupport {
     @Test
     void existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap() {
-        new ApplicationContextRunner().withUserConfiguration(SpringTransactionRunnerConfiguration.class)
+        new ApplicationContextRunner().withUserConfiguration(FoundationTransactionConfiguration.class)
                 .withBean("writeManager", JpaTransactionManager.class, () -> write.manager)
                 .run(context -> {
                     assertNull(context.getStartupFailure());
-                    var runner = context.getBean(TransactionRunner.class);
+                    var runner = context.getBean(FoundationRunner.class);
                     runner.runInTransaction(() -> {
                         write.jdbc.update("insert into foundation_effect values (?,?)", UUID.randomUUID(), "wired");
                         assertEquals(0, write.observedEffects());
@@ -36,7 +36,7 @@ class V3FoundationCompositionTest extends PostgresFoundationTestSupport {
 
     @Test
     void ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority() {
-        new ApplicationContextRunner().withUserConfiguration(SpringTransactionRunnerConfiguration.class)
+        new ApplicationContextRunner().withUserConfiguration(FoundationTransactionConfiguration.class)
                 .withBean("writeManager", JpaTransactionManager.class, () -> write.manager)
                 .withBean("readManager", JpaTransactionManager.class, () -> read.manager)
                 .run(context -> {
@@ -54,8 +54,8 @@ class V3FoundationCompositionTest extends PostgresFoundationTestSupport {
                 .withBean("readManager", JpaTransactionManager.class, () -> read.manager)
                 .run(context -> {
                     assertNull(context.getStartupFailure());
-                    var writeRunner = context.getBean("writeRunner", TransactionRunner.class);
-                    var readRunner = context.getBean("readRunner", TransactionRunner.class);
+                    var writeRunner = context.getBean("writeRunner", FoundationRunner.class);
+                    var readRunner = context.getBean("readRunner", FoundationRunner.class);
                     assertThrows(IllegalStateException.class, () -> writeRunner.runInTransaction(() -> {
                         write.jdbc.update("insert into foundation_effect values (?,?)", UUID.randomUUID(), "aborted");
                         String writeXid = write.jdbc.queryForObject("select pg_current_xact_id()::text", String.class);
@@ -73,11 +73,11 @@ class V3FoundationCompositionTest extends PostgresFoundationTestSupport {
 
     @Configuration(proxyBeanMethods = false)
     static class ExplicitRealms {
-        @Bean TransactionRunner writeRunner(@Qualifier("writeManager") JpaTransactionManager manager) {
-            return new SpringTransactionRunner(new TransactionTemplate(manager));
+        @Bean FoundationRunner writeRunner(@Qualifier("writeManager") JpaTransactionManager manager) {
+            return new FoundationTransactionRunner(new TransactionTemplate(manager));
         }
-        @Bean TransactionRunner readRunner(@Qualifier("readManager") JpaTransactionManager manager) {
-            return new SpringTransactionRunner(new TransactionTemplate(manager));
+        @Bean FoundationRunner readRunner(@Qualifier("readManager") JpaTransactionManager manager) {
+            return new FoundationTransactionRunner(new TransactionTemplate(manager));
         }
     }
 }

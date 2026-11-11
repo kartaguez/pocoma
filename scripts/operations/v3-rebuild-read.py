@@ -18,7 +18,7 @@ Usage:
 
 Invariants:
 - Zero mutations or event deletions on WRITE (pocoma_write).
-- Strict isolation: WRITE connections are explicitly read-only and use restricted role (pocoma_read).
+- Strict isolation: WRITE connections are explicitly read-only and use dedicated WRITE-source principal.
 - Fail-closed: HTTP 503 is maintained while not READY.
 - Resilient: public.read_maintenance_state persists across DROP SCHEMA CASCADE.
 - Operator exclusivity: compare-and-set atomic acquisition + session advisory lock (AUD-L6-I2-14).
@@ -43,8 +43,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 POSTGRES_CONTAINER = os.environ.get("POSTGRES_CONTAINER", "pocoma-functional-postgres-1")
 POSTGRES_ADMIN_USER = os.environ.get("POSTGRES_ADMIN_USER", "pocoma")
 POSTGRES_ADMIN_PASSWORD = os.environ.get("POSTGRES_ADMIN_PASSWORD", "pocoma-local-only")
-POSTGRES_READ_USER = os.environ.get("POSTGRES_READ_USER", "pocoma_read")
-POSTGRES_READ_PASSWORD = os.environ.get("POSTGRES_READ_PASSWORD", "pocoma-local-only")
+POSTGRES_READ_USER = os.environ.get("POSTGRES_READ_USER", "pocoma_write_source_read")
+POSTGRES_READ_PASSWORD = os.environ.get("POSTGRES_READ_PASSWORD", "pocoma-source-local-only")
 
 READ_DB = os.environ.get("READ_DB", "pocoma_read")
 WRITE_DB = os.environ.get("WRITE_DB", "pocoma_write")
@@ -159,7 +159,7 @@ def psql_admin(db, sql_command, check=True):
 
 
 def psql_write_readonly(sql_command, check=True):
-    """Execute SQL command on WRITE_DB using strictly isolated role pocoma_read with read-only transaction."""
+    """Execute SQL command on WRITE_DB using the WRITE-source principal with read-only transaction."""
     pgoptions = f"-c search_path={WRITE_SCHEMA},public -c default_transaction_read_only=on"
     cmd = [
         "docker", "exec", "-i", "-e", f"PGPASSWORD={POSTGRES_READ_PASSWORD}",
@@ -570,14 +570,14 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
     # Step 8: Apply Canonical Versioned Migrations
     print("8. Applying canonical versioned DDL migration scripts (V1..V7, V10)...")
     read_migrations = [
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V3__pot_version.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V4__pot_balance.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V5__pot_visibility.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V6__current_binding.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-invitation/migration/V10__current_invitation.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V3__pot_version.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V4__pot_balance.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V5__pot_visibility.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V6__current_binding.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-invitation/migration/V10__current_invitation.sql",
     ]
     apply_migrations(READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE, read_migrations)
     if not check_tables_exist(CANONICAL_MIGRATION_TABLES):
@@ -614,6 +614,11 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
             "identity_read_role": READ_ROLE,
         }),
     ]
+    scripts.append(("scripts/v3/grant-l7-http-read.sql", {
+        "read_database": READ_DB, "read_schema": READ_SCHEMA,
+        "query_role": os.environ.get("READ_HTTP_ROLE", "pocoma_read_http"),
+        "status_role": os.environ.get("READ_STATUS_ROLE", "pocoma_read_status"),
+    }))
     for script_file, variables in scripts:
         content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
         psql_script(READ_DB, READ_SCHEMA, content, variables=variables)
@@ -636,7 +641,7 @@ def run_destructive_reconstruction(operation_id, operator_id, is_recovery=False,
     print("    ✓ Routing contracts (7/7) and checkpoints (28/28) initialized (phase: ROUTED).")
 
     # Step 11: Capture Target Prefix B from WRITE (Isolated via pocoma_read role)
-    print("11. Capturing reference target prefix B from WRITE event counters (role: pocoma_read, read-only)...")
+    print("11. Capturing reference target prefix B from WRITE event counters (read-only WRITE-source principal)...")
     raw_counters = psql_write_readonly(f"SELECT family, position FROM {WRITE_SCHEMA}.v3_event_counter;")
     target_b = {}
     if raw_counters:
@@ -809,7 +814,7 @@ def main():
             capture_output=True, text=True
         )
         if mut_attempt.returncode == 0:
-            print("FATAL: Role pocoma_read has mutation rights on WRITE database!", file=sys.stderr)
+            print("FATAL: WRITE-source principal has mutation rights on WRITE database!", file=sys.stderr)
             return 1
     except Exception as e:
         print(f"FATAL: WRITE isolation verification failed: {e}", file=sys.stderr)

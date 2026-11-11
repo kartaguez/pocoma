@@ -31,81 +31,49 @@
 	</scm>
 
 	<modules>
-<module>compose-polling-nonburnable-materialize-postgres</module>
-<module>infra-security-spring</module>
-<module>engine-read-execution</module>
-<module>infra-observability-micrometer</module>
-<module>infra-postgres-core</module>
-<module>infra-postgres-write-source-read</module>
-<module>contract-consumption</module>
-        <module>contract-write-admission</module>
-        <module>contract-read-query</module>
-		<module>domain-authorization</module>
-		<module>domain-event</module>
-		<module>domain-identity</module>
-		<module>contract-authentication</module>
-		<module>domain-pot</module>
-
-
-		<module>domain-projection</module>
-		<module>domain-consumption</module>
-		<module>port-transaction</module>
-		<module>port-binding-authority</module>
-		<module>engine-consumption</module>
-		<module>engine-consume-command</module>
-		<module>supra-consume-command</module>
-		<module>supra-consume-command-result</module>
-		<module>engine-read-results</module>
-		<module>engine-materialize-results</module>
-		<module>contracts-command</module>
-		<module>contracts-registration</module>
-		<module>engine-admit-identity</module>
-		<module>engine-write-identity</module>
-		<module>supra-consume-registration</module>
-		<module>supra-consume-registration-result</module>
-
-
-
-		<module>engine-produce-projection-task</module>
-		<module>engine-write-pot</module>
-		<module>port-projection</module>
-		<module>engine-read-projection</module>
-		<module>engine-materialize-pot</module>
-		<module>supra-consume-projection-task</module>
-		<module>engine-read-pot</module>
-		<module>projector-pot</module>
-		<module>engine-read-identity</module>
-		<module>engine-materialize-identity</module>
-<module>engine-materialize-latest-known-version</module>
-		<module>infra-persistence-read-jdbc</module>
-		<module>contracts-observability</module>
-		<module>infra-tx-spring</module>
-		<module>infra-persistence-primary-jpa</module>
-		<module>infra-persistence-projection-jdbc</module>
-
-		<module>infra-projection-validation-networknt</module>
-		<module>orchestrator-consumption</module>
-		<module>engine-admit-command</module>
-		<module>supra-polling-consumption</module>
-		<module>supra-consume-event</module>
-
-		<module>supra-consume-binding</module>
-<module>supra-consume-lkv</module>
-		<module>supra-web-write</module>
-		<module>supra-web-read</module>
-		<module>composition-runtime-spring</module>
-		<module>runtime-monolith</module>
-		<module>runtime-web-api</module>
-		<module>runtime-event-consumption-worker</module>
-		<module>runtime-command-result-consumption-worker</module>
-		<module>runtime-registration-result-consumption-worker</module>
-		<module>runtime-registration-consumption-worker</module>
-		<module>runtime-latest-known-version-consumption-worker</module>
-		<module>runtime-binding-consumption-worker</module>
-		<module>runtime-task-consumption-worker</module>
-		<module>runtime-command-consumption-worker</module>
-		<module>architecture-tests</module>
-	</modules>
+    <module>domain-pot</module>
+    <module>domain-identity</module>
+    <module>domain-projection</module>
+    <module>domain-consumption</module>
+    <module>contract-authentication</module>
+    <module>contract-write-admission</module>
+    <module>contract-read-query</module>
+    <module>port-transaction</module>
+    <module>port-projection</module>
+    <module>engine-admit-command</module>
+    <module>engine-admit-identity</module>
+    <module>engine-write-pot</module>
+    <module>engine-write-identity</module>
+    <module>engine-materialize-pot</module>
+    <module>engine-materialize-identity</module>
+    <module>engine-materialize-results</module>
+    <module>engine-read-pot</module>
+    <module>engine-read-identity</module>
+    <module>engine-read-results</module>
+    <module>orchestrator-consumption</module>
+    <module>supra-polling-consumption</module>
+    <module>supra-web-write</module>
+    <module>supra-web-read</module>
+    <module>infra-tx-spring</module>
+    <module>infra-security-spring</module>
+    <module>infra-postgres-write</module>
+    <module>infra-postgres-read</module>
+    <module>compose-web-write-postgres</module>
+    <module>compose-polling-burnable-write-postgres</module>
+    <module>compose-polling-nonburnable-materialize-postgres</module>
+    <module>compose-web-read-postgres</module>
+    <module>runtime-web-write</module>
+    <module>runtime-web-read</module>
+    <module>runtime-worker-process</module>
+    <module>runtime-worker-materialize</module>
+    <module>runtime-monolith</module>
+    <module>architecture-tests</module>
+    <module>contract-consumption</module>
+    <module>infra-postgres-core</module>
+    <module>infra-postgres-write-source-read</module>
+    <module>infra-observability-micrometer</module>
+    <module>engine-read-execution</module>
+</modules>
 
 	<properties>
 		<java.version>21</java.version>

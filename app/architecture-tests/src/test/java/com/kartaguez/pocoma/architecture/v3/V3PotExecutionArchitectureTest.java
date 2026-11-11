@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.architecture.v3;
+import com.kartaguez.pocoma.compose.polling.process.v3.V3PotCommandComposition;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
@@ -60,11 +61,11 @@ class V3PotExecutionArchitectureTest {
         }
         noClasses()
                 .that()
-                .resideInAPackage(ROOT + ".infra.persistence.primary.jpa.v3..")
+                .resideInAPackage(ROOT + ".infra.postgres.write.v3..")
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage(
-                        ROOT + ".infra.persistence.read..",
+                        ROOT + ".infra.postgres.read..",
                         ROOT + ".infra.persistence.projection..",
                         ROOT + ".runtime..")
                 .check(CLASSES);
@@ -89,7 +90,7 @@ class V3PotExecutionArchitectureTest {
                                                         .contains("CommitAcknowledgementProxy")));
         var source =
                 java.nio.file.Path.of(
-                        "../infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3");
+                        "../infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/v3");
         // The owner rejects ambient nesting; no writer can opt into an independent effects unit.
         try (var files = java.nio.file.Files.list(source)) {
             for (var path : files.filter(p -> p.toString().endsWith(".java")).toList()) {

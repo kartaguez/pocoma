@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /** Local bounded telemetry. Capacity callbacks use pre-registered counters only, without SQL/IO. */
 public final class MicrometerV3ConsumptionObservation implements ConsumptionObservation {
     private final MeterRegistry registry;
+    private final Tags scope;
     private final Map<ConsumptionId, String> names;
     private final Map<ConsumptionId, String> authorities;
     private final Map<ConsumptionId, Counter[]> capacityChanges;
@@ -34,7 +35,12 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
     };
 
     public MicrometerV3ConsumptionObservation(MeterRegistry registry) {
+        this(registry, Tags.empty());
+    }
+
+    public MicrometerV3ConsumptionObservation(MeterRegistry registry, Tags scope) {
         this.registry = Objects.requireNonNull(registry);
+        this.scope = Objects.requireNonNull(scope);
         String[] canonical = {
             "Command",
             "IdentityRequest",
@@ -66,16 +72,10 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
                     new Counter[] {
                         registry.counter(
                                 "pocoma.v3.capacity.changes",
-                                "consumption",
-                                e.getValue(),
-                                "kind",
-                                "reserved"),
+                                scope.and("consumption", e.getValue(), "kind", "reserved")),
                         registry.counter(
                                 "pocoma.v3.capacity.changes",
-                                "consumption",
-                                e.getValue(),
-                                "kind",
-                                "returned")
+                                scope.and("consumption", e.getValue(), "kind", "returned"))
                     });
         capacityChanges = Map.copyOf(changes);
     }
@@ -83,9 +83,11 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
     public void bindCapacity(CapacityView capacity, Map<ConsumptionId, Integer> limits) {
         Gauge.builder("pocoma.v3.capacity.used", capacity, c -> c.snapshot().worker())
                 .tag("scope", "worker")
+                .tags(scope)
                 .register(registry);
         Gauge.builder("pocoma.v3.capacity.limit", capacity, CapacityView::workerLimit)
                 .tag("scope", "worker")
+                .tags(scope)
                 .register(registry);
         for (var entry : limits.entrySet()) {
             var id = entry.getKey();
@@ -96,15 +98,18 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
                             capacity,
                             c -> c.snapshot().consumptions().getOrDefault(id, 0))
                     .tag("scope", name)
-                    .register(registry);
+                    .tags(scope)
+                .register(registry);
             Gauge.builder("pocoma.v3.capacity.limit", entry, Map.Entry::getValue)
                     .tag("scope", name)
-                    .register(registry);
+                    .tags(scope)
+                .register(registry);
             var count = new AtomicLong();
             pending.put(id, count);
             Gauge.builder("pocoma.v3.physical.pending", count, AtomicLong::get)
                     .tag("consumption", name)
-                    .register(registry);
+                    .tags(scope)
+                .register(registry);
         }
     }
 
@@ -115,7 +120,8 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
                             worker,
                             w -> w.snapshot().state() == state ? 1 : 0)
                     .tag("state", state.name().toLowerCase(Locale.ROOT))
-                    .register(registry);
+                    .tags(scope)
+                .register(registry);
         for (var authority : ConsumptionDefinition.Authority.values()) {
             String a = authority.name().toLowerCase(Locale.ROOT);
             Gauge.builder(
@@ -123,16 +129,17 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
                             worker,
                             w -> w.localLeases().getOrDefault(authority, 0L))
                     .tag("authority", a)
-                    .register(registry);
+                    .tags(scope)
+                .register(registry);
             registry.counter(
                     "pocoma.v3.takeover.observed",
-                    "authority",
-                    a); // No transition inferred from acquisition.
+                    scope.and("authority", a)); // No transition inferred from acquisition.
             for (String kind : List.of("lease", "claim"))
                 DistributionSummary.builder("pocoma.v3.renewal.margin")
                         .baseUnit("seconds")
                         .tags("authority", a, "kind", kind)
-                        .register(registry);
+                        .tags(scope)
+                .register(registry);
             // No runtime margin samples: these ports do not return a coherent DB clock. The SQL
             // certification observer measures them independently, never from the JVM wall clock.
             for (int lane = 0; lane < 3; lane++)
@@ -157,13 +164,14 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
                                     Integer.toString(lane),
                                     "kind",
                                     unknown ? "unknown" : "active")
-                            .register(registry);
+                            .tags(scope)
+                .register(registry);
                 }
         }
     }
 
     private void count(String metric, long amount, Tags tags) {
-        if (amount > 0) registry.counter("pocoma.v3." + metric, tags).increment(amount);
+        if (amount > 0) registry.counter("pocoma.v3." + metric, tags.and(scope)).increment(amount);
     }
 
     private void time(String metric, Duration elapsed, Tags tags) {
@@ -171,6 +179,7 @@ public final class MicrometerV3ConsumptionObservation implements ConsumptionObse
                 .tags(tags)
                 .publishPercentileHistogram()
                 .serviceLevelObjectives(BUCKETS)
+                .tags(scope)
                 .register(registry)
                 .record(elapsed);
     }

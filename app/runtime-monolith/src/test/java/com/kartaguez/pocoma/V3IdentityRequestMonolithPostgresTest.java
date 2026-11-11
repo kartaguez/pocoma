@@ -10,12 +10,11 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.*;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
@@ -379,9 +378,18 @@ class V3IdentityRequestMonolithPostgresTest {
             // Controlled internal fixture admission; the Identity-only injector has no Command
             // grant.
             write.update(
-                    "insert into"
-                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
-                        + " values (?,?,?,?,?,?,?,?::jsonb)",
+                    """
+                    with next_position as (
+                        update v3_request_counter set position=position+1
+                        where family='COMMAND' returning position
+                    ), admitted as (
+                        insert into v3_command(request_id,requester_issuer,requester_subject,
+                            binding_token,pot_id,observed_version,operation,payload)
+                        values (?,?,?,?,?,?,?,?::jsonb) returning request_id
+                    )
+                    insert into v3_request_position(family,position,request_id)
+                    select 'COMMAND', position, request_id from next_position cross join admitted
+                    """,
                     command.requestId(),
                     command.requester().issuer(),
                     command.requester().subject(),
@@ -946,11 +954,11 @@ class V3IdentityRequestMonolithPostgresTest {
     void l3_delivered_jpa_rejects_prebound_holder() throws Exception {
         try (var f = new Fixture(PG)) {
             var context = f.start();
-            var resources = context.getBean("v3WorkerResources");
+            var resources = context.getBean("processResources");
             var field = resources.getClass().getDeclaredField("writeEffects");
             field.setAccessible(true);
             var owner = (SpringAttemptTransactions) field.get(resources);
-            var pool = context.getBean("writeBusiness", com.zaxxer.hikari.HikariDataSource.class);
+            var pool = ReadMonolithI8Fixture.process(context).writeBusiness;
             var authority = new JdbcIdentityAuthority(pool, owner);
             var key = new ExternalIdentity("prebound", "anchor");
             f.write.update(

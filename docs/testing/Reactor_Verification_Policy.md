@@ -107,323 +107,34 @@ The scope MUST NOT be reconstructed after implementation merely to match the fil
 
 ⸻
 
-4. Pocoma canonical reactor slices
-
-The current Pocoma Maven structure already exposes useful runtime boundaries.
-
-Canonical slices therefore use existing runtime modules as Maven anchors.
-
-No separate Maven aggregators are required merely to implement this policy.
-
-The canonical slices are:
-
-* WEB
-* COMMAND
-* EVENT
-* PROJECTION
-* BINDING
-* LKV
-* FOUNDATION (V3 L0 test infrastructure only; section 34)
-
-A change MAY involve more than one slice.
-
-This must be explicit.
-
-⸻
-
-5. WEB slice
-
-5.1 Anchor
-
-runtime-web-api
-
-5.2 Canonical command
-
-./mvnw -pl runtime-web-api -am test
-
-5.3 Responsibility
-
-WEB proves the externally exposed HTTP application boundary.
-
-Its dependency graph currently includes capabilities such as:
-
-* command admission;
-* authentication integration;
-* Spring transaction integration;
-* persistence needed by the Web runtime;
-* command-result reads;
-* projection reads;
-* read persistence;
-* projection JSON schema handling;
-* HTTP write command handling;
-* HTTP read query handling;
-* pot reads;
-* observability.
-
-The exact dependency graph remains defined by Maven, not duplicated in this document.
-
-5.4 Typical WEB changes
-
-Examples:
-
-* controller changes;
-* HTTP endpoint changes;
-* DTO changes;
-* request validation;
-* response representation;
-* HTTP status semantics;
-* HTTP authentication wiring;
-* mapping between HTTP representations and application contracts.
-
-5.5 Expected isolation
-
-A pure WEB change SHOULD NOT require production changes in:
-
-* command consumption runtime;
-* event consumption runtime;
-* projection-task consumption runtime;
-* binding consumption runtime;
-* LKV consumption runtime.
-
-If such a change becomes necessary, the WEB boundary has been crossed.
-
-The implementation MUST NOT silently expand its scope.
-
-The crossing must first be explained.
-
-⸻
-
-6. COMMAND slice
-
-6.1 Anchor
-
-runtime-command-consumption-worker
-
-6.2 Canonical command
-
-./mvnw -pl runtime-command-consumption-worker -am test
-
-6.3 Responsibility
-
-COMMAND proves the asynchronous command execution capability.
-
-It includes the modules required by Maven for command consumption, including the relevant:
-
-* command locator;
-* consumption worker infrastructure;
-* command execution orchestration;
-* persistence;
-* transaction handling;
-* Pot command binding;
-* command-result production;
-* authorization/binding dependencies required during execution.
-
-6.4 Typical COMMAND changes
-
-Examples:
-
-* command claiming;
-* command eligibility;
-* retry semantics;
-* command execution;
-* transactional command processing;
-* business mutation;
-* Event append performed by command execution;
-* command outcome;
-* resulting version;
-* terminal command state;
-* command authorization during execution;
-* binding fencing used by command execution.
-
-6.5 Cross-slice warning
-
-A command may consume information owned by another capability without making the complete owner runtime part of COMMAND.
-
-For example, command execution may depend on binding contracts or persistence primitives.
-
-That does not automatically mean the complete BINDING runtime must be tested.
-
-The BINDING slice becomes a secondary slice only when BINDING production behavior itself changes.
-
-⸻
-
-7. EVENT slice
-
-7.1 Anchor
-
-runtime-event-consumption-worker
-
-7.2 Canonical command
-
-./mvnw -pl runtime-event-consumption-worker -am test
-
-7.3 Responsibility
-
-EVENT proves processing originating from durable Events.
-
-Typical responsibilities include:
-
-* Event discovery;
-* Event claiming;
-* Event processing;
-* creation of downstream work;
-* interactions with ProjectionTask scheduling;
-* Event-driven command-result behavior where applicable.
-
-7.4 Typical EVENT changes
-
-Examples:
-
-* Event eligibility;
-* Event consumer semantics;
-* mapping Event → downstream task;
-* Event processing retries;
-* scheduling behavior initiated from Events;
-* Event processing transaction semantics.
-
-7.5 Expected isolation
-
-Changes to EVENT SHOULD NOT automatically require:
-
-* WEB;
-* LKV;
-* BINDING runtime;
-* COMMAND runtime.
-
-Shared contracts may justify additional slices, but this must be declared.
-
-⸻
-
-8. PROJECTION slice
-
-8.1 Anchor
-
-runtime-task-consumption-worker
-
-8.2 Canonical command
-
-./mvnw -pl runtime-task-consumption-worker -am test
-
-8.3 Responsibility
-
-PROJECTION proves ProjectionTask execution and projection materialization.
-
-The current runtime dependency graph includes capabilities related to:
-
-* ProjectionTask execution;
-* projection persistence;
-* read persistence;
-* generic consumption;
-* projection orchestration;
-* Pot projection;
-* Balance projection;
-* Command Result projection;
-* projection JSON schema handling.
-
-8.4 Typical PROJECTION changes
-
-Examples:
-
-* ProjectionTask execution;
-* task eligibility;
-* projection materialization;
-* projection artifact publication;
-* READ_POT;
-* BALANCES;
-* COMMAND_RESULT;
-* projection failure handling;
-* projection version continuity;
-* projection JSON contract.
-
-8.5 Projection-specific narrowing
-
-When practical, implementation feedback MAY initially run tests only for the directly modified projection modules.
-
-However, closure of a projection-related step SHOULD use the canonical PROJECTION slice when the runtime materialization path is affected.
-
-⸻
-
-9. BINDING slice
-
-9.1 Anchor
-
-runtime-binding-consumption-worker
-
-9.2 Canonical command
-
-./mvnw -pl runtime-binding-consumption-worker -am test
-
-9.3 Responsibility
-
-BINDING proves the asynchronous external-identity/binding lifecycle capability.
-
-It includes the binding locator and the persistence/transaction infrastructure required by that runtime.
-
-Typical concepts owned or materially governed by this capability include:
-
-* external identity binding;
-* binding lifecycle;
-* BindingId;
-* binding revisions;
-* binding facts;
-* attach/detach processing;
-* binding stream continuity;
-* binding-derived current state.
-
-9.4 Important distinction: BINDING ownership vs binding use
-
-Binding information is also consumed by other slices.
-
-In particular, COMMAND may observe or fence binding state during command execution.
-
-Therefore:
-
-* changing command-side use of an existing binding contract may require COMMAND only;
-* changing the binding contract itself generally requires BINDING and every materially affected consumer.
-
-Example:
-
-Change:
-fence implementation inside command execution,
-without changing the binding persistence contract.
-Slices:
-COMMAND
-
-versus:
-
-Change:
-semantic meaning or persistence contract of binding revision R.
-Slices:
-BINDING
-COMMAND
-
-This distinction prevents every binding-related command change from unnecessarily becoming a system-wide verification.
-
-⸻
-
-10. LKV slice
-
-10.1 Anchor
-
-runtime-latest-known-version-consumption-worker
-
-10.2 Canonical command
-
-./mvnw -pl runtime-latest-known-version-consumption-worker -am test
-
-10.3 Responsibility
-
-LKV proves Last Known Version consumption and persistence behavior.
-
-10.4 Expected isolation
-
-LKV is intentionally a narrow capability.
-
-A change outside LKV SHOULD NOT require production changes to the LKV runtime unless Last Known Version semantics themselves are affected.
-
-Unexpected LKV impact is therefore a particularly strong coupling signal.
-
-⸻
+4. Pocoma canonical reactor slices (L7 reactor)
+
+Declare the materially affected boundaries before implementation. The V3 reactor
+has 42 child modules and one aggregator. Its canonical commands run from `app/`.
+
+| Slice | Canonical command | Responsibility |
+| --- | --- | --- |
+| WEB | `./mvnw -pl runtime-web-write,runtime-web-read -am test` | WRITE admission/Link; READ queries, visibility, authorization, transport bounds and maintenance status. Each HTTP Runtime owns its own Compose and SQL principal. |
+| COMMAND | `./mvnw -pl runtime-worker-process -am test` | Burnable Command and IdentityRequest; WRITE execution, publication, recovery, fencing and local capacity. |
+| PROJECTION | `./mvnw -pl runtime-worker-materialize -am test` | NonBurnable materialization, exact WRITE source SELECT, READ effects, reconstruction and convergence. |
+| FOUNDATION | `./mvnw -pl infra-tx-spring -am test` | Physical transaction contexts, classification and isolation. |
+
+A bounded test of a single capability, adapter or Runtime may provide faster
+feedback. A filtered or compile-only execution does not close a canonical slice.
+Shared Consumption or physical-transaction changes cross COMMAND and PROJECTION
+when both variants are affected. Add WEB only when HTTP contracts, composition,
+visibility or security are affected. Identity authority belongs to COMMAND;
+materialized binding belongs to PROJECTION; binding consultation belongs to WEB.
+
+The former EVENT, BINDING and LKV anchors are retired with executable V2. Their
+historical evidence remains readable. Applicable V3 invariants are proven in the
+owning V3 slice; the removed Runtime anchors are not selectable.
+
+The Monolith is an additional explicit composition gate. The global architecture
+gate includes the complete reactor catalogue, dependency matrix, resource
+ownership and forbidden production closures. Its test-only access to all modules
+must never become a Runtime dependency. A full unfiltered certification is required
+for L7 closure, after the final sources and physical topology have stabilized.
 
 11. Multi-slice changes
 
@@ -436,13 +147,13 @@ Explicitly compose the required slices.
 Example:
 
 ./mvnw \
-  -pl runtime-command-consumption-worker,runtime-binding-consumption-worker \
+  -pl runtime-worker-process,runtime-worker-materialize \
   -am test
 
 Another example:
 
 ./mvnw \
-  -pl runtime-event-consumption-worker,runtime-task-consumption-worker \
+  -pl runtime-worker-process,runtime-worker-materialize \
   -am test
 
 The selected slices MUST correspond to actual changed behavior.
@@ -457,7 +168,7 @@ The selected slices MUST correspond to actual changed behavior.
 
 Example:
 
-./mvnw -pl runtime-command-consumption-worker -am test
+./mvnw -pl runtime-worker-process -am test
 
 The anchor identifies the capability.
 
@@ -493,7 +204,7 @@ When downstream consumers need verification, prefer explicitly selected consumer
 Example:
 
 ./mvnw \
-  -pl runtime-command-consumption-worker,runtime-web-api \
+  -pl runtime-worker-process,runtime-web-write,runtime-web-read \
   -am test
 
 rather than deriving an uncontrolled downstream closure.
@@ -526,7 +237,7 @@ select consumer slices, not merely the shared producer module.
 For example, if a shared persistence contract affects COMMAND and BINDING:
 
 ./mvnw \
-  -pl runtime-command-consumption-worker,runtime-binding-consumption-worker \
+  -pl runtime-worker-process,runtime-worker-materialize \
   -am test
 
 A shared-module modification does NOT automatically imply FULL.
@@ -897,7 +608,7 @@ Every future Pocoma Step Plan involving implementation MUST contain a section eq
 Expected production impact:
 - ...
 Primary slice:
-- WEB / COMMAND / EVENT / PROJECTION / BINDING / LKV
+- WEB / COMMAND / PROJECTION / FOUNDATION
 Secondary slices:
 - NONE / ...
 Forbidden production impact:
@@ -981,7 +692,7 @@ WEB
 Secondary slices:
 NONE
 Command:
-./mvnw -pl runtime-web-api -am test
+./mvnw -pl runtime-web-write,runtime-web-read -am test
 Forbidden production impact:
 COMMAND
 EVENT
@@ -1002,7 +713,7 @@ Example B — Command execution algorithm
 Primary slice:
 COMMAND
 Command:
-./mvnw -pl runtime-command-consumption-worker -am test
+./mvnw -pl runtime-worker-process -am test
 Secondary slices:
 NONE unless another capability's production contract changes
 FULL:
@@ -1018,7 +729,7 @@ Secondary slice:
 COMMAND
 Command:
 ./mvnw \
-  -pl runtime-binding-consumption-worker,runtime-command-consumption-worker \
+  -pl runtime-worker-materialize,runtime-worker-process \
   -am test
 architecture-tests:
 depends on whether dependency/boundary rules change
@@ -1035,7 +746,7 @@ Secondary slice:
 PROJECTION
 Command:
 ./mvnw \
-  -pl runtime-event-consumption-worker,runtime-task-consumption-worker \
+  -pl runtime-worker-process,runtime-worker-materialize \
   -am test
 FULL:
 NOT REQUIRED for ordinary step closure
@@ -1224,7 +935,7 @@ When several declared slices share upstream modules, prefer one composed
 invocation, for example:
 
 ```
-./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker -am test
+./mvnw -pl runtime-worker-process -am test
 ```
 
 Maven builds/tests a shared module once within that invocation. This is allowed
@@ -1300,7 +1011,7 @@ Commands from repository root (Maven commands execute inside `app/`):
 python3 -B scripts/testing/verify.py FAST identity
 python3 -B scripts/testing/verify.py CHANGE identity
 python3 -B scripts/testing/verify.py INTEGRATION identity
-python3 -B scripts/testing/verify.py CHANGE COMMAND,EVENT
+python3 -B scripts/testing/verify.py CHANGE COMMAND,PROJECTION
 python3 -B scripts/testing/verify.py CERTIFICATION --dry-run
 python3 -B scripts/testing/verify.py CERTIFICATION
 python3 -B scripts/testing/verify.py QUARANTINE i5_r05
@@ -1347,7 +1058,7 @@ due even when Maven succeeds.
 | Identity / Invitation | `IdentityValueContractsTest`, `IdentityTransitionsTest`, `ExecuteIdentityRequestTest`, `IdentityRequestContractTest`: immutable identity, stale token rejection, Link/Unlink, durable request contract. | FAST; CHANGE adds authority/history/schema and runtime tests. Future invitation/admission/consent changes need their own proofs; external ID-02 is not certified here. |
 | Security / Authorization | `IdentityPrivilegesPostgresTest`: effective runtime permissions; `V3IdentityRequestCompositionPostgresTest`: preflight refusal, indirect exposure, logging and auxiliary privilege matrix. | CHANGE Identity. Shared security or HTTP/AuthN changes add WEB and every affected consumer, plus qualified external protocols. |
 | Transaction / Atomicity | `IdentityConcurrencyPostgresTest`, `IdentityRequestExecutionPostgresTest`: races, rollback and durable effects; `AttemptTransactionsPostgresTest`, foundation transaction tests: real physical transaction boundaries. | CHANGE for Identity-local behavior; INTEGRATION for shared transaction changes, with every affected consumer and applicable adverse interleavings. |
-| Events / Publication | `IdentityPublicationPostgresTest`: FK prefix/commit publication; `IdentitySchemaPostgresTest`: deferred constraints and non-Identity suffix access; global `EventPublicationContractArchitectureTest` when its gate is required: publication structure. | CHANGE Identity; INTEGRATION adds transaction/composition checks. Shared publication changes add COMMAND/EVENT/PROJECTION as actually affected. |
+| Events / Publication | `IdentityPublicationPostgresTest`: FK prefix/commit publication; `IdentitySchemaPostgresTest`: deferred constraints and non-Identity suffix access; global `EventPublicationContractArchitectureTest` when its gate is required: publication structure. | CHANGE Identity; INTEGRATION adds transaction/composition checks. Shared publication changes add COMMAND/PROJECTION as actually affected. |
 | Consumption / Discovery | `IdentityDiscoveryPostgresTest`, `V3IdentityRequestCompositionPostgresTest`: Identity source/checkpoints and real runtime; full `DiscoveryPostgresTest` proves broader windows and recovery. | Identity CHANGE does not run the entire Discovery stress suite. Discovery algorithm/routing/claim changes require its real affected campaigns and consumers. |
 | Projection / READ | Existing READ JDBC/projection and task-runtime tests prove current binding/results/projection contracts; no complete L4 business projection is inferred. | PROJECTION plus actual changed READ owners; Identity recipe alone is insufficient. |
 | Runtime / Assembly | `V3IdentityRequestCompositionPostgresTest`, `V3IdentityRequestMonolithPostgresTest`, `V3WorkerCompositionPostgresTest`, `V3PotCommandCompositionPostgresTest`: actual roots and neighboring participants. | CHANGE Worker root; INTEGRATION adds monolith/adjacent composition. Distribution changes add package/start/restart proofs. |
@@ -1360,11 +1071,11 @@ due even when Maven succeeds.
 Native commands from `app/`, using the canonical affected consumer anchor(s):
 
 ```sh
-./mvnw -pl runtime-command-consumption-worker -am compile
-./mvnw -pl runtime-command-consumption-worker -am test-compile
-./mvnw -pl runtime-command-consumption-worker -am test
-./mvnw -pl runtime-command-consumption-worker -am package -DskipTests
-./mvnw -pl runtime-command-consumption-worker -am install -DskipTests
+./mvnw -pl runtime-worker-process -am compile
+./mvnw -pl runtime-worker-process -am test-compile
+./mvnw -pl runtime-worker-process -am test
+./mvnw -pl runtime-worker-process -am package -DskipTests
+./mvnw -pl runtime-worker-process -am install -DskipTests
 ```
 
 For pure Identity/domain feedback, the smaller native command is

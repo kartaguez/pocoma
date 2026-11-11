@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
+import com.kartaguez.pocoma.compose.web.read.v3.V3ReadFacadeComposition;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
@@ -20,14 +22,13 @@ import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.write.identity.v3.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.*;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
@@ -49,6 +50,9 @@ import java.util.concurrent.atomic.*;
 import java.util.function.*;
 
 public final class ReadMonolithI8Fixture implements AutoCloseable {
+    private static final String WORKER = "pocoma.v3.worker.";
+    private boolean processEnabled;
+
     static final String IMAGE =
             "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73";
 
@@ -79,7 +83,10 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
 
     static void await(BooleanSupplier predicate, Duration timeout) throws Exception {
         long end = System.nanoTime() + timeout.toNanos();
-        while (!predicate.getAsBoolean() && System.nanoTime() < end) Thread.sleep(50);
+        while (System.nanoTime() < end) {
+            if (predicate.getAsBoolean()) return;
+            Thread.sleep(50);
+        }
         assertTrue(predicate.getAsBoolean(), "runtime condition deadline");
     }
 
@@ -93,6 +100,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
     final String schema = "i5_" + UUID.randomUUID().toString().replace("-", "");
     final String writeRole = schema + "_w",
             readRole = schema + "_r",
+            sourceRole = schema + "_s",
             reactRole = schema + "_a",
             injectorRole = schema + "_i";
     final String writeUrl, readUrl;
@@ -125,7 +133,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         read =
                 new JdbcTemplate(
                         new DriverManagerDataSource(readUrl, pg.getUsername(), pg.getPassword()));
-        for (String role : List.of(writeRole, readRole, reactRole, injectorRole))
+        for (String role : List.of(writeRole, readRole, sourceRole, reactRole, injectorRole))
             write.execute("create role " + role + " login password 'i5-fixture'");
         for (boolean w : List.of(true, false)) {
             String url = w ? writeUrl : readUrl,
@@ -170,6 +178,10 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                             "grant-l2-lifecycle.sql",
                             "grant-l2-discovery.sql")) script(script, w);
         }
+        script("grant-l7-write-source-read.sql",true);
+        var maintenance=new com.kartaguez.pocoma.infra.postgres.read.v3.maintenance.JdbcReadMaintenanceAuthority(read);
+        maintenance.ensureInitialized();
+        read.execute("grant select on public.read_maintenance_state to "+readRole);
         String prefix = "pocoma.v3.worker.";
         properties.put(prefix + "enabled", "true");
         properties.put(prefix + "environment", "DEV");
@@ -226,6 +238,10 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                 properties.put(p + "password", "i5-fixture");
             }
         }
+        properties.put(prefix+"write-source-read.url",writeUrl);
+        properties.put(prefix+"write-source-read.username",sourceRole);
+        properties.put(prefix+"write-source-read.password","i5-fixture");
+        properties.put("pocoma.v3.process.source-read-role",sourceRole);
         trace.add(
                 "initial expected: nine canonical business contracts, no technical probes; no"
                         + " slots/K/effects; fresh "
@@ -253,6 +269,9 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                         "expected_database=" + (w ? pg.getDatabaseName() : "i5_read"),
                         "-v",
                         "expected_schema=" + schema,
+                        "-v", "write_database="+pg.getDatabaseName(),
+                        "-v", "write_schema="+schema,
+                        "-v", "source_role="+sourceRole,
                         "-v",
                         "expected_admin=" + pg.getUsername(),
                         "-v",
@@ -293,12 +312,12 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
     }
 
     ConfigurableApplicationContext start(Map<String, Object> overrides) {
-        var all = new LinkedHashMap<>(properties);
-        all.putAll(overrides);
+        var all = compositionProperties(overrides);
         var app = new SpringApplication(root);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setDefaultProperties(all);
-        var ctx = app.run("--spring.profiles.active=v3-read-worker");
+        app.setAdditionalProfiles(workerProfiles());
+        var ctx = app.run();
         contexts.add(ctx);
         return ctx;
     }
@@ -474,17 +493,15 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
     }
 
     V3ConsumptionWorker worker(ConfigurableApplicationContext ctx) {
-        return ctx.getBean(V3ConsumptionWorker.class);
+        return ctx.getBean("materializeWorker", V3ConsumptionWorker.class);
     }
 
     void drain(ConfigurableApplicationContext ctx) throws Exception {
+        var workers = ctx.getBeansOfType(V3ConsumptionWorker.class).values();
         var callback = new AtomicInteger();
-        worker(ctx).requestDrain(callback::incrementAndGet);
-        await(
-                () ->
-                        worker(ctx).snapshot().state() == WorkerView.State.STOPPED
-                                && callback.get() == 1);
-        assertEquals(1, callback.get());
+        workers.forEach(worker -> worker.requestDrain(callback::incrementAndGet));
+        await(() -> callback.get() == workers.size() && workers.stream()
+                .allMatch(worker -> worker.snapshot().state() == WorkerView.State.STOPPED));
         ctx.close();
         contexts.remove(ctx);
     }
@@ -547,7 +564,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
             ConsumptionParticipant participant,
             javax.sql.DataSource source,
             SpringAttemptTransactions owner) {
-        var definition = V3ConsumptionWorkerSettings.definition(name);
+        var definition = MaterializeSettings.definition(name);
         write.update(
                 "insert into"
                     + " consumption_slot(consumption_id,consumable_id,partition_hash,partition_id)"
@@ -641,7 +658,8 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
     }
 
     void select(List<String> names, boolean writeParticipants) {
-        String prefix = "pocoma.v3.worker.";
+        processEnabled = writeParticipants;
+        String prefix = WORKER;
         properties.put(prefix + "read-participants", String.join(",", names));
         properties.put(prefix + "identity-request", Boolean.toString(writeParticipants));
         properties.put(prefix + "command-enabled", Boolean.toString(writeParticipants));
@@ -657,8 +675,68 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                         .collect(java.util.stream.Collectors.joining(";")));
     }
 
+    String[] workerProfiles() {
+        return processEnabled
+                ? new String[] {"v3-read-worker", "v3-consumption-worker-dev"}
+                : new String[] {"v3-read-worker"};
+    }
+
+    Map<String, Object> compositionProperties(Map<String, Object> overrides) {
+        var values = new LinkedHashMap<>(properties);
+        values.putAll(overrides);
+        var common = new LinkedHashMap<String, Object>();
+        values.forEach((name, value) -> {
+            if (name.startsWith(WORKER)) common.put(name.substring(WORKER.length()), value);
+        });
+        for (String owner : workerProfiles().length == 2
+                ? List.of("process", "materialize") : List.of("materialize")) {
+            var selected = new LinkedHashMap<>(common);
+            boolean process = owner.equals("process");
+            for (String key : List.of("consumption-limits", "partitions")) {
+                String separator = key.equals("partitions") ? ";" : ",";
+                String entries = selected.get(key).toString();
+                selected.put(key, Arrays.stream(entries.split(separator))
+                        .filter(entry -> !entry.isEmpty())
+                        .filter(entry -> process == (entry.startsWith("Command=")
+                                || entry.startsWith("IdentityRequest=")))
+                        .collect(java.util.stream.Collectors.joining(separator)));
+            }
+            if (process) {
+                selected.remove("read-participants");
+                selected.keySet().removeIf(key -> key.startsWith("read-") || key.startsWith("write-source-read."));
+                selected.put("dev-targets", selected.get("dev-targets").toString().split(";")[0]);
+                selected.put("worker-name", selected.get("worker-name") + "-process");
+            } else {
+                selected.put("command-enabled", "false");
+                selected.put("identity-request", "false");
+                selected.keySet().removeIf(key -> key.startsWith("write-business.") || key.startsWith("write-control."));
+                selected.put("dev-targets", selected.get("dev-targets").toString().replace(
+                        "," + writeRole + ",", "," + sourceRole + ","));
+            }
+            selected.forEach((key, value) -> values.put("pocoma.v3." + owner + "." + key, value));
+        }
+        return values;
+    }
+
+    static com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources
+            materialize(ConfigurableApplicationContext context) {
+        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources.class);
+    }
+
+    static com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources
+            process(ConfigurableApplicationContext context) {
+        return context.getBean(com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources.class);
+    }
+
     V3ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {
-        return context.getBean(V3ReadFacadeComposition.Services.class);
+        var resources = materialize(context);
+        var settings = context.getBean(com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings.class);
+        return V3ReadFacadeComposition.create(resources.readBusiness, resources.readEffects,
+                new com.kartaguez.pocoma.contract.readquery.ReadLimitsV3(
+                        Integer.parseInt(properties.get(WORKER + "read-limits.expense-batch").toString()),
+                        Integer.parseInt(properties.get(WORKER + "read-limits.navigation-page").toString()),
+                        Integer.parseInt(properties.get(WORKER + "read-limits.response-budget").toString())),
+                Set.copyOf(settings.readParticipants()), resources::workerState);
     }
 
     ExternalIdentity eui(String subject) {

@@ -3,7 +3,6 @@ import com.kartaguez.pocoma.contract.readquery.InvitationRead;
 import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
 
 import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.engine.read.pot.v3.*;
 
 import jakarta.servlet.http.*;
 

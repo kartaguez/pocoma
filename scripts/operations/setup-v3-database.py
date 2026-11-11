@@ -9,16 +9,16 @@ Initializes:
    - Write: V1..V10 on v3_write in pocoma
    - Read: V1..V7, V10 on v3_read in pocoma_read
 5. Routing, lifecycle, discovery, identity logging, and admission SQL scripts.
-6. Generates application-v3.properties with resolved PostgreSQL inet_server_addr.
+6. Dedicated SELECT grants for WRITE source, HTTP READ and READ maintenance status.
 """
 
 from pathlib import Path
-import re
+import argparse
+import os
 import subprocess
-import sys
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-POSTGRES_CONTAINER = "pocoma-functional-postgres-1"
+POSTGRES_CONTAINER = "pocoma-v3-postgres"
 POSTGRES_USER = "pocoma"
 POSTGRES_PASSWORD = "pocoma-local-only"
 
@@ -80,6 +80,15 @@ def initialize_databases_and_roles():
       IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pocoma_admission') THEN
         CREATE ROLE pocoma_admission LOGIN PASSWORD 'pocoma-local-only';
       END IF;
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pocoma_write_source_read') THEN
+        CREATE ROLE pocoma_write_source_read LOGIN PASSWORD 'pocoma-source-local-only';
+      END IF;
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pocoma_read_http') THEN
+        CREATE ROLE pocoma_read_http LOGIN PASSWORD 'pocoma-read-http-local-only';
+      END IF;
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pocoma_read_status') THEN
+        CREATE ROLE pocoma_read_status LOGIN PASSWORD 'pocoma-read-status-local-only';
+      END IF;
       IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pocoma_react') THEN
         CREATE ROLE pocoma_react LOGIN PASSWORD 'pocoma-local-only';
       END IF;
@@ -112,9 +121,6 @@ def apply_migrations(db, schema, admin, runtime, migration_files):
 def initialize_v3_write():
     reg = psql("pocoma_write", "SELECT to_regclass('v3_write.v3_command')::text;")
     if reg and reg != "":
-        # Ensure isolated read permissions on WRITE for pocoma_read (idempotent)
-        psql("pocoma_write", "GRANT USAGE ON SCHEMA v3_write TO pocoma_read;", check=False)
-        psql("pocoma_write", "GRANT SELECT ON v3_write.v3_event_counter, v3_write.v3_event_position TO pocoma_read;", check=False)
         print("  ✓ Schema v3_write already initialized.")
         return
 
@@ -122,17 +128,17 @@ def initialize_v3_write():
     psql("pocoma_write", "CREATE SCHEMA IF NOT EXISTS v3_write AUTHORIZATION pocoma;")
 
     write_migrations = [
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V1__pot_components.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V3__point_history_indexes.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V4__write_effect_indexes.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V7__public_admission.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V8__admission_column_reads.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-invitation/migration/V10__invitation_history.sql",
-        "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V11__sequential_request_publication.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-pot/migration/V1__pot_components.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-pot/migration/V3__point_history_indexes.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-pot/migration/V4__write_effect_indexes.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-admission/migration/V7__public_admission.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-admission/migration/V8__admission_column_reads.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-invitation/migration/V10__invitation_history.sql",
+        "app/infra-postgres-write/src/main/resources/db/v3-identity/migration/V11__sequential_request_publication.sql",
     ]
     apply_migrations("pocoma_write", "v3_write", "pocoma", "pocoma_write", write_migrations)
 
@@ -180,10 +186,6 @@ def initialize_v3_write():
         content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
         psql_script("pocoma_write", "v3_write", content, variables=variables)
 
-    # Isolated read permissions on WRITE event streams for READ reconstruction authority
-    psql("pocoma_write", "GRANT USAGE ON SCHEMA v3_write TO pocoma_read;")
-    psql("pocoma_write", "GRANT SELECT ON v3_write.v3_event_counter, v3_write.v3_event_position TO pocoma_read;")
-
     print("  ✓ Schema v3_write successfully provisioned and secured.")
 
 
@@ -201,14 +203,14 @@ def initialize_v3_read():
     psql("pocoma_read", "CREATE SCHEMA IF NOT EXISTS v3_read AUTHORIZATION pocoma;")
 
     read_migrations = [
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V3__pot_version.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V4__pot_balance.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V5__pot_visibility.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V6__current_binding.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
-        "app/infra-persistence-read-jdbc/src/main/resources/db/v3-read-invitation/migration/V10__current_invitation.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V3__pot_version.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V4__pot_balance.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V5__pot_visibility.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V6__current_binding.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
+        "app/infra-postgres-read/src/main/resources/db/v3-read-invitation/migration/V10__current_invitation.sql",
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 
@@ -243,128 +245,35 @@ def initialize_v3_read():
         content = (REPO_ROOT / script_file).read_text(encoding="utf-8")
         psql_script("pocoma_read", "v3_read", content, variables=variables)
 
-    # Bootstrap persistent maintenance authority in public schema
-    maint_content = (REPO_ROOT / "scripts/v3/bootstrap-read-maintenance.sql").read_text(encoding="utf-8")
-    psql_script("pocoma_read", "public", maint_content)
-
     print("  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.")
 
 
-def generate_properties_file():
-    print("▶ Generating docker/monolith/application-v3.properties...")
-    cmd = [
-        "docker", "exec", "-i", "-e", f"PGPASSWORD={POSTGRES_PASSWORD}",
-        POSTGRES_CONTAINER,
-        "psql", "-X", "-h", "postgres", "-U", POSTGRES_USER, "-d", "pocoma_write", "-v", "ON_ERROR_STOP=1", "-tAc",
-        "SELECT inet_server_addr()::text, inet_server_port();"
-    ]
-    res = subprocess.run(cmd, capture_output=True, text=True)
-    if res.returncode == 0 and res.stdout.strip():
-        parts = res.stdout.strip().split("|")
-        server_addr, server_port = parts[0], parts[1]
-    else:
-        server_addr = "127.0.0.1/32"
-        server_port = "5432"
-
-    config_dir = REPO_ROOT / "docker/monolith"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    prop_file = config_dir / "application-v3.properties"
-
-    dev_targets = (
-        f"postgres,5432,pocoma_write,v3_write,pocoma_write,{server_addr},{server_port};"
-        f"postgres,5432,pocoma_read,v3_read,pocoma_read,{server_addr},{server_port}"
-    )
-
-    properties_content = f"""# Auto-generated Pocoma V3 Monolith Runtime Properties
-spring.flyway.enabled=false
-spring.jpa.open-in-view=false
-management.health.db.enabled=false
-management.endpoints.web.exposure.include=health,prometheus
-management.endpoint.health.probes.enabled=true
-management.prometheus.metrics.export.enabled=true
-server.port=8080
-server.address=0.0.0.0
-management.server.port=18081
-management.server.address=0.0.0.0
-
-# HTTP Security / Keycloak OIDC
-pocoma.v3.http.issuer=http://localhost:8081/realms/pocoma
-pocoma.v3.http.audience=pocoma-api
-pocoma.v3.http.jwk-set-uri=http://keycloak:8080/realms/pocoma/protocol/openid-connect/certs
-
-# HTTP Read Facade Pool
-pocoma.v3.http.read.url=jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read
-pocoma.v3.http.read.username=pocoma_read
-pocoma.v3.http.read.password=pocoma-local-only
-
-# HTTP Admission
-pocoma.v3.http.admission.url=jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write
-pocoma.v3.http.admission.username=pocoma_admission
-pocoma.v3.http.admission.password=pocoma-local-only
-pocoma.v3.http.admission.database=pocoma_write
-pocoma.v3.http.admission.schema=v3_write
-pocoma.v3.http.admission.lookup-key-id=stable
-pocoma.v3.http.admission.lookup-key=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-pocoma.v3.http.admission.comparison-current=k1
-pocoma.v3.http.admission.comparison-key-ids=k1
-pocoma.v3.http.admission.comparison-keys.k1=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-
-# Read Limits
-pocoma.v3.worker.read-limits.expense-batch=50
-pocoma.v3.worker.read-limits.navigation-page=100
-pocoma.v3.worker.read-limits.response-budget=16000000
-
-# Worker Settings
-pocoma.v3.worker.enabled=true
-pocoma.v3.worker.environment=DEV
-pocoma.v3.worker.fixture-identity=false
-pocoma.v3.worker.identity-authority=real
-pocoma.v3.worker.identity-request=true
-pocoma.v3.worker.command-enabled=true
-pocoma.v3.worker.technical-probes=false
-pocoma.v3.worker.worker-name=monolith-worker
-pocoma.v3.worker.worker-limit=4
-pocoma.v3.worker.read-participants=MaterializePotVersion,MaterializePotBalance,MaterializePotVisibility,MaterializeCurrentBinding,MaterializeCommandResult,MaterializeIdentityRequestResult
-pocoma.v3.worker.consumption-limits=MaterializePotVersion=1,MaterializePotBalance=1,MaterializePotVisibility=1,MaterializeCurrentBinding=1,MaterializeCommandResult=1,MaterializeIdentityRequestResult=1,Command=1,IdentityRequest=1
-pocoma.v3.worker.partitions=MaterializePotVersion=0|1|2|3;MaterializePotBalance=0|1|2|3;MaterializePotVisibility=0|1|2|3;MaterializeCurrentBinding=0|1|2|3;MaterializeCommandResult=0|1|2|3;MaterializeIdentityRequestResult=0|1|2|3;Command=0|1|2|3;IdentityRequest=0|1|2|3
-pocoma.v3.worker.lifecycle.lease-duration-ms=240000
-
-# Targets & Pilot
-pocoma.v3.worker.dev-targets={dev_targets}
-pocoma.v3.pilot.write.database=pocoma_write
-pocoma.v3.pilot.write.schema=v3_write
-pocoma.v3.pilot.write.username=pocoma_write
-pocoma.v3.pilot.write.password=pocoma-local-only
-pocoma.v3.pilot.write.url=jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write
-pocoma.v3.pilot.read.database=pocoma_read
-pocoma.v3.pilot.read.schema=v3_read
-pocoma.v3.pilot.read.username=pocoma_read
-pocoma.v3.pilot.read.password=pocoma-local-only
-pocoma.v3.pilot.read.url=jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read
-
-# Worker Pools
-pocoma.v3.worker.write-business.url=jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write
-pocoma.v3.worker.write-business.username=pocoma_write
-pocoma.v3.worker.write-business.password=pocoma-local-only
-pocoma.v3.worker.write-control.url=jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write
-pocoma.v3.worker.write-control.username=pocoma_write
-pocoma.v3.worker.write-control.password=pocoma-local-only
-pocoma.v3.worker.read-business.url=jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read
-pocoma.v3.worker.read-business.username=pocoma_read
-pocoma.v3.worker.read-business.password=pocoma-local-only
-pocoma.v3.worker.read-control.url=jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read
-pocoma.v3.worker.read-control.username=pocoma_read
-pocoma.v3.worker.read-control.password=pocoma-local-only
-"""
-    prop_file.write_text(properties_content, encoding="utf-8")
-    print(f"  ✓ {prop_file} written.")
+def grant_runtime_readers():
+    parameters = {
+        "grant-l7-write-source-read.sql": ("pocoma_write", "v3_write", {
+            "write_database": "pocoma_write", "write_schema": "v3_write",
+            "source_role": "pocoma_write_source_read",
+        }),
+        "grant-l7-http-read.sql": ("pocoma_read", "v3_read", {
+            "read_database": "pocoma_read", "read_schema": "v3_read",
+            "query_role": "pocoma_read_http", "status_role": "pocoma_read_status",
+        }),
+    }
+    for script, (database, schema, variables) in parameters.items():
+        content = (REPO_ROOT / "scripts/v3" / script).read_text(encoding="utf-8")
+        psql_script(database, schema, content, variables)
 
 
 def main():
+    global POSTGRES_CONTAINER
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--postgres-container", default=os.environ.get("POCOMA_POSTGRES_CONTAINER", POSTGRES_CONTAINER))
+    args = parser.parse_args()
+    POSTGRES_CONTAINER = args.postgres_container
     initialize_databases_and_roles()
     initialize_v3_write()
     initialize_v3_read()
-    generate_properties_file()
+    grant_runtime_readers()
     print("✓ V3 PostgreSQL initialization complete.")
 
 

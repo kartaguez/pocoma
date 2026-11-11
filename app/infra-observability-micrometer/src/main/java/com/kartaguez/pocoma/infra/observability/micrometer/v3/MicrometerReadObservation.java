@@ -8,11 +8,13 @@ import java.util.function.IntSupplier;
 public final class MicrometerReadObservation implements ReadObservation {
     private final MeterRegistry registry;
     private final Counter rejections;
+    private IntSupplier quotaPermits;
     public MicrometerReadObservation(MeterRegistry registry) {
         this.registry=registry; this.rejections=registry==null?null:registry.counter("pocoma.v3.read.quota.rejections","scope","sql");
     }
     public void quota(IntSupplier available) {
-        if(registry!=null) Gauge.builder("pocoma.v3.read.quota.permits",available,IntSupplier::getAsInt).tag("scope","sql").register(registry);
+        quotaPermits=java.util.Objects.requireNonNull(available);
+        if(registry!=null) Gauge.builder("pocoma.v3.read.quota.permits",this,o->o.quotaPermits.getAsInt()).tag("scope","sql").register(registry);
     }
     public void rejected() { if(rejections!=null) rejections.increment(); }
     public void record(String operation,String outcome,long elapsedNanos) {

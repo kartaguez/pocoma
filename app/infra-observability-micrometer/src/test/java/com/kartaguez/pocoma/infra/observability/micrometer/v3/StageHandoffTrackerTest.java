@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.infra.observability.micrometer.v3;
+import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;

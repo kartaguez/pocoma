@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.architecture.v3;
+import com.kartaguez.pocoma.PocomaMaterializeWorkerApplication;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 
@@ -21,7 +22,7 @@ class V3ConsumptionEngineArchitectureTest {
                 select(
                         PROD,
                         c -> c.getPackageName().equals("com.kartaguez.pocoma.engine.read.pot.v3"));
-        assertTrue(queries.size() >= 4);
+        assertTrue(queries.size() >= 3);
         noClasses()
                 .should()
                 .dependOnClassesThat()
@@ -41,10 +42,10 @@ class V3ConsumptionEngineArchitectureTest {
     void i8ReadRootsUseExplicitCompositionAndExcludeLegacyScanning() {
         for (var root :
                 List.of(
-                        com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication.class,
+                        com.kartaguez.pocoma.PocomaMaterializeWorkerApplication.class,
                         com.kartaguez.pocoma.PocomaRuntimeMonolithApplication.class)) {
             assertArrayEquals(
-                    new String[] {"com.kartaguez.pocoma.runtime.bootstrap"},
+                    new String[] {"com.kartaguez.pocoma.runtime.bootstrap.empty"},
                     root.getAnnotation(
                                     org.springframework.boot.autoconfigure.SpringBootApplication
                                             .class)
@@ -56,21 +57,9 @@ class V3ConsumptionEngineArchitectureTest {
                                                             .class)
                                             .value())
                             .contains(
-                                    com.kartaguez.pocoma.runtime.consumption.v3
-                                            .V3ConsumptionWorkerConfiguration.class));
-            var legacy =
-                    Arrays.stream(root.getDeclaredClasses())
-                            .filter(c -> c.getSimpleName().equals("Legacy"))
-                            .findFirst()
-                            .orElseThrow();
-            assertTrue(
-                    String.join(
-                                    " ",
-                                    legacy.getAnnotation(
-                                                    org.springframework.context.annotation.Profile
-                                                            .class)
-                                            .value())
-                            .contains("!v3-read-worker"));
+                                    com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.class));
+            assertFalse(Arrays.stream(root.getDeclaredClasses())
+                    .anyMatch(c -> c.getSimpleName().equals("Legacy")));
         }
     }
 
@@ -134,7 +123,7 @@ class V3ConsumptionEngineArchitectureTest {
                         ROOT + ".infra..",
                         ROOT + ".runtime..",
                         ROOT + ".port.transaction.v3.AttemptTransactions",
-                        ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket",
+                        ROOT + ".orchestrator.consumption.v3.WorkerCapacity$Ticket",
                         ROOT + ".domain.pot..",
                         ROOT + ".domain.identity..",
                         ROOT + ".domain.identity..",
@@ -155,7 +144,7 @@ class V3ConsumptionEngineArchitectureTest {
                 Map.of(
                                 ROOT + ".port.transaction.v3.AttemptTransactions",
                                 BadWorkerOwner.class,
-                                ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket",
+                                ROOT + ".orchestrator.consumption.v3.WorkerCapacity$Ticket",
                                 BadWorkerTicket.class)
                         .entrySet()) {
             var rule =
@@ -190,7 +179,7 @@ class V3ConsumptionEngineArchitectureTest {
                                 PROD,
                                 c ->
                                         c.getPackageName()
-                                                        .startsWith(ROOT + ".engine.consumption.v3")
+                                                        .startsWith(ROOT + ".orchestrator.consumption.v3")
                                                 || c.getPackageName()
                                                         .startsWith(
                                                                 ROOT + ".port.transaction.v3")));
@@ -251,7 +240,7 @@ class V3ConsumptionEngineArchitectureTest {
                         PROD,
                         c ->
                                 c.getPackageName()
-                                        .startsWith(ROOT + ".infra.persistence.primary.jpa.v3"));
+                                        .startsWith(ROOT + ".infra.postgres.write.v3"));
         noHiddenTransactionOwner().check(writers);
         noClasses()
                 .should()
@@ -319,7 +308,7 @@ class V3ConsumptionEngineArchitectureTest {
                 select(
                         PROD,
                         c ->
-                                c.getPackageName().startsWith(ROOT + ".engine.consumption.v3")
+                                c.getPackageName().startsWith(ROOT + ".orchestrator.consumption.v3")
                                         || c.getName().endsWith("JdbcPartitionOwnershipStore")
                                         || c.getName().endsWith("JdbcConsumptionSlotStore"));
         noClasses()
@@ -356,19 +345,19 @@ class V3ConsumptionEngineArchitectureTest {
                                 c.getName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".engine.consumption.v3.DiscoveryEngine")
+                                                                + ".orchestrator.consumption.v3.DiscoveryEngine")
                                         || c.getName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".engine.consumption.v3.port.NonBurnableReferences")
+                                                                + ".contract.consumption.spi.NonBurnableReferences")
                                         || c.getName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".engine.consumption.v3.port.BurnableReferences")
+                                                                + ".contract.consumption.spi.BurnableReferences")
                                         || c.getName()
                                                 .startsWith(
                                                         ROOT
-                                                                + ".engine.consumption.v3.port.DiscoveryAdmissionStore"));
+                                                                + ".contract.consumption.spi.DiscoveryAdmissionStore"));
         pureEngine().check(discovery);
         assertTrue(discovery.stream().anyMatch(c -> c.getSimpleName().equals("DiscoveryEngine")));
         var writers =
@@ -506,7 +495,7 @@ class V3ConsumptionEngineArchitectureTest {
                 guardRule
                         .evaluate(new ClassFileImporter().importClasses(BadParticipantGuard.class))
                         .hasViolation());
-        var reads = Class.forName(ROOT + ".engine.consumption.v3.PreparationReads");
+        var reads = Class.forName(ROOT + ".contract.consumption.participation.PreparationReads");
         assertEquals(
                 Set.of("source", "effects"),
                 Arrays.stream(reads.getDeclaredMethods())

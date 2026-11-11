@@ -92,7 +92,7 @@ class V3FoundationArchitectureTest {
                                 if (pkg.startsWith("java.")
                                         || (pkg.equals(root + ".domain")
                                                 || pkg.startsWith(root + ".domain."))
-                                        || pkg.startsWith(root + ".contracts.")
+                                        || pkg.startsWith(root + ".contract.")
                                         || pkg.startsWith(root + ".port.")
                                         || (pkg.startsWith(root + ".engine.")
                                                 && (pkg.endsWith(".port")
@@ -101,13 +101,13 @@ class V3FoundationArchitectureTest {
                                 // implementations.
                                 if (root.equals(ROOT)
                                         && java.util.Set.of(
-                                                        ROOT + ".engine.consumption.v3.ClaimedSlot",
+                                                        ROOT + ".contract.consumption.spi.ClaimedSlot",
                                                         ROOT
-                                                                + ".engine.consumption.v3.PartitionLease",
+                                                                + ".contract.consumption.spi.PartitionLease",
                                                         ROOT
-                                                                + ".engine.consumption.v3.LifecycleSettings$RetryPolicy",
+                                                                + ".contract.consumption.spi.LifecycleSettings$RetryPolicy",
                                                         ROOT
-                                                                + ".engine.consumption.v3.RecoveryObservation")
+                                                                + ".contract.consumption.spi.RecoveryObservation")
                                                 .contains(type.getName())) return true;
                                 return root.equals(ROOT)
                                         && LEGACY_PORT_CONTRACTS.stream()
@@ -146,7 +146,7 @@ class V3FoundationArchitectureTest {
                                 type ->
                                         type.getPackageName().contains(".engine.")
                                                 && type.getPackageName().contains(".port.")));
-        for (String name : new String[] {"PotContextPort", "PotGlobalVersionPort"})
+        for (String name : new String[] {"PotHistoryPort", "PotRevisionPort"})
             assertTrue(PRODUCTION.stream().anyMatch(type -> type.getSimpleName().equals(name)));
         assertFalse(
                 PRODUCTION.stream().anyMatch(type -> type.getPackageName().startsWith(FIXTURE)));

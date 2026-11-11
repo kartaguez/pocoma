@@ -1,4 +1,6 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.web.read.v3.V3ReadFacadeComposition;
+import com.kartaguez.pocoma.compose.web.read.v3.V3ReadHttpConfiguration;
 
 import static com.kartaguez.pocoma.domain.projection.v3.SubobjectContent.*;
 import static com.kartaguez.pocoma.domain.projection.v3.SubobjectKind.*;
@@ -11,9 +13,8 @@ import com.kartaguez.pocoma.domain.projection.v3.*;
 import com.kartaguez.pocoma.domain.identity.*;
 import com.kartaguez.pocoma.domain.identity.v3.*;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
-import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.*;
+import com.kartaguez.pocoma.infra.postgres.read.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.kartaguez.pocoma.supra.web.read.v3.*;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.*;
@@ -101,6 +102,13 @@ final class V3CompositionHttpFixture implements AutoCloseable {
         properties.put("pocoma.v3.http.read.url", url); properties.put("pocoma.v3.http.read.username", role); properties.put("pocoma.v3.http.read.password", "ephemeral-i1-fixture");
         binding("owner", 1, OWNER, TOKEN); binding("other", 1, OTHER, OTHER_TOKEN); binding("same", 1, OWNER, "I1-SAME-USER-CANARY"); binding("inactive", 2, null, null);
     }
+    void useMaterializedRead(ReadMonolithI8Fixture worker) {
+        worker.read.execute("grant usage on schema " + worker.schema + " to " + role);
+        worker.read.execute("grant select on all tables in schema " + worker.schema + " to " + role);
+        worker.read.execute("grant select on public.read_maintenance_state to " + role);
+        properties.put("pocoma.v3.http.read.url", worker.readUrl);
+    }
+
     static void initializeWorkerDatabase(PostgreSQLContainer pg) {
         var root = new JdbcTemplate(new DriverManagerDataSource(pg.getJdbcUrl(), pg.getUsername(), pg.getPassword()));
         root.execute("create extension if not exists pgcrypto with schema public");
@@ -279,7 +287,7 @@ final class V3CompositionHttpFixture implements AutoCloseable {
                 "insert into read_identity_request_result values"
                         + " (?,'UNLINK',?,?,'CHANGED',?,?,2,null)", id(407), issuer, "owner", issuer, "owner");
     }
-    HikariDataSource pool() { return context.getBean(HikariDataSource.class); }
+    HikariDataSource pool() { return context.getBean("v3HttpReadPool", HikariDataSource.class); }
     V3ReadFacadeComposition.Services services() { return context.getBean(V3ReadFacadeComposition.Services.class); }
     long activeBackends() { return admin.queryForObject("select count(*) from pg_stat_activity where usename=? and state<>'idle'", Long.class, role); }
     List<Map<String, Object>> sqlStats() { return admin.queryForList(

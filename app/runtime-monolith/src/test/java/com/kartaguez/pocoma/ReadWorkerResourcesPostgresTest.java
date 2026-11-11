@@ -1,4 +1,7 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.V3ReadParticipants;
+import com.kartaguez.pocoma.compose.web.read.v3.V3ReadFacadeComposition;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
@@ -21,11 +24,10 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.read.pot.v3.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.*;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.*;
@@ -56,23 +58,41 @@ class ReadWorkerResourcesPostgresTest {
         initialize(PG);
     }
 
-    static Object field(Object target, String name) {
+    private static Field fixtureField(Object target, String name) throws NoSuchFieldException {
+        if (target instanceof com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol)
+            return com.kartaguez.pocoma.orchestrator.consumption.v3.AbstractConsumptionProtocol.class
+                    .getDeclaredField("engine");
+        return target.getClass().getDeclaredField(name);
+    }
+
+    private static Object engineTarget(Object target) {
+        if (target instanceof com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol)
+            return readField(target, "engine");
+        return target;
+    }
+
+    private static Object readField(Object target, String name) {
         try {
-            var f = target.getClass().getDeclaredField(name);
-            f.setAccessible(true);
-            return f.get(target);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
+            var field = fixtureField(target, name);
+            field.setAccessible(true);
+            return field.get(target);
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException(failure);
         }
+    }
+
+    static Object field(Object target, String name) {
+        return readField(engineTarget(target), name);
     }
 
     static void replace(Object target, String name, Object value) {
         try {
-            var f = target.getClass().getDeclaredField(name);
-            f.setAccessible(true);
-            f.set(target, value);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
+            Object actual = engineTarget(target);
+            var field = fixtureField(actual, name);
+            field.setAccessible(true);
+            field.set(actual, value);
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException(failure);
         }
     }
 
@@ -100,7 +120,7 @@ class ReadWorkerResourcesPostgresTest {
 
     static V3ConsumptionWorker.Binding binding(V3ConsumptionWorker worker, String name) {
         return bindings(worker).stream()
-                .filter(b -> b.definition().equals(V3ConsumptionWorkerSettings.definition(name)))
+                .filter(b -> b.definition().equals(MaterializeSettings.definition(name)))
                 .findFirst()
                 .orElseThrow();
     }
@@ -178,11 +198,11 @@ class ReadWorkerResourcesPostgresTest {
     void drainAndRestartPreserveDurableProgress() throws Exception {
         for (Class<?> root :
                 List.of(
-                        PocomaTaskConsumptionWorkerApplication.class,
+                        PocomaMaterializeWorkerApplication.class,
                         PocomaRuntimeMonolithApplication.class)) {
             try (var f = new ReadMonolithI8Fixture(PG)) {
                 f.root = root;
-                f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
+                f.select(MaterializeSettings.READ_NAMES, false);
                 var ctx = f.start();
                 var worker = f.worker(ctx);
                 PotId pot = baseline(f, ctx, false);
@@ -270,7 +290,7 @@ class ReadWorkerResourcesPostgresTest {
                             worker.snapshot().state(),
                             "cannot report STOPPED while final transaction is retained");
                     assertFalse(
-                            ctx.getBean("readBusiness", HikariDataSource.class).isClosed(),
+                            materialize(ctx).readBusiness.isClosed(),
                             "pool retained until physical drain");
                     var next =
                             f.admitCommand(
@@ -305,7 +325,7 @@ class ReadWorkerResourcesPostgresTest {
                     // A real published event is explicitly quarantined administratively before
                     // restart.
                     UUID balance =
-                            V3ConsumptionWorkerSettings.definition("MaterializePotBalance")
+                            MaterializeSettings.definition("MaterializePotBalance")
                                     .id()
                                     .value();
                     f.read.update(
@@ -333,7 +353,7 @@ class ReadWorkerResourcesPostgresTest {
     static void crashRestart(Class<?> root) throws Exception {
         try (var f = new ReadMonolithI8Fixture(PG)) {
             f.root = root;
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
+            f.select(MaterializeSettings.READ_NAMES, false);
             var registration = f.admit("REGISTRATION", "owner", "owner", null);
             f.produce(registration);
             var pot = new PotId(UUID.randomUUID());
@@ -351,7 +371,7 @@ class ReadWorkerResourcesPostgresTest {
                             UUID.class,
                             create.requestId());
             UUID balance =
-                    V3ConsumptionWorkerSettings.definition("MaterializePotBalance").id().value();
+                    MaterializeSettings.definition("MaterializePotBalance").id().value();
             f.read.update(
                     "insert into"
                         + " consumption_slot(consumption_id,consumable_id,partition_hash,partition_id,state,attempt_count)"
@@ -565,16 +585,20 @@ class ReadWorkerResourcesPostgresTest {
     void allParticipantsFitPoolsAndRenewalEnvelope() throws Exception {
         for (int batch : List.of(32, 1))
             try (var f = new ReadMonolithI8Fixture(PG)) {
-                f.select(V3ConsumptionWorkerSettings.READ_NAMES, true);
+                f.select(MaterializeSettings.READ_NAMES, true);
                 f.properties.put("pocoma.v3.worker.lifecycle.batch-size", Integer.toString(batch));
                 var ctx = f.start();
                 var worker = f.worker(ctx);
-                var capacity = ctx.getBean(WorkerCapacity.class);
+                var capacity = materialize(ctx).capacityView().orElseThrow();
+                var processWorker = ctx.getBean("processWorker", V3ConsumptionWorker.class);
+                var cohostedBindings = new ArrayList<>(bindings(worker));
+                cohostedBindings.addAll(bindings(processWorker));
+                assertNotSame(capacity, process(ctx).capacityView().orElseThrow());
                 var pot = baseline(f, ctx, true);
                 assertEquals(
                         9,
-                        bindings(worker).size(),
-                        "batch=" + batch + " seven READ plus two WRITE in one Worker");
+                        cohostedBindings.size(),
+                        "batch=" + batch + " seven READ plus two WRITE in independent workers");
                 await(
                         () ->
                                 worker.localLeases()
@@ -583,7 +607,7 @@ class ReadWorkerResourcesPostgresTest {
                                                                         .READ,
                                                                 0L)
                                                 == 28
-                                        && worker.localLeases()
+                                        && processWorker.localLeases()
                                                         .getOrDefault(
                                                                 ConsumptionDefinition.Authority
                                                                         .WRITE,
@@ -592,15 +616,15 @@ class ReadWorkerResourcesPostgresTest {
 
                 int maxConnections = f.write.queryForObject("show max_connections", Integer.class);
                 assertTrue(
-                        maxConnections >= 32 + 12,
-                        "one instance=32 plus explicit 12 fixture/admin/observer reserve");
+                        maxConnections >= 38 + 12,
+                        "two workers=38 plus explicit 12 fixture/admin/observer reserve");
                 f.trace.add(
                         "T10 batch="
                                 + batch
                                 + " server max_connections="
                                 + maxConnections
-                                + " allocated=32 fixture/admin/observer budget=12");
-                // Each READ source preparation holds one actual WRITE business loan after its SQL.
+                                + " allocated=38 fixture/admin/observer budget=12");
+                // Each READ source preparation holds one actual WRITE source SELECT loan after its SQL.
                 var sourceEntered = new CountDownLatch(4);
                 var sourceRelease = new CountDownLatch(1);
                 for (String name :
@@ -664,7 +688,7 @@ class ReadWorkerResourcesPostgresTest {
                 // candidate per
                 // physical call.
                 var blockers = new ConcurrentHashMap<String, Connection>();
-                for (var b : bindings(worker)) {
+                for (var b : cohostedBindings) {
                     var sql =
                             b.definition().authority() == ConsumptionDefinition.Authority.READ
                                     ? f.read
@@ -752,14 +776,14 @@ class ReadWorkerResourcesPostgresTest {
                 }
                 var loans = new ArrayList<Connection>();
                 var heldRead =
-                        new HoldingReadSource(ctx.getBean("readBusiness", HikariDataSource.class));
+                        new HoldingReadSource(materialize(ctx).readBusiness);
                 var readOwner = new SpringAttemptTransactions(heldRead, manager(heldRead), 60);
                 var facade =
                         V3ReadFacadeComposition.create(
                                 heldRead,
                                 readOwner,
                                 new ReadLimitsV3(50, 20, 16000000),
-                                Set.copyOf(V3ConsumptionWorkerSettings.READ_NAMES),
+                                Set.copyOf(MaterializeSettings.READ_NAMES),
                                 Optional::empty);
                 try (var threads = Executors.newVirtualThreadPerTaskExecutor()) {
                     try {
@@ -800,7 +824,7 @@ class ReadWorkerResourcesPostgresTest {
                         // exists.
                         for (int n = 0; n < 4; n++)
                             loans.add(
-                                    ctx.getBean("readBusiness", HikariDataSource.class)
+                                    materialize(ctx).readBusiness
                                             .getConnection());
                         assertEquals(4, capacity.snapshot().worker(), "MW4 saturated");
                         capacity.snapshot()
@@ -808,21 +832,21 @@ class ReadWorkerResourcesPostgresTest {
                                 .forEach((id, count) -> assertTrue(count <= 1, "MC1 " + id));
                         assertEquals(
                                 6,
-                                ctx.getBean("readBusiness", HikariDataSource.class)
+                                materialize(ctx).readBusiness
                                         .getHikariPoolMXBean()
                                         .getActiveConnections(),
                                 "READ business upper-bound saturation");
                         int writeActive =
-                                ctx.getBean("writeBusiness", HikariDataSource.class)
+                                materialize(ctx).writeSourceRead
                                         .getHikariPoolMXBean()
                                         .getActiveConnections();
                         assertTrue(
                                 writeActive >= 4 && writeActive <= 6,
-                                "WRITE preparations plus protocol reserves: " + writeActive);
+                                "WRITE source preparations plus discovery reserves: " + writeActive);
                         try {
                             await(
                                     () -> {
-                                        for (var binding : bindings(worker)) {
+                                        for (var binding : cohostedBindings) {
                                             var sql =
                                                     binding.definition().authority()
                                                                     == ConsumptionDefinition
@@ -876,7 +900,7 @@ class ReadWorkerResourcesPostgresTest {
                                         + batch
                                         + " MW="
                                         + capacity.snapshot()
-                                        + " all 32 candidates renewed, partial="
+                                        + " all 36 candidates renewed, partial="
                                         + partial
                                         + " omissions="
                                         + omissions);
@@ -910,13 +934,13 @@ class ReadWorkerResourcesPostgresTest {
                     // business pool.
                     var fault =
                             new RetainingSource(
-                                    ctx.getBean("readBusiness", HikariDataSource.class));
+                                    materialize(ctx).readBusiness);
                     var owner = new SpringAttemptTransactions(fault, manager(fault), 60);
-                    var resources = ctx.getBean("v3WorkerResources");
+                    var resources = materialize(ctx);
                     var participants =
                             V3ReadParticipants.create(
-                                    ctx.getBean("writeBusiness", HikariDataSource.class),
-                                    (SpringAttemptTransactions) field(resources, "writeEffects"),
+                                    materialize(ctx).writeSourceRead,
+                                    resources.sourceReads,
                                     fault,
                                     owner);
                     var selected = binding(worker, "MaterializePotVersion");
@@ -990,7 +1014,7 @@ class ReadWorkerResourcesPostgresTest {
                                     worker.snapshot().state(),
                                     "UNKNOWN cannot fake STOPPED");
                             assertFalse(
-                                    ctx.getBean("readBusiness", HikariDataSource.class).isClosed(),
+                                    materialize(ctx).readBusiness.isClosed(),
                                     "UNKNOWN physical loan retained");
                             assertTrue(
                                     f.read.queryForObject(
@@ -1025,7 +1049,7 @@ class ReadWorkerResourcesPostgresTest {
                 f.evidence("T10-batch-" + batch);
             }
         try (var f = new ReadMonolithI8Fixture(PG)) {
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, true);
+            f.select(MaterializeSettings.READ_NAMES, true);
             try (var child = new ReadI8Child.Child(f, "renew-unknown")) {
                 child.stage("I8_RENEW_UNKNOWN");
                 var matcher =

@@ -42,13 +42,19 @@ public interface ConsumptionProtocol {
         int partitionId();
         boolean sameIncarnation(Partition other);
     }
-    record Acquisition(List<Handle> claims, int examinedCount) {
-        public Acquisition { claims = List.copyOf(claims); }
+    /** L2 publishes the local continuation; polling only remembers it. */
+    record Navigation(List<UUID> keys, ConsumptionNavigation.Walk continuation, boolean tourComplete) {
+        public Navigation {keys=List.copyOf(keys);Objects.requireNonNull(continuation);}
+    }
+    record Acquisition(List<Handle> claims, int examinedCount,
+            Optional<ConsumptionNavigation.Walk> confirmedContinuation, boolean suspendPartition) {
+        public Acquisition { claims=List.copyOf(claims);Objects.requireNonNull(confirmedContinuation); }
     }
     Optional<Partition> acquirePartition(int partition);
     List<Partition> renewPartitions(List<Partition> partitions);
     void renewClaim(Handle handle);
-    ConsumptionNavigation.Page navigate(Partition partition, ConsumptionNavigation.Walk walk, int limit);
+    Navigation navigate(Partition partition, ConsumptionNavigation.Walk walk, int limit);
+    Acquisition acquire(Partition partition, List<UUID> keys, ConsumptionNavigation.Walk continuation);
     Acquisition acquire(Partition partition, List<UUID> keys);
     Attempt execute(Handle handle);
     void abandon(Handle handle);

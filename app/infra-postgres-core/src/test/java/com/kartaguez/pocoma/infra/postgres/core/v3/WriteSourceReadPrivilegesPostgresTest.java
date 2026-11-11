@@ -57,6 +57,12 @@ class WriteSourceReadPrivilegesPostgresTest {
         admin.execute("revoke all on sequence "+schema+".source_sequence from "+role);
         admin.execute("create view "+schema+".hidden_source as select * from "+schema+".v3_pot_identity");admin.execute("grant select on "+schema+".hidden_source to "+role);reject();
     }
+    @Test void commandPayloadAndPresentedBindingTokenAreNotSourceCapabilities() {
+        admin.execute("create table "+schema+".v3_command(request_id uuid,binding_token text,payload jsonb)");
+        admin.execute("grant select(request_id) on "+schema+".v3_command to "+role);
+        assertDoesNotThrow(() -> WriteSourceReadPrivileges.validate(target));
+        admin.execute("grant select(binding_token) on "+schema+".v3_command to "+role);reject();
+    }
     @Test void principalIdentityIsPartOfTheGuard() {
         var wrong=new V3BootstrapGuard.Target(target.source(),target.database(),target.schema(),role+"wrong");
         assertThrows(IllegalStateException.class,() -> WriteSourceReadPrivileges.validate(wrong));

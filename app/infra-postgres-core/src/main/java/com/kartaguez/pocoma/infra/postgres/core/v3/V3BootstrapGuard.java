@@ -529,6 +529,10 @@ public final class V3BootstrapGuard {
                     "v3_identity_completion_event");
 
     public void validateIdentitySource(DataSource source) {
+        validateIdentitySource(source, null);
+    }
+
+    public void validateIdentitySource(DataSource source, String readEffectRole) {
         if (fixtureIdentity)
             throw new IllegalStateException("Real Identity refuses fixture authority");
         validateLifecycleSource(source, Authority.WRITE, Privileges.LIFECYCLE_AND_DISCOVERY);
@@ -559,12 +563,29 @@ select current_setting('log_error_verbosity')='terse'
                 require(
                         !read.runtimeRole().equals(write.runtimeRole()),
                         "distinct READ/WRITE principals required for real DEV");
-                if(validationScope==Authority.WRITE) {
-                    WriteSourceReadPrivileges.inspectRole(statement,read.runtimeRole());
+                if (validationScope == Authority.WRITE && readEffectRole != null) {
+                    if (!read.runtimeRole().equals(readEffectRole))
+                        WriteSourceReadPrivileges.inspectRole(statement, read.runtimeRole());
+                    requireNoIdentityAuthority(c, statement, readEffectRole);
+                } else if (validationScope == Authority.WRITE) {
+                    WriteSourceReadPrivileges.inspectRole(statement, read.runtimeRole());
                 } else {
-                try (var query =
-                        c.prepareStatement(
-                                """
+                    requireNoIdentityAuthority(c, statement, read.runtimeRole());
+                }
+            } finally {
+                c.rollback();
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("Identity V6 authority refused");
+        }
+    }
+
+    private static void requireNoIdentityAuthority(Connection c, Statement statement, String role)
+            throws SQLException {
+        require(role.matches("[a-z][a-z0-9_]*"), "invalid READ principal");
+        try (var query =
+                c.prepareStatement(
+                        """
 select exists(select 1 from pg_roles where rolname=? and
     (rolsuper or rolcreatedb or rolcreaterole or rolreplication or rolbypassrls))
  or not exists(select 1 from pg_roles where rolname=?)
@@ -575,41 +596,34 @@ select exists(select 1 from pg_roles where rolname=? and
  or exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where p.prosecdef and n.nspname not in ('pg_catalog','information_schema'))
 """)) {
-                    for (int parameter = 1; parameter <= 6; parameter++)
-                        query.setString(parameter, read.runtimeRole());
-                    try (var rows = query.executeQuery()) {
-                        rows.next();
-                        require(
-                                !rows.getBoolean(1),
-                                "Identity indirect exposure or unsafe READ principal on WRITE");
-                    }
-                }
-                var identityAndRequestTables = new HashSet<>(IDENTITY_TABLES);
-                identityAndRequestTables.addAll(
-                        Set.of("v3_request_counter", "v3_request_position"));
-                for (String table : identityAndRequestTables) {
-                    try (var rows =
-                            statement.executeQuery(
-                                    "select exists(select 1 from pg_roles where rolname='"
-                                            + read.runtimeRole()
-                                            + "' and (has_any_column_privilege(oid,'"
-                                            + table
-                                            + "','SELECT,INSERT,UPDATE,REFERENCES')"
-                                            + " or has_table_privilege(oid,'"
-                                            + table
-                                            + "','DELETE,TRUNCATE,TRIGGER')))")) {
-                        rows.next();
-                        require(
-                                !rows.getBoolean(1),
-                                "READ principal has Identity WRITE authority privileges");
-                    }
-                }
-                }
-            } finally {
-                c.rollback();
+            for (int parameter = 1; parameter <= 6; parameter++)
+                query.setString(parameter, role);
+            try (var rows = query.executeQuery()) {
+                rows.next();
+                require(
+                        !rows.getBoolean(1),
+                        "Identity indirect exposure or unsafe READ principal on WRITE");
             }
-        } catch (SQLException failure) {
-            throw new IllegalStateException("Identity V6 authority refused");
+        }
+        var identityAndRequestTables = new HashSet<>(IDENTITY_TABLES);
+        identityAndRequestTables.addAll(
+                Set.of("v3_request_counter", "v3_request_position"));
+        for (String table : identityAndRequestTables) {
+            try (var rows =
+                    statement.executeQuery(
+                            "select exists(select 1 from pg_roles where rolname='"
+                                    + role
+                                    + "' and (has_any_column_privilege(oid,'"
+                                    + table
+                                    + "','SELECT,INSERT,UPDATE,REFERENCES')"
+                                    + " or has_table_privilege(oid,'"
+                                    + table
+                                    + "','DELETE,TRUNCATE,TRIGGER')))")) {
+                rows.next();
+                require(
+                        !rows.getBoolean(1),
+                        "READ principal has Identity WRITE authority privileges");
+            }
         }
     }
 

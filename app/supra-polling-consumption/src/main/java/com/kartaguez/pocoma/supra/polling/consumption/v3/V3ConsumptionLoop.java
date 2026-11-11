@@ -102,13 +102,9 @@ public final class V3ConsumptionLoop {
                 if (lease == null) return false;
                 var previous = walks.getOrDefault(pair, ConsumptionNavigation.Walk.fresh());
                 var page = binding.engine().navigate(lease, previous, worker.settings.pageSize());
-                // U is remembered, but reading keys never advances afterExclusive.
-                var bounded =
-                        new ConsumptionNavigation.Walk(
-                                previous.afterExclusive(), page.upperInclusive());
-                walks.put(pair, bounded);
-                if (page.keys().isEmpty()) {
-                    walks.put(pair, ConsumptionNavigation.Walk.fresh());
+                var continuation=page.continuation();
+                walks.put(pair,continuation);
+                if(page.tourComplete()) {
                     worker.event(
                             binding, Phase.CONSUMPTION_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
                     errorUntilNanos[selected] = 0;
@@ -120,27 +116,16 @@ public final class V3ConsumptionLoop {
                 while (offset < page.keys().size() && worker.running()) {
                     int end = Math.min(offset + worker.settings.quantum(), page.keys().size());
                     var keys = page.keys().subList(offset, end);
-                    var acquired = binding.engine().acquire(lease, keys);
-                    long acquiredNanos = System.nanoTime();
-                    for (var handle : acquired.claims()) {
-                        worker.attemptHook()
-                                .onSlotAcquired(
-                                        binding.definition().id(),
-                                        handle.consumableId(),
-                                        lease.partitionId(),
-                                        acquiredNanos);
-                    }
+                    var acquired = binding.engine().acquire(lease,keys,continuation);
                     int e;
                     try {
-                        e = acquired.examinedCount();
-                        if (e < 0 || e > keys.size())
-                            throw new IllegalStateException("invalid examined prefix");
-                        if (e > 0)
-                            walks.put(
-                                    pair,
-                                    new ConsumptionNavigation.Walk(
-                                            Optional.of(keys.get(e - 1)), page.upperInclusive()));
-                        if (e == 0) worker.suspend(binding, lease);
+                        long acquiredNanos=System.nanoTime();
+                        for(var handle:acquired.claims())
+                            worker.attemptHook().onSlotAcquired(binding.definition().id(),handle.consumableId(),lease.partitionId(),acquiredNanos);
+                        continuation=acquired.confirmedContinuation().orElseThrow(() -> new IllegalStateException("invalid examined prefix"));
+                        walks.put(pair,continuation);
+                        e=acquired.examinedCount();
+                        if(acquired.suspendPartition())worker.suspend(binding,lease);
                     } finally {
                         // Every confirmed handle transfers to registration/cleanup, even on a
                         // validation failure.

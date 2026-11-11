@@ -1,11 +1,11 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.process.v3.V3ConsumptionDiscoveryComposition;
+import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog;
 import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard.Target;
 
 import org.flywaydb.core.Flyway;
@@ -151,7 +151,7 @@ class ConsumptionPilotIsolationTest {
     }
 
     V3BootstrapGuard guard() {
-        return new V3BootstrapGuard(w, r, V3ConsumptionCatalogConfiguration.definitions());
+        return new V3BootstrapGuard(w, r, ConsumptionCatalog.definitions());
     }
 
     String[] args() {
@@ -176,8 +176,8 @@ class ConsumptionPilotIsolationTest {
         for (int attempt = 0; attempt < 2; attempt++) {
             var app = new SpringApplication(PocomaRuntimeMonolithApplication.class);
             app.setWebApplicationType(WebApplicationType.NONE);
-            try (var context = app.run(args())) {
-                assertNotNull(context.getBean(V3BootstrapGuard.class));
+            try (var context = app.run()) {
+                assertTrue(context.getBeansOfType(V3BootstrapGuard.class).isEmpty());
                 assertTrue(
                         context.getBeansOfType(
                                         com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine
@@ -204,11 +204,7 @@ class ConsumptionPilotIsolationTest {
                                         com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand
                                                 .class)
                                 .isEmpty());
-                assertTrue(
-                        context.getBeansOfType(
-                                        com.kartaguez.pocoma.supra.polling.consumption
-                                                .ConsumptionPollingWorker.class)
-                                .isEmpty());
+                assertThrows(ClassNotFoundException.class, () -> Class.forName("com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker"));
                 assertEquals(
                         0,
                         write.queryForObject(
@@ -226,28 +222,26 @@ class ConsumptionPilotIsolationTest {
         }
     }
 
-    @Profile("v3-consumption-pilot")
-    @Configuration(proxyBeanMethods = false)
-    @Import(CommandConsumptionRuntimeConfiguration.class)
-    static class IndirectLegacyImport {}
-
     @Test
     void monolithWithIndirectOldRuntimeFailsBeforeProcessing() {
-        var app =
-                new SpringApplication(
-                        PocomaRuntimeMonolithApplication.class, IndirectLegacyImport.class);
-        app.setWebApplicationType(WebApplicationType.NONE);
-        var error = assertThrows(Exception.class, () -> app.run(args()));
-        assertTrue(error.toString().contains("incompatible I1 pilot component"), error.toString());
-        assertEquals(0, write.queryForObject("select count(*) from v3_command", Integer.class));
+        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration"));
+        var app=new SpringApplication(PocomaRuntimeMonolithApplication.class);app.setWebApplicationType(WebApplicationType.NONE);
+        var failure=assertThrows(Exception.class,() -> app.run("--spring.profiles.active=postgres"));
+        Throwable root=failure;while(root.getCause()!=null)root=root.getCause();
+        assertTrue(root.getMessage().contains("Unsupported Runtime selection"),root.toString());
+        assertEquals(0,write.queryForObject("select count(*) from v3_command",Integer.class));
     }
 
     @Test
     void monolithRefusesIncompleteReadBootstrapBeforeRefresh() {
+        var env=new org.springframework.core.env.StandardEnvironment();
+        env.getPropertySources().addFirst(new org.springframework.core.env.SimpleCommandLinePropertySource(args()));
+        var guard=new V3BootstrapGuard(V3BootstrapGuard.Target.from(env,"write"),V3BootstrapGuard.Target.from(env,"read"),
+            com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions());
+        assertDoesNotThrow(guard::validate);
         read.execute("delete from partition_ownership where partition_id=0");
-        var app = new SpringApplication(PocomaRuntimeMonolithApplication.class);
-        app.setWebApplicationType(WebApplicationType.NONE);
-        assertThrows(Exception.class, () -> app.run(args()));
+        var failure=assertThrows(IllegalStateException.class,guard::validate);
+        assertTrue(failure.getMessage().contains("ownership"),failure.toString());
         assertEquals(
                 0, write.queryForObject("select count(*) from consumption_slot", Integer.class));
     }

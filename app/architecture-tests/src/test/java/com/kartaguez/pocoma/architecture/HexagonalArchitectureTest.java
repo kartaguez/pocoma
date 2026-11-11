@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.architecture;
+import com.kartaguez.pocoma.PocomaMaterializeWorkerApplication;
 
 import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 
@@ -1431,7 +1432,7 @@ class HexagonalArchitectureTest {
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.task.consumption..")
 				.and().areNotAnnotatedWith(SpringBootApplication.class)
                 .and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaRuntimeMonolithApplication$Legacy")
-				.and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaTaskConsumptionWorkerApplication$Legacy")
+				.and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaMaterializeWorkerApplication$Legacy")
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.task.consumption..")
 				.check(CLASSES);

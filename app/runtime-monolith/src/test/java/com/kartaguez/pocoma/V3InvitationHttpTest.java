@@ -480,8 +480,7 @@ class V3InvitationHttpTest extends V3InvitationFixture {
             var invitation =
                     read.read(
                             c ->
-                                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
-                                                    .JdbcInvitationSource(ds)
+                                    new com.kartaguez.pocoma.infra.postgres.source.v3.JdbcInvitationSource(ds)
                                             .load(event, c));
             String secret = crypto.decrypt(invitation).substring("pocoma://invitation/".length());
             assertFalse(diagnostics.contains(secret), "Invitation leaked in observed logs");

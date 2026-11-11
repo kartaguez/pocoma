@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.process.v3.dev.V3FixturePotActorAuthority;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 
@@ -6,10 +7,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.v3.PotCommandJson;
 import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.port.transaction.v3.*;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.flywaydb.core.Flyway;
@@ -472,7 +472,7 @@ class V3WorkerMonolithPostgresTest {
         }
 
         @org.springframework.context.annotation.Bean
-        com.kartaguez.pocoma.runtime.consumption.v3.dev.V3FixturePotActorAuthority identity() {
+        com.kartaguez.pocoma.compose.polling.process.v3.dev.V3FixturePotActorAuthority identity() {
             constructed.incrementAndGet();
             throw new AssertionError("preflight must reject before construction");
         }

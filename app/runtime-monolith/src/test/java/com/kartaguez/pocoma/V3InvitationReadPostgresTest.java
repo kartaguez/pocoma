@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.V3ReadParticipants;
 import com.kartaguez.pocoma.infra.security.spring.v3.V3InvitationConfiguration;
 import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
@@ -15,10 +16,9 @@ import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.domain.pot.v3.Invitation;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.*;
+import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
@@ -114,7 +114,7 @@ class V3InvitationReadPostgresTest extends V3InvitationFixture {
         var first = source(event);
         var ds = f.worker.read.getDataSource();
         var owner = owner(ds);
-        var store = new com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.JdbcInvitationStore(ds);
+        var store = new com.kartaguez.pocoma.infra.postgres.read.v3.JdbcInvitationStore(ds);
         var crypto = V3InvitationConfiguration.keys(f.http.context.getEnvironment());
         var unsealed =
                 new Invitation(

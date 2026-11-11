@@ -74,13 +74,43 @@ public abstract class AbstractConsumptionProtocol implements ConsumptionProtocol
         return engine.renewPartitions(leases).stream().map(l -> (Partition)new OwnedPartition(l)).toList();
     }
     public void renewClaim(Handle handle) { engine.renewClaims(List.of(requireClaim(handle).claim())); }
-    public ConsumptionNavigation.Page navigate(Partition partition, ConsumptionNavigation.Walk walk, int limit) {
-        return engine.navigate(requirePartition(partition), walk, limit);
+    public Navigation navigate(Partition partition, ConsumptionNavigation.Walk walk, int limit) {
+        var page=engine.navigate(requirePartition(partition),walk,limit);
+        boolean end=page.keys().isEmpty();
+        return new Navigation(page.keys(),end?ConsumptionNavigation.Walk.fresh():
+            new ConsumptionNavigation.Walk(walk.afterExclusive(),page.upperInclusive()),end);
     }
-    public ConsumptionProtocol.Acquisition acquire(Partition partition, List<UUID> keys) {
-        var acquired = engine.acquire(requirePartition(partition), keys);
-        return new ConsumptionProtocol.Acquisition(acquired.claims().stream()
-                .map(c -> (Handle)new OwnedClaim(c)).toList(), acquired.examinedCount());
+    @Override
+    public Acquisition acquire(Partition partition, List<UUID> keys) {
+        var acquired = engine.acquire(requirePartition(partition), List.copyOf(keys));
+        return acquisition(acquired, Optional.empty());
+    }
+
+    @Override
+    public Acquisition acquire(
+            Partition partition, List<UUID> keys, ConsumptionNavigation.Walk continuation) {
+        var captured = List.copyOf(keys);
+        // Validate the navigation window before reserving capacity or taking any claim.
+        new ConsumptionNavigation.Page(continuation.upperInclusive(), captured);
+        var acquired = engine.acquire(requirePartition(partition), captured);
+        int examined = acquired.examinedCount();
+        Optional<ConsumptionNavigation.Walk> next;
+        if (examined < 0 || examined > captured.size()) {
+            // Return the confirmed handles even if the continuation evidence is unusable.
+            next = Optional.empty();
+        } else if (examined == 0) {
+            next = Optional.of(continuation);
+        } else {
+            next = Optional.of(new ConsumptionNavigation.Walk(
+                    Optional.of(captured.get(examined - 1)), continuation.upperInclusive()));
+        }
+        return acquisition(acquired, next);
+    }
+
+    private Acquisition acquisition(
+            ConsumptionEngine.Acquisition acquired, Optional<ConsumptionNavigation.Walk> next) {
+        var handles = acquired.claims().stream().<Handle>map(OwnedClaim::new).toList();
+        return new Acquisition(handles, acquired.examinedCount(), next, acquired.examinedCount() == 0);
     }
     public Attempt execute(Handle handle) { return engine.execute(requireClaim(handle)); }
     public void abandon(Handle handle) { engine.abandon(requireClaim(handle)); }

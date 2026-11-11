@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
 
@@ -9,7 +10,6 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
-import com.kartaguez.pocoma.runtime.consumption.v3.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.*;
@@ -42,11 +42,11 @@ class ReadRootsCoexistencePostgresTest {
             assertTrue(
                     idle.getBeansOfType(V3ConsumptionWorker.class).isEmpty(),
                     "monolith empty selection has no Worker");
-            assertTrue(idle.getBeansOfType(WorkerCapacity.class).isEmpty());
+            assertTrue(materialize(idle).capacityView().isEmpty());
             assertNotNull(f.services(idle));
             idle.close();
             f.contexts.remove(idle);
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, true);
+            f.select(MaterializeSettings.READ_NAMES, true);
             String before = f.coordination();
             f.read.execute("grant update on read_current_binding to " + f.readRole);
             assertThrows(
@@ -63,13 +63,15 @@ class ReadRootsCoexistencePostgresTest {
                                             .localLeases()
                                             .getOrDefault(ConsumptionDefinition.Authority.READ, 0L)
                                     == 28);
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
-            f.root = PocomaTaskConsumptionWorkerApplication.class;
+            f.select(MaterializeSettings.READ_NAMES, false);
+            f.root = PocomaMaterializeWorkerApplication.class;
             var projection = f.start(Map.of("pocoma.v3.worker.worker-name", "i8-projection"));
-            assertEquals(4, monolith.getBeansOfType(HikariDataSource.class).size());
-            assertEquals(4, projection.getBeansOfType(HikariDataSource.class).size());
-            assertEquals(1, monolith.getBeansOfType(WorkerCapacity.class).size());
-            assertEquals(1, projection.getBeansOfType(WorkerCapacity.class).size());
+            assertTrue(monolith.getBeansOfType(HikariDataSource.class).isEmpty());
+            assertTrue(projection.getBeansOfType(HikariDataSource.class).isEmpty());
+            assertNotSame(materialize(monolith).capacityView().orElseThrow(),
+                    materialize(projection).capacityView().orElseThrow());
+            assertNotSame(materialize(monolith).capacityView().orElseThrow(),
+                    process(monolith).capacityView().orElseThrow());
             await(
                     () ->
                             f.worker(monolith)
@@ -91,12 +93,12 @@ class ReadRootsCoexistencePostgresTest {
                             Integer.class),
                     "one effective durable owner per READ pair");
             assertEquals(
-                    64,
+                    60,
                     f.write.queryForObject(
                             "select count(*) from pg_stat_activity where application_name like"
                                 + " 'i8-monolith-%' or application_name like 'i8-projection-%'",
                             Integer.class),
-                    "two roots allocate 64 actual server connections");
+                    "two roots allocate 60 actual server connections");
             var update =
                     f.admitCommand(
                             "owner",
@@ -177,7 +179,7 @@ class ReadRootsCoexistencePostgresTest {
                             pot.value()),
                     "history retained through ownership change");
             f.trace.add(
-                    "T11 overlap: effective READ pairs=28, server connections=64, lease=240000ms,"
+                    "T11 overlap: effective READ pairs=28, server connections=60, lease=240000ms,"
                         + " PG remaining="
                             + remaining
                             + " takeover_ms="
@@ -190,11 +192,11 @@ class ReadRootsCoexistencePostgresTest {
         // variant.
         try (var f = new ReadMonolithI8Fixture(PG)) {
             f.root = PocomaRuntimeMonolithApplication.class;
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, true);
+            f.select(MaterializeSettings.READ_NAMES, true);
             String monolithPartitions =
                     String.join(
                                     ";",
-                                    V3ConsumptionWorkerSettings.READ_NAMES.stream()
+                                    MaterializeSettings.READ_NAMES.stream()
                                             .map(n -> n + "=0|1")
                                             .toList())
                             + ";Command=0|1|2|3;IdentityRequest=0|1|2|3";
@@ -205,12 +207,12 @@ class ReadRootsCoexistencePostgresTest {
                                     "i8-monolith",
                                     "pocoma.v3.worker.partitions",
                                     monolithPartitions));
-            f.root = PocomaTaskConsumptionWorkerApplication.class;
-            f.select(V3ConsumptionWorkerSettings.READ_NAMES, false);
+            f.root = PocomaMaterializeWorkerApplication.class;
+            f.select(MaterializeSettings.READ_NAMES, false);
             String projectionPartitions =
                     String.join(
                             ";",
-                            V3ConsumptionWorkerSettings.READ_NAMES.stream()
+                            MaterializeSettings.READ_NAMES.stream()
                                     .map(n -> n + "=2|3")
                                     .toList());
             var projection =
