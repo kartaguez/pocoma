@@ -113,8 +113,10 @@ class V3InvitationStandaloneWebPostgresTest {
                 "Sharing a User grants no link access");
         f.binding("owner", 2, null, null);
         assertEquals(200, f.get("/invitations/by-creation-request/" + request).statusCode());
-        assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size());
-        assertEquals(2, f.context.getBean(HikariDataSource.class).getMaximumPoolSize());
+        assertEquals(2, f.context.getBeansOfType(HikariDataSource.class).size());
+            assertEquals(1, f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).getMaximumPoolSize());
+            assertTrue(f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).isReadOnly());
+        assertEquals(2, f.context.getBean("v3HttpReadPool", HikariDataSource.class).getMaximumPoolSize());
         f.context.close();
         byte[] replacement = new byte[32];
         new java.security.SecureRandom().nextBytes(replacement);
@@ -170,6 +172,8 @@ class V3InvitationStandaloneWebPostgresTest {
                                 f.json.writeValueAsBytes(Map.of("token", secret, "userId", OWNER)),
                                 Map.of("Content-Type", "application/json"))
                         .statusCode());
-        assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size());
+        assertEquals(2, f.context.getBeansOfType(HikariDataSource.class).size());
+            assertEquals(1, f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).getMaximumPoolSize());
+            assertTrue(f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).isReadOnly());
     }
 }

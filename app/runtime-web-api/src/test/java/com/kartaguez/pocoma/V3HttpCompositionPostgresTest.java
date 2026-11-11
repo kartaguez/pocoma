@@ -43,14 +43,16 @@ class V3HttpCompositionPostgresTest {
             assertEquals(expectedRoutes, routes(f));
             assertEquals(10, routes(f).size());
             assertTrue(routes(f).stream().allMatch(p -> p.startsWith("/api/v3/")));
-            assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size()); assertEquals(2, f.pool().getMaximumPoolSize());
+            assertEquals(2, f.context.getBeansOfType(HikariDataSource.class).size());
+            assertEquals(1, f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).getMaximumPoolSize());
+            assertTrue(f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).isReadOnly()); assertEquals(2, f.pool().getMaximumPoolSize());
             assertTrue(f.context.getBeansOfType(V3ConsumptionWorker.class).isEmpty());
             assertTrue(f.context.getBeansOfType(org.springframework.transaction.PlatformTransactionManager.class).isEmpty(), "no implicit JDBC/JPA owner");
             assertTrue(f.context.getBeansOfType(jakarta.persistence.EntityManagerFactory.class).isEmpty(), "no implicit legacy JPA assembly");
             assertEquals(1, f.context.getBeansOfType(ReadPotV3.Queries.class).size()); assertEquals(1, f.context.getBeansOfType(GetCurrentBindingV3.Query.class).size());
             assertEquals(200, f.get("/pots/" + POT).statusCode()); assertEquals(200, f.get("/me/binding").statusCode());
             assertTrue(f.context.getBeansOfType(com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandService.class).isEmpty());
-            f.evidence("C01-root", Map.of("root", PocomaWebApiApplication.class.getName(), "routes", routes(f), "pools", 1, "poolMaximum", 2, "workers", 0));
+            f.evidence("C01-root", Map.of("root", PocomaWebApiApplication.class.getName(), "routes", routes(f), "pools", 2, "businessPoolMaximum", 2, "maintenancePoolMaximum", 1, "workers", 0));
         }
     }
     static Set<String> routes(V3ReadHttpFixture f) {
@@ -78,7 +80,9 @@ class V3HttpCompositionPostgresTest {
                 assertEquals("42501", refused.getSQLState());
             }
             assertEquals(0, f.admin.queryForObject("select count(*) from pg_stat_statements where userid=(select oid from pg_roles where rolname=?) and query ~* '^(insert|update|delete)'", Integer.class, f.role));
-            assertEquals(1, f.context.getBeansOfType(HikariDataSource.class).size());
+            assertEquals(2, f.context.getBeansOfType(HikariDataSource.class).size());
+            assertEquals(1, f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).getMaximumPoolSize());
+            assertTrue(f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).isReadOnly());
             f.evidence("C04-authority", Map.of("httpOnlyReadPool", true, "writeMutationRefusedSqlState", "42501", "readMissing", 404, "successfulWriteStatements", 0));
         }
     }

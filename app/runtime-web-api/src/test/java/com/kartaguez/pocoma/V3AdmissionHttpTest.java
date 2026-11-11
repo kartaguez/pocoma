@@ -354,7 +354,9 @@ class V3AdmissionHttpTest {
         assertFalse(text.contains("opaque-canary"));
         assertFalse(text.contains("jdbc:"));
         assertEquals("no-store", bad.headers().firstValue("Cache-Control").orElseThrow());
-        assertEquals(2, f.context.getBeansOfType(HikariDataSource.class).size());
+        assertEquals(3, f.context.getBeansOfType(HikariDataSource.class).size());
+        assertEquals(1, f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).getMaximumPoolSize());
+        assertTrue(f.context.getBean("v3HttpReadMaintenancePool",HikariDataSource.class).isReadOnly());
         assertNotEquals(
                 f.context.getBean("v3AdmissionPool", HikariDataSource.class).getUsername(),
                 f.context.getBean("v3HttpReadPool", HikariDataSource.class).getUsername());
