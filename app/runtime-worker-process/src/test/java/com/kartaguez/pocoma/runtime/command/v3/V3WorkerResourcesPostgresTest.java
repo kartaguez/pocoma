@@ -1989,13 +1989,11 @@ class V3WorkerResourcesPostgresTest {
             seedPublications(f, runtime, 2);
             var b = runtime.bindings.getFirst();
             var def = b.definition();
-            var store = (PartitionOwnershipStore) field(com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()), "ownership");
             var pool = runtime.pool("writeControl");
 
             // Setup lease on partition 0
-            var optLease = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.engine(b.engine()).acquirePartition(0);
-            assertTrue(optLease.isPresent(), "initial acquire on partition 0");
-            var lease = optLease.get();
+            var partition = b.protocol().acquirePartition(0).orElseThrow();
+            var lease = (PartitionLease) L2TestAccess.unwrap(partition);
             var token = lease.ownerToken();
             var key = I5TemporalV2Postgres.key(lease);
 
@@ -2068,7 +2066,7 @@ class V3WorkerResourcesPostgresTest {
                             "com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker$LeaseEntry");
             var entryConstructor = entryClass.getDeclaredConstructors()[0];
             entryConstructor.setAccessible(true);
-            var entry = entryConstructor.newInstance(pair, lease);
+            var entry = entryConstructor.newInstance(pair, partition);
 
             var renewalCalls = (Collection<Object>) field(runtime.worker, "renewalCalls");
             var callClass =

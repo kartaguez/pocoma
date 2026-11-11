@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.RequestProgress;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -2432,26 +2433,8 @@ class V3WorkerPostgresTest {
                             }
                         });
             if (boundary.equals("admission")) {
-                // Admission is committed by the real Discovery loop; freeze Consumption before
-                // its control unit so the external crash observer cannot race an acquisition.
-                replace(
-                        engine,
-                        "controlTransactions",
-                        new ForwardingTransactions(control) {
-                            public <T> T write(
-                                    java.util.function.Supplier<T> work,
-                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
-                                                    .Guard
-                                            guard) {
-                                if (Thread.currentThread().getName().startsWith("v3-consumption-"))
-                                    for (; ; )
-                                        try {
-                                            Thread.sleep(1000);
-                                        } catch (InterruptedException ignored) {
-                                        }
-                                return control.write(work, guard);
-                            }
-                        });
+                // Discovery holds the pair lock until this callback returns. Stop only after
+                // the effects transaction committed an actual admission for that partition.
                 var discovery = com.kartaguez.pocoma.runtime.command.v3.L2TestAccess.discovery(runtime.bindings.getFirst().discovery());
                 var owner = (AttemptTransactions) field(discovery, "effects");
                 replace(
@@ -2464,8 +2447,8 @@ class V3WorkerPostgresTest {
                                                     .Guard
                                             guard) {
                                 T result = owner.write(work, guard);
-                                if (Thread.currentThread().getName().startsWith("v3-discovery-"))
-                                    stop.run();
+                                if (result instanceof RequestProgress progress
+                                        && progress.committedAdmissions() == 1) stop.run();
                                 return result;
                             }
                         });
