@@ -71,7 +71,10 @@ public final class ReadRuntimeI8Fixture implements AutoCloseable {
 
     static void await(BooleanSupplier predicate, Duration timeout) throws Exception {
         long end = System.nanoTime() + timeout.toNanos();
-        while (!predicate.getAsBoolean() && System.nanoTime() < end) Thread.sleep(50);
+        while (System.nanoTime() < end) {
+            if (predicate.getAsBoolean()) return;
+            Thread.sleep(50);
+        }
         assertTrue(predicate.getAsBoolean(), "runtime condition deadline");
     }
 
