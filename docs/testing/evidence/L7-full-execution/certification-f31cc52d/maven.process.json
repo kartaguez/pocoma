@@ -1,0 +1,12 @@
+{
+  "pid": 55034,
+  "process_group": 55034,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=c853bdd826d5437ab699e38e2a8e3c6b",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-certification-f31cc52d/reports",
+    "test"
+  ]
+}
