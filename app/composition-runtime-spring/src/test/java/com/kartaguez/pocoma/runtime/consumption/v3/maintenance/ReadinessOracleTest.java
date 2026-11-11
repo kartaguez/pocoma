@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.consumption.v3.maintenance;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance.ReadinessOracle;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

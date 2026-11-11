@@ -12,7 +12,7 @@
 	<artifactId>pocoma-infra-tx-spring</artifactId>
 	<name>pocoma-infra-tx-spring</name>
 
-	<dependencies>
+	<dependencies><dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contract-consumption</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
 
 

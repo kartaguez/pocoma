@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3InvitationConfiguration;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation;
+import com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceStatus;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceStatus;
 import com.kartaguez.pocoma.infra.security.spring.v3.InvitationCryptography;
 import com.kartaguez.pocoma.infra.security.spring.v3.V3HttpSecurityConfiguration;
 import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
@@ -220,9 +225,9 @@ public class V3ReadHttpConfiguration {
 
     @Bean
     @Profile("!v3-read-worker")
-    com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority v3HttpReadMaintenanceAuthority(
+    com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceStatus v3HttpReadMaintenanceAuthority(
             HikariDataSource v3HttpReadMaintenancePool) {
-        return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority(
+        return new com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceStatus(
                 v3HttpReadMaintenancePool);
     }
 
@@ -353,11 +358,11 @@ public class V3ReadHttpConfiguration {
     }
 
     @Bean
-    FilterRegistrationBean<com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter> v3ReadMaintenanceFilter(
-            com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority authority,
+    FilterRegistrationBean<com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter> v3ReadMaintenanceFilter(
+            com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceStatus authority,
             Environment env) {
         boolean admission = Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission");
-        var filter = new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter(authority, admission);
+        var filter = new com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter(authority, admission);
         var registration = new FilterRegistrationBean<>(filter);
         registration.setOrder(-105);
         registration.addUrlPatterns("/api/v3/*");
@@ -365,16 +370,13 @@ public class V3ReadHttpConfiguration {
     }
 
     @Bean
-    com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation v3ReadRebuildObservation(
+    com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation v3ReadRebuildObservation(
             Optional<MeterRegistry> meterRegistry) {
-        return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation(
+        return new com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation(
                 meterRegistry.orElseGet(io.micrometer.core.instrument.simple.SimpleMeterRegistry::new));
     }
 
-    @Bean
-    com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle v3ReadinessOracle() {
-        return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle();
-    }
+
 
     public static final class PrincipalResolver extends V3HttpSecurityConfiguration.PrincipalResolver {}
 

@@ -1,4 +1,7 @@
-package com.kartaguez.pocoma.runtime.consumption.v3.maintenance;
+package com.kartaguez.pocoma.supra.web.read.v3.maintenance;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceStatus;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceStatus;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceState;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,18 +26,18 @@ public final class ReadMaintenanceFilter extends OncePerRequestFilter {
 
     public static final Duration CACHE_TTL = Duration.ofMillis(500);
 
-    private final ReadMaintenanceAuthority authority;
+    private final ReadMaintenanceStatus authority;
     private final boolean admissionActive;
     private final AtomicInteger inFlightRequests = new AtomicInteger();
 
     private record CachedState(ReadMaintenanceState state, long cachedAtNanos) {}
     private volatile CachedState cached;
 
-    public ReadMaintenanceFilter(ReadMaintenanceAuthority authority) {
+    public ReadMaintenanceFilter(ReadMaintenanceStatus authority) {
         this(authority, false);
     }
 
-    public ReadMaintenanceFilter(ReadMaintenanceAuthority authority, boolean admissionActive) {
+    public ReadMaintenanceFilter(ReadMaintenanceStatus authority, boolean admissionActive) {
         this.authority = Objects.requireNonNull(authority, "authority cannot be null");
         this.admissionActive = admissionActive;
     }

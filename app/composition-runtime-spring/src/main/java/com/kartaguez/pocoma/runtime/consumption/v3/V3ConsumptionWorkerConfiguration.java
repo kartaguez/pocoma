@@ -1,4 +1,12 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3InvitationConfiguration;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance.ReadinessOracle;
+import com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation;
+import com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceAuthority;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceAuthority;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceState;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.infra.security.spring.v3.V3HttpSecurityConfiguration;
 import com.kartaguez.pocoma.infra.observability.micrometer.v3.MicrometerV3ConsumptionObservation;
 import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
@@ -48,6 +56,25 @@ public class V3ConsumptionWorkerConfiguration {
         return new Preflight(env);
     }
 
+    private static void requireInvitationInstalled(javax.sql.DataSource write, javax.sql.DataSource read) {
+        var primary = new org.springframework.jdbc.core.JdbcTemplate(write);
+        var projection = new org.springframework.jdbc.core.JdbcTemplate(read);
+        if (!Boolean.TRUE.equals(
+                        primary.queryForObject(
+                                "select to_regclass('v3_invitation') is not null and"
+                                    + " to_regclass('v3_invitation_event') is not null and"
+                                    + " exists(select 1 from v3_event_counter where"
+                                    + " family='INVITATION')",
+                                Boolean.class))
+                || !Boolean.TRUE.equals(
+                        projection.queryForObject(
+                                "select to_regclass('read_current_invitation') is not null",
+                                Boolean.class)))
+            throw new IllegalStateException(
+                    "Invitation CURRENT migrations are required before activation");
+    }
+
+
     private static Set<String> admissionTypes() {
         return Set.of(
                 "com.kartaguez.pocoma.runtime.consumption.v3.V3AdmissionHttpConfiguration",
@@ -91,11 +118,11 @@ public class V3ConsumptionWorkerConfiguration {
                                 V3ReadFacadeConfiguration.class.getName(),
                                 V3ReadFacadeComposition.Services.class.getName(),
                                 "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication",
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceState.class.getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority.class.getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority.class.getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle.class.getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation.class.getName()));
+                                com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceState.class.getName(),
+                                com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceAuthority.class.getName(),
+                                com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceAuthority.class.getName(),
+                                com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance.ReadinessOracle.class.getName(),
+                                com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation.class.getName()));
             if (readMode
                     && Arrays.asList(env.getActiveProfiles())
                             .contains(V3ReadHttpConfiguration.PROFILE))
@@ -118,14 +145,14 @@ public class V3ConsumptionWorkerConfiguration {
                                 V3ReadHttpConfiguration.InvitationQueries.class.getName(),
                                 com.kartaguez.pocoma.supra.web.read.v3.V3ReadTransport.class
                                         .getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority.class
+                                com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceAuthority.class
                                         .getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority.class
+                                com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceAuthority.class
                                         .getName(),
-                                "com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter",
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation.class
+                                "com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter",
+                                com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation.class
                                         .getName(),
-                                com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle.class
+                                com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance.ReadinessOracle.class
                                         .getName(),
                                 com.kartaguez.pocoma.contract.readquery.BindingRead.Query.class
                                         .getName(),
@@ -276,7 +303,7 @@ public class V3ConsumptionWorkerConfiguration {
             try {
                 if (settings.readParticipants().contains("MaterializeInvitation")
                         || env.getProperty("pocoma.v3.invitation.current-key") != null)
-                    V3InvitationConfiguration.requireInstalled(
+                    requireInvitationInstalled(
                             resources.writeBusiness, resources.readBusiness);
                 return resources;
             } catch (RuntimeException failure) {
@@ -307,9 +334,9 @@ public class V3ConsumptionWorkerConfiguration {
 
         @Bean
         @Profile(V3ConsumptionWorkerSettings.READ_PROFILE)
-        com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority v3WorkerReadMaintenanceAuthority(
+        com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceAuthority v3WorkerReadMaintenanceAuthority(
                 Resources r) {
-            return new com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority(
+            return new com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceAuthority(
                     r.readBusiness);
         }
 
@@ -749,10 +776,10 @@ public class V3ConsumptionWorkerConfiguration {
                                     || bean instanceof Active
                                     || bean instanceof V3ReadFacadeConfiguration
                                     || bean instanceof V3ReadFacadeComposition.Services
-                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceAuthority
-                                    || value.equals("com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter")
-                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadRebuildObservation
-                                    || bean instanceof com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle
+                                    || bean instanceof com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceAuthority
+                                    || value.equals("com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter")
+                                    || bean instanceof com.kartaguez.pocoma.infra.observability.micrometer.v3.ReadRebuildObservation
+                                    || bean instanceof com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance.ReadinessOracle
                                     || value.equals(
                                             "com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication")
                                     || value.equals(

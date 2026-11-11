@@ -8,10 +8,10 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.runtime.consumption.v3.maintenance.JdbcReadMaintenanceAuthority;
-import com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceFilter;
-import com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadMaintenanceState;
-import com.kartaguez.pocoma.runtime.consumption.v3.maintenance.ReadinessOracle;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.maintenance.JdbcReadMaintenanceAuthority;
+import com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceFilter;
+import com.kartaguez.pocoma.port.projection.v3.maintenance.ReadMaintenanceState;
+import com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance.ReadinessOracle;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;

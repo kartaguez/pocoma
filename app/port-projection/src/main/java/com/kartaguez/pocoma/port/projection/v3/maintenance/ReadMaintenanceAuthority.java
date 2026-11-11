@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.runtime.consumption.v3.maintenance;
+package com.kartaguez.pocoma.port.projection.v3.maintenance;
 
 import java.util.Map;
 import java.util.UUID;
@@ -6,7 +6,7 @@ import java.util.UUID;
 /**
  * Interface for reading and atomically transitioning the durable READ maintenance state.
  */
-public interface ReadMaintenanceAuthority {
+public interface ReadMaintenanceAuthority extends ReadMaintenanceStatus {
 
     /**
      * Reads the current persistent state.

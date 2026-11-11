@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.runtime.consumption.v3.maintenance;
+package com.kartaguez.pocoma.port.projection.v3.maintenance;
 
 import java.time.Instant;
 import java.util.Collections;

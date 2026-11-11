@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;

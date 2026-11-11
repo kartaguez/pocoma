@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.runtime.consumption.v3.maintenance;
+package com.kartaguez.pocoma.infra.observability.micrometer.v3;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
@@ -52,12 +52,13 @@ public final class ReadRebuildObservation {
                 .register(registry);
     }
 
-    public void updateState(ReadMaintenanceState.State state) {
+    public void updateState(String state) {
         int code = switch (state) {
-            case READY -> 0;
-            case MAINTENANCE -> 1;
-            case REBUILDING -> 2;
-            case FAILED -> 3;
+            case "READY" -> 0;
+            case "MAINTENANCE" -> 1;
+            case "REBUILDING" -> 2;
+            case "FAILED" -> 3;
+            default -> throw new IllegalArgumentException("Unknown READ maintenance state");
         };
         stateGauge.set(code);
     }
@@ -75,7 +76,7 @@ public final class ReadRebuildObservation {
     }
 
     public void recordCompletion(Duration totalDuration) {
-        updateState(ReadMaintenanceState.State.READY);
+        updateState("READY");
         satisfiedCheckpoints.set(28);
         remainingSlots.set(0);
         if (totalDuration != null) {

@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.infra.security.spring.v3.V3InvitationConfiguration;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -469,7 +470,7 @@ class V3InvitationHttpTest extends V3InvitationFixture {
         for (String bearer : List.of(owner, guest, second))
             assertFalse(diagnostics.contains(bearer), "Bearer leaked in observed logs");
         var crypto =
-                com.kartaguez.pocoma.runtime.consumption.v3.V3InvitationConfiguration.keys(
+                com.kartaguez.pocoma.infra.security.spring.v3.V3InvitationConfiguration.keys(
                         f.http.context.getEnvironment());
         var ds = f.worker.write.getDataSource();
         var read = V3InvitationReadPostgresTest.owner(ds);

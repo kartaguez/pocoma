@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.command.v3.dev;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.pot.value.Label;

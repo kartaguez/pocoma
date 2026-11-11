@@ -10,7 +10,7 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotActorAuthority
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionLifecycleComposition;
 

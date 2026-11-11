@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;

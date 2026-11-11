@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.runtime.consumption.v3;
+package com.kartaguez.pocoma.infra.postgres.core.v3;
 
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition.Authority;
@@ -26,6 +26,7 @@ public final class V3BootstrapGuard {
     }
 
     private final boolean readWorker;
+    private final Authority validationScope;
     private final boolean development;
     private final boolean technicalProbes;
     private final boolean fixtureIdentity;
@@ -43,7 +44,7 @@ public final class V3BootstrapGuard {
             }
         }
 
-        static Target from(Environment env, String authority) {
+        public static Target from(Environment env, String authority) {
             String p = "pocoma.v3.pilot." + authority + ".";
             return new Target(
                     new DriverManagerDataSource(
@@ -57,7 +58,7 @@ public final class V3BootstrapGuard {
     }
 
     public V3BootstrapGuard(Target write, Target read, List<ConsumptionDefinition> definitions) {
-        this(write, read, definitions, false, false, false, false);
+        this(write, read, definitions, false, false, false, false, null);
     }
 
     private V3BootstrapGuard(
@@ -67,8 +68,9 @@ public final class V3BootstrapGuard {
             boolean development,
             boolean probes,
             boolean fixture,
-            boolean readWorker) {
+            boolean readWorker, Authority validationScope) {
         this.readWorker = readWorker;
+        this.validationScope = validationScope;
         this.write = Objects.requireNonNull(write);
         this.read = Objects.requireNonNull(read);
         this.definitions = List.copyOf(definitions);
@@ -80,8 +82,8 @@ public final class V3BootstrapGuard {
                     || definitions.stream().map(ConsumptionDefinition::id).distinct().count() != 9)
                 throw new IllegalArgumentException("nine unique pilot identities required");
         } else {
-            var expected = new ArrayList<>(V3ConsumptionCatalogConfiguration.definitions());
-            if (probes) expected.addAll(V3ConsumptionWorkerSettings.probeDefinitions());
+            var expected = new ArrayList<>(ConsumptionCatalog.definitions());
+            if (probes) expected.addAll(ConsumptionCatalog.probeDefinitions());
             if (definitions.size() != expected.size()
                     || !new HashSet<>(definitions).equals(new HashSet<>(expected)))
                 throw new IllegalArgumentException("exact business/technical tuples required");
@@ -94,12 +96,24 @@ public final class V3BootstrapGuard {
             List<ConsumptionDefinition> definitions,
             boolean probes,
             boolean fixture) {
-        return new V3BootstrapGuard(write, read, definitions, true, probes, fixture, false);
+        return new V3BootstrapGuard(write, read, definitions, true, probes, fixture, false, null);
     }
 
     public static V3BootstrapGuard readWorker(
             Target write, Target read, List<ConsumptionDefinition> definitions) {
-        return new V3BootstrapGuard(write, read, definitions, true, false, false, true);
+        return new V3BootstrapGuard(write, read, definitions, true, false, false, true, null);
+    }
+
+    /** Process owns only WRITE resources; the source role is inspected without opening READ. */
+    public static V3BootstrapGuard processWorker(Target write,String sourceReadRole,List<ConsumptionDefinition> definitions,boolean fixture) {
+        return new V3BootstrapGuard(write,new Target(write.source(),write.database(),write.schema(),sourceReadRole),definitions,true,false,fixture,false,Authority.WRITE);
+    }
+    /** Materialize owns READ lifecycle resources and a separate SELECT-only WRITE source. */
+    public static V3BootstrapGuard materializeWorker(Target source,Target read,List<ConsumptionDefinition> definitions) {
+        return new V3BootstrapGuard(source,read,definitions,true,false,false,true,Authority.READ);
+    }
+    public void validateWriteSourceRead(DataSource source) {
+        WriteSourceReadPrivileges.validate(new Target(source,write.database(),write.schema(),write.runtimeRole()));
     }
 
     private static final Map<String, Set<String>> READ_UPDATES =
@@ -205,6 +219,13 @@ public final class V3BootstrapGuard {
 
     public void validateLifecyclePrivileges(Privileges profile) {
         Objects.requireNonNull(profile);
+        if(validationScope==Authority.WRITE) {
+            validateLifecycleSource(write.source(),Authority.WRITE,profile);return;
+        }
+        if(validationScope==Authority.READ) {
+            validateWriteSourceRead(write.source());
+            validateLifecycleSource(read.source(),Authority.READ,profile);return;
+        }
         try {
             String w = inspect(write, Authority.WRITE, profile);
             String r = inspect(read, Authority.READ, profile);
@@ -222,6 +243,8 @@ public final class V3BootstrapGuard {
     public void validateLifecycleSource(
             DataSource source, Authority authority, Privileges profile) {
         Objects.requireNonNull(profile);
+        if(validationScope==Authority.READ && authority==Authority.WRITE) {validateWriteSourceRead(source);return;}
+        if(validationScope==Authority.WRITE && authority!=Authority.WRITE) throw new IllegalStateException("Process has no READ authority");
         var expected = authority == Authority.WRITE ? write : read;
         try {
             inspect(
@@ -536,6 +559,9 @@ select current_setting('log_error_verbosity')='terse'
                 require(
                         !read.runtimeRole().equals(write.runtimeRole()),
                         "distinct READ/WRITE principals required for real DEV");
+                if(validationScope==Authority.WRITE) {
+                    WriteSourceReadPrivileges.inspectRole(statement,read.runtimeRole());
+                } else {
                 try (var query =
                         c.prepareStatement(
                                 """
@@ -577,6 +603,7 @@ select exists(select 1 from pg_roles where rolname=? and
                                 !rows.getBoolean(1),
                                 "READ principal has Identity WRITE authority privileges");
                     }
+                }
                 }
             } finally {
                 c.rollback();
@@ -929,7 +956,7 @@ or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
         }
     }
 
-    static void requireInertType(Class<?> type) {
+    public static void requireInertType(Class<?> type) {
         String name = type.getName();
         if (name.startsWith("com.kartaguez.pocoma.")
                 && (name.contains(".infra.")

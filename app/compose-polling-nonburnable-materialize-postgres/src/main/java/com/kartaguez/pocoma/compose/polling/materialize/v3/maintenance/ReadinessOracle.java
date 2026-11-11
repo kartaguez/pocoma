@@ -1,7 +1,7 @@
-package com.kartaguez.pocoma.runtime.consumption.v3.maintenance;
+package com.kartaguez.pocoma.compose.polling.materialize.v3.maintenance;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
-import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration;
+import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.*;
@@ -23,7 +23,7 @@ public final class ReadinessOracle {
     static {
         Set<CheckpointKey> keys = new HashSet<>();
         Map<UUID, String> fams = new HashMap<>();
-        for (ConsumptionDefinition def : V3ConsumptionCatalogConfiguration.definitions()) {
+        for (ConsumptionDefinition def : ConsumptionCatalog.definitions()) {
             if (def.authority() == ConsumptionDefinition.Authority.READ) {
                 UUID cid = def.id().value();
                 fams.put(cid, def.family().name());

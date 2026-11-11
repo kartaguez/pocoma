@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma.runtime.consumption.v3;
+import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTracker;
 import com.kartaguez.pocoma.infra.postgres.source.v3.*;
 import com.kartaguez.pocoma.infra.postgres.core.v3.*;
