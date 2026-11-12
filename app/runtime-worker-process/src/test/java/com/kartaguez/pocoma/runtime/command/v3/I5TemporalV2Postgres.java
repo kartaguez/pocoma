@@ -610,6 +610,7 @@ final class I5TemporalV2Postgres {
             var txs = new CopyOnWriteArrayList<Tx>();
             var journals = new ArrayList<Journal>();
             var runtimes = new ArrayList<V3WorkerPostgresTest.Runtime>();
+            var entered = new CountDownLatch(workers * 4);
             var release = new CountDownLatch(1);
             var holders = new ArrayList<Holder>();
             var retired = new ArrayList<String>();
@@ -636,7 +637,6 @@ final class I5TemporalV2Postgres {
                     var r = new V3WorkerPostgresTest.Runtime(properties, j::observe);
                     runtimes.add(r);
                     j.attach(r);
-                    var entered = new CountDownLatch(4);
                     holdFourWithWrite(
                             r,
                             entered,
@@ -668,9 +668,10 @@ final class I5TemporalV2Postgres {
                                     throw new IllegalStateException(e);
                                 }
                             });
-                    r.worker.start();
-                    latch(entered);
                 }
+                // Finish provisioning every pool before any worker can take a lease or claim.
+                for (var runtime : runtimes) runtime.worker.start();
+                latch(entered);
                 await(
                         () -> {
                             try {
