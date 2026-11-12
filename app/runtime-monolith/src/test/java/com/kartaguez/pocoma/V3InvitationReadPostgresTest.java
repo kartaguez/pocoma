@@ -43,6 +43,94 @@ class V3InvitationReadPostgresTest extends V3InvitationFixture {
     }
 
     @Test
+    void createInvitationRollsBackEffectsAndPositionsBeforeRetry() throws Exception {
+        // Keep a confirmed failed attempt observable before the real retry acquires its slot.
+        f.worker.properties.put("pocoma.v3.worker.lifecycle.retry-delay-ms", "5000");
+        startPot();
+        var write = f.worker.write;
+        var read = f.worker.read;
+        write.execute("""
+                create function l7_invitation_rollback() returns trigger language plpgsql
+                as $$ begin
+                    raise exception 'L7 injected Invitation rollback: %', tg_table_name
+                        using errcode = '40001';
+                end $$;
+                """);
+        var stages = List.of(
+                "trigger l7_invitation_failure after insert on v3_invitation for each row",
+                "trigger l7_invitation_failure after insert on v3_event_position"
+                        + " for each row when (new.family='INVITATION')",
+                "constraint trigger l7_invitation_failure after insert on v3_command_result"
+                        + " deferrable initially deferred for each row"
+                        + " when (new.outcome='INVITATION_CREATED')");
+        var tables = List.of("v3_invitation", "v3_event_position", "v3_command_result");
+        String counter = "select position from v3_event_counter where family=?";
+        for (int stage = 0; stage < stages.size(); stage++) {
+            long inviteBefore = write.queryForObject(counter, Long.class, "INVITATION");
+            long completionBefore = write.queryForObject(counter, Long.class, "COMMAND_COMPLETION");
+            long potBefore = write.queryForObject(counter, Long.class, "POT");
+            write.execute("create " + stages.get(stage) + " execute function l7_invitation_rollback()");
+            UUID request;
+            try {
+                request = f.accepted(f.post("/commands", "owner", UUID.randomUUID().toString(),
+                        invitationBody(Instant.parse("2030-01-01T00:00:00Z"))));
+                ReadMonolithI8Fixture.await(() -> write.queryForObject("""
+                        select exists(select 1 from consumption_slot
+                         where consumable_id=? and state='AVAILABLE' and claim_token is null
+                           and attempt_count=1 and retry_after>clock_timestamp())
+                        """, Boolean.class, request));
+                var rollback = write.queryForMap("""
+                        select c.status, s.state, s.attempt_count, s.claim_token is null unclaimed,
+                            (select count(*) from v3_invitation i where i.creation_request_id=c.request_id) invitations,
+                            (select count(*) from v3_command_result r where r.request_id=c.request_id) results,
+                            (select count(*) from v3_command_completion_event e where e.subject_id=c.request_id) completions,
+                            (select count(*) from v3_pot_event e where e.request_id=c.request_id) pot_events,
+                            (select position from v3_event_counter where family='INVITATION') invitation_position,
+                            (select position from v3_event_counter where family='COMMAND_COMPLETION') completion_position,
+                            (select position from v3_event_counter where family='POT') pot_position
+                        from v3_command c join consumption_slot s on s.consumable_id=c.request_id
+                        where c.request_id=?
+                        """, request);
+                assertEquals("PENDING", rollback.get("status"));
+                assertEquals("AVAILABLE", rollback.get("state"));
+                assertEquals(1, rollback.get("attempt_count"));
+                assertEquals(true, rollback.get("unclaimed"));
+                for (String column : List.of("invitations", "results", "completions", "pot_events"))
+                    assertEquals(0L, rollback.get(column), column);
+                assertEquals(inviteBefore, rollback.get("invitation_position"));
+                assertEquals(completionBefore, rollback.get("completion_position"));
+                assertEquals(potBefore, rollback.get("pot_position"));
+                assertEquals(0L, read.queryForObject(
+                        "select count(*) from read_command_result where request_id=?", Long.class, request));
+                System.out.println("Invitation rollback after " + tables.get(stage) + ": " + rollback);
+            } finally {
+                write.execute("drop trigger l7_invitation_failure on " + tables.get(stage));
+            }
+            assertEquals("COMPLETED", f.poll("/commands/" + request + "/result", "owner", null)
+                    .get("outcome").asText());
+            link(request); // The projected Invitation must also be available for this creation.
+            var positions = write.queryForMap("""
+                    select i.creation_request_id,
+                           ip.position invitation_position, cp.position completion_position
+                    from v3_invitation i join v3_invitation_event ie using(invitation_id,version)
+                    join v3_event_position ip on ip.event_id=ie.event_id and ip.family='INVITATION'
+                    join v3_command_completion_event ce on ce.subject_id=i.creation_request_id
+                    join v3_event_position cp on cp.event_id=ce.event_id and cp.family='COMMAND_COMPLETION'
+                    where i.creation_request_id=?
+                    """, request);
+            assertEquals(request, positions.get("creation_request_id"));
+            assertEquals(inviteBefore + 1, positions.get("invitation_position"));
+            assertEquals(completionBefore + 1, positions.get("completion_position"));
+            assertEquals(potBefore, write.queryForObject(counter, Long.class, "POT"));
+            assertEquals(0L, write.queryForObject(
+                    "select count(*) from consumption_slot where consumable_id=?", Long.class, request));
+            System.out.println("Invitation retry after " + tables.get(stage)
+                    + ": positions=" + positions.get("invitation_position")
+                    + "/" + positions.get("completion_position") + " and slot released");
+        }
+    }
+
+    @Test
     void authenticatedEncryptionAndOldKeyRestoration() throws Exception {
         startPot();
         UUID id = create(Instant.parse("2030-01-01T00:00:00Z"));
