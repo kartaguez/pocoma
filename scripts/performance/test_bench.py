@@ -312,6 +312,38 @@ class BenchOracleQualificationTests(unittest.TestCase):
         response["expenses"][0]["id"] = "foreign"
         self.assertFalse(v3_seed.matches_seeded_pot(response, seed, 22))
 
+    def test_backlog_checkpoint_requires_every_read_effect(self):
+        from argparse import Namespace
+        from tempfile import TemporaryDirectory
+
+        observer = importlib.import_module("observe-l7-spec09-backlog")
+        request_id = "d082af23-0740-4bbf-9fda-10c935775a5c"
+        write = {"request_id": request_id, "pot_id": request_id, "status": "TERMINAL",
+                 "operation": "CreateExpense", "request_position": 7, "outcome": "CHANGED",
+                 "observed_version": 202, "version": 203, "event_version": 203,
+                 "slot_present": False, "result_hash": "a" * 64, "pot_event": request_id,
+                 "result_event": request_id, "pot_position": 9, "result_position": 7,
+                 "components": [{"kind": "EXPENSE_HEADER", "id": request_id, "v": 1}]}
+        read = {"request_id": request_id, "complete_slots": True, "result_matches": True,
+                "pot_ready": True, "visibility_ready": True, "subobjects_ready": True,
+                "balance_ready": False}
+        with TemporaryDirectory() as directory:
+            before = Path(directory) / "before.json"
+            before.write_text(json.dumps({
+                "status": "INITIAL_STOCK_VERIFIED",
+                "requestSha256": hashlib.sha256(request_id.encode()).hexdigest(),
+            }))
+            args = Namespace(mode="reconcile", before=before, write_service="w", read_service="r")
+            with patch.object(observer, "POPULATION", 1), patch.object(
+                    observer, "snapshot", side_effect=[[write], [read], [write],
+                                                      [{**read, "balance_ready": True}]]):
+                receipt, verified = observer.observe(args, [request_id])
+                self.assertFalse(verified)
+                self.assertEqual(receipt["incompleteRead"], [
+                    {"request_id": request_id, "missing": ["balance_ready"]}])
+                _, verified = observer.observe(args, [request_id])
+                self.assertTrue(verified)
+
     # 18. Scenario Mapping and Ramp Suite Configuration
     def test_18_scenario_mapping_and_ramp_suite(self):
         v3_run = importlib.import_module("v3-run")
