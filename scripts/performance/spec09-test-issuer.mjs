@@ -51,7 +51,8 @@ const server = createServer((request, response) => {
 server.listen(port, values.host, () => {
   const issued = Math.floor(Date.now() / 1000);
   const tokens = Object.fromEntries(subjects.map(sub => {
-    const claims = encode({ iss: values.issuer, sub, aud: values.audience, iat: issued, exp: issued + ttl });
+    const claims = encode({ iss: values.issuer, sub, aud: values.audience,
+      iat: issued, auth_time: issued, exp: issued + ttl });
     const message = `${header}.${claims}`;
     const signature = sign('RSA-SHA256', Buffer.from(message), privateKey).toString('base64url');
     return [sub, `${message}.${signature}`];

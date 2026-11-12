@@ -42,6 +42,8 @@ try {
     assert.equal(claimsValue.iss, issuer);
     assert.equal(claimsValue.aud, audience);
     assert.equal(claimsValue.sub, sub);
+    assert.equal(claimsValue.auth_time, claimsValue.iat);
+    assert(Number.isSafeInteger(claimsValue.auth_time) && claimsValue.auth_time >= 0);
     assert.equal(claimsValue.exp - claimsValue.iat, 3600);
   }
   assert.equal(Object.keys(tokens).length, 2);
