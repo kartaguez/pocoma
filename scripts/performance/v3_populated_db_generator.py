@@ -389,65 +389,7 @@ def seed_extra_published_events(target_delta: int, batch_size: int = 25000) -> N
 
 
 def synchronize_checkpoints_and_analyze() -> None:
-    """Advances WRITE and READ discovery_checkpoint to current counters and runs ANALYZE."""
-    sync_write_sql = f"""
-    DELETE FROM consumption_slot WHERE state = 'AVAILABLE';
-
-    INSERT INTO discovery_checkpoint(consumption_id, partition_id, position)
-    SELECT '{COMMAND_CONSUMPTION_ID}'::uuid, p, (SELECT position FROM v3_request_counter WHERE family='COMMAND')
-    FROM generate_series(0, 3) AS p
-    ON CONFLICT (consumption_id, partition_id)
-    DO UPDATE SET position = EXCLUDED.position;
-
-    INSERT INTO discovery_checkpoint(consumption_id, partition_id, position)
-    SELECT '{IDENTITY_CONSUMPTION_ID}'::uuid, p, (SELECT position FROM v3_request_counter WHERE family='IDENTITY_REQUEST')
-    FROM generate_series(0, 3) AS p
-    ON CONFLICT (consumption_id, partition_id)
-    DO UPDATE SET position = EXCLUDED.position;
-
-    UPDATE partition_ownership
-       SET owner_token = NULL, owned_until = NULL;
-
-    ANALYZE;
-    """
-    run_psql(sync_write_sql, db=WRITE_DB, schema=WRITE_SCHEMA)
-
-    # Also advance READ checkpoints so background historical events are already marked discovered
-    counters_raw = run_psql(
-        "SELECT json_object_agg(family, position) FROM v3_event_counter;",
-        db=WRITE_DB,
-        schema=WRITE_SCHEMA,
-    )
-    counters = json.loads(counters_raw)
-    pot_pos = counters.get("POT", 0)
-    cmd_comp_pos = counters.get("COMMAND_COMPLETION", 0)
-    id_pos = counters.get("IDENTITY", 0)
-    id_comp_pos = counters.get("IDENTITY_COMPLETION", 0)
-    inv_pos = counters.get("INVITATION", 0)
-
-    sync_read_sql = f"""
-    DELETE FROM consumption_slot WHERE state = 'AVAILABLE';
-    DELETE FROM discovery_checkpoint;
-
-    INSERT INTO discovery_checkpoint(consumption_id, partition_id, position)
-    SELECT c.consumption_id, p.partition_id,
-           CASE c.family
-               WHEN 'POT_EVENT' THEN {pot_pos}
-               WHEN 'COMMAND_COMPLETION_EVENT' THEN {cmd_comp_pos}
-               WHEN 'IDENTITY_EVENT' THEN {id_pos}
-               WHEN 'INVITATION_EVENT' THEN {inv_pos}
-               WHEN 'IDENTITY_COMPLETION_EVENT' THEN {id_comp_pos}
-               ELSE 0
-           END
-    FROM consumption_routing_contract c
-    CROSS JOIN generate_series(0, c.partition_count - 1) AS p(partition_id);
-
-    UPDATE partition_ownership
-       SET owner_token = NULL, owned_until = NULL;
-
-    ANALYZE;
-    """
-    run_psql(sync_read_sql, db=READ_DB, schema=READ_SCHEMA)
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 def verify_sql_integrity() -> Dict[str, Any]:
@@ -509,60 +451,7 @@ def verify_sql_integrity() -> Dict[str, Any]:
 
 
 def retire_all_quarantines() -> None:
-    """Retires any existing PENDING commands/identity requests and deletes QUARANTINED slots."""
-    sql = """
-    DO $$
-    DECLARE
-        rec record;
-        ev_id uuid;
-        e_pos bigint;
-    BEGIN
-        DELETE FROM consumption_slot WHERE state = 'QUARANTINED';
-
-        FOR rec IN SELECT request_id FROM v3_command WHERE status = 'PENDING' LOOP
-            ev_id := gen_random_uuid();
-            DELETE FROM consumption_slot
-             WHERE consumption_id = '98f7268d-d340-581c-b83d-010926223e14'::uuid
-               AND consumable_id = rec.request_id;
-            UPDATE v3_command SET status = 'TERMINAL' WHERE request_id = rec.request_id;
-            INSERT INTO v3_command_result(request_id, outcome, resulting_pot_version, rejection)
-            VALUES (rec.request_id, 'REJECTED', NULL, 'STALE_VERSION');
-            INSERT INTO v3_command_completion_event(event_id, subject_type, subject_id, recorded_at)
-            VALUES (ev_id, 'COMMAND', rec.request_id, clock_timestamp());
-            UPDATE v3_event_counter
-               SET position = position + 1
-             WHERE family = 'COMMAND_COMPLETION'
-             RETURNING position INTO e_pos;
-            INSERT INTO v3_event_position(family, position, event_id)
-            VALUES ('COMMAND_COMPLETION', e_pos, ev_id);
-        END LOOP;
-
-        FOR rec IN SELECT request_id, operation FROM v3_identity_request WHERE status = 'PENDING' LOOP
-            ev_id := gen_random_uuid();
-            DELETE FROM consumption_slot
-             WHERE consumption_id = '2999e75c-272d-5afe-a966-c9364ef021fe'::uuid
-               AND consumable_id = rec.request_id;
-            UPDATE v3_identity_request SET status = 'TERMINAL' WHERE request_id = rec.request_id;
-            INSERT INTO v3_identity_request_result(
-                request_id, outcome, target_eui_id, target_version, rejection
-            ) VALUES (
-                rec.request_id, 'REJECTED', NULL, NULL, 'INVALID_BINDING'
-            );
-            INSERT INTO v3_identity_completion_event(
-                event_id, subject_type, subject_id, recorded_at
-            ) VALUES (
-                ev_id, rec.operation, rec.request_id, clock_timestamp()
-            );
-            UPDATE v3_event_counter
-               SET position = position + 1
-             WHERE family = 'IDENTITY_COMPLETION'
-             RETURNING position INTO e_pos;
-            INSERT INTO v3_event_position(family, position, event_id)
-            VALUES ('IDENTITY_COMPLETION', e_pos, ev_id);
-        END LOOP;
-    END $$;
-    """
-    run_psql(sql)
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 def wait_workers_healthy(timeout_sec: float = 45.0) -> None:
@@ -653,18 +542,7 @@ def apply_profile(profile_name: str) -> Dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Pocoma V3 Populated DB Generator (H1..H5)")
-    parser.add_argument("--profile", required=True, choices=list(PROFILES.keys()), help="Target profile H1..H5")
-    parser.add_argument("--output", help="Optional JSON output file path")
-    args = parser.parse_args()
-
-    res = apply_profile(args.profile)
-    if args.output:
-        out_path = Path(args.output)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(json.dumps(res, indent=2), encoding="utf-8")
-    else:
-        print(json.dumps(res, indent=2))
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 if __name__ == "__main__":

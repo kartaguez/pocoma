@@ -132,13 +132,7 @@ def inject_quarantined_slots(count: int = 803, target_partition: Optional[int] =
 
 
 def cleanup_quarantined_slots() -> int:
-    print("[*] Cleaning up all quarantined slots...")
-    sql = "DELETE FROM v3_write.consumption_slot WHERE state = 'QUARANTINED';"
-    out = exec_pg("pocoma_write", sql)
-    m = re.search(r"DELETE (\d+)", out)
-    deleted = int(m.group(1)) if m else 0
-    print(f"[✓] Deleted {deleted} quarantined slots. DB is clean.")
-    return deleted
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 def run_benchmark(scenario: str, duration: str = "30s", rate: Optional[int] = None) -> Dict[str, Any]:
@@ -399,42 +393,7 @@ def evaluate_comparisons(all_results: Dict[str, Any]) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Pocoma V3 R11 Qualification Campaign Driver")
-    parser.add_argument("--scenario", choices=["s0", "s1", "s2", "s3", "s4", "s5", "s6", "all"], default="all",
-                        help="Scenario to execute (default: all)")
-    parser.add_argument("--duration", default="30s", help="Scenario duration (default: 30s)")
-    args = parser.parse_args()
-
-    scenarios = [
-        ("S0", "r11-s0-ref-1", 1, 0, None),
-        ("S1", "r11-s1-q-1", 1, 803, None),
-        ("S2", "r11-s2-ref-5", 5, 0, None),
-        ("S3", "r11-s3-q-5", 5, 803, None),
-        ("S4", "r11-s4-ref-20", 20, 0, None),
-        ("S5", "r11-s5-q-20", 20, 803, None),
-        ("S6", "r11-s6-conc-5", 5, 803, 0),
-    ]
-
-    selected = scenarios if args.scenario == "all" else [s for s in scenarios if s[0].lower() == args.scenario]
-
-    all_results = {}
-    if RESULTS_FILE.exists():
-        try:
-            with open(RESULTS_FILE, "r") as f:
-                all_results = json.load(f)
-        except Exception:
-            all_results = {}
-
-    for s_id, s_name, rate, q_count, q_part in selected:
-        res = execute_scenario(s_id, s_name, rate, q_count, q_part, duration=args.duration)
-        all_results[s_id] = res
-
-    evaluate_comparisons(all_results)
-
-    # Regenerate charts
-    print("\n[*] Updating performance plots...")
-    plot_script = REPO_ROOT / "scripts" / "performance" / "v3-plot.py"
-    subprocess.run([sys.executable, str(plot_script), "--evidence-dir", str(EVIDENCE_DIR_R11)])
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 if __name__ == "__main__":

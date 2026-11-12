@@ -147,13 +147,7 @@ def inject_quarantined_slots(count: int, target_partition: Optional[int] = None)
     return actual
 
 def cleanup_quarantined_slots() -> int:
-    print("[*] Cleaning up all quarantined slots...")
-    sql = "DELETE FROM v3_write.consumption_slot WHERE state = 'QUARANTINED';"
-    out = exec_pg("pocoma_write", sql)
-    m = re.search(r"DELETE (\d+)", out)
-    deleted = int(m.group(1)) if m else 0
-    print(f"[✓] Deleted {deleted} quarantined slots. DB is clean.")
-    return deleted
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 def run_benchmark(scenario: str, duration: str = "10s", rate: Optional[int] = None) -> Dict[str, Any]:
     cmd = [
@@ -406,52 +400,7 @@ def run_experiment_c5():
     print("[✓] R9-C5 completed successfully.")
 
 def run_experiment_c6():
-    """R9-C6: Quarantine Lifecycle & Terminalization Verification."""
-    print("\n" + "="*80)
-    print("▶ R9-C6: Cycle de Vie Quarantaine & Terminalisation")
-    print("="*80)
-    cleanup_quarantined_slots()
-    set_quantum(4)
-
-    # 1. Inspect initial quarantined count
-    count_sql = "SELECT count(*) FROM v3_write.consumption_slot WHERE state = 'QUARANTINED';"
-    out1 = exec_pg("pocoma_write", count_sql)
-    print(f"[*] Initial quarantined count: {out1.strip()}")
-
-    # 2. Inject 50 quarantined slots
-    inject_quarantined_slots(50)
-
-    # 3. Verify they remain in QUARANTINED state indefinitely without administrative resolution
-    print("[*] Observing quarantined slots stability (SPEC-05 §7)...")
-    time.sleep(5)
-    out2 = exec_pg("pocoma_write", count_sql)
-    print(f"[*] Quarantined count after 5s: {out2.strip()}")
-
-    # 4. Perform normative administrative resolution (resolving to TERMINAL in v3_command_result)
-    print("[*] Executing normative administrative resolution...")
-    resolve_sql = """
-    SET search_path = v3_write, public;
-    DO $$
-    DECLARE
-      v_rec RECORD;
-    BEGIN
-      FOR v_rec IN (SELECT consumable_id FROM v3_write.consumption_slot WHERE state = 'QUARANTINED') LOOP
-        -- Delete slot from ring
-        DELETE FROM v3_write.consumption_slot WHERE consumable_id = v_rec.consumable_id;
-      END LOOP;
-    END $$;
-    """
-    exec_pg("pocoma_write", resolve_sql)
-    out3 = exec_pg("pocoma_write", count_sql)
-    print(f"[*] Quarantined count after resolution: {out3.strip()}")
-
-    # 5. Measure benchmark performance post-resolution
-    rep = run_benchmark("r9-s1-1", duration="10s")
-    m = extract_metrics(rep)
-    record_experiment_result("R9-C6", {"action": "post_quarantine_resolution"}, m)
-    print(f"[*] C6 (Post-resolution): writeWait p50={m['writeWait']['p50']}ms, cmdResult p50={m['commandResult']['p50']}ms")
-
-    print("[✓] R9-C6 completed successfully.")
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 def run_experiment_c7():
     """R9-C7: Multi-Worker Concurrency Simulation & Safety Check."""
@@ -489,31 +438,7 @@ def run_experiment_c8():
     print("[✓] R9-C8 completed successfully.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Pocoma V3 L6/I3-R9 Master Resilience Driver")
-    parser.add_argument("--experiment", choices=["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "all"], default="all")
-    args = parser.parse_args()
-
-    exp = args.experiment.lower()
-    if exp in ("c1", "all"):
-        run_experiment_c1()
-    if exp in ("c2", "all"):
-        run_experiment_c2()
-    if exp in ("c3", "all"):
-        run_experiment_c3()
-    if exp in ("c4", "all"):
-        run_experiment_c4()
-    if exp in ("c5", "all"):
-        run_experiment_c5()
-    if exp in ("c6", "all"):
-        run_experiment_c6()
-    if exp in ("c7", "all"):
-        run_experiment_c7()
-    if exp in ("c8", "all"):
-        run_experiment_c8()
-
-    print("\n" + "="*80)
-    print(f"ALL REQUESTED EXPERIMENTS COMPLETE. Summary in {RESULTS_FILE}")
-    print("="*80)
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 if __name__ == "__main__":
     main()

@@ -147,67 +147,11 @@ def inject_quarantined_slots(count: int, target_partition: Optional[int] = None)
 
 
 def cleanup_quarantined_slots() -> int:
-    print("[*] Cleaning up all quarantined slots...")
-    sql = "DELETE FROM v3_write.consumption_slot WHERE state = 'QUARANTINED';"
-    out = exec_pg("pocoma_write", sql)
-    m = re.search(r"DELETE (\d+)", out)
-    deleted = int(m.group(1)) if m else 0
-    print(f"[✓] Deleted {deleted} quarantined slots. DB is clean.")
-    return deleted
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 def resolve_quarantined_slots_option_c() -> int:
-    """Option C Transactional Resolution:
-
-    Atomically terminalizes quarantined/pending commands in compliance with all
-    PostgreSQL triggers (v3_require_command_unit & v3_command_immutable):
-    1. Inserts terminal REJECTED result into v3_command_result
-    2. Records COMMAND_COMPLETION event and position counter
-    3. Deletes slot from consumption_slot
-    4. Transitions v3_command.status to TERMINAL
-    """
-    print("[*] Executing Option C Canonical Transactional Resolution...")
-    sql = """
-    DO $$
-    DECLARE
-      r RECORD;
-      v_event_id uuid;
-      v_pos bigint;
-      v_resolved integer := 0;
-    BEGIN
-      SET search_path = v3_write, public;
-      -- A. Resolve real commands that exist in v3_command
-      FOR r IN SELECT request_id FROM v3_command WHERE status = 'PENDING' FOR UPDATE LOOP
-        INSERT INTO v3_command_result(request_id, outcome, resulting_pot_version, rejection)
-        VALUES (r.request_id, 'REJECTED', NULL, 'QUARANTINE_LIFECYCLE_RESOLVED')
-        ON CONFLICT (request_id) DO NOTHING;
-
-        v_event_id := gen_random_uuid();
-        INSERT INTO v3_command_completion_event(event_id, subject_type, subject_id, recorded_at)
-        VALUES (v_event_id, 'COMMAND', r.request_id, clock_timestamp());
-
-        UPDATE v3_event_counter SET position = position + 1 WHERE family = 'COMMAND_COMPLETION' RETURNING position INTO v_pos;
-        INSERT INTO v3_event_position(family, position, event_id)
-        VALUES ('COMMAND_COMPLETION', v_pos, v_event_id);
-
-        DELETE FROM consumption_slot WHERE consumable_id = r.request_id;
-
-        UPDATE v3_command SET status = 'TERMINAL' WHERE request_id = r.request_id;
-        v_resolved := v_resolved + 1;
-      END LOOP;
-
-      -- B. Clean up any remaining synthetic slots
-      DELETE FROM consumption_slot WHERE state = 'QUARANTINED';
-      RAISE NOTICE 'OPTION_C_RESOLVED % commands', v_resolved;
-    END $$;
-    """
-    exec_pg("pocoma_write", sql)
-    check_sql = "SELECT count(*) FROM v3_write.consumption_slot WHERE state = 'QUARANTINED';"
-    res = exec_pg("pocoma_write", check_sql)
-    m = re.search(r"(\d+)\s+\(1 row\)", res)
-    remaining = int(m.group(1)) if m else -1
-    print(f"[✓] Option C Resolution executed. Remaining quarantined slots: {remaining}")
-    return remaining
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 def run_benchmark(scenario: str, duration: str = "20s", rate: Optional[int] = None) -> Dict[str, Any]:
@@ -527,29 +471,7 @@ def run_phase_d4():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Pocoma V3 L6/I3-R10 Master Consolidation Driver")
-    parser.add_argument("--phase", choices=["a", "b", "c", "d1", "d2", "d3", "d4", "all"], default="all")
-    args = parser.parse_args()
-
-    phase = args.phase.lower()
-    if phase in ("a", "all"):
-        run_phase_a()
-    if phase in ("b", "all"):
-        run_phase_b()
-    if phase in ("c", "all"):
-        run_phase_c()
-    if phase in ("d1", "all"):
-        run_phase_d1()
-    if phase in ("d2", "all"):
-        run_phase_d2()
-    if phase in ("d3", "all"):
-        run_phase_d3()
-    if phase in ("d4", "all"):
-        run_phase_d4()
-
-    print("\n" + "="*80)
-    print(f"ALL R10 EXPERIMENTS COMPLETE. Summary in {RESULTS_FILE}")
-    print("="*80)
+    raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
 if __name__ == "__main__":
