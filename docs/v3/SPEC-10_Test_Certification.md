@@ -1132,7 +1132,7 @@ Les propriétés « aucune famine » et « pas de surcharge catastrophique » ex
 | F01-B | Pot moyen soutenu, indépendants | 10 commandes/s, Pot 20/200, conf. A | **p95 ≤ 1 s** admission → Pot complet, **sans croissance continue** du backlog |
 | F01-C | Pointe répartie | 50 commandes/s, Pot 20/200, conf. A, fenêtre bornée puis retour nominal | **p95 ≤ 3 s** admission → Pot complet durant la pointe ; backlog temporaire accepté, résorption observée |
 | F01-D | Grand Pot nominal | 1 commande/s, Pot 100/2 000, conf. A, Pots indépendants | **p95 ≤ 2 s** admission → Pot complet |
-| F01-E | Identity nominale | Registration et Link, chacun avec échantillon distinct, conf. A | **p95 ≤ 500 ms** admission durable → première lecture réellement autorisée grâce au nouveau bindingToken |
+| F01-E | Identity nominale | Registration d'EUI fraîches, configuration A | **p95 ≤ 500 ms** de l'admission durable à la première réponse HTTP 200 de `/api/v3/me/pots?limit=1` avec le JWT correspondant et le nouveau `bindingToken` ; liste vide attendue |
 | F01-F | Keycloak intégré | Parcours API/OIDC/Identity ciblés, conf. B | Vérifier les contrats sécurité, quantifier l'écart A/B et les coûts OIDC séparément ; **pas de nouveau SLO chiffré B inventé** |
 | F01-G | Backlog de rattrapage | 10 000 commandes admises, travail dérivé à compléter ; redémarrer Workers à 1 nouvelle commande/s, conf. A | **≤ 5 min** jusqu'aux 10 000 commandes initiales terminales **et** toutes leurs projections requises prêtes |
 | F01-H | Contention même Pot | Commandes concurrentes sur un Pot, conf. A, avec périodes de contention et retour normal | Absence de double/perte/commit partiel, convergence, retries/rejets corrects, backlog résorbé ; **pas de SLO de latence chiffré** |
