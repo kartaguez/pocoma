@@ -3363,19 +3363,18 @@ class V3WorkerPostgresTest {
                     var durations = new CopyOnWriteArrayList<Duration>();
                     var discoveries = new AtomicInteger();
                     var renewals = new AtomicInteger();
+                    var commandConsumption = ConsumptionCatalog.definitions().getFirst().id();
                     ConsumptionObservation observer =
                             (id, phase, outcome, n, d) -> {
                                 if (phase == ConsumptionObservation.Phase.CONSUMPTION_ROTATION)
                                     rotations.add(id);
                                 if (phase == ConsumptionObservation.Phase.OPPORTUNITY
-                                        && id.equals(
-                                                ConsumptionCatalog.definitions()
-                                                        .getFirst()
-                                                        .id())) durations.add(d);
+                                        && id.equals(commandConsumption)) durations.add(d);
                                 if (phase == ConsumptionObservation.Phase.DISCOVERY
                                         && outcome == ConsumptionObservation.Outcome.CONFIRMED)
                                     discoveries.incrementAndGet();
                                 if (phase == ConsumptionObservation.Phase.LEASE_RENEW
+                                        && !id.equals(commandConsumption)
                                         && n > 0
                                         && outcome == ConsumptionObservation.Outcome.CONFIRMED)
                                     renewals.incrementAndGet();
@@ -3385,8 +3384,8 @@ class V3WorkerPostgresTest {
                                     Objects.requireNonNull(f.write.getDataSource())
                                             .getConnection()) {
                         seedPublications(f, runtime, 6);
-                        var id = pendingAtPartitionZero(f, 19000);
-                        admitBeforeStart(f, runtime, id);
+                        UUID id = timeout ? pendingAtPartitionZero(f, 19000) : null;
+                        if (timeout) admitBeforeStart(f, runtime, id);
                         f.write.execute(
                                 "create function i5_slow_acquire() returns trigger language plpgsql"
                                     + " as $$ begin if new.claim_token is not null and"
@@ -3408,27 +3407,34 @@ class V3WorkerPostgresTest {
                                 });
                         runtime.worker.start();
                         try {
-                            await(
-                                    () ->
-                                            f.write.queryForObject(
-                                                    "select exists(select 1 from pg_stat_activity"
-                                                        + " where"
-                                                        + " application_name='i5-test-write-control'"
-                                                        + " and wait_event='advisory')",
-                                                    Boolean.class));
+                            if (!timeout) {
+                                // Start the physical lock window only once the runtime's
+                                // independent discovery and lease renewal have started.
+                                await(() -> discoveries.get() > 0 && renewals.get() > 0);
+                                f.trace.add("discovery and READ lease renewal confirmed before injection"
+                                        + " discoveries=" + discoveries.get()
+                                        + " read renewals=" + renewals.get());
+                                id = pendingAtPartitionZero(f, 19000);
+                            }
+                            var backend = new AtomicReference<Map<String, Object>>();
+                            await(() -> {
+                                var waiters = f.write.queryForList(
+                                        "select pid,backend_xid::text,wait_event,"
+                                                + " pg_blocking_pids(pid)::text blockers"
+                                                + " from pg_stat_activity where"
+                                                + " application_name='i5-test-write-control'"
+                                                + " and wait_event='advisory'");
+                                if (waiters.isEmpty()) return false;
+                                assertEquals(1, waiters.size());
+                                backend.set(waiters.getFirst());
+                                return true;
+                            });
                             long blockedAt = System.nanoTime();
                             var atBlock = List.copyOf(rotations);
                             assertEquals(
                                     runtime.bindings.getFirst().definition().id(),
                                     atBlock.getLast());
-                            f.trace.add(
-                                    "actual acquisition wait "
-                                            + f.write.queryForList(
-                                                    "select"
-                                                        + " pid,backend_xid::text,wait_event,pg_blocking_pids(pid)::text"
-                                                        + " blockers from pg_stat_activity where"
-                                                        + " application_name='i5-test-write-control'"
-                                                        + " and wait_event='advisory'"));
+                            f.trace.add("actual acquisition wait " + backend.get());
                             assertEquals(
                                     atBlock,
                                     rotations,
@@ -3445,16 +3451,28 @@ class V3WorkerPostgresTest {
                                 assertTrue(discoveries.get() > 0);
                             }
                             long observedDelay = System.nanoTime() - blockedAt;
-                            if (!timeout)
-                                assertTrue(
-                                        f.write.queryForObject(
-                                                "select exists(select 1 from pg_stat_activity where"
-                                                    + " application_name='i5-test-write-control'"
-                                                    + " and wait_event='advisory')",
-                                                Boolean.class),
-                                        "release variant must still be physically blocked");
-                            try (var q = blocker.createStatement()) {
-                                q.execute("select pg_advisory_unlock_all()");
+                            if (!timeout) {
+                                // Use the already open lock holder connection for the
+                                // last observation and release, inside the original deadline.
+                                try (var q = blocker.prepareStatement(
+                                        "select pg_advisory_unlock(519) from pg_stat_activity"
+                                                + " where pid=? and backend_xid::text=?"
+                                                + " and wait_event='advisory'"
+                                                + " and pg_backend_pid()=any(pg_blocking_pids(pid))")) {
+                                    q.setInt(1, (Integer) backend.get().get("pid"));
+                                    q.setString(2, (String) backend.get().get("backend_xid"));
+                                    try (var result = q.executeQuery()) {
+                                        assertTrue(result.next() && result.getBoolean(1),
+                                                "release variant must still block the same PID/XID"
+                                                        + " before unlock: " + backend.get()
+                                                        + ", observed ns=" + observedDelay);
+                                    }
+                                }
+                                f.trace.add("released live acquisition " + backend.get());
+                            } else {
+                                try (var q = blocker.createStatement()) {
+                                    q.execute("select pg_advisory_unlock_all()");
+                                }
                             }
                             latch(prepared);
                             if (mw == 1) {
