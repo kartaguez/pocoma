@@ -11,6 +11,86 @@ import java.util.*;
 
 class V3InvitationHttpTest extends V3InvitationFixture {
     @Test
+    void l73_concurrentInvitationAcceptanceHasOneWinnerForOnePlace() throws Exception {
+        concurrentAcceptance(false);
+    }
+
+    @Test
+    void l73_concurrentInvitationAcceptanceAttachesEachActorToTheirOwnPlace() throws Exception {
+        concurrentAcceptance(true);
+    }
+
+    private void concurrentAcceptance(boolean distinctPlaces) throws Exception {
+        startPot();
+        String first = binding("guest"), second = binding("second"), outsider = binding("outsider");
+        String secret = invitationToken(create(Instant.parse("2030-01-01T00:00:00Z")));
+        UUID other = distinctPlaces ? new UUID(4, 2) : f.share;
+        var identityBefore = f.worker.write.queryForList(
+                "select * from v3_eui_version order by eui_id,version");
+        long eventsBefore = f.worker.write.queryForObject(
+                "select count(*) from v3_pot_event where pot_id=?", Long.class, f.pot);
+        UUID a, b;
+        try (var gate = f.worker.write.getDataSource().getConnection()) {
+            gate.setAutoCommit(false);
+            try (var lock = gate.prepareStatement(
+                    "select current_version from v3_pot_identity where pot_id=? for update")) {
+                lock.setObject(1, f.pot);
+                lock.execute();
+            }
+            a = f.accepted(f.post("/commands", "guest", "compete-first",
+                    attachBody(first, secret, f.share)));
+            b = f.accepted(f.post("/commands", "second", "compete-second",
+                    attachBody(second, secret, other)));
+            awaitTwoFinalWriteWaiters();
+            gate.commit();
+        }
+        var ra = f.poll("/commands/" + a + "/result", "guest", null);
+        var rb = f.poll("/commands/" + b + "/result", "second", null);
+        int wins = 0;
+        for (int i = 0; i < 2; i++) {
+            var result = i == 0 ? ra : rb;
+            UUID request = i == 0 ? a : b;
+            String actor = i == 0 ? "guest" : "second";
+            UUID target = i == 0 ? f.share : other;
+            boolean won = "COMPLETED".equals(result.get("outcome").asText());
+            if (won) {
+                wins++;
+                UUID actualUser = f.worker.write.queryForObject(
+                        "select user_id from v3_shareholder_details where object_id=? and active_to is null",
+                        UUID.class, target);
+                UUID actorUser = f.worker.write.queryForObject(
+                        "select v.user_id from v3_eui_authority a join v3_eui_version v on a.eui_id=v.eui_id"
+                                + " and a.current_version=v.version where a.issuer=? and a.subject=?",
+                        UUID.class, f.http.issuer, actor);
+                assertEquals(actorUser, actualUser, "Invitation attaches only its authenticated actor");
+            } else {
+                assertEquals("REJECTED", result.get("outcome").asText());
+                assertEquals("INVALID_ATTACHMENT", result.get("rejection").asText());
+            }
+            assertEquals(won ? 1 : 0, f.worker.write.queryForObject(
+                    "select count(*) from v3_pot_event where request_id=?", Integer.class, request));
+        }
+        assertEquals(distinctPlaces ? 2 : 1, wins);
+        assertEquals(eventsBefore + wins, f.worker.write.queryForObject(
+                "select count(*) from v3_pot_event where pot_id=?", Long.class, f.pot));
+        assertEquals(wins, f.worker.write.queryForObject(
+                "select count(*) from v3_shareholder_details where pot_id=? and active_to is null and user_id is not null",
+                Integer.class, f.pot));
+        assertEquals(identityBefore, f.worker.write.queryForList(
+                "select * from v3_eui_version order by eui_id,version"));
+        long version = f.worker.write.queryForObject(
+                "select current_version from v3_pot_identity where pot_id=?", Long.class, f.pot);
+        UUID forbidden = f.accepted(f.post("/commands", "outsider", "ordinary-rights",
+                Map.of("operation", "UpdatePotDetails", "potId", f.pot.toString(),
+                        "observedVersion", version, "bindingToken", outsider,
+                        "payload", Map.of("label", "Forbidden"))));
+        assertEquals("FORBIDDEN", f.poll("/commands/" + forbidden + "/result", "outsider", null)
+                .get("rejection").asText());
+        assertEquals(version, f.worker.write.queryForObject(
+                "select current_version from v3_pot_identity where pot_id=?", Long.class, f.pot));
+    }
+
+    @Test
     void concurrentUnlinkAndAttachmentSerializeAtIdentity() throws Exception {
         startPot();
         String guest = binding("guest");
