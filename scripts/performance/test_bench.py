@@ -297,8 +297,20 @@ class BenchOracleQualificationTests(unittest.TestCase):
         # Mock SQL verification test
         with patch.object(v3_seed, "run_psql") as mock_psql:
             mock_psql.side_effect = lambda db, sql: "22" if "read_current_pot" in sql else ("1" if "read_pot_balance" in sql else "20")
-            ok = v3_seed.verify_materialized_pot("test-pot-id", 22, 20)
+            ok = v3_seed.verify_materialized_pot("d082af23-0740-4bbf-9fda-10c935775a5c", 22, 20)
             self.assertTrue(ok, "Materialized pot verification must pass when DB matches")
+
+    def test_seed_read_rejects_same_counts_with_wrong_expense(self):
+        seed = create_seed("small")["pots"][0]
+        response = {
+            "id": seed["potId"], "potVersion": 22, "label": seed["label"],
+            "shareholders": [{"id": member["id"]} for member in seed["shareholders"]],
+            "expenses": [{"id": expense["id"]} for expense in seed["expenses"]],
+            "balances": {member["id"]: {"n": "0", "d": "1"} for member in seed["shareholders"]},
+        }
+        self.assertTrue(v3_seed.matches_seeded_pot(response, seed, 22))
+        response["expenses"][0]["id"] = "foreign"
+        self.assertFalse(v3_seed.matches_seeded_pot(response, seed, 22))
 
     # 18. Scenario Mapping and Ramp Suite Configuration
     def test_18_scenario_mapping_and_ramp_suite(self):

@@ -16,6 +16,7 @@
 
 import { sleep } from 'k6';
 import exec from 'k6/execution';
+import { SharedArray } from 'k6/data';
 import http from 'k6/http';
 import { Counter, Trend } from 'k6/metrics';
 import { V3ApiClient, classify503, fraction } from './lib/v3-api.js';
@@ -38,6 +39,9 @@ const CONTENTION_VUS = Number(__ENV.CONTENTION_VUS || 3);
 const READ_VUS = Number(__ENV.READ_VUS || 2);
 const MAX_ADMISSION_RETRIES = Number(__ENV.MAX_ADMISSION_RETRIES || 3);
 const ISOLATE_POTS_BY_VU = __ENV.ISOLATE_POTS_BY_VU === 'true';
+const PRESEEDED_POTS = __ENV.PRE_SEEDED_POTS_FILE
+  ? new SharedArray('qualified Pot fixtures', () => JSON.parse(open(__ENV.PRE_SEEDED_POTS_FILE)))
+  : null;
 
 // ---- Metrics Trends ----
 const tAdmission = new Trend('v3_admission_duration', true);
@@ -177,19 +181,26 @@ export function setup() {
   const c = client();
   const pots = [];
 
-  const prePotsJson = __ENV.PRE_SEEDED_POTS_JSON || null;
-  if (ISOLATE_POTS_BY_VU && !prePotsJson)
+  const prePotsJson = __ENV.PRE_SEEDED_POTS_JSON;
+  if (PRESEEDED_POTS && prePotsJson)
+    throw new Error('Provide only one Pot fixture source');
+  const list = PRESEEDED_POTS || (prePotsJson ? JSON.parse(prePotsJson) : null);
+  if (ISOLATE_POTS_BY_VU && !list)
     throw new Error('Independent Pot mode requires a prevalidated fixture manifest');
-  if (prePotsJson) {
-    const list = JSON.parse(prePotsJson);
+  if (list) {
     if (ISOLATE_POTS_BY_VU && (list.length !== POTS || new Set(list.map(p => p.potId)).size !== POTS))
       throw new Error('Independent Pot mode requires exactly one distinct Pot per VU');
+    if (ISOLATE_POTS_BY_VU && list.some(p => !p.potId || !Number.isSafeInteger(p.version)
+        || p.version < 1 || !Array.isArray(p.shareholders) || p.shareholders.length !== SHAREHOLDERS
+        || new Set(p.shareholders).size !== SHAREHOLDERS
+        || (p.expenses ?? p.version - 2) !== SEED_EXPENSES))
+      throw new Error('Pot fixture does not match the requested population');
     const pots = list.map((p) => ({
       potId: p.potId,
       shareholders: p.shareholders,
       initialVersion: p.version,
       version: p.version,
-      expenses: p.version - 2,
+      expenses: p.expenses ?? p.version - 2,
     }));
     return { pots, seededAt: Date.now() };
   }

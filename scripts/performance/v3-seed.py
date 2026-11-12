@@ -101,12 +101,13 @@ def generate_deterministic_uuid(rng: random.Random, prefix: str, index: int) -> 
 
 def run_psql(db: str, sql_command: str) -> str:
     cmd = [
-        "docker", "exec", "-i", "-e", f"PGPASSWORD={POSTGRES_PASSWORD}",
+        "docker", "exec", "-i", "-e", "PGPASSWORD",
         "-e", "PGOPTIONS=-c default_transaction_read_only=on",
         POSTGRES_CONTAINER,
         "psql", "-X", "-U", POSTGRES_USER, "-d", db, "-v", "ON_ERROR_STOP=1", "-tAc", sql_command
     ]
-    res = subprocess.run(cmd, capture_output=True, text=True)
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=5,
+                         env={**os.environ, "PGPASSWORD": POSTGRES_PASSWORD})
     if res.returncode != 0:
         return ""
     return res.stdout.strip()
@@ -222,15 +223,21 @@ def resolve_auth_and_binding(base_url: str = DEFAULT_API_URL):
     return token, binding_token
 
 
-def materialize_dataset(dataset: Dict, base_url: str = DEFAULT_API_URL) -> Dict:
+def materialize_dataset(dataset: Dict, base_url: str = DEFAULT_API_URL,
+                        read_url: Optional[str] = None) -> Dict:
     """Submits the structural dataset through the live V3 engine and verifies DB materialization."""
-    token, binding_token = resolve_auth_and_binding(base_url)
+    read_url = read_url or base_url
+    token = os.environ.get("POCOMA_TOKEN")
+    binding_token = os.environ.get("POCOMA_BINDING_TOKEN")
+    if bool(token) != bool(binding_token):
+        raise ValueError("Set POCOMA_TOKEN and POCOMA_BINDING_TOKEN together")
+    if not token:
+        token, binding_token = resolve_auth_and_binding(read_url)
 
-    def api_post(endpoint: str, body: dict, idem_key: str):
-        url = f"{base_url}{endpoint}"
+    def submit(body: dict, idem_key: str):
         payload = json.dumps(body).encode("utf-8")
         req = urllib.request.Request(
-            url, data=payload,
+            f"{base_url}/api/v3/commands", data=payload,
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {token}",
@@ -240,17 +247,27 @@ def materialize_dataset(dataset: Dict, base_url: str = DEFAULT_API_URL) -> Dict:
         )
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
-                return resp.status, json.loads(resp.read().decode())
-        except urllib.error.HTTPError as e:
-            return e.code, json.loads(e.read().decode()) if e.headers.get("content-type", "").startswith("application/json") else {}
+                if resp.status != 202:
+                    raise RuntimeError(f"{body['operation']} admission returned HTTP {resp.status}")
+                request_id = str(uuid.UUID(json.load(resp)["requestId"]))
+        except urllib.error.HTTPError as error:
+            raise RuntimeError(f"{body['operation']} admission refused with HTTP {error.code}") from None
+        result = poll_result(request_id)
+        expected_version = body["observedVersion"] + 1
+        if (result.get("requestId") != request_id or result.get("potId") != body["potId"]
+                or result.get("operation") != body["operation"]
+                or result.get("outcome") not in {"CHANGED", "COMPLETED"}
+                or result.get("resultingPotVersion") != expected_version):
+            raise RuntimeError(f"Unexpected terminal result for {body['operation']} ({request_id})")
+        return expected_version
 
     def poll_result(request_id: str, timeout_sec: float = 15.0):
-        url = f"{base_url}/api/v3/commands/{request_id}/result"
+        url = f"{read_url}/api/v3/commands/{request_id}/result"
         req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
-        start = time.time()
-        while time.time() - start < timeout_sec:
+        deadline = time.monotonic() + timeout_sec
+        while (remaining := deadline - time.monotonic()) > 0:
             try:
-                with urllib.request.urlopen(req, timeout=5) as resp:
+                with urllib.request.urlopen(req, timeout=min(5, remaining)) as resp:
                     if resp.status == 200:
                         return json.loads(resp.read().decode())
             except urllib.error.HTTPError as e:
@@ -269,29 +286,20 @@ def materialize_dataset(dataset: Dict, base_url: str = DEFAULT_API_URL) -> Dict:
         print(f"  -> Seeding Pot {pot_id} ({len(shs)} shareholders, {len(exps)} expenses)...")
 
         # 1. CreatePot
-        st, res = api_post("/api/v3/commands", {
+        v = submit({
             "operation": "CreatePot", "potId": pot_id, "observedVersion": 0,
             "bindingToken": binding_token, "payload": {"label": pot["label"]}
         }, f"seed-create-{pot_id}")
-        if st != 202:
-            raise RuntimeError(f"CreatePot admission rejected: HTTP {st} ({res})")
-        r = poll_result(res["requestId"])
-        v = r["resultingPotVersion"]
-
         # 2. AddShareholders
         targets = [
-            {"id": s["id"], "name": s["name"], "attachment": "SELF", "weight": {"numerator": "1", "denominator": "1"}}
-            for s in shs
+            {"id": s["id"], "name": s["name"], "attachment": "SELF" if i == 0 else "FREE",
+             "weight": {"numerator": "1", "denominator": "1"}}
+            for i, s in enumerate(shs)
         ]
-        st, res = api_post("/api/v3/commands", {
+        v = submit({
             "operation": "AddShareholders", "potId": pot_id, "observedVersion": v,
             "bindingToken": binding_token, "payload": {"targets": targets}
         }, f"seed-sh-{pot_id}-{v}")
-        if st != 202:
-            raise RuntimeError(f"AddShareholders admission rejected: HTTP {st} ({res})")
-        r = poll_result(res["requestId"])
-        v = r["resultingPotVersion"]
-
         # 3. CreateExpenses
         payer_id = shs[0]["id"]
         for idx, exp in enumerate(exps):
@@ -303,40 +311,25 @@ def materialize_dataset(dataset: Dict, base_url: str = DEFAULT_API_URL) -> Dict:
                 "payerId": exp["payerId"] or payer_id,
                 "participants": [{"id": s["id"], "weight": None} for s in shs],
             }
-            st, res = api_post("/api/v3/commands", {
+            v = submit({
                 "operation": "CreateExpense", "potId": pot_id, "observedVersion": v,
                 "bindingToken": binding_token, "payload": exp_payload
             }, f"seed-exp-{pot_id}-{v}")
-            if st != 202:
-                raise RuntimeError(f"CreateExpense admission rejected: HTTP {st} ({res})")
-            r = poll_result(res["requestId"])
-            v = r["resultingPotVersion"]
             if (idx + 1) % 50 == 0 or (idx + 1) == len(exps):
                 print(f"     ... {idx + 1}/{len(exps)} expenses applied (version {v})")
 
-        # 4. Verify SQL materialization (bounded poll for projection convergence)
-        sql_valid = False
-        sql_pot_ver = ""
-        sql_bal = ""
-        sql_exp_count = ""
-        verify_start = time.time()
-        while time.time() - verify_start < 5.0:
-            sql_pot_ver = run_psql(READ_DB, f"SELECT pot_version FROM v3_read.read_current_pot WHERE pot_id='{pot_id}';")
-            sql_bal = run_psql(READ_DB, f"SELECT count(*) FROM v3_read.read_pot_balance WHERE pot_id='{pot_id}' AND pot_version={v};")
-            sql_exp_count = run_psql(READ_DB, f"SELECT jsonb_array_length(payload->'expenses') FROM v3_read.read_pot_version WHERE pot_id='{pot_id}' AND pot_version={v};")
-            if sql_pot_ver == str(v) and sql_bal == "1" and sql_exp_count == str(len(exps)):
-                sql_valid = True
-                break
-            time.sleep(0.05)
-
-        print(f"  ✓ Pot {pot_id} materialized at v{v}: sql_pot_ver={sql_pot_ver}, sql_bal={sql_bal}, sql_expenses={sql_exp_count} (valid={sql_valid})")
+        # 4. Check exact seeded values on the authorized READ path and independently in SQL.
+        await_complete_read(read_url, token, binding_token, pot, v)
+        if not verify_materialized_pot(pot_id, v, len(exps)):
+            raise RuntimeError(f"SQL materialization incomplete for Pot {pot_id} at v{v}")
 
         materialized_pots.append({
             "potId": pot_id,
             "finalVersion": v,
             "shareholdersCount": len(shs),
             "expensesCount": len(exps),
-            "sqlVerified": sql_valid,
+            "sqlVerified": True,
+            "httpVerified": True,
         })
 
     dataset["materialized"] = True
@@ -345,7 +338,41 @@ def materialize_dataset(dataset: Dict, base_url: str = DEFAULT_API_URL) -> Dict:
     return dataset
 
 
+def matches_seeded_pot(value: Dict, pot: Dict, version: int) -> bool:
+    shareholders = {item["id"] for item in pot["shareholders"]}
+    expenses = {item["id"] for item in pot["expenses"]}
+    return (value.get("id") == pot["potId"] and value.get("potVersion") == version
+            and value.get("label") == pot["label"]
+            and len(value.get("shareholders", [])) == len(shareholders)
+            and {item["id"] for item in value["shareholders"]} == shareholders
+            and len(value.get("expenses", [])) == len(expenses)
+            and {item["id"] for item in value["expenses"]} == expenses
+            and set(value.get("balances", {})) == shareholders)
+
+
+def await_complete_read(url: str, token: str, binding: str, pot: Dict, version: int) -> None:
+    request = urllib.request.Request(
+        f"{url}/api/v3/pots/{pot['potId']}?minVersion={version}",
+        headers={"Authorization": f"Bearer {token}", "X-Pocoma-Binding-Token": binding},
+    )
+    deadline = time.monotonic() + 15
+    while (remaining := deadline - time.monotonic()) > 0:
+        try:
+            with urllib.request.urlopen(request, timeout=min(5, remaining)) as response:
+                if response.status == 200 and matches_seeded_pot(json.load(response), pot, version):
+                    return
+                raise RuntimeError(f"Unexpected READ values for seeded Pot {pot['potId']}")
+        except urllib.error.HTTPError as error:
+            if error.code not in {404, 503}:
+                raise RuntimeError(f"Pot readiness refused with HTTP {error.code}") from None
+        time.sleep(min(0.05, max(0, deadline - time.monotonic())))
+    raise TimeoutError(f"Seeded Pot {pot['potId']} did not become READ complete at v{version}")
+
+
 def verify_materialized_pot(pot_id: str, expected_version: int, expected_expenses: int) -> bool:
+    pot_id = str(uuid.UUID(pot_id))
+    expected_version = int(expected_version)
+    expected_expenses = int(expected_expenses)
     sql_pot_ver = run_psql(READ_DB, f"SELECT pot_version FROM v3_read.read_current_pot WHERE pot_id='{pot_id}';")
     sql_bal = run_psql(READ_DB, f"SELECT count(*) FROM v3_read.read_pot_balance WHERE pot_id='{pot_id}' AND pot_version={expected_version};")
     sql_exp_count = run_psql(READ_DB, f"SELECT jsonb_array_length(payload->'expenses') FROM v3_read.read_pot_version WHERE pot_id='{pot_id}' AND pot_version={expected_version};")
@@ -353,11 +380,26 @@ def verify_materialized_pot(pot_id: str, expected_version: int, expected_expense
 
 
 def save_seed(dataset: Dict, output_path: Optional[Path] = None) -> Path:
-    SEEDS_DIR.mkdir(parents=True, exist_ok=True)
     out = output_path or (SEEDS_DIR / f"{dataset['seedId']}.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(dataset, f, indent=2)
     return out
+
+
+def save_stimulus_fixtures(dataset: Dict, output: Path) -> None:
+    proofs = {proof["potId"]: proof for proof in dataset["materializationProof"]}
+    fixtures = []
+    for pot in dataset["pots"]:
+        proof = proofs[pot["potId"]]
+        if not (proof["httpVerified"] and proof["sqlVerified"]):
+            raise ValueError(f"Pot {pot['potId']} has incomplete materialization evidence")
+        fixtures.append({"potId": pot["potId"], "version": proof["finalVersion"],
+                         "shareholders": [member["id"] for member in pot["shareholders"]],
+                         "expenses": proof["expensesCount"]})
+    with output.open("x", encoding="utf-8") as stream:
+        json.dump(fixtures, stream, indent=2)
+        stream.write("\n")
 
 
 def main():
@@ -371,11 +413,27 @@ def main():
                         help="Explicit authorization for 10k, 1M, or 10M high-volume generation")
     parser.add_argument("--materialize", action="store_true",
                         help="Actively submit dataset through V3 API and verify SQL materialization")
+    parser.add_argument("--write-url", default=os.environ.get("POCOMA_WRITE_URL", DEFAULT_API_URL))
+    parser.add_argument("--read-url", default=os.environ.get("POCOMA_READ_URL", DEFAULT_API_URL))
     parser.add_argument("--verify-materialized", help="Verify that existing seed JSON file is present in PostgreSQL")
     parser.add_argument("--save", action="store_true", help="Save dataset to docs/testing/evidence/L6-I3/seeds/")
     parser.add_argument("--output", help="Custom output JSON path")
+    parser.add_argument("--fixture-output", type=Path,
+                        help="New compact file for k6 after verified HTTP and SQL materialization")
 
     args = parser.parse_args()
+    if args.pots is not None and args.pots < 1:
+        parser.error("--pots must be positive")
+    if args.fixture_output:
+        if not args.materialize or not args.output:
+            parser.error("--fixture-output requires --materialize and --output")
+        if args.fixture_output.resolve() == Path(args.output).resolve():
+            parser.error("The receipt and stimulus fixture must have different paths")
+        for path in (args.fixture_output, Path(args.output)):
+            if path.exists():
+                parser.error(f"Evidence already exists: {path}")
+        if not args.fixture_output.parent.is_dir():
+            parser.error("The parent of --fixture-output must already exist")
 
     if args.verify_materialized:
         seed_path = Path(args.verify_materialized)
@@ -405,7 +463,7 @@ def main():
             enable_large_scale=args.enable_large_scale,
         )
         if args.materialize:
-            dataset = materialize_dataset(dataset)
+            dataset = materialize_dataset(dataset, args.write_url.rstrip("/"), args.read_url.rstrip("/"))
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
@@ -428,6 +486,8 @@ def main():
         dest = Path(args.output) if args.output else None
         saved_file = save_seed(dataset, dest)
         print(f"Dataset successfully saved to: {saved_file}")
+    if args.fixture_output:
+        save_stimulus_fixtures(dataset, args.fixture_output)
 
 
 if __name__ == "__main__":

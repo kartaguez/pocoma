@@ -45,7 +45,14 @@ def render(manifest):
             if stimulus in {'nominal', 'sustained', 'peak', 'ramp'}:
                 env['ISOLATE_POTS_BY_VU'] = 'true'
                 entry['requiredEnvironment'] = ['POCOMA_READ_URL', 'POCOMA_WRITE_URL', 'POCOMA_TOKEN',
-                                                'POCOMA_BINDING_TOKEN', 'PRE_SEEDED_POTS_JSON']
+                                                'POCOMA_BINDING_TOKEN', 'PRE_SEEDED_POTS_FILE']
+                entry['fixtureCommand'] = shlex.join([
+                    'python3', '-B', 'scripts/performance/v3-seed.py',
+                    '--profile', case['dataset'], '--pots', str(case['potCount']),
+                    '--seed-id', f"l7-spec09-{case['dataset']}-{case['potCount']}",
+                    '--materialize', '--output', 'seed-receipt.json',
+                    '--fixture-output', 'stimulus-fixtures.json',
+                ])
             if stimulus == 'ramp':
                 parameters = [{**env, 'RATE': str(rate),
                                'DURATION': str(case['sampleSecondsPerRate']) + 's'}
