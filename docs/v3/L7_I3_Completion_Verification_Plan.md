@@ -26,3 +26,13 @@ Les catégories B restent partielles jusqu'à l'exercice de leur stimulus exact 
 ## Extension justifiée : opérations administratives historiques
 
 L'inventaire R8 a trouvé des suppressions de slots incomplets et des terminalisations artificielles dans quatre anciens drivers. Cette anomalie d'outillage est reproduite hors ligne en interdisant subprocess, attente et écriture de fichier : les anciennes fonctions tentent ces effets au lieu de refuser l'opération. Extension limitée aux sept opérations concernées et aux quatre `main` qui les rendent accessibles. Ces entrées historiques sont retirées avec refus avant tout effet ; aucune donnée supprimée et aucune nouvelle procédure d'administration inventée. Les archives et reçus anciens restent inchangés. L'impact n'atteint aucune tranche Maven ni aucun contrat produit. Vérification : `python3 -B -m unittest discover -v -s scripts/testing -p test_l73_historical_admin_safety.py`. Aucun benchmark exécuté.
+
+## Résultats exécutés
+
+Le rejeu COMMAND ajoute aux nouvelles variantes le nominal et la course Discovery/finalisation existants : sélection réelle `IdentityDiscoveryPostgresTest#l73_discoveryPreservesClaimsRetriesAndQuarantine+l3_burnable_discovery+l3_discovery_source_slot_race`. Trois tests PASS, zéro échec/erreur/skip, Maven 8,344 s ; commande intégrale, JDK, image, SHA `e1ecb533`, état propre et traces dans le [reçu](../testing/evidence/L7-I3-completion/discovery-01/receipt.json). Les snapshots comparent toutes les colonnes des slots, pas seulement leur nombre. La date PostgreSQL fixe les échéances, sans attente artificielle.
+
+La reproduction de sûreté administrative est conservée avant correction (7 failures, 4 errors) ; après correction, un test paramétré en 11 sous-cas PASS au SHA `29f89876`. Aucun processus externe ni mutation de données exécuté par ce test. [Reçu](../testing/evidence/L7-I3-completion/historical-admin-receipt.json).
+
+Le contrôle `python3 -B scripts/testing/check-l73-completion-evidence.py` vérifie la provenance et les empreintes des allocations, les traces et les 522 lignes. Il ne certifie pas automatiquement leur suffisance sémantique, explicitée dans le rapport par ID.
+
+Tranches déclarées : COMMAND et analyse PROJECTION. Impact réel : une méthode de test COMMAND et retrait de sept opérations d'outillage historique. Extension d'outillage R8 explicitée avant correction ; aucun franchissement productif. Aucun changement POM/architecture/SQL historique. Aucun full reactor, gate Architecture, Bruno ou benchmark relancé : ces gates ne sont pas déclenchées par les modifications observées. Les reçus antérieurs restent la preuve des scénarios inchangés, jamais celle du nouveau test avant son exécution.

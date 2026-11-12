@@ -1,0 +1,246 @@
+PostgreSQL=PostgreSQL 17.11 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+L7.3 Identity Discovery variant=active three identical slot/checkpoint snapshots; PENDING; acquisition=0
+L7.3 Identity Discovery variant=expired three identical slot/checkpoint snapshots; PENDING; acquisition=1
+L7.3 Identity Discovery variant=retry three identical slot/checkpoint snapshots; PENDING; acquisition=0
+L7.3 Identity Discovery variant=quarantine three identical slot/checkpoint snapshots; PENDING; acquisition=0
+129 insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token, target_issuer,target_subject,admission_context,created_at) values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
+129 select c.*,r.outcome,r.target_eui_id,r.target_version,r.rejection from v3_identity_request c left join v3_identity_request_result r using(request_id) where c.request_id=?
+129 insert into v3_request_position(family,position,request_id) values ('identity_request',?,?)
+130 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+130 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+130 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+130 update partition_ownership set owner_token=?,owned_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and partition_id=? and (owner_token is null or owned_until<=?) returning owner_token,owned_until
+131 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+131 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+132 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+132 select p.position,p.request_id,r.request_id from v3_request_position p left join v3_identity_request r on r.request_id=p.request_id where p.family='identity_request' and p.position>? and p.position<=? order by p.position
+133 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+133 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+133 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+133 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+133 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+133 select request_id from v3_identity_request where request_id=? and status='pending' for update skip locked
+133 select partition_hash,partition_id from consumption_slot where consumption_id=? and consumable_id=?
+133 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+133 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+133 insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) values (?,?,?,?)
+133 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+133 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+133 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+133 insert into discovery_checkpoint(consumption_id,partition_id,position) values (?,?,?)
+133 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+133 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+134 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+134 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+134 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+134 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+134 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+138 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+138 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+139 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+140 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+140 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+140 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+140 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+140 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+143 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+143 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+144 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+145 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+145 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+145 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+145 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+145 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+148 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+148 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+149 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+150 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+150 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+150 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+150 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+150 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+154 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+154 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+154 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+154 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+154 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+155 insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token, target_issuer,target_subject,admission_context,created_at) values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
+155 select c.*,r.outcome,r.target_eui_id,r.target_version,r.rejection from v3_identity_request c left join v3_identity_request_result r using(request_id) where c.request_id=?
+155 insert into v3_request_position(family,position,request_id) values ('identity_request',?,?)
+156 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+156 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+157 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+157 select p.position,p.request_id,r.request_id from v3_request_position p left join v3_identity_request r on r.request_id=p.request_id where p.family='identity_request' and p.position>? and p.position<=? order by p.position
+158 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+158 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+158 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+158 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+158 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+158 select request_id from v3_identity_request where request_id=? and status='pending' for update skip locked
+158 select partition_hash,partition_id from consumption_slot where consumption_id=? and consumable_id=?
+158 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+158 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+158 insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) values (?,?,?,?)
+158 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+158 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+158 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+158 update discovery_checkpoint set position=? where consumption_id=? and partition_id=? and position=?
+158 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+158 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+159 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+159 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+159 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+159 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+159 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+163 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+163 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+164 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+165 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+165 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+165 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+165 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+165 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+168 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+168 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+169 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+170 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+170 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+170 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+170 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+170 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+173 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+173 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+174 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+175 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+175 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+175 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+175 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+175 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+179 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+179 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+179 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+179 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+179 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+180 insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token, target_issuer,target_subject,admission_context,created_at) values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
+180 select c.*,r.outcome,r.target_eui_id,r.target_version,r.rejection from v3_identity_request c left join v3_identity_request_result r using(request_id) where c.request_id=?
+180 insert into v3_request_position(family,position,request_id) values ('identity_request',?,?)
+181 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+181 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+181 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+181 update partition_ownership set owner_token=?,owned_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and partition_id=? and (owner_token is null or owned_until<=?) returning owner_token,owned_until
+182 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+182 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+183 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+183 select p.position,p.request_id,r.request_id from v3_request_position p left join v3_identity_request r on r.request_id=p.request_id where p.family='identity_request' and p.position>? and p.position<=? order by p.position
+184 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+184 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+184 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+184 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+184 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+184 select request_id from v3_identity_request where request_id=? and status='pending' for update skip locked
+184 select partition_hash,partition_id from consumption_slot where consumption_id=? and consumable_id=?
+184 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+184 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+184 insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) values (?,?,?,?)
+184 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+184 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+184 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+184 insert into discovery_checkpoint(consumption_id,partition_id,position) values (?,?,?)
+184 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+184 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+185 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+185 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+185 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+185 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+185 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+189 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+189 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+190 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+191 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+191 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+191 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+191 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+191 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+194 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+194 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+195 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+196 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+196 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+196 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+196 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+196 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+199 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+199 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+200 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+201 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+201 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+201 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+201 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+201 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+205 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+205 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+205 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+205 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+205 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+206 insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token, target_issuer,target_subject,admission_context,created_at) values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
+206 select c.*,r.outcome,r.target_eui_id,r.target_version,r.rejection from v3_identity_request c left join v3_identity_request_result r using(request_id) where c.request_id=?
+206 insert into v3_request_position(family,position,request_id) values ('identity_request',?,?)
+207 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+207 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+207 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+207 update partition_ownership set owner_token=?,owned_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and partition_id=? and (owner_token is null or owned_until<=?) returning owner_token,owned_until
+208 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+208 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+209 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+209 select p.position,p.request_id,r.request_id from v3_request_position p left join v3_identity_request r on r.request_id=p.request_id where p.family='identity_request' and p.position>? and p.position<=? order by p.position
+210 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+210 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+210 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+210 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+210 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+210 select request_id from v3_identity_request where request_id=? and status='pending' for update skip locked
+210 select partition_hash,partition_id from consumption_slot where consumption_id=? and consumable_id=?
+210 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+210 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+210 insert into consumption_slot(consumption_id,consumable_id,partition_hash,partition_id) values (?,?,?,?)
+210 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+210 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+210 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+210 insert into discovery_checkpoint(consumption_id,partition_id,position) values (?,?,?)
+210 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+210 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+211 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+211 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+211 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+211 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+211 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+215 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+215 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+216 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+217 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+217 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+217 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+217 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+217 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+220 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+220 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+221 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+222 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+222 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+222 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+222 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+222 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+225 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+225 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+226 select set_config('lock_timeout',?,true), set_config('statement_timeout',?,true)
+227 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+227 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+227 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+227 select position from discovery_checkpoint where consumption_id=? and partition_id=?
+227 select count(*) from consumption_slot where consumption_id=? and partition_id=? and state<>'quarantined'
+231 select set_config('lock_timeout', ?, true), set_config('statement_timeout', ?, true), set_config('transaction_timeout', ?, true)
+231 select family,routing_version,partition_count from consumption_routing_contract where consumption_id=?
+231 select owner_token,owned_until from partition_ownership where consumption_id=? and partition_id=? for update skip locked
+231 select consumable_id,claim_token,claimed_until,state,partition_id from consumption_slot where consumption_id=? and consumable_id in (?) and partition_id=? order by consumable_id for update skip locked
+231 update consumption_slot set claim_token=?,claimed_until=?::timestamptz + ? * interval '1 microsecond' where consumption_id=? and consumable_id=? and partition_id=? and state='available' and (retry_after is null or retry_after<=?) and (claim_token is null or claimed_until<=?) returning consumable_id,claim_token,claimed_until
+durable={v3_pocoma_user=[], v3_eui_authority=[], v3_eui_version=[], v3_identity_request_result=[], v3_identity_event=[], v3_identity_completion_event=[], v3_event_counter=[{row_digest=4f7f9f43c7f0b609a9bdc0c7bf5c496b}, {row_digest=9a28e7980d52c164befb23bcaaf6aa77}, {row_digest=9c158292ad4a5b265b7795fd497664b8}, {row_digest=aa5f207c30abb1a5aeed839e49088188}], v3_event_position=[], requests=[{request_id=3f876a20-ec56-4a21-8b38-6edc0211bb8d, status=PENDING}, {request_id=73871123-3ce1-4853-8424-e2ed34dde3ea, status=PENDING}, {request_id=acd905b5-ce4b-488e-9994-fa494abeb8e1, status=PENDING}, {request_id=db07b018-c799-4288-9452-0bb659777117, status=PENDING}]}

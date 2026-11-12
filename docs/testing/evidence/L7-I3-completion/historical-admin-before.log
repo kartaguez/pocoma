@@ -1,0 +1,285 @@
+test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) ... 
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r9_resilience.py', entrypoint='cleanup_quarantined_slots') ... FAIL
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r9_resilience.py', entrypoint='run_experiment_c6') ... FAIL
+usage: python3 -m unittest [-h] [--experiment {c1,c2,c3,c4,c5,c6,c7,c8,all}]
+python3 -m unittest: error: unrecognized arguments: discover -v -s scripts/testing -p test_l73_historical_admin_safety.py
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r9_resilience.py', entrypoint='main') ... ERROR
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r10_consolidation.py', entrypoint='cleanup_quarantined_slots') ... FAIL
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r10_consolidation.py', entrypoint='resolve_quarantined_slots_option_c') ... FAIL
+usage: python3 -m unittest [-h] [--phase {a,b,c,d1,d2,d3,d4,all}]
+python3 -m unittest: error: unrecognized arguments: discover -v -s scripts/testing -p test_l73_historical_admin_safety.py
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r10_consolidation.py', entrypoint='main') ... ERROR
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r11_filter_qualification.py', entrypoint='cleanup_quarantined_slots') ... FAIL
+usage: python3 -m unittest [-h] [--scenario {s0,s1,s2,s3,s4,s5,s6,all}]
+                           [--duration DURATION]
+python3 -m unittest: error: unrecognized arguments: discover -v -s scripts/testing -p test_l73_historical_admin_safety.py
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r11_filter_qualification.py', entrypoint='main') ... ERROR
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_populated_db_generator.py', entrypoint='synchronize_checkpoints_and_analyze') ... FAIL
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_populated_db_generator.py', entrypoint='retire_all_quarantines') ... FAIL
+usage: python3 -m unittest [-h] --profile {H1,H2,H3,H4,H5} [--output OUTPUT]
+python3 -m unittest: error: the following arguments are required: --profile
+  test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_populated_db_generator.py', entrypoint='main') ... ERROR
+
+======================================================================
+ERROR: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r9_resilience.py', entrypoint='main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r9_resilience.py", line 494, in main
+    args = parser.parse_args()
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2012, in parse_args
+    self.error(msg)
+    ~~~~~~~~~~^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2785, in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2772, in exit
+    _sys.exit(status)
+    ~~~~~~~~~^^^^^^^^
+SystemExit: 2
+
+======================================================================
+ERROR: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r10_consolidation.py', entrypoint='main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r10_consolidation.py", line 532, in main
+    args = parser.parse_args()
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2012, in parse_args
+    self.error(msg)
+    ~~~~~~~~~~^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2785, in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2772, in exit
+    _sys.exit(status)
+    ~~~~~~~~~^^^^^^^^
+SystemExit: 2
+
+======================================================================
+ERROR: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r11_filter_qualification.py', entrypoint='main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r11_filter_qualification.py", line 406, in main
+    args = parser.parse_args()
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2012, in parse_args
+    self.error(msg)
+    ~~~~~~~~~~^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2785, in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2772, in exit
+    _sys.exit(status)
+    ~~~~~~~~~^^^^^^^^
+SystemExit: 2
+
+======================================================================
+ERROR: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_populated_db_generator.py', entrypoint='main')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2047, in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2344, in _parse_known_args
+    raise ArgumentError(None, _('the following arguments are required: %s') %
+               ', '.join(required_actions))
+argparse.ArgumentError: the following arguments are required: --profile
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_populated_db_generator.py", line 659, in main
+    args = parser.parse_args()
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2008, in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2018, in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2049, in _parse_known_args2
+    self.error(str(err))
+    ~~~~~~~~~~^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2785, in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/argparse.py", line 2772, in exit
+    _sys.exit(status)
+    ~~~~~~~~~^^^^^^^^
+SystemExit: 2
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r9_resilience.py', entrypoint='cleanup_quarantined_slots')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r9_resilience.py", line 152, in cleanup_quarantined_slots
+    out = exec_pg("pocoma_write", sql)
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r9_resilience.py", line 38, in exec_pg
+    res = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r9_resilience.py', entrypoint='run_experiment_c6')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r9_resilience.py", line 413, in run_experiment_c6
+    cleanup_quarantined_slots()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r9_resilience.py", line 152, in cleanup_quarantined_slots
+    out = exec_pg("pocoma_write", sql)
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r9_resilience.py", line 38, in exec_pg
+    res = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r10_consolidation.py', entrypoint='cleanup_quarantined_slots')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r10_consolidation.py", line 152, in cleanup_quarantined_slots
+    out = exec_pg("pocoma_write", sql)
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r10_consolidation.py", line 42, in exec_pg
+    res = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r10_consolidation.py', entrypoint='resolve_quarantined_slots_option_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r10_consolidation.py", line 204, in resolve_quarantined_slots_option_c
+    exec_pg("pocoma_write", sql)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r10_consolidation.py", line 42, in exec_pg
+    res = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_r11_filter_qualification.py', entrypoint='cleanup_quarantined_slots')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r11_filter_qualification.py", line 137, in cleanup_quarantined_slots
+    out = exec_pg("pocoma_write", sql)
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_r11_filter_qualification.py", line 41, in exec_pg
+    res = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_populated_db_generator.py', entrypoint='synchronize_checkpoints_and_analyze')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_populated_db_generator.py", line 413, in synchronize_checkpoints_and_analyze
+    run_psql(sync_write_sql, db=WRITE_DB, schema=WRITE_SCHEMA)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_populated_db_generator.py", line 92, in run_psql
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+======================================================================
+FAIL: test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) (script='v3_populated_db_generator.py', entrypoint='retire_all_quarantines')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/testing/test_l73_historical_admin_safety.py", line 28, in test_entrypoints_and_importable_cleanup_refuse_before_external_effects
+    getattr(module, name)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_populated_db_generator.py", line 565, in retire_all_quarantines
+    run_psql(sql)
+    ~~~~~~~~^^^^^
+  File "/Users/julien.guezennec/Dev/projects/pocoma/scripts/performance/v3_populated_db_generator.py", line 92, in run_psql
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: external process forbidden
+
+----------------------------------------------------------------------
+Ran 1 test in 0.021s
+
+FAILED (failures=7, errors=4)
+[*] Cleaning up all quarantined slots...
+
+================================================================================
+▶ R9-C6: Cycle de Vie Quarantaine & Terminalisation
+================================================================================
+[*] Cleaning up all quarantined slots...
+[*] Cleaning up all quarantined slots...
+[*] Executing Option C Canonical Transactional Resolution...
+[*] Cleaning up all quarantined slots...

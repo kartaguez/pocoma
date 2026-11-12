@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "testedSha": "29f89876a276d3090e1134d9ad7d5ea5efdd5efc",
+  "command": "python3 -B -m unittest discover -v -s scripts/testing -p test_l73_historical_admin_safety.py",
+  "cases": 11,
+  "tests": 1,
+  "seconds": 0.015,
+  "scope": "Offline safety oracle; subprocess, sleep and file mutation forbidden",
+  "networkRequests": 0,
+  "sqlMutations": 0,
+  "sourceSha256": {
+    "scripts/performance/v3_r9_resilience.py": "61d86f954da27bc278ffe6cfae986db3589201005016f34fe0ddb7f65ec0c75f",
+    "scripts/performance/v3_r10_consolidation.py": "bd66304e15494ce55b00d999c81cd8b71f8c22778b16a1369e17f13c00d215d2",
+    "scripts/performance/v3_r11_filter_qualification.py": "da2d931909e8cb09f16558635607176e834685220913b14b7b44aa3bd480bb13",
+    "scripts/performance/v3_populated_db_generator.py": "cf689dc82418ae72e6fd95c83ed359fd0a25dacd2c6cac80c5244cb08ec1bc3e",
+    "scripts/testing/test_l73_historical_admin_safety.py": "1cb2db295e24f4a50573abc1c0e749a50d4ba9ffa4d343a109f389d7f25a32c8"
+  },
+  "before": "historical-admin-before.log",
+  "after": "historical-admin-after.log",
+  "limitations": "Proves refusal of these known historical operations; not exhaustive dynamic SQL or external-admin access certification."
+}

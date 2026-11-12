@@ -1,0 +1,6 @@
+test_entrypoints_and_importable_cleanup_refuse_before_external_effects (test_l73_historical_admin_safety.HistoricalAdminSafety.test_entrypoints_and_importable_cleanup_refuse_before_external_effects) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.015s
+
+OK

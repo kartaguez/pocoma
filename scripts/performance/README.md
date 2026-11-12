@@ -1,3 +1,5 @@
+> **Sûreté L7.3 :** les anciens lanceurs R9/R10/R11 et le générateur `v3_populated_db_generator.py` refusent désormais leur exécution. Leurs opérations de purge de slots incomplets et de terminalisation artificielle ont été retirées. Les reçus historiques restent consultables ; ces commandes ne sont plus un banc courant admissible. Voir [L73-ADMIN-01](../../docs/v3/L7_I3_Completion_Anomalies_and_Gaps_Register.md).
+
 # Pocoma V3 — Performance Bench & Bounded Local Qualification Tooling
 
 ## 1. Overview and Architecture
