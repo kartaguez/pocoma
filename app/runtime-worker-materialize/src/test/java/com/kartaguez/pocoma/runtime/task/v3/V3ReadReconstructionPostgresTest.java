@@ -360,22 +360,49 @@ class V3ReadReconstructionPostgresTest {
             assertFalse(oracle.evaluate(f.read, f.write, afterWrite).ready());
             assertEquals(2L, f.read.queryForObject(
                     "select pot_version from read_current_pot where pot_id=?", Long.class, pot.value()));
-            assertTrue(authority.markConverged());
-            assertTrue(authority.markReady());
             var resumed = f.start();
             // Wait for real PostgreSQL lease expiry without changing ownership or retry limits.
             awaitReady(f, oracle, afterWrite, Duration.ofMillis(retainedLeaseMs).plusSeconds(30));
-            f.drain(resumed);
+            assertFalse(authority.isReady());
 
-            assertEquals(3L, f.read.queryForObject(
+            // Continue admitting on WRITE while the resumed READ worker runs in REBUILDING.
+            var arrivals = new ArrayList<PotCommand>();
+            arrivals.add(next);
+            long arrivalStart = System.nanoTime();
+            for (long version = 3; version <= 5; version++) {
+                assertFalse(authority.isReady());
+                var arrival = f.admitCommand("owner", token, pot, version,
+                        new PotCommand.UpdatePotDetails(new Label("rebuild-" + version)));
+                f.produce(arrival);
+                arrivals.add(arrival);
+            }
+            long arrivalsStopped = System.nanoTime();
+            var finalPrefix = writePrefix(f);
+            assertEquals(prefix.get("POT") + arrivals.size(), finalPrefix.get("POT"));
+            assertEquals(prefix.get("COMMAND_COMPLETION") + arrivals.size(), finalPrefix.get("COMMAND_COMPLETION"));
+            awaitReady(f, oracle, finalPrefix);
+            assertFalse(authority.isReady());
+            for (var arrival : arrivals) {
+                assertEquals("CHANGED", f.read.queryForObject(
+                        "select write_outcome from read_command_result where request_id=?",
+                        String.class, arrival.requestId()));
+            }
+            assertEquals(6L, f.read.queryForObject(
                     "select pot_version from read_current_pot where pot_id=?", Long.class, pot.value()));
-            assertEquals("CHANGED", f.read.queryForObject(
-                    "select write_outcome from read_command_result where request_id=?", String.class, next.requestId()));
-            assertEquals(5, f.read.queryForObject("select count(*) from read_pot_version", Integer.class));
-            assertEquals(4, f.read.queryForObject("select count(*) from read_pot_balance", Integer.class));
+            assertEquals(8, f.read.queryForObject("select count(*) from read_pot_version", Integer.class));
+            assertEquals(7, f.read.queryForObject("select count(*) from read_pot_balance", Integer.class));
+            assertTrue(authority.markConverged());
+            assertTrue(authority.markReady());
             assertTrue(authority.isReady());
+            f.drain(resumed);
+            long drained = System.nanoTime();
+            assertTrue(oracle.evaluate(f.read, f.write, finalPrefix).ready());
             f.trace.add("physical lease remaining after drain (ms)=" + retainedLeaseMs);
-            f.trace.add("prefix before replay=" + prefix + ", after new publication=" + afterWrite);
+            f.trace.add("prefix before replay=" + prefix + ", after interrupted arrival=" + afterWrite
+                    + ", after active replay arrivals=" + finalPrefix);
+            f.trace.add("WRITE arrivals during active replay=" + (arrivals.size() - 1)
+                    + ", arrival interval ns=" + (arrivalsStopped - arrivalStart)
+                    + ", last arrival through READ drain ns=" + (drained - arrivalsStopped));
             f.trace.add("before=" + expected + ", replayed=" + replayed);
             f.evidence("l7_exact_read_replay_and_new_write");
         }
