@@ -73,3 +73,15 @@ une image historique Monolith. Cet environnement n'atteste pas les deux machines
 4 vCPU/8 Go distinctes de A/B, ni le SHA courant des exécutables déjà en service.
 Une nouvelle cible E1 est donc nécessaire. Les accès à une éventuelle cible distante
 ont été demandés pendant la préparation ; aucune cible distante n'est présumée disponible.
+
+## Extension E3 déclarée avant implémentation
+
+Après E1, option explicite de crash après admission sur la seule cible jetable :
+pause du processus Command avant admission, HTTP 202, observation SQL extérieure
+PENDING sans résultat ni publication, SIGKILL effectif (exit 137), redémarrage du même
+conteneur, résultat/effets/publications uniques et rapprochement READ. Deux sujets :
+CreateExpense puis Registration d'une seconde EUI fraîche. Cette fenêtre est celle
+d'EVT-02 E02-J, sans claim acquis ; elle ne ferme ni CON-05 crash sans cession ni
+C03-J crash pendant calcul. Les oracles et contrôles restent hors app, slices NONE.
+Le suivi de reprise E3 est borné à 60 s comme protection du banc ; il ne modifie aucun
+timeout productif ni SLO. E3 n'entre jamais dans les populations de latence E1/E2.

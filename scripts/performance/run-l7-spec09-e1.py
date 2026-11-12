@@ -54,7 +54,7 @@ def wait_for(probe, seconds=100):
         time.sleep(.5)
 
 
-def attempt(index, state, token, binding, base, stop, lock):
+def attempt(index, state, token, binding, base, stop, lock, after_admission=None, observation_seconds=8):
     scheduled = base + index
     row = {"index": index, "status": "NOT_ATTEMPTED", "scheduledNs": round(scheduled*1e9)}
     if stop.is_set():
@@ -82,13 +82,15 @@ def attempt(index, state, token, binding, base, stop, lock):
         if status != 202:
             raise ValueError("admission refused: " + str(status))
         row["requestId"] = str(uuid.UUID(admitted["requestId"]))
+        if after_admission:
+            after_admission(row["requestId"])
 
         def poll(path):
-            while time.monotonic_ns()-accepted < 8e9:
+            while time.monotonic_ns()-accepted < observation_seconds*1e9:
                 if stop.is_set():
                     raise ValueError("indispensable collector stopped")
                 code, result = oracle.request("GET", "http://127.0.0.1:28002/api/v3" + path, token, binding=binding)
-                if time.monotonic_ns()-accepted >= 8e9:
+                if time.monotonic_ns()-accepted >= observation_seconds*1e9:
                     raise TimeoutError("E1 observation deadline; late success censored")
                 if code == 200:
                     return result, time.monotonic_ns()
@@ -126,6 +128,93 @@ def attempt(index, state, token, binding, base, stop, lock):
     return row
 
 
+def crash_campaign(pg, project, dc, state, token, binding, fresh_token, receipt):
+    """E02-J only: process stopped before admission, killed after durable PENDING."""
+    worker = project + "-command-worker-1"
+    evidence = {"scenario": "E3_E02_J_AFTER_HTTP_ADMISSION", "status": "INCONCLUSIVE", "cases": []}
+    receipt["crashCampaign"] = evidence
+
+    def barrier(request_id, kind, case):
+        table, result, event, completion, subject = (
+            ("v3_command", "v3_command_result", "v3_pot_event", "v3_command_completion_event", "subject_id")
+            if kind == "COMMAND" else
+            ("v3_identity_request", "v3_identity_request_result", "v3_identity_event", "v3_identity_completion_event", "subject_id"))
+        # UUID validated before interpolation; no bindings/query text exported.
+        request_id = str(uuid.UUID(request_id))
+        before = bench.sql(pg, "pocoma_write", f"""SELECT jsonb_build_object(
+          'status',(select status from v3_write.{table} where request_id='{request_id}'),
+          'results',(select count(*) from v3_write.{result} where request_id='{request_id}'),
+          'events',(select count(*) from v3_write.{event} where request_id='{request_id}'),
+          'completions',(select count(*) from v3_write.{completion} where {subject}='{request_id}'))""")
+        case.update(requestId=request_id, beforeKill=before, pendingObservedAt=bench.utc())
+        if before != dict(status="PENDING", results=0, events=0, completions=0):
+            raise AssertionError("E3 after-admission barrier not established")
+        old = bench.owned(worker)["State"]
+        if not old["Paused"]:
+            raise AssertionError("E3 worker was not paused during admission")
+        bench.command(["docker", "kill", "--signal", "KILL", worker])
+        killed = bench.owned(worker)["State"]
+        case["process"] = {"priorStartedAt": old["StartedAt"], "killedAt": bench.utc(),
+                           "exitCode": killed["ExitCode"], "runningAfterKill": killed["Running"], "pidAfterKill": killed["Pid"]}
+        if killed["Running"] or killed["ExitCode"] != 137 or killed["Pid"] != 0:
+            raise AssertionError("SIGKILL of the actual worker not established")
+        dc("start", "command-worker")
+        restarted = bench.owned(worker)["State"]
+        case["process"].update(restartedAt=restarted["StartedAt"], runningAfterRestart=restarted["Running"])
+        if not restarted["Running"] or restarted["StartedAt"] == old["StartedAt"]:
+            raise AssertionError("worker generation did not restart")
+
+    case = {"kind": "COMMAND"}
+    evidence["cases"].append(case)
+    bench.owned(worker)
+    bench.command(["docker", "pause", worker])
+    row = attempt(0, state, token, binding, time.monotonic(), threading.Event(), threading.Lock(),
+                  lambda request_id: barrier(request_id, "COMMAND", case), observation_seconds=60)
+    case["observation"] = row
+    if row["status"] != "OBSERVED":
+        raise AssertionError("Command failed to resume exactly: " + row["status"])
+    case["reconciliation"] = bench.reconcile(pg, [row])
+
+    case = {"kind": "REGISTRATION"}
+    evidence["cases"].append(case)
+    bench.owned(worker)
+    bench.command(["docker", "pause", worker])
+    status, admitted = oracle.request("POST", "http://127.0.0.1:28000/api/v3/identity/requests", fresh_token,
+                                     dict(operation="Registration"), key=str(uuid.uuid4()))
+    if status != 202:
+        raise AssertionError("E3 Registration not admitted")
+    request_id = str(uuid.UUID(admitted["requestId"]))
+    barrier(request_id, "IDENTITY", case)
+
+    def available():
+        code, current = oracle.request("GET", "http://127.0.0.1:28002/api/v3/me/binding", fresh_token)
+        if code != 200:
+            return False
+        if current.get("active") is not True or current.get("euiVersion") != 1:
+            raise AssertionError("E3 binding differs")
+        code, pots = oracle.request("GET", "http://127.0.0.1:28002/api/v3/me/pots?limit=1", fresh_token, binding=current["bindingToken"])
+        return code == 200 and pots.get("potIds") == []
+    wait_for(available, 60)
+    write = bench.sql(pg, "pocoma_write", f"""SELECT jsonb_build_object(
+      'terminal',(select count(*) from v3_write.v3_identity_request where request_id='{request_id}' and status='TERMINAL'),
+      'result',(select count(*) from v3_write.v3_identity_request_result where request_id='{request_id}' and outcome='CHANGED' and target_version=1),
+      'users',(select count(*) from v3_write.v3_pocoma_user where created_request_id='{request_id}'),
+      'events',(select count(*) from v3_write.v3_identity_event where request_id='{request_id}'),
+      'completions',(select count(*) from v3_write.v3_identity_completion_event where subject_id='{request_id}'),
+      'user',(select user_id::text from v3_write.v3_pocoma_user where created_request_id='{request_id}'))""")
+    read = bench.sql(pg, "pocoma_read", f"""SELECT jsonb_build_object('results',count(*),'user',min(b.user_id::text))
+      FROM v3_read.read_identity_request_result r JOIN v3_read.read_current_binding b
+      ON b.issuer=r.requester_issuer AND b.subject=r.requester_subject
+      WHERE r.request_id='{request_id}' AND r.write_outcome='CHANGED' AND r.target_version=1
+      AND b.eui_version=1 AND b.binding_token IS NOT NULL""")
+    case.update(write=write, read=read, authorizedEmptyNavigation=True)
+    if {k: v for k, v in write.items() if k != "user"} != dict(terminal=1, result=1, users=1, events=2, completions=1):
+        raise AssertionError("Registration effects/publications are not unique")
+    if not write["user"] or read != dict(results=1, user=write["user"]):
+        raise AssertionError("Registration WRITE/READ user identity differs")
+    evidence["status"] = "PASS"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, required=True, help="new private directory outside Git")
@@ -133,6 +222,7 @@ def main():
     parser.add_argument("--java-image", required=True, help="immutable local image ID containing Java 21")
     parser.add_argument("--postgres-image", required=True, help="immutable local PostgreSQL 17 image ID")
     parser.add_argument("--seed-id", default="l7-spec09-e1-small-2", help="same synthetic seed on fresh targets")
+    parser.add_argument("--crash-after-admission", action="store_true", help="separate E3 process crash campaign after E1")
     args = parser.parse_args()
     if not all(value.startswith("sha256:") and len(value) == 71 for value in (args.java_image, args.postgres_image)):
         raise ValueError("pin local images by complete sha256 ID")
@@ -173,7 +263,9 @@ def main():
         receipt["docker"] = json.loads(bench.command(["docker", "info", "--format", "{{json .}}"] ))
         receipt["docker"] = {k: receipt["docker"][k] for k in ("Name", "NCPU", "MemTotal", "ServerVersion", "Architecture")}
         dc("up", "-d", "postgres")
-        wait_for(lambda: bench.command(["docker", "exec", pg, "pg_isready", "-U", "pocoma"]) != "")
+        # The entrypoint's temporary init server exposes only a Unix socket.
+        # TCP readiness excludes that server and its imminent shutdown window.
+        wait_for(lambda: bench.command(["docker", "exec", pg, "pg_isready", "-h", "127.0.0.1", "-U", "pocoma"]) != "")
         info = bench.owned(pg)
         ip = next(iter(info["NetworkSettings"]["Networks"].values()))["IPAddress"]
         receipt["topology"] = {"kind": "LOCAL_DOCKER_SINGLE_HOST", "postgresAddress": ip,
@@ -187,7 +279,7 @@ def main():
         with (out / "bootstrap.log").open("x") as log:
             subprocess.run([sys.executable, "-B", str(ROOT / "scripts/operations/setup-v3-database.py"),
                             "--postgres-container", pg], check=True, stdout=log, stderr=log, timeout=100)
-        (work / "subjects.json").write_text(json.dumps(["spec09-e1-" + project]))
+        (work / "subjects.json").write_text(json.dumps(["spec09-e1-" + project, "spec09-e3-" + project]))
         issuer_log = (out / "issuer.log").open("x")
         issuer = subprocess.Popen(["node", str(ROOT / "scripts/performance/spec09-test-issuer.mjs"),
             "--host", "0.0.0.0", "--port", "28090", "--issuer", "http://pocoma-spec09-e1.invalid",
@@ -282,6 +374,12 @@ def main():
         receipt["summary"] = bench.summarize(receipt["observations"], 12, 12)
         receipt["safety"] = receipt["summary"]["safety"]
         receipt["status"] = receipt["safety"]
+        if args.crash_after_admission and receipt["status"] == "PASS":
+            fresh_token = list(json.loads((work / "tokens.json").read_text()).values())[1]
+            crash_campaign(pg, project, dc, states[0], token, binding, fresh_token, receipt)
+            after_crash = bench.snapshot(pg, metrics, out, "after-crash")
+            receipt["snapshots"].append(after_crash)
+            bench.validate_progress(final, after_crash)
         post = bench.provenance()
         if pre != post:
             receipt["status"] = "INCONCLUSIVE"
