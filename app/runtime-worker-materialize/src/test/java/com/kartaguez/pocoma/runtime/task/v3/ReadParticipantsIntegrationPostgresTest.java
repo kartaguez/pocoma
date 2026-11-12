@@ -511,6 +511,19 @@ class ReadParticipantsIntegrationPostgresTest {
                 }
                 if(committed) assertNotEquals(beforeVector,f.vector()); else assertEquals(beforeVector,f.vector());
                 assertEquals(committed?0:1,f.slots(name,f.event(name))); assertEquals(1,f.capacity.snapshot().worker(),"business observation never releases uncertain capacity");
+                if (committed) {
+                    var durable = new LinkedHashMap<String, Object>();
+                    for (String table : f.businessTables) durable.put(table, f.f.read.oracle.queryForList(
+                            "select row_to_json(t)::text as value from " + table + " t order by value"));
+                    var fresh = f.engines.get(name);
+                    var d = f.participants.get(name).definition();
+                    int partition = RoutingV1.partition(RoutingV1.hash(d.family(), f.event(name)), 4);
+                    assertTrue(fresh.acquire(f.lease(name, fresh, partition), List.of(f.event(name))).claims().isEmpty(),
+                            "a fresh Engine cannot execute the already committed absent slot");
+                    for (String table : f.businessTables) assertEquals(durable.get(table), f.f.read.oracle.queryForList(
+                            "select row_to_json(t)::text as value from " + table + " t order by value"));
+                    assertEquals(1, f.capacity.snapshot().worker(), "failed reacquisition must not settle UNKNOWN");
+                }
                 f.f.read.trace.add("L7.3 real ACK loss "+name+" "+fault+" result="+result+" retained="+f.capacity.snapshot());
             }
     }
