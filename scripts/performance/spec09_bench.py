@@ -127,6 +127,15 @@ def quantile(values, fraction):
     return values[max(0, math.ceil(len(values) * fraction) - 1)]
 
 
+def record_failure(receipt, error):
+    # A preceding E1 PASS cannot survive an interrupted/incomplete E3 as an
+    # overall PASS. Keep the independent E1 summary untouched for attribution.
+    receipt.update(status="INCONCLUSIVE", safety="INCONCLUSIVE",
+                   error=type(error).__name__ + ": " + str(error))
+    if isinstance(error, AssertionError):
+        receipt.update(status="FAIL", safety="FAIL")
+
+
 def summarize(rows, planned, duration):
     valid = [r for r in rows if r.get("status") == "OBSERVED"]
     safety = "FAIL" if any(r.get("status") == "INVARIANT_VIOLATION" for r in rows) else "INCONCLUSIVE"

@@ -83,5 +83,10 @@ conteneur, résultat/effets/publications uniques et rapprochement READ. Deux suj
 CreateExpense puis Registration d'une seconde EUI fraîche. Cette fenêtre est celle
 d'EVT-02 E02-J, sans claim acquis ; elle ne ferme ni CON-05 crash sans cession ni
 C03-J crash pendant calcul. Les oracles et contrôles restent hors app, slices NONE.
-Le suivi de reprise E3 est borné à 60 s comme protection du banc ; il ne modifie aucun
-timeout productif ni SLO. E3 n'entre jamais dans les populations de latence E1/E2.
+Le premier suivi E3 de 60 s a censuré une demande avant l'expiration du bail de
+partition configuré à 240 s. Le suivi corrigé capture l'échéance persistée du bail,
+attend sa durée restante observée plus une enveloppe fixe de 60 s ; aucune lease,
+claim ou durée productive n'est modifiée. Command et Registration sont admises sous
+la même pause et le même SIGKILL. E3 n'entre pas dans les populations de latence E1/E2.
+L'essai initial est conservé ; son absence de reprise à 60 s ne prouve pas une
+violation du contrat de reprise après expiration.

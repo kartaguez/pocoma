@@ -83,7 +83,10 @@ def attempt(index, state, token, binding, base, stop, lock, after_admission=None
             raise ValueError("admission refused: " + str(status))
         row["requestId"] = str(uuid.UUID(admitted["requestId"]))
         if after_admission:
-            after_admission(row["requestId"])
+            derived_window = after_admission(row["requestId"])
+            if derived_window is not None:
+                observation_seconds = derived_window
+                row["derivedObservationSeconds"] = derived_window
 
         def poll(path):
             while time.monotonic_ns()-accepted < observation_seconds*1e9:
@@ -128,13 +131,13 @@ def attempt(index, state, token, binding, base, stop, lock, after_admission=None
     return row
 
 
-def crash_campaign(pg, project, dc, state, token, binding, fresh_token, receipt):
+def crash_campaign(pg, project, dc, state, token, binding, fresh_token, receipt, stop):
     """E02-J only: process stopped before admission, killed after durable PENDING."""
     worker = project + "-command-worker-1"
     evidence = {"scenario": "E3_E02_J_AFTER_HTTP_ADMISSION", "status": "INCONCLUSIVE", "cases": []}
     receipt["crashCampaign"] = evidence
 
-    def barrier(request_id, kind, case):
+    def barrier(request_id, kind, case, kill_restart=True):
         table, result, event, completion, subject = (
             ("v3_command", "v3_command_result", "v3_pot_event", "v3_command_completion_event", "subject_id")
             if kind == "COMMAND" else
@@ -149,6 +152,15 @@ def crash_campaign(pg, project, dc, state, token, binding, fresh_token, receipt)
         case.update(requestId=request_id, beforeKill=before, pendingObservedAt=bench.utc())
         if before != dict(status="PENDING", results=0, events=0, completions=0):
             raise AssertionError("E3 after-admission barrier not established")
+        leases = bench.sql(pg, "pocoma_write", """SELECT jsonb_build_object('databaseTime',clock_timestamp(),
+          'remainingMs',greatest(0,coalesce(max(extract(epoch from (owned_until-clock_timestamp()))*1000),0)),
+          'partitions',jsonb_agg(jsonb_build_object('consumptionId',consumption_id,'partition',partition_id,
+             'ownedUntil',owned_until))) FROM v3_write.partition_ownership""")
+        case["ownershipBeforeKill"] = leases
+        if not 0 <= leases["remainingMs"] <= 241000:
+            raise AssertionError("observed lease outside configured 240-second envelope")
+        if not kill_restart:
+            return
         old = bench.owned(worker)["State"]
         if not old["Paused"]:
             raise AssertionError("E3 worker was not paused during admission")
@@ -163,30 +175,43 @@ def crash_campaign(pg, project, dc, state, token, binding, fresh_token, receipt)
         case["process"].update(restartedAt=restarted["StartedAt"], runningAfterRestart=restarted["Running"])
         if not restarted["Running"] or restarted["StartedAt"] == old["StartedAt"]:
             raise AssertionError("worker generation did not restart")
+        # Observe the actual persisted expiry plus a fixed 60-second processing
+        # envelope. No lease/claim is edited and no production timeout changes.
+        return leases["remainingMs"]/1000 + 60
 
     case = {"kind": "COMMAND"}
     evidence["cases"].append(case)
     bench.owned(worker)
     bench.command(["docker", "pause", worker])
-    row = attempt(0, state, token, binding, time.monotonic(), threading.Event(), threading.Lock(),
-                  lambda request_id: barrier(request_id, "COMMAND", case), observation_seconds=60)
+    identity_case = {"kind": "REGISTRATION"}
+
+    def crash_both(request_id):
+        status, admitted = oracle.request("POST", "http://127.0.0.1:28000/api/v3/identity/requests", fresh_token,
+                                         dict(operation="Registration"), key=str(uuid.uuid4()))
+        if status != 202:
+            raise AssertionError("E3 Registration not admitted")
+        identity_request = str(uuid.UUID(admitted["requestId"]))
+        evidence["cases"].append(identity_case)
+        barrier(identity_request, "IDENTITY", identity_case, kill_restart=False)
+        window = barrier(request_id, "COMMAND", case)
+        identity_case["process"] = case["process"]
+        return window
+
+    row = attempt(0, state, token, binding, time.monotonic(), stop, threading.Lock(),
+                  crash_both)
     case["observation"] = row
     if row["status"] != "OBSERVED":
-        raise AssertionError("Command failed to resume exactly: " + row["status"])
+        if row["status"] == "INVARIANT_VIOLATION":
+            raise AssertionError("Command recovery invariant: " + str(row))
+        raise TimeoutError("Command recovery not established: " + row["status"])
     case["reconciliation"] = bench.reconcile(pg, [row])
 
-    case = {"kind": "REGISTRATION"}
-    evidence["cases"].append(case)
-    bench.owned(worker)
-    bench.command(["docker", "pause", worker])
-    status, admitted = oracle.request("POST", "http://127.0.0.1:28000/api/v3/identity/requests", fresh_token,
-                                     dict(operation="Registration"), key=str(uuid.uuid4()))
-    if status != 202:
-        raise AssertionError("E3 Registration not admitted")
-    request_id = str(uuid.UUID(admitted["requestId"]))
-    barrier(request_id, "IDENTITY", case)
+    case = identity_case
+    request_id = case["requestId"]
 
     def available():
+        if stop.is_set():
+            raise TimeoutError("indispensable E3 collector stopped")
         code, current = oracle.request("GET", "http://127.0.0.1:28002/api/v3/me/binding", fresh_token)
         if code != 200:
             return False
@@ -339,11 +364,11 @@ def main():
         receipt["snapshots"].append(initial)
         bench.validate_progress(initial, initial)
 
-        def collect():
+        def collect(observed_metrics=metrics, prefix=""):
             i = 0
             while not stop.wait(2):
                 try:
-                    receipt["snapshots"].append(bench.snapshot(pg, metrics, out, i))
+                    receipt["snapshots"].append(bench.snapshot(pg, observed_metrics, out, prefix+str(i)))
                     i += 1
                     stats = [json.loads(line) for line in bench.command(["docker", "stats", "--no-stream", "--format", "{{json .}}",
                              *[project+"-"+name+"-1" for name in ("postgres", *RUNTIMES)]]).splitlines()]
@@ -376,7 +401,16 @@ def main():
         receipt["status"] = receipt["safety"]
         if args.crash_after_admission and receipt["status"] == "PASS":
             fresh_token = list(json.loads((work / "tokens.json").read_text()).values())[1]
-            crash_campaign(pg, project, dc, states[0], token, binding, fresh_token, receipt)
+            stop.clear()
+            # The killed process's metric endpoint is intentionally unavailable;
+            # PostgreSQL and the four other Runtimes remain indispensable.
+            collector = threading.Thread(target=collect, args=({k: v for k, v in metrics.items() if k != "command-worker"}, "e3-"))
+            collector.start()
+            crash_campaign(pg, project, dc, states[0], token, binding, fresh_token, receipt, stop)
+            stop.set()
+            collector.join(25)
+            if collector.is_alive() or collector_errors:
+                raise ValueError("E3 collector unavailable: " + str(collector_errors))
             after_crash = bench.snapshot(pg, metrics, out, "after-crash")
             receipt["snapshots"].append(after_crash)
             bench.validate_progress(final, after_crash)
@@ -385,9 +419,7 @@ def main():
             receipt["status"] = "INCONCLUSIVE"
             raise ValueError("source or executable provenance changed during E1")
     except BaseException as error:
-        receipt.update(error=type(error).__name__ + ": " + str(error))
-        if isinstance(error, AssertionError):
-            receipt.update(status="FAIL", safety="FAIL")
+        bench.record_failure(receipt, error)
     finally:
         stop.set()
         if collector:

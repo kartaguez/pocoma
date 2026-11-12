@@ -39,6 +39,14 @@ class BenchControls(unittest.TestCase):
         self.assertEqual("FAIL", bench.summarize([self.row(), dict(status="INVARIANT_VIOLATION")], 2, 2)["safety"])
         self.assertEqual("FAIL", bench.summarize([self.row(), self.row()], 2, 2)["safety"])
 
+    def test_following_phase_timeout_cannot_keep_preceding_pass(self):
+        receipt = dict(status="PASS", safety="PASS", summary=dict(safety="PASS"))
+        bench.record_failure(receipt, TimeoutError("E3 incomplete"))
+        self.assertEqual("INCONCLUSIVE", receipt["status"])
+        self.assertEqual("PASS", receipt["summary"]["safety"])
+        bench.record_failure(receipt, AssertionError("double effect"))
+        self.assertEqual(("FAIL", "FAIL"), (receipt["status"], receipt["safety"]))
+
     def test_ownership_refuses_existing_containers_before_sql(self):
         with patch.object(bench, "command", return_value=json.dumps([dict(Config=dict(Labels={}))])) as cmd:
             with self.assertRaises(ValueError):
