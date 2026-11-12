@@ -1,5 +1,7 @@
 # Bruno B1 — Identity and READ
 
+**État L7.2.** B3 désigne le dossier historique du use case Link retiré par `GO_L7_I2_I3_FULL_EXECUTION`. La recette d’installation joue B2, B4, B501 et B502, avec les oracles B1 spécialisés sous fixture. [Lancement et portées](README.md).
+
 **32 scénarios logiques. READ_FIXTURE — NO PUBLIC ADMISSION PROOF.** Les états de résultat et de binding sont injectés avant le HTTP par une autorité de fixture distincte. Aucun parcours Registration/Link/Invitation public.
 
 | Scénario | Requête principale | Oracle / JUnit |

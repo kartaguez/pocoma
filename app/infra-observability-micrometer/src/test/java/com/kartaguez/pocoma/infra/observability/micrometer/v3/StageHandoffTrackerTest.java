@@ -194,7 +194,8 @@ class StageHandoffTrackerTest {
         var unauthSnapshot = tracker.snapshot(10, null, false);
         @SuppressWarnings("unchecked")
         var unauthRec = (java.util.Map<String, Object>) ((java.util.List<?>) unauthSnapshot.get("records")).getFirst();
-        assertEquals(cmdId.toString(), unauthRec.get("commandId"));
+        assertNull(unauthRec.get("commandId"));
+        assertEquals(java.util.Map.of(), unauthSnapshot.get("eventProjections"));
         assertNull(unauthRec.get("potId"));
         assertNull(unauthRec.get("resultingVersion"));
         assertNull(unauthRec.get("potEventId"));

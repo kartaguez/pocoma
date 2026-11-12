@@ -94,20 +94,14 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest r) {
-        return !Set.of("/api/v3/commands", "/api/v3/identity/requests").contains(r.getRequestURI())
-                && !linkRoute(r.getRequestURI());
+        return !Set.of("/api/v3/commands", "/api/v3/identity/requests").contains(r.getRequestURI());
     }
 
-    public static boolean linkRoute(String uri) {
-        return uri.equals("/api/v3/identity/link-requests")
-                || uri.startsWith("/api/v3/identity/link-requests/");
-    }
 
     public static String classify(String uri) {
         if (uri == null) return "other";
         if (uri.equals("/api/v3/commands")) return "command";
         if (uri.equals("/api/v3/identity/requests")) return "identity";
-        if (linkRoute(uri)) return "link";
         return "other";
     }
 
@@ -124,14 +118,13 @@ public final class V3AdmissionTransport extends OncePerRequestFilter {
             return;
         }
         try {
-            boolean link = linkRoute(r.getRequestURI());
-            AdmissionFailure.require((r.getMethod().equals("POST") || (link && r.getMethod().equals("GET")))
+            AdmissionFailure.require(r.getMethod().equals("POST")
                     && r.getQueryString() == null && r.getRequestURI().length() <= 2048);
             if (r.getHeader("Content-Encoding") != null) throw new AdmissionFailure(415);
             String media = r.getContentType();
-            if (r.getMethod().equals("POST") && !r.getRequestURI().endsWith("/accept") && (media == null
+            if (media == null
                     || !media.toLowerCase(Locale.ROOT)
-                            .matches("application/json(?:\\s*;\\s*charset=utf-8)?")))
+                            .matches("application/json(?:\\s*;\\s*charset=utf-8)?"))
                 throw new AdmissionFailure(415);
             int max =
                     r.getRequestURI().equals("/api/v3/commands")

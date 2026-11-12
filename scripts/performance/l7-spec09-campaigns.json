@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "reference": "docs/v3/SPEC-09_Performance.md",
+  "repeat": 3,
+  "minimumValidPerSlo": 300,
+  "pollIntervalMs": 25,
+  "configurations": {
+    "A": {"postgresVcpu": 4, "postgresRamGiB": 8, "runtimesVcpu": 4, "runtimesRamGiB": 8, "identityProvider": "simulated authentication, actual Pocoma authorization"},
+    "B": {"postgresVcpu": 4, "postgresRamGiB": 8, "runtimesVcpu": 4, "runtimesRamGiB": 8, "identityProvider": "isolated Keycloak"}
+  },
+  "datasets": {
+    "small": {"shareholders": 5, "expenses": 20},
+    "medium": {"shareholders": 20, "expenses": 200},
+    "large": {"shareholders": 100, "expenses": 2000, "maximumParticipations": 200000},
+    "globalLevels": [[100, 10000], [10000, 1000000], [100000, 10000000]],
+    "historyDepth": [100, 1000, 10000],
+    "historicalReplay": ["H1", "H2", "H3", "H4", "H5"]
+  },
+  "campaigns": [
+    {"id": "F01-A", "configuration": "A", "dataset": "medium", "rate": 1, "warmupSeconds": 180, "sampleSeconds": 1200, "c03P95Ms": 500, "exactBalanceP95Ms": 500, "stimulus": "nominal"},
+    {"id": "F01-B", "configuration": "A", "dataset": "medium", "rate": 10, "warmupSeconds": 300, "sampleSeconds": 900, "c03P95Ms": 1000, "backlog": "stationary by Consumption", "stimulus": "sustained"},
+    {"id": "F01-C", "configuration": "A", "dataset": "medium", "rate": 50, "warmupSeconds": 300, "sampleSeconds": 180, "nominalRecoverySeconds": 600, "c03P95Ms": 3000, "stimulus": "peak"},
+    {"id": "F01-D", "configuration": "A", "dataset": "large", "rate": 1, "warmupSeconds": 180, "sampleSeconds": 1200, "c03P95Ms": 2000, "stimulus": "nominal", "remaining": "calibrate repeatable 200000-participation seed and cost probes"},
+    {"id": "F01-E", "configuration": "A", "rate": 1, "warmupSeconds": 180, "sampleSeconds": 1200, "usableBindingP95Ms": 500, "stimulus": "Registration", "remaining": "provide one authenticated eligible Pot per Registration with projections already available and observe first usable binding"},
+    {"id": "F01-F", "configuration": "B", "warmupSeconds": 180, "sampleSeconds": 600, "stimulus": "OIDC, Registration, Unlink", "remaining": "instrument independent OIDC, admission and authorized READ clocks"},
+    {"id": "F01-G", "configuration": "A", "dataset": "medium", "backlog": 10000, "recoveryRate": 1, "convergenceSeconds": 300, "remaining": "version the fixed pending snapshot and implement automatic terminal plus complete projection reconciliation under ongoing arrivals"},
+    {"id": "F01-H", "configuration": "A", "dataset": "medium", "warmupSeconds": 180, "sampleSeconds": 600, "stimulus": "contention"},
+    {"id": "F01-I", "configuration": "A", "stimulus": "globalLevels and historyDepth", "remaining": "prepare and validate snapshots for all normative global volumes"},
+    {"id": "F01-J", "configuration": "A", "dataset": "medium", "idleSeconds": 600, "stimulus": "idle"},
+    {"id": "A11-L/M", "configuration": "A", "stimulus": "paired DeletePot with F01-A/B/C/D", "remaining": "timestamp the internal deleted=true landmark and reconcile all active pre-delete versions"},
+    {"id": "ENDURANCE", "configuration": "A", "dataset": "medium", "rate": 10, "sampleSeconds": 3600, "stimulus": "sustained"},
+    {"id": "SATURATION", "configuration": "A", "dataset": "medium", "rates": [1, 5, 10, 20, 35, 50], "sampleSecondsPerRate": 900, "stimulus": "ramp"}
+  ]
+}

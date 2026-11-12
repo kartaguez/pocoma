@@ -132,8 +132,8 @@ public final class StageHandoffTracker
 
         public Map<String, Object> toMap(boolean includeBusinessIds) {
             var m = new LinkedHashMap<String, Object>();
-            m.put("commandId", commandId.toString());
             if (includeBusinessIds) {
+                m.put("commandId", commandId.toString());
                 m.put("potId", potId != null ? potId.toString() : null);
                 m.put("resultingVersion", resultingVersion);
                 m.put("potEventId", potEventId != null ? potEventId.toString() : null);
@@ -186,8 +186,14 @@ public final class StageHandoffTracker
     private final Map<ConsumptionId, String> consumptionNames = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, CommandRecord> commands = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, UUID> eventToCommand = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<UUID, ConcurrentHashMap<String, ProjectionRecord>> eventProjections =
-            new ConcurrentHashMap<>();
+    private final Map<UUID, ConcurrentHashMap<String, ProjectionRecord>> eventProjections =
+            Collections.synchronizedMap(new LinkedHashMap<>() {
+                @Override
+                protected boolean removeEldestEntry(
+                        Map.Entry<UUID, ConcurrentHashMap<String, ProjectionRecord>> eldest) {
+                    return size() > MAX_TRACKED_COMMANDS;
+                }
+            });
     private final ConcurrentLinkedDeque<UUID> ring = new ConcurrentLinkedDeque<>();
     private static final java.nio.file.Path HANDOFF_LOG_PATH =
             java.nio.file.Path.of(
@@ -314,7 +320,7 @@ public final class StageHandoffTracker
     @Override
     public void onSlotAcquired(ConsumptionId id, UUID consumableId, int partition, long nanos) {
         if (consumableId == null) return;
-        String name = consumptionNames.getOrDefault(id, id.value().toString());
+        String name = consumptionNames.getOrDefault(id, "unknown");
         if ("Command".equals(name)) {
             long epoch = System.currentTimeMillis();
             var rec = commands.computeIfAbsent(consumableId, k -> {
@@ -420,7 +426,7 @@ public final class StageHandoffTracker
     @Override
     public void onAttemptStarting(ConsumptionId id, UUID consumableId, long startNanos) {
         if (id == null || consumableId == null) return;
-        String name = consumptionNames.getOrDefault(id, id.value().toString());
+        String name = consumptionNames.getOrDefault(id, "unknown");
         long epoch = System.currentTimeMillis();
 
         if ("Command".equals(name)) {
@@ -521,7 +527,7 @@ public final class StageHandoffTracker
             ConsumptionProtocol.Status status,
             long finishNanos) {
         if (id == null || consumableId == null) return;
-        String name = consumptionNames.getOrDefault(id, id.value().toString());
+        String name = consumptionNames.getOrDefault(id, "unknown");
         long epoch = System.currentTimeMillis();
 
         if ("Command".equals(name)) {
@@ -687,15 +693,17 @@ public final class StageHandoffTracker
         }
 
         var exportedEventProjections = new LinkedHashMap<String, Map<String, Object>>();
-        int epCount = 0;
-        for (var entry : eventProjections.entrySet()) {
-            var projMap = new LinkedHashMap<String, Object>();
-            for (var pEntry : entry.getValue().entrySet()) {
-                projMap.put(pEntry.getKey(), pEntry.getValue().toMap());
+        if (includeBusinessIds) {
+            synchronized (eventProjections) {
+                for (var entry : eventProjections.entrySet()) {
+                    var projMap = new LinkedHashMap<String, Object>();
+                    for (var projection : entry.getValue().entrySet()) {
+                        projMap.put(projection.getKey(), projection.getValue().toMap());
+                    }
+                    exportedEventProjections.put(entry.getKey().toString(), projMap);
+                    if (exportedEventProjections.size() >= max) break;
+                }
             }
-            exportedEventProjections.put(entry.getKey().toString(), projMap);
-            epCount++;
-            if (epCount >= max) break;
         }
 
         result.put("totalTracked", ring.size());

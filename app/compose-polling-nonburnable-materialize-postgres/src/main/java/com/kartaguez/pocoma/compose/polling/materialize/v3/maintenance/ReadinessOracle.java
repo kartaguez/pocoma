@@ -286,15 +286,19 @@ public final class ReadinessOracle {
             integrityErrors.add("read_current_pot has " + danglingCurrentPot + " dangling version references");
         }
 
-        // Check 3.2: CurrentPot -> PotBalance
-        Integer missingBalance = readJdbc.queryForObject(
-                "SELECT count(*) FROM read_current_pot cp "
-                        + "LEFT JOIN read_pot_balance pb ON cp.pot_id = pb.pot_id AND cp.pot_version = pb.pot_version "
-                        + "WHERE pb.pot_id IS NULL",
+        // Active historical versions keep their balances. A terminal DeletePot version has none.
+        Integer invalidBalances = readJdbc.queryForObject(
+                """
+                select count(*) from read_pot_version pv
+                left join read_pot_balance pb using (pot_id, pot_version)
+                where jsonb_typeof(pv.payload->'deleted') is distinct from 'boolean'
+                   or (pv.payload->'deleted' = 'false'::jsonb and pb.pot_id is null)
+                   or (pv.payload->'deleted' = 'true'::jsonb and pb.pot_id is not null)
+                """,
                 Integer.class
         );
-        if (missingBalance != null && missingBalance > 0) {
-            integrityErrors.add("read_current_pot has " + missingBalance + " missing balance rows");
+        if (invalidBalances != null && invalidBalances > 0) {
+            integrityErrors.add(invalidBalances + " Pot versions with missing balance rows, unexpected terminal balances or invalid deletion flags");
         }
 
         // Check 3.3: CurrentPot -> PotVisibility

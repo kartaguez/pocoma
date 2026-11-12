@@ -84,8 +84,6 @@ class HexagonalArchitectureTest {
         requireDependency(controller, principal);
         requireDependency(controller, BASE + "contract.writeadmission.AdmitCommand");
         requireDependency(controller, BASE + "contract.writeadmission.AdmitIdentityRequest");
-        requireDependency(type("supra.web.write.v3.V3LinkProposalController"),
-                BASE + "contract.writeadmission.IssueLinkProposal");
         requireDependency(type("engine.admit.command.v3.AdmitCommandV3"), principal);
         requireDependency(type("engine.admit.identity.v3.AdmitIdentityRequestV3"), principal);
 

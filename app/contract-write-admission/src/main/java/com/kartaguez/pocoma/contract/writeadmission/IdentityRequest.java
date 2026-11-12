@@ -55,6 +55,7 @@ public record IdentityRequest(
     /** Registration always targets the authenticated requester. */
     public record Registration() implements Operation {}
 
+    /** Discriminator for durable Identity history written before Link was retired. */
     public record Link(ExternalIdentity target) implements Operation {
         public Link {
             ExternalUserIdentity.compareKeys(target, target);

@@ -16,7 +16,6 @@ begin
     or exists(select 1 from pg_roles where rolname<>r and pg_has_role(r,oid,'MEMBER'))
     or has_schema_privilege(r,current_schema(),'CREATE')
     or to_regclass('v3_admission_association') is null
-    or to_regclass('v3_link_proposal') is null
     or to_regclass('v3_request_counter') is null
     or to_regclass('v3_request_position') is null
  then raise exception 'unsafe admission authority' using errcode='42501';end if;
@@ -39,10 +38,8 @@ begin
  execute format('grant usage on schema %I to %I',current_schema(),r);
  -- Application reads only the association; request reads belong to invoker constraints.
  execute format('grant select(request_id,category,operation,canonical_version,lookup_key_id,comparison_key_id,scope_key_fingerprint,intent_fingerprint,created_at),insert on v3_admission_association to %I',r);
- -- Only the technical proposal is readable/mutable here. No EUI authority state/token grant.
- execute format('grant select,insert(link_request_id,initiator_issuer,initiator_subject,target_issuer,target_subject,binding_token,authenticated_at,issued_at,principal_expires_at,created_at,expires_at,canonical_version,lookup_key_id,comparison_key_id,scope_key_fingerprint,intent_fingerprint,accepted_at,identity_request_id),update(accepted_at,identity_request_id) on v3_link_proposal to %I',r);
  execute format('grant select(request_id,status,pot_id),insert(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) on v3_command to %I',r);
- execute format('grant select(request_id,status,operation,target_issuer,target_subject),insert(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at,link_proposal_id) on v3_identity_request to %I',r);
+ execute format('grant select(request_id,status,operation,target_issuer,target_subject),insert(request_id,requester_issuer,requester_subject,operation,binding_token,target_issuer,target_subject,admission_context,created_at) on v3_identity_request to %I',r);
  execute format('grant select(family,position),update(position) on v3_request_counter to %I',r);
  execute format('grant select(family,position,request_id),insert(family,position,request_id) on v3_request_position to %I',r);
  -- Exact prefix reads for deferred PENDING checks; no business-authority reads by the service.

@@ -385,6 +385,8 @@ public final class V3WorkerDevelopmentTools {
                 new ExternalIdentity(
                         p.getProperty("target.issuer"), p.getProperty("target.subject"));
         var operation = IdentityRequestJson.operation(p.getProperty("operation"), target);
+        if (operation instanceof IdentityRequest.Link)
+            throw new IllegalArgumentException("Retired Identity operation");
         UUID id = UUID.fromString(p.getProperty("request-id"));
         var time = Instant.parse(p.getProperty("created-at"));
         String token = p.getProperty("binding-token");

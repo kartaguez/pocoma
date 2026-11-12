@@ -140,13 +140,11 @@ def demo_identity(args) -> None:
         submit("REGISTRATION", "a", "a")
         submit("REGISTRATION", "c", "c")
         token_a = own_token("a")
-        submit("LINK", "a", "b", token_a)
-        submit("UNLINK", "a", "b", token_a)
-        submit("LINK", "a", "b", token_a)
-        submit("UNLINK", "b", "b", own_token("b"))
+        submit("UNLINK", "a", "c", token_a, "REJECTED")
         submit("UNLINK", "a", "a", token_a)
-        submit("LINK", "a", "never", token_a, "REJECTED")
-    print("L3_DEV_R_ID_SCENARIO_COMPLETED controlled internal only; external consent/READ/Pot authority unqualified")
+        submit("UNLINK", "a", "never", token_a, "REJECTED")
+        submit("REGISTRATION", "a", "a")
+    print("L3_DEV_R_ID_SCENARIO_COMPLETED controlled internal only; public admission/READ/Pot authority unqualified")
 
 
 def process_identity(pid: int) -> str | None:

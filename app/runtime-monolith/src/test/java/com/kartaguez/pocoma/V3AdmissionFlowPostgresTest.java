@@ -311,11 +311,11 @@ class V3AdmissionFlowPostgresTest {
     }
 
     void internalLink(String target) throws Exception {
-        // Existing L3 controlled internal admission only; never an I3 public Link proof.
+        // Seed an already completed historical occurrence for the public Unlink oracle.
         var initiator = new ExternalIdentity(http.issuer, "owner");
         var other = new ExternalIdentity(http.issuer, target);
         UUID id = UUID.randomUUID();
-        var now = Instant.now();
+        var now = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MICROS);
         var r =
                 new IdentityRequest(
                         id,
@@ -337,8 +337,18 @@ class V3AdmissionFlowPostgresTest {
         var manager = new DataSourceTransactionManager(ds);
         manager.setNestedTransactionAllowed(false);
         var tx = new SpringAttemptTransactions(ds, manager, 5);
-        var store = new JdbcIdentityRequestStore(ds, tx);
-        tx.write(() -> store.insertPending(r));
+        var fixtureSql = new org.springframework.jdbc.core.JdbcTemplate(ds);
+        var historical = java.nio.file.Files.readString(java.nio.file.Path.of(
+                "../../scripts/testing/fixtures/complete-historical-link.sql"));
+        tx.write(() -> {
+            fixtureSql.execute(historical);
+            fixtureSql.queryForList("select pg_temp.seed_historical_link(?,?,?,?,?,?,?,?::jsonb)",
+                    r.requestId(), r.requesterEui().issuer(), r.requesterEui().subject(),
+                    r.target().issuer(), r.target().subject(), r.bindingToken().value(),
+                    java.sql.Timestamp.from(r.createdAt()), IdentityRequestJson.encode(r.admission()));
+            fixtureSql.queryForList("select pg_temp.complete_historical_link(?)", id);
+            return null;
+        });
         poll("/identity/requests/" + id + "/result", "owner", null);
     }
 

@@ -56,7 +56,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
     }
 
     @Test
-    void l3_atomic_link_unlink() {
+    void l3_unlink_with_historical_binding() {
         var e1 = key("a");
         var e2 = key("b");
         var e3 = key("c");
@@ -79,12 +79,36 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
     }
 
     @Test
+    void retiredLinkCannotBeAdmittedOrExecuted() {
+        var actor = key("historical-actor");
+        var target = key("historical-target");
+        executeAdmitted(request(new IdentityRequest.Registration(), actor, null, actor));
+        var link = request(new IdentityRequest.Link(target), actor, current(actor).bindingToken(), target);
+        var admission = assertThrows(AttemptTransactions.Failure.class, () -> admitRequest(link));
+        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, admission.resolution());
+        assertInstanceOf(IllegalArgumentException.class, admission.getCause());
+        store.requireRetiredLinksDrained();
+
+        seedHistoricalLink(link, false);
+        assertThrows(IllegalStateException.class, store::requireRetiredLinksDrained);
+        var before = businessVector();
+        var preparation = assertThrows(AttemptTransactions.Failure.class, () ->
+                tx.read(context -> participant.prepare(link.requestId(), inSnapshot(context))));
+        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, preparation.resolution());
+        assertInstanceOf(IllegalStateException.class, preparation.getCause());
+        assertEquals(before, businessVector());
+        assertEquals(0, admin.queryForObject(
+                "select count(*) from v3_eui_authority where issuer=? and subject=?",
+                Integer.class, target.issuer(), target.subject()));
+    }
+
+    @Test
     void l3_rejection_terminal() {
         var e1 = key("a");
         var e2 = key("b");
         executeAdmitted(request(new IdentityRequest.Registration(), e1, null, e1));
         var a = current(e1);
-        var bad = request(new IdentityRequest.Link(e2), e1, new BindingToken("wrong"), e2);
+        var bad = request(new IdentityRequest.Unlink(e2), e1, new BindingToken("wrong"), e2);
         executeAdmitted(bad);
         assertCounts(1, 1, 2, 2, 2);
         assertEquals(
@@ -98,7 +122,7 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
 
     @Test
     void l3_rollback_each_boundary() {
-        for (String op : List.of("REGISTRATION", "LINK", "UNLINK")) {
+        for (String op : List.of("REGISTRATION", "UNLINK")) {
             var e = key("initiator-" + op);
             executeAdmitted(request(new IdentityRequest.Registration(), e, null, e));
             var a = current(e);
@@ -118,14 +142,12 @@ class IdentityRequestExecutionPostgresTest extends IdentityEngineFixture {
                 var target =
                         op.equals("REGISTRATION")
                                 ? key(op + boundary)
-                                : op.equals("LINK") ? key(op + boundary) : e;
+                                : e;
                 var req =
                         request(
                                 op.equals("REGISTRATION")
                                         ? new IdentityRequest.Registration()
-                                        : op.equals("LINK")
-                                                ? new IdentityRequest.Link(target)
-                                                : new IdentityRequest.Unlink(target),
+                                        : new IdentityRequest.Unlink(target),
                                 op.equals("REGISTRATION") ? target : e,
                                 op.equals("REGISTRATION") ? null : a.bindingToken(),
                                 target);
@@ -869,12 +891,39 @@ abstract class IdentityEngineFixture extends IdentityPostgresFixture {
     }
 
     void executeAdmitted(IdentityRequest request) {
+        if (request.operation() instanceof IdentityRequest.Link) {
+            completeHistoricalLink(request);
+            return;
+        }
         admitRequest(request);
         var result = execute(request);
         assertEquals(
                 ConsumptionProtocol.Status.COMMITTED,
                 result.status(),
                 () -> String.valueOf(result.cause()));
+    }
+
+    void completeHistoricalLink(IdentityRequest request) {
+        seedHistoricalLink(request, true);
+    }
+
+    void seedHistoricalLink(IdentityRequest request, boolean complete) {
+        var fixtureTx = new SpringAttemptTransactions(adminSource, manager(adminSource), 5);
+        try {
+            var historical = java.nio.file.Files.readString(java.nio.file.Path.of(
+                    "../../scripts/testing/fixtures/complete-historical-link.sql"));
+            fixtureTx.write(() -> {
+                admin.execute(historical);
+                admin.queryForList("select pg_temp.seed_historical_link(?,?,?,?,?,?,?,?::jsonb)",
+                        request.requestId(), request.requesterEui().issuer(), request.requesterEui().subject(),
+                        request.target().issuer(), request.target().subject(), request.bindingToken().value(),
+                        java.sql.Timestamp.from(request.createdAt()), IdentityRequestJson.encode(request.admission()));
+                if (complete) admin.queryForList("select pg_temp.complete_historical_link(?)", request.requestId());
+                return null;
+            });
+        } catch (java.io.IOException failure) {
+            throw new java.io.UncheckedIOException(failure);
+        }
     }
 
     Map<String, Object> businessVector() {

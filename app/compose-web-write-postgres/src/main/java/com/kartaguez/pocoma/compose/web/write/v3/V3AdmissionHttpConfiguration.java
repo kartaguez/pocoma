@@ -7,7 +7,6 @@ import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3;
 import com.kartaguez.pocoma.engine.admit.identity.v3.AdmitIdentityRequestV3;
-import com.kartaguez.pocoma.engine.admit.identity.v3.AdmitLinkProposal;
 import com.kartaguez.pocoma.infra.postgres.write.v3.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.supra.web.write.v3.*;
@@ -30,7 +29,7 @@ import java.util.*;
 /** Explicit HTTP-only activation. No admission allocation on COMMAND or READ-only roots. */
 @Configuration(proxyBeanMethods = false)
 @Profile(V3AdmissionHttpConfiguration.PROFILE)
-@Import({WebWriteObservationConfiguration.class, V3HttpSecurityConfiguration.class, V3AdmissionController.class, V3LinkProposalController.class})
+@Import({WebWriteObservationConfiguration.class, V3HttpSecurityConfiguration.class, V3AdmissionController.class})
 public class V3AdmissionHttpConfiguration {
     public static final String PROFILE = "v3-http-admission";
     private static final String PREFIX = "pocoma.v3.http.admission.";
@@ -81,7 +80,6 @@ public class V3AdmissionHttpConfiguration {
             }
             limits(env);
             protection(env);
-            linkTtl(env);
             for (String key : List.of("url", "username", "password", "database", "schema"))
                 env.getRequiredProperty(PREFIX + key);
             String role = env.getRequiredProperty(PREFIX + "username");
@@ -131,12 +129,6 @@ public class V3AdmissionHttpConfiguration {
         } catch (RuntimeException invalid) {
             throw new IllegalStateException("Missing or incompatible admission protection keys");
         }
-    }
-
-    static java.time.Duration linkTtl(Environment env) {
-        long seconds = env.getProperty(PREFIX + "link-proposal-ttl-seconds", Long.class, 600L);
-        if (seconds < 1 || seconds > 86400) throw new IllegalStateException("Invalid Link proposal TTL");
-        return java.time.Duration.ofSeconds(seconds);
     }
 
     private static final Duration[] BUCKETS = {
@@ -250,17 +242,10 @@ public class V3AdmissionHttpConfiguration {
     }
 
     @Bean
-    AdmitLinkProposal v3LinkProposalAdmission(Resources r, Environment env) {
-        return new AdmitLinkProposal(r.store, r.owner, r.protection, Clock.systemUTC(),
-                linkTtl(env), limits(env).textBytes());
-    }
-
-    @Bean
     FilterRegistrationBean<V3AdmissionTransport> v3AdmissionFilter(V3AdmissionTransport transport) {
         var r = new FilterRegistrationBean<>(transport);
         r.setOrder(-89);
-        r.addUrlPatterns("/api/v3/commands", "/api/v3/identity/requests",
-                "/api/v3/identity/link-requests", "/api/v3/identity/link-requests/*");
+        r.addUrlPatterns("/api/v3/commands", "/api/v3/identity/requests");
         return r;
     }
 }

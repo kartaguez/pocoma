@@ -329,7 +329,28 @@ class V3IdentityRequestCompositionPostgresTest {
             var source = new DriverManagerDataSource(writeUrl, injectorRole, "i5-fixture");
             var tx = new SpringAttemptTransactions(source, manager(source), 5);
             var store = new JdbcIdentityRequestStore(source, tx);
-            tx.write(() -> store.insertPending(req));
+            if ("LINK".equals(operation)) {
+                var admin = new DriverManagerDataSource(writeUrl, PG.getUsername(), PG.getPassword());
+                var fixtureTx = new SpringAttemptTransactions(admin, manager(admin), 5);
+                var fixtureSql = new JdbcTemplate(admin);
+                try {
+                    var historical = java.nio.file.Files.readString(java.nio.file.Path.of(
+                            "../../scripts/testing/fixtures/complete-historical-link.sql"));
+                    fixtureTx.write(() -> {
+                        fixtureSql.execute(historical);
+                        fixtureSql.queryForList("select pg_temp.seed_historical_link(?,?,?,?,?,?,?,?::jsonb)",
+                                req.requestId(), req.requesterEui().issuer(), req.requesterEui().subject(),
+                                req.target().issuer(), req.target().subject(), req.bindingToken().value(),
+                                java.sql.Timestamp.from(req.createdAt()), IdentityRequestJson.encode(req.admission()));
+                        fixtureSql.queryForList("select pg_temp.complete_historical_link(?)", id);
+                        return null;
+                    });
+                } catch (java.io.IOException failure) {
+                    throw new java.io.UncheckedIOException(failure);
+                }
+            } else {
+                tx.write(() -> store.insertPending(req));
+            }
             return req;
         }
 
@@ -920,7 +941,7 @@ class V3IdentityRequestCompositionPostgresTest {
             var running = f.start();
             f.verify(seed);
             f.drain(running);
-            f.admit("LINK", "exposure", "other", f.ownToken("exposure"));
+            f.admit("UNLINK", "exposure", "exposure", f.ownToken("exposure"));
             f.write.execute("grant usage on schema " + f.schema + " to " + f.readRole);
             var reader =
                     new JdbcTemplate(

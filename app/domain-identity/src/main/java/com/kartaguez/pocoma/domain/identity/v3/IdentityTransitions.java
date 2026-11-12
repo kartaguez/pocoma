@@ -33,26 +33,6 @@ public final class IdentityTransitions {
                 new ExternalUserIdentity(reservedId, requester, nextVersion(current), newUserId, freshToken));
     }
 
-    /** U is resolved exclusively from the authenticated initiator and its active token. */
-    public static IdentityTransitionResult link(
-            ExternalIdentity requester, BindingToken presentedToken, Optional<ExternalUserIdentity> initiator,
-            ExternalIdentity target, Optional<ExternalUserIdentity> current,
-            ExternalUserIdentityId reservedId, BindingToken freshToken) {
-        checkPair(requester, initiator, target, current);
-        checkReservedId(current, reservedId);
-        if (!requester.equals(target) && initiator.isPresent() && initiator.get().id().equals(reservedId))
-            throw new IllegalArgumentException("Distinct external keys cannot share an EUI ID");
-        Objects.requireNonNull(presentedToken, "presentedToken");
-        Objects.requireNonNull(freshToken, "freshToken");
-        if (!authorized(initiator, presentedToken)) return new Rejected(INVALID_BINDING);
-        if (current.filter(ExternalUserIdentity::isBound).isPresent())
-            return new Rejected(TARGET_ALREADY_BOUND);
-        if (freshToken.equals(initiator.orElseThrow().bindingToken()))
-            throw new IllegalArgumentException("Candidate token is already in use");
-        return new Changed(Optional.empty(), new ExternalUserIdentity(
-                reservedId, target, nextVersion(current), initiator.orElseThrow().userId(), freshToken));
-    }
-
     /** No target token is needed; self-Unlink and last-Unlink preserve the autonomous User. */
     public static IdentityTransitionResult unlink(
             ExternalIdentity requester, BindingToken presentedToken, Optional<ExternalUserIdentity> initiator,

@@ -10,7 +10,10 @@ exports.run = async function (scenario, bru, expect) {
   const call = async (who, method, path, data, key, binding) => {
     let r;
     try {
-      r = await bru.sendRequest({method, url: base + path, headers: {
+      const url = process.env.POCOMA_L7_FRESH === '1' && (path === '/commands' || path === '/identity/requests')
+        ? process.env.POCOMA_L7_WRITE_URL + '/api/v3'
+        : base;
+      r = await bru.sendRequest({method, url: url + path, headers: {
         Connection: 'close', Authorization: 'Bearer ' + who,
         ...(data === undefined ? {} : {'Content-Type': 'application/json'}),
         ...(key ? {'Idempotency-Key': key} : {}),
@@ -49,7 +52,12 @@ exports.run = async function (scenario, bru, expect) {
     return {id, body, result:await terminal(who,id)};
   };
   await command(owner, ownerBinding, 'CreatePot', {label:'B4 ' + scenario}, 0);
-  await command(owner, ownerBinding, 'AddShareholders', {targets:[share,another].map(id=>({id,name:'Free',attachment:'FREE',weight:{numerator:'1',denominator:'1'}}))}, 1);
+  const added = await command(owner, ownerBinding, 'AddShareholders',
+    {targets:[share,another].map(id=>({id,name:'Free',attachment:'FREE',weight:{numerator:'1',denominator:'1'}}))}, 1);
+  const addedVersion = added.result.resultingPotVersion;
+  await wait(owner, '/pots/' + pot + '?minVersion=' + addedVersion, view =>
+    view.potVersion >= addedVersion && [share,another].every(
+      id => view.shareholders.some(s => s.id === id && s.isFree)), ownerBinding);
   const expired = scenario === 'B404';
   const body = {operation:'CreateInvitation',potId:pot,observedVersion:0,bindingToken:ownerBinding,payload:{expiresAt:expired?'2000-01-01T00:00:00Z':new Date(Date.now()+60000).toISOString()}};
   const key = crypto.randomUUID(), id = accepted(await call(owner,'POST','/commands',body,key));

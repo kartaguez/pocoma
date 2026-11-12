@@ -29,6 +29,7 @@ export function fraction(n, d) {
 export class V3ApiClient {
   constructor(baseUrl, token, bindingToken, options = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
+    this.writeUrl = (options.writeUrl || baseUrl).replace(/\/$/, '');
     this.token = token;
     this.bindingToken = bindingToken;
     this.pollIntervalMs = options.pollIntervalMs || 25;
@@ -58,7 +59,7 @@ export class V3ApiClient {
 
     while (attempts <= maxRetries) {
       attempts++;
-      res = http.post(`${this.baseUrl}/api/v3/commands`, body, {
+      res = http.post(`${this.writeUrl}/api/v3/commands`, body, {
         headers: this.headers({ 'Idempotency-Key': key }),
         tags: { endpoint: 'admission_command', operation },
       });

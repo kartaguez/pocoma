@@ -73,14 +73,12 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
     }
 
     @Test
-    void l3_constraints_before_close() throws Exception {
+    void historicalBindingFixtureDoesNotPublishAcrossBlockedForeignKey() throws Exception {
         var e = key("initiator");
         executeAdmitted(request(new IdentityRequest.Registration(), e, null, e));
         var actor = current(e);
         var target = key("target");
         var req = request(new IdentityRequest.Link(target), e, actor.bindingToken(), target);
-        admitRequest(req);
-        var handle = claim(req);
         try (var blocker = adminSource.getConnection()) {
             blocker.setAutoCommit(false);
             int blockerPid;
@@ -99,7 +97,7 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                     admin.queryForObject(
                             "select position from v3_event_counter where family='IDENTITY'",
                             Long.class);
-            var future = threads.submit(() -> engine.execute(handle));
+            var future = threads.submit(() -> completeHistoricalLink(req));
             long end = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
             Integer waiter = null;
             while (System.nanoTime() < end) {
@@ -122,17 +120,13 @@ class IdentityPublicationPostgresTest extends IdentityEngineFixture {
                         admin.queryForObject(
                                 "select position from v3_event_counter where family='IDENTITY'",
                                 Long.class));
-                final int observedWaiter = waiter;
-                assertTrue(
-                        sqlTrace.stream()
-                                .filter(s -> s.startsWith(observedWaiter + " "))
-                                .noneMatch(s -> s.contains("update v3_event_counter")));
                 evidence.add("FK prefix blocker=" + blockerPid + " waiter=" + waiter);
             } finally {
                 blocker.rollback();
             }
-            assertEquals(
-                    ConsumptionProtocol.Status.COMMITTED, future.get(20, TimeUnit.SECONDS).status());
+            future.get(20, TimeUnit.SECONDS);
+            assertEquals(counter + 1, admin.queryForObject(
+                    "select position from v3_event_counter where family='IDENTITY'", Long.class));
         }
     }
 

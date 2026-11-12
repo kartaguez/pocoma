@@ -103,12 +103,15 @@ class V3AdmissionArchitectureTest {
     }
 
     @Test
-    void httpAssemblyRemainsExplicitAndLinkPhysicalObjectsStayAbsent() throws Exception {
+    void httpAssemblyRemainsExplicitAndLinkProposalTypesAreAbsent() throws Exception {
         String base =
                 "../compose-web-write-postgres/src/main/java/com/kartaguez/pocoma/compose/web/write/v3/";
         String config = Files.readString(Path.of(base + "V3AdmissionHttpConfiguration.java"));
         assertTrue(config.contains("@Profile(V3AdmissionHttpConfiguration.PROFILE)"));
         assertTrue(config.contains("AdmissionSqlAuthority.verify"));
+        assertTrue(CLASSES.stream().noneMatch(type -> java.util.Set.of(
+                "V3LinkProposalController", "AdmitLinkProposal", "LinkProposal",
+                "LinkProposalInput", "IssueLinkProposal").contains(type.getSimpleName())));
         String sql =
                 Files.readString(
                         Path.of(

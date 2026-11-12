@@ -160,8 +160,6 @@ public class V3ReadHttpConfiguration {
                                 && Set.of(
                                                 "com.kartaguez.pocoma.engine.admit.command.v3.AdmitCommandV3",
                                                 "com.kartaguez.pocoma.engine.admit.identity.v3.AdmitIdentityRequestV3",
-                                                "com.kartaguez.pocoma.engine.admit.identity.v3.AdmitLinkProposal",
-                                                "com.kartaguez.pocoma.supra.web.write.v3.V3LinkProposalController",
                                                 "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionController",
                                                 "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionTransport")
                                         .contains(value);

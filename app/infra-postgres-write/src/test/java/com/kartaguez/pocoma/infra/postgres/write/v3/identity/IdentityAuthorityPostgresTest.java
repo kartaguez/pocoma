@@ -456,6 +456,20 @@ abstract class IdentityPostgresFixture {
         return new Work(UUID.randomUUID(), e, "REGISTRATION", null, e, tokens.generate());
     }
 
+    private static IdentityTransitionResult historicalLinkTransition(
+            BindingToken token, Optional<ExternalUserIdentity> initiator,
+            ExternalIdentity target, Optional<ExternalUserIdentity> current,
+            ExternalUserIdentityId id, BindingToken fresh) {
+        if (initiator.filter(ExternalUserIdentity::isBound)
+                .filter(value -> value.bindingToken().equals(token)).isEmpty())
+            return new IdentityTransitionResult.Rejected(IdentityTransitionResult.Rejection.INVALID_BINDING);
+        if (current.filter(ExternalUserIdentity::isBound).isPresent())
+            return new IdentityTransitionResult.Rejected(IdentityTransitionResult.Rejection.TARGET_ALREADY_BOUND);
+        long version = current.map(value -> Math.incrementExact(value.version())).orElse(1L);
+        return new IdentityTransitionResult.Changed(Optional.empty(),
+                new ExternalUserIdentity(id, target, version, initiator.orElseThrow().userId(), fresh));
+    }
+
     Work link(ExternalIdentity e, BindingToken token, ExternalIdentity target) {
         return new Work(UUID.randomUUID(), e, "LINK", token, target, tokens.generate());
     }
@@ -553,8 +567,7 @@ select ?,?,h,((h::bigint%4+4)%4)::int from (select consumption_hash_v1('IDENTITY
                                                             new PocomaUserId(UUID.randomUUID()),
                                                             w.fresh());
                                             case "LINK" ->
-                                                    IdentityTransitions.link(
-                                                            w.requester(),
+                                                    historicalLinkTransition(
                                                             w.presented(),
                                                             initiator,
                                                             w.target(),

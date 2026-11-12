@@ -75,7 +75,10 @@ def authorize(requested_scopes, use_pkce=True, method="S256", username="bruno", 
         form.feed(page)
         require(form.action, "Keycloak login form was not found")
         action = urllib.parse.urljoin(login_url, form.action)
-        require(urllib.parse.urlparse(action).netloc == "localhost:8081", "Unexpected Keycloak login origin")
+        login_origin = urllib.parse.urlparse(action)
+        expected_origin = urllib.parse.urlparse(ISSUER)
+        require((login_origin.scheme, login_origin.netloc) == (expected_origin.scheme, expected_origin.netloc),
+                "Unexpected Keycloak login origin")
         credentials = urllib.parse.urlencode({"username": username, "password": password}).encode()
         try:
             cookie_header = "; ".join(f"{cookie.name}={cookie.value}" for cookie in cookie_jar)

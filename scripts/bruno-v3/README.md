@@ -1,6 +1,24 @@
-# Pocoma V3 — B1 Identity and READ
+# Pocoma V3 — Recette Bruno
 
-B1 couvre les huit routes I1, 32 scénarios nommés B01–B32 et leurs appels secondaires. **READ_FIXTURE — NO PUBLIC ADMISSION PROOF** : les états READ sont chargés par un injecteur de test distinct. Aucun parcours public Registration, Link ou Invitation n'est livré. [Matrice](Coverage.md), [plan et oracles](../../docs/v3/L5_I1_Implementation_and_Qualification_Plan.md).
+## Installation vierge L7.2
+
+Depuis la racine, préparer les dépendances et les quatre artefacts exécutables du même état de sources. Le packaging prépare les JARs. Les gates Maven sont exécutées séparément.
+
+```sh
+npm --prefix scripts/bruno-v3 ci --ignore-scripts --no-audit --no-fund
+(cd app && ./mvnw -pl runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize -am package -DskipTests)
+python3 -B scripts/bruno-v3/qualify-installation.py --output /chemin/neuf/preuves-l7
+```
+
+Le lanceur utilise Docker et Java 21, les images locales PostgreSQL 17 Alpine et Keycloak 26.7.0, le bootstrap V3 actuel et les quatre JARs issus de Maven. Il crée un réseau et deux conteneurs sous un nom aléatoire, utilise des ports locaux libres, démarre les cinq processus et vérifie leur disponibilité individuellement. Le script d'authentification existant obtient trois sessions Keycloak de test par PKCE S256. Le nettoyage cible les processus et conteneurs créés pendant cette invocation. Choisir un nouveau répertoire de preuves par tentative.
+
+L'ordre de la recette est B2 (Registration, commandes, résultats et Unlink), B4 (Invitation) puis B501–B502 (authentification, routes retirées et diagnostics). Dans B2, les numéros de séquence ordonnent le cycle de vie du Pot, puis l'idempotence, la révocation du binding et la Registration suivante. La recette fournit les URL WRITE/READ, l'issuer, les JWT et les sujets via l'environnement du sous-processus. Les identifiants de Pot, Shareholder et Expense sont générés pour chaque exécution. Les reçus HTTP excluent les corps et les en-têtes. Le lanceur vérifie l'inventaire attendu et compare les valeurs des résultats WRITE/READ avec un observateur SQL indépendant.
+
+Les contrôles spécialisés B1 restent exécutables sur leur fixture de lecture, notamment pour les versions historiques injectées, la pagination étendue et le retard de matérialisation contrôlé. Le consolidateur B5 historique documente les 70 scénarios Q5, dont B3 exécuté avant le retrait.
+
+## Sous-suite B1 avec fixture
+
+B1 couvre les huit routes I1, 32 scénarios nommés B01–B32 et leurs appels secondaires. **READ_FIXTURE — NO PUBLIC ADMISSION PROOF** : les états READ sont chargés par un injecteur de test distinct. Ce banc B1 porte sur les consultations et utilise des états READ injectés. [Matrice](Coverage.md), [plan et oracles](../../docs/v3/L5_I1_Implementation_and_Qualification_Plan.md).
 
 Outillage verrouillé : **Bruno CLI 4.3.0**, Node **24.15.0** observé à la préparation, installation `npm ci --ignore-scripts --no-audit --no-fund` depuis ce dossier et `node_modules/.bin/bru --version`. `package-lock.json` fixe les dépendances et leurs intégrités. Aucun `latest`. Les scripts emploient les [API officielles de Bruno](https://github.com/usebruno/bruno-docs/blob/main/testing/script/javascript-reference.mdx) avec le sandbox `developer`, nécessaire pour le reçu de requêtes et le signal de publication local B30.
 
@@ -22,7 +40,7 @@ B30 : premières observations réelles 404 des résultats Command `...0405` et I
 
 Les assertions approfondies des scripts sont exécutées et peuvent faire échouer la requête même hors du bloc `test`. Chaque scénario écrit son reçu seulement après toutes ses assertions ; l'union exacte B01–B32, les erreurs de scripts et le code CLI sont contrôlés avec le reporter. Le nombre de scénarios, de tests nommés et de requêtes physiques est distingué. Les exemples sont fictifs ; aucune réponse de binding réelle n'est exportée.
 
-Limites initiales : batch 50, corps 65 536 octets, sortie 4 194 304 octets, navigation maximum 100/défaut 20, SQL Q=2 et HTTP en vol=2. Un Pot légitime >4 Mio peut être temporairement indisponible ; aucun manifeste n'est tronqué. B1 Local ne qualifie aucun fournisseur AuthN réel, consentement ou capacité de production.
+Limites initiales : batch 50, corps 65 536 octets, sortie 4 194 304 octets, navigation maximum 100/défaut 20, SQL Q=2 et HTTP en vol=2. Un Pot légitime >4 Mio peut être temporairement indisponible ; aucun manifeste n'est tronqué. B1 Local ne qualifie aucun fournisseur AuthN réel, ou capacité de production.
 
 La version 4.3.0 exige `-r` pour les sous-dossiers : sans cette option elle peut sortir 0 avec zéro requête. Le banc refuse ce résultat et tout inventaire différent de B01–B32. Chaque requête principale a `settings.timeout=5000`.
 
@@ -31,23 +49,3 @@ WEB autonome : activer uniquement `v3-http-read`, désactiver Flyway, OSIV et DB
 Le banc B1 ferme chaque connexion HTTP (`Connection: close`, requêtes principales et secondaires). Cela évite que les agents distincts des appels scriptés retiennent les 16 connexions transport en idle. Ce réglage de client ne relève aucune borne serveur et ne modifie pas le timeout de 5 s.
 
 L5/I2 ajoute `02 Admission and Commands` (B201–B224). La fixture complète est lancée par `python3 -B scripts/testing/verify.py INTEGRATION l5-i2` depuis la racine, après son dry-run ; elle fournit JWT/JWKS, autorités SQL distinctes et le handshake interne L3. Les résultats publics ne sont pas injectés. Voir la [recette d’admission](../../docs/v3/L5_I2_Admission_Operations.md) et [Coverage](Coverage.md). B1 conserve sa fixture et ses variables existantes ; les variables I2 ne sont activées que pour B2.
-
-
-## L5/I3 — Link minimal, qualification ciblée
-
-`03 Link Requests` contient B301/B302/B303/B304/B305/B307/B308/B309/B310/B313 : création E1, résumé, masquage E3, POST E2 explicite, négatifs bearer/altération, résultat E1, binding propre E2 et S-03. Le [rapport I3](../../docs/v3/L5_I3_Execution_Report.md) distingue cette preuve ciblée des variantes NOT RUN et des gates Q5.
-
-Premier IdP : configuration existante `docker/keycloak/pocoma-realm.json`, trois utilisateurs locaux de qualification (`bruno`, `link-e2`, `link-e3`) sans rôle métier spécifique. Préparer le banc jetable isolé, sans lancer l'ancien runtime compose :
-
-```sh
-docker compose -f docker-compose.v3-five-runtimes.yml up -d --wait postgres keycloak
-python3 -B scripts/testing/verify.py INTEGRATION L5-I3-BRUNO --output /absolute/new/evidence-directory
-```
-
-Depuis la racine du dépôt. Laisser Keycloak prêt avant le lanceur ; utiliser une base d'import jetable neuve pour disposer des trois utilisateurs. Le lanceur réemploie le PKCE S256 existant, contrôle issuer/audience/claims et trois couples exacts distincts, configure le Resource Server sur le vrai JWKS Keycloak, puis démarre le monolithe V3 avec Worker/READ. Il n'injecte ni Link ni résultat. `Local` désigne l'HTTP vers le monolithe jetable, sans remplacer l'IdP réel. Les bearers vivent dans un fichier temporaire mode 0600 supprimé après parcours ; aucune clé ni bearer dans les arguments CLI/Git/rapports. Le helper n'enregistre que méthode/route/statut ; polling borné et oracle SQL indépendant final. Les campagnes restent sérielles et soumises au budget humain cumulé ; ce lancement ne donne aucun budget de reprise implicite.
-
-Nettoyage du seul projet de qualification créé pour I3 :
-
-```sh
-docker compose -f docker-compose.v3-five-runtimes.yml stop
-```

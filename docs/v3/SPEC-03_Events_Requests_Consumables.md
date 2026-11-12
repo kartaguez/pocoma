@@ -1,5 +1,7 @@
 # Pocoma SPEC-03 — Événements, demandes et consommables
 
+> **Décision L7.2.** Les obligations exclusivement liées au use case Link sont retirées par `GO_L7_I2_I3_FULL_EXECUTION`. Les références qui suivent conservent la traçabilité historique. Les contrats Registration, Unlink et la relecture de l’historique s’appliquent. [Décision et données](L7_I2_Link_Retirement.md).
+
 > **Lecture des statuts (clôture L1, 2026-10-25) :** les mentions de non-implémentation/non-exécution ci-dessous décrivent l’état du cadrage conceptuel lors de sa rédaction, pas un relevé actuel des tests. Les contrats et oracles restent normatifs ; contributions internes L1 et limites dans le [dossier de clôture](L1_Documentary_Closure.md), programme et statuts dans le [plan directeur](V3_Implementation_Master_Plan.md). Aucun PASS global de cette SPEC n’est acquis par cette note.
 
 **Statut : contrat conceptuel consolidé (AUD-V3-005/010) ; réalisation et certification V3 non exécutées.**  

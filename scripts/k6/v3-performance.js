@@ -21,7 +21,8 @@ import { Counter, Trend } from 'k6/metrics';
 import { V3ApiClient, classify503, fraction } from './lib/v3-api.js';
 import { V3Oracles as O } from './lib/v3-oracles.js';
 
-const BASE_URL = __ENV.POCOMA_BASE_URL || 'http://127.0.0.1:8080';
+const BASE_URL = __ENV.POCOMA_READ_URL || __ENV.POCOMA_BASE_URL || 'http://127.0.0.1:8080';
+const WRITE_URL = __ENV.POCOMA_WRITE_URL || BASE_URL;
 const TOKEN = __ENV.POCOMA_TOKEN || null;
 const BINDING = __ENV.POCOMA_BINDING_TOKEN || null;
 const SCENARIO = __ENV.SCENARIO || 'smoke';
@@ -135,6 +136,7 @@ function uuid4() {
 
 function client() {
   return new V3ApiClient(BASE_URL, TOKEN, BINDING, {
+    writeUrl: WRITE_URL,
     pollIntervalMs: POLL_INTERVAL_MS,
     maxPollTimeoutMs: POLL_TIMEOUT_MS,
   });

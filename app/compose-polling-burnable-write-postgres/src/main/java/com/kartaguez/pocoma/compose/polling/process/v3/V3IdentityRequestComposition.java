@@ -28,9 +28,11 @@ public final class V3IdentityRequestComposition {
         effects.requireSource(business);
         guard.validateIdentitySource(business);
         guard.validateIdentitySource(control);
+        var requests = new JdbcIdentityRequestStore(business, effects);
+        requests.requireRetiredLinksDrained();
         var participant =
                 new ExecuteIdentityRequest(
-                        new JdbcIdentityRequestStore(business, effects),
+                        requests,
                         new JdbcIdentityRequestObservation(business),
                         new JdbcIdentityAuthority(business, effects),
                         new SecureBindingTokenGenerator()::generate,

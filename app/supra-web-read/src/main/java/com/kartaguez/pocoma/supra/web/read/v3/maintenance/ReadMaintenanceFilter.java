@@ -89,14 +89,8 @@ public final class ReadMaintenanceFilter extends OncePerRequestFilter {
         if (uri == null || !uri.startsWith("/api/v3/")) {
             return true;
         }
-        if (admissionActive) {
-            if (Set.of("/api/v3/commands", "/api/v3/identity/requests").contains(uri)
-                    || uri.equals("/api/v3/identity/link-requests")
-                    || uri.startsWith("/api/v3/identity/link-requests/")) {
-                return true;
-            }
-        }
-        return false;
+        return admissionActive
+                && Set.of("/api/v3/commands", "/api/v3/identity/requests").contains(uri);
     }
 
     @Override

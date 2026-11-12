@@ -238,12 +238,7 @@ class V3ReadReconstructionPostgresTest {
             assertTrue(authority.tryAcquireMaintenance("rebuild-operator"));
             performRebuildDdl(f, readAdmin);
 
-            // Step 12: Initialize 28 checkpoints at position 0 if absent
-            readAdmin.execute("INSERT INTO " + f.schema + ".discovery_checkpoint (consumption_id, partition_id, position) "
-                    + "SELECT consumption_id, p, 0 "
-                    + "FROM " + f.schema + ".consumption_routing_contract "
-                    + "CROSS JOIN generate_series(0, 3) p "
-                    + "ON CONFLICT (consumption_id, partition_id) DO NOTHING");
+            initializeCheckpoints(readAdmin);
 
             // 3. Capture B from v3_event_counter in WRITE
             List<Map<String, Object>> counters = f.write.queryForList("SELECT family, position FROM v3_event_counter");
@@ -287,6 +282,149 @@ class V3ReadReconstructionPostgresTest {
             assertEquals(200, res.getStatus());
             assertNotNull(chain.getRequest());
         }
+    }
+
+    @Test
+    void readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication() throws Exception {
+        try (var f = new ReadRuntimeI8Fixture(PG)) {
+            setupFixture(f);
+            var admin = new JdbcTemplate(new DriverManagerDataSource(f.readUrl, PG.getUsername(), PG.getPassword()));
+            ensureMaintenanceTable(admin, f.readRole);
+            var authority = new JdbcReadMaintenanceAuthority(admin);
+            var oracle = new ReadinessOracle();
+
+            var registration = f.admit("REGISTRATION", "owner", "owner", null);
+            f.produce(registration);
+            var token = f.ownToken("owner").value();
+            var pot = new PotId(UUID.randomUUID());
+            f.produce(f.admitCommand("owner", token, pot, 0, new PotCommand.CreatePot(new Label("first"))));
+            f.produce(f.admitCommand("owner", token, pot, 1, new PotCommand.UpdatePotDetails(new Label("second"))));
+
+            var removed = new PotId(UUID.randomUUID());
+            f.produce(f.admitCommand("owner", token, removed, 0, new PotCommand.CreatePot(new Label("deleted"))));
+            f.produce(f.admitCommand("owner", token, removed, 1, new PotCommand.DeletePot()));
+
+            initializeCheckpoints(admin);
+            f.select(MaterializeSettings.READ_NAMES, false);
+            var original = f.start();
+            var prefix = writePrefix(f);
+            awaitReady(f, oracle, prefix);
+            f.drain(original);
+            var expected = readContent(f.read);
+            assertEquals(4, f.read.queryForObject("select count(*) from read_pot_version", Integer.class));
+            assertEquals(3, f.read.queryForObject("select count(*) from read_pot_balance", Integer.class));
+            assertEquals(Boolean.TRUE, f.read.queryForObject("""
+                    select (pv.payload->>'deleted')::boolean
+                    from read_current_pot cp join read_pot_version pv using (pot_id,pot_version)
+                    where pot_id=?
+                    """, Boolean.class, removed.value()));
+            assertEquals(0, f.read.queryForObject(
+                    "select count(*) from read_pot_balance where pot_id=? and pot_version=2",
+                    Integer.class, removed.value()));
+            assertEquals(1, f.read.queryForObject("select count(*) from read_current_binding", Integer.class));
+            assertEquals(4, f.read.queryForObject("select count(*) from read_command_result", Integer.class));
+            assertEquals(1, f.read.queryForObject("select count(*) from read_identity_request_result", Integer.class));
+            assertEquals(2, f.read.queryForObject("select count(*) from read_pot_visibility_state", Integer.class));
+
+            var writeBefore = f.snapshot();
+            assertTrue(authority.tryAcquireMaintenance("value-replay"));
+            assertFalse(authority.tryAcquireMaintenance("concurrent-replay"));
+            performRebuildDdl(f, admin);
+            initializeCheckpoints(admin);
+            assertEquals(writeBefore, f.snapshot());
+            assertEquals(prefix, writePrefix(f));
+            assertTrue(authority.startRebuilding(prefix));
+            var replay = f.start();
+            awaitReady(f, oracle, prefix);
+            f.drain(replay);
+            var replayed = readContent(f.read);
+            assertEquals(expected, replayed, "logical table fingerprints differ after replay");
+            assertEquals(writeBefore, f.snapshot());
+            assertTrue(oracle.evaluate(f.read, f.write, prefix).ready());
+
+            // Simulate a stopped replay process while maintenance remains active. WRITE continues
+            // with a publication strictly beyond the captured prefix. Reopen the same READ schema.
+            var next = f.admitCommand("owner", token, pot, 2, new PotCommand.UpdatePotDetails(new Label("third")));
+            f.produce(next);
+            var afterWrite = writePrefix(f);
+            assertEquals(prefix.get("POT") + 1, afterWrite.get("POT"));
+            assertEquals(prefix.get("COMMAND_COMPLETION") + 1, afterWrite.get("COMMAND_COMPLETION"));
+            assertFalse(authority.isReady());
+            long retainedLeaseMs = f.read.queryForObject("""
+                    select coalesce(max(ceil(extract(epoch from owned_until - clock_timestamp()) * 1000)), 0)
+                    from partition_ownership where owned_until > clock_timestamp()
+                    """, Long.class);
+            assertTrue(retainedLeaseMs > 0 && retainedLeaseMs <= 240_000,
+                    "Drained workers leave bounded physical leases for takeover");
+            assertTrue(oracle.evaluate(f.read, f.write, prefix).ready());
+            assertFalse(oracle.evaluate(f.read, f.write, afterWrite).ready());
+            assertEquals(2L, f.read.queryForObject(
+                    "select pot_version from read_current_pot where pot_id=?", Long.class, pot.value()));
+            assertTrue(authority.markConverged());
+            assertTrue(authority.markReady());
+            var resumed = f.start();
+            // Wait for real PostgreSQL lease expiry without changing ownership or retry limits.
+            awaitReady(f, oracle, afterWrite, Duration.ofMillis(retainedLeaseMs).plusSeconds(30));
+            f.drain(resumed);
+
+            assertEquals(3L, f.read.queryForObject(
+                    "select pot_version from read_current_pot where pot_id=?", Long.class, pot.value()));
+            assertEquals("CHANGED", f.read.queryForObject(
+                    "select write_outcome from read_command_result where request_id=?", String.class, next.requestId()));
+            assertEquals(5, f.read.queryForObject("select count(*) from read_pot_version", Integer.class));
+            assertEquals(4, f.read.queryForObject("select count(*) from read_pot_balance", Integer.class));
+            assertTrue(authority.isReady());
+            f.trace.add("physical lease remaining after drain (ms)=" + retainedLeaseMs);
+            f.trace.add("prefix before replay=" + prefix + ", after new publication=" + afterWrite);
+            f.trace.add("before=" + expected + ", replayed=" + replayed);
+            f.evidence("l7_exact_read_replay_and_new_write");
+        }
+    }
+
+    private void initializeCheckpoints(JdbcTemplate admin) {
+        admin.execute("""
+                insert into discovery_checkpoint (consumption_id, partition_id, position)
+                select consumption_id, partition, 0
+                from consumption_routing_contract cross join generate_series(0, 3) partition
+                on conflict (consumption_id, partition_id) do nothing
+                """);
+    }
+
+    private void awaitReady(ReadRuntimeI8Fixture f, ReadinessOracle oracle, Map<String, Long> prefix)
+            throws Exception {
+        awaitReady(f, oracle, prefix, Duration.ofSeconds(30));
+    }
+
+    private void awaitReady(ReadRuntimeI8Fixture f, ReadinessOracle oracle, Map<String, Long> prefix,
+                            Duration deadline) throws Exception {
+        try {
+            await(() -> oracle.evaluate(f.read, f.write, prefix).ready(), deadline);
+        } catch (AssertionError failure) {
+            throw new AssertionError(oracle.evaluate(f.read, f.write, prefix).diagnostic(), failure);
+        }
+    }
+
+    private Map<String, Long> writePrefix(ReadRuntimeI8Fixture f) {
+        return f.write.query("select family,position from v3_event_counter order by family", rows -> {
+            Map<String, Long> prefix = new TreeMap<>();
+            while (rows.next()) prefix.put(rows.getString(1), rows.getLong(2));
+            return prefix;
+        });
+    }
+
+    private Map<String, String> readContent(JdbcTemplate read) {
+        Map<String, String> content = new TreeMap<>();
+        for (String table : List.of("read_current_pot", "read_pot_version", "read_subobject_version",
+                "read_pot_balance", "read_pot_visibility_state", "read_user_pot",
+                "read_current_binding", "read_command_result", "read_identity_request_result",
+                "read_current_invitation")) {
+            content.put(table, read.queryForObject("""
+                    select encode(sha256(convert_to(
+                        coalesce(jsonb_agg(value order by value::text)::text,'[]'), 'UTF8')), 'hex')
+                    from (select to_jsonb(row) value from %s row) canonical
+                    """.formatted(table), String.class));
+        }
+        return content;
     }
 
     @Test

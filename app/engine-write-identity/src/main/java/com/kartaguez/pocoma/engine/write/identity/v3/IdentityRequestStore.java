@@ -60,7 +60,7 @@ public interface IdentityRequestStore {
 
     /**
      * Publish exactly one completion and mutations for this transition (User v1 then EUI for
-     * Registration; EUI only for Link/Unlink; no mutations for rejection). Envelopes contain only
+     * Registration; EUI only for Unlink; no mutations for rejection). Envelopes contain only
      * references/provenance, no tokens or copied states. Flush and force business constraints,
      * close publication, then assign dense IDENTITY -> IDENTITY_COMPLETION positions as the final
      * suffix. No business write or lock after closure. No transaction ownership or slot creation.

@@ -10,20 +10,8 @@ import javax.sql.DataSource;
 public final class AdmissionSqlAuthority {
     private AdmissionSqlAuthority() {}
 
-    private static final Set<String> PROPOSAL = Set.of("link_request_id", "initiator_issuer", "initiator_subject",
-            "target_issuer", "target_subject", "binding_token", "authenticated_at", "issued_at", "principal_expires_at",
-            "created_at", "expires_at", "canonical_version", "lookup_key_id", "comparison_key_id",
-            "scope_key_fingerprint", "intent_fingerprint", "accepted_at", "identity_request_id");
-    private static final Set<String> PROPOSAL_SELECT;
-    static {
-        var columns = new HashSet<>(PROPOSAL);
-        columns.addAll(Set.of("admission_category", "admission_operation"));
-        PROPOSAL_SELECT = Set.copyOf(columns);
-    }
-
     private static final Map<String, Set<String>> SELECT =
             Map.ofEntries(
-                    Map.entry("v3_link_proposal", PROPOSAL_SELECT),
                     Map.entry(
                             "v3_admission_association",
                             Set.of(
@@ -65,7 +53,6 @@ public final class AdmissionSqlAuthority {
                             Set.of("family", "position", "request_id")));
     private static final Map<String, Set<String>> INSERT =
             Map.of(
-                    "v3_link_proposal", PROPOSAL,
                     "v3_admission_association",
                             Set.of(
                                     "request_id",
@@ -99,7 +86,6 @@ public final class AdmissionSqlAuthority {
                                     "target_issuer",
                                     "target_subject",
                                     "admission_context",
-                                    "link_proposal_id",
                                     "created_at"),
                     "v3_request_position",
                             Set.of("family", "position", "request_id"));
@@ -201,11 +187,8 @@ where n.nspname not like 'pg_%' and n.nspname<>'information_schema'
             boolean insert = local && INSERT.getOrDefault(table, Set.of()).contains(column);
             boolean update =
                     local
-                            && ((table.equals("v3_link_proposal")
-                                            && Set.of("accepted_at", "identity_request_id")
-                                                    .contains(column))
-                                    || (table.equals("v3_request_counter")
-                                            && column.equals("position")));
+                            && table.equals("v3_request_counter")
+                            && column.equals("position");
             require(
                     Boolean.TRUE.equals(r.get("can_select")) == select
                             && Boolean.TRUE.equals(r.get("can_insert")) == insert

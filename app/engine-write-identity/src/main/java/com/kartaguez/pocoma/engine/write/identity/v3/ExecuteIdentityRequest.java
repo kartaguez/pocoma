@@ -42,6 +42,8 @@ public final class ExecuteIdentityRequest implements ConsumptionParticipant {
                         .orElseThrow(() -> new IllegalStateException("Identity request missing"));
         if (stored.status() == IdentityRequestStore.Status.TERMINAL) return Optional.empty();
         var request = stored.request();
+        if (request.operation() instanceof IdentityRequest.Link)
+            throw new IllegalStateException("Pending retired Identity Link request");
         return Optional.of(
                 new Prepared() {
                     private IdentityTransitionResult actual;
@@ -71,14 +73,7 @@ public final class ExecuteIdentityRequest implements ConsumptionParticipant {
                                                     new PocomaUserId(userIds.get()),
                                                     tokens.get());
                                     case IdentityRequest.Link ignored ->
-                                            IdentityTransitions.link(
-                                                    request.requesterEui(),
-                                                    request.bindingToken(),
-                                                    initiator,
-                                                    request.target(),
-                                                    target,
-                                                    ids.get(request.target()),
-                                                    tokens.get());
+                                            throw new IllegalStateException("Retired Identity operation");
                                     case IdentityRequest.Unlink ignored ->
                                             IdentityTransitions.unlink(
                                                     request.requesterEui(),

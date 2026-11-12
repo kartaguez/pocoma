@@ -104,7 +104,7 @@ class IdentityPrivilegesPostgresTest extends IdentityEngineFixture {
         var req = request(new IdentityRequest.Registration(), e, null, e);
         assertThrows(RuntimeException.class, () -> admitRequest(req));
         assertEquals(0, count("v3_identity_request"));
-        // The separate controlled injector admits; the least-privilege runtime executes all ops.
+        // The separate controlled injector admits; the least-privilege runtime executes Registration and Unlink.
         var admissionTx =
                 new com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions(
                         adminSource, manager(adminSource), 5);
@@ -114,8 +114,7 @@ class IdentityPrivilegesPostgresTest extends IdentityEngineFixture {
         var a = current(e);
         var target = key("target");
         var link = request(new IdentityRequest.Link(target), e, a.bindingToken(), target);
-        admissionTx.write(() -> admission.insertPending(link));
-        execute(link);
+        completeHistoricalLink(link);
         var unlink = request(new IdentityRequest.Unlink(target), e, a.bindingToken(), target);
         admissionTx.write(() -> admission.insertPending(unlink));
         execute(unlink);

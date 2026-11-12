@@ -381,15 +381,18 @@ def evaluate_readiness_oracle(target_prefix):
     if dangling_pots and int(dangling_pots) > 0:
         integrity_errors.append(f"{dangling_pots} dangling current_pot references")
 
-    # 3.2: CurrentPot -> PotBalance
-    missing_balance = psql_admin(
+    # Active historical versions keep their balances. A terminal DeletePot version has none.
+    invalid_balances = psql_admin(
         READ_DB,
-        "SELECT count(*) FROM v3_read.read_current_pot cp "
-        "LEFT JOIN v3_read.read_pot_balance pb ON cp.pot_id = pb.pot_id AND cp.pot_version = pb.pot_version "
-        "WHERE pb.pot_id IS NULL;"
+        f"SELECT count(*) FROM {READ_SCHEMA}.read_pot_version pv "
+        f"LEFT JOIN {READ_SCHEMA}.read_pot_balance pb USING (pot_id, pot_version) "
+        "WHERE jsonb_typeof(pv.payload->'deleted') IS DISTINCT FROM 'boolean' "
+        "OR (pv.payload->'deleted' = 'false'::jsonb AND pb.pot_id IS NULL) "
+        "OR (pv.payload->'deleted' = 'true'::jsonb AND pb.pot_id IS NOT NULL);"
     )
-    if missing_balance and int(missing_balance) > 0:
-        integrity_errors.append(f"{missing_balance} missing pot balance rows")
+    if invalid_balances and int(invalid_balances) > 0:
+        integrity_errors.append(f"{invalid_balances} Pot versions with missing balance rows, "
+                                "unexpected terminal balances or invalid deletion flags")
 
     # 3.3: CurrentPot -> PotVisibility
     missing_visibility = psql_admin(

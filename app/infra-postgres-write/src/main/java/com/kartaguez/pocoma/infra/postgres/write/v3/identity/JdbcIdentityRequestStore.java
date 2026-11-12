@@ -29,6 +29,15 @@ public final class JdbcIdentityRequestStore implements IdentityRequestStore {
         jdbc = new JdbcTemplate(source);
     }
 
+    public void requireRetiredLinksDrained() {
+        if (Boolean.TRUE.equals(jdbc.queryForObject(
+                "select exists(select 1 from v3_identity_request where status='PENDING' and operation='LINK')",
+                Boolean.class))) {
+            throw new IllegalStateException(
+                    "Pending retired Identity Link requests must be drained before upgrade");
+        }
+    }
+
     private void requireTransaction() {
         if (!TransactionSynchronizationManager.isActualTransactionActive()
                 || !TransactionSynchronizationManager.hasResource(source))
@@ -147,9 +156,9 @@ from v3_identity_request c left join v3_identity_request_result r using(request_
     public Stored insertPending(IdentityRequest request) {
         return write(
                 () -> {
-                    if (request.admission().origin() != IdentityRequest.Origin.CONTROLLED_INTERNAL)
-                        throw new IllegalArgumentException(
-                                "I3 admits controlled internal requests only");
+                    if (request.admission().origin() != IdentityRequest.Origin.CONTROLLED_INTERNAL
+                            || request.operation() instanceof IdentityRequest.Link)
+                        throw new IllegalArgumentException("Controlled Identity operation refused");
                     if (request.createdAt().getNano() % 1000 != 0)
                         throw new IllegalArgumentException(
                                 "PostgreSQL microsecond precision required");
