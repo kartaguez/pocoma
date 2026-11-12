@@ -19,6 +19,43 @@ import java.util.concurrent.*;
 @Testcontainers
 class IdentityPublicationPostgresTest extends IdentityEngineFixture {
     @Test
+    void l73_sameIdentityRequestHasOneFinalizerAfterClaimTakeover() throws Exception {
+        for (int repetition = 0; repetition < 3; repetition++) {
+            var identity = key("l73-takeover-" + repetition);
+            var request = request(new IdentityRequest.Registration(), identity, null, identity);
+            admitRequest(request);
+            discover(request);
+            int partition = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, request.requestId()), 4);
+            var a = engine(participant, tx);
+            var b = engine(participant, tx);
+            var old = a.acquire(lease(partition), List.of(request.requestId())).claims().getFirst();
+            // Technical fault injection only: no business row, result, event or slot is removed.
+            admin.update("update consumption_slot set claimed_until=clock_timestamp()-interval '1 second'"
+                    + " where consumable_id=?", request.requestId());
+            var current = b.acquire(lease(partition), List.of(request.requestId())).claims().getFirst();
+            assertNotEquals(old.claim().claimToken(), current.claim().claimToken());
+            var start = new CountDownLatch(1);
+            var first = threads.submit(() -> { await(start); return a.execute(old); });
+            var second = threads.submit(() -> { await(start); return b.execute(current); });
+            start.countDown();
+            assertEquals(ConsumptionProtocol.Status.CLAIM_LOST, first.get(15, TimeUnit.SECONDS).status());
+            assertEquals(ConsumptionProtocol.Status.COMMITTED, second.get(15, TimeUnit.SECONDS).status());
+            assertEquals(1, admin.queryForObject("select count(*) from v3_identity_request_result where request_id=?",
+                    Integer.class, request.requestId()));
+            assertEquals(2, admin.queryForObject("select count(*) from v3_identity_event where request_id=?",
+                    Integer.class, request.requestId()));
+            assertEquals(1, admin.queryForObject("select count(*) from v3_identity_completion_event where subject_id=?",
+                    Integer.class, request.requestId()));
+            assertEquals(0, admin.queryForObject("select count(*) from consumption_slot where consumable_id=?",
+                    Integer.class, request.requestId()));
+            assertEquals("TERMINAL", admin.queryForObject("select status from v3_identity_request where request_id=?",
+                    String.class, request.requestId()));
+            evidence.add("L7.3 takeover repetition=" + repetition
+                    + " same request; old CLAIM_LOST/new COMMITTED; exact result=1 Identity events=2 completion=1 slot=0");
+        }
+    }
+
+    @Test
     void l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution() throws Exception {
         for (int repetition = 0; repetition < 2; repetition++) {
             for (String resolution : List.of("commit", "rollback", "disconnect")) {
