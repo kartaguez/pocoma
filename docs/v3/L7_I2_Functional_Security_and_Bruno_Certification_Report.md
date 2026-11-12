@@ -4,7 +4,7 @@
 
 ## 1. Retrait et contrats publics
 
-Suppression du contrôleur des trois routes Link, du service d'admission, des DTO et du port, du store de propositions et de la configuration Spring/TTL associée. Le principal d'admission ne reçoit plus d'accès à la table et à la colonne Link. Le gate de démarrage Identity exige que les demandes déjà admises soient terminales avant bascule. Les migrations et le discriminant de lecture historique `LINK` sont conservés. [Décision et procédure d'upgrade](L7_I2_Link_Retirement.md), [empreintes des 64 migrations et inventaire des modules](../testing/evidence/L7-I2-I3/link-retirement-static.json).
+Suppression du contrôleur des trois routes Link, du service d'admission, des DTO et du port, du store de propositions et de la configuration Spring/TTL associée. Le principal d'admission ne reçoit plus d'accès à la table et à la colonne Link. Le gate de démarrage Identity exige que les demandes déjà admises soient terminales avant bascule. Les migrations et le discriminant de lecture historique `LINK` sont conservés. [Décision et procédure d'upgrade](L7_I2_Link_Retirement.md), [empreintes des 64 migrations et inventaire des modules](../testing/evidence/L7-I2-I3/link-retirement-static.json), [inspection des quatre archives exécutables](../testing/evidence/L7-I2-I3/link-retirement-executable-archives.json).
 
 | Contrat actif sous `/api/v3` | Parcours et preuve attendue |
 |---|---|

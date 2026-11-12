@@ -37,6 +37,19 @@ python3 -B scripts/performance/v3_ab_sequential_discovery.py --profiles H1 --rat
 
 Le `v3-run.py` historique embarque des hypothèses Monolith, un budget propre à L6 et des destinations de collecte historiques. Les commandes rendues du banc courant préparent l'injection k6 sur deux URL. Leur rendu et leur syntaxe ont été contrôlés. Le rendu fournit la commande de préparation pour chaque profil indépendant. Le générateur déterministe enregistre un reçu de population, vérifie chaque résultat terminal, compare les identifiants et la version en HTTP READ puis vérifie l'état en SQL. Il écrit un manifeste compact consommé par k6 via `PRE_SEEDED_POTS_FILE`. Le stimulus réserve un Pot par VU et impose 10, 100 et 250 Pots à 1, 10 et 50/s. Toute itération abandonnée ou famine de l'injecteur invalide la preuve de l'offre. Le Grand Pot hors ligne contient 100 Shareholders, 2 000 Expenses et jusqu'à 200 000 participations. La matérialisation du Grand Pot et le coût du collecteur restent à calibrer. Identity, le rattrapage, les grandes volumétries et DeletePot exigent les préparations indiquées au manifeste. [Rendu](../testing/evidence/L7-I2-I3/spec09-static-plan-04.json), [inspection k6](../testing/evidence/L7-I2-I3/spec09-k6-inspect.json).
 
+### Authentification de test pour la configuration A
+
+Sur l'hôte des Runtimes, démarrer l'émetteur avec une liste JSON de sujets de test et une durée de vie couvrant la fenêtre, le warm-up et le drain. Le fichier de jetons doit être neuf et extérieur au dépôt. Configurer les deux processus WEB avec `pocoma.v3.http.issuer=$POCOMA_TEST_ISSUER`, leur audience de test et `pocoma.v3.http.jwk-set-uri=http://127.0.0.1:18090/jwks.json`. La validation JWT et l'autorisation Pocoma restent actives. Le serveur publie la clé publique et les jetons sont remis localement.
+
+```sh
+node scripts/performance/spec09-test-issuer.mjs --port 18090 \
+  --issuer "$POCOMA_TEST_ISSUER" --audience "$POCOMA_TEST_AUDIENCE" \
+  --subjects "$POCOMA_TEST_SUBJECTS" --token-file "$POCOMA_TEST_TOKEN_FILE" \
+  --ttl-seconds "$POCOMA_TEST_TOKEN_TTL"
+```
+
+Le contrôle local vérifie les signatures et les claims de deux sujets, la permission 0600 et l'absence de route d'émission. La configuration B utilise le Keycloak isolé et les contrats HTTP déjà vérifiés en recette. [Contrôle de l'émetteur](../testing/evidence/L7-I2-I3/spec09-test-issuer.json).
+
 ### Stock initial F01-G
 
 Arrêter le traitement et Discovery avant de constituer le stock. Garder l'admission HTTP WRITE disponible. Préparer un Pot moyen distinct par demande et envoyer une commande `CreateExpense` par Pot, avec une intention et une clé idempotente uniques. Garder l'inventaire JSON des seuls UUID issus des 10 000 admissions HTTP 202. Comparer cet inventaire aux publications durables pendant que le traitement reste arrêté. Utiliser deux services libpq d'observation distincts, définis hors Git. Le script effectue deux lectures SQL bornées en transactions `READ ONLY`.

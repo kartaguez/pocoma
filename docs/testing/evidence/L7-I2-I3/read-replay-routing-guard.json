@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "sha": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+  "jarSha256": "f5014639d3adce2c59eb996632e9bf8c828b1a8fbcddefb044d0693fe25fe5ba",
+  "configSha256": "9ef71528c215c2dffbcff6ec9a3593bb9fbd061dba12d04e4c5589ee0e398f11",
+  "cases": [
+    {
+      "case": "unknown-replay",
+      "command": [
+        "java",
+        "-Xms64m",
+        "-Xmx256m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/Users/julien.guezennec/Dev/projects/pocoma/app/runtime-worker-materialize/target/pocoma-runtime-worker-materialize-0.0.1-SNAPSHOT-exec.jar",
+        "--spring.profiles.active=v3-read-worker",
+        "--spring.config.additional-location=file:///var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-replay-guard-ei2uftv2/business.properties",
+        "--server.port=0",
+        "--management.server.port=0",
+        "--management.server.address=127.0.0.1",
+        "--pocoma.v3.worker.read-participants=MaterializePotVersion,MaterializePotVersionReplay"
+      ],
+      "seconds": 1.178442458040081,
+      "returnCode": 1,
+      "expectedRootCause": "unknown or duplicate READ participant: MaterializePotVersionReplay",
+      "expectedRefusalObserved": true,
+      "log": "read-replay-routing-unknown-replay.log.gz",
+      "logSha256": "357a94b7c63da4c7069f484768ac2b149d89ca95b7b273bdc314bc4216da37f2"
+    },
+    {
+      "case": "duplicate-destination",
+      "command": [
+        "java",
+        "-Xms64m",
+        "-Xmx256m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/Users/julien.guezennec/Dev/projects/pocoma/app/runtime-worker-materialize/target/pocoma-runtime-worker-materialize-0.0.1-SNAPSHOT-exec.jar",
+        "--spring.profiles.active=v3-read-worker",
+        "--spring.config.additional-location=file:///var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-replay-guard-ei2uftv2/business.properties",
+        "--server.port=0",
+        "--management.server.port=0",
+        "--management.server.address=127.0.0.1",
+        "--pocoma.v3.worker.read-participants=MaterializePotVersion,MaterializePotVersion"
+      ],
+      "seconds": 1.285444917040877,
+      "returnCode": 1,
+      "expectedRootCause": "unknown or duplicate READ participant: MaterializePotVersion",
+      "expectedRefusalObserved": true,
+      "log": "read-replay-routing-duplicate-destination.log.gz",
+      "logSha256": "363a084313c79c493d760e25b8cd7e644f0fa3d9e2564935898be2991bd1378d"
+    }
+  ],
+  "configOverrides": {
+    "jdbc": "all JDBC addresses redirected to a reserved loopback port",
+    "server.port": 0,
+    "management.server.port": 0
+  },
+  "finishedUtc": "2026-11-12T11:00:08.349073+00:00"
+}

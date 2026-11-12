@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "testedSha": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+  "invocationId": "b565ce2f8ecf41389db688e79ba810f4",
+  "suite": "DiscoveryPostgresTest",
+  "method": "i4_n15",
+  "replayId": "09000000-0000-0000-0000-000000000004",
+  "families": {
+    "POT_EVENT": {
+      "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n15-POT_EVENT-independent-consumption.txt",
+      "sha256": "3cab0940ca2aa48356fe45975fd7ffe3d1172a0a9423443f2cc858da6414c22f",
+      "newAndPriorCheckpoints": "discovery_checkpoint=[{consumption_id=09000000-0000-0000-0000-000000000004, partition_id=0, position=2}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, partition_id=0, position=2}]",
+      "physicalNewAndPriorSlots": [
+        "consumption_slot=[{consumption_id=09000000-0000-0000-0000-000000000004, consumable_id=9aa94ffc-1efd-44ba-bf69-061bb258cd3e, partition_hash=1031399188, partition_id=0, claim_token=null, claimed_until=null, retry_after=null, attempt_count=0, state=AVAILABLE}, {consumption_id=190a93c6-b8af-5ac7-8001-72e2ec53c2df, consumable_id=9aa94ffc-1efd-44ba-bf69-061bb258cd3e, partition_hash=1031399188, partition_id=0, claim_token=null, claimed_until=null, retry_after=null, attempt_count=0, state=AVAILABLE}]"
+      ]
+    },
+    "COMMAND_COMPLETION_EVENT": {
+      "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n15-COMMAND_COMPLETION_EVENT-independent-consumption.txt",
+      "sha256": "3a7efbf891c4ea2bcbe370534e000e2b86d05a6a982bd3584e99b16bc7c98273",
+      "newAndPriorCheckpoints": "discovery_checkpoint=[{consumption_id=09000000-0000-0000-0000-000000000004, partition_id=0, position=2}, {consumption_id=63664303-d33e-5d42-8cce-c4dae8023311, partition_id=0, position=2}]",
+      "physicalNewAndPriorSlots": []
+    }
+  },
+  "scope": "Technical READ replay on historical real producer events. New and prior slots verified for POT_EVENT, independently advanced checkpoints in both families."
+}

@@ -1,0 +1,22 @@
+{
+  "brunoCandidate": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+  "fullReactorCandidate": "2922a9826059dc031b6204c080f53201b4ca11d9",
+  "command": [
+    "git",
+    "diff",
+    "--name-only",
+    "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+    "2922a9826059dc031b6204c080f53201b4ca11d9",
+    "--",
+    "app",
+    "scripts/testing",
+    "scripts/v3",
+    "scripts/bruno-v3",
+    "docker",
+    "scripts/operations/v3-rebuild-read.py"
+  ],
+  "differences": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/runtime/command/v3/dev/V3WorkerDevelopmentToolsTest.java"
+  ],
+  "scope": "Executable, HTTP recipe, deployment, SQL bootstrap and selector inputs are byte-identical. The only difference in the checked trees is a development-tools test fixture in architecture-tests."
+}

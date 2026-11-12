@@ -175,6 +175,62 @@
         "i5_n08": 0.618
       }
     },
+    "DiscoveryPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.DiscoveryPostgresTest.xml",
+      "sha256": "d06ad3b3fd2998f45c3a3b380ab5a7a49faa7302020480a1a2370c1b74eab92b",
+      "methods": {
+        "i4_b01": 1.999,
+        "i4_b02": 1.517,
+        "i4_b03": 1.577,
+        "i4_b04": 3.45,
+        "i4_b05": 1.524,
+        "i4_b06": 1.41,
+        "i4_b07": 1.527,
+        "i4_b08": 9.358,
+        "i4_b09": 3.097,
+        "i4_b10": 1.477,
+        "i4_b11": 1.525,
+        "i4_b12": 1.987,
+        "i4_b13": 3.28,
+        "i4_b14": 1.737,
+        "i4_b15": 1.492,
+        "i4_b16": 3.29,
+        "i4_b17": 5.873,
+        "i4_b18": 6.257,
+        "i4_n01": 5.411,
+        "i4_n02": 3.633,
+        "i4_n03": 16.639,
+        "i4_n04": 5.745,
+        "i4_n05": 5.975,
+        "i4_n06": 5.251,
+        "i4_n07": 0.723,
+        "i4_n08": 7.265,
+        "i4_n09": 0.684,
+        "i4_n10": 0.723,
+        "i4_n11": 11.118,
+        "i4_n12": 17.69,
+        "i4_n13": 1.431,
+        "i4_n14": 4.618,
+        "i4_n15": 1.712,
+        "i4_n16": 2.111,
+        "i4_n17": 4.373,
+        "i4_n18": 5.347,
+        "i4_p01": 308.562,
+        "i4_p02": 46.027,
+        "i4_p03": 54.896,
+        "i4_x01": 1.754,
+        "i4_x02": 0.844,
+        "i4_x03": 1.906,
+        "i4_x04": 1.714,
+        "i4_x05": 0.822,
+        "i4_x06": 1.545,
+        "i4_x07": 20.256,
+        "i4_x08": 1.506,
+        "i4_x09": 0.932,
+        "i4_x10": 1.841,
+        "populatedQuarantinesAndCompositeRestart": 14.257
+      }
+    },
     "IdentityRequestExecutionPostgresTest": {
       "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
       "sha256": "59c32905f1b2f1ff6a24e7c5b96c041fc7a35fd00d29aa3850a3655d2d936dac",
@@ -542,9 +598,12 @@
       "oracles": {
         "V3ReadReconstructionPostgresTest": {
           "rcv01H_quarantineAndIntegrityViolations_blockReady": 3.079
+        },
+        "DiscoveryPostgresTest": {
+          "i4_n16": 2.111
         }
       },
-      "scope": "Une quarantaine dans la borne et une projection incomplète empêchent READY. Le reset partiel avec ancien checkpoint reste dû."
+      "scope": "TRUNCATE slots, recul/suppression des checkpoints refusés au principal Runtime. Quarantaine et projection incomplète empêchent READY. Une restauration administrative partielle complète reste distincte."
     },
     "RCV01-I": {
       "oracles": {
@@ -554,6 +613,25 @@
         }
       },
       "scope": "Exclusion concurrente puis reset total. Les états de slots présents sont ceux des fixtures."
+    },
+    "RCV01-J": {
+      "oracles": {
+        "DiscoveryPostgresTest": {
+          "i4_n15": 1.712
+        }
+      },
+      "scope": "Sur publications réelles POT et COMMAND_COMPLETION, un nouvel ID administrativement provisionné repart sans checkpoint et avance son propre espace. L’ancien checkpoint et ses slots restent identiques. La destination d’effets reste une obligation distincte."
+    },
+    "RCV01-K": {
+      "oracles": {
+        "DiscoveryPostgresTest": {
+          "i4_n15": 1.712
+        },
+        "PotVersionReadStorePostgresTest": {
+          "concurrentPublishers": 0.158
+        }
+      },
+      "scope": "Le nouvel ID crée un enrôlement indépendant. La destination PotVersion contrôle séparément les producteurs concurrents. La composition complète vers une destination commune reste à attribuer."
     },
     "RCV01-M": {
       "oracles": {
@@ -732,6 +810,25 @@
       },
       "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
     },
+    "L2M-C01-K-REPORT": {
+      "oracles": {
+        "DiscoveryPostgresTest": {
+          "i4_n15": 1.712
+        }
+      },
+      "scope": "Sur publications réelles POT et COMMAND_COMPLETION, un nouvel ID administrativement provisionné repart sans checkpoint et avance son propre espace. L’ancien checkpoint et ses slots restent identiques. La destination d’effets reste une obligation distincte."
+    },
+    "L2M-C02-L-REPORT": {
+      "oracles": {
+        "DiscoveryPostgresTest": {
+          "i4_n16": 2.111
+        },
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01H_quarantineAndIntegrityViolations_blockReady": 3.079
+        }
+      },
+      "scope": "Refus de suppression/recul des checkpoints et de TRUNCATE des slots sur PostgreSQL. Le retour READY est bloqué sur une projection incohérente."
+    },
     "L2M-C04-J-REPORT": {
       "oracles": {
         "ReadParticipantsIntegrationPostgresTest": {
@@ -872,6 +969,14 @@
         }
       },
       "scope": "Résolution par observation indépendante, puis libération de capacité distincte. Portée NonBurnable des méthodes citées."
+    },
+    "L2M-E03-H-REPORT": {
+      "oracles": {
+        "DiscoveryPostgresTest": {
+          "i4_n15": 1.712
+        }
+      },
+      "scope": "Sur publications réelles POT et COMMAND_COMPLETION, un nouvel ID administrativement provisionné repart sans checkpoint et avance son propre espace. L’ancien checkpoint et ses slots restent identiques. La destination d’effets reste une obligation distincte."
     },
     "L2M-E03-I-REPORT": {
       "oracles": {
