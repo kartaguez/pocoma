@@ -34,6 +34,63 @@ import java.util.concurrent.atomic.*;
 @Testcontainers
 class ReadParticipantsIntegrationPostgresTest {
     @Test
+    void l73_recreatedDiscoveryAndEnginesPreserveOnlyUnfinishedSlots() throws Exception {
+        try (var f = new ReadParticipantsFixture(PG, "l73-restart-components")) {
+            UUID changedPot = f.mutatePot(new PotCommand.UpdatePotDetails(new Label("Second generation")), 1);
+            String token = f.f.oracle.queryForObject(
+                    "select binding_token from v3_eui_version where version=1", String.class);
+            UUID changedIdentity = f.publishIdentity(new IdentityRequest.Unlink(f.eui), new BindingToken(token));
+            var next = new EnumMap<Name, UUID>(Name.class);
+            for (var name : Name.values()) {
+                next.put(name, switch (name) {
+                    case POT_VERSION, POT_BALANCE, POT_VISIBILITY -> changedPot;
+                    case COMMAND_RESULT -> f.f.oracle.queryForObject(
+                            "select event_id from v3_command_completion_event where subject_id=(select request_id from v3_pot_event where event_id=?)",
+                            UUID.class, changedPot);
+                    case CURRENT_BINDING -> f.f.oracle.queryForObject(
+                            "select event_id from v3_identity_event where request_id=?", UUID.class, changedIdentity);
+                    case IDENTITY_REQUEST_RESULT -> f.f.oracle.queryForObject(
+                            "select event_id from v3_identity_completion_event where subject_id=?", UUID.class, changedIdentity);
+                });
+            }
+            f.enroll();
+            for (var name : Name.values()) {
+                assertEquals(1, f.slots(name, f.event(name)));
+                assertEquals(1, f.slots(name, next.get(name)));
+                f.execute(name, f.event(name));
+            }
+            var checkpoints = f.f.read.oracle.queryForList(
+                    "select consumption_id,partition_id,position from discovery_checkpoint order by consumption_id,partition_id");
+            var slots = f.f.read.oracle.queryForList(
+                    "select * from consumption_slot order by consumption_id,consumable_id");
+            assertEquals(Name.values().length, slots.size());
+            var business = new LinkedHashMap<String, Object>();
+            for (String table : f.businessTables) business.put(table, f.f.read.oracle.queryForList("select row_to_json(t)::text as value from " + table + " t order by value"));
+            // enroll constructs a fresh real DiscoveryEngine for every participant.
+            for (var name : Name.values()) f.engines.put(name,
+                    f.engine(name, f.participants.get(name).participant(), f.f.read.source, f.f.read.tx));
+            f.enroll();
+            assertEquals(checkpoints, f.f.read.oracle.queryForList(
+                    "select consumption_id,partition_id,position from discovery_checkpoint order by consumption_id,partition_id"));
+            assertEquals(slots, f.f.read.oracle.queryForList(
+                    "select * from consumption_slot order by consumption_id,consumable_id"));
+            for (String table : f.businessTables) assertEquals(business.get(table),
+                    f.f.read.oracle.queryForList("select row_to_json(t)::text as value from " + table + " t order by value"));
+            for (var name : Name.values()) {
+                assertEquals(0, f.slots(name, f.event(name)));
+                f.execute(name, next.get(name));
+            }
+            f.enroll();
+            assertEquals(0, f.f.read.oracle.queryForObject("select count(*) from consumption_slot", Integer.class));
+            assertEquals(List.of(1L, 2L), f.f.read.oracle.queryForList(
+                    "select pot_version from read_pot_version order by pot_version", Long.class));
+            assertEquals(2L, f.f.read.oracle.queryForObject("select eui_version from read_current_binding", Long.class));
+            assertNull(f.f.read.oracle.queryForObject("select binding_token from read_current_binding", String.class));
+            f.f.read.trace.add("L7.3 fresh Discovery/Engines: exact remaining six slots, checkpoints unchanged, no completed slot recreated");
+        }
+    }
+
+    @Test
     void l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption() throws Exception {
         try (var f = new ReadParticipantsFixture(PG, "l73-two-failures")) {
             f.enroll();
