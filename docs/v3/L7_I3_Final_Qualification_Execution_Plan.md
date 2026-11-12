@@ -17,3 +17,5 @@ Feedback ciblé, depuis `app/` : `./mvnw --batch-mode --no-transfer-progress -pl
 - RECONCILE : lire les oracles indiqués et leurs variantes exactes avant tout test supplémentaire. Une ancienne trace partielle ne devient pas complète au seul motif qu'elle est retrouvée.
 
 Chaque ligne garde son exigence, condition de clôture, dépendance et blocage dans la matrice. Les 31 lignes sont bloquantes pour le stimulus restant ; aucune réserve non bloquante ni reclassification de facilité n'est présumée.
+
+Complément COMMAND R3-10/R5-11 : deux assemblages du même catalogue partagent les schémas avec partitions candidates Command disjointes, limites Worker 1/4 et polling différents. Vérifier les bindings/limites réellement assemblés, la terminalisation des deux commandes et leurs publications. Pour la configuration invalide, partir d'une vraie demande PENDING et exiger refus du démarrage, vecteur de coordination intact et absence de résultat ou budget consommé. Ces tests ne certifient pas un débit ou un délai de disponibilité.

@@ -22,6 +22,66 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Testcontainers
 class V3WorkerCompositionPostgresTest {
+    @Test
+    void l73_distinctWorkerSettingsShareOnlyTheRoutingContract() throws Exception {
+        try (var f = new V3WorkerPostgresTest.Fixture(PG)) {
+            var left = new HashMap<String, Object>(f.properties);
+            var right = new HashMap<String, Object>(f.properties);
+            left.put("pocoma.v3.worker.worker-name", "l73-left");
+            right.put("pocoma.v3.worker.worker-name", "l73-right");
+            left.put("pocoma.v3.worker.worker-limit", "1");
+            right.put("pocoma.v3.worker.worker-limit", "4");
+            left.put("pocoma.v3.worker.min-poll", "5");
+            right.put("pocoma.v3.worker.min-poll", "20");
+            left.put("pocoma.v3.worker.partitions", "Command=0|2;I5ReadPotProbe=0|1|2|3;I5ReadCompletionProbe=0|1|2|3");
+            right.put("pocoma.v3.worker.partitions", "Command=1|3;I5ReadPotProbe=0|1|2|3;I5ReadCompletionProbe=0|1|2|3");
+            var first = V3WorkerPostgresTest.pendingAtPartition(f, 73000, 0);
+            var second = V3WorkerPostgresTest.pendingAtPartition(f, 73100, 1);
+            try (var a = new V3WorkerPostgresTest.Runtime(left, com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
+                    var b = new V3WorkerPostgresTest.Runtime(right, com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop())) {
+                assertEquals(1, a.capacity.workerLimit());
+                assertEquals(4, b.capacity.workerLimit());
+                assertEquals(List.of(0, 2), a.bindings.getFirst().partitions());
+                assertEquals(List.of(1, 3), b.bindings.getFirst().partitions());
+                assertEquals(a.bindings.stream().map(V3ConsumptionWorker.Binding::definition).toList(),
+                        b.bindings.stream().map(V3ConsumptionWorker.Binding::definition).toList());
+                var sa = (V3ConsumptionWorker.Settings) V3WorkerPostgresTest.field(a.worker, "settings");
+                var sb = (V3ConsumptionWorker.Settings) V3WorkerPostgresTest.field(b.worker, "settings");
+                assertEquals(java.time.Duration.ofMillis(5), sa.minPoll());
+                assertEquals(java.time.Duration.ofMillis(20), sb.minPoll());
+                a.worker.start();
+                b.worker.start();
+                V3WorkerPostgresTest.await(() -> f.write.queryForObject("select count(*) from v3_command"
+                        + " where request_id in (?,?) and status='TERMINAL'", Integer.class, first, second) == 2);
+                assertEquals(2, f.write.queryForObject("select count(*) from v3_command_result where request_id in (?,?)",
+                        Integer.class, first, second));
+                assertEquals(2, f.write.queryForObject("select count(*) from v3_pot_event where request_id in (?,?)",
+                        Integer.class, first, second));
+                assertEquals(2, f.write.queryForObject("select count(*) from v3_command_completion_event where subject_id in (?,?)",
+                        Integer.class, first, second));
+                f.trace.add("L7.3 live workers: same routing definitions; Command partitions [0,2]/[1,3], M_W=1/4, minPoll=5/20ms; two exact terminal units");
+            }
+            f.evidence("l73_distinctWorkerSettings");
+        }
+    }
+
+    @Test
+    void l73_invalidConfigurationPreservesPendingRequestsAndFailureBudget() throws Exception {
+        try (var f = new V3WorkerPostgresTest.Fixture(PG)) {
+            var pending = f.inject(73200);
+            for (var invalid : List.of(Map.<String, Object>of("pocoma.v3.worker.worker-limit", "0"),
+                    Map.<String, Object>of("pocoma.v3.worker.lifecycle.renewal-interval-ms", "0"))) {
+                refused(f, "v3-consumption-worker-dev", invalid);
+                assertEquals("PENDING", f.write.queryForObject("select status from v3_command where request_id=?", String.class, pending));
+                assertEquals(0, f.write.queryForObject("select count(*) from v3_command_result where request_id=?", Integer.class, pending));
+                assertEquals(0, f.write.queryForObject("select coalesce(sum(attempt_count),0)::int from consumption_slot", Integer.class));
+                assertEquals(0, f.write.queryForObject("select count(*) from consumption_slot", Integer.class));
+            }
+            f.trace.add("L7.3 invalid configuration: startup refused before coordinator mutation; real request PENDING, no result, no attempt budget consumed");
+            f.evidence("l73_invalidConfiguration");
+        }
+    }
+
     @Container
     static final PostgreSQLContainer PG =
             new PostgreSQLContainer(
