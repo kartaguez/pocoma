@@ -136,7 +136,7 @@ def psql(container, db, schema, query, role='pocoma', password=None):
         args.extend(['--env', 'PGPASSWORD'])
         options['env'] = {**os.environ, 'PGPASSWORD': password}
     args.extend(['--env', f'PGOPTIONS=-c search_path={schema},public', container, 'psql',
-                 '-X', '-v', 'ON_ERROR_STOP=1', '-U', role, '-d', db, '-tAc', query])
+                 '-X', '-v', 'ON_ERROR_STOP=1', '-v', 'VERBOSITY=verbose', '-U', role, '-d', db, '-tAc', query])
     if password is not None:
         args.extend(['-h', '127.0.0.1'])
     return subprocess.run(args, check=False, capture_output=True, text=True, timeout=10, **options)
@@ -203,13 +203,13 @@ def observe_runtime_principals(container):
 def prove_acl(container, password):
     operations = [
         ('pocoma_admission', password, 'pocoma_write', 'v3_write',
-         'select binding_token from v3_link_proposal'),
+         'select binding_token from v3_write.v3_link_proposal'),
         ('pocoma_write_source_read', 'pocoma-source-local-only', 'pocoma_write', 'v3_write',
-         'delete from v3_identity_request where false'),
+         'delete from v3_write.v3_identity_request where false'),
         ('pocoma_read_http', 'pocoma-read-http-local-only', 'pocoma_read', 'v3_read',
-         'delete from read_current_pot where false'),
+         'delete from v3_read.read_current_pot where false'),
         ('pocoma_read_status', 'pocoma-read-status-local-only', 'pocoma_read', 'v3_read',
-         'select * from read_current_pot'),
+         'select * from v3_read.read_current_pot'),
     ]
     results = []
     for role, credential, db, schema, query in operations:
@@ -218,9 +218,9 @@ def prove_acl(container, password):
         if principal.stdout.strip() != role:
             raise RuntimeError('Unexpected SQL principal')
         denied = psql(container, db, schema, query, role, credential)
-        if denied.returncode != 1 or 'permission denied' not in denied.stderr:
+        if denied.returncode != 1 or '42501' not in denied.stderr:
             raise RuntimeError('Expected an effective permission denial: ' + role)
-        results.append({'principal': role, 'database': db, 'operation': query, 'result': 'DENIED'})
+        results.append({'principal': role, 'database': db, 'operation': query, 'sqlstate': '42501', 'result': 'DENIED'})
     return results
 
 
