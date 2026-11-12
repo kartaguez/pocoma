@@ -41,7 +41,7 @@ class V3WorkerDevelopmentToolsTest {
 
     @Test
     void l3_canonical_internal_intention() throws Exception {
-        var first = file("first", input("LINK", "opaque-private-fixture"));
+        var first = file("first", input("UNLINK", "opaque-private-fixture"));
         var lines = new ArrayList<>(Files.readAllLines(first));
         Collections.reverse(lines);
         var second =
@@ -62,21 +62,30 @@ class V3WorkerDevelopmentToolsTest {
         assertNotEquals(
                 a.admission().intentionFingerprint(),
                 V3WorkerDevelopmentTools.internalRequest(
-                                file("token", input("LINK", "another-private-fixture")))
+                                file("token", input("UNLINK", "another-private-fixture")))
                         .admission()
                         .intentionFingerprint());
         assertNotEquals(
                 a.admission().intentionFingerprint(),
                 V3WorkerDevelopmentTools.internalRequest(
-                                file("operation", input("UNLINK", "opaque-private-fixture")))
+                                file(
+                                        "target",
+                                        input("UNLINK", "opaque-private-fixture")
+                                                .replace("target.subject=b", "target.subject=c")))
                         .admission()
                         .intentionFingerprint());
+        var retired = file("retired", input("LINK", "opaque-private-fixture"));
+        var refusal =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> V3WorkerDevelopmentTools.internalRequest(retired));
+        assertEquals("Retired Identity operation", refusal.getMessage());
         assertFalse(a.toString().contains("opaque-private-fixture"));
     }
 
     @Test
     void l3_private_intention_files() throws Exception {
-        var path = file("private", input("LINK", "opaque-private-fixture"));
+        var path = file("private", input("UNLINK", "opaque-private-fixture"));
         assertNotNull(V3WorkerDevelopmentTools.internalRequest(path));
         Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-r--r--"));
         assertThrows(
