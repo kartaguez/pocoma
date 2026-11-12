@@ -76,4 +76,3 @@ CURRENT_FULL désigne la portée entière de la ligne allouée, pas une certific
 | Réserves du sous-ensemble de 53 | 53 sans attribution | 30 partielles et 1 manquante |
 
 Les 30 contributions historiques partielles L7.3 et le retrait Link demeurent inchangés. Les 522 identifiants, sources et colonnes historiques sont conservés. Les 30 réserves partielles sont techniques, potentiellement bloquantes ; elles ne sont pas déclassées en simples réserves documentaires.
-

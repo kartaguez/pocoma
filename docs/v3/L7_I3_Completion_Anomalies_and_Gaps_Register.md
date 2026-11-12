@@ -4,7 +4,7 @@
 
 Les anciens drivers R9/R10/R11 et le générateur de populations contenaient sept fonctions de purge de slots incomplets, de checkpoint artificiel ou de fabrication de résultats terminaux. Les quatre main rendaient ces opérations exécutables. Une exécution hors ligne, avec subprocess, sleep et écriture de fichier interdits, a échoué sur ces 11 entrées : sept failures et quatre errors. Aucun SQL ni benchmark exécuté.
 
-Correction `29f89876` : les sept fonctions et les quatre main sont retirés avec RuntimeError avant tout effet. Le test appelle aussi directement les fonctions importables. Les 11 cas passent ensuite. Les scripts restent lisibles et leurs reçus historiques sont intacts. Les anciennes commandes de ces drivers refusent désormais explicitement l’exécution ; elles ne constituent plus un banc courant recevable. [Avant](../testing/evidence/L7-I3-completion/historical-admin-before.log), [après](../testing/evidence/L7-I3-completion/historical-admin-after.log), [reçu et empreintes](../testing/evidence/L7-I3-completion/historical-admin-receipt.json).
+Correction `29f89876` : les sept fonctions et les quatre main sont retirés avec RuntimeError avant tout effet. Le test appelle aussi directement les fonctions importables. Les 11 cas passent ensuite. Les scripts restent lisibles et leurs reçus historiques sont intacts. Les anciennes commandes de ces drivers refusent désormais explicitement l’exécution ; elles ne constituent plus un banc courant recevable. [Avant](../testing/evidence/L7-I3-completion/historical-admin-before.log.gz), [après](../testing/evidence/L7-I3-completion/historical-admin-after.log), [reçu et empreintes](../testing/evidence/L7-I3-completion/historical-admin-receipt.json).
 
 Aucun défaut fonctionnel ou de sûreté du Runtime n’est démontré par cet audit. Aucun privilège renforcé, migration modifiée ou délai allongé. La correction ferme le défaut constaté ; l’exhaustivité de tous les canaux administrateurs reste une réserve distincte R8.
 
@@ -45,4 +45,3 @@ Aucun défaut fonctionnel ou de sûreté du Runtime n’est démontré par cet a
 | L2M-L1-F-f04 | Attachement par Invitation sous concurrence Unlink et restrictions ; deux utilisateurs/cibles concurrentes spécifiques non démontrés. | Auto-rattachement au seul acteur, droits ordinaires inchangés — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable. |
 
 Les propriétaires sont COMMAND pour Identity et publication, PROJECTION pour les participants et reprise READ, et exploitation WRITE/READ pour les voies administratives. Poursuivre sous le même mandat avec un oracle extérieur, le stimulus exact et un reçu attribuable. Aucune nouvelle garantie ne doit être inventée.
-

@@ -15,7 +15,11 @@
     "scripts/performance/v3_populated_db_generator.py": "cf689dc82418ae72e6fd95c83ed359fd0a25dacd2c6cac80c5244cb08ec1bc3e",
     "scripts/testing/test_l73_historical_admin_safety.py": "1cb2db295e24f4a50573abc1c0e749a50d4ba9ffa4d343a109f389d7f25a32c8"
   },
-  "before": "historical-admin-before.log",
+  "before": "historical-admin-before.log.gz",
   "after": "historical-admin-after.log",
-  "limitations": "Proves refusal of these known historical operations; not exhaustive dynamic SQL or external-admin access certification."
+  "limitations": "Proves refusal of these known historical operations; not exhaustive dynamic SQL or external-admin access certification.",
+  "logSha256": {
+    "historical-admin-before.log.gz": "5e5ab1000b355c1afb6172f2fd87fe9637f8bf8623156a1840199760153c678d",
+    "historical-admin-after.log": "72ef10a679b72d8889ec5f805ffe7cf5ec33f6b6436ef6766b0765a5d90825e6"
+  }
 }
