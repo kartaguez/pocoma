@@ -40,7 +40,7 @@ Le tableau relie les exigences actives au protocole détaillé portant le même 
 | DOM-02 | Commandes sans effet, multi-cibles, suppressions et dépendances observedVersion respectent obsolescence métier | V3-1 Pot | Bruno ; JUnit/PostgreSQL | ACQUIS / À PROUVER |
 | DOM-03 | Calcul de soldes rationnels exacts, poids par défaut à V ; balance complète par Pot/V | V3-1, V3-3 | JUnit ; Bruno | ACQUIS / À PROUVER |
 | ID-01 | Registration/Link/Unlink conservent unicité EUI, identité de la cible, tokens renouvelés, et aucune mutation partielle | V3-1 Identity | Bruno ; JUnit/PostgreSQL | ACQUIS / À PROUVER |
-| ID-02 | Link headless avec POST E2 authentifiée explicite sur proposition immuable, audience, durée et anti-rejeu | V3-1 Identity | Tests sécurité/Bruno ; JUnit | **ACQUIS / À PROUVER** |
+| ID-02 | Link headless avec POST E2 authentifiée explicite sur proposition immuable, audience, durée et anti-rejeu | V3-1 Identity | Tests sécurité/Bruno ; JUnit | **RETIRED_BY_HUMAN_DECISION** depuis L7.2 |
 | EVT-01 | Cinq séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
 | EVT-02 | Mutation, événement, résultat terminal et complétion atomiques ; aucune mutation événementielle sans requestId | V3-2 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | EVT-03 | Sept familles de sources, sans tâches READ ; trois Consumptions autonomes et directes de POT_EVENT, et MaterializeInvitation indépendante | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |

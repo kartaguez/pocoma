@@ -18,6 +18,8 @@ Les tentatives sont conservées sous des identifiants distincts. Les journaux co
 | `full` | Première tentative de réacteur complet | FAIL après 876 tests, `i5_r12` observe un âge initial de 5,796 s pour une limite de 5 s. |
 | `read-partial-reset-acl.json` | Refus effectifs du principal READ après bootstrap | PASS, quatre 42501 et un 23514, vecteur des sept checkpoints intact. La première tentative a échoué au chargement du témoin. |
 | `full-stabilization-interrupted` | Réacteur relancé après correction de la fixture de renouvellement | Arrêt après 233 exécutions sans échec individuel, avant extension de l’oracle de reprise READ. Le verdict de campagne reste FAIL. |
+| `full-stabilized` | Réacteur complet après correction de la fixture de renouvellement | FAIL après 876/1 056 exécutions sur `i5_w19`. `i5_r05`, `i5_r12`, `i5_w14` et les 42 tests WEB de lecture sont passés. |
+| `w19-isolated` | Rejeu ciblé du scénario de contention, fixture inchangée | PASS sur les quatre variantes à une et quatre places, avec libération ou expiration. L'échec du réacteur reste archivé. |
 | `read-active-replay` | Reprise après expiration physique, publications WRITE pendant rejeu actif | PASS, 28 checkpoints, zéro slot, quatre résultats rattrapés et drain mesuré. |
 | `r05-after-fixture` | Rejeu du scénario à un Worker | PASS sur fixture corrigée. |
 | `r12-isolated` | Reproduction ciblée `i5_r12` | FAIL, 5,108 s avec la fixture de démarrage séquentiel. |

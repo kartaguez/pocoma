@@ -52,7 +52,9 @@ Les Supras sont des frontières API d'authentification, validation de forme, adm
 
 L'EUI initiatrice authentifiée est capturée immuablement en `requesterEui` dès admission ; toute Command/IdentityRequest sauf Registration transporte un `bindingToken` explicite. La Supra ne crée pas de slot : Discovery asynchrone en SPEC-05. La revalidation du Binding et des droits courants demeure en WRITE lors de l'exécution.
 
-**Amendement ratifié L5/I3 — protocole HTTP minimal :**
+**Archive L5/I3 — protocole HTTP Link retiré en L7.2 :**
+
+Les trois routes ci-dessous ne font plus partie des Runtimes livrés. Le protocole est conservé ici pour interpréter les données et les preuves antérieures à la bascule.
 
 | Route | Contrat |
 |---|---|
