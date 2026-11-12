@@ -1,0 +1,145 @@
+{
+  "status": "PASS",
+  "sha": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+  "dirty": "M docs/README.md\n M docs/v3/L7_I1_Certification_Coverage_Matrix.csv\n M docs/v3/L7_I1_Certification_Coverage_and_Execution_Plan.md\n M docs/v3/L7_I1_Residual_Reservations_Register.md\n M docs/v3/V3_Implementation_Master_Plan.md\n?? docs/testing/evidence/L7-I2-I3/\n?? docs/v3/L7_I2_Functional_Security_and_Bruno_Certification_Report.md\n?? docs/v3/L7_I3_Operational_Safety_and_READ_Certification_Report.md\n?? docs/v3/L7_I4_SPEC09_Performance_Certification_Execution_Plan.md",
+  "images": {
+    "postgres": "sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+    "keycloak": "sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13"
+  },
+  "ports": {
+    "write": 59517,
+    "read": 59518,
+    "issuer": 59516,
+    "postgres": 59515
+  },
+  "runtimes": {
+    "http-read": {
+      "sha256": "0545a6f684ab34b2ed16501e54f7c7e73e00eac7e89c2ca26e1139bd7ccbfc97",
+      "profile": "v3-http-read",
+      "ready": true,
+      "managementPort": 59519
+    },
+    "business-read-worker": {
+      "sha256": "f5014639d3adce2c59eb996632e9bf8c828b1a8fbcddefb044d0693fe25fe5ba",
+      "profile": "v3-read-worker",
+      "ready": true,
+      "managementPort": 59520
+    },
+    "http-write": {
+      "sha256": "0bbe853cd1c520e011d6452112c79c524fe52a125f8cdaa5bd1187cc7c381fbc",
+      "profile": "v3-http-admission",
+      "ready": true,
+      "managementPort": 59521
+    },
+    "results-worker": {
+      "sha256": "f5014639d3adce2c59eb996632e9bf8c828b1a8fbcddefb044d0693fe25fe5ba",
+      "profile": "v3-read-worker",
+      "ready": true,
+      "managementPort": 59522
+    },
+    "command-worker": {
+      "sha256": "c4ae7379dfd927e755a0f8f552468d1e13b75bcaa1ee27b2a13719354f70eca5",
+      "profile": "v3-consumption-worker-dev",
+      "ready": true,
+      "managementPort": 59523
+    }
+  },
+  "cleanup": {
+    "command-worker": 143,
+    "results-worker": 143,
+    "http-write": 143,
+    "business-read-worker": 143,
+    "http-read": 143,
+    "pocoma-l7-recipe-3901a5f9a42e-kc": 0,
+    "pocoma-l7-recipe-3901a5f9a42e-pg": 0,
+    "network": 0
+  },
+  "postgresVersion": "17.11",
+  "bruno": {
+    "02 Admission and Commands": 24,
+    "04 Invitations": 4,
+    "06 Installation Checks": 2
+  },
+  "sqlConvergence": {
+    "commandResults": 32,
+    "identityResults": 6,
+    "pendingOrSlots": 0,
+    "linkProposals": 0
+  },
+  "acl": [
+    {
+      "principal": "pocoma_admission",
+      "database": "pocoma_write",
+      "operation": "select binding_token from v3_write.v3_link_proposal",
+      "sqlstate": "42501",
+      "result": "DENIED"
+    },
+    {
+      "principal": "pocoma_write_source_read",
+      "database": "pocoma_write",
+      "operation": "delete from v3_write.v3_identity_request where false",
+      "sqlstate": "42501",
+      "result": "DENIED"
+    },
+    {
+      "principal": "pocoma_read_http",
+      "database": "pocoma_read",
+      "operation": "delete from v3_read.read_current_pot where false",
+      "sqlstate": "42501",
+      "result": "DENIED"
+    },
+    {
+      "principal": "pocoma_read_status",
+      "database": "pocoma_read",
+      "operation": "select * from v3_read.read_current_pot",
+      "sqlstate": "42501",
+      "result": "DENIED"
+    },
+    {
+      "principal": "pocoma_read",
+      "database": "pocoma_read",
+      "operation": "insert into v3_read.consumption_routing_contract select gen_random_uuid(), 'POT_EVENT', 'sha256-v1', 4 where false",
+      "sqlstate": "42501",
+      "result": "DENIED"
+    }
+  ],
+  "activeSqlPrincipals": [
+    {
+      "database": "pocoma_read",
+      "principal": "pocoma_read",
+      "connections": 26,
+      "privileged": false
+    },
+    {
+      "database": "pocoma_read",
+      "principal": "pocoma_read_http",
+      "connections": 2,
+      "privileged": false
+    },
+    {
+      "database": "pocoma_read",
+      "principal": "pocoma_read_status",
+      "connections": 1,
+      "privileged": false
+    },
+    {
+      "database": "pocoma_write",
+      "principal": "pocoma_admission",
+      "connections": 1,
+      "privileged": false
+    },
+    {
+      "database": "pocoma_write",
+      "principal": "pocoma_write",
+      "connections": 12,
+      "privileged": false
+    },
+    {
+      "database": "pocoma_write",
+      "principal": "pocoma_write_source_read",
+      "connections": 9,
+      "privileged": false
+    }
+  ],
+  "seconds": 54.18368300003931
+}

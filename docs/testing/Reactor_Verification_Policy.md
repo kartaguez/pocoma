@@ -114,7 +114,7 @@ has 42 child modules and one aggregator. Its canonical commands run from `app/`.
 
 | Slice | Canonical command | Responsibility |
 | --- | --- | --- |
-| WEB | `./mvnw -pl runtime-web-write,runtime-web-read -am test` | WRITE admission/Link; READ queries, visibility, authorization, transport bounds and maintenance status. Each HTTP Runtime owns its own Compose and SQL principal. |
+| WEB | `./mvnw -pl runtime-web-write,runtime-web-read -am test` | WRITE admission; READ queries, visibility, authorization, transport bounds and maintenance status. Each HTTP Runtime owns its own Compose and SQL principal. |
 | COMMAND | `./mvnw -pl runtime-worker-process -am test` | Burnable Command and IdentityRequest; WRITE execution, publication, recovery, fencing and local capacity. |
 | PROJECTION | `./mvnw -pl runtime-worker-materialize -am test` | NonBurnable materialization, exact WRITE source SELECT, READ effects, reconstruction and convergence. |
 | FOUNDATION | `./mvnw -pl infra-tx-spring -am test` | Physical transaction contexts, classification and isolation. |
@@ -1055,7 +1055,7 @@ due even when Maven succeeds.
 | Component / risk | Reviewed decisive contributions | Selection and escalation |
 |---|---|---|
 | Domain / Pot | `PotTransitionsTest`, `PotAuthorizationTest`: versions, deletion and authorization; `InvitationAttachmentTest`, `ShareholderIdentityCollisionTest`: attachment/collision outcomes. | Identity FAST includes the adjacent invariants; changed Pot execution requires COMMAND and its actual SQL tests, not only this recipe. |
-| Identity / Invitation | `IdentityValueContractsTest`, `IdentityTransitionsTest`, `ExecuteIdentityRequestTest`, `IdentityRequestContractTest`: immutable identity, stale token rejection, Link/Unlink, durable request contract. | FAST; CHANGE adds authority/history/schema and runtime tests. Future invitation/admission/consent changes need their own proofs; external ID-02 is not certified here. |
+| Identity / Invitation | `IdentityValueContractsTest`, `IdentityTransitionsTest`, `ExecuteIdentityRequestTest`, `IdentityRequestContractTest`: immutable identity, stale token rejection, Registration/Unlink, durable request contract and historical Identity results. | FAST; CHANGE adds authority/history/schema and runtime tests. Invitation and admission changes require their own proofs. L7.2 retired public Link and ID-02. |
 | Security / Authorization | `IdentityPrivilegesPostgresTest`: effective runtime permissions; `V3IdentityRequestCompositionPostgresTest`: preflight refusal, indirect exposure, logging and auxiliary privilege matrix. | CHANGE Identity. Shared security or HTTP/AuthN changes add WEB and every affected consumer, plus qualified external protocols. |
 | Transaction / Atomicity | `IdentityConcurrencyPostgresTest`, `IdentityRequestExecutionPostgresTest`: races, rollback and durable effects; `AttemptTransactionsPostgresTest`, foundation transaction tests: real physical transaction boundaries. | CHANGE for Identity-local behavior; INTEGRATION for shared transaction changes, with every affected consumer and applicable adverse interleavings. |
 | Events / Publication | `IdentityPublicationPostgresTest`: FK prefix/commit publication; `IdentitySchemaPostgresTest`: deferred constraints and non-Identity suffix access; `V3PotExecutionArchitectureTest` when its gate is required: transaction and publication boundaries. | CHANGE Identity; INTEGRATION adds transaction/composition checks. Shared publication changes add COMMAND/PROJECTION as actually affected. |

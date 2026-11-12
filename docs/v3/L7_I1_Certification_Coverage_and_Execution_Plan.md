@@ -1,5 +1,7 @@
 # Pocoma V3 — Audit de couverture et plan de certification L7.1
 
+> **Suivi du mandat `GO_L7_I2_I3_FULL_EXECUTION`.** Le retrait Link est décidé. Les obligations actives et les nouveaux reçus sont suivis dans la matrice et les rapports de campagne. Les hypothèses d'arbitrage et les statuts initiaux de ce document restent la référence L7.1. [Décision Link](L7_I2_Link_Retirement.md), [L7.2](L7_I2_Functional_Security_and_Bruno_Certification_Report.md), [L7.3](L7_I3_Operational_Safety_and_READ_Certification_Report.md), [L7.4](L7_I4_SPEC09_Performance_Certification_Execution_Plan.md).
+
 ## 1. Synthèse exécutive
 
 **Verdict proposé `READY_WITH_EXPLICIT_DECISIONS`.** Mandat `GO_L7_I1_CERTIFICATION_SCOPING`. Référence auditée `a71c7f9d783e50715c51e78c69ac4286a2672e92`, vérifiée localement et sur `origin/feat/v3-architecture` avant l'analyse. Le réacteur à 42 enfants, les frontières structurelles, cinq démarrages et le rejeu nominal sont démontrés dans leurs environnements respectifs. Le dossier reste ouvert pour la certification des parcours publics, les variantes physiques résiduelles, les mesures contractuelles et la réception finale. Ce mandat autorise la publication documentaire L7.1 uniquement.

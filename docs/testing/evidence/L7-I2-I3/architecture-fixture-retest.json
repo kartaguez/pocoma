@@ -1,0 +1,22 @@
+{
+  "testedSha": "2922a9826059dc031b6204c080f53201b4ca11d9",
+  "status": "PASS",
+  "tests": 2,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "architecture-tests",
+    "-am",
+    "test",
+    "-Dtest=V3WorkerDevelopmentToolsTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false"
+  ],
+  "cwd": "app",
+  "logSha256": "a9c246d464265530a8c2e220ea77d388406016bca4efe0233741733a5eed0d6c",
+  "scope": "Filtered feedback. The unfiltered gates have separate receipts."
+}

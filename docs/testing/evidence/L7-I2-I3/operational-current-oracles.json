@@ -1,0 +1,1353 @@
+{
+  "testedSha": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+  "invocationId": "b565ce2f8ecf41389db688e79ba810f4",
+  "scope": "Oracles d’exploitation et PostgreSQL vérifiés sur les XML de l'invocation Architecture. La portée de la campagne est distincte des oracles retenus par ID.",
+  "reports": {
+    "V3WorkerResourcesPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
+      "sha256": "3a8423b30950a42128947415997184dfebed6392172cbcee4f19c45e32552bdd",
+      "methods": {
+        "i5_r01": 23.416,
+        "i5_r02": 20.216,
+        "i5_r03": 56.543,
+        "i5_r04": 6.316,
+        "i5_r05": 36.54,
+        "i5_r06": 25.509,
+        "i5_r07": 38.211,
+        "i5_r08": 4.114,
+        "i5_r09": 22.634,
+        "i5_r10": 26.674,
+        "i5_r11": 6.016,
+        "i5_r12": 50.006,
+        "i5_r05_discovery_skip_locked_interleaving": 3.238
+      }
+    },
+    "ConsumptionLifecycleCompositionPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest.xml",
+      "sha256": "35b1362ecb53d4ce862884aa4918577325b81c55a2d4abe944e7787de814bd98",
+      "methods": {
+        "lifecyclePrivilegesAndInertPilotStaySeparate": 0.595,
+        "renewalsHaveReservedDatabaseAccess": 3.735,
+        "failureCauseGraphClassification": 0.325,
+        "sharedCapacityAcrossAuthorities": 0.54,
+        "oneOwnerAndNoActiveScheduler": 0.427
+      }
+    },
+    "V3WorkerMetricsTest": {
+      "xml": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest.xml",
+      "sha256": "8a035819885d47a5b5dcc098452e9fcd2ccb1d7c0762448bafba9c61a6b95d7c",
+      "methods": {
+        "i5_m01": 6.815,
+        "i5_m02": 3.209,
+        "i5_m03": 28.551
+      }
+    },
+    "V3WorkerPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.xml",
+      "sha256": "5dbfc4b240ad5245666768501f4392529155dba5accff94f045b54d17488e966",
+      "methods": {
+        "i5_w01": 4.571,
+        "i5_w02": 6.514,
+        "i5_w03": 3.527,
+        "i5_w04": 3.358,
+        "i5_w05": 6.152,
+        "i5_w06": 3.089,
+        "i5_w07": 3.434,
+        "i5_w08": 26.123,
+        "i5_w09": 16.743,
+        "i5_w10": 35.988,
+        "i5_w11": 20.717,
+        "i5_w12": 4.131,
+        "i5_w13": 64.967,
+        "i5_w14": 142.638,
+        "i5_w15": 5.78,
+        "i5_w16": 605.635,
+        "i5_w17": 47.02,
+        "i5_w18": 7.288,
+        "i5_w19": 16.967,
+        "i5_w20": 13.67,
+        "i5_w21": 38.824
+      }
+    },
+    "PotVersionReadStorePostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-read/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.read.v3.PotVersionReadStorePostgresTest.xml",
+      "sha256": "1f6400bffa480e89f971c89f92615646c35e2041b3d3bdedd6e7f7bd47e98fce",
+      "methods": {
+        "historyAndReplay": 0.571,
+        "concurrentPublishers": 0.158,
+        "migrationAndPrivileges": 0.152
+      }
+    },
+    "ConsumptionLifecyclePostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+      "sha256": "bcf464a1e3b1c63a86efade2c5c5f488594faede47ec62754207991bcb6cef1f",
+      "methods": {
+        "i3_reactivate": 1.048,
+        "i3_two_admins": 0.712,
+        "i3_lease_races": 0.521,
+        "i3_renew_s1_s2": 0.942,
+        "i3_capacity_uncertainty": 2.471,
+        "i3_retry_config_prospective": 2.68,
+        "i3_cession_once": 0.646,
+        "i3_reactivate_over_cap": 5.085,
+        "i3_renew_relation_timeout": 1.606,
+        "i3_c03_a": 0.826,
+        "i3_c03_b": 0.656,
+        "i3_c03_c": 0.893,
+        "i3_c03_d": 0.781,
+        "i3_c03_e": 1.082,
+        "i3_c03_f": 1.194,
+        "i3_c03_g": 2.15,
+        "i3_c03_h": 0.747,
+        "i3_c03_i": 0.898,
+        "i3_c03_j": 1.006,
+        "i3_c03_k": 2.104,
+        "i3_c03_l": 2.071,
+        "i3_c05_a": 0.767,
+        "i3_c05_b": 1.16,
+        "i3_c05_c": 0.92,
+        "i3_c05_d": 0.878,
+        "i3_c05_e": 0.949,
+        "i3_c05_f": 1.393,
+        "i3_c05_g": 0.742,
+        "i3_c05_h": 1.072,
+        "i3_c05_i": 0.806,
+        "i3_c05_j": 1.102,
+        "i3_c05_k": 0.934,
+        "i3_c05_l": 0.815,
+        "i3_c05_m": 0.799,
+        "i3_acquisition_lease_clock": 1.001,
+        "i3_sql_costs": 16.793,
+        "i3_acquisition_partial": 1.381,
+        "i3_audit_classifier_active": 0.872,
+        "i3_route_admin_serialization": 0.645,
+        "i3_other_slot_progresses": 1.138,
+        "i3_quarantine_persists": 0.762,
+        "i3_audit_cession_unknown_active": 1.532,
+        "i3_audit_classifier_exits": 1.698,
+        "i3_failure_classification": 0.826,
+        "i3_audit_cession_failure": 1.371
+      }
+    },
+    "QuarantineDiscoveryFilterPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.QuarantineDiscoveryFilterPostgresTest.xml",
+      "sha256": "730ea6c6595da6247749a37d360ebef3c993fbde242adf05fdd3c78d9a2f3370",
+      "methods": {
+        "scenario09_multipleWorkers_concurrencySafe": 0.671,
+        "scenario08_multiplePartitions_noStarvation": 0.637,
+        "scenario04_803Quarantines_multipleAvailable_fillsQuantum": 0.669,
+        "scenario11_concurrentStateModification_transactionallySafe": 0.351,
+        "scenario10_expiredClaimRecovery_alwaysFunctional": 0.41,
+        "scenario06_reactivationOfQuarantine_becomesDiscoverable": 0.359,
+        "scenario12_conservationVerification_803QuarantinesPreserved": 0.641,
+        "scenario02_803QuarantinedSlots_noneReturned": 0.388,
+        "scenario07_reactivationBehindCursor_discoveredOnNextRotation": 0.408,
+        "scenario01_noQuarantinedSlots_normalDiscovery": 0.544,
+        "scenario05_allSlotsQuarantined_emptySearchNoHangs": 0.578,
+        "scenario03_803Quarantines_singleAvailable_discoveredImmediately": 0.371
+      }
+    },
+    "IdentityPublicationPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+      "sha256": "3200b610d7772cd135fea85518181aef1181b5ec15268ebd43d61d9da504b0bc",
+      "methods": {
+        "l3_structural_poison_before_counter": 0.769,
+        "historicalBindingFixtureDoesNotPublishAcrossBlockedForeignKey": 0.539,
+        "l3_deferred_commit_checks": 0.774,
+        "l3_suffix_closed": 0.625,
+        "l3_identity_pair_contention": 0.917,
+        "l3_dense_rollback": 0.627,
+        "l3_physical_unit": 0.502,
+        "l3_identity_batch": 0.728
+      }
+    },
+    "SlotNavigationPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.SlotNavigationPostgresTest.xml",
+      "sha256": "86857f063180de151847bb54219c132c71d97c197ad1ba470ae70c7c7050616a",
+      "methods": {
+        "i5_n01": 2.778,
+        "i5_n02": 1.041,
+        "i5_n03": 3.171,
+        "i5_n04": 0.57,
+        "i5_n05": 0.7,
+        "i5_n06": 0.763,
+        "i5_n07": 53.761,
+        "i5_n08": 0.618
+      }
+    },
+    "IdentityRequestExecutionPostgresTest": {
+      "xml": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+      "sha256": "59c32905f1b2f1ff6a24e7c5b96c041fc7a35fd00d29aa3850a3655d2d936dac",
+      "methods": {
+        "l3_unavailable_observation": 0.704,
+        "l3_atomic_registration": 0.75,
+        "l3_observation_corruption": 0.567,
+        "l3_final_lock_clock": 0.561,
+        "l3_rejection_terminal": 0.608,
+        "l3_fencing": 0.893,
+        "l3_unlink_with_historical_binding": 0.987,
+        "l3_unknown_commit": 0.862,
+        "l3_rollback_each_boundary": 5.207,
+        "l3_technical_not_rejected_and_redacted": 0.623,
+        "retiredLinkCannotBeAdmittedOrExecuted": 0.603,
+        "l3_completion_misuse": 1.166,
+        "l3_retry_quarantine": 0.832,
+        "l3_workers_concurrent_registration": 0.653
+      }
+    },
+    "StageHandoffTrackerTest": {
+      "xml": "reports/pocoma-infra-observability-micrometer/surefire-reports/TEST-com.kartaguez.pocoma.infra.observability.micrometer.v3.StageHandoffTrackerTest.xml",
+      "sha256": "9659d7096ddc19f365c278f87a6836e633b26f418e595cd515e9ae74b11b40f7",
+      "methods": {
+        "testUnauthenticatedSnapshotSanitizesBusinessIdentifiers": 0.121,
+        "testRolledBackAttemptDoesNotRecordCommittedMetrics": 0.003,
+        "independentlyComposedScopesCannotWakeOrClearEachOther": 0.003,
+        "testRobustAgainstNullsAndMissingEntries": 0.001,
+        "testCompleteLifecycleHandoffMetrology": 0.01,
+        "testDetailedMilestoneDecompositionA1ToA4": 0.007
+      }
+    },
+    "InterAuthorityRecoveryPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.InterAuthorityRecoveryPostgresTest.xml",
+      "sha256": "64537a94f9bd213da8c043f3d974d51a71d431043739fe929b463248bef20496",
+      "methods": {
+        "r09WriteBurnableMatrixNeverConsultsCheckpoint": 4.958,
+        "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution": 1.337,
+        "r04AllFourDeliveredFamiliesUseTheirRealPublicationMapping": 0.791,
+        "r01AndR03PresentPreexistingAndAbsentExactOrDivergentEvidence": 11.42,
+        "r05OneSnapshotRejectsTheTwoSnapshotFalseCompletedCounterexample": 0.703,
+        "r02CoverageIsExactConsumptionPartitionAndSourcePosition": 7.826,
+        "c03AndC04RenewalsContinueAcrossLongScopesAndDrainWaitsForPhysicalExit": 1.074,
+        "r04ExactSqlLookupDistinguishesAbsenceCorruptionAndTechnicalFailure": 5.11,
+        "r08TechnicalModelsRequireCompleteContentAndRespectConformingAbsence": 11.672,
+        "r07UnknownRecoveryDiscardsCalculatedVerdictAndPermanentlyExcludesEngine": 0.698
+      }
+    },
+    "ReadParticipantsIntegrationPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+      "sha256": "70aabd5c222d212c790ad92a5c76fec23437ac69fe48ffbbed528169e5d38da4",
+      "methods": {
+        "independentProgression": 22.587,
+        "resultsBeforeDomain": 1.475,
+        "potVersionRecoveryRequiresCurrentPot": 2.448,
+        "participantConformance(String)[1]": 6.816,
+        "participantConformance(String)[2]": 6.788,
+        "participantConformance(String)[3]": 6.766,
+        "participantConformance(String)[4]": 6.678,
+        "participantConformance(String)[5]": 4.94,
+        "participantConformance(String)[6]": 5.048,
+        "boundedCapacityAndRenewal": 1.558,
+        "currentBindingRecoverySupersession": 2.118,
+        "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+        "visibilityRecoverySupersession": 2.131,
+        "recoveryAffectedParticipantConformance": 20.918
+      }
+    },
+    "V3ReadReconstructionPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest.xml",
+      "sha256": "fc496e573a4d8f9a2a2e46f4cfcb07b539a9599abc6d182873e9371cbd705aa3",
+      "methods": {
+        "rcv01K_crashDuringDdl_safeResumeWithoutDestruction": 0.966,
+        "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact": 3.371,
+        "rcv01H_quarantineAndIntegrityViolations_blockReady": 3.079,
+        "rcv01I_concurrentAcquisitionExclusion": 0.667,
+        "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584,
+        "rcv01B_lateWorkerExclusion_commitFailsAndDoesNotCorruptNewGeneration": 0.71,
+        "rcv01C_explicitUnavailabilityAfterResetBeforeReplay": 0.962,
+        "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence": 3.444,
+        "rcv01M_resumeFromConvergedRequiresValidOracle": 0.989,
+        "rcv01J_writePermissionIsolation": 0.697,
+        "rcv01N_destructiveRecoveryFromFailed": 0.715,
+        "rcv01G_crashRecoveryAndResume": 0.717,
+        "rcv01L_sessionAdvisoryLockExclusion": 0.637
+      }
+    },
+    "InterAuthorityPreparationPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.InterAuthorityPreparationPostgresTest.xml",
+      "sha256": "01d8e3757f3256a5c84e156797b7b22369d324a4ca963feb6686596a48087a8c",
+      "methods": {
+        "p03CounterOracleDetectsAForwarderThatDropsTheSharedGuard": 1.403,
+        "p02CaughtNestedAndForeignScopesNeverOpenAnotherAuthority": 1.329,
+        "w01CommandLoadAuthorityAndHistoryKeepOnePhysicalSnapshot": 0.669,
+        "w03CaughtSpringCallbacksRollbackBeforeCommitAndPreserveCommitAfterCompletion": 2.102,
+        "p05AllPublicHistoryReadsPoisonCaughtForeignAuthorityAccess": 3.911,
+        "p06CancelledFutureDoesNotMeanBlockedSourceCallbackExited": 0.643,
+        "p07ConfirmedReadCleanupLossAndRawErrorKeepDifferentResponsibilities": 1.311,
+        "p03ExpiredSourceContextPoisonsEffectsAndFinalEvenWhenCaught": 1.391,
+        "p05CaughtSqlAndJavaDecodeFailuresKeepOriginalClassification": 1.333,
+        "p04AndP07PhysicalReadAckLossNeverAllowsNextScopeOrCapacitySettlement": 1.451,
+        "p08RetainedSourceSupplierCannotRunInsideReadFinalization": 0.675,
+        "p06InterruptedPreparationPreservesFlagAndRejectsBeforeNextBegin": 0.661,
+        "p05WrongAuthorityWriterIsRefusedBeforeAnySourceSql": 0.682,
+        "p08DetachedValuesClosedCursorAndNoSourceAccessDuringFinalization": 0.687,
+        "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+      }
+    },
+    "V3ReadQuotaPostgresTest": {
+      "xml": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest.xml",
+      "sha256": "5e1c71d520f8af817aea530e34dcb6740577fb06e2cf86b9fd40f06fe32a0670",
+      "methods": {
+        "cancellationDuringJdbc": 3.244,
+        "permitsAndConnectionsReleased": 0.755,
+        "twoReadersAndImmediateRefusal": 0.38,
+        "sqlTimeoutPhysicalResolution": 2.405,
+        "invalidInputBeforeQuota": 0.404,
+        "jdbcCountsAndCosts": 1.098,
+        "workersProgressWithoutControlBorrow": 2.751,
+        "httpInFlightUntilSendEnds": 5.544,
+        "disconnectDuringEncodingAndSend": 0.491,
+        "memoryAndCopies": 7.432
+      }
+    },
+    "V3ReadHttpContractTest": {
+      "xml": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.V3ReadHttpContractTest.xml",
+      "sha256": "264e64b3dd2a654ad196bade44f036f147ba16df93a82929469f26a79bb476f7",
+      "methods": {
+        "navigationCursorAndBindingChange": 1.518,
+        "missingBearer": 0.381,
+        "lateSerializationFailure": 0.544,
+        "navigationMutationsAndPlans": 15.251,
+        "ownBindingAndResults": 0.45,
+        "wrongIssuer": 0.378,
+        "terminalResultsOwnership": 0.492,
+        "wrongAudience": 0.365,
+        "foreignRefsAndMissingSubversions": 0.342,
+        "exactDtoAndSecretLogs": 0.467,
+        "expiredJwt": 0.351,
+        "mediaAndUnknownFields": 0.375,
+        "forgedSignature": 0.416,
+        "outputByteBoundaries": 0.648,
+        "notYetValidJwt": 0.45,
+        "missingEui": 0.438,
+        "bindingTokenAndForeignEui": 0.384,
+        "batchCardinalityAndMalformedRefs": 0.411,
+        "minimumAndReadDependencies": 0.489,
+        "coherentSnapshotDuringAdvance": 0.534,
+        "inputByteBoundaries": 0.425,
+        "terminalResultsWithoutBinding": 0.42,
+        "historicalAccessAndDeletion": 0.421,
+        "completeManifestAndExactBatches": 1.241
+      }
+    },
+    "V3StageHandoffsHttpTest": {
+      "xml": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.V3StageHandoffsHttpTest.xml",
+      "sha256": "a8ce30d85e3719fc942c323a7704484bc056fbe1511f8cfd04909372243caa68",
+      "methods": {
+        "bothRoutesRedactPopulatedRecordsAndRefuseReset": 2.572
+      }
+    },
+    "V3HttpCompositionPostgresTest": {
+      "xml": "reports/pocoma-runtime-web-read/surefire-reports/TEST-com.kartaguez.pocoma.V3HttpCompositionPostgresTest.xml",
+      "sha256": "88b7ebdaf5de2b6a5c0d2213ea52affc8a4fcaf0635ef621c63aa0f9d934357a",
+      "methods": {
+        "typedPortsAndDependencies": 0.063,
+        "legacyComponentsRejected": 0.381,
+        "readOnlyAuthorityAndNoWriteFallback": 0.6,
+        "brunoFixtureProvenance": 1.541,
+        "webRoot": 1.24
+      }
+    },
+    "ReadMaintenanceBarrierTest": {
+      "xml": "reports/pocoma-supra-web-read/surefire-reports/TEST-com.kartaguez.pocoma.supra.web.read.v3.maintenance.ReadMaintenanceBarrierTest.xml",
+      "sha256": "61fa04dbd9ce9569366cab7315008c6bd036e95e90cb7a9f144508c983b9e991",
+      "methods": {
+        "whenAuthorityThrowsException_failsClosedWith503": 0.665,
+        "cacheTtl500ms_avoidsRepeatedDatabaseCalls": 0.007,
+        "nonApiV3EndpointsAreNotFiltered": 0.001,
+        "jdbcAuthority_operationFencing_conditionsOnOperationId": 0.219,
+        "jdbcAuthority_tryAcquireMaintenance_usesCasConditioningOnReadyAndIdle": 0.005,
+        "jdbcAuthority_resetFailed_requiresStateFailed": 0.001,
+        "inFlightRequestsAndDrain": 0.066,
+        "whenStateIsRebuilding_returns503WithRetryAfter30": 0.001,
+        "jdbcAuthority_tryAcquireRecovery_rejectsReadyState": 0.001,
+        "whenStateIsReady_requestPassesThrough": 0.001,
+        "whenStateIsFailed_returns503WithRetryAfter30": 0.001,
+        "admissionEndpointsAreNotFiltered_whenAdmissionActive": 0.001,
+        "jdbcAuthority_tryAcquireRecovery_acceptsInterruptedOrFailed": 0.001,
+        "multiInstanceSimulation_concurrentRequests": 0.007,
+        "whenStateIsMaintenance_returns503WithRetryAfter30": 0.001
+      }
+    },
+    "ReadWorkerResourcesPostgresTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.xml",
+      "sha256": "29b8dfed67ff7546c6f97140a26b011d19352927c2f5d2b5b3af6c3a20e40103",
+      "methods": {
+        "allParticipantsFitPoolsAndRenewalEnvelope": 49.716,
+        "drainAndRestartPreserveDurableProgress": 518.292
+      }
+    },
+    "V3MonolithHttpCompositionPostgresTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest.xml",
+      "sha256": "ee27c39e56e6f824d2cb87d016df56a4f1bb80d0e4e90deaa11d3fe84f65e9c8",
+      "methods": {
+        "monolithRoot": 5.346
+      }
+    },
+    "V3InvitationReadPostgresTest": {
+      "xml": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+      "sha256": "e99478d51c8c2c8c9c329c8674de484eaebe792b3e30961032e729e6522d4e16",
+      "methods": {
+        "reconstructOnFreshReadWithoutProducer": 10.677,
+        "authenticatedEncryptionAndOldKeyRestoration": 6.493,
+        "monotoneDuplicateAndDivergence": 6.304
+      }
+    }
+  },
+  "obligations": {
+    "OPS-MONO": {
+      "oracles": {
+        "V3MonolithHttpCompositionPostgresTest": {
+          "monolithRoot": 5.346
+        }
+      },
+      "scope": "Racine Monolith READ réelle sous PostgreSQL jetable. Le conditionnement JAR et le déploiement opérationnel ont un reçu historique distinct."
+    },
+    "OPS-LEGACY": {
+      "oracles": {
+        "V3HttpCompositionPostgresTest": {
+          "legacyComponentsRejected": 0.381
+        }
+      },
+      "scope": "La composition locale refuse les composants hors racine. Le démarrage d’un JAR livré avec ancien profil a une preuve historique."
+    },
+    "OPS-POOLS": {
+      "oracles": {
+        "V3WorkerResourcesPostgresTest": {
+          "i5_r05": 36.54,
+          "i5_r12": 50.006
+        },
+        "ReadWorkerResourcesPostgresTest": {
+          "allParticipantsFitPoolsAndRenewalEnvelope": 49.716,
+          "drainAndRestartPreserveDurableProgress": 518.292
+        },
+        "V3ReadQuotaPostgresTest": {
+          "cancellationDuringJdbc": 3.244,
+          "permitsAndConnectionsReleased": 0.755,
+          "twoReadersAndImmediateRefusal": 0.38,
+          "sqlTimeoutPhysicalResolution": 2.405,
+          "invalidInputBeforeQuota": 0.404,
+          "jdbcCountsAndCosts": 1.098,
+          "workersProgressWithoutControlBorrow": 2.751,
+          "httpInFlightUntilSendEnds": 5.544,
+          "disconnectDuringEncodingAndSend": 0.491,
+          "memoryAndCopies": 7.432
+        }
+      },
+      "scope": "Pools et quotas physiques, réservation de contrôle, observation des reprises. Les fenêtres temporelles historiques restent conditionnelles."
+    },
+    "OPS-STOP": {
+      "oracles": {
+        "V3WorkerPostgresTest": {
+          "i5_w14": 142.638,
+          "i5_w15": 5.78
+        },
+        "InterAuthorityRecoveryPostgresTest": {
+          "c03AndC04RenewalsContinueAcrossLongScopesAndDrainWaitsForPhysicalExit": 1.074
+        }
+      },
+      "scope": "Six frontières W14, drain en attente de sortie physique et reprise sans double effet. Arrêt SIGTERM des cinq processus attribué à la recette."
+    },
+    "OPS-01": {
+      "oracles": {
+        "QuarantineDiscoveryFilterPostgresTest": {
+          "scenario03_803Quarantines_singleAvailable_discoveredImmediately": 0.371,
+          "scenario08_multiplePartitions_noStarvation": 0.637
+        },
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_other_slot_progresses": 1.138
+        }
+      },
+      "scope": "Navigation physique malgré 803 quarantaines, équité de partitions et progrès d’un autre effet. Les populations réelles sont documentées par méthode."
+    },
+    "RCV01-A": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact": 3.371
+        }
+      },
+      "scope": "Reset complet sur READ peuplé et vérification WRITE séparée. Le corpus d'Invitation a son propre rejeu."
+    },
+    "RCV01-B": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01B_lateWorkerExclusion_commitFailsAndDoesNotCorruptNewGeneration": 0.71
+        }
+      },
+      "scope": "La nouvelle génération résiste à l'essai tardif du Worker de l'ancienne génération."
+    },
+    "RCV01-C": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01C_explicitUnavailabilityAfterResetBeforeReplay": 0.962
+        },
+        "ReadMaintenanceBarrierTest": {
+          "whenAuthorityThrowsException_failsClosedWith503": 0.665,
+          "cacheTtl500ms_avoidsRepeatedDatabaseCalls": 0.007,
+          "nonApiV3EndpointsAreNotFiltered": 0.001,
+          "jdbcAuthority_operationFencing_conditionsOnOperationId": 0.219,
+          "jdbcAuthority_tryAcquireMaintenance_usesCasConditioningOnReadyAndIdle": 0.005,
+          "jdbcAuthority_resetFailed_requiresStateFailed": 0.001,
+          "inFlightRequestsAndDrain": 0.066,
+          "whenStateIsRebuilding_returns503WithRetryAfter30": 0.001,
+          "jdbcAuthority_tryAcquireRecovery_rejectsReadyState": 0.001,
+          "whenStateIsReady_requestPassesThrough": 0.001,
+          "whenStateIsFailed_returns503WithRetryAfter30": 0.001,
+          "admissionEndpointsAreNotFiltered_whenAdmissionActive": 0.001,
+          "jdbcAuthority_tryAcquireRecovery_acceptsInterruptedOrFailed": 0.001,
+          "multiInstanceSimulation_concurrentRequests": 0.007,
+          "whenStateIsMaintenance_returns503WithRetryAfter30": 0.001
+        }
+      },
+      "scope": "Barrière pendant l'état reconstruit mais non rejoué, et indisponibilité HTTP à l'entrée et à la sortie de l'état d'exploitation."
+    },
+    "RCV01-D": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence": 3.444,
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        }
+      },
+      "scope": "Rejeu sous IDs canoniques et empreintes des valeurs Pot, balances et visibilité. La portée exacte du nouveau corpus est publiée séparément."
+    },
+    "RCV01-E": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence": 3.444,
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        }
+      },
+      "scope": "Rejeu sous IDs canoniques et empreintes des valeurs Pot, balances et visibilité. La portée exacte du nouveau corpus est publiée séparément."
+    },
+    "RCV01-F": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587
+        },
+        "V3InvitationReadPostgresTest": {
+          "reconstructOnFreshReadWithoutProducer": 10.677
+        }
+      },
+      "scope": "Les participants avancent indépendamment et Invitation rejoue avec ses propres checkpoints. Les deux cas ont des fixtures distinctes."
+    },
+    "RCV01-G": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01G_crashRecoveryAndResume": 0.717,
+          "rcv01K_crashDuringDdl_safeResumeWithoutDestruction": 0.966
+        }
+      },
+      "scope": "Reprise depuis états durables en DDL et en rejeu. La qualification dépend de la phase qui a réellement été interrompue."
+    },
+    "RCV01-H": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01H_quarantineAndIntegrityViolations_blockReady": 3.079
+        }
+      },
+      "scope": "Une quarantaine dans la borne et une projection incomplète empêchent READY. Le reset partiel avec ancien checkpoint reste dû."
+    },
+    "RCV01-I": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01I_concurrentAcquisitionExclusion": 0.667,
+          "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact": 3.371
+        }
+      },
+      "scope": "Exclusion concurrente puis reset total. Les états de slots présents sont ceux des fixtures."
+    },
+    "RCV01-M": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01M_resumeFromConvergedRequiresValidOracle": 0.989
+        },
+        "ReadMaintenanceBarrierTest": {
+          "whenAuthorityThrowsException_failsClosedWith503": 0.665,
+          "cacheTtl500ms_avoidsRepeatedDatabaseCalls": 0.007,
+          "nonApiV3EndpointsAreNotFiltered": 0.001,
+          "jdbcAuthority_operationFencing_conditionsOnOperationId": 0.219,
+          "jdbcAuthority_tryAcquireMaintenance_usesCasConditioningOnReadyAndIdle": 0.005,
+          "jdbcAuthority_resetFailed_requiresStateFailed": 0.001,
+          "inFlightRequestsAndDrain": 0.066,
+          "whenStateIsRebuilding_returns503WithRetryAfter30": 0.001,
+          "jdbcAuthority_tryAcquireRecovery_rejectsReadyState": 0.001,
+          "whenStateIsReady_requestPassesThrough": 0.001,
+          "whenStateIsFailed_returns503WithRetryAfter30": 0.001,
+          "admissionEndpointsAreNotFiltered_whenAdmissionActive": 0.001,
+          "jdbcAuthority_tryAcquireRecovery_acceptsInterruptedOrFailed": 0.001,
+          "multiInstanceSimulation_concurrentRequests": 0.007,
+          "whenStateIsMaintenance_returns503WithRetryAfter30": 0.001
+        }
+      },
+      "scope": "Pas de READY sur preuve devenue incohérente. Barrière HTTP et application du contrôle d'accès attribuées à leurs fixtures."
+    },
+    "RCV01-N": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        },
+        "V3InvitationReadPostgresTest": {
+          "reconstructOnFreshReadWithoutProducer": 10.677
+        }
+      },
+      "scope": "Égalité des valeurs métier et historiques lors du rejeu séparé. Invitation contient deux enregistrements dans son oracle dédié."
+    },
+    "L2M-C01-L": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_sql_costs": 16.793
+        }
+      },
+      "scope": "Coûts SQL bornés sur 100/1 000/10 000 slots par partition. La mémoire et les références Discovery restent sous mesures distinctes."
+    },
+    "L2M-C04-G": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_g": 0.742
+        }
+      },
+      "scope": "La ligne du nouveau claim reste strictement identique quand l'ancien token tente la cession. L'invariant correspondant à la finalisation se vérifie séparément."
+    },
+    "L2M-C04-J": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "visibilityRecoverySupersession": 2.131
+        },
+        "V3ReadReconstructionPostgresTest": {
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        }
+      },
+      "scope": "Indépendance des participants, monotonie de visibilité et égalité du contenu rejoué à versions historiques. Le corpus de rejeu n'inclut pas d'Invitation."
+    },
+    "L2M-C06-C": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "resultsBeforeDomain": 1.475,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        },
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+        }
+      },
+      "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
+    },
+    "L2M-C06-D": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "resultsBeforeDomain": 1.475,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        },
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+        }
+      },
+      "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
+    },
+    "L2M-C06-J": {
+      "oracles": {
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681,
+          "p02CaughtNestedAndForeignScopesNeverOpenAnotherAuthority": 1.329
+        }
+      },
+      "scope": "Snapshots SQL sur autorités successives. Aucun scope imbriqué étranger et finalisation physique locale."
+    },
+    "L2M-E02-G": {
+      "oracles": {
+        "InterAuthorityRecoveryPostgresTest": {
+          "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution": 1.337
+        },
+        "ReadParticipantsIntegrationPostgresTest": {
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082
+        }
+      },
+      "scope": "Résolution par observation indépendante, puis libération de capacité distincte. Portée NonBurnable des méthodes citées."
+    },
+    "L2M-E03-I": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact": 3.371,
+          "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence": 3.444
+        }
+      },
+      "scope": "Reset complet et exclusif, reprise sous mêmes identifiants et rejeu. Le refus des resets partiels reste dû."
+    },
+    "L2M-E03-J": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "visibilityRecoverySupersession": 2.131
+        },
+        "V3ReadReconstructionPostgresTest": {
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        }
+      },
+      "scope": "Indépendance des participants, monotonie de visibilité et égalité du contenu rejoué à versions historiques. Le corpus de rejeu n'inclut pas d'Invitation."
+    },
+    "L2M-C06-N": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "resultsBeforeDomain": 1.475,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        },
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+        }
+      },
+      "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
+    },
+    "L2M-C04-J-REPORT": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "visibilityRecoverySupersession": 2.131
+        },
+        "V3ReadReconstructionPostgresTest": {
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        }
+      },
+      "scope": "Indépendance des participants, monotonie de visibilité et égalité du contenu rejoué à versions historiques. Le corpus de rejeu n'inclut pas d'Invitation."
+    },
+    "L2M-C05-C-REPORT": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_c": 0.92,
+          "i3_c05_d": 0.878
+        }
+      },
+      "scope": "Collision puis recalcul sous fait frais. Le pilote WRITE exécute Command réel. Le participant READ est une fixture."
+    },
+    "L2M-C05-D-REPORT": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_c": 0.92,
+          "i3_c05_d": 0.878
+        }
+      },
+      "scope": "Collision puis recalcul sous fait frais. Le pilote WRITE exécute Command réel. Le participant READ est une fixture."
+    },
+    "L2M-C05-M-REPORT": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_m": 0.799
+        }
+      },
+      "scope": "Échec classifié et cession, nouvel essai avec un seul effet. Le pilote WRITE exécute Command réel. Le participant READ est une fixture."
+    },
+    "L2M-C06-C-REPORT": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "resultsBeforeDomain": 1.475,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        },
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+        }
+      },
+      "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
+    },
+    "L2M-C06-D-REPORT": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "resultsBeforeDomain": 1.475,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        },
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+        }
+      },
+      "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
+    },
+    "L2M-C06-N-REPORT": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "resultsBeforeDomain": 1.475,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        },
+        "InterAuthorityPreparationPostgresTest": {
+          "p01ConsecutiveAuthoritiesPhysicalSnapshotsAndAtomicFinalization": 0.681
+        }
+      },
+      "scope": "Conformité des sept participants READ et unité transactionnelle. Vérifier séparément le rollback forcé par famille si l'obligation l'exige."
+    },
+    "L2M-E01-E-REPORT": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_rejection_terminal": 0.608
+        },
+        "IdentityPublicationPostgresTest": {
+          "l3_physical_unit": 0.502
+        }
+      },
+      "scope": "Rejet terminal sans mutation Identity, avec unité physique de publication vérifiée sur le producteur réel."
+    },
+    "L2M-E01-G-REPORT": {
+      "oracles": {
+        "IdentityPublicationPostgresTest": {
+          "l3_identity_pair_contention": 0.917,
+          "l3_dense_rollback": 0.627
+        }
+      },
+      "scope": "Publication Identity et complétion réelles sous contention. Le rollback préserve la densité des séquences."
+    },
+    "L2M-E02-G-REPORT": {
+      "oracles": {
+        "InterAuthorityRecoveryPostgresTest": {
+          "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution": 1.337
+        },
+        "ReadParticipantsIntegrationPostgresTest": {
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082
+        }
+      },
+      "scope": "Résolution par observation indépendante, puis libération de capacité distincte. Portée NonBurnable des méthodes citées."
+    },
+    "L2M-E03-I-REPORT": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact": 3.371,
+          "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence": 3.444
+        }
+      },
+      "scope": "Reset complet et exclusif, reprise sous mêmes identifiants et rejeu. Le refus des resets partiels reste dû."
+    },
+    "L2M-E03-J-REPORT": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "independentProgression": 22.587,
+          "visibilityRecoverySupersession": 2.131
+        },
+        "V3ReadReconstructionPostgresTest": {
+          "readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication": 246.584
+        }
+      },
+      "scope": "Indépendance des participants, monotonie de visibilité et égalité du contenu rejoué à versions historiques. Le corpus de rejeu n'inclut pas d'Invitation."
+    },
+    "L2M-E02-F-IDENTITY-REAL": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_atomic_registration": 0.75,
+          "l3_rollback_each_boundary": 5.207,
+          "l3_unlink_with_historical_binding": 0.987
+        }
+      },
+      "scope": "Interleavings et snapshots du vrai Worker Identity pour les opérations actives. Link historique est hors des transitions actives."
+    },
+    "L2M-E02-I-IDENTITY-REAL": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_atomic_registration": 0.75,
+          "l3_rollback_each_boundary": 5.207,
+          "l3_unlink_with_historical_binding": 0.987
+        }
+      },
+      "scope": "Interleavings et snapshots du vrai Worker Identity pour les opérations actives. Link historique est hors des transitions actives."
+    },
+    "L2M-C06-O-COMMAND": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "resultsBeforeDomain": 1.475,
+          "independentProgression": 22.587,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        }
+      },
+      "scope": "Matérialisation réelle des résultats avant les effets métier, et conformité des participants sur leur slot. Le rollback injecté par famille reste une obligation distincte."
+    },
+    "L2M-C06-O-IDENTITY": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "resultsBeforeDomain": 1.475,
+          "independentProgression": 22.587,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        }
+      },
+      "scope": "Matérialisation réelle des résultats avant les effets métier, et conformité des participants sur leur slot. Le rollback injecté par famille reste une obligation distincte."
+    },
+    "L2M-C06-O-COMMAND-REAL": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "resultsBeforeDomain": 1.475,
+          "independentProgression": 22.587,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        }
+      },
+      "scope": "Matérialisation réelle des résultats avant les effets métier, et conformité des participants sur leur slot. Le rollback injecté par famille reste une obligation distincte."
+    },
+    "L2M-C06-O-IDENTITY-REAL": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "resultsBeforeDomain": 1.475,
+          "independentProgression": 22.587,
+          "potVersionRecoveryRequiresCurrentPot": 2.448,
+          "participantConformance(String)[1]": 6.816,
+          "participantConformance(String)[2]": 6.788,
+          "participantConformance(String)[3]": 6.766,
+          "participantConformance(String)[4]": 6.678,
+          "participantConformance(String)[5]": 4.94,
+          "participantConformance(String)[6]": 5.048,
+          "boundedCapacityAndRenewal": 1.558,
+          "currentBindingRecoverySupersession": 2.118,
+          "uncertainCommitHasNoSpeculativeSettlement": 3.082,
+          "visibilityRecoverySupersession": 2.131,
+          "recoveryAffectedParticipantConformance": 20.918
+        }
+      },
+      "scope": "Matérialisation réelle des résultats avant les effets métier, et conformité des participants sur leur slot. Le rollback injecté par famille reste une obligation distincte."
+    },
+    "L2M-E01-G-ID-IDCOMP-REAL": {
+      "oracles": {
+        "IdentityPublicationPostgresTest": {
+          "l3_identity_pair_contention": 0.917,
+          "l3_dense_rollback": 0.627
+        }
+      },
+      "scope": "Publication Identity et complétion réelles sous contention. Le rollback préserve la densité des séquences."
+    },
+    "L2M-C05-H-COMMIT-ACK": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_h": 1.072
+        }
+      },
+      "scope": "Proxy coupe l'ACK avant ou après COMMIT de cession. La lecture physique indépendante voit 0 ou 1 incrément et le règlement local se termine sans effet métier."
+    },
+    "L2M-C05-H-ROLLBACK-ACK": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_h": 1.072
+        }
+      },
+      "scope": "Proxy coupe l'ACK avant ou après COMMIT de cession. La lecture physique indépendante voit 0 ou 1 incrément et le règlement local se termine sans effet métier."
+    },
+    "L2M-CON-05-NMINUS1": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_i": 0.806
+        }
+      },
+      "scope": "Compteur à 1 puis 2, trois tokens distincts, un succès, effet et suppression finale sur WRITE Command et READ technique."
+    },
+    "L2M-CON-05-NTH": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_j": 1.102
+        }
+      },
+      "scope": "Trois cessions puis QUARANTINED, acquisition impossible, Command encore PENDING et aucun effet des deux côtés du banc."
+    },
+    "L2M-CON-05-OLDTOKEN": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_g": 0.742
+        }
+      },
+      "scope": "L'ancien token ne peut céder ni après son expiration, ni après réacquisition, et la ligne reste identique."
+    },
+    "L2M-CON-05-PERSIST": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_quarantine_persists": 0.762
+        }
+      },
+      "scope": "Nouveau moteur sur la même base, refus d'acquisition, de renouvellement et de finalisation. Portée redémarrage du moteur."
+    },
+    "L2M-CON-05-SOFTCAP": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_reactivate_over_cap": 5.085
+        },
+        "QuarantineDiscoveryFilterPostgresTest": {
+          "scenario03_803Quarantines_singleAvailable_discoveredImmediately": 0.371
+        }
+      },
+      "scope": "803 quarantaines exclues de la sélection et un slot disponible visible. L'effet exact de l'admission sous soft cap reste distinct."
+    },
+    "L2M-CON-05-DISCOVERY": {
+      "oracles": {
+        "QuarantineDiscoveryFilterPostgresTest": {
+          "scenario02_803QuarantinedSlots_noneReturned": 0.388,
+          "scenario12_conservationVerification_803QuarantinesPreserved": 0.641
+        }
+      },
+      "scope": "La navigation filtre les 803 slots et les conserve. L'enrôlement source et les checkpoints se vérifient séparément."
+    },
+    "L2M-CON-05-REACT": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_reactivate": 1.048
+        }
+      },
+      "scope": "CAS administratif, reset du compteur, colonnes effacées, et refus de reprise sur ligne absente, disponible ou déjà détenue."
+    },
+    "L2M-CON-05-TWOADMIN": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_two_admins": 0.712
+        }
+      },
+      "scope": "Deux PIDs en attente du même verrou. Une transition administrative, une mise à jour nulle, aucun effet métier."
+    },
+    "L2M-CON-05-NOTQ": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_reactivate": 1.048
+        }
+      },
+      "scope": "CAS administratif, reset du compteur, colonnes effacées, et refus de reprise sur ligne absente, disponible ou déjà détenue."
+    },
+    "L2M-CON-05-REACTCAP": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_reactivate_over_cap": 5.085
+        }
+      },
+      "scope": "Le CAS réactive un 65e slot, ce qui dépasse le seuil 64. Suspension de Discovery à attribuer séparément."
+    },
+    "L2M-CON-05-REACTOUT": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_reactivate": 1.048,
+          "i3_c05_b": 1.16
+        }
+      },
+      "scope": "Le succès retire le slot réactivé. Une autre fixture montre le rollback des effets avant cession. Il manque la combinaison réactivation puis rollback."
+    },
+    "L2M-CON-05-OTHER": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_other_slot_progresses": 1.138
+        }
+      },
+      "scope": "Slot quarantiné intact, autre Command du même Pot et autre Consumption technique progressent."
+    },
+    "L2M-CON-05-HTTP": {
+      "oracles": {
+        "V3ReadHttpContractTest": {
+          "minimumAndReadDependencies": 0.489
+        }
+      },
+      "scope": "HTTP 503 après autorisation si balance absente, et 404 pour un Pot non autorisé ou absent. Le chaînage avec une quarantaine réelle reste distinct."
+    },
+    "L2M-CON-05-CONFIG": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_retry_config_prospective": 2.68
+        }
+      },
+      "scope": "Changement prospectif du couple de configuration. La ligne à échéance préexistante reste identique avant la nouvelle cession."
+    },
+    "L2M-R4-10-SKIPPED": {
+      "oracles": {
+        "QuarantineDiscoveryFilterPostgresTest": {
+          "scenario07_reactivationBehindCursor_discoveredOnNextRotation": 0.408
+        }
+      },
+      "scope": "La navigation retrouve la ligne réactivée derrière le curseur au tour suivant. Le stimulus de libération d'un verrou SKIP LOCKED est distinct."
+    },
+    "L2M-R10-04-SKIPPED": {
+      "oracles": {
+        "SlotNavigationPostgresTest": {
+          "i5_n02": 1.041
+        }
+      },
+      "scope": "Une ligne tenue par SELECT FOR UPDATE est omise lors de l’acquisition, puis revue après rollback sur les deux autorités."
+    },
+    "L2M-R10-10-MW1": {
+      "oracles": {
+        "ConsumptionLifecycleCompositionPostgresTest": {
+          "sharedCapacityAcrossAuthorities": 0.54
+        }
+      },
+      "scope": "Une unité de capacité est partagée entre deux autorités. L’autre participant acquiert après abandon confirmé. L’alternance soutenue sous arrivée continue reste distincte."
+    },
+    "L2M-C03-J-TAKEOVER": {
+      "oracles": {
+        "V3WorkerPostgresTest": {
+          "i5_w08": 26.123
+        }
+      },
+      "scope": "Redémarrage du Worker sans reconstruction. Vérification de l'autorité et du claim avant/après expiration."
+    },
+    "L2M-C03-J-UNKNOWN": {
+      "oracles": {
+        "V3WorkerPostgresTest": {
+          "i5_w14": 142.638
+        },
+        "InterAuthorityRecoveryPostgresTest": {
+          "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution": 1.337
+        }
+      },
+      "scope": "Six frontières d'arrêt/ACK et reprise physique. L'absence de doublons porte sur les périmètres éprouvés."
+    },
+    "L2M-E01-E-IDENTITY-REJECT": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_rejection_terminal": 0.608
+        },
+        "IdentityPublicationPostgresTest": {
+          "l3_physical_unit": 0.502
+        }
+      },
+      "scope": "Rejet terminal sans mutation Identity, avec unité physique de publication vérifiée sur le producteur réel."
+    },
+    "L2M-E02-E-UNLINK": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_unlink_with_historical_binding": 0.987
+        },
+        "IdentityPublicationPostgresTest": {
+          "l3_physical_unit": 0.502
+        }
+      },
+      "scope": "Unlink sur affiliation historique, publication Identity et complétion en unité physique. La relecture READ reste distincte."
+    },
+    "L2M-E02-E-REJECT": {
+      "oracles": {
+        "IdentityRequestExecutionPostgresTest": {
+          "l3_rejection_terminal": 0.608
+        },
+        "IdentityPublicationPostgresTest": {
+          "l3_physical_unit": 0.502
+        }
+      },
+      "scope": "Rejet terminal sans mutation Identity, avec unité physique de publication vérifiée sur le producteur réel."
+    },
+    "L2M-E03-J-V-THEN-V1": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "potVersionRecoveryRequiresCurrentPot": 2.448
+        },
+        "PotVersionReadStorePostgresTest": {
+          "historyAndReplay": 0.571
+        }
+      },
+      "scope": "Pointeur courant requis et historique complet, y compris lors du rejeu dans la fixture SQL."
+    },
+    "L2M-E03-J-V1-THEN-V": {
+      "oracles": {
+        "ReadParticipantsIntegrationPostgresTest": {
+          "potVersionRecoveryRequiresCurrentPot": 2.448
+        },
+        "PotVersionReadStorePostgresTest": {
+          "historyAndReplay": 0.571
+        }
+      },
+      "scope": "Pointeur courant requis et historique complet, y compris lors du rejeu dans la fixture SQL."
+    },
+    "L2M-R5-01": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_b": 1.16,
+          "i3_cession_once": 0.646,
+          "i3_c05_m": 0.799
+        }
+      },
+      "scope": "Cession distincte du rollback, concurrence sur deux cessions avec une seule écriture, nouveau claim pour l'effet suivant."
+    },
+    "L2M-R5-02": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_b": 1.16,
+          "i3_cession_once": 0.646,
+          "i3_c05_m": 0.799
+        }
+      },
+      "scope": "Cession distincte du rollback, concurrence sur deux cessions avec une seule écriture, nouveau claim pour l'effet suivant."
+    },
+    "L2M-R5-07": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_h": 1.072
+        }
+      },
+      "scope": "Proxy coupe l'ACK avant ou après COMMIT de cession. La lecture physique indépendante voit 0 ou 1 incrément et le règlement local se termine sans effet métier."
+    },
+    "L2M-R7-06": {
+      "oracles": {
+        "V3WorkerPostgresTest": {
+          "i5_w08": 26.123
+        }
+      },
+      "scope": "Redémarrage du Worker sans reconstruction. Vérification de l'autorité et du claim avant/après expiration."
+    },
+    "L2M-R7-09": {
+      "oracles": {
+        "V3WorkerPostgresTest": {
+          "i5_w14": 142.638
+        },
+        "InterAuthorityRecoveryPostgresTest": {
+          "r06FinalLostAckHasIndependentBusinessProofAndSeparateCapacityResolution": 1.337
+        }
+      },
+      "scope": "Six frontières d'arrêt/ACK et reprise physique. L'absence de doublons porte sur les périmètres éprouvés."
+    },
+    "L2M-R8-04": {
+      "oracles": {
+        "V3ReadReconstructionPostgresTest": {
+          "rcv01A_fullResetOnPopulatedRead_writeRemainsIntact": 3.371,
+          "rcv01D_rebuildReplaysFromFiveWriteFamiliesToConvergence": 3.444
+        }
+      },
+      "scope": "Reset complet et exclusif, reprise sous mêmes identifiants et rejeu. Le refus des resets partiels reste dû."
+    },
+    "L2M-L1-C-c12": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_f": 1.393,
+          "i3_c05_g": 0.742,
+          "i3_c05_i": 0.806
+        }
+      },
+      "scope": "Budget N=3, délai RetryAfter sous horloge PostgreSQL, ancien token exclu, puis succès après deux échecs."
+    },
+    "L2M-L1-C-c23": {
+      "oracles": {
+        "ConsumptionLifecyclePostgresTest": {
+          "i3_c05_h": 1.072
+        }
+      },
+      "scope": "Proxy coupe l'ACK avant ou après COMMIT de cession. La lecture physique indépendante voit 0 ou 1 incrément et le règlement local se termine sans effet métier."
+    },
+    "OPS-OBS": {
+      "oracles": {
+        "V3WorkerMetricsTest": {
+          "i5_m01": 6.815,
+          "i5_m02": 3.209,
+          "i5_m03": 28.551
+        },
+        "StageHandoffTrackerTest": {
+          "testUnauthenticatedSnapshotSanitizesBusinessIdentifiers": 0.121,
+          "testRolledBackAttemptDoesNotRecordCommittedMetrics": 0.003,
+          "independentlyComposedScopesCannotWakeOrClearEachOther": 0.003,
+          "testRobustAgainstNullsAndMissingEntries": 0.001,
+          "testCompleteLifecycleHandoffMetrology": 0.01,
+          "testDetailedMilestoneDecompositionA1ToA4": 0.007
+        },
+        "V3StageHandoffsHttpTest": {
+          "bothRoutesRedactPopulatedRecordsAndRefuseReset": 2.572
+        }
+      },
+      "scope": "Métriques Worker, tracker et deux routes HTTP effectivement exposées, limitées au périmètre local."
+    },
+    "OPS-DIAG": {
+      "oracles": {
+        "StageHandoffTrackerTest": {
+          "testUnauthenticatedSnapshotSanitizesBusinessIdentifiers": 0.121,
+          "testRolledBackAttemptDoesNotRecordCommittedMetrics": 0.003,
+          "independentlyComposedScopesCannotWakeOrClearEachOther": 0.003,
+          "testRobustAgainstNullsAndMissingEntries": 0.001,
+          "testCompleteLifecycleHandoffMetrology": 0.01,
+          "testDetailedMilestoneDecompositionA1ToA4": 0.007
+        },
+        "V3StageHandoffsHttpTest": {
+          "bothRoutesRedactPopulatedRecordsAndRefuseReset": 2.572
+        }
+      },
+      "scope": "Validation de la taille du tracker et des deux routes sur tracker peuplé. Le diagnostic Actuator est expurgé et accessible anonymement. JWT obligatoire sur l’API V3."
+    }
+  }
+}

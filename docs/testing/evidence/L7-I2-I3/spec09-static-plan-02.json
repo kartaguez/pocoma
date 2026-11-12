@@ -1,0 +1,207 @@
+{
+  "mode": "STATIC_PLAN_ONLY",
+  "manifestSha256": "704c0b412b30763e29ed82e80cd2b25759526fec4293b44863652100d0333de1",
+  "repetitions": 3,
+  "campaigns": [
+    {
+      "id": "F01-A",
+      "configuration": "A",
+      "potCount": 10,
+      "dataset": "medium",
+      "rate": 1,
+      "warmupSeconds": 180,
+      "sampleSeconds": 1200,
+      "c03P95Ms": 500,
+      "exactBalanceP95Ms": 500,
+      "stimulus": "nominal",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_JSON"
+      ],
+      "stimulusCommands": [
+        "env SCENARIO=nominal RATE=1 DURATION=1200s POTS=10 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-B",
+      "configuration": "A",
+      "potCount": 100,
+      "dataset": "medium",
+      "rate": 10,
+      "warmupSeconds": 300,
+      "sampleSeconds": 900,
+      "c03P95Ms": 1000,
+      "backlog": "stationary by Consumption",
+      "stimulus": "sustained",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_JSON"
+      ],
+      "stimulusCommands": [
+        "env SCENARIO=sustained RATE=10 DURATION=900s POTS=100 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-C",
+      "configuration": "A",
+      "potCount": 250,
+      "dataset": "medium",
+      "rate": 50,
+      "warmupSeconds": 300,
+      "sampleSeconds": 180,
+      "nominalRecoverySeconds": 600,
+      "c03P95Ms": 3000,
+      "stimulus": "peak",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_JSON"
+      ],
+      "stimulusCommands": [
+        "env SCENARIO=peak RATE=50 DURATION=180s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-D",
+      "configuration": "A",
+      "potCount": 10,
+      "dataset": "large",
+      "rate": 1,
+      "warmupSeconds": 180,
+      "sampleSeconds": 1200,
+      "c03P95Ms": 2000,
+      "stimulus": "nominal",
+      "remaining": "calibrate repeatable 200000-participation seed and cost probes",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_JSON"
+      ],
+      "stimulusCommands": [
+        "env SCENARIO=nominal RATE=1 DURATION=1200s POTS=10 SHAREHOLDERS=100 SEED_EXPENSES=2000 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-E",
+      "configuration": "A",
+      "rate": 1,
+      "warmupSeconds": 180,
+      "sampleSeconds": 1200,
+      "usableBindingP95Ms": 500,
+      "stimulus": "Registration",
+      "remaining": "provide one authenticated eligible Pot per Registration with projections already available and observe first usable binding"
+    },
+    {
+      "id": "F01-F",
+      "configuration": "B",
+      "warmupSeconds": 180,
+      "sampleSeconds": 600,
+      "stimulus": "OIDC, Registration, Unlink",
+      "remaining": "instrument independent OIDC, admission and authorized READ clocks"
+    },
+    {
+      "id": "F01-G",
+      "configuration": "A",
+      "dataset": "medium",
+      "backlog": 10000,
+      "recoveryRate": 1,
+      "convergenceSeconds": 300,
+      "remaining": "version the fixed pending snapshot and implement automatic terminal plus complete projection reconciliation under ongoing arrivals"
+    },
+    {
+      "id": "F01-H",
+      "configuration": "A",
+      "potCount": 1,
+      "dataset": "medium",
+      "warmupSeconds": 180,
+      "sampleSeconds": 600,
+      "stimulus": "contention",
+      "stimulusCommands": [
+        "env SCENARIO=contention RATE=1 DURATION=600s POTS=1 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "F01-I",
+      "configuration": "A",
+      "stimulus": "globalLevels and historyDepth",
+      "remaining": "prepare and validate snapshots for all normative global volumes"
+    },
+    {
+      "id": "F01-J",
+      "configuration": "A",
+      "potCount": 1,
+      "dataset": "medium",
+      "idleSeconds": 600,
+      "stimulus": "idle",
+      "stimulusCommands": [
+        "env SCENARIO=idle RATE=1 DURATION=1s POTS=1 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 IDLE_SECONDS=600 k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "A11-L/M",
+      "configuration": "A",
+      "stimulus": "paired DeletePot with F01-A/B/C/D",
+      "remaining": "timestamp the internal deleted=true landmark and reconcile all active pre-delete versions"
+    },
+    {
+      "id": "ENDURANCE",
+      "configuration": "A",
+      "potCount": 100,
+      "dataset": "medium",
+      "rate": 10,
+      "sampleSeconds": 3600,
+      "stimulus": "sustained",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_JSON"
+      ],
+      "stimulusCommands": [
+        "env SCENARIO=sustained RATE=10 DURATION=3600s POTS=100 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    },
+    {
+      "id": "SATURATION",
+      "configuration": "A",
+      "potCount": 250,
+      "dataset": "medium",
+      "rates": [
+        1,
+        5,
+        10,
+        20,
+        35,
+        50
+      ],
+      "sampleSecondsPerRate": 900,
+      "stimulus": "ramp",
+      "requiredEnvironment": [
+        "POCOMA_READ_URL",
+        "POCOMA_WRITE_URL",
+        "POCOMA_TOKEN",
+        "POCOMA_BINDING_TOKEN",
+        "PRE_SEEDED_POTS_JSON"
+      ],
+      "stimulusCommands": [
+        "env SCENARIO=ramp RATE=1 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=5 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=10 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=20 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=35 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js",
+        "env SCENARIO=ramp RATE=50 DURATION=900s POTS=250 SHAREHOLDERS=20 SEED_EXPENSES=200 POLL_INTERVAL_MS=25 DECOUPLED=false MAX_ADMISSION_RETRIES=0 ISOLATE_POTS_BY_VU=true k6 run scripts/k6/v3-performance.js"
+      ]
+    }
+  ]
+}

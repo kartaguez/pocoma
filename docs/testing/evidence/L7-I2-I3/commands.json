@@ -1,0 +1,373 @@
+[
+  {
+    "id": "web-attempt-01",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-web-write,runtime-web-read",
+      "-am",
+      "test"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD FAILURE",
+    "duration": "18:41 min",
+    "endedAt": "2026-11-11T23:03:31+01:00",
+    "log": "web-attempt-01.log.gz"
+  },
+  {
+    "id": "identity-retirement-attempt-01",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-monolith,runtime-worker-process,runtime-web-read",
+      "-am",
+      "clean",
+      "test",
+      "-Dtest=V3LinkRetirementHttpTest,IdentityTransitionsTest,IdentityRequestExecutionPostgresTest,IdentityPrivilegesPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,CurrentBindingSourcePostgresTest,TerminalResultSourcesPostgresTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest,V3AdmissionFlowPostgresTest,V3IdentityPotCommandPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD FAILURE",
+    "duration": "01:20 min",
+    "endedAt": "2026-11-12T06:40:45+01:00",
+    "log": "identity-retirement-attempt-01.log.gz"
+  },
+  {
+    "id": "identity-retirement-attempt-02",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-monolith,runtime-worker-process,runtime-web-read",
+      "-am",
+      "test",
+      "-Dtest=V3LinkRetirementHttpTest,V3StageHandoffsHttpTest,StageHandoffTrackerTest,IdentityTransitionsTest,IdentityRequestExecutionPostgresTest,IdentityPrivilegesPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,CurrentBindingSourcePostgresTest,TerminalResultSourcesPostgresTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest,V3AdmissionFlowPostgresTest,V3IdentityPotCommandPostgresTest,V3InvitationHttpTest,V3ReadReconstructionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD SUCCESS",
+    "duration": "10:10 min",
+    "endedAt": "2026-11-12T06:55:27+01:00",
+    "log": "identity-retirement-attempt-02.log.gz"
+  },
+  {
+    "id": "read-replay-attempt-01",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-worker-materialize",
+      "-am",
+      "test",
+      "-Dtest=V3ReadReconstructionPostgresTest#readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication,IdentityRequestExecutionPostgresTest#retiredLinkCannotBeAdmittedOrExecuted",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD FAILURE",
+    "duration": "4.495 s",
+    "endedAt": "2026-11-12T06:56:50+01:00",
+    "log": "read-replay-attempt-01.log.gz"
+  },
+  {
+    "id": "read-replay-attempt-02",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-worker-materialize",
+      "-am",
+      "test",
+      "-Dtest=V3ReadReconstructionPostgresTest#readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication,IdentityRequestExecutionPostgresTest#retiredLinkCannotBeAdmittedOrExecuted",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD FAILURE",
+    "duration": "43.121 s",
+    "endedAt": "2026-11-12T06:58:35+01:00",
+    "log": "read-replay-attempt-02.log.gz"
+  },
+  {
+    "id": "read-replay-attempt-03",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-worker-materialize",
+      "-am",
+      "test",
+      "-Dtest=V3ReadReconstructionPostgresTest,ReadinessOracleTest,IdentityRequestExecutionPostgresTest#retiredLinkCannotBeAdmittedOrExecuted",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD FAILURE",
+    "duration": "01:05 min",
+    "endedAt": "2026-11-12T07:01:48+01:00",
+    "log": "read-replay-attempt-03.log.gz"
+  },
+  {
+    "id": "read-replay-attempt-04",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-worker-materialize",
+      "-am",
+      "test",
+      "-Dtest=V3ReadReconstructionPostgresTest#readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "Maven tests",
+    "result": "BUILD FAILURE",
+    "duration": "45.172 s",
+    "endedAt": "2026-11-12T07:03:52+01:00",
+    "log": "read-replay-attempt-04.log.gz"
+  },
+  {
+    "id": "read-replay-attempt-05",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-worker-materialize",
+      "-am",
+      "test",
+      "-Dtest=V3ReadReconstructionPostgresTest#readReplayPreservesExactValuesAndCatchesUpWithNewWritePublication",
+      "-Dsurefire.failIfNoSpecifiedTests=false"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": "133b84ed48611b2d3a2d98a28cccfa9e5399cd43",
+    "purpose": "Maven tests",
+    "result": "BUILD SUCCESS",
+    "duration": "04:12 min",
+    "endedAt": "2026-11-12T07:10:35+01:00",
+    "log": "read-replay-attempt-05.log.gz"
+  },
+  {
+    "id": "package-attempt-01",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize",
+      "-am",
+      "package",
+      "-DskipTests"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "packaging only",
+    "result": "BUILD SUCCESS",
+    "duration": "9.242 s",
+    "endedAt": "2026-11-12T06:56:40+01:00",
+    "log": "package-attempt-01.log.gz"
+  },
+  {
+    "id": "package-attempt-02",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize",
+      "-am",
+      "package",
+      "-DskipTests"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "appTreeEquivalentCommit": null,
+    "purpose": "packaging only",
+    "result": "BUILD SUCCESS",
+    "duration": "4.740 s",
+    "endedAt": "2026-11-12T06:59:54+01:00",
+    "log": "package-attempt-02.log.gz"
+  },
+  {
+    "id": "package-candidate",
+    "cwd": "app",
+    "argv": [
+      "./mvnw",
+      "-pl",
+      "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize",
+      "-am",
+      "package",
+      "-DskipTests"
+    ],
+    "head": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+    "appTreeEquivalentCommit": "133b84ed48611b2d3a2d98a28cccfa9e5399cd43",
+    "purpose": "packaging only",
+    "result": "BUILD SUCCESS",
+    "duration": "2.307 s",
+    "endedAt": "2026-11-12T07:10:40+01:00",
+    "log": "package-candidate.log.gz"
+  },
+  {
+    "id": "bruno-fresh-01",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/bruno-v3/qualify-installation.py",
+      "--output",
+      "docs/testing/evidence/L7-I2-I3/bruno-fresh-01"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "durationSeconds": 4.346672541927546,
+    "result": "FAIL",
+    "receipt": "bruno-fresh-01/receipt.json",
+    "log": "bruno-fresh-01.log.gz"
+  },
+  {
+    "id": "bruno-fresh-02",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/bruno-v3/qualify-installation.py",
+      "--output",
+      "docs/testing/evidence/L7-I2-I3/bruno-fresh-02"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "durationSeconds": 19.710893249954097,
+    "result": "FAIL",
+    "receipt": "bruno-fresh-02/receipt.json",
+    "log": "bruno-fresh-02.log.gz"
+  },
+  {
+    "id": "bruno-fresh-03",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/bruno-v3/qualify-installation.py",
+      "--output",
+      "docs/testing/evidence/L7-I2-I3/bruno-fresh-03"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "durationSeconds": 48.31087016698439,
+    "result": "FAIL",
+    "receipt": "bruno-fresh-03/receipt.json",
+    "log": "bruno-fresh-03.log.gz"
+  },
+  {
+    "id": "bruno-fresh-04",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/bruno-v3/qualify-installation.py",
+      "--output",
+      "docs/testing/evidence/L7-I2-I3/bruno-fresh-04"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "durationSeconds": 48.78164729103446,
+    "result": "FAIL",
+    "receipt": "bruno-fresh-04/receipt.json",
+    "log": "bruno-fresh-04.log.gz"
+  },
+  {
+    "id": "bruno-fresh-05",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/bruno-v3/qualify-installation.py",
+      "--output",
+      "docs/testing/evidence/L7-I2-I3/bruno-fresh-05"
+    ],
+    "head": "d5da8f4200c4f60832d9590edfaff224ddaec9b9",
+    "durationSeconds": 52.575311042019166,
+    "result": "FAIL",
+    "receipt": "bruno-fresh-05/receipt.json",
+    "log": "bruno-fresh-05.log.gz"
+  },
+  {
+    "id": "bruno-fresh-06",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/bruno-v3/qualify-installation.py",
+      "--output",
+      "docs/testing/evidence/L7-I2-I3/bruno-fresh-06"
+    ],
+    "head": "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+    "durationSeconds": 54.18368300003931,
+    "result": "PASS",
+    "receipt": "bruno-fresh-06/receipt.json",
+    "log": "bruno-fresh-06.log.gz"
+  },
+  {
+    "id": "spec09-static",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/performance/plan-l7-spec09.py"
+    ],
+    "result": "STATIC_PLAN_ONLY",
+    "receipt": "spec09-static-plan.json"
+  },
+  {
+    "id": "spec09-workload-scheduler",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/performance",
+      "-p",
+      "test_r5_scheduler.py"
+    ],
+    "result": "15 unit tests PASS, no workload"
+  },
+  {
+    "id": "verification-selector",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/testing",
+      "-p",
+      "test_verification.py"
+    ],
+    "result": "36 unit tests PASS"
+  },
+  {
+    "id": "read-campaign-selector",
+    "cwd": ".",
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/testing",
+      "-p",
+      "test_read_campaigns.py"
+    ],
+    "result": "10 unit tests PASS"
+  }
+]

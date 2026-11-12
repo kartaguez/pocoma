@@ -1,6 +1,7 @@
 # Documentation Pocoma
 
 - [Audit de couverture et plan de certification L7.1](v3/L7_I1_Certification_Coverage_and_Execution_Plan.md) · [matrice des exigences et preuves](v3/L7_I1_Certification_Coverage_Matrix.csv) · [registre des réserves](v3/L7_I1_Residual_Reservations_Register.md).
+- [L7.2 Fonctionnel, sécurité et Bruno](v3/L7_I2_Functional_Security_and_Bruno_Certification_Report.md) · [L7.3 Sûreté opérationnelle et READ](v3/L7_I3_Operational_Safety_and_READ_Certification_Report.md) · [L7.4 Préparation SPEC-09](v3/L7_I4_SPEC09_Performance_Certification_Execution_Plan.md).
 
 - [Implémentation et qualification L7](v3/L7_Modular_Refactoring_Implementation_and_Qualification_Report.md) — migration du réacteur V3, preuves, résultats et limites.
 - [Architecture modulaire cible et plan de migration L7](v3/L7_Target_Modular_Architecture_and_Migration_Plan.md) — référence normative des 42 modules, de la matrice de dépendances et du scénario B Consumption.

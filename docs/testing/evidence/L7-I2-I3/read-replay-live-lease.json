@@ -1,0 +1,1 @@
+{"database" : "i5_read", "pid" : 15997, "xid" : null, "observedAt" : "2026-11-12T06:10:14.551876+00:00", "retainedLeases" : 28, "latestExpiry" : "2026-11-12T06:10:34.791248+00:00", "readiness" : "READY"}
