@@ -1,0 +1,1923 @@
+{
+  "mandate": "GO_L7_I3_FINAL_QUALIFICATION",
+  "baseline": "c4f5f0c11114921cdc3a735f1fdaeb32c33537c7",
+  "obligations": [
+    {
+      "ID": "L2M-C04-K",
+      "Exigence": "Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L88",
+      "Test ou scénario": "OR-AT-UNIT, OR-CL-FENCE, OR-AT-POISON, OR-RC-FOUR, OR-OBS-METRIC ; cas C04-K ; paramètres et injection : colonne Stimulus — Concurrence répétée, takeover, rollbacks et interruptions de Workers — WRITE + READ / Command Pot réel + banc technique READ — référence historique à rapprocher : L2ManifestProof.l2m_c04_k",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Six frontières physiques ; répétitions et corpus composite du C04-K à rapprocher.",
+      "existingEvidence": [
+        {
+          "selector": "V3WorkerPostgresTest.i5_w14",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java",
+          "sourceSha256": "b11954cc0bfc9ef2ec3db85a81ec051e874ff00c5b4c857ca8bbb660cac52f85",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.xml",
+              "seconds": 157.656,
+              "sha256": "6838745f5a9589a984ab4b6489eb21611ecba4cda9628ae3296e2a7ce12759fc",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-acquire.txt",
+              "sha256": "48c70aae8f112793fe34321c45a4e686f4c3ef077e64096dd53aeaf54040df6d"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-admission.txt",
+              "sha256": "2d919b2ec78e22a069e27599f55e1e4bbcae6c068dcbefb2f8e625f95849cac7"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-cession.txt",
+              "sha256": "8002d0ec0bcb6e406d5c9cb0fd79d2c2af79b98543382a04fb103fef5ccf9cf9"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-commit.txt",
+              "sha256": "a46f8bf0931a254782e0bf8ce1f9a4aac458a34b1835d39f6adc2b8b13216694"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-delete.txt",
+              "sha256": "6b60b3ff21d2b815388feb8a75bfc6866fe529e631f30e826e3592b2cb88e372"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-publication.txt",
+              "sha256": "9e6db5b7bbbb582f5d89c49b78957f4816b5b9c8e8249d8b501426767ce91486"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Six frontières physiques ; répétitions et corpus composite du C04-K à rapprocher.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-D",
+      "Exigence": "Analogue technique de E01-D ; producteur Identity réel reporté",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L119",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-D ; paramètres et injection : colonne Stimulus — T1 réserve un lot de deux événements Identity dans sa transaction ; T2 publie en concurrence — WRITE / fixture technique Identity (producteur métier absent) — référence historique à rapprocher : L2ManifestProof.l2m_e01_d",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Lots consécutifs et contention réelle ; ordre interne du lot concurrent à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_batch",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.675,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "8ae1b3dd7aea1def8b6c98b1b893ce1123a4d29d7c31c51db07c9975e0333b06"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "5d893b54cb56a5766b3dabe0d86998a9616e156c080ee4e47de2e88adbf2c52e"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Analogue technique de E01-D ; producteur Identity réel reporté — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Lots consécutifs et contention réelle ; ordre interne du lot concurrent à compléter.",
+      "scenarioGroup": "ID-PUB",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-E",
+      "Exigence": "Seule la famille de complétion avance ; aucune position de mutation consommée",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L120",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-E ; paramètres et injection : colonne Stimulus — Command sans effet/rejet et demande Identity rejetée — WRITE / Command réel WRITE + fixture Identity WRITE (analogue) — référence historique à rapprocher : L2ManifestProof.l2m_e01_e",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Rejet Identity sans mutation ; branche Command sans effet à rapprocher séparément.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_rejection_terminal",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.629,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_rejection_terminal.txt",
+              "sha256": "4d61f8a6e2485fb5d2be5601876db73bed3c2d823cacf02bd1b699d6c4ef563c"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_rejection_terminal.txt",
+              "sha256": "1662a6e190ececc79fcffb12b6e68e93bada2df72026d4e883249dd71c7b504e"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Seule la famille de complétion avance ; aucune position de mutation consommée — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Rejet Identity sans mutation ; branche Command sans effet à rapprocher séparément.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C01-A-REPORT",
+      "Exigence": "Même invariant SPEC-10 C01-A sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L141",
+      "Test ou scénario": "OR-NB-SET ; cas C01-A-REPORT ; rejouer le stimulus de L2M-C01-A sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs réels — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c01_a_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Fenêtres Identity réelles ; toutes variantes source/partition de C01-A restent à détailler.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityDiscoveryPostgresTest.l3_identity_windows",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "20f061d87d627157ca9a2953b01eb1db3138130ddec6f6ab1c18c95ef4d3e4da",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml",
+              "seconds": 0.81,
+              "sha256": "53f72b9764ad1928f616faa49c0442c53a25a951b7092e4a1179ee3d3d98defd",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityDiscoveryPostgresTest-l3_identity_windows.txt",
+              "sha256": "54ff972ce9e73a4e80d36e992115991e698f521ff35bf3231d43d7f88cecffce"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityDiscoveryPostgresTest-l3_identity_windows.txt",
+              "sha256": "12e2d714cf7a3cea4e2a116fdd9f242b3fdd0090a2f9c3efc985d480d69295e5"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 C01-A sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Fenêtres Identity réelles ; toutes variantes source/partition de C01-A restent à détailler.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C01-D-REPORT",
+      "Exigence": "Même invariant SPEC-10 C01-D sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L142",
+      "Test ou scénario": "OR-NB-SET, OR-NB-ATOMIC, OR-NB-FENCE ; cas C01-D-REPORT ; rejouer le stimulus de L2M-C01-D sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs réels — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c01_d_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Attente physique sur compteur Identity ; consommation du préfixe sous cette attente à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 C01-D sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Attente physique sur compteur Identity ; consommation du préfixe sous cette attente à compléter.",
+      "scenarioGroup": "ID-PUB",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C02-J-REPORT",
+      "Exigence": "Même invariant SPEC-10 C02-J sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L147",
+      "Test ou scénario": "OR-AT-UNIT, OR-RC-FOUR ; cas C02-J-REPORT ; rejouer le stimulus de L2M-C02-J sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec effets projection métier — READ / futur composant métier READ réel — référence historique à rapprocher : L2ManifestProof.l2m_c02_j_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "ACK inconnu exercé ; lire les variantes et la population exacte avant promotion complète.",
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.uncertainCommitHasNoSpeculativeSettlement",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 3.121,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 C02-J sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "ACK inconnu exercé ; lire les variantes et la population exacte avant promotion complète.",
+      "scenarioGroup": "READ",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C02-K-REPORT",
+      "Exigence": "Même invariant SPEC-10 C02-K sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L148",
+      "Test ou scénario": "OR-NB-SET, OR-AT-UNIT ; cas C02-K-REPORT ; rejouer le stimulus de L2M-C02-K sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec reconstruction métier — READ / futur composant métier réel — référence historique à rapprocher : L2ManifestProof.l2m_c02_k_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Reprise de reconstruction ; ne remplace pas toutes les fenêtres de redémarrage Discovery/Engine.",
+      "existingEvidence": [
+        {
+          "selector": "V3ReadReconstructionPostgresTest.rcv01G_crashRecoveryAndResume",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/V3ReadReconstructionPostgresTest.java",
+          "sourceSha256": "0f66a73ede337a33b027430f2fae4107cf49ee8bcf0adcfe77485b3a6814e502",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest.xml",
+              "seconds": 0.645,
+              "sha256": "ceb7229aa3c53c691539d1c6c6f17c07c52f471336a688fc091bf7746156bce8",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 C02-K sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Reprise de reconstruction ; ne remplace pas toutes les fenêtres de redémarrage Discovery/Engine.",
+      "scenarioGroup": "READ",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C04-L-REPORT",
+      "Exigence": "Même invariant SPEC-10 C04-L sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L153",
+      "Test ou scénario": "OR-AT-UNIT, OR-CL-FENCE, OR-AR-NOPURGE ; cas C04-L-REPORT ; rejouer le stimulus de L2M-C04-L sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec nouveaux writers — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c04_l_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Suffixe fermé et rollback ; inventaire exhaustif des voies administratives encore requis.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_suffix_closed",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.628,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c9141c5041625f216ad884598d4edf9f980da09eebdb30c60079239ba9788d20"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c60d32b4b8dd3c52b004d3d465f58156dfb534e9d45c60caf160a7424fbb7419"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 C04-L sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Suffixe fermé et rollback ; inventaire exhaustif des voies administratives encore requis.",
+      "scenarioGroup": "ADMIN",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C06-M-REPORT",
+      "Exigence": "Même invariant SPEC-10 C06-M sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L161",
+      "Test ou scénario": "OR-AT-UNIT, OR-AR-BOUND, OR-AT-POISON ; cas C06-M-REPORT ; rejouer le stimulus de L2M-C06-M sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec inventaire des futurs writers — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c06_m_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Chemin actif Identity et suffixe contrôlés ; inventaire des autres compositions à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_physical_unit",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.527,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_physical_unit.txt",
+              "sha256": "0e3795999d185d6858d0c677cabcabff90ef8edf81056aa97550b3ea34c57ed3"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_physical_unit.txt",
+              "sha256": "2a3a12b28b958a96ac8de94377572557baf8b7e10db345db591610d2789bde76"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 C06-M sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Chemin actif Identity et suffixe contrôlés ; inventaire des autres compositions à compléter.",
+      "scenarioGroup": "ADMIN",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-B-REPORT",
+      "Exigence": "Même invariant SPEC-10 E01-B sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L165",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-B-REPORT ; rejouer le stimulus de L2M-E01-B sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_b_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "T2 bloque réellement sur compteur et densité après commit ; borne de visibilité avant commit à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E01-B sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "T2 bloque réellement sur compteur et densité après commit ; borne de visibilité avant commit à compléter.",
+      "scenarioGroup": "ID-PUB",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-C-REPORT",
+      "Exigence": "Même invariant SPEC-10 E01-C sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L166",
+      "Test ou scénario": "OR-AT-DENSE, OR-AT-UNIT ; cas E01-C-REPORT ; rejouer le stimulus de L2M-E01-C sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_c_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Rollback puis densité rétablie ; variante T2 concurrent pendant rollback non attestée.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_dense_rollback",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.66,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_dense_rollback.txt",
+              "sha256": "6058bcf433d4e90dd17af64d73642a29b6882d9fc75802cf28f8d6df6e3b8b0b"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_dense_rollback.txt",
+              "sha256": "1b98843a7247c348783edb0dbebb684c2d71fdd2ce0848c06f3def49872a93fe"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E01-C sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Rollback puis densité rétablie ; variante T2 concurrent pendant rollback non attestée.",
+      "scenarioGroup": "ID-PUB",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-D-REPORT",
+      "Exigence": "Même invariant SPEC-10 E01-D sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L167",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-D-REPORT ; rejouer le stimulus de L2M-E01-D sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec lot Identity réel — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_d_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Lots ordonnés et contention séparés ; aucun témoin unique du lot concurrent sans intercalation.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_batch",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.675,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "8ae1b3dd7aea1def8b6c98b1b893ce1123a4d29d7c31c51db07c9975e0333b06"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "5d893b54cb56a5766b3dabe0d86998a9616e156c080ee4e47de2e88adbf2c52e"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E01-D sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Lots ordonnés et contention séparés ; aucun témoin unique du lot concurrent sans intercalation.",
+      "scenarioGroup": "ID-PUB",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-H-REPORT",
+      "Exigence": "Même invariant SPEC-10 E01-H sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L171",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-H-REPORT ; rejouer le stimulus de L2M-E01-H sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec charge de tous producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_h_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Deux moteurs concurrents ; charge répétée et interruptions des connexions restent distinctes.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_workers_concurrent_registration",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.612,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_workers_concurrent_registration.txt",
+              "sha256": "72a59fc920b1041a23a0c390c954d6c4dbf612bfafcb4f20c65fa22cad0b7e88"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_workers_concurrent_registration.txt",
+              "sha256": "14bcf201992463b167bc264039fa47daf436f485c26419c8656378348643bb2e"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E01-H sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Deux moteurs concurrents ; charge répétée et interruptions des connexions restent distinctes.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E02-H-REPORT",
+      "Exigence": "Même invariant SPEC-10 E02-H sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L176",
+      "Test ou scénario": "OR-AT-UNIT, OR-AT-DENSE, OR-AT-POISON, OR-RC-FOUR ; cas E02-H-REPORT ; rejouer le stimulus de L2M-E02-H sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec Identity réelle — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_h_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Ancien claim refusé ; double finalisation de la même demande après takeover reste à isoler.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_fencing",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.95,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "0a0b64b30b32752e1c05636d805eb2b7e0fa33de8f2d62c631d554ca937c336d"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "49036fb2fa822df3f5983139a38ac1c36f4e590a2a08ef12f9e719be554b21bb"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E02-H sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Ancien claim refusé ; double finalisation de la même demande après takeover reste à isoler.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E02-J-REPORT",
+      "Exigence": "Même invariant SPEC-10 E02-J sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L177",
+      "Test ou scénario": "OR-AT-UNIT, OR-AT-DENSE ; cas E02-J-REPORT ; rejouer le stimulus de L2M-E02-J sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec admission HTTP réelle — WRITE / READ / futur producteur Invitation ou HTTP réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_j_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Relance réelle et demandes terminales ; crash exactement entre admission HTTP et finalisation à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "V3IdentityRequestCompositionPostgresTest.l3_registration_command_and_relink_restart",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
+          "sourceSha256": "74ed3d737be1927ec71cbf37f9f78642454be1abb2ec431a4c094c76840aea03",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
+              "seconds": 8.554,
+              "sha256": "dbf6356c6bb044ff9593ea920277f606f5e3d2b59e479453eefa286cddfeaa0a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E02-J sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Relance réelle et demandes terminales ; crash exactement entre admission HTTP et finalisation à compléter.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E03-G-REPORT",
+      "Exigence": "Même invariant SPEC-10 E03-G sur composant réel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L179",
+      "Test ou scénario": "OR-AT-READ, OR-AT-UNIT ; cas E03-G-REPORT ; rejouer le stimulus de L2M-E03-G sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec effets métier des trois projections — READ / futur composant métier READ réel — référence historique à rapprocher : L2ManifestProof.l2m_e03_g_report",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Indépendance et rollback par branche ; deux fautes simultanées sous une réussite non démontrées ensemble.",
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.independentProgression",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 22.614,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-COMMAND_RESULT.txt",
+              "sha256": "a8f02b924096f7ef6d42f898133000a275580c9750763bd5103989b8397c02c9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-CURRENT_BINDING.txt",
+              "sha256": "564d26369954e698e46db28291fddccf8dfbbb3b7f34a693080b84a046fcb6ba"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-IDENTITY_REQUEST_RESULT.txt",
+              "sha256": "49fd1713950f70512d2bd46a5cd18eabfffddbbc117f48f76cdf7afbb2d48b2c"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_BALANCE.txt",
+              "sha256": "f61dd23f05a486a0fa72edc7be9fe0831a516a6ebe637973a44f6aeec0cb7ef9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VERSION.txt",
+              "sha256": "ddd62280efb51fe6dbe066110dbae3dcec963b7b41f12182ca17dd49e84e3cf5"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VISIBILITY.txt",
+              "sha256": "9cd96a29771ce73b736003388f65ef129d6954b1f5b2e642ea2d2d313c8f8944"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VERSION, POT_VISIBILITY].txt",
+              "sha256": "7d27b386f6e82c262e6426444d09bd0bdf525da6cd7ce4cf302cdb6a861b6d39"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VISIBILITY, POT_VERSION].txt",
+              "sha256": "4fb237b89b4dd4f704ace5a502c65e0058743085051592e6cef034f8af2891d3"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_BALANCE, POT_VISIBILITY].txt",
+              "sha256": "933c3cd78a9d07edba76ca8bca08379e4c0c412002d9f409e1a5cabe936a33fa"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_VISIBILITY, POT_BALANCE].txt",
+              "sha256": "c2a20cedd7e70588f8b0342095d73af2fd1e9fb3aee37e13ecfdaabc5e9f416f"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_BALANCE, POT_VERSION].txt",
+              "sha256": "f88480f2747fffc10f1058bfd1c3ef834ddc37086edc7cda9ae87a2f1cb1194a"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_VERSION, POT_BALANCE].txt",
+              "sha256": "0a7b7bc88ca95c4b256d75d55a71cbd248346f71511c67bcb74b66990cca8047"
+            }
+          ]
+        },
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.participantConformance(String)",
+          "invocations": 6,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.7,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.886,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.759,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.897,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 5.12,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 5.544,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-COMMAND_RESULT-afterComplete.txt",
+              "sha256": "a75a10ba7b52d339c8d5efe4ab8790a4ac1808879d76cecb30fcb87628cb2eb7"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-COMMAND_RESULT-missing.txt",
+              "sha256": "51df4ac830380f7d6ca24d9633926aa1217e9362a8ba1d7c37201f53d532e912"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-COMMAND_RESULT-success.txt",
+              "sha256": "8f45965b62790c64c422ccb0f168d9dd7893e0afebc934e0e01f243db3b8aa76"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-afterComplete.txt",
+              "sha256": "fee464abd13ccdfaf54eef0fd77305db8ce0fa12d65cbd785ee51677fc87bee9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-missing.txt",
+              "sha256": "ed226fb5421cdae01ec61f8ac47008a035a007594ffaef0b03ee4dea2d37e0ee"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-newer.txt",
+              "sha256": "325276dc952ead362c6aef49fbdc03a457f7cc590753afb69536b2fe14ba0368"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-success.txt",
+              "sha256": "9bc131d53b51aea050c2f0a5b7617bcab7f7421f81f5d541e314c6e0594309e0"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-IDENTITY_REQUEST_RESULT-afterComplete.txt",
+              "sha256": "2a7c795ed6eed2468c990c4caf02e58838a77b11c745fc59cf2814d01a21e420"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-IDENTITY_REQUEST_RESULT-missing.txt",
+              "sha256": "6ecb92bb6d0d34212d14e78c756710ac9516243317ac1f1913966a0f0c3c2493"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-IDENTITY_REQUEST_RESULT-success.txt",
+              "sha256": "ced9c6aeed3a8c5566ae9edaae3d592b14a244e5ae1136abb01e5fd70902f78b"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-afterComplete.txt",
+              "sha256": "f73d577fad3f911a0fee29282e4c505e6d27dbc3626544fda6ea412b8baf3f0c"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-missing.txt",
+              "sha256": "78af6cd6f33c7267815cea08d51ebbcf9da11d443de37cbd7af00500576d41cc"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-newer.txt",
+              "sha256": "3b38d922b00d8504c26e3845abba77aa2beee22cb275cc8c1b2430974b24223a"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-success.txt",
+              "sha256": "0ea439fb90e03cac6d667c1dcf230fde82bc75aa51734ff33d8d3d66d8ae21d0"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-afterComplete.txt",
+              "sha256": "39569f3b9fabb654c822aba715d17883cdecd287678554bea8ae4bf61288811f"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-missing.txt",
+              "sha256": "c1484559c391db5a145fa27cb4d0fb79fdf30150b89905f684ea9c459c6c8d31"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-newer.txt",
+              "sha256": "5400ecd393b3424159be2733ef6a6c4f7c152a0c517b3dbe3f4a05c298a0c96e"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-success.txt",
+              "sha256": "3b507d3095f9adf63d006c401e33ba56e541ab206aa21fe9004a62e910cb7617"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-afterComplete.txt",
+              "sha256": "81dc98be8e6086487da68b6ecfd90fcafc200bea1f85140b5c3c02095d810582"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-missing.txt",
+              "sha256": "4685e95bcc5c97ceb7479b2f5f793224b60614a3a3ea060090928928cb7300a5"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-newer.txt",
+              "sha256": "82130fdc53d7032698862bc8535faf09cdc1a56f592dfb3513af4bab11ffbcbd"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-success.txt",
+              "sha256": "529bf12c5cdd401c95f5d76c9b2d51cd9763bdfc8672fbf6be37a9082316570a"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Même invariant SPEC-10 E03-G sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Indépendance et rollback par branche ; deux fautes simultanées sous une réussite non démontrées ensemble.",
+      "scenarioGroup": "READ",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E02-I-INVITATION-REAL",
+      "Exigence": "trois refus sans commit partiel",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L192",
+      "Test ou scénario": "OR-AT-UNIT, OR-AT-DENSE, OR-AT-POISON ; cas E02-I-INVITATION-REAL ; paramètres et injection : colonne Stimulus — requestId absent/inexistant/incorrect pour événements Invitation réels — WRITE / futur producteur Invitation réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_i_invitation_real",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "D",
+      "justification": "Oracle manquant : publication Invitation avec demande absente/inexistante/incorrecte, refus physique sans commit partiel.",
+      "existingEvidence": [],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "trois refus sans commit partiel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "MISSING",
+      "actionPerformed": "Lacune délimitée ; aucune absence de preuve assimilée à un échec produit.",
+      "reservation": "Oracle manquant : publication Invitation avec demande absente/inexistante/incorrecte, refus physique sans commit partiel.",
+      "scenarioGroup": "INV-SQL",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-G-INV-COMP",
+      "Exigence": "absence de cycle et densité après résolution",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L201",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-G-INV-COMP ; paramètres et injection : colonne Stimulus — Ordre INVITATION puis COMMAND_COMPLETION — WRITE / fixture technique — référence historique à rapprocher : L2ManifestProof.l2m_e01_g_inv_comp",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Densité après rollback et reprise séquentielle ; graphe de verrouillage concurrent Invocation/Completion non qualifié.",
+      "existingEvidence": [
+        {
+          "selector": "V3InvitationReadPostgresTest.createInvitationRollsBackEffectsAndPositionsBeforeRetry",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationReadPostgresTest.java",
+          "sourceSha256": "9e63baab5e98ca69e2c2e2b7d84f2928147836625dace239f3d9e18785a24801",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+              "seconds": 28.658,
+              "sha256": "5d10613e71d1a7cfbcb27e3c1008f33925cea1c5b5e85443645deaec75f8b5ae",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+              "sha256": "5d10613e71d1a7cfbcb27e3c1008f33925cea1c5b5e85443645deaec75f8b5ae",
+              "location": "testcase/system-out, external SQL snapshots after each failed transaction"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "absence de cycle et densité après résolution — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Densité après rollback et reprise séquentielle ; graphe de verrouillage concurrent Invocation/Completion non qualifié.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-E01-G-ID-IDCOMP",
+      "Exigence": "absence de cycle et densité après résolution",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L202",
+      "Test ou scénario": "OR-AT-DENSE ; cas E01-G-ID-IDCOMP ; paramètres et injection : colonne Stimulus — Ordre IDENTITY puis IDENTITY_COMPLETION — WRITE / fixture technique — référence historique à rapprocher : L2ManifestProof.l2m_e01_g_id_idcomp",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Contre-preuves du suffixe et attente des deux familles ; inventaire complet du graphe reste requis.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_suffix_closed",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.628,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c9141c5041625f216ad884598d4edf9f980da09eebdb30c60079239ba9788d20"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c60d32b4b8dd3c52b004d3d465f58156dfb534e9d45c60caf160a7424fbb7419"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "absence de cycle et densité après résolution — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Contre-preuves du suffixe et attente des deux familles ; inventaire complet du graphe reste requis.",
+      "scenarioGroup": "ID-PUB",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-CON-05-CRASH",
+      "Exigence": "attemptCount inchangé ; reprise après expiration",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L209",
+      "Test ou scénario": "OR-RT-CEDE ; cas CON-05-CRASH ; paramètres et injection : colonne Stimulus — Crash/expiration sans cession enregistrée — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_con_05_crash",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Commit inconnu avant/après filaire ; crash sans cession et compteur au même instant à rapprocher.",
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_c03_j",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 0.99,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-READ.txt",
+              "sha256": "d523ce1d68fa9ce5045224ff1f60b694bb959a087dbc639b29805d7611d75b4f"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-WRITE.txt",
+              "sha256": "855ab3d886e67db476c15ea4744ab7d7a83ea95a1bc4fee8436f5e46f6e7606c"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "attemptCount inchangé ; reprise après expiration — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Commit inconnu avant/après filaire ; crash sans cession et compteur au même instant à rapprocher.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-CON-05-NOPURGE",
+      "Exigence": "refus du DELETE hors réussite ; slot conservé",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L214",
+      "Test ou scénario": "OR-RT-QUAR, OR-AR-NOPURGE ; cas CON-05-NOPURGE ; paramètres et injection : colonne Stimulus — Tentative de purge du slot incomplet — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_con_05_nopurge",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Refus SQL runtime sur reset slots/checkpoints ; DELETE isolé et inventaire admin à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "DiscoveryPostgresTest.i4_n16",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/DiscoveryPostgresTest.java",
+          "sourceSha256": "059d4d3463e7b37f2e2a091f2a50d931d3895930aa8521b830c67511c59a7360",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.DiscoveryPostgresTest.xml",
+              "seconds": 2.167,
+              "sha256": "a5779a46359f52592673701c511fdec74ae087d7aaddb2cf79a2761a89b753d2",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n16-COMMAND-burnable-checkpoint-monotonic-and-partition-bounds.txt",
+              "sha256": "ab1ef73d7fd4fbb441f131ab818ef54aa6951e6cfa0c10109a5496cd6ac643ae"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n16-IDENTITY_REQUEST-burnable-checkpoint-monotonic-and-partition-bounds.txt",
+              "sha256": "c17f518c7ba4f571dfb923a0e567b152be19268cb05f7a9774ad670891630f25"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n16-POT_EVENT-negative-SQL-invariants.txt",
+              "sha256": "3d29307d12794c36a9750796b7a460be041e861549c6535fa661f4e8cb2b0abf"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "refus du DELETE hors réussite ; slot conservé — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Refus SQL runtime sur reset slots/checkpoints ; DELETE isolé et inventaire admin à compléter.",
+      "scenarioGroup": "ADMIN",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-CON-05-VV1",
+      "Exigence": "analogue technique ne régresse pas ; aucune dépendance entre slots",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L221",
+      "Test ou scénario": "OR-RT-QUAR, OR-AT-READ ; cas CON-05-VV1 ; paramètres et injection : colonne Stimulus — V en quarantaine puis V+1 et reprise tardive — READ / banc technique READ (analogue) — référence historique à rapprocher : L2ManifestProof.l2m_con_05_vv1",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Slot quarantainé intact pendant progression autre slot et autre Consumption ; effets READ techniques non multiversion.",
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_other_slot_progresses",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 1.271,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_other_slot_progresses-READ.txt",
+              "sha256": "ca542e7edbd9dce7d61f28c1a3b95948dfd722a5825dbef45e0b222c914e5ffa"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_other_slot_progresses-WRITE.txt",
+              "sha256": "caadb4e40429768038f8516601f3d71dd900b93214c451632baa2a2933e292ee"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "analogue technique ne régresse pas ; aucune dépendance entre slots — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Slot quarantainé intact pendant progression autre slot et autre Consumption ; effets READ techniques non multiversion.",
+      "scenarioGroup": "READ",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-CON-05-VV1-REAL",
+      "Exigence": "CurrentPot, Balance, Visibility, Binding restent monotones",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L222",
+      "Test ou scénario": "OR-RT-QUAR, OR-AT-READ ; cas CON-05-VV1-REAL ; paramètres et injection : colonne Stimulus — V en quarantaine puis V+1 métier et reprise tardive — READ / futures projections métier READ — référence historique à rapprocher : L2ManifestProof.l2m_con_05_vv1_real",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Hors ordre réel et binding supersédé ; quarantaine V puis réactivation après V+1 non exercées ensemble.",
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.independentProgression",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 22.614,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-COMMAND_RESULT.txt",
+              "sha256": "a8f02b924096f7ef6d42f898133000a275580c9750763bd5103989b8397c02c9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-CURRENT_BINDING.txt",
+              "sha256": "564d26369954e698e46db28291fddccf8dfbbb3b7f34a693080b84a046fcb6ba"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-IDENTITY_REQUEST_RESULT.txt",
+              "sha256": "49fd1713950f70512d2bd46a5cd18eabfffddbbc117f48f76cdf7afbb2d48b2c"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_BALANCE.txt",
+              "sha256": "f61dd23f05a486a0fa72edc7be9fe0831a516a6ebe637973a44f6aeec0cb7ef9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VERSION.txt",
+              "sha256": "ddd62280efb51fe6dbe066110dbae3dcec963b7b41f12182ca17dd49e84e3cf5"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VISIBILITY.txt",
+              "sha256": "9cd96a29771ce73b736003388f65ef129d6954b1f5b2e642ea2d2d313c8f8944"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VERSION, POT_VISIBILITY].txt",
+              "sha256": "7d27b386f6e82c262e6426444d09bd0bdf525da6cd7ce4cf302cdb6a861b6d39"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VISIBILITY, POT_VERSION].txt",
+              "sha256": "4fb237b89b4dd4f704ace5a502c65e0058743085051592e6cef034f8af2891d3"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_BALANCE, POT_VISIBILITY].txt",
+              "sha256": "933c3cd78a9d07edba76ca8bca08379e4c0c412002d9f409e1a5cabe936a33fa"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_VISIBILITY, POT_BALANCE].txt",
+              "sha256": "c2a20cedd7e70588f8b0342095d73af2fd1e9fb3aee37e13ecfdaabc5e9f416f"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_BALANCE, POT_VERSION].txt",
+              "sha256": "f88480f2747fffc10f1058bfd1c3ef834ddc37086edc7cda9ae87a2f1cb1194a"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_VERSION, POT_BALANCE].txt",
+              "sha256": "0a7b7bc88ca95c4b256d75d55a71cbd248346f71511c67bcb74b66990cca8047"
+            }
+          ]
+        },
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.currentBindingRecoverySupersession",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 2.488,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "CurrentPot, Balance, Visibility, Binding restent monotones — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Hors ordre réel et binding supersédé ; quarantaine V puis réactivation après V+1 non exercées ensemble.",
+      "scenarioGroup": "READ",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C01-I-IDENTITY-FIXTURE",
+      "Exigence": "analogue technique respecte unicité et absence de checkpoint",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L239",
+      "Test ou scénario": "OR-B-SET ; cas C01-I-IDENTITY-FIXTURE ; paramètres et injection : colonne Stimulus — IDENTITY_REQUEST PENDING/TERMINAL avec/sans slot — WRITE / fixture Identity — référence historique à rapprocher : L2ManifestProof.l2m_c01_i_identity_fixture",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Vrai Identity remplace analogue ; unicité et terminal. Ancienne clause sans checkpoint amendée L7/I2 ; claims/retry à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityDiscoveryPostgresTest.l3_burnable_discovery",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "20f061d87d627157ca9a2953b01eb1db3138130ddec6f6ab1c18c95ef4d3e4da",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml",
+              "seconds": 0.615,
+              "sha256": "53f72b9764ad1928f616faa49c0442c53a25a951b7092e4a1179ee3d3d98defd",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityDiscoveryPostgresTest-l3_burnable_discovery.txt",
+              "sha256": "fe3c31fb56d965c0ecee4c2ed94a56f4e268d225c0d846061242c0dddae4ba4d"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityDiscoveryPostgresTest-l3_burnable_discovery.txt",
+              "sha256": "f31327f8e2f45239aa15a8c61459ce9bb2f55c8e3c3e856214a5475062ec1ce9"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityDiscoveryPostgresTest.l3_discovery_source_slot_race",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "20f061d87d627157ca9a2953b01eb1db3138130ddec6f6ab1c18c95ef4d3e4da",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml",
+              "seconds": 0.665,
+              "sha256": "53f72b9764ad1928f616faa49c0442c53a25a951b7092e4a1179ee3d3d98defd",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityDiscoveryPostgresTest-l3_discovery_source_slot_race.txt",
+              "sha256": "166d3981ba957a131df5c7ab725fcf0a4b1310eab673ce0b609eedf8ddb9387c"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityDiscoveryPostgresTest-l3_discovery_source_slot_race.txt",
+              "sha256": "555352dc7d41c0cbb336138f6cc1d1ef99c62be46cb694e8e6c9807c55cce3c5"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "analogue technique respecte unicité et absence de checkpoint — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Vrai Identity remplace analogue ; unicité et terminal. Ancienne clause sans checkpoint amendée L7/I2 ; claims/retry à compléter.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C03-J-EXPIRE",
+      "Exigence": "ancien token ne finalise pas",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L240",
+      "Test ou scénario": "OR-CL-FENCE ; cas C03-J-EXPIRE ; paramètres et injection : colonne Stimulus — Claim expire avant verrou final — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_c03_j_expire",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Token périmé refusé ; coupure exactement avant verrou final pour chaque autorité à compléter.",
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_fencing",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.95,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "0a0b64b30b32752e1c05636d805eb2b7e0fa33de8f2d62c631d554ca937c336d"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "49036fb2fa822df3f5983139a38ac1c36f4e590a2a08ef12f9e719be554b21bb"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "ancien token ne finalise pas — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Token périmé refusé ; coupure exactement avant verrou final pour chaque autorité à compléter.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-C03-J-CRASH",
+      "Exigence": "aucun effet partiel, slot récupérable",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L242",
+      "Test ou scénario": "OR-CL-FENCE, OR-RC-FOUR, OR-AT-UNIT ; cas C03-J-CRASH ; paramètres et injection : colonne Stimulus — Crash pendant traitement — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_c03_j_crash",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Fil coupé avant/après commit : état externe et reprise ; ne pas assimiler automatiquement au crash de processus pendant calcul.",
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_c03_j",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 0.99,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-READ.txt",
+              "sha256": "d523ce1d68fa9ce5045224ff1f60b694bb959a087dbc639b29805d7611d75b4f"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-WRITE.txt",
+              "sha256": "855ab3d886e67db476c15ea4744ab7d7a83ea95a1bc4fee8436f5e46f6e7606c"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "aucun effet partiel, slot récupérable — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Fil coupé avant/après commit : état externe et reprise ; ne pas assimiler automatiquement au crash de processus pendant calcul.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-R3-10",
+      "Exigence": "Les Workers peuvent différer par partitions candidates, polling et plafonds locaux : seul le contrat de routage est commun.",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L298",
+      "Test ou scénario": "OR-AR-ROUTE ; cas R3-10 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R3-10 — WRITE + READ / contrôle documentaire/statique puis composants réels — référence historique à rapprocher : L2ManifestProof.l2m_r3_10",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Racines et paramètres contrôlés ; variantes deux workers de configurations différentes restent à rapprocher.",
+      "existingEvidence": [
+        {
+          "selector": "V3WorkerCompositionPostgresTest.i5_c01",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.java",
+          "sourceSha256": "4ad48a7b1c746ce7f68cfd8682428f431e7bdbfe8c46fc5e9d80fce97d2004e7",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest.xml",
+              "seconds": 1.077,
+              "sha256": "a4aca3e45a6429ea147f45eea9708e55aa0fa63796e16140bc8b293f9ad08be5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_c01.txt",
+              "sha256": "5aafca0e788845a00b6a340440a1a431a345fac9e44bf9afe10b14a5e510214d"
+            }
+          ]
+        },
+        {
+          "selector": "V3WorkerCompositionPostgresTest.i5_c02",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.java",
+          "sourceSha256": "4ad48a7b1c746ce7f68cfd8682428f431e7bdbfe8c46fc5e9d80fce97d2004e7",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest.xml",
+              "seconds": 3.221,
+              "sha256": "a4aca3e45a6429ea147f45eea9708e55aa0fa63796e16140bc8b293f9ad08be5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_c02.txt",
+              "sha256": "c18dfbc56ed6456afa8acc35bcf10a8051a8ddc2e93640fefd7a9eb387b65f9d"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Les Workers peuvent différer par partitions candidates, polling et plafonds locaux : seul le contrat de routage est commun. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Racines et paramètres contrôlés ; variantes deux workers de configurations différentes restent à rapprocher.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-R5-11",
+      "Exigence": "Configuration invalide => refus de traitement, sans consommer le budget.",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L319",
+      "Test ou scénario": "OR-RT-CEDE, OR-RT-CONFIG ; cas R5-11 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R5-11 — WRITE + READ / Command réel + banc technique READ — référence historique à rapprocher : L2ManifestProof.l2m_r5_11",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "NON_COUNTABLE garde le budget ; classe des configurations invalides à rapprocher explicitement.",
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_failure_classification",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 0.86,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_failure_classification-READ.txt",
+              "sha256": "3d0682d409c54405e4c068b63bfc00a0e604a1bf0c753afcb6bc9a79f3a4cab5"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_failure_classification-WRITE.txt",
+              "sha256": "ba30bdcabb92754582d88d0246df0f67da3cb093fb7dc23f3a727456348df40a"
+            }
+          ]
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Configuration invalide => refus de traitement, sans consommer le budget. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "NON_COUNTABLE garde le budget ; classe des configurations invalides à rapprocher explicitement.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-R8-03",
+      "Exigence": "Absence d'un slot derrière K interprétée exclusivement selon les garanties checkpoint+effets ; une purge briserait cet invariant.",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L339",
+      "Test ou scénario": "OR-AR-NOPURGE ; cas R8-03 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R8-03 — WRITE + READ / Command réel + banc technique READ + inventaire des writers — référence historique à rapprocher : L2ManifestProof.l2m_r8_03",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Absence administrativement injectée démontre la dépendance à la non-purge ; inventaire des writers pas encore exhaustif.",
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.visibilityRecoverySupersession",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 1.982,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        },
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.currentBindingRecoverySupersession",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 2.488,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Absence d'un slot derrière K interprétée exclusivement selon les garanties checkpoint+effets ; une purge briserait cet invariant. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Absence administrativement injectée démontre la dépendance à la non-purge ; inventaire des writers pas encore exhaustif.",
+      "scenarioGroup": "ADMIN",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-R8-05",
+      "Exigence": "SPEC-10 contient déjà la correction R8 au commit de base ; contrôler tout reste du corpus, DDL, scripts et administrateurs.",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L341",
+      "Test ou scénario": "OR-AR-NOPURGE ; cas R8-05 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R8-05 — WRITE + READ / Command réel + banc technique READ + inventaire des writers — référence historique à rapprocher : L2ManifestProof.l2m_r8_05",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "D",
+      "justification": "Sept opérations historiques et quatre main permettaient une purge ou terminalisation artificielle. Défaut d’outillage reproduit puis corrigé par refus avant effet. Les archives antérieures sont conservées.",
+      "existingEvidence": [],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "SPEC-10 contient déjà la correction R8 au commit de base ; contrôler tout reste du corpus, DDL, scripts et administrateurs. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Inventaire des DELETE puis reproduction hors ligne de sept opérations dangereuses ; retrait avec refus préalable des sept fonctions et quatre main. Contrôle après correction : 11 entrées refusées sans effet externe.",
+      "reservation": "L’inventaire statique ne démontre pas exhaustivement les noms de tables SQL construits dynamiquement ni tous les canaux administrateurs externes.",
+      "categoryAfterInvestigation": "E",
+      "anomaly": "L73-ADMIN-01",
+      "newEvidence": "docs/testing/evidence/L7-I3-completion/historical-admin-receipt.json",
+      "scenarioGroup": "ADMIN",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    },
+    {
+      "ID": "L2M-L1-F-f04",
+      "Exigence": "Auto-rattachement au seul acteur, droits ordinaires inchangés",
+      "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L398",
+      "Test ou scénario": "OR-L1-STATE ; cas L1-F-f04 ; paramètres et injection : colonne Stimulus — Deux utilisateurs/cibles concurrents — WRITE / futur CreateInvitation réel — référence historique à rapprocher : L2ManifestProof.l2m_l1_f_f04",
+      "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
+      "initialStatus": "MISSING",
+      "category": "B",
+      "justification": "Attachement par Invitation sous concurrence Unlink et restrictions ; deux utilisateurs/cibles concurrentes spécifiques non démontrés.",
+      "existingEvidence": [
+        {
+          "selector": "V3InvitationHttpTest.concurrentUnlinkAndAttachmentSerializeAtIdentity",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationHttpTest.java",
+          "sourceSha256": "fc81888e7ffb1e937b2833a08acf23a90efb1d32af835eec82d32f1352f6c42b",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+              "seconds": 12.921,
+              "sha256": "59084c73049ae62de440fee3c0bbf8a41afa37cab7df61bcdafc4a5062793057",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        },
+        {
+          "selector": "V3InvitationHttpTest.confidentialLinkAndRestrictedPlaces",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationHttpTest.java",
+          "sourceSha256": "fc81888e7ffb1e937b2833a08acf23a90efb1d32af835eec82d32f1352f6c42b",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+              "seconds": 13.157,
+              "sha256": "59084c73049ae62de440fee3c0bbf8a41afa37cab7df61bcdafc4a5062793057",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "action": "Compléter le stimulus précis décrit dans la justification.",
+      "closureCriterion": "Auto-rattachement au seul acteur, droits ordinaires inchangés — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Vérification SHA des sources, XML frais et artefacts de l’invocation archivée ; attribution documentée.",
+      "reservation": "Attachement par Invitation sous concurrence Unlink et restrictions ; deux utilisateurs/cibles concurrentes spécifiques non démontrés.",
+      "scenarioGroup": "RECONCILE",
+      "blocking": true,
+      "scope": "L7.3",
+      "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+    }
+  ]
+}

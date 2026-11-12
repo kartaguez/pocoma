@@ -30,6 +30,85 @@ import java.util.*;
 import javax.sql.DataSource;
 
 class V3InvitationReadPostgresTest extends V3InvitationFixture {
+    @Test
+    void invitationPublicationRejectsMissingUnknownAndWrongRequests() throws Exception {
+        startPot();
+        UUID original = create(Instant.parse("2030-01-01T00:00:00Z"));
+        link(original);
+        var write = f.worker.write;
+        UUID wrong = write.queryForObject("select request_id from v3_command"
+                + " where operation='CreatePot' and pot_id=?", UUID.class, f.pot);
+        var principal = new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                f.worker.writeUrl, f.worker.writeRole, "i5-fixture");
+        for (String variant : List.of("missing", "unknown", "wrong")) {
+            UUID request = variant.equals("missing") ? null : variant.equals("unknown") ? UUID.randomUUID() : wrong;
+            UUID invitation = UUID.randomUUID(), event = UUID.randomUUID();
+            var before = write.queryForMap("select (select count(*) from v3_invitation) invitations,"
+                    + " (select count(*) from v3_invitation_event) events,"
+                    + " (select count(*) from v3_event_position) positions,"
+                    + " (select sum(position) from v3_event_counter) counters");
+            java.sql.SQLException failure;
+            try (var connection = principal.getConnection()) {
+                connection.setAutoCommit(false);
+                try (var statement = connection.createStatement();
+                        var identity = statement.executeQuery("select current_user,pg_backend_pid(),pg_current_xact_id()::text,"
+                                + " rolsuper,rolcreaterole,rolcreatedb from pg_roles where rolname=current_user")) {
+                    assertTrue(identity.next());
+                    assertEquals(f.worker.writeRole, identity.getString(1));
+                    assertFalse(identity.getBoolean(4));
+                    assertFalse(identity.getBoolean(5));
+                    assertFalse(identity.getBoolean(6));
+                    System.out.println("Invitation refusal " + variant + " role=" + identity.getString(1)
+                            + " pid=" + identity.getInt(2) + " xid=" + identity.getString(3));
+                }
+                failure = assertThrows(java.sql.SQLException.class, () -> {
+                    try (var insert = connection.prepareStatement("insert into v3_invitation"
+                            + " (invitation_id,version,creation_request_id,creator_issuer,creator_subject,pot_id,expires_at,token_hash,protected_link)"
+                            + " select ?,1,?,creator_issuer,creator_subject,pot_id,expires_at,?,protected_link"
+                            + " from v3_invitation where creation_request_id=?")) {
+                        insert.setObject(1, invitation);
+                        insert.setObject(2, request);
+                        insert.setString(3, invitation.toString().replace("-", "").repeat(2));
+                        insert.setObject(4, original);
+                        assertEquals(1, insert.executeUpdate());
+                    }
+                    try (var insert = connection.prepareStatement("insert into v3_invitation_event"
+                            + " (event_id,invitation_id,version,recorded_at) values (?,?,1,clock_timestamp())")) {
+                        insert.setObject(1, event);
+                        insert.setObject(2, invitation);
+                        assertEquals(1, insert.executeUpdate());
+                    }
+                    long position;
+                    try (var statement = connection.createStatement(); var counter = statement.executeQuery(
+                            "update v3_event_counter set position=position+1 where family='INVITATION' returning position")) {
+                        assertTrue(counter.next());
+                        position = counter.getLong(1);
+                    }
+                    try (var insert = connection.prepareStatement("insert into v3_event_position(family,position,event_id)"
+                            + " values ('INVITATION',?,?)")) {
+                        insert.setLong(1, position);
+                        insert.setObject(2, event);
+                        assertEquals(1, insert.executeUpdate());
+                    }
+                    connection.commit(); // The wrong existing request reaches the deferred unit check.
+                });
+                connection.rollback();
+            }
+            // Derived from the delivered DDL: NOT NULL, immediate FK, deferred Invitation unit.
+            assertEquals(switch (variant) { case "missing" -> "23502"; case "unknown" -> "23503";
+                default -> "23514"; }, failure.getSQLState(), variant);
+            var after = write.queryForMap("select (select count(*) from v3_invitation) invitations,"
+                    + " (select count(*) from v3_invitation_event) events,"
+                    + " (select count(*) from v3_event_position) positions,"
+                    + " (select sum(position) from v3_event_counter) counters");
+            assertEquals(before, after, variant + " must leave no partial effect or publication");
+            assertEquals(0, write.queryForObject("select count(*) from v3_invitation where invitation_id=?", Integer.class, invitation));
+            assertEquals(0, write.queryForObject("select count(*) from v3_invitation_event where event_id=?", Integer.class, event));
+            System.out.println("Invitation refusal " + variant + " SQLSTATE=" + failure.getSQLState()
+                    + " external snapshot unchanged=" + after);
+        }
+    }
+
     static SpringAttemptTransactions owner(DataSource source) {
         var manager = new DataSourceTransactionManager(source);
         manager.setNestedTransactionAllowed(false);

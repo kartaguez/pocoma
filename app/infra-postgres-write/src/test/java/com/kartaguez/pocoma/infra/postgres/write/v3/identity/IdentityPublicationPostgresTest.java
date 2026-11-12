@@ -19,6 +19,91 @@ import java.util.concurrent.*;
 @Testcontainers
 class IdentityPublicationPostgresTest extends IdentityEngineFixture {
     @Test
+    void l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution() throws Exception {
+        for (int repetition = 0; repetition < 2; repetition++) {
+            for (String resolution : List.of("commit", "rollback", "disconnect")) {
+                var a = key("l73-a-" + repetition + resolution);
+                var b = key("l73-b-" + repetition + resolution);
+                var oneRequest = request(new IdentityRequest.Registration(), a, null, a);
+                var twoRequest = request(new IdentityRequest.Registration(), b, null, b);
+                admitRequest(oneRequest);
+                admitRequest(twoRequest);
+                discover(oneRequest);
+                discover(twoRequest);
+                var firstEngine = engine(participant, tx);
+                var secondEngine = engine(participant, tx);
+                int p1 = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, oneRequest.requestId()), 4);
+                int p2 = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, twoRequest.requestId()), 4);
+                var c1 = firstEngine.acquire(lease(p1), List.of(oneRequest.requestId())).claims().getFirst();
+                var c2 = secondEngine.acquire(lease(p2), List.of(twoRequest.requestId())).claims().getFirst();
+                long before = admin.queryForObject("select position from v3_event_counter where family='IDENTITY'", Long.class);
+                var labels = new ConcurrentHashMap<Thread, String>();
+                var entered = new CountDownLatch(1);
+                var release = new CountDownLatch(1);
+                var once = new java.util.concurrent.atomic.AtomicBoolean();
+                var firstPid = new java.util.concurrent.atomic.AtomicInteger();
+                var secondPid = new java.util.concurrent.atomic.AtomicInteger();
+                hook = boundary -> {
+                    String label = labels.get(Thread.currentThread());
+                    if ("A".equals(label) && boundary.equals("after_position") && once.compareAndSet(false, true)) {
+                        firstPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+                        entered.countDown();
+                        await(release);
+                        if (resolution.equals("rollback")) throw new IllegalStateException("L7.3 rollback after first Identity position");
+                    }
+                    if ("B".equals(label) && boundary.equals("before_counter"))
+                        secondPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+                };
+                var first = threads.submit(() -> { labels.put(Thread.currentThread(), "A"); return firstEngine.execute(c1); });
+                await(entered);
+                var second = threads.submit(() -> { labels.put(Thread.currentThread(), "B"); return secondEngine.execute(c2); });
+                try {
+                    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+                    boolean blocked = false;
+                    while (System.nanoTime() < deadline) {
+                        if (secondPid.get() != 0 && admin.queryForObject("select ?=any(pg_blocking_pids(?))",
+                                Boolean.class, firstPid.get(), secondPid.get())) { blocked = true; break; }
+                        Thread.onSpinWait();
+                    }
+                    assertTrue(blocked, "T2 must physically wait for T1's publication counter");
+                    var references = new com.kartaguez.pocoma.infra.postgres.source.v3.JdbcEventDiscoveryReferences(
+                            source, ConsumableFamily.IDENTITY_EVENT, discoverySettings);
+                    var window = tx.read(context -> references.window(before, 32, context));
+                    assertEquals(before, window.highInclusive(), "Discovery must not cover the uncommitted half-batch");
+                    assertTrue(window.references().isEmpty());
+                    assertEquals(before, admin.queryForObject("select position from v3_event_counter where family='IDENTITY'", Long.class));
+                    assertEquals(0, admin.queryForObject("select count(*) from v3_identity_request_result where request_id in (?,?)",
+                            Integer.class, oneRequest.requestId(), twoRequest.requestId()));
+                    evidence.add("L7.3 publication repetition=" + repetition + " resolution=" + resolution
+                            + " firstPid=" + firstPid.get() + " secondPid=" + secondPid.get() + " safePrefix=" + before);
+                    if (resolution.equals("disconnect"))
+                        assertTrue(admin.queryForObject("select pg_terminate_backend(?)", Boolean.class, firstPid.get()));
+                } finally {
+                    release.countDown();
+                }
+                var firstResult = first.get(15, TimeUnit.SECONDS);
+                assertEquals(ConsumptionProtocol.Status.COMMITTED, second.get(15, TimeUnit.SECONDS).status());
+                hook = boundary -> {};
+                boolean committed = resolution.equals("commit");
+                if (committed) assertEquals(ConsumptionProtocol.Status.COMMITTED, firstResult.status());
+                else assertNotEquals(ConsumptionProtocol.Status.COMMITTED, firstResult.status());
+                var publications = admin.queryForList("select e.request_id from v3_event_position p join v3_identity_event e"
+                        + " using(event_id) where p.family='IDENTITY' and p.position>? order by p.position", UUID.class, before);
+                assertEquals(committed ? List.of(oneRequest.requestId(), oneRequest.requestId(), twoRequest.requestId(), twoRequest.requestId())
+                        : List.of(twoRequest.requestId(), twoRequest.requestId()), publications);
+                var positions = admin.queryForList("select position from v3_event_position where family='IDENTITY' order by position", Long.class);
+                for (int n = 0; n < positions.size(); n++) assertEquals(n + 1L, positions.get(n));
+                assertEquals(committed ? 1 : 0, admin.queryForObject("select count(*) from v3_identity_request_result where request_id=?",
+                        Integer.class, oneRequest.requestId()));
+                assertEquals(committed ? "TERMINAL" : "PENDING", admin.queryForObject(
+                        "select status from v3_identity_request where request_id=?", String.class, oneRequest.requestId()));
+                evidence.add("L7.3 resolved " + resolution + " firstOutcome=" + firstResult.resolution()
+                        + " newIdentityEvents=" + publications.size() + " denseThrough=" + positions.size());
+            }
+        }
+    }
+
+    @Test
     void l3_identity_batch() {
         for (int i = 0; i < 3; i++) {
             var e = key("batch-" + i);
