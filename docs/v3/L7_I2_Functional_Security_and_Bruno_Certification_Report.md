@@ -1,6 +1,6 @@
 # L7.2 — Qualification fonctionnelle, sécurité et Bruno
 
-**Verdict provisoire `L7_I2_NOT_CERTIFIED`.** Mandat `GO_L7_I2_I3_FULL_EXECUTION`. Référence initiale `d5da8f4200c4f60832d9590edfaff224ddaec9b9`, worktree propre et SHA identique sur `origin/feat/v3-architecture` avant intervention.
+**Verdict `L7_I2_CERTIFIED_WITH_RESERVATIONS` pour les parcours locaux démontrés.** Mandat `GO_L7_I2_I3_FULL_EXECUTION`. Référence initiale `d5da8f4200c4f60832d9590edfaff224ddaec9b9`, worktree propre et SHA identique sur `origin/feat/v3-architecture` avant intervention.
 
 ## 1. Retrait et contrats publics
 
@@ -35,4 +35,15 @@ Le premier B4 séparé envoyait la Registration vers READ. Après correction de 
 
 La première commande `python3 -Bu scripts/testing/verify.py INTEGRATION WEB,COMMAND,PROJECTION,FOUNDATION,ARCHITECTURE --output certification-raw/l7-i2-i3-architecture` a exécuté 1 056 tests, dont deux erreurs du même test d'outillage Architecture. Le Maven avait terminé et le superviseur n'a pas écrit son agrégat. Le reçu reconstruit conserve les XML de l'invocation, le journal et les diagnostics physiques. La fixture présentait Link comme intention active. Elle utilise maintenant Unlink et vérifie la stabilité de l'intention canonique, la discrimination du token et de la cible, les permissions de fichier et le refus explicite de Link. Le test ciblé corrigé est passé 2/2. [Tentative initiale](../testing/evidence/L7-I2-I3/architecture-attempt-01/result.json), [retest 2/2](../testing/evidence/L7-I2-I3/architecture-fixture-retest.json).
 
-L'acceptation finale exige les gates Architecture et réacteur complet et le rapprochement des variantes spécialisées. La recette vierge couvre l'absence de JWT, la preuve invalide, l'expiration et la mauvaise audience réelle. L'issuer erroné, la signature indépendante et la matérialisation retardée contrôlée sont exercés par les oracles de fixture. Le registre L7.1 garde les résultats historiques et leurs SHA. L'index courant relie les méthodes fraîches à leur variante. [Oracles courants](../testing/evidence/L7-I2-I3/functional-current-oracles.json). ID-02 et L2M-E02-E-LINK portent le statut de retrait. Les variantes mixtes restent dues pour les contrats conservés. [Matrice](L7_I1_Certification_Coverage_Matrix.csv), [réserves](L7_I1_Residual_Reservations_Register.md).
+Les gates Architecture et réacteur complet ont passé sur les entrées stabilisées. Le niveau de preuve par variante reste dans la matrice. La recette vierge couvre l'absence de JWT, la preuve invalide, l'expiration et la mauvaise audience réelle. L'issuer erroné, la signature indépendante et la matérialisation retardée contrôlée sont exercés par les oracles de fixture. Le registre L7.1 garde les résultats historiques et leurs SHA. L'index courant relie les méthodes fraîches à leur variante. [Oracles courants](../testing/evidence/L7-I2-I3/functional-current-oracles.json). ID-02 et L2M-E02-E-LINK portent le statut de retrait. Les variantes mixtes restent dues pour les contrats conservés. [Matrice](L7_I1_Certification_Coverage_Matrix.csv), [réserves](L7_I1_Residual_Reservations_Register.md).
+
+| Gate non filtrée | SHA testé | Exécutions | Durée Maven |
+|---|---|---:|---:|
+| Réacteur complet | `5ae89228c16347ed536ac18eaf9a8946a5ac4d32` | 1 057 PASS, zéro échec, erreur ou skip | 5654.87 s |
+| Architecture et sa fermeture Maven | `5ae89228c16347ed536ac18eaf9a8946a5ac4d32` | 1 057 PASS, dont 47 du module Architecture | 5566.75 s |
+
+`python3 -Bu scripts/testing/verify.py CERTIFICATION --output certification-raw/l7-i2-i3-full-after-w19` exécute `./mvnw test` avec un identifiant de preuve neuf. `python3 -Bu scripts/testing/verify.py INTEGRATION ARCHITECTURE --output certification-raw/l7-i2-i3-architecture-after-w19` exécute l'ancre Architecture, son amont et le Monolith. Les deux reçus donnent la commande Maven complète et l'inventaire. Les campagnes ont été exécutées en série, avec les slices déclarées WEB, COMMAND, PROJECTION et FOUNDATION. [Réacteur complet](../testing/evidence/L7-I2-I3/full-after-w19/result.json), [Architecture](../testing/evidence/L7-I2-I3/architecture-after-w19/result.json).
+
+Les réserves fonctionnelles portent sur l'attribution fine des interleavings Invitation et du résultat HTTP en panne du store, ainsi que sur les fenêtres de propagation exercées en fixture. L'admission, l'effet WRITE, le résultat terminal, la projection et la réponse READ sont crédités sur leurs témoins respectifs.
+
+Les durées Maven des deux gates finales totalisent 11 221,62 s (3 h 07 min 02 s). La somme des exécutions tracées de la mission, échecs et interruptions inclus, est de 26 423,59 s (7 h 20 min 24 s). Cette somme exclut l'analyse, le développement, les pauses et les contrôles statiques courts ; les heures CPU et l'effort humain équivalent n'ont pas été instrumentés. Les reçus ne permettent pas de les présenter comme des mesures. [Synthèse](../testing/evidence/L7-I2-I3/mission-summary.json).

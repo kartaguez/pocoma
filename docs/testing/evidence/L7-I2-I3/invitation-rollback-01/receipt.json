@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+  "started": "2026-11-12T13:33:35Z",
+  "finished": "2026-11-12T13:34:14Z",
+  "seconds": 39.0,
+  "scope": "Targeted COMMAND and PROJECTION feedback, no canonical slice or certification PASS",
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "exitCode": 0,
+  "failure": null,
+  "command": "cd app; TESTCONTAINERS_HOST_OVERRIDE=127.0.0.1 ./mvnw --batch-mode --no-transfer-progress -pl runtime-monolith -am -Dtest=V3InvitationReadPostgresTest#createInvitationRollsBackEffectsAndPositionsBeforeRetry -Dsurefire.failIfNoSpecifiedTests=false -Dpocoma.verification.id=l7-i2-i3-invitation-rollback-01 -Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-invitation-rollback-01/reports test",
+  "fixtureSha256": "9e63baab5e98ca69e2c2e2b7d84f2928147836625dace239f3d9e18785a24801",
+  "worktree": [
+    "?? docs/testing/evidence/L7-I2-I3/w19-after-fixture/"
+  ],
+  "environment": {
+    "os": "Darwin arm64",
+    "jdk": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)",
+    "TESTCONTAINERS_HOST_OVERRIDE": "127.0.0.1",
+    "postgresImage": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73"
+  },
+  "artifacts": {
+    "maven.log.gz": "854b104a277365fcc8b2c56587d48c67091abdc36746568826c75e64514d35a4",
+    "TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml.gz": "b3ebf16e89a356bb4ea2f10debd1e20c14c3e0763292b4e67d19cdcbaa1a7e32"
+  }
+}

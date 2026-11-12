@@ -1,6 +1,6 @@
 # L7.4 — Protocole d'exécution de SPEC-09
 
-**Verdict de préparation provisoire `L7_I4_PREPARATION_BLOCKED`.** Le manifeste des profils est versionné et son rendu a été vérifié statiquement. Les campagnes de certification n'ont pas été exécutées.
+**Verdict de préparation `L7_I4_PREPARATION_BLOCKED`.** Le manifeste des profils est versionné et son rendu a été vérifié statiquement. Les campagnes de certification n'ont pas été exécutées.
 
 ## 1. Comparaison historique et qualification directe
 
@@ -35,7 +35,7 @@ python3 -B scripts/performance/v3_populated_db_generator.py --profile H1 --outpu
 python3 -B scripts/performance/v3_ab_sequential_discovery.py --profiles H1 --rates 1,10 --sample-resources --output "$POCOMA_COMPARISON_RECEIPT"
 ```
 
-Le `v3-run.py` historique embarque des hypothèses Monolith, un budget propre à L6 et des destinations de collecte historiques. Les commandes rendues du banc courant préparent l'injection k6 sur deux URL. Leur rendu et leur syntaxe ont été contrôlés. Le rendu fournit la commande de préparation pour chaque profil indépendant. Le générateur déterministe enregistre un reçu de population, vérifie chaque résultat terminal, compare les identifiants et la version en HTTP READ puis vérifie l'état en SQL. Il écrit un manifeste compact consommé par k6 via `PRE_SEEDED_POTS_FILE`. Le stimulus réserve un Pot par VU et impose 10, 100 et 250 Pots à 1, 10 et 50/s. Toute itération abandonnée ou famine de l'injecteur invalide la preuve de l'offre. Le Grand Pot hors ligne contient 100 Shareholders, 2 000 Expenses et jusqu'à 200 000 participations. La matérialisation du Grand Pot et le coût du collecteur restent à calibrer. Identity, le rattrapage, les grandes volumétries et DeletePot exigent les préparations indiquées au manifeste. [Rendu](../testing/evidence/L7-I2-I3/spec09-static-plan-04.json), [inspection k6](../testing/evidence/L7-I2-I3/spec09-k6-inspect.json).
+Le `v3-run.py` historique embarque des hypothèses Monolith, un budget propre à L6 et des destinations de collecte historiques. Les commandes rendues du banc courant préparent l'injection k6 sur deux URL. Leur rendu et leur syntaxe ont été contrôlés. Le rendu fournit la commande de préparation pour chaque profil indépendant. Le générateur déterministe enregistre un reçu de population, vérifie chaque résultat terminal, compare les identifiants et la version en HTTP READ puis vérifie l'état en SQL. Il écrit un manifeste compact consommé par k6 via `PRE_SEEDED_POTS_FILE`. Le stimulus réserve un Pot par VU et impose 10, 100 et 250 Pots à 1, 10 et 50/s. Toute itération abandonnée ou famine de l'injecteur invalide la preuve de l'offre. Le Grand Pot hors ligne contient 100 Shareholders, 2 000 Expenses et jusqu'à 200 000 participations. La matérialisation du Grand Pot et le coût du collecteur restent à calibrer. Identity, le rattrapage, les grandes volumétries et DeletePot exigent les préparations indiquées au manifeste. [Rendu final](../testing/evidence/L7-I2-I3/spec09-static-plan-05.json), [inspection k6](../testing/evidence/L7-I2-I3/spec09-k6-inspect.json).
 
 ### Authentification de test pour la configuration A
 
@@ -50,9 +50,44 @@ node scripts/performance/spec09-test-issuer.mjs --port 18090 \
 
 Le contrôle local vérifie les signatures et les claims de deux sujets, la permission 0600 et l'absence de route d'émission. La configuration B utilise le Keycloak isolé et les contrats HTTP déjà vérifiés en recette. [Contrôle de l'émetteur](../testing/evidence/L7-I2-I3/spec09-test-issuer.json).
 
+### Identity nominale F01-E
+
+La décision humaine du 12 novembre 2026 remplace la lecture d'un Pot déjà matérialisé par la première réponse autorisée de `/api/v3/me/pots?limit=1` avec le nouveau binding et le JWT de la même EUI. Pour Registration, le nouveau User a une liste vide. Le seuil p95 reste fixé à 500 ms. L'ancien jalon dépendait d'un droit que le nouveau User ne pouvait pas posséder avant sa création.
+
+Générer 1 380 EUI nouvelles par répétition, puis utiliser leurs sujets avec l'émetteur Configuration A décrit plus haut. Les 180 premières sont le warm-up et les 1 200 suivantes l'échantillon à une offre de 1/s. Utiliser un UUID de répétition inédit et des fichiers hors Git. Les services libpq sont deux observateurs en lecture seule.
+
+```sh
+python3 -B scripts/performance/run-l7-spec09-registration.py --run-id "$POCOMA_F01E_RUN_UUID" --subjects "$POCOMA_TEST_SUBJECTS" --report "$POCOMA_F01E_PLAN"
+python3 -B scripts/performance/run-l7-spec09-registration.py --execute --isolated-target --run-id "$POCOMA_F01E_RUN_UUID" --subjects "$POCOMA_TEST_SUBJECTS" --tokens "$POCOMA_TEST_TOKEN_FILE" --write-url "$POCOMA_WRITE_URL" --read-url "$POCOMA_READ_URL" --write-service pocoma-spec09-write --read-service pocoma-spec09-read --report "$POCOMA_F01E_RECEIPT"
+```
+
+Démarrer l'émetteur entre les deux commandes. Le générateur refuse un sujet déjà lié et sépare admission, obtention du binding et réponse de navigation. Il mesure sur une horloge monotone. Le commit se situe entre l'envoi du POST et la réception du 202 : le rapport calcule les deux bornes p50/p95/p99. Il crédite PASS si la borne haute p95 est au plus 500 ms, FAIL si la borne basse dépasse 500 ms, et INCONCLUSIVE si l'intervalle chevauche le seuil. Un abandon d'offre, une preuve HTTP incohérente ou un rapprochement SQL incomplet invalide la campagne. Une attente de navigation au-delà de huit secondes reste censurée dans le dénominateur. Après l'échantillon, deux lectures SQL rapprochent les résultats terminaux et l'identité du User par demande, sans écrire ni exporter les bindings.
+
+La syntaxe, l'oracle HTTP, les bornes, la censure et le rapprochement SQL simulé ont passé hors ligne. La cadence de sondage et son coût doivent être mesurés lors de la préparation de la topologie contractuelle. [Preuve statique F01-E](../testing/evidence/L7-I2-I3/spec09-registration-static.json).
+
+### Keycloak intégré F01-F
+
+Préparer un realm jetable `pocoma-spec09-<identifiant>` et ses comptes inédits, puis importer le fichier sous Keycloak 26.7 sur l'hôte réservé. Les sorties du préparateur sont privées (0600) et restent hors Git. Configurer les deux Runtimes WEB pour cet issuer et l'audience `pocoma-api`. Le client conserve l'Authorization Code et PKCE S256, avec Direct Access Grants désactivé.
+
+```sh
+python3 -B scripts/performance/run-l7-spec09-keycloak.py prepare --run-id "$POCOMA_F01F_RUN_UUID" --subjects "$POCOMA_TEST_SUBJECTS" --realm "$POCOMA_B_REALM" --realm-file "$POCOMA_B_REALM_IMPORT" --accounts "$POCOMA_B_ACCOUNTS" --report "$POCOMA_F01F_PLAN"
+python3 -B scripts/performance/run-l7-spec09-keycloak.py execute --isolated-target --run-id "$POCOMA_F01F_RUN_UUID" --issuer "$POCOMA_B_ISSUER" --accounts "$POCOMA_B_ACCOUNTS" --report "$POCOMA_F01F_RECEIPT" --write-url "$POCOMA_WRITE_URL" --read-url "$POCOMA_READ_URL" --write-service pocoma-spec09-write --read-service pocoma-spec09-read
+```
+
+À 1 nouveau parcours/s, 180 sujets servent au warm-up et 600 à l'échantillon. Mesurer séparément login et autorisation, échange de code, Registration et Unlink. Vérifier la version 1 du binding actif, la version 2 inactive, le refus du mauvais et de l'ancien token, puis rapprocher les deux résultats terminaux et les slots dans les bases séparées. Les refus, attentes et abandons restent dans les reçus. Aucun SLO chiffré B n'est ajouté.
+
+Pour la comparaison de Registration A/B, utiliser un autre snapshot B neuf et le mode `issue-tokens` du même script avant la fenêtre évaluée. Réutiliser ensuite le même scénario, la même offre et les mêmes jalons F01-E. Les durées OIDC du parcours B restent une mesure distincte ; ne pas soustraire les percentiles. [Contrôle statique du scénario B](../testing/evidence/L7-I2-I3/spec09-keycloak-static.json).
+
 ### Stock initial F01-G
 
-Arrêter le traitement et Discovery avant de constituer le stock. Garder l'admission HTTP WRITE disponible. Préparer un Pot moyen distinct par demande et envoyer une commande `CreateExpense` par Pot, avec une intention et une clé idempotente uniques. Garder l'inventaire JSON des seuls UUID issus des 10 000 admissions HTTP 202. Comparer cet inventaire aux publications durables pendant que le traitement reste arrêté. Utiliser deux services libpq d'observation distincts, définis hors Git. Le script effectue deux lectures SQL bornées en transactions `READ ONLY`.
+Arrêter le traitement et Discovery avant de constituer le stock. Garder l'admission HTTP WRITE disponible. Préparer un export vérifié de 10 000 Pots moyens distincts. Le chargeur valide la structure hors ligne, puis admet une seule commande `CreateExpense` par Pot avec une intention et une clé propres. Une réponse incertaine, refusée ou dupliquée arrête l'envoi après le lot en cours ; elle est conservée au reçu et aucun inventaire admissible n'est publié. Après un stock incomplet, reprendre sur un environnement jetable neuf.
+
+```sh
+python3 -B scripts/performance/stock-l7-spec09-backlog.py --fixtures "$POCOMA_F01G_FIXTURES" --report "$POCOMA_F01G_PLAN" --concurrency 8
+python3 -B scripts/performance/stock-l7-spec09-backlog.py --fixtures "$POCOMA_F01G_FIXTURES" --report "$POCOMA_F01G_STOCK" --concurrency 8 --execute-stock --isolated-and-workers-stopped --write-url "$POCOMA_WRITE_URL" --run-id "$POCOMA_F01G_RUN_UUID" --requests "$POCOMA_INITIAL_REQUESTS"
+```
+
+Les deux commandes exigent des chemins de reçus neufs. Le mode d'admission s'exécute pendant L7.4, après vérification que la cible est jetable et les Workers arrêtés. Comparer l'inventaire des HTTP 202 aux publications durables pendant que le traitement reste arrêté. Le test statique a validé 10 000 descripteurs synthétiques sans trafic HTTP. [Reçu du chargeur](../testing/evidence/L7-I2-I3/spec09-stock-static.json). Utiliser deux services libpq d'observation distincts, définis hors Git. Le script effectue deux lectures SQL bornées en transactions `READ ONLY`.
 
 ```sh
 python3 -B scripts/performance/observe-l7-spec09-backlog.py capture \
@@ -64,7 +99,7 @@ python3 -B scripts/performance/observe-l7-spec09-backlog.py reconcile \
   --output "$POCOMA_OBSERVATION_RECEIPT"
 ```
 
-Horodater le redémarrage et alimenter simultanément à 1 nouvelle commande/s, hors stock initial. Choisir un nouveau chemin de sortie par observation. Le résultat `CONVERGED` demande le résultat WRITE appliqué, le résultat READ identique, les versions, les balances et la visibilité attendues, les composants de l'événement et les quatre couvertures de Consumption, avec zéro slot des publications contrôlées. Le chronométrage de 300 secondes inclut l'observation de l'état convergé. La préparation des Pots et l'injection initiale à grande échelle, la cadence de sondage du rapprochement et son coût sous charge restent à calibrer. [Vérification statique SQL](../testing/evidence/L7-I2-I3/spec09-backlog-static.json).
+Horodater le redémarrage et alimenter simultanément à 1 nouvelle commande/s, hors stock initial. Choisir un nouveau chemin de sortie par observation. Le résultat `CONVERGED` demande le résultat WRITE appliqué, le résultat READ identique, les versions, les balances et la visibilité attendues, les composants de l'événement et les quatre couvertures de Consumption, avec zéro slot des publications contrôlées. Le chronométrage de 300 secondes inclut l'observation de l'état convergé. La préparation des Pots à grande échelle et les coûts du chargeur et du rapprochement restent à mesurer sur la topologie contractuelle. [Vérification statique SQL](../testing/evidence/L7-I2-I3/spec09-backlog-static.json).
 
 ## 3. Admissibilité et réconciliation
 
@@ -72,7 +107,7 @@ Pour chaque répétition, sceller SHA productif, état Git, empreintes JAR, imag
 
 Recréer le même snapshot initial entre répétitions, mesurer son empreinte et distinguer warm-up, fenêtre évaluée et drainage. Maintenir la machine éveillée, exclure Maven et les autres charges, horodater en UTC et utiliser une horloge monotone par client. Observer CPU, RSS, GC, I/O, WAL, verrous, connexions, pools, backlog, âge et progression par Consumption. Calibrer une cadence de sondage de 25 ms avec un coût mesuré. Une dérive de provenance, de l'offre ou de l'oracle rend la campagne inconclusive. Une violation physique ou un seuil dépassé dans des conditions admissibles donne FAIL. Les timeouts et censures restent dans les reçus et dans les dénominateurs.
 
-Réconcilier offre, abandons du générateur, requêtes tentées, admissions durables, résultats WRITE, résultats READ, effets attendus et sondages clients. Rapporter p50/p95/p99, issues et échantillons par population. Un succès C-03 demande une première réponse authentifiée et complète avec `minVersion=V`, W≥V et balance de W. Mesurer aussi l'exactitude et la disponibilité de la balance de V, ainsi que visibilité et complétion indépendantes. Pour DeletePot, chronométrer `CurrentPot → PotVersion(D).deleted=true` depuis l'admission durable et vérifier toutes les balances actives antérieures. Un 404 seul est insuffisant. F01-E commence à l'admission durable de Registration et termine au premier accès réellement autorisé avec le nouveau binding sur Pot pré-matérialisé. La Registration courante crée un nouveau User autonome, y compris après libération d'une EUI. Le banc doit expliquer comment ce User possède déjà un droit sur le Pot cible sans effectuer une mutation Pot dans la fenêtre mesurée. La variante publique qui mesure `/me/pots` avec le nouveau binding n'atteste qu'un accès à la liste. Un changement d'oracle contractuel exige une décision explicite.
+Réconcilier offre, abandons du générateur, requêtes tentées, admissions durables, résultats WRITE, résultats READ, effets attendus et sondages clients. Rapporter p50/p95/p99, issues et échantillons par population. Un succès C-03 demande une première réponse authentifiée et complète avec `minVersion=V`, W≥V et balance de W. Mesurer aussi l'exactitude et la disponibilité de la balance de V, ainsi que visibilité et complétion indépendantes. Pour DeletePot, chronométrer `CurrentPot → PotVersion(D).deleted=true` depuis l'admission durable et vérifier toutes les balances actives antérieures. Un 404 seul est insuffisant.
 
 ## 4. Ordre et enveloppe
 
@@ -84,3 +119,5 @@ Réconcilier offre, abandons du générateur, requêtes tentées, admissions dur
 6. Rejouer la comparaison historique uniquement dans la portée où ses deux côtés sont admissibles.
 
 Compter 7–12 h de machine pour la première enveloppe de qualification directe, hors chargement des plus gros snapshots, répétitions supplémentaires et endurance. Le préchargement de 10 000 à 1/s prendrait 2 h 47 à lui seul. Le temps final dépend du préchargement accéléré, des oracles de complétion et du retour au régime nominal. [Estimation L7.1](L7_I1_Certification_Coverage_and_Execution_Plan.md#12-effort-et-ordonnancement).
+
+Le manifeste final rend 13 familles de campagnes, avec les commandes explicites F01-E/F/G. Les 17 contrôles hors ligne des trois nouveaux scripts passent ; leur reçus n'attestent aucune latence réelle. La préparation reste bloquée pour la collecte CPU/RAM/GC/WAL/pools sur la topologie contractuelle, les snapshots volumétriques et l'ordonnancement du jalon interne DeletePot. Aucun benchmark SPEC-09 ni lot L7.5 n'a été exécuté. Ces travaux restent autorisés dans la préparation du mandat ; l'arbitrage F01-E ne requiert plus de décision.

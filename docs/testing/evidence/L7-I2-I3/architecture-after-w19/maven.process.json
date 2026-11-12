@@ -1,0 +1,15 @@
+{
+  "pid": 24862,
+  "process_group": 24862,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "architecture-tests,runtime-monolith",
+    "-am",
+    "-Dpocoma.verification.id=7bfd7013a90a4c70bca0347c9feb1992",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-architecture-after-w19/reports",
+    "test"
+  ]
+}

@@ -41,5 +41,30 @@
       "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java"
     ],
     "scope": "Changes since the built candidate are limited to three Java test fixtures. Runtime production, bootstrap and HTTP recipe inputs are identical."
+  },
+  "finalReactorCandidate": {
+    "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "85c68b80705bed7faa4d12c74bb3727c0775f2ca",
+      "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+      "--",
+      "app",
+      "scripts/testing",
+      "scripts/bruno-v3",
+      "scripts/v3",
+      "docker",
+      "scripts/operations/v3-rebuild-read.py"
+    ],
+    "differences": [
+      "app/architecture-tests/src/test/java/com/kartaguez/pocoma/runtime/command/v3/dev/V3WorkerDevelopmentToolsTest.java",
+      "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationReadPostgresTest.java",
+      "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/V3ReadReconstructionPostgresTest.java",
+      "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Postgres.java",
+      "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java"
+    ],
+    "scope": "Five Java test fixtures differ since the Bruno artefacts were built. Production, bootstrap, selector and Bruno inputs are byte-identical."
   }
 }

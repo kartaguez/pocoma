@@ -1,0 +1,13 @@
+{
+  "pid": 98561,
+  "process_group": 98561,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-Dpocoma.verification.id=6f84169ffe124312b3b635a5044346ea",
+    "-Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-full-after-w19/reports",
+    "help:effective-pom",
+    "-Doutput=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-full-after-w19/effective-pom.xml"
+  ]
+}

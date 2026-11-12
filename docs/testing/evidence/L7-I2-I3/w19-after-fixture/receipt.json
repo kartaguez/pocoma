@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+  "started": "2026-11-12T13:33:02Z",
+  "finished": "2026-11-12T13:33:34Z",
+  "seconds": 32.0,
+  "scope": "Targeted COMMAND feedback, no canonical slice or certification PASS",
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "exitCode": 0,
+  "failure": null,
+  "command": "cd app; TESTCONTAINERS_HOST_OVERRIDE=127.0.0.1 ./mvnw --batch-mode --no-transfer-progress -pl runtime-worker-process -am -Dtest=V3WorkerPostgresTest#i5_w19 -Dsurefire.failIfNoSpecifiedTests=false -Dpocoma.verification.id=l7-i2-i3-w19-after-fixture -Dpocoma.verification.reports=/Users/julien.guezennec/Dev/projects/pocoma/certification-raw/l7-i2-i3-w19-after-fixture/reports test",
+  "fixtureSha256": "b11954cc0bfc9ef2ec3db85a81ec051e874ff00c5b4c857ca8bbb660cac52f85",
+  "worktree": [],
+  "environment": {
+    "os": "Darwin arm64",
+    "jdk": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)",
+    "TESTCONTAINERS_HOST_OVERRIDE": "127.0.0.1",
+    "postgresImage": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73"
+  },
+  "artifacts": {
+    "maven.log.gz": "b160ea12af74ed502a76ab7adc1fd7f78007a4abc5d5728770429e976a555d63",
+    "TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.xml.gz": "72389253601f741fd6b9f756af35965065b900171868c5ea3d649cf8785fded7",
+    "i5_w19-MW1-timeoutfalse.txt": "1ea23a0c3fdfc414bdb37a2a4f596e8a75d7a9e6c54e3f6288a4dbe13232e063",
+    "i5_w19-MW1-timeouttrue.txt": "0cdd7b22bd8d7d1e8b6877f9e6131b5b0dcd35393cea6b3667255a0f8851448a",
+    "i5_w19-MW4-timeoutfalse.txt": "bc64b9e9ce11eb7054bdf6378007650383405948cff06bd01380d7159a178749",
+    "i5_w19-MW4-timeouttrue.txt": "0782d2e1288a01004648a99a6edaa880f821509a2ddf857968f4d0c66f07a4a4"
+  }
+}
