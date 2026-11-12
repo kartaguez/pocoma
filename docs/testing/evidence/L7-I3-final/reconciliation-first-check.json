@@ -1,0 +1,11 @@
+{
+  "status": "FAIL",
+  "stage": "read-only historical XML review",
+  "cause": "Initial collector assertion wrongly rejected successful testcase children system-out/system-err; no JUnit failure/error/skip was present.",
+  "correction": "Check failure/error/skipped nodes explicitly; retain testcase output; no proof or oracle changed.",
+  "additionalDevelopmentCheck": {
+    "status": "FAIL",
+    "condition": "Required nonempty executable proof list even for partial administrative audit rows whose preceding evidence is narrative/static.",
+    "correction": "Full rows still require new or reconciled proof; partial rows retain the exact preceding reconciliation and blocking condition, verified against baseline matrix. No obligation promoted by this correction."
+  }
+}

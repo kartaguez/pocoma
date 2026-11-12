@@ -1,0 +1,2028 @@
+{
+  "mandate": "GO_L7_I3_FINAL_QUALIFICATION",
+  "baseline": "c4f5f0c11114921cdc3a735f1fdaeb32c33537c7",
+  "qualifiedTestSourceHead": "0faf4ff5a8b72e65dd4aabd40e9a8c4dd03d6996",
+  "initialCounts": {
+    "CURRENT_PARTIAL": 30,
+    "MISSING": 1
+  },
+  "finalCounts": {
+    "CURRENT_PARTIAL": 15,
+    "CURRENT_FULL": 16
+  },
+  "globalL73Counts": {
+    "HISTORICAL_PARTIAL": 30,
+    "CURRENT_FULL": 48,
+    "CURRENT_PARTIAL": 353,
+    "RETIRED_BY_HUMAN_DECISION": 1
+  },
+  "verdict": "L7_I3_NOT_CERTIFIED",
+  "obligations": [
+    {
+      "ID": "L2M-C04-K",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L88",
+      "requirement": "Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu",
+      "stimulus": "OR-AT-UNIT, OR-CL-FENCE, OR-AT-POISON, OR-RC-FOUR, OR-OBS-METRIC ; cas C04-K ; paramètres et injection : colonne Stimulus — Concurrence répétée, takeover, rollbacks et interruptions de Workers — WRITE + READ / Command Pot réel + banc technique READ — référence historique à rapprocher : L2ManifestProof.l2m_c04_k",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Assembler le corpus répété Command réel + READ avec takeover, rollback et interruptions ; réconcilier effets/publications aux seules finalisations committées. Les répétitions Identity ne remplacent pas ce sujet composite.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        },
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/takeover-01/receipt.json",
+          "sha": "51f9fd2501fcb48fb18b5c87d2ff9373aa10570d",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_sameIdentityRequestHasOneFinalizerAfterClaimTakeover"
+          ]
+        },
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_quarantinedOldVersionsResumeWithoutRegressingRealProjections",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "V3WorkerPostgresTest.i5_w14",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java",
+          "sourceSha256": "b11954cc0bfc9ef2ec3db85a81ec051e874ff00c5b4c857ca8bbb660cac52f85",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.xml",
+              "seconds": 157.656,
+              "sha256": "6838745f5a9589a984ab4b6489eb21611ecba4cda9628ae3296e2a7ce12759fc",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-acquire.txt",
+              "sha256": "48c70aae8f112793fe34321c45a4e686f4c3ef077e64096dd53aeaf54040df6d"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-admission.txt",
+              "sha256": "2d919b2ec78e22a069e27599f55e1e4bbcae6c068dcbefb2f8e625f95849cac7"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-cession.txt",
+              "sha256": "8002d0ec0bcb6e406d5c9cb0fd79d2c2af79b98543382a04fb103fef5ccf9cf9"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-commit.txt",
+              "sha256": "a46f8bf0931a254782e0bf8ce1f9a4aac458a34b1835d39f6adc2b8b13216694"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-delete.txt",
+              "sha256": "6b60b3ff21d2b815388feb8a75bfc6866fe529e631f30e826e3592b2cb88e372"
+            },
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_w14-publication.txt",
+              "sha256": "9e6db5b7bbbb582f5d89c49b78957f4816b5b9c8e8249d8b501426767ce91486"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Assembler le corpus répété Command réel + READ avec takeover, rollback et interruptions ; réconcilier effets/publications aux seules finalisations committées. Les répétitions Identity ne remplacent pas ce sujet composite.",
+      "closureCriterion": "Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C04-K"
+    },
+    {
+      "ID": "L2M-E01-D",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L119",
+      "requirement": "Analogue technique de E01-D ; producteur Identity réel reporté",
+      "stimulus": "OR-AT-DENSE ; cas E01-D ; paramètres et injection : colonne Stimulus — T1 réserve un lot de deux événements Identity dans sa transaction ; T2 publie en concurrence — WRITE / fixture technique Identity (producteur métier absent) — référence historique à rapprocher : L2ManifestProof.l2m_e01_d",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Producteur réel plus fort que l’analogue initial : six interleavings de lots de deux événements, pas d’intercalation ; commit/rollback/connexion coupée et densité extérieure.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_batch",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.675,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "8ae1b3dd7aea1def8b6c98b1b893ce1123a4d29d7c31c51db07c9975e0333b06"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "5d893b54cb56a5766b3dabe0d86998a9616e156c080ee4e47de2e88adbf2c52e"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Analogue technique de E01-D ; producteur Identity réel reporté — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-D"
+    },
+    {
+      "ID": "L2M-E01-E",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L120",
+      "requirement": "Seule la famille de complétion avance ; aucune position de mutation consommée",
+      "stimulus": "OR-AT-DENSE ; cas E01-E ; paramètres et injection : colonne Stimulus — Command sans effet/rejet et demande Identity rejetée — WRITE / Command réel WRITE + fixture Identity WRITE (analogue) — référence historique à rapprocher : L2ManifestProof.l2m_e01_e",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Compléter l’oracle extérieur des compteurs et positions par famille pour Command UNCHANGED/REJECTED et Identity rejetée. Les tests existants vérifient événements, résultats et version ; ils ne comparent pas directement toutes ces positions.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_rejection_terminal",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.629,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_rejection_terminal.txt",
+              "sha256": "4d61f8a6e2485fb5d2be5601876db73bed3c2d823cacf02bd1b699d6c4ef563c"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_rejection_terminal.txt",
+              "sha256": "1662a6e190ececc79fcffb12b6e68e93bada2df72026d4e883249dd71c7b504e"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Compléter l’oracle extérieur des compteurs et positions par famille pour Command UNCHANGED/REJECTED et Identity rejetée. Les tests existants vérifient événements, résultats et version ; ils ne comparent pas directement toutes ces positions.",
+      "closureCriterion": "Seule la famille de complétion avance ; aucune position de mutation consommée — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-E"
+    },
+    {
+      "ID": "L2M-C01-A-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L141",
+      "requirement": "Même invariant SPEC-10 C01-A sur composant réel",
+      "stimulus": "OR-NB-SET ; cas C01-A-REPORT ; rejouer le stimulus de L2M-C01-A sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs réels — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c01_a_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Sur plusieurs événements Identity pertinents répartis et entremêlés, comparer par partition ensemble exact des slots et K. Le test existant à une EUI et deux positions vérifie le filtre User et les quatre K, sans ce peuplement complet.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "IdentityDiscoveryPostgresTest.l3_identity_windows",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "20f061d87d627157ca9a2953b01eb1db3138130ddec6f6ab1c18c95ef4d3e4da",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml",
+              "seconds": 0.81,
+              "sha256": "53f72b9764ad1928f616faa49c0442c53a25a951b7092e4a1179ee3d3d98defd",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityDiscoveryPostgresTest-l3_identity_windows.txt",
+              "sha256": "54ff972ce9e73a4e80d36e992115991e698f521ff35bf3231d43d7f88cecffce"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityDiscoveryPostgresTest-l3_identity_windows.txt",
+              "sha256": "12e2d714cf7a3cea4e2a116fdd9f242b3fdd0090a2f9c3efc985d480d69295e5"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Sur plusieurs événements Identity pertinents répartis et entremêlés, comparer par partition ensemble exact des slots et K. Le test existant à une EUI et deux positions vérifie le filtre User et les quatre K, sans ce peuplement complet.",
+      "closureCriterion": "Même invariant SPEC-10 C01-A sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C01-A-REPORT"
+    },
+    {
+      "ID": "L2M-C01-D-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L142",
+      "requirement": "Même invariant SPEC-10 C01-D sur composant réel",
+      "stimulus": "OR-NB-SET, OR-NB-ATOMIC, OR-NB-FENCE ; cas C01-D-REPORT ; rejouer le stimulus de L2M-C01-D sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs réels — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c01_d_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Coupler la publication concurrente désormais prouvée à une vraie Discovery READ et ses checkpoints/slots, avant puis après commit/rollback ; la fenêtre source sûre seule ne suffit pas.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Coupler la publication concurrente désormais prouvée à une vraie Discovery READ et ses checkpoints/slots, avant puis après commit/rollback ; la fenêtre source sûre seule ne suffit pas.",
+      "closureCriterion": "Même invariant SPEC-10 C01-D sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C01-D-REPORT"
+    },
+    {
+      "ID": "L2M-C02-J-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L147",
+      "requirement": "Même invariant SPEC-10 C02-J sur composant réel",
+      "stimulus": "OR-AT-UNIT, OR-RC-FOUR ; cas C02-J-REPORT ; rejouer le stimulus de L2M-C02-J sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec effets projection métier — READ / futur composant métier READ réel — référence historique à rapprocher : L2ManifestProof.l2m_c02_j_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Six participants réels, coupure avant/après commit : UNKNOWN conservé et capacité retenue ; après commit les effets exacts restent stables et un Engine sain ne peut réacquérir le slot absent, donc aucune seconde exécution à effet.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-reacquire-01/receipt.json",
+          "sha": "0faf4ff5a8b72e65dd4aabd40e9a8c4dd03d6996",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.uncertainCommitHasNoSpeculativeSettlement",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 3.121,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 C02-J sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C02-J-REPORT"
+    },
+    {
+      "ID": "L2M-C02-K-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L148",
+      "requirement": "Même invariant SPEC-10 C02-K sur composant réel",
+      "stimulus": "OR-NB-SET, OR-AT-UNIT ; cas C02-K-REPORT ; rejouer le stimulus de L2M-C02-K sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec reconstruction métier — READ / futur composant métier réel — référence historique à rapprocher : L2ManifestProof.l2m_c02_k_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Discovery et Engines recréés sur six participants réels après traitement partiel ; checkpoints et valeurs inchangés, six slots inachevés exacts, aucune réapparition et convergence génération V2. Redémarrage de composants, pas crash OS.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/restart-01/receipt.json",
+          "sha": "49407906653c33861dfa099ba130653db990a8fa",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_recreatedDiscoveryAndEnginesPreserveOnlyUnfinishedSlots"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "V3ReadReconstructionPostgresTest.rcv01G_crashRecoveryAndResume",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/V3ReadReconstructionPostgresTest.java",
+          "sourceSha256": "0f66a73ede337a33b027430f2fae4107cf49ee8bcf0adcfe77485b3a6814e502",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.V3ReadReconstructionPostgresTest.xml",
+              "seconds": 0.645,
+              "sha256": "ceb7229aa3c53c691539d1c6c6f17c07c52f471336a688fc091bf7746156bce8",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 C02-K sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C02-K-REPORT"
+    },
+    {
+      "ID": "L2M-C04-L-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L153",
+      "requirement": "Même invariant SPEC-10 C04-L sur composant réel",
+      "stimulus": "OR-AT-UNIT, OR-CL-FENCE, OR-AR-NOPURGE ; cas C04-L-REPORT ; rejouer le stimulus de L2M-C04-L sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec nouveaux writers — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c04_l_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Terminer l’inventaire des voies SQL dynamiques et administratives de suppression/finalisation, attribuer leur protection transactionnelle, et prouver les refus hors reset READ coordonné.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_suffix_closed",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.628,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c9141c5041625f216ad884598d4edf9f980da09eebdb30c60079239ba9788d20"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c60d32b4b8dd3c52b004d3d465f58156dfb534e9d45c60caf160a7424fbb7419"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Terminer l’inventaire des voies SQL dynamiques et administratives de suppression/finalisation, attribuer leur protection transactionnelle, et prouver les refus hors reset READ coordonné.",
+      "closureCriterion": "Même invariant SPEC-10 C04-L sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C04-L-REPORT"
+    },
+    {
+      "ID": "L2M-C06-M-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L161",
+      "requirement": "Même invariant SPEC-10 C06-M sur composant réel",
+      "stimulus": "OR-AT-UNIT, OR-AR-BOUND, OR-AT-POISON ; cas C06-M-REPORT ; rejouer le stimulus de L2M-C06-M sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec inventaire des futurs writers — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c06_m_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Inventorier les transactions physiques de tous les writers et compositions, tests et Monolith compris ; associer chaque entrée à garde/poisoning/ownership et preuve. Le suffixe Identity isolé n’est pas un inventaire complet.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_physical_unit",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.527,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_physical_unit.txt",
+              "sha256": "0e3795999d185d6858d0c677cabcabff90ef8edf81056aa97550b3ea34c57ed3"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_physical_unit.txt",
+              "sha256": "2a3a12b28b958a96ac8de94377572557baf8b7e10db345db591610d2789bde76"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Inventorier les transactions physiques de tous les writers et compositions, tests et Monolith compris ; associer chaque entrée à garde/poisoning/ownership et preuve. Le suffixe Identity isolé n’est pas un inventaire complet.",
+      "closureCriterion": "Même invariant SPEC-10 C06-M sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C06-M-REPORT"
+    },
+    {
+      "ID": "L2M-E01-B-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L165",
+      "requirement": "Même invariant SPEC-10 E01-B sur composant réel",
+      "stimulus": "OR-AT-DENSE ; cas E01-B-REPORT ; rejouer le stimulus de L2M-E01-B sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_b_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Sous attente SQL attestée T2/T1, préfixe visible et résultats restent au niveau committé ; progression dense après commit.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 E01-B sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-B-REPORT"
+    },
+    {
+      "ID": "L2M-E01-C-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L166",
+      "requirement": "Même invariant SPEC-10 E01-C sur composant réel",
+      "stimulus": "OR-AT-DENSE, OR-AT-UNIT ; cas E01-C-REPORT ; rejouer le stimulus de L2M-E01-C sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_c_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "T2 réellement en attente pendant rollback T1 ; seules les positions du lot T2 deviennent durables, sans trou.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_dense_rollback",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.66,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_dense_rollback.txt",
+              "sha256": "6058bcf433d4e90dd17af64d73642a29b6882d9fc75802cf28f8d6df6e3b8b0b"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_dense_rollback.txt",
+              "sha256": "1b98843a7247c348783edb0dbebb684c2d71fdd2ce0848c06f3def49872a93fe"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 E01-C sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-C-REPORT"
+    },
+    {
+      "ID": "L2M-E01-D-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L167",
+      "requirement": "Même invariant SPEC-10 E01-D sur composant réel",
+      "stimulus": "OR-AT-DENSE ; cas E01-D-REPORT ; rejouer le stimulus de L2M-E01-D sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec lot Identity réel — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_d_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Deux lots Identity réels concurrents ; séquence exacte par request_id après commit ou rollback, aucune intercalation.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_batch",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.675,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "8ae1b3dd7aea1def8b6c98b1b893ce1123a4d29d7c31c51db07c9975e0333b06"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_batch.txt",
+              "sha256": "5d893b54cb56a5766b3dabe0d86998a9616e156c080ee4e47de2e88adbf2c52e"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 E01-D sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-D-REPORT"
+    },
+    {
+      "ID": "L2M-E01-H-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L171",
+      "requirement": "Même invariant SPEC-10 E01-H sur composant réel",
+      "stimulus": "OR-AT-DENSE ; cas E01-H-REPORT ; rejouer le stimulus de L2M-E01-H sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec charge de tous producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_h_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Exécuter une charge de sûreté mixte des producteurs applicables avec transactions lentes, aborts et reprises de connexions, réconcilier toutes les familles. Six interleavings Registration ne constituent pas cette campagne ; aucun benchmark requis.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_workers_concurrent_registration",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.612,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_workers_concurrent_registration.txt",
+              "sha256": "72a59fc920b1041a23a0c390c954d6c4dbf612bfafcb4f20c65fa22cad0b7e88"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_workers_concurrent_registration.txt",
+              "sha256": "14bcf201992463b167bc264039fa47daf436f485c26419c8656378348643bb2e"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Exécuter une charge de sûreté mixte des producteurs applicables avec transactions lentes, aborts et reprises de connexions, réconcilier toutes les familles. Six interleavings Registration ne constituent pas cette campagne ; aucun benchmark requis.",
+      "closureCriterion": "Même invariant SPEC-10 E01-H sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-H-REPORT"
+    },
+    {
+      "ID": "L2M-E02-H-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L176",
+      "requirement": "Même invariant SPEC-10 E02-H sur composant réel",
+      "stimulus": "OR-AT-UNIT, OR-AT-DENSE, OR-AT-POISON, OR-RC-FOUR ; cas E02-H-REPORT ; rejouer le stimulus de L2M-E02-H sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec Identity réelle — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_h_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Trois reprises d’une même demande : deux finaliseurs simultanés, ancien CLAIM_LOST et nouveau COMMITTED, résultat=1/Identity=2/complétion=1/slot=0.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/takeover-01/receipt.json",
+          "sha": "51f9fd2501fcb48fb18b5c87d2ff9373aa10570d",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_sameIdentityRequestHasOneFinalizerAfterClaimTakeover"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_fencing",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.95,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "0a0b64b30b32752e1c05636d805eb2b7e0fa33de8f2d62c631d554ca937c336d"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "49036fb2fa822df3f5983139a38ac1c36f4e590a2a08ef12f9e719be554b21bb"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 E02-H sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E02-H-REPORT"
+    },
+    {
+      "ID": "L2M-E02-J-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L177",
+      "requirement": "Même invariant SPEC-10 E02-J sur composant réel",
+      "stimulus": "OR-AT-UNIT, OR-AT-DENSE ; cas E02-J-REPORT ; rejouer le stimulus de L2M-E02-J sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec admission HTTP réelle — WRITE / READ / futur producteur Invitation ou HTTP réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_j_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Interrompre effectivement le processus après admission HTTP durable et avant finalisation ; redémarrer puis vérifier unique résultat/effet/publication et aucun abandon. Une connexion interrompue pendant publication couvre une autre frontière.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "V3IdentityRequestCompositionPostgresTest.l3_registration_command_and_relink_restart",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
+          "sourceSha256": "74ed3d737be1927ec71cbf37f9f78642454be1abb2ec431a4c094c76840aea03",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
+              "seconds": 8.554,
+              "sha256": "dbf6356c6bb044ff9593ea920277f606f5e3d2b59e479453eefa286cddfeaa0a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Interrompre effectivement le processus après admission HTTP durable et avant finalisation ; redémarrer puis vérifier unique résultat/effet/publication et aucun abandon. Une connexion interrompue pendant publication couvre une autre frontière.",
+      "closureCriterion": "Même invariant SPEC-10 E02-J sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E02-J-REPORT"
+    },
+    {
+      "ID": "L2M-E03-G-REPORT",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L179",
+      "requirement": "Même invariant SPEC-10 E03-G sur composant réel",
+      "stimulus": "OR-AT-READ, OR-AT-UNIT ; cas E03-G-REPORT ; rejouer le stimulus de L2M-E03-G sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec effets métier des trois projections — READ / futur composant métier READ réel — référence historique à rapprocher : L2ManifestProof.l2m_e03_g_report",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Deux transactions READ réelles suspendues après effets puis rollback, tandis qu’une troisième Consumption committe ; indépendance attestée extérieurement.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_quarantinedOldVersionsResumeWithoutRegressingRealProjections",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.independentProgression",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 22.614,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-COMMAND_RESULT.txt",
+              "sha256": "a8f02b924096f7ef6d42f898133000a275580c9750763bd5103989b8397c02c9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-CURRENT_BINDING.txt",
+              "sha256": "564d26369954e698e46db28291fddccf8dfbbb3b7f34a693080b84a046fcb6ba"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-IDENTITY_REQUEST_RESULT.txt",
+              "sha256": "49fd1713950f70512d2bd46a5cd18eabfffddbbc117f48f76cdf7afbb2d48b2c"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_BALANCE.txt",
+              "sha256": "f61dd23f05a486a0fa72edc7be9fe0831a516a6ebe637973a44f6aeec0cb7ef9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VERSION.txt",
+              "sha256": "ddd62280efb51fe6dbe066110dbae3dcec963b7b41f12182ca17dd49e84e3cf5"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VISIBILITY.txt",
+              "sha256": "9cd96a29771ce73b736003388f65ef129d6954b1f5b2e642ea2d2d313c8f8944"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VERSION, POT_VISIBILITY].txt",
+              "sha256": "7d27b386f6e82c262e6426444d09bd0bdf525da6cd7ce4cf302cdb6a861b6d39"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VISIBILITY, POT_VERSION].txt",
+              "sha256": "4fb237b89b4dd4f704ace5a502c65e0058743085051592e6cef034f8af2891d3"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_BALANCE, POT_VISIBILITY].txt",
+              "sha256": "933c3cd78a9d07edba76ca8bca08379e4c0c412002d9f409e1a5cabe936a33fa"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_VISIBILITY, POT_BALANCE].txt",
+              "sha256": "c2a20cedd7e70588f8b0342095d73af2fd1e9fb3aee37e13ecfdaabc5e9f416f"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_BALANCE, POT_VERSION].txt",
+              "sha256": "f88480f2747fffc10f1058bfd1c3ef834ddc37086edc7cda9ae87a2f1cb1194a"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_VERSION, POT_BALANCE].txt",
+              "sha256": "0a7b7bc88ca95c4b256d75d55a71cbd248346f71511c67bcb74b66990cca8047"
+            }
+          ]
+        },
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.participantConformance(String)",
+          "invocations": 6,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS",
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.7,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.886,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.759,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 6.897,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 5.12,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            },
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 5.544,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-COMMAND_RESULT-afterComplete.txt",
+              "sha256": "a75a10ba7b52d339c8d5efe4ab8790a4ac1808879d76cecb30fcb87628cb2eb7"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-COMMAND_RESULT-missing.txt",
+              "sha256": "51df4ac830380f7d6ca24d9633926aa1217e9362a8ba1d7c37201f53d532e912"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-COMMAND_RESULT-success.txt",
+              "sha256": "8f45965b62790c64c422ccb0f168d9dd7893e0afebc934e0e01f243db3b8aa76"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-afterComplete.txt",
+              "sha256": "fee464abd13ccdfaf54eef0fd77305db8ce0fa12d65cbd785ee51677fc87bee9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-missing.txt",
+              "sha256": "ed226fb5421cdae01ec61f8ac47008a035a007594ffaef0b03ee4dea2d37e0ee"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-newer.txt",
+              "sha256": "325276dc952ead362c6aef49fbdc03a457f7cc590753afb69536b2fe14ba0368"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-CURRENT_BINDING-success.txt",
+              "sha256": "9bc131d53b51aea050c2f0a5b7617bcab7f7421f81f5d541e314c6e0594309e0"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-IDENTITY_REQUEST_RESULT-afterComplete.txt",
+              "sha256": "2a7c795ed6eed2468c990c4caf02e58838a77b11c745fc59cf2814d01a21e420"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-IDENTITY_REQUEST_RESULT-missing.txt",
+              "sha256": "6ecb92bb6d0d34212d14e78c756710ac9516243317ac1f1913966a0f0c3c2493"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-IDENTITY_REQUEST_RESULT-success.txt",
+              "sha256": "ced9c6aeed3a8c5566ae9edaae3d592b14a244e5ae1136abb01e5fd70902f78b"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-afterComplete.txt",
+              "sha256": "f73d577fad3f911a0fee29282e4c505e6d27dbc3626544fda6ea412b8baf3f0c"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-missing.txt",
+              "sha256": "78af6cd6f33c7267815cea08d51ebbcf9da11d443de37cbd7af00500576d41cc"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-newer.txt",
+              "sha256": "3b38d922b00d8504c26e3845abba77aa2beee22cb275cc8c1b2430974b24223a"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_BALANCE-success.txt",
+              "sha256": "0ea439fb90e03cac6d667c1dcf230fde82bc75aa51734ff33d8d3d66d8ae21d0"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-afterComplete.txt",
+              "sha256": "39569f3b9fabb654c822aba715d17883cdecd287678554bea8ae4bf61288811f"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-missing.txt",
+              "sha256": "c1484559c391db5a145fa27cb4d0fb79fdf30150b89905f684ea9c459c6c8d31"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-newer.txt",
+              "sha256": "5400ecd393b3424159be2733ef6a6c4f7c152a0c517b3dbe3f4a05c298a0c96e"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VERSION-success.txt",
+              "sha256": "3b507d3095f9adf63d006c401e33ba56e541ab206aa21fe9004a62e910cb7617"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-afterComplete.txt",
+              "sha256": "81dc98be8e6086487da68b6ecfd90fcafc200bea1f85140b5c3c02095d810582"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-missing.txt",
+              "sha256": "4685e95bcc5c97ceb7479b2f5f793224b60614a3a3ea060090928928cb7300a5"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-newer.txt",
+              "sha256": "82130fdc53d7032698862bc8535faf09cdc1a56f592dfb3513af4bab11ffbcbd"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-POT_VISIBILITY-success.txt",
+              "sha256": "529bf12c5cdd401c95f5d76c9b2d51cd9763bdfc8672fbf6be37a9082316570a"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Même invariant SPEC-10 E03-G sur composant réel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E03-G-REPORT"
+    },
+    {
+      "ID": "L2M-E02-I-INVITATION-REAL",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L192",
+      "requirement": "trois refus sans commit partiel",
+      "stimulus": "OR-AT-UNIT, OR-AT-DENSE, OR-AT-POISON ; cas E02-I-INVITATION-REAL ; paramètres et injection : colonne Stimulus — requestId absent/inexistant/incorrect pour événements Invitation réels — WRITE / futur producteur Invitation réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_i_invitation_real",
+      "initialStatus": "MISSING",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Principal runtime non administrateur ; refus effectifs NULL/UUID inexistant/mauvaise opération par 23502/23503/23514 ; snapshot externe Invitations/événements/positions/compteurs inchangé.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/invitation-01/receipt.json",
+          "sha": "f44c64fb08c6441e17fcaaea386eddb4c5340225",
+          "selectors": [
+            "com.kartaguez.pocoma.V3InvitationReadPostgresTest#invitationPublicationRejectsMissingUnknownAndWrongRequests"
+          ]
+        }
+      ],
+      "existingEvidence": [],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "trois refus sans commit partiel — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E02-I-INVITATION-REAL"
+    },
+    {
+      "ID": "L2M-E01-G-INV-COMP",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L201",
+      "requirement": "absence de cycle et densité après résolution",
+      "stimulus": "OR-AT-DENSE ; cas E01-G-INV-COMP ; paramètres et injection : colonne Stimulus — Ordre INVITATION puis COMMAND_COMPLETION — WRITE / fixture technique — référence historique à rapprocher : L2ManifestProof.l2m_e01_g_inv_comp",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Attester en concurrence l’ordre de verrouillage INVITATION puis COMMAND_COMPLETION, les attentes et l’absence de cycle après commit/rollback. Les refus et acceptations HTTP ajoutés ne sont pas cet oracle de graphe.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "V3InvitationReadPostgresTest.createInvitationRollsBackEffectsAndPositionsBeforeRetry",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationReadPostgresTest.java",
+          "sourceSha256": "9e63baab5e98ca69e2c2e2b7d84f2928147836625dace239f3d9e18785a24801",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+              "seconds": 28.658,
+              "sha256": "5d10613e71d1a7cfbcb27e3c1008f33925cea1c5b5e85443645deaec75f8b5ae",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationReadPostgresTest.xml",
+              "sha256": "5d10613e71d1a7cfbcb27e3c1008f33925cea1c5b5e85443645deaec75f8b5ae",
+              "location": "testcase/system-out, external SQL snapshots after each failed transaction"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Attester en concurrence l’ordre de verrouillage INVITATION puis COMMAND_COMPLETION, les attentes et l’absence de cycle après commit/rollback. Les refus et acceptations HTTP ajoutés ne sont pas cet oracle de graphe.",
+      "closureCriterion": "absence de cycle et densité après résolution — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-G-INV-COMP"
+    },
+    {
+      "ID": "L2M-E01-G-ID-IDCOMP",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L202",
+      "requirement": "absence de cycle et densité après résolution",
+      "stimulus": "OR-AT-DENSE ; cas E01-G-ID-IDCOMP ; paramètres et injection : colonne Stimulus — Ordre IDENTITY puis IDENTITY_COMPLETION — WRITE / fixture technique — référence historique à rapprocher : L2ManifestProof.l2m_e01_g_id_idcomp",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Compléter le graphe d’attente des deux compteurs IDENTITY puis IDENTITY_COMPLETION, pas seulement la contention sur le premier compteur ; exclure les arêtes inverses sur tous les chemins concernés.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_identity_pair_contention",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.962,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "d8cf69c20d60a13c0cf1617628532c1f48647c0f06f092384e4bbc2aa260d012"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt",
+              "sha256": "aa155f736561306f2a7edd1c5466fa32adcee276c77f4f76efc8744d6bc3e36f"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityPublicationPostgresTest.l3_suffix_closed",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityPublicationPostgresTest.java",
+          "sourceSha256": "ac82e9716f6cd7ac4f2c23da583a9737a580fab7734f07f99ed9287ada8270fd",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest.xml",
+              "seconds": 0.628,
+              "sha256": "14c7d6c1e8b299683f6d713d6801f173ebfad7f7c4b8cffc3fdbb39be7a60d1a",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c9141c5041625f216ad884598d4edf9f980da09eebdb30c60079239ba9788d20"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityPublicationPostgresTest-l3_suffix_closed.txt",
+              "sha256": "c60d32b4b8dd3c52b004d3d465f58156dfb534e9d45c60caf160a7424fbb7419"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Compléter le graphe d’attente des deux compteurs IDENTITY puis IDENTITY_COMPLETION, pas seulement la contention sur le premier compteur ; exclure les arêtes inverses sur tous les chemins concernés.",
+      "closureCriterion": "absence de cycle et densité après résolution — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-E01-G-ID-IDCOMP"
+    },
+    {
+      "ID": "L2M-CON-05-CRASH",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L209",
+      "requirement": "attemptCount inchangé ; reprise après expiration",
+      "stimulus": "OR-RT-CEDE ; cas CON-05-CRASH ; paramètres et injection : colonne Stimulus — Crash/expiration sans cession enregistrée — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_con_05_crash",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Démontrer sur le sujet Command/READ le crash sans cession avec attemptCount inchangé et reprise après expiration. La coupure PostgreSQL Identity et les ACK inconnus ne prouvent pas cette frontière processus.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/identity-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityPublicationPostgresTest#l73_concurrentIdentityBatchesPreserveSafePrefixAcrossResolution"
+          ]
+        },
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-reacquire-01/receipt.json",
+          "sha": "0faf4ff5a8b72e65dd4aabd40e9a8c4dd03d6996",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_c03_j",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 0.99,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-READ.txt",
+              "sha256": "d523ce1d68fa9ce5045224ff1f60b694bb959a087dbc639b29805d7611d75b4f"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-WRITE.txt",
+              "sha256": "855ab3d886e67db476c15ea4744ab7d7a83ea95a1bc4fee8436f5e46f6e7606c"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Démontrer sur le sujet Command/READ le crash sans cession avec attemptCount inchangé et reprise après expiration. La coupure PostgreSQL Identity et les ACK inconnus ne prouvent pas cette frontière processus.",
+      "closureCriterion": "attemptCount inchangé ; reprise après expiration — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-CON-05-CRASH"
+    },
+    {
+      "ID": "L2M-CON-05-NOPURGE",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L214",
+      "requirement": "refus du DELETE hors réussite ; slot conservé",
+      "stimulus": "OR-RT-QUAR, OR-AR-NOPURGE ; cas CON-05-NOPURGE ; paramètres et injection : colonne Stimulus — Tentative de purge du slot incomplet — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_con_05_nopurge",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Compléter le refus effectif de DELETE isolé hors succès avec conservation du slot et l’inventaire des canaux administratifs. Les refus de reset partiel et les anciennes fonctions désactivées restent des contributions bornées.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "DiscoveryPostgresTest.i4_n16",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/DiscoveryPostgresTest.java",
+          "sourceSha256": "059d4d3463e7b37f2e2a091f2a50d931d3895930aa8521b830c67511c59a7360",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.DiscoveryPostgresTest.xml",
+              "seconds": 2.167,
+              "sha256": "a5779a46359f52592673701c511fdec74ae087d7aaddb2cf79a2761a89b753d2",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n16-COMMAND-burnable-checkpoint-monotonic-and-partition-bounds.txt",
+              "sha256": "ab1ef73d7fd4fbb441f131ab818ef54aa6951e6cfa0c10109a5496cd6ac643ae"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n16-IDENTITY_REQUEST-burnable-checkpoint-monotonic-and-partition-bounds.txt",
+              "sha256": "c17f518c7ba4f571dfb923a0e567b152be19268cb05f7a9774ad670891630f25"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i4-evidence/i4_n16-POT_EVENT-negative-SQL-invariants.txt",
+              "sha256": "3d29307d12794c36a9750796b7a460be041e861549c6535fa661f4e8cb2b0abf"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Compléter le refus effectif de DELETE isolé hors succès avec conservation du slot et l’inventaire des canaux administratifs. Les refus de reset partiel et les anciennes fonctions désactivées restent des contributions bornées.",
+      "closureCriterion": "refus du DELETE hors réussite ; slot conservé — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-CON-05-NOPURGE"
+    },
+    {
+      "ID": "L2M-CON-05-VV1",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L221",
+      "requirement": "analogue technique ne régresse pas ; aucune dépendance entre slots",
+      "stimulus": "OR-RT-QUAR, OR-AT-READ ; cas CON-05-VV1 ; paramètres et injection : colonne Stimulus — V en quarantaine puis V+1 et reprise tardive — READ / banc technique READ (analogue) — référence historique à rapprocher : L2ManifestProof.l2m_con_05_vv1",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Oracle sur quatre projections réelles remplace l’analogue : N=3 échecs confirmés, vraie quarantaine V1, V2 progresse, réactivation par script autorisé puis V1 sans régression.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_quarantinedOldVersionsResumeWithoutRegressingRealProjections",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_other_slot_progresses",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 1.271,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_other_slot_progresses-READ.txt",
+              "sha256": "ca542e7edbd9dce7d61f28c1a3b95948dfd722a5825dbef45e0b222c914e5ffa"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_other_slot_progresses-WRITE.txt",
+              "sha256": "caadb4e40429768038f8516601f3d71dd900b93214c451632baa2a2933e292ee"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "analogue technique ne régresse pas ; aucune dépendance entre slots — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-CON-05-VV1"
+    },
+    {
+      "ID": "L2M-CON-05-VV1-REAL",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L222",
+      "requirement": "CurrentPot, Balance, Visibility, Binding restent monotones",
+      "stimulus": "OR-RT-QUAR, OR-AT-READ ; cas CON-05-VV1-REAL ; paramètres et injection : colonne Stimulus — V en quarantaine puis V+1 métier et reprise tardive — READ / futures projections métier READ — référence historique à rapprocher : L2ManifestProof.l2m_con_05_vv1_real",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Même séquence complète sur PotVersion/CurrentPot, Balance, Visibility, CurrentBinding ; versions et pointeurs exacts, binding V2 inactif sans token.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-01/receipt.json",
+          "sha": "97d3cfc4e33391a5913973c2c7c7be79ca225a3e",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_quarantinedOldVersionsResumeWithoutRegressingRealProjections",
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.independentProgression",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 22.614,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-COMMAND_RESULT.txt",
+              "sha256": "a8f02b924096f7ef6d42f898133000a275580c9750763bd5103989b8397c02c9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-CURRENT_BINDING.txt",
+              "sha256": "564d26369954e698e46db28291fddccf8dfbbb3b7f34a693080b84a046fcb6ba"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-IDENTITY_REQUEST_RESULT.txt",
+              "sha256": "49fd1713950f70512d2bd46a5cd18eabfffddbbc117f48f76cdf7afbb2d48b2c"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_BALANCE.txt",
+              "sha256": "f61dd23f05a486a0fa72edc7be9fe0831a516a6ebe637973a44f6aeec0cb7ef9"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VERSION.txt",
+              "sha256": "ddd62280efb51fe6dbe066110dbae3dcec963b7b41f12182ca17dd49e84e3cf5"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-disabled-POT_VISIBILITY.txt",
+              "sha256": "9cd96a29771ce73b736003388f65ef129d6954b1f5b2e642ea2d2d313c8f8944"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VERSION, POT_VISIBILITY].txt",
+              "sha256": "7d27b386f6e82c262e6426444d09bd0bdf525da6cd7ce4cf302cdb6a861b6d39"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_BALANCE, POT_VISIBILITY, POT_VERSION].txt",
+              "sha256": "4fb237b89b4dd4f704ace5a502c65e0058743085051592e6cef034f8af2891d3"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_BALANCE, POT_VISIBILITY].txt",
+              "sha256": "933c3cd78a9d07edba76ca8bca08379e4c0c412002d9f409e1a5cabe936a33fa"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VERSION, POT_VISIBILITY, POT_BALANCE].txt",
+              "sha256": "c2a20cedd7e70588f8b0342095d73af2fd1e9fb3aee37e13ecfdaabc5e9f416f"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_BALANCE, POT_VERSION].txt",
+              "sha256": "f88480f2747fffc10f1058bfd1c3ef834ddc37086edc7cda9ae87a2f1cb1194a"
+            },
+            {
+              "member": "app/runtime-worker-materialize/target/l4-i2-evidence/6f84169ffe124312b3b635a5044346ea/L4-order-[POT_VISIBILITY, POT_VERSION, POT_BALANCE].txt",
+              "sha256": "0a7b7bc88ca95c4b256d75d55a71cbd248346f71511c67bcb74b66990cca8047"
+            }
+          ]
+        },
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.currentBindingRecoverySupersession",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 2.488,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "CurrentPot, Balance, Visibility, Binding restent monotones — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-CON-05-VV1-REAL"
+    },
+    {
+      "ID": "L2M-C01-I-IDENTITY-FIXTURE",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L239",
+      "requirement": "analogue technique respecte unicité et absence de checkpoint",
+      "stimulus": "OR-B-SET ; cas C01-I-IDENTITY-FIXTURE ; paramètres et injection : colonne Stimulus — IDENTITY_REQUEST PENDING/TERMINAL avec/sans slot — WRITE / fixture Identity — référence historique à rapprocher : L2ManifestProof.l2m_c01_i_identity_fixture",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Réemploi vérifié du vrai Identity : nominal et course source/slot, claims actifs/expirés/retryAfter/quarantaine préservés. La Discovery burnable courante avec checkpoint source K est l’amendement L7/I2 ; aucune suppression de checkpoint pour satisfaire l’ancien analogue.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-completion/discovery-01/receipt.json",
+          "sha": "e1ecb533bc66dd54bfd475e166a8e7f9f5255bb7",
+          "selector": "IdentityDiscoveryPostgresTest#l73_discoveryPreservesClaimsRetriesAndQuarantine+l3_burnable_discovery+l3_discovery_source_slot_race",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "e7f9bc319b0b93601dded5691fd0c9150df4f0e07adc35d199f2862c3b321cd2",
+          "unchangedSource": true
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityDiscoveryPostgresTest.l3_burnable_discovery",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "20f061d87d627157ca9a2953b01eb1db3138130ddec6f6ab1c18c95ef4d3e4da",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml",
+              "seconds": 0.615,
+              "sha256": "53f72b9764ad1928f616faa49c0442c53a25a951b7092e4a1179ee3d3d98defd",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityDiscoveryPostgresTest-l3_burnable_discovery.txt",
+              "sha256": "fe3c31fb56d965c0ecee4c2ed94a56f4e268d225c0d846061242c0dddae4ba4d"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityDiscoveryPostgresTest-l3_burnable_discovery.txt",
+              "sha256": "f31327f8e2f45239aa15a8c61459ce9bb2f55c8e3c3e856214a5475062ec1ce9"
+            }
+          ]
+        },
+        {
+          "selector": "IdentityDiscoveryPostgresTest.l3_discovery_source_slot_race",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityDiscoveryPostgresTest.java",
+          "sourceSha256": "20f061d87d627157ca9a2953b01eb1db3138130ddec6f6ab1c18c95ef4d3e4da",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityDiscoveryPostgresTest.xml",
+              "seconds": 0.665,
+              "sha256": "53f72b9764ad1928f616faa49c0442c53a25a951b7092e4a1179ee3d3d98defd",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityDiscoveryPostgresTest-l3_discovery_source_slot_race.txt",
+              "sha256": "166d3981ba957a131df5c7ab725fcf0a4b1310eab673ce0b609eedf8ddb9387c"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityDiscoveryPostgresTest-l3_discovery_source_slot_race.txt",
+              "sha256": "555352dc7d41c0cbb336138f6cc1d1ef99c62be46cb694e8e6c9807c55cce3c5"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "analogue technique respecte unicité et absence de checkpoint — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C01-I-IDENTITY-FIXTURE"
+    },
+    {
+      "ID": "L2M-C03-J-EXPIRE",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L240",
+      "requirement": "ancien token ne finalise pas",
+      "stimulus": "OR-CL-FENCE ; cas C03-J-EXPIRE ; paramètres et injection : colonne Stimulus — Claim expire avant verrou final — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_c03_j_expire",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Oracle i3_c03_g inchangé : attentes SQL de cession puis protectFinal, expiration par horloge DB pendant attente, refus ancien token, aucun effet ni budget consommé, sur WRITE réel et READ technique.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "sha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "selector": "ConsumptionLifecyclePostgresTest#i3_c03_g",
+          "xmlMember": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+          "xmlSha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+          "physicalArtifacts": {
+            "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_g-READ.txt": "bcb19faa22af3ae03860b8b30d554829f11935636c3e9e633e5e891c77ab4b2d",
+            "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_g-WRITE.txt": "dbe68495e99973ac1dd3f3062696a4ba7cb78b357c6dffb8160134fd795e7fd9"
+          },
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "unchangedSource": true
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "IdentityRequestExecutionPostgresTest.l3_fencing",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/identity/IdentityRequestExecutionPostgresTest.java",
+          "sourceSha256": "57fcec7fad624504886bb1b095df2ed8df89bcbeb24a84ea16350b59f30bc900",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+              "seconds": 0.95,
+              "sha256": "92aaef61a3907f5ac42d16787640f87fa3bd116be3363e1533c878115e5493c0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/l3-i2-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "0a0b64b30b32752e1c05636d805eb2b7e0fa33de8f2d62c631d554ca937c336d"
+            },
+            {
+              "member": "app/infra-postgres-write/target/l3-i3-evidence/IdentityRequestExecutionPostgresTest-l3_fencing.txt",
+              "sha256": "49036fb2fa822df3f5983139a38ac1c36f4e590a2a08ef12f9e719be554b21bb"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "ancien token ne finalise pas — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C03-J-EXPIRE"
+    },
+    {
+      "ID": "L2M-C03-J-CRASH",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L242",
+      "requirement": "aucun effet partiel, slot récupérable",
+      "stimulus": "OR-CL-FENCE, OR-RC-FOUR, OR-AT-UNIT ; cas C03-J-CRASH ; paramètres et injection : colonne Stimulus — Crash pendant traitement — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_c03_j_crash",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Interrompre un processus pendant calcul/finalisation sur Command et READ, observer rollback/slot récupérable puis reprise ; ne pas assimiler une perte d’ACK à ce stimulus.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/read-reacquire-01/receipt.json",
+          "sha": "0faf4ff5a8b72e65dd4aabd40e9a8c4dd03d6996",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest#l73_allReadParticipantsRetainUncertainCapacityAndExactEffects"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_c03_j",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 0.99,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-READ.txt",
+              "sha256": "d523ce1d68fa9ce5045224ff1f60b694bb959a087dbc639b29805d7611d75b4f"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_c03_j-WRITE.txt",
+              "sha256": "855ab3d886e67db476c15ea4744ab7d7a83ea95a1bc4fee8436f5e46f6e7606c"
+            }
+          ]
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Interrompre un processus pendant calcul/finalisation sur Command et READ, observer rollback/slot récupérable puis reprise ; ne pas assimiler une perte d’ACK à ce stimulus.",
+      "closureCriterion": "aucun effet partiel, slot récupérable — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-C03-J-CRASH"
+    },
+    {
+      "ID": "L2M-R3-10",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L298",
+      "requirement": "Les Workers peuvent différer par partitions candidates, polling et plafonds locaux : seul le contrat de routage est commun.",
+      "stimulus": "OR-AR-ROUTE ; cas R3-10 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R3-10 — WRITE + READ / contrôle documentaire/statique puis composants réels — référence historique à rapprocher : L2ManifestProof.l2m_r3_10",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Deux compositions réelles, partitions candidates disjointes, Mw=1/4 et polling différents ; même contrat de routage, deux commandes/résultats/publications terminaux.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/worker-01/receipt.json",
+          "sha": "459670700869265769263ecb454ac4dc5b596bee",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest#l73_invalidConfigurationPreservesPendingRequestsAndFailureBudget",
+            "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest#l73_distinctWorkerSettingsShareOnlyTheRoutingContract"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "V3WorkerCompositionPostgresTest.i5_c01",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.java",
+          "sourceSha256": "4ad48a7b1c746ce7f68cfd8682428f431e7bdbfe8c46fc5e9d80fce97d2004e7",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest.xml",
+              "seconds": 1.077,
+              "sha256": "a4aca3e45a6429ea147f45eea9708e55aa0fa63796e16140bc8b293f9ad08be5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_c01.txt",
+              "sha256": "5aafca0e788845a00b6a340440a1a431a345fac9e44bf9afe10b14a5e510214d"
+            }
+          ]
+        },
+        {
+          "selector": "V3WorkerCompositionPostgresTest.i5_c02",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.java",
+          "sourceSha256": "4ad48a7b1c746ce7f68cfd8682428f431e7bdbfe8c46fc5e9d80fce97d2004e7",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-process/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest.xml",
+              "seconds": 3.221,
+              "sha256": "a4aca3e45a6429ea147f45eea9708e55aa0fa63796e16140bc8b293f9ad08be5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/runtime-worker-process/target/v3-i5-evidence/i5_c02.txt",
+              "sha256": "c18dfbc56ed6456afa8acc35bcf10a8051a8ddc2e93640fefd7a9eb387b65f9d"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Les Workers peuvent différer par partitions candidates, polling et plafonds locaux : seul le contrat de routage est commun. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-R3-10"
+    },
+    {
+      "ID": "L2M-R5-11",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L319",
+      "requirement": "Configuration invalide => refus de traitement, sans consommer le budget.",
+      "stimulus": "OR-RT-CEDE, OR-RT-CONFIG ; cas R5-11 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R5-11 — WRITE + READ / Command réel + banc technique READ — référence historique à rapprocher : L2ManifestProof.l2m_r5_11",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Limite Worker et renewal invalides : refus réel de démarrage, demande PENDING et vecteur coordination inchangés, aucun résultat/budget consommé.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/worker-01/receipt.json",
+          "sha": "459670700869265769263ecb454ac4dc5b596bee",
+          "selectors": [
+            "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest#l73_invalidConfigurationPreservesPendingRequestsAndFailureBudget",
+            "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest#l73_distinctWorkerSettingsShareOnlyTheRoutingContract"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "ConsumptionLifecyclePostgresTest.i3_failure_classification",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java",
+          "sourceSha256": "12a5305bb550db42145131538d321d5cc37948f0c39f4446a411e905405534c6",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-infra-postgres-write/surefire-reports/TEST-com.kartaguez.pocoma.infra.postgres.write.v3.ConsumptionLifecyclePostgresTest.xml",
+              "seconds": 0.86,
+              "sha256": "ab754a5b0f60d6844b9bee4e69bd898b9deb4d2261cbd0aa7abfa2e7af5c4ae5",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": [
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_failure_classification-READ.txt",
+              "sha256": "3d0682d409c54405e4c068b63bfc00a0e604a1bf0c753afcb6bc9a79f3a4cab5"
+            },
+            {
+              "member": "app/infra-postgres-write/target/v3-i3-evidence/i3_failure_classification-WRITE.txt",
+              "sha256": "ba30bdcabb92754582d88d0246df0f67da3cb093fb7dc23f3a727456348df40a"
+            }
+          ]
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Configuration invalide => refus de traitement, sans consommer le budget. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-R5-11"
+    },
+    {
+      "ID": "L2M-R8-03",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L339",
+      "requirement": "Absence d'un slot derrière K interprétée exclusivement selon les garanties checkpoint+effets ; une purge briserait cet invariant.",
+      "stimulus": "OR-AR-NOPURGE ; cas R8-03 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R8-03 — WRITE + READ / Command réel + banc technique READ + inventaire des writers — référence historique à rapprocher : L2ManifestProof.l2m_r8_03",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Finaliser l’inventaire des writers et opérations administratives qui peuvent faire disparaître un slot derrière K, avec garde et refus effectif ; la contre-preuve injectée n’est pas une preuve universelle de non-purge.",
+      "newEvidence": [],
+      "existingEvidence": [
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.visibilityRecoverySupersession",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 1.982,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        },
+        {
+          "selector": "ReadParticipantsIntegrationPostgresTest.currentBindingRecoverySupersession",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-worker-materialize/src/test/java/com/kartaguez/pocoma/runtime/task/v3/ReadParticipantsIntegrationPostgresTest.java",
+          "sourceSha256": "21df502d6942aa0a7e8e525415ec87160d88da4e31c13292fe3ad196326c0aa5",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-worker-materialize/surefire-reports/TEST-com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest.xml",
+              "seconds": 2.488,
+              "sha256": "e5a6bbf9c39d81b3ceca36b59a586e6b5ebdd28e8f040728194ec27059c7a5f0",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Finaliser l’inventaire des writers et opérations administratives qui peuvent faire disparaître un slot derrière K, avec garde et refus effectif ; la contre-preuve injectée n’est pas une preuve universelle de non-purge.",
+      "closureCriterion": "Absence d'un slot derrière K interprétée exclusivement selon les garanties checkpoint+effets ; une purge briserait cet invariant. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-R8-03"
+    },
+    {
+      "ID": "L2M-R8-05",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L341",
+      "requirement": "SPEC-10 contient déjà la correction R8 au commit de base ; contrôler tout reste du corpus, DDL, scripts et administrateurs.",
+      "stimulus": "OR-AR-NOPURGE ; cas R8-05 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R8-05 — WRITE + READ / Command réel + banc technique READ + inventaire des writers — référence historique à rapprocher : L2ManifestProof.l2m_r8_05",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_PARTIAL",
+      "actionPerformed": "Rapprocher tout le corpus actif, y compris SQL construite dynamiquement, outils et autorités administratives, de la correction R8. Définir et auditer les pouvoirs administratifs admis ; une recherche textuelle seule n’est pas exhaustive.",
+      "newEvidence": [],
+      "existingEvidence": [],
+      "blocking": true,
+      "scope": "L7.3",
+      "classification": "QUALIFICATION_LIMIT_BLOCKING",
+      "reservation": "Rapprocher tout le corpus actif, y compris SQL construite dynamiquement, outils et autorités administratives, de la correction R8. Définir et auditer les pouvoirs administratifs admis ; une recherche textuelle seule n’est pas exhaustive.",
+      "closureCriterion": "SPEC-10 contient déjà la correction R8 au commit de base ; contrôler tout reste du corpus, DDL, scripts et administrateurs. — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-R8-05"
+    },
+    {
+      "ID": "L2M-L1-F-f04",
+      "source": "docs/v3/L2_Certification_Coverage_Manifest.md#L398",
+      "requirement": "Auto-rattachement au seul acteur, droits ordinaires inchangés",
+      "stimulus": "OR-L1-STATE ; cas L1-F-f04 ; paramètres et injection : colonne Stimulus — Deux utilisateurs/cibles concurrents — WRITE / futur CreateInvitation réel — référence historique à rapprocher : L2ManifestProof.l2m_l1_f_f04",
+      "initialStatus": "CURRENT_PARTIAL",
+      "finalStatus": "CURRENT_FULL",
+      "actionPerformed": "Deux demandes réellement concurrentes sur même place puis places distinctes ; bénéficiaire égal à l’acteur authentifié, résultat/publication exacts, historique Identity inchangé et tiers FORBIDDEN.",
+      "newEvidence": [
+        {
+          "receipt": "docs/testing/evidence/L7-I3-final/invitation-concurrency-01/receipt.json",
+          "sha": "dd76862e1c0dfaf1e7bb3502da5a2b0155e4890b",
+          "selectors": [
+            "com.kartaguez.pocoma.V3InvitationHttpTest#l73_concurrentInvitationAcceptanceHasOneWinnerForOnePlace",
+            "com.kartaguez.pocoma.V3InvitationHttpTest#l73_concurrentInvitationAcceptanceAttachesEachActorToTheirOwnPlace"
+          ]
+        }
+      ],
+      "existingEvidence": [
+        {
+          "selector": "V3InvitationHttpTest.concurrentUnlinkAndAttachmentSerializeAtIdentity",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationHttpTest.java",
+          "sourceSha256": "fc81888e7ffb1e937b2833a08acf23a90efb1d32af835eec82d32f1352f6c42b",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+              "seconds": 12.921,
+              "sha256": "59084c73049ae62de440fee3c0bbf8a41afa37cab7df61bcdafc4a5062793057",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        },
+        {
+          "selector": "V3InvitationHttpTest.confidentialLinkAndRestrictedPlaces",
+          "invocations": 1,
+          "receipt": "docs/testing/evidence/L7-I2-I3/full-after-w19/result.json",
+          "testedSha": "5ae89228c16347ed536ac18eaf9a8946a5ac4d32",
+          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3InvitationHttpTest.java",
+          "sourceSha256": "fc81888e7ffb1e937b2833a08acf23a90efb1d32af835eec82d32f1352f6c42b",
+          "outcomes": [
+            "PASS"
+          ],
+          "verifiedXml": [
+            {
+              "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3InvitationHttpTest.xml",
+              "seconds": 13.157,
+              "sha256": "59084c73049ae62de440fee3c0bbf8a41afa37cab7df61bcdafc4a5062793057",
+              "pass": true
+            }
+          ],
+          "physicalArtifacts": []
+        }
+      ],
+      "blocking": false,
+      "scope": "L7.3",
+      "classification": "OBLIGATION_SATISFIED",
+      "reservation": null,
+      "closureCriterion": "Auto-rattachement au seul acteur, droits ordinaires inchangés — sur le sujet et la frontière du scénario normatif, oracle extérieur et résultat attribuable.",
+      "previousReconciliation": "docs/testing/evidence/L7-I3-completion/reconciliation.json#L2M-L1-F-f04"
+    }
+  ]
+}

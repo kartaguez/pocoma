@@ -8,7 +8,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L88",
       "Test ou scénario": "OR-AT-UNIT, OR-CL-FENCE, OR-AT-POISON, OR-RC-FOUR, OR-OBS-METRIC ; cas C04-K ; paramètres et injection : colonne Stimulus — Concurrence répétée, takeover, rollbacks et interruptions de Workers — WRITE + READ / Command Pot réel + banc technique READ — référence historique à rapprocher : L2ManifestProof.l2m_c04_k",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Six frontières physiques ; répétitions et corpus composite du C04-K à rapprocher.",
       "existingEvidence": [
@@ -67,7 +67,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-D",
@@ -75,7 +76,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L119",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-D ; paramètres et injection : colonne Stimulus — T1 réserve un lot de deux événements Identity dans sa transaction ; T2 publie en concurrence — WRITE / fixture technique Identity (producteur métier absent) — référence historique à rapprocher : L2ManifestProof.l2m_e01_d",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Lots consécutifs et contention réelle ; ordre interne du lot concurrent à compléter.",
       "existingEvidence": [
@@ -147,7 +148,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-E",
@@ -155,7 +157,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L120",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-E ; paramètres et injection : colonne Stimulus — Command sans effet/rejet et demande Identity rejetée — WRITE / Command réel WRITE + fixture Identity WRITE (analogue) — référence historique à rapprocher : L2ManifestProof.l2m_e01_e",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Rejet Identity sans mutation ; branche Command sans effet à rapprocher séparément.",
       "existingEvidence": [
@@ -198,7 +200,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C01-A-REPORT",
@@ -206,7 +209,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L141",
       "Test ou scénario": "OR-NB-SET ; cas C01-A-REPORT ; rejouer le stimulus de L2M-C01-A sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs réels — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c01_a_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Fenêtres Identity réelles ; toutes variantes source/partition de C01-A restent à détailler.",
       "existingEvidence": [
@@ -249,7 +252,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C01-D-REPORT",
@@ -257,7 +261,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L142",
       "Test ou scénario": "OR-NB-SET, OR-NB-ATOMIC, OR-NB-FENCE ; cas C01-D-REPORT ; rejouer le stimulus de L2M-C01-D sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs réels — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c01_d_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Attente physique sur compteur Identity ; consommation du préfixe sous cette attente à compléter.",
       "existingEvidence": [
@@ -300,7 +304,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C02-J-REPORT",
@@ -308,7 +313,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L147",
       "Test ou scénario": "OR-AT-UNIT, OR-RC-FOUR ; cas C02-J-REPORT ; rejouer le stimulus de L2M-C02-J sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec effets projection métier — READ / futur composant métier READ réel — référence historique à rapprocher : L2ManifestProof.l2m_c02_j_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "ACK inconnu exercé ; lire les variantes et la population exacte avant promotion complète.",
       "existingEvidence": [
@@ -342,7 +347,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C02-K-REPORT",
@@ -350,7 +356,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L148",
       "Test ou scénario": "OR-NB-SET, OR-AT-UNIT ; cas C02-K-REPORT ; rejouer le stimulus de L2M-C02-K sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec reconstruction métier — READ / futur composant métier réel — référence historique à rapprocher : L2ManifestProof.l2m_c02_k_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Reprise de reconstruction ; ne remplace pas toutes les fenêtres de redémarrage Discovery/Engine.",
       "existingEvidence": [
@@ -384,7 +390,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C04-L-REPORT",
@@ -392,7 +399,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L153",
       "Test ou scénario": "OR-AT-UNIT, OR-CL-FENCE, OR-AR-NOPURGE ; cas C04-L-REPORT ; rejouer le stimulus de L2M-C04-L sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec nouveaux writers — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c04_l_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Suffixe fermé et rollback ; inventaire exhaustif des voies administratives encore requis.",
       "existingEvidence": [
@@ -435,7 +442,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C06-M-REPORT",
@@ -443,7 +451,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L161",
       "Test ou scénario": "OR-AT-UNIT, OR-AR-BOUND, OR-AT-POISON ; cas C06-M-REPORT ; rejouer le stimulus de L2M-C06-M sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec inventaire des futurs writers — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_c06_m_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Chemin actif Identity et suffixe contrôlés ; inventaire des autres compositions à compléter.",
       "existingEvidence": [
@@ -486,7 +494,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-B-REPORT",
@@ -494,7 +503,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L165",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-B-REPORT ; rejouer le stimulus de L2M-E01-B sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_b_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "T2 bloque réellement sur compteur et densité après commit ; borne de visibilité avant commit à compléter.",
       "existingEvidence": [
@@ -537,7 +546,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-C-REPORT",
@@ -545,7 +555,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L166",
       "Test ou scénario": "OR-AT-DENSE, OR-AT-UNIT ; cas E01-C-REPORT ; rejouer le stimulus de L2M-E01-C sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec autres producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_c_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Rollback puis densité rétablie ; variante T2 concurrent pendant rollback non attestée.",
       "existingEvidence": [
@@ -588,7 +598,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-D-REPORT",
@@ -596,7 +607,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L167",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-D-REPORT ; rejouer le stimulus de L2M-E01-D sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec lot Identity réel — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_d_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Lots ordonnés et contention séparés ; aucun témoin unique du lot concurrent sans intercalation.",
       "existingEvidence": [
@@ -668,7 +679,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-H-REPORT",
@@ -676,7 +688,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L171",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-H-REPORT ; rejouer le stimulus de L2M-E01-H sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec charge de tous producteurs — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e01_h_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Deux moteurs concurrents ; charge répétée et interruptions des connexions restent distinctes.",
       "existingEvidence": [
@@ -719,7 +731,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E02-H-REPORT",
@@ -727,7 +740,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L176",
       "Test ou scénario": "OR-AT-UNIT, OR-AT-DENSE, OR-AT-POISON, OR-RC-FOUR ; cas E02-H-REPORT ; rejouer le stimulus de L2M-E02-H sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec Identity réelle — WRITE / futur producteur Identity réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_h_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Ancien claim refusé ; double finalisation de la même demande après takeover reste à isoler.",
       "existingEvidence": [
@@ -770,7 +783,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E02-J-REPORT",
@@ -778,7 +792,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L177",
       "Test ou scénario": "OR-AT-UNIT, OR-AT-DENSE ; cas E02-J-REPORT ; rejouer le stimulus de L2M-E02-J sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec admission HTTP réelle — WRITE / READ / futur producteur Invitation ou HTTP réel — référence historique à rapprocher : L2ManifestProof.l2m_e02_j_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Relance réelle et demandes terminales ; crash exactement entre admission HTTP et finalisation à compléter.",
       "existingEvidence": [
@@ -812,7 +826,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E03-G-REPORT",
@@ -820,7 +835,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L179",
       "Test ou scénario": "OR-AT-READ, OR-AT-UNIT ; cas E03-G-REPORT ; rejouer le stimulus de L2M-E03-G sur le sujet réel reporté ; paramètres et injection : colonne Stimulus — Exécuter le scénario original avec effets métier des trois projections — READ / futur composant métier READ réel — référence historique à rapprocher : L2ManifestProof.l2m_e03_g_report",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Indépendance et rollback par branche ; deux fautes simultanées sous une réussite non démontrées ensemble.",
       "existingEvidence": [
@@ -1047,7 +1062,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E02-I-INVITATION-REAL",
@@ -1068,7 +1084,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-G-INV-COMP",
@@ -1076,7 +1093,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L201",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-G-INV-COMP ; paramètres et injection : colonne Stimulus — Ordre INVITATION puis COMMAND_COMPLETION — WRITE / fixture technique — référence historique à rapprocher : L2ManifestProof.l2m_e01_g_inv_comp",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Densité après rollback et reprise séquentielle ; graphe de verrouillage concurrent Invocation/Completion non qualifié.",
       "existingEvidence": [
@@ -1116,7 +1133,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-E01-G-ID-IDCOMP",
@@ -1124,7 +1142,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L202",
       "Test ou scénario": "OR-AT-DENSE ; cas E01-G-ID-IDCOMP ; paramètres et injection : colonne Stimulus — Ordre IDENTITY puis IDENTITY_COMPLETION — WRITE / fixture technique — référence historique à rapprocher : L2ManifestProof.l2m_e01_g_id_idcomp",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Contre-preuves du suffixe et attente des deux familles ; inventaire complet du graphe reste requis.",
       "existingEvidence": [
@@ -1196,7 +1214,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-CON-05-CRASH",
@@ -1204,7 +1223,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L209",
       "Test ou scénario": "OR-RT-CEDE ; cas CON-05-CRASH ; paramètres et injection : colonne Stimulus — Crash/expiration sans cession enregistrée — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_con_05_crash",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Commit inconnu avant/après filaire ; crash sans cession et compteur au même instant à rapprocher.",
       "existingEvidence": [
@@ -1247,7 +1266,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-CON-05-NOPURGE",
@@ -1255,7 +1275,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L214",
       "Test ou scénario": "OR-RT-QUAR, OR-AR-NOPURGE ; cas CON-05-NOPURGE ; paramètres et injection : colonne Stimulus — Tentative de purge du slot incomplet — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_con_05_nopurge",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Refus SQL runtime sur reset slots/checkpoints ; DELETE isolé et inventaire admin à compléter.",
       "existingEvidence": [
@@ -1302,7 +1322,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-CON-05-VV1",
@@ -1310,7 +1331,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L221",
       "Test ou scénario": "OR-RT-QUAR, OR-AT-READ ; cas CON-05-VV1 ; paramètres et injection : colonne Stimulus — V en quarantaine puis V+1 et reprise tardive — READ / banc technique READ (analogue) — référence historique à rapprocher : L2ManifestProof.l2m_con_05_vv1",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Slot quarantainé intact pendant progression autre slot et autre Consumption ; effets READ techniques non multiversion.",
       "existingEvidence": [
@@ -1353,7 +1374,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-CON-05-VV1-REAL",
@@ -1361,7 +1383,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L222",
       "Test ou scénario": "OR-RT-QUAR, OR-AT-READ ; cas CON-05-VV1-REAL ; paramètres et injection : colonne Stimulus — V en quarantaine puis V+1 métier et reprise tardive — READ / futures projections métier READ — référence historique à rapprocher : L2ManifestProof.l2m_con_05_vv1_real",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Hors ordre réel et binding supersédé ; quarantaine V puis réactivation après V+1 non exercées ensemble.",
       "existingEvidence": [
@@ -1464,7 +1486,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C01-I-IDENTITY-FIXTURE",
@@ -1472,7 +1495,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L239",
       "Test ou scénario": "OR-B-SET ; cas C01-I-IDENTITY-FIXTURE ; paramètres et injection : colonne Stimulus — IDENTITY_REQUEST PENDING/TERMINAL avec/sans slot — WRITE / fixture Identity — référence historique à rapprocher : L2ManifestProof.l2m_c01_i_identity_fixture",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Vrai Identity remplace analogue ; unicité et terminal. Ancienne clause sans checkpoint amendée L7/I2 ; claims/retry à compléter.",
       "existingEvidence": [
@@ -1544,7 +1567,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C03-J-EXPIRE",
@@ -1552,7 +1576,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L240",
       "Test ou scénario": "OR-CL-FENCE ; cas C03-J-EXPIRE ; paramètres et injection : colonne Stimulus — Claim expire avant verrou final — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_c03_j_expire",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Token périmé refusé ; coupure exactement avant verrou final pour chaque autorité à compléter.",
       "existingEvidence": [
@@ -1595,7 +1619,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-C03-J-CRASH",
@@ -1603,7 +1628,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L242",
       "Test ou scénario": "OR-CL-FENCE, OR-RC-FOUR, OR-AT-UNIT ; cas C03-J-CRASH ; paramètres et injection : colonne Stimulus — Crash pendant traitement — WRITE + READ / Command réel + banc technique — référence historique à rapprocher : L2ManifestProof.l2m_c03_j_crash",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Fil coupé avant/après commit : état externe et reprise ; ne pas assimiler automatiquement au crash de processus pendant calcul.",
       "existingEvidence": [
@@ -1646,7 +1671,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-R3-10",
@@ -1654,7 +1680,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L298",
       "Test ou scénario": "OR-AR-ROUTE ; cas R3-10 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R3-10 — WRITE + READ / contrôle documentaire/statique puis composants réels — référence historique à rapprocher : L2ManifestProof.l2m_r3_10",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Racines et paramètres contrôlés ; variantes deux workers de configurations différentes restent à rapprocher.",
       "existingEvidence": [
@@ -1718,7 +1744,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-R5-11",
@@ -1726,7 +1753,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L319",
       "Test ou scénario": "OR-RT-CEDE, OR-RT-CONFIG ; cas R5-11 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R5-11 — WRITE + READ / Command réel + banc technique READ — référence historique à rapprocher : L2ManifestProof.l2m_r5_11",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "NON_COUNTABLE garde le budget ; classe des configurations invalides à rapprocher explicitement.",
       "existingEvidence": [
@@ -1769,7 +1796,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-R8-03",
@@ -1777,7 +1805,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L339",
       "Test ou scénario": "OR-AR-NOPURGE ; cas R8-03 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R8-03 — WRITE + READ / Command réel + banc technique READ + inventaire des writers — référence historique à rapprocher : L2ManifestProof.l2m_r8_03",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Absence administrativement injectée démontre la dépendance à la non-purge ; inventaire des writers pas encore exhaustif.",
       "existingEvidence": [
@@ -1831,7 +1859,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-R8-05",
@@ -1839,7 +1868,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L341",
       "Test ou scénario": "OR-AR-NOPURGE ; cas R8-05 ; paramètres et injection : colonne Stimulus — Cas positif/négatif ciblé sur la clause R8-05 — WRITE + READ / Command réel + banc technique READ + inventaire des writers — référence historique à rapprocher : L2ManifestProof.l2m_r8_05",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "D",
       "justification": "Sept opérations historiques et quatre main permettaient une purge ou terminalisation artificielle. Défaut d’outillage reproduit puis corrigé par refus avant effet. Les archives antérieures sont conservées.",
       "existingEvidence": [],
@@ -1855,7 +1884,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     },
     {
       "ID": "L2M-L1-F-f04",
@@ -1863,7 +1893,7 @@
       "Source normative": "docs/v3/L2_Certification_Coverage_Manifest.md#L398",
       "Test ou scénario": "OR-L1-STATE ; cas L1-F-f04 ; paramètres et injection : colonne Stimulus — Deux utilisateurs/cibles concurrents — WRITE / futur CreateInvitation réel — référence historique à rapprocher : L2ManifestProof.l2m_l1_f_f04",
       "Rapprochement L7.2–L7.3": "Aucune preuve attribuée à cette variante dans le dossier L7.1. Vérifier les oracles désignés avant d’ajouter un test.",
-      "initialStatus": "MISSING",
+      "initialStatus": "CURRENT_PARTIAL",
       "category": "B",
       "justification": "Attachement par Invitation sous concurrence Unlink et restrictions ; deux utilisateurs/cibles concurrentes spécifiques non démontrés.",
       "existingEvidence": [
@@ -1917,7 +1947,8 @@
       "blocking": true,
       "scope": "L7.3",
       "scopeReason": "Obligation de sûreté/allocation active. Aucun report ultérieur explicite ne dispense du stimulus.",
-      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion."
+      "expectedProof": "Oracle PostgreSQL extérieur, état durable avant/après et provenance de la campagne ; détails dans closureCriterion.",
+      "historicalPreCompletionStatus": "MISSING"
     }
   ]
 }

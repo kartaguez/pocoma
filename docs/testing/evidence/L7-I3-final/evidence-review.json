@@ -1,0 +1,28 @@
+{
+  "command": [
+    "python3",
+    "scripts/testing/check-l73-final-evidence.py"
+  ],
+  "head": "0faf4ff5a8b72e65dd4aabd40e9a8c4dd03d6996",
+  "checkerSha256": "be79df26d97041d8e638495c5eb31b99cf986d2b2f20b74d763578d91da746de",
+  "observedAt": "2026-11-12T20:40:08+00:00",
+  "seconds": 0.649,
+  "exitCode": 0,
+  "result": {
+    "verdict": "PASS",
+    "scope": "read-only evidence/allocation verification",
+    "obligations": 31,
+    "matrixIds": 522,
+    "counts": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "newExecutionWallSeconds": 147.0,
+    "runtimeMutations": 0
+  },
+  "documentLinkChecks": 59,
+  "artifactPayloadsSecretSignaturesChecked": 104,
+  "scopeLimits": "Read-only verification of receipts and allocation; not another Runtime test or certification gate."
+}

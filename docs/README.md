@@ -153,3 +153,5 @@ promouvoir le prochain plan. [Gouvernance](Documentation_Rationalization_Audit.m
 - L7.3 Completion : [réconciliation des 53 obligations](v3/L7_I3_Completion_Evidence_Reconciliation_Report.md), [anomalies et lacunes](v3/L7_I3_Completion_Anomalies_and_Gaps_Register.md), [plan ciblé](v3/L7_I3_Completion_Verification_Plan.md), [proposition de décision](v3/L7_I3_Completion_Certification_Decision_Proposal.md).
 
 - [Rapport de qualification L7.3 Completion](v3/L7_I3_Completion_Qualification_Report.md).
+
+- L7.3 qualification complémentaire finale : [plan des 31 obligations](v3/L7_I3_Final_Qualification_Execution_Plan.md), [PostgreSQL Invitation](v3/L7_I3_Final_Invitation_PostgreSQL_Qualification_Report.md), [Consumption](v3/L7_I3_Final_Consumption_Qualification_Report.md), [verdict et 15 conditions restantes](v3/L7_I3_Final_Certification_Report.md). 16 clôtures, 15 partielles ; `L7_I3_NOT_CERTIFIED`, L7 OPEN.

@@ -95,3 +95,11 @@ Les gates finales `full-after-w19` et `architecture-after-w19` ont chacune pass�
 ## Complément L7.3 Completion
 
 Le registre conserve le décompte initial et reçoit le [bilan actuel des 53 lignes](L7_I3_Completion_Evidence_Reconciliation_Report.md). L73-ADMIN-01 est corrigé dans les anciens scripts ; les opérations de purge ne sont plus exécutables par leurs fonctions ou main. Une absence de preuve et 30 réserves partielles du sous-ensemble demeurent, avec critères de clôture dans le [registre des lacunes](L7_I3_Completion_Anomalies_and_Gaps_Register.md). Aucune réserve de sûreté n’est acceptée comme non bloquante par cette publication.
+
+## Qualification complémentaire finale L7.3
+
+Le [bilan des 31 obligations](L7_I3_Final_Certification_Report.md) supersède le décompte Completion pour ce sous-ensemble : 16 CURRENT_FULL, 15 CURRENT_PARTIAL, aucune MISSING. Le manque Invitation `L2M-E02-I-INVITATION-REAL` est levé par trois refus physiques sous principal runtime et rollback vérifié extérieurement. Les [campagnes](L7_I3_Final_Consumption_Qualification_Report.md) comptent 12 tests PASS, sans nouvelle preuve globale implicite.
+
+Restent bloquantes les 15 lignes suivantes : `L2M-C04-K`, `L2M-E01-E`, `L2M-C01-A-REPORT`, `L2M-C01-D-REPORT`, `L2M-C04-L-REPORT`, `L2M-C06-M-REPORT`, `L2M-E01-H-REPORT`, `L2M-E02-J-REPORT`, `L2M-E01-G-INV-COMP`, `L2M-E01-G-ID-IDCOMP`, `L2M-CON-05-CRASH`, `L2M-CON-05-NOPURGE`, `L2M-C03-J-CRASH`, `L2M-R8-03`, `L2M-R8-05`. Chaque stimulus et condition de clôture figure dans le rapport et la [réconciliation](../testing/evidence/L7-I3-final/reconciliation.json). Elles sont des limites de qualification, pas des défauts Runtime prouvés ; aucune dispense normative n’est présumée. Les 338 autres contributions courantes partielles hors de ce sous-ensemble ne sont pas promues.
+
+Deux incidents de collecte sont corrigés et tracés : borne temporelle supérieure manquante dans la première archive Invitation (collecte inadmissible conservée intacte), puis assertion initiale du rapprochage XML rejetant aussi les sorties system-out. Aucun échec produit masqué, aucune preuve métier réécrite. Le contrôleur final vérifie les sources, XML, empreintes et conservation des 522 IDs. `L7_I3_NOT_CERTIFIED` reste proposé ; L7.4 ne s’ouvre pas comme certification, L7 demeure OPEN.

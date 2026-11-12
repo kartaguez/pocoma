@@ -1,0 +1,7 @@
+{
+  "machineTestWallSeconds": 147.0,
+  "machineMavenSeconds": 139.357,
+  "firstNewExecution": "2026-11-12T20:09:21Z",
+  "reportDraftedAt": "2026-11-12T20:36:17+00:00",
+  "effortLimit": "Session start and active reasoning/editing CPU not independently metered; do not equate elapsed interval with person-hours. Test durations exclude Docker/image preparation and analysis."
+}

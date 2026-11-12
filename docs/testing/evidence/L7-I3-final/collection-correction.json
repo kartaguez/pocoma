@@ -1,0 +1,1 @@
+{"attempt":"invitation-01-collection-attempt","admissible":false,"reason":"Collector lacked the end-of-execution mtime bound and included later Identity physical traces. Its PASS collection claim is withdrawn; raw original receipt retained. Corrected invitation-01 uses the same fresh XML and SQL observations in testcase/system-out, without crediting the later files."}

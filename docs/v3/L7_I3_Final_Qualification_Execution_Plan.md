@@ -23,3 +23,7 @@ Complément COMMAND R3-10/R5-11 : deux assemblages du même catalogue partagent 
 Complément Monolith L1-F-f04 : deux acteurs réels acceptent simultanément une Invitation, soit vers une même place, soit vers deux places libres distinctes. Une connexion indépendante retient le verrou Pot jusqu'à l'observation de deux attentes WRITE réelles. Comparer résultats, bénéficiaires effectifs, publications et historique ; un tiers reste sans droit de mutation ordinaire. Aucun changement productif ni extension de tranche.
 
 Complément PROJECTION C02-K-REPORT : publier deux générations réelles Pot/Identity, découvrir puis traiter seulement la première. Reconstruire Discovery et les Engines sur le même état durable, vérifier checkpoints et ensemble exact des slots restants, puis traiter la seconde génération sans faire réapparaître les slots terminés. Ce stimulus vise le redémarrage des composants Discovery/Engine ; il ne prétend pas simuler la mort d'un processus OS.
+
+## Clôture d’exécution
+
+La matrice opérationnelle JSON conserve la photographie initiale Completion (30 CURRENT_PARTIAL, une MISSING) et les classifications antérieures dans `historicalPreCompletionStatus` ; son ancien champ `finalStatus` décrit le bilan de la mission précédente. Les résultats de ce mandat sont dans la [réconciliation finale](../testing/evidence/L7-I3-final/reconciliation.json) et le [rapport de décision](L7_I3_Final_Certification_Report.md). Aucune gate humaine intermédiaire ni changement de contrat requis.
