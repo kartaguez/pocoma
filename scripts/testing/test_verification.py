@@ -31,6 +31,13 @@ class SelectionTests(unittest.TestCase):
         self.assertTrue(any('IdentityPrivilegesPostgresTest' in c for c in plans[1]['expected']))
         self.assertTrue(any('IdentityPublicationPostgresTest' in c for c in plans[1]['expected']))
 
+    def test_link_history_fixture_is_a_hashed_external_input(self):
+        targets = {
+            'com.kartaguez.pocoma.V3AdmissionFlowPostgresTest': [],
+            'com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest': [],
+        }
+        self.assertIn('scripts/testing/fixtures/complete-historical-link.sql', v.external_sql_inputs(targets))
+
     def test_certification_is_unfiltered_native_reactor(self):
         plan = v.plan('CERTIFICATION', None)
         self.assertEqual(plan['command'], ['./mvnw', '--batch-mode', '--no-transfer-progress', 'test'])

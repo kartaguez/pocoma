@@ -395,8 +395,8 @@ def effective_inventory(definition, output):
 def external_sql_inputs(expected):
     """Follow selected source/helper references, then literal external SQL names.
 
-    This is deliberately bounded to this repository's reviewed scripts/v3 loader
-    idiom. Changing a loader or constructing a nonliteral filename requires review.
+    The reviewed loaders use scripts/v3 names or literal scripts/testing/fixtures
+    paths. Changing a loader or constructing a nonliteral filename requires review.
     App-local resources and POM generation inputs are already in app_inputs().
     """
     index = sources()
@@ -434,6 +434,16 @@ def external_sql_inputs(expected):
                 path = ROOT / 'scripts/v3' / name
                 if not path.is_file():
                     raise ValueError(f'Missing external SQL input: {path}')
+                paths.add(str(path.relative_to(ROOT)))
+        fixture_prefix = 'scripts/testing/fixtures/'
+        if fixture_prefix in content:
+            fixtures = re.findall(r'"\.\./\.\./scripts/testing/fixtures/([\w-]+\.sql)"', content)
+            if not fixtures:
+                raise ValueError(f'{fqcn}: external SQL fixture must be a literal path')
+            for name in fixtures:
+                path = ROOT / fixture_prefix / name
+                if not path.is_file():
+                    raise ValueError(f'Missing external SQL fixture: {path}')
                 paths.add(str(path.relative_to(ROOT)))
         for name in set(re.findall(r'\b[A-Z]\w*\b', content)) & index.keys():
             pending += [identity for identity, _ in index[name] if identity not in visited]

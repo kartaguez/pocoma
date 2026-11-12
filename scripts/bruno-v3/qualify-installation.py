@@ -210,6 +210,9 @@ def prove_acl(container, password):
          'delete from v3_read.read_current_pot where false'),
         ('pocoma_read_status', 'pocoma-read-status-local-only', 'pocoma_read', 'v3_read',
          'select * from v3_read.read_current_pot'),
+        ('pocoma_read', password, 'pocoma_read', 'v3_read',
+         "insert into v3_read.consumption_routing_contract "
+         "select gen_random_uuid(), 'POT_EVENT', 'sha256-v1', 4 where false"),
     ]
     results = []
     for role, credential, db, schema, query in operations:
@@ -222,6 +225,22 @@ def prove_acl(container, password):
             raise RuntimeError('Expected an effective permission denial: ' + role)
         results.append({'principal': role, 'database': db, 'operation': query, 'sqlstate': '42501', 'result': 'DENIED'})
     return results
+
+
+def check_redaction(files, values):
+    leaked = []
+    for file in files:
+        content = file.read_text(errors='replace')
+        sanitized = re.sub(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',
+                           '[JWT REDACTED]', content)
+        sanitized = re.sub(r'pocoma://invitation/[A-Za-z0-9_-]+', '[INVITATION REDACTED]', sanitized)
+        for secret in values:
+            sanitized = sanitized.replace(secret, '[REDACTED]')
+        if sanitized != content:
+            file.write_text(sanitized)
+            leaked.append(file.name)
+    if leaked:
+        raise RuntimeError('Secret detected and removed from ' + ', '.join(leaked))
 
 
 def run_corpora(evidence, env, secrets):
@@ -240,16 +259,7 @@ def run_corpora(evidence, env, secrets):
             began = time.monotonic()
             process = subprocess.run(command, cwd=COLLECTION, env={**env, **dict.fromkeys(names, str(receipts))},
                                      text=True, stdout=log, stderr=subprocess.STDOUT, timeout=240)
-        for file in folder.iterdir():
-            content = file.read_text(errors='replace')
-            # Bruno only receives fixture credentials through environment and strips HTTP bodies/headers.
-            # Retain status diagnostics even if a producer unexpectedly prints a secret.
-            sanitized = re.sub(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', '[JWT REDACTED]', content)
-            for secret in secrets:
-                sanitized = sanitized.replace(secret, '[REDACTED]')
-            if sanitized != content:
-                file.write_text(sanitized)
-                raise RuntimeError('Secret detected and removed from ' + file.name)
+        check_redaction(folder.iterdir(), secrets)
         actual = [json.loads(line) for line in receipts.read_text().splitlines()] if receipts.exists() else []
         save(folder / 'receipt.json', {'command': command, 'exit': process.returncode,
                                       'seconds': time.monotonic() - began, 'expected': expected,
@@ -369,6 +379,10 @@ def execute(evidence, temp):
         summary['sqlConvergence'] = read_write_convergence(pg)
         summary['acl'] = prove_acl(pg, password)
         summary['activeSqlPrincipals'] = observe_runtime_principals(pg)
+        bindings = result_vector(pg, 'pocoma_write', 'v3_write',
+                                 "select json_agg(binding_token) from v3_eui_version where binding_token is not null")
+        check_redaction(evidence.rglob('*.log'), (owner, guest, third, expired, wrong_audience,
+                                                invitation_key, *bindings))
         summary['status'] = 'PASS'
     except Exception as error:
         summary['error'] = str(error)
