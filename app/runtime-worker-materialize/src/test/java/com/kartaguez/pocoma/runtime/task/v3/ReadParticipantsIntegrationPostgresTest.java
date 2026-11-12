@@ -33,6 +33,126 @@ import java.util.concurrent.atomic.*;
 
 @Testcontainers
 class ReadParticipantsIntegrationPostgresTest {
+    @Test
+    void l73_twoFailedReadTransactionsDoNotBlockTheThirdConsumption() throws Exception {
+        try (var f = new ReadParticipantsFixture(PG, "l73-two-failures")) {
+            f.enroll();
+            var entered = new CountDownLatch(2);
+            var release = new CountDownLatch(1);
+            try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
+                var pending = new ArrayList<Future<ConsumptionProtocol.Attempt>>();
+                for (var name : List.of(Name.POT_VERSION, Name.POT_BALANCE)) {
+                    var real = f.participants.get(name).participant();
+                    var failing = new ConsumptionParticipant() {
+                        public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                            return real.prepare(id, reads).map(actual -> new Prepared() {
+                                public void requireCompletionReady() { actual.requireCompletionReady(); }
+                                public void finalizeIn(SlotCompletion completion) {
+                                    actual.finalizeIn(completion);
+                                    entered.countDown();
+                                    try {
+                                        if (!release.await(15, TimeUnit.SECONDS)) throw new AssertionError("L7.3 release deadline");
+                                    } catch (InterruptedException interrupted) {
+                                        Thread.currentThread().interrupt();
+                                        throw new AssertionError(interrupted);
+                                    }
+                                    throw new IllegalStateException("L7.3 fault after real READ effects and slot deletion");
+                                }
+                            });
+                        }
+                        public Recovery prepareRecovery(UUID id, PreparationReads reads) { return real.prepareRecovery(id, reads); }
+                    };
+                    var engine = f.engine(name, failing, f.f.read.source, f.f.read.tx);
+                    var claim = f.acquire(name, engine, f.event(name));
+                    pending.add(pool.submit(() -> engine.execute(claim)));
+                }
+                try {
+                    assertTrue(entered.await(10, TimeUnit.SECONDS));
+                    f.execute(Name.POT_VISIBILITY, f.event(Name.POT_VISIBILITY));
+                    assertEquals(0, f.slots(Name.POT_VISIBILITY, f.event(Name.POT_VISIBILITY)));
+                    assertEquals(1, f.slots(Name.POT_VERSION, f.event(Name.POT_VERSION)));
+                    assertEquals(1, f.slots(Name.POT_BALANCE, f.event(Name.POT_BALANCE)));
+                    assertEquals(0, f.f.read.oracle.queryForObject("select count(*) from read_pot_version", Integer.class));
+                    assertEquals(0, f.f.read.oracle.queryForObject("select count(*) from read_pot_balance", Integer.class));
+                    assertEquals(1L, f.f.read.oracle.queryForObject("select materialized_version from read_pot_visibility_state", Long.class));
+                } finally { release.countDown(); }
+                for (var future : pending) assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, future.get(15, TimeUnit.SECONDS).resolution());
+                assertEquals(0, f.f.read.oracle.queryForObject("select count(*) from read_pot_version", Integer.class));
+                assertEquals(0, f.f.read.oracle.queryForObject("select count(*) from read_pot_balance", Integer.class));
+                assertEquals(1, f.slots(Name.POT_VERSION, f.event(Name.POT_VERSION)));
+                assertEquals(1, f.slots(Name.POT_BALANCE, f.event(Name.POT_BALANCE)));
+                f.f.read.trace.add("L7.3 two real READ transactions rolled back while third Consumption committed; independent slots preserved");
+            }
+        }
+    }
+
+    @Test
+    void l73_quarantinedOldVersionsResumeWithoutRegressingRealProjections() throws Exception {
+        for (var name : List.of(Name.POT_VERSION, Name.POT_BALANCE, Name.POT_VISIBILITY, Name.CURRENT_BINDING)) {
+            try (var f = new ReadParticipantsFixture(PG, "l73-quarantine-" + name)) {
+                f.enroll();
+                var real = f.participants.get(name).participant();
+                var failing = new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                        return real.prepare(id, reads).map(actual -> new Prepared() {
+                            public void requireCompletionReady() { actual.requireCompletionReady(); }
+                            public void finalizeIn(SlotCompletion completion) {
+                                actual.finalizeIn(completion);
+                                throw new IllegalStateException("L7.3 countable failure after real effect");
+                            }
+                        });
+                    }
+                    public Recovery prepareRecovery(UUID id, PreparationReads reads) { return real.prepareRecovery(id, reads); }
+                };
+                var definition = f.participants.get(name).definition();
+                var engine = new ConsumptionEngine(definition, f.f.read.tx,
+                        new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcConsumptionSlotStore(f.f.read.source), failing,
+                        f.f.sourceOwner,
+                        Optional.of(new JdbcEventDiscoveryReferences(f.f.primary, definition.family(), SubobjectPostgresFixture.discoverySettings())),
+                        reference -> com.kartaguez.pocoma.compose.polling.materialize.v3.V3ConsumptionDiscoveryComposition.relevant(definition, reference),
+                        new com.kartaguez.pocoma.infra.postgres.core.v3.JdbcDiscoveryAdmissionStore(f.f.read.source, SubobjectPostgresFixture.discoverySettings()),
+                        f.f.read.tx, f.f.read.slots, f.f.read.ownership, f.f.read.settings, f.capacity,
+                        cause -> com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind.TECHNICAL,
+                        null, com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.noop());
+                UUID old = f.event(name);
+                var before = f.vector();
+                for (int n = 1; n <= f.f.read.settings.retry().maxFailures(); n++) {
+                    var result = engine.execute(f.acquire(name, engine, old));
+                    assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, result.resolution());
+                    assertEquals(before, f.vector(), "failed actual effects must roll back");
+                    assertEquals(n, f.f.read.oracle.queryForObject("select attempt_count from consumption_slot where consumption_id=? and consumable_id=?",
+                            Integer.class, definition.id().value(), old));
+                }
+                var quarantine = f.f.read.oracle.queryForMap("select * from consumption_slot where consumption_id=? and consumable_id=?", definition.id().value(), old);
+                assertEquals("QUARANTINED", quarantine.get("state"));
+                UUID newer;
+                if (name == Name.CURRENT_BINDING) {
+                    String token = f.f.oracle.queryForObject("select binding_token from v3_eui_version where version=1", String.class);
+                    UUID request = f.publishIdentity(new IdentityRequest.Unlink(f.eui), new BindingToken(token));
+                    newer = f.f.oracle.queryForObject("select event_id from v3_identity_event where request_id=?", UUID.class, request);
+                } else newer = f.mutatePot(new PotCommand.UpdatePotDetails(new Label("L7.3 V2")), 1);
+                f.enroll();
+                f.execute(name, newer);
+                assertEquals(quarantine, f.f.read.oracle.queryForMap("select * from consumption_slot where consumption_id=? and consumable_id=?", definition.id().value(), old));
+                f.f.read.script("reactivate-l2-slot.sql", Map.of("consumption_id", definition.id().value().toString(), "consumable_id", old.toString()));
+                assertEquals(0, f.f.read.oracle.queryForObject("select attempt_count from consumption_slot where consumption_id=? and consumable_id=?", Integer.class, definition.id().value(), old));
+                f.execute(name, old);
+                assertEquals(0, f.slots(name, old));
+                assertEquals(0, f.slots(name, newer));
+                switch (name) {
+                    case POT_VERSION -> { assertEquals(2L, f.f.read.oracle.queryForObject("select pot_version from read_current_pot", Long.class));
+                        assertEquals(List.of(1L, 2L), f.f.read.oracle.queryForList("select pot_version from read_pot_version order by pot_version", Long.class)); }
+                    case POT_BALANCE -> assertEquals(List.of(1L, 2L), f.f.read.oracle.queryForList("select pot_version from read_pot_balance order by pot_version", Long.class));
+                    case POT_VISIBILITY -> assertEquals(2L, f.f.read.oracle.queryForObject("select materialized_version from read_pot_visibility_state", Long.class));
+                    case CURRENT_BINDING -> { assertEquals(2L, f.f.read.oracle.queryForObject("select eui_version from read_current_binding", Long.class));
+                        assertNull(f.f.read.oracle.queryForObject("select binding_token from read_current_binding", String.class)); }
+                    default -> throw new AssertionError(name);
+                }
+                f.f.read.trace.add("L7.3 actual quarantine then V2, administrative reactivation and late V1=" + name + "; no regression, both slots completed");
+            }
+        }
+    }
+
     @Container static final PostgreSQLContainer PG=ReadParticipantsContainer.create();
     @BeforeAll static void init() { SubobjectPostgresFixture.initialize(PG); }
 
@@ -307,6 +427,35 @@ class ReadParticipantsIntegrationPostgresTest {
             assertTrue(f.f.read.tx.read(c -> ig.get(f.identityRequest,owner)).isEmpty());
             f.f.read.trace.add("A10/READ results available without any domain projection");
         }
+    }
+
+    @Test void l73_allReadParticipantsRetainUncertainCapacityAndExactEffects() throws Exception {
+        for(var name:Name.values()) for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
+            try(var f=new ReadParticipantsFixture(PG,"l73-unknown-"+name+"-"+fault);var proxy=new CommitAcknowledgementProxy(PG.getHost(),PG.getMappedPort(5432))) {
+                f.enroll(); var beforeVector=f.vector();
+                var ds=new DriverManagerDataSource("jdbc:postgresql://127.0.0.1:"+proxy.localPort()+"/"+PG.getDatabaseName()+"?sslmode=disable&gssEncMode=disable&preferQueryMode=simple&socketTimeout=5&currentSchema="+f.f.read.schema,f.f.read.runtimeRole,"i1-fixture");
+                var tx=SubobjectPostgresFixture.owner(ds); var real=V3ReadParticipants.create(f.f.primary,f.f.sourceOwner,ds,tx).get(name).participant();
+                var p=new ConsumptionParticipant() {
+                    public Optional<Prepared> prepare(UUID id,PreparationReads reads) { return real.prepare(id,reads).map(actual -> new Prepared() {
+                        public void requireCompletionReady() { actual.requireCompletionReady(); }
+                        public void finalizeIn(SlotCompletion completion) { actual.finalizeIn(completion); proxy.arm(fault); }
+                    }); }
+                    public Recovery prepareRecovery(UUID id,PreparationReads reads) { return real.prepareRecovery(id,reads); }
+                };
+                var engine=f.engine(name,p,ds,tx); var handle=f.acquire(name,engine,f.event(name)); var result=engine.execute(handle);
+                boolean committed=fault==CommitAcknowledgementProxy.Fault.AFTER_COMMIT;
+                assertEquals(1,proxy.interceptedCount()); assertEquals(committed?1:0,proxy.committedReplyCount());
+                assertEquals(AttemptTransactions.Resolution.UNKNOWN,result.resolution()); assertNull(result.cession()); assertNull(result.cessionResolution());
+                assertEquals(committed?RecoveryObservation.COMPLETED:RecoveryObservation.NOT_COMPLETED,result.observation());
+                if(name==Name.POT_VERSION) {
+                assertEquals(committed?1:0,f.f.read.oracle.queryForObject("select count(*) from read_current_pot",Integer.class));
+                assertEquals(committed?2:0,f.f.read.oracle.queryForObject("select count(*) from read_subobject_version",Integer.class));
+                assertEquals(committed?1:0,f.f.read.oracle.queryForObject("select count(*) from read_pot_version",Integer.class));
+                }
+                if(committed) assertNotEquals(beforeVector,f.vector()); else assertEquals(beforeVector,f.vector());
+                assertEquals(committed?0:1,f.slots(name,f.event(name))); assertEquals(1,f.capacity.snapshot().worker(),"business observation never releases uncertain capacity");
+                f.f.read.trace.add("L7.3 real ACK loss "+name+" "+fault+" result="+result+" retained="+f.capacity.snapshot());
+            }
     }
 
     @Test void uncertainCommitHasNoSpeculativeSettlement() throws Exception {
