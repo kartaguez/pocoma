@@ -20,6 +20,50 @@ import java.util.concurrent.*;
 @Testcontainers
 class IdentityDiscoveryPostgresTest extends IdentityEngineFixture {
     @Test
+    void l73_discoveryPreservesClaimsRetriesAndQuarantine() {
+        for (String variant : List.of("active", "expired", "retry", "quarantine")) {
+            var identity = key("l73-" + variant);
+            var request = request(new IdentityRequest.Registration(), identity, null, identity);
+            admitRequest(request);
+            var handle = claim(request);
+            UUID id = request.requestId();
+            switch (variant) {
+                case "active" -> admin.update("update consumption_slot set"
+                        + " claimed_until=clock_timestamp()+interval '1 hour' where consumable_id=?", id);
+                case "expired" -> admin.update("update consumption_slot set"
+                        + " claimed_until=clock_timestamp()-interval '1 second' where consumable_id=?", id);
+                case "retry" -> admin.update("update consumption_slot set claim_token=null,"
+                        + " claimed_until=null,retry_after=clock_timestamp()+interval '1 hour',"
+                        + " attempt_count=1 where consumable_id=?", id);
+                case "quarantine" -> admin.update("update consumption_slot set claim_token=null,"
+                        + " claimed_until=null,retry_after=null,state='QUARANTINED',"
+                        + " attempt_count=3 where consumable_id=?", id);
+                default -> throw new AssertionError(variant);
+            }
+            var before = admin.queryForMap("select * from consumption_slot where consumable_id=?", id);
+            var checkpoints = admin.queryForList("select * from discovery_checkpoint order by consumption_id,partition_id");
+            for (int pass = 0; pass < 3; pass++) {
+                discover(request);
+                assertEquals(before, admin.queryForMap("select * from consumption_slot where consumable_id=?", id), variant);
+                assertEquals(checkpoints, admin.queryForList("select * from discovery_checkpoint order by consumption_id,partition_id"), variant);
+            }
+            assertEquals("PENDING", admin.queryForObject(
+                    "select status from v3_identity_request where request_id=?", String.class, id));
+            int partition = RoutingV1.partition(RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, id), 4);
+            var other = engine(participant, tx);
+            var acquired = other.acquire(lease(partition), List.of(id)).claims();
+            if (variant.equals("expired")) {
+                assertEquals(1, acquired.size());
+                assertNotEquals(handle.claim().claimToken(), acquired.getFirst().claim().claimToken());
+            } else {
+                assertTrue(acquired.isEmpty(), variant + " must remain ineligible");
+            }
+            evidence.add("L7.3 Identity Discovery variant=" + variant
+                    + " three identical slot/checkpoint snapshots; PENDING; acquisition=" + acquired.size());
+        }
+    }
+
+    @Test
     void l3_burnable_discovery() {
         var e = key("burn");
         var req = request(new IdentityRequest.Registration(), e, null, e);
