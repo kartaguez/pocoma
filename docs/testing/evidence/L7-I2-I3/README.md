@@ -17,6 +17,8 @@ Les tentatives sont conservées sous des identifiants distincts. Les journaux co
 | `architecture-attempt-01` | Gate intégré du candidat `85c68b80` | FAIL avec 2 erreurs d'une fixture Architecture parmi 1 056 tests. Le superviseur s'est arrêté avant l'agrégation. Les XML et le journal ont permis de reconstituer le reçu. |
 | `full` | Première tentative de réacteur complet | FAIL après 876 tests, `i5_r12` observe un âge initial de 5,796 s pour une limite de 5 s. |
 | `read-partial-reset-acl.json` | Refus effectifs du principal READ après bootstrap | PASS, quatre 42501 et un 23514, vecteur des sept checkpoints intact. La première tentative a échoué au chargement du témoin. |
+| `full-stabilization-interrupted` | Réacteur relancé après correction de la fixture de renouvellement | Arrêt après 233 exécutions sans échec individuel, avant extension de l’oracle de reprise READ. Le verdict de campagne reste FAIL. |
+| `read-active-replay` | Reprise après expiration physique, publications WRITE pendant rejeu actif | PASS, 28 checkpoints, zéro slot, quatre résultats rattrapés et drain mesuré. |
 | `r05-after-fixture` | Rejeu du scénario à un Worker | PASS sur fixture corrigée. |
 | `r12-isolated` | Reproduction ciblée `i5_r12` | FAIL, 5,108 s avec la fixture de démarrage séquentiel. |
 | `r12-after-fixture` | Rejeu isolé sur fixture corrigée | PASS, âge initial maximal 0.322 s, mêmes oracles. |

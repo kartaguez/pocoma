@@ -1,0 +1,29 @@
+administrative configure-l3-identity-logging.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql WRITE rc=0
+administrative grant-l2-lifecycle.sql WRITE rc=0
+administrative grant-l2-discovery.sql WRITE rc=0
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+administrative grant-l7-write-source-read.sql WRITE rc=0
+initial expected: nine canonical business contracts, no technical probes; no slots/K/effects; fresh i5_6647b343943945f8949734f400e04239
+real Identity request=ecdcb083-ec7b-4c85-a722-28aad20cf676 operation=REGISTRATION terminal and positioned; slot absent
+I4 Command request=1aedea20-de87-485b-97ba-6961b4ab7abb outcome=CHANGED rejection=null
+I4 Command request=df5f3593-51ad-4055-b4f9-474af474ca08 outcome=CHANGED rejection=null
+I4 Command request=51d72ad1-9187-4fbc-8c18-93a063cd5694 outcome=CHANGED rejection=null
+I4 Command request=30505f4c-3546-4f20-ae5b-0f12a44b0b61 outcome=CHANGED rejection=null
+administrative bootstrap-l2-routing.sql READ rc=0
+administrative grant-l2-lifecycle.sql READ rc=0
+administrative grant-l2-discovery.sql READ rc=0
+I4 Command request=c66ad62b-4035-468e-86fb-2dabfeee0efd outcome=CHANGED rejection=null
+I4 Command request=76565b58-ed92-4c01-a1f2-3872663e1a7e outcome=CHANGED rejection=null
+I4 Command request=23c8346a-ad9e-4e1b-8e13-d73c7eb5b4dd outcome=CHANGED rejection=null
+I4 Command request=edf38e3b-af93-43c5-8e00-b5d6da59d2eb outcome=CHANGED rejection=null
+physical lease remaining after drain (ms)=239579
+prefix before replay={COMMAND_COMPLETION=4, IDENTITY=2, IDENTITY_COMPLETION=1, INVITATION=0, POT=4}, after interrupted arrival={COMMAND_COMPLETION=5, IDENTITY=2, IDENTITY_COMPLETION=1, INVITATION=0, POT=5}, after active replay arrivals={COMMAND_COMPLETION=8, IDENTITY=2, IDENTITY_COMPLETION=1, INVITATION=0, POT=8}
+WRITE arrivals during active replay=3, arrival interval ns=323128250, last arrival through READ drain ns=354083625
+before={read_command_result=418bf98706d7f1fa0ce9a3b8fa4de89205f2fe20285ddad44aebfc96f5078dc4, read_current_binding=f1f01018e40d3551adfacde7835c59cdd18cceb54a01e3cc1d3dd0c126e43965, read_current_invitation=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945, read_current_pot=b31e602674f072df4cddb6ac6cf0b10cb96e9d6ae58795bc8a5b8009964384c7, read_identity_request_result=b9b29493f53c81a2b8add27b2da3025737c772eb62c16620c12d49c8ea6d4bde, read_pot_balance=29bc4f2eaab2d55963f6719f5e276b2adb8e889903be7bb0b33e16d64ef63ab3, read_pot_version=11156451e1a533da43f63d12ea6c7d1c24e90777f8a0896f5a3158f70fc67ec6, read_pot_visibility_state=87c70486bdc10c0228d4d1ccac994e7f5458fd9bb323abbbdb4088762fad7641, read_subobject_version=ae97be351936c2ff5b95c1ef9b76bfaed9fcb5406ae7dfd89f5cb1131b4a09cf, read_user_pot=441b15e4db90f153d5658a437546231113d6a40028ffd778e347a678003188b1}, replayed={read_command_result=418bf98706d7f1fa0ce9a3b8fa4de89205f2fe20285ddad44aebfc96f5078dc4, read_current_binding=f1f01018e40d3551adfacde7835c59cdd18cceb54a01e3cc1d3dd0c126e43965, read_current_invitation=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945, read_current_pot=b31e602674f072df4cddb6ac6cf0b10cb96e9d6ae58795bc8a5b8009964384c7, read_identity_request_result=b9b29493f53c81a2b8add27b2da3025737c772eb62c16620c12d49c8ea6d4bde, read_pot_balance=29bc4f2eaab2d55963f6719f5e276b2adb8e889903be7bb0b33e16d64ef63ab3, read_pot_version=11156451e1a533da43f63d12ea6c7d1c24e90777f8a0896f5a3158f70fc67ec6, read_pot_visibility_state=87c70486bdc10c0228d4d1ccac994e7f5458fd9bb323abbbdb4088762fad7641, read_subobject_version=ae97be351936c2ff5b95c1ef9b76bfaed9fcb5406ae7dfd89f5cb1131b4a09cf, read_user_pot=441b15e4db90f153d5658a437546231113d6a40028ffd778e347a678003188b1}
+physical {current_database=test, current_schema=i5_6647b343943945f8949734f400e04239, clock_timestamp=2026-11-12 13:31:19.297032, pg_backend_pid=7921, pg_current_xact_id=12661}
+counts {slots=0, checkpoints=0, owned=5}
+physical {current_database=i5_read, current_schema=i5_6647b343943945f8949734f400e04239, clock_timestamp=2026-11-12 13:31:19.306538, pg_backend_pid=7923, pg_current_xact_id=12662}
+counts {slots=0, checkpoints=28, owned=28}
