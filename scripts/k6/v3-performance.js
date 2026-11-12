@@ -37,6 +37,7 @@ const IDLE_SECONDS = Number(__ENV.IDLE_SECONDS || 60);
 const CONTENTION_VUS = Number(__ENV.CONTENTION_VUS || 3);
 const READ_VUS = Number(__ENV.READ_VUS || 2);
 const MAX_ADMISSION_RETRIES = Number(__ENV.MAX_ADMISSION_RETRIES || 3);
+const ISOLATE_POTS_BY_VU = __ENV.ISOLATE_POTS_BY_VU === 'true';
 
 // ---- Metrics Trends ----
 const tAdmission = new Trend('v3_admission_duration', true);
@@ -75,8 +76,10 @@ const cStarvation = new Counter('v3_generator_pot_starvation');
 function scenarioOptions() {
   const arrival = (rate, vus, maxVus = null) => {
     const isDecoupled = __ENV.DECOUPLED !== 'false';
-    const preVUs = isDecoupled ? Math.max(rate, 10) : vus;
-    const peakVUs = isDecoupled ? Math.max(rate * 2, 20) : (maxVus || Math.max(vus * 2, 8));
+    if (ISOLATE_POTS_BY_VU && isDecoupled)
+      throw new Error('Independent Pot mode requires a VU to retain its Pot through the terminal result');
+    const preVUs = ISOLATE_POTS_BY_VU ? POTS : isDecoupled ? Math.max(rate, 10) : vus;
+    const peakVUs = ISOLATE_POTS_BY_VU ? POTS : isDecoupled ? Math.max(rate * 2, 20) : (maxVus || Math.max(vus * 2, 8));
     return {
       executor: 'constant-arrival-rate',
       rate,
@@ -175,8 +178,12 @@ export function setup() {
   const pots = [];
 
   const prePotsJson = __ENV.PRE_SEEDED_POTS_JSON || null;
+  if (ISOLATE_POTS_BY_VU && !prePotsJson)
+    throw new Error('Independent Pot mode requires a prevalidated fixture manifest');
   if (prePotsJson) {
     const list = JSON.parse(prePotsJson);
+    if (ISOLATE_POTS_BY_VU && (list.length !== POTS || new Set(list.map(p => p.potId)).size !== POTS))
+      throw new Error('Independent Pot mode requires exactly one distinct Pot per VU');
     const pots = list.map((p) => ({
       potId: p.potId,
       shareholders: p.shareholders,

@@ -27,12 +27,13 @@ def render(manifest):
     for case in manifest['campaigns']:
         entry = dict(case)
         stimulus = case.get('stimulus')
-        if stimulus in {'nominal', 'sustained', 'peak', 'contention', 'idle'}:
+        if stimulus in {'nominal', 'sustained', 'peak', 'contention', 'idle', 'ramp'}:
             dataset = manifest['datasets'][case['dataset']]
             env = {
                 'SCENARIO': stimulus,
                 'RATE': str(case.get('rate', 1)),
                 'DURATION': str(case.get('sampleSeconds', 1)) + 's',
+                'POTS': str(case['potCount']),
                 'SHAREHOLDERS': str(dataset['shareholders']),
                 'SEED_EXPENSES': str(dataset['expenses']),
                 'POLL_INTERVAL_MS': str(manifest['pollIntervalMs']),
@@ -41,10 +42,21 @@ def render(manifest):
             }
             if 'idleSeconds' in case:
                 env['IDLE_SECONDS'] = str(case['idleSeconds'])
-            entry['stimulusCommand'] = shlex.join([
-                'env', *(f'{key}={value}' for key, value in env.items()),
-                'k6', 'run', 'scripts/k6/v3-performance.js',
-            ])
+            if stimulus in {'nominal', 'sustained', 'peak', 'ramp'}:
+                env['ISOLATE_POTS_BY_VU'] = 'true'
+                entry['requiredEnvironment'] = ['POCOMA_READ_URL', 'POCOMA_WRITE_URL', 'POCOMA_TOKEN',
+                                                'POCOMA_BINDING_TOKEN', 'PRE_SEEDED_POTS_JSON']
+            if stimulus == 'ramp':
+                parameters = [{**env, 'RATE': str(rate),
+                               'DURATION': str(case['sampleSecondsPerRate']) + 's'}
+                              for rate in case['rates']]
+            else:
+                parameters = [env]
+            entry['stimulusCommands'] = [
+                shlex.join(['env', *(f'{key}={value}' for key, value in values.items()),
+                            'k6', 'run', 'scripts/k6/v3-performance.js'])
+                for values in parameters
+            ]
         result.append(entry)
     return result
 
