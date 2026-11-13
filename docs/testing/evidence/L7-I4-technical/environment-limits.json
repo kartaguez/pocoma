@@ -1,0 +1,23 @@
+{
+  "available": {
+    "topology": "single Docker Desktop host shared with preexisting stack",
+    "cpu": 10,
+    "memoryBytes": 8319504384,
+    "preexistingPostgresCpu": 1,
+    "preexistingPostgresMemoryBytes": 1073741824
+  },
+  "requiredA": {
+    "postgresHost": {
+      "vcpu": 4,
+      "ramGiB": 8
+    },
+    "separateRuntimesHost": {
+      "vcpu": 4,
+      "ramGiB": 8
+    }
+  },
+  "humanResponse": "Aucune cible distante disponible",
+  "contractualAdmissibility": "NOT_ESTABLISHED",
+  "preexistingServicesPreserved": true,
+  "allOwnProjectsRemoved": true
+}

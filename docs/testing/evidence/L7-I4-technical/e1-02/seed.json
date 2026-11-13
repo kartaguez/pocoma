@@ -1,0 +1,630 @@
+{
+  "seedId": "e1-pocoma-spec09-6c8f3c419a",
+  "profile": "small",
+  "contention": false,
+  "potsCount": 2,
+  "totalShareholders": 10,
+  "totalExpenses": 40,
+  "estimatedEvents": 44,
+  "pots": [
+    {
+      "potId": "f9586039-8069-48c6-abb9-b8c3ec60ba7b",
+      "label": "Seed Pot 0 [small]",
+      "shareholders": [
+        {
+          "id": "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259",
+          "name": "User-0-0",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "name": "User-0-1",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "4dc1da7b-67d5-463d-ad88-1f606cc3057e",
+          "name": "User-0-2",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "889e1346-6d3c-4d2a-a4ae-62e845c538a3",
+          "name": "User-0-3",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2",
+          "name": "User-0-4",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        }
+      ],
+      "expenses": [
+        {
+          "id": "420c69ac-bae4-49d7-aa41-58e342f28c37",
+          "title": "Expense 0",
+          "payerId": "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259",
+          "amountCents": 41505,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "8fe25b19-072c-4f94-a080-aa38281535a5",
+          "title": "Expense 1",
+          "payerId": "889e1346-6d3c-4d2a-a4ae-62e845c538a3",
+          "amountCents": 19913,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "61d919a7-da13-4769-a584-2a26f445eb32",
+          "title": "Expense 2",
+          "payerId": "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2",
+          "amountCents": 41711,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "6436ba57-4985-4f4e-a9e7-ed0915ad1598",
+          "title": "Expense 3",
+          "payerId": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "amountCents": 18342,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "20ceb97b-29eb-4ef3-ad9d-e28d3bb8a768",
+          "title": "Expense 4",
+          "payerId": "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259",
+          "amountCents": 33052,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "fdac4082-ee76-417c-a077-41e20dac5c3b",
+          "title": "Expense 5",
+          "payerId": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "amountCents": 3725,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "a71aeea1-f077-4e99-a8da-8b80841f76ef",
+          "title": "Expense 6",
+          "payerId": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "amountCents": 34199,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "b1f20221-fcdb-4b4b-a0da-a41c0d2be5b6",
+          "title": "Expense 7",
+          "payerId": "889e1346-6d3c-4d2a-a4ae-62e845c538a3",
+          "amountCents": 13827,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "3f32300b-25f4-4a30-a861-a78b223191b2",
+          "title": "Expense 8",
+          "payerId": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "amountCents": 41352,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "7120d540-f9f2-4d6e-ab04-0bdab5eb226c",
+          "title": "Expense 9",
+          "payerId": "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2",
+          "amountCents": 44729,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "d3093a5b-8c32-4f95-a57e-805bd6b5a1d4",
+          "title": "Expense 10",
+          "payerId": "889e1346-6d3c-4d2a-a4ae-62e845c538a3",
+          "amountCents": 14306,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "7fe4e0ea-7754-431c-ad62-c87ede396e26",
+          "title": "Expense 11",
+          "payerId": "4dc1da7b-67d5-463d-ad88-1f606cc3057e",
+          "amountCents": 7778,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "1c743b54-89c6-4cfc-a5f9-bdf4cf5c765b",
+          "title": "Expense 12",
+          "payerId": "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2",
+          "amountCents": 35167,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "14b4ca9a-7d00-42cb-ab5f-4d77de7750a1",
+          "title": "Expense 13",
+          "payerId": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "amountCents": 27441,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "b09e262d-a22f-4292-afcc-d8c6e57a9c88",
+          "title": "Expense 14",
+          "payerId": "f9baadb0-c10f-4141-a09e-22a24b446967",
+          "amountCents": 30998,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "fc4a9a46-ca7d-471d-a49d-142f90512af3",
+          "title": "Expense 15",
+          "payerId": "889e1346-6d3c-4d2a-a4ae-62e845c538a3",
+          "amountCents": 36456,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "f568ecf2-7545-463f-aa5f-daef86e54e55",
+          "title": "Expense 16",
+          "payerId": "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259",
+          "amountCents": 31819,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "0ced91b3-eeed-4dba-adc1-6ee6439caf5b",
+          "title": "Expense 17",
+          "payerId": "889e1346-6d3c-4d2a-a4ae-62e845c538a3",
+          "amountCents": 17571,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "4b80e9ee-c80a-491a-aa03-93dd24fa81ab",
+          "title": "Expense 18",
+          "payerId": "4dc1da7b-67d5-463d-ad88-1f606cc3057e",
+          "amountCents": 26020,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        },
+        {
+          "id": "f598b695-fabe-48b5-a7a8-7e04548a2d45",
+          "title": "Expense 19",
+          "payerId": "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2",
+          "amountCents": 49728,
+          "parts": {
+            "0ea8e4fa-8d36-4a3f-a06d-c8c51981f259": 1,
+            "f9baadb0-c10f-4141-a09e-22a24b446967": 1,
+            "4dc1da7b-67d5-463d-ad88-1f606cc3057e": 1,
+            "889e1346-6d3c-4d2a-a4ae-62e845c538a3": 1,
+            "3da1a9ff-2d9e-4e45-a3eb-1e48d8a96df2": 1
+          }
+        }
+      ],
+      "contentionRounds": 1
+    },
+    {
+      "potId": "95a34170-15ae-4e85-a190-d3c77f5375cf",
+      "label": "Seed Pot 1 [small]",
+      "shareholders": [
+        {
+          "id": "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da",
+          "name": "User-1-0",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "4f40fac2-eb18-41c1-afd7-d5843593b2ae",
+          "name": "User-1-1",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "ee9628ae-129b-4ebd-a559-301c262adf55",
+          "name": "User-1-2",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "name": "User-1-3",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        },
+        {
+          "id": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "name": "User-1-4",
+          "weightNumerator": 1,
+          "weightDenominator": 5
+        }
+      ],
+      "expenses": [
+        {
+          "id": "452194c2-3a6e-4371-a9ab-1e113558f40e",
+          "title": "Expense 0",
+          "payerId": "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da",
+          "amountCents": 13360,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "9e35ac04-a184-4d18-ac31-7e0c7dbcb92c",
+          "title": "Expense 1",
+          "payerId": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "amountCents": 31465,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "b583afcd-458e-4303-ac07-5255e3e41685",
+          "title": "Expense 2",
+          "payerId": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "amountCents": 4495,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "0e032f12-1578-42c2-a8db-bbc240ed985b",
+          "title": "Expense 3",
+          "payerId": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "amountCents": 42096,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "d167c48e-f03a-4443-a27e-55faa402cf90",
+          "title": "Expense 4",
+          "payerId": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "amountCents": 131,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "1f672340-354d-47ca-a241-706a11a31fd6",
+          "title": "Expense 5",
+          "payerId": "4f40fac2-eb18-41c1-afd7-d5843593b2ae",
+          "amountCents": 17619,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "397936fb-4b8d-4e5e-a736-d0716a5383c1",
+          "title": "Expense 6",
+          "payerId": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "amountCents": 41028,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "0f2da4a4-8967-436e-a575-fd5a9fbed424",
+          "title": "Expense 7",
+          "payerId": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "amountCents": 17830,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "335235b5-2399-4032-a7ec-a4da9bd6e5e3",
+          "title": "Expense 8",
+          "payerId": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "amountCents": 27231,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "bd9b1221-9007-40c1-a7fd-ddc22a73e4da",
+          "title": "Expense 9",
+          "payerId": "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da",
+          "amountCents": 14222,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "cdf2460f-eb0b-4772-a7e8-8c48800ce0cb",
+          "title": "Expense 10",
+          "payerId": "4f40fac2-eb18-41c1-afd7-d5843593b2ae",
+          "amountCents": 1968,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "5927b7b1-e8cf-4aee-a879-b79f9b2471ed",
+          "title": "Expense 11",
+          "payerId": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "amountCents": 13493,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "a1a1ebba-5944-497d-a4bc-619163a9482b",
+          "title": "Expense 12",
+          "payerId": "099c60c6-9788-453d-aec1-a3bd30e07aa4",
+          "amountCents": 49518,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "c6d60052-efa2-4d49-a723-b7670135f55b",
+          "title": "Expense 13",
+          "payerId": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "amountCents": 17432,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "b6ff342a-18c3-432f-a041-b7f44e9b0962",
+          "title": "Expense 14",
+          "payerId": "ee9628ae-129b-4ebd-a559-301c262adf55",
+          "amountCents": 12703,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "cc66b3fa-ac52-4c2a-a5b9-58da7e0f8996",
+          "title": "Expense 15",
+          "payerId": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "amountCents": 920,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "0e7ab910-5548-4e6e-a5bc-305c50303c59",
+          "title": "Expense 16",
+          "payerId": "ee9628ae-129b-4ebd-a559-301c262adf55",
+          "amountCents": 26891,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "0e485c76-c882-40be-ab77-791e5f94e757",
+          "title": "Expense 17",
+          "payerId": "ee9628ae-129b-4ebd-a559-301c262adf55",
+          "amountCents": 2076,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "d9b084e8-232f-43b0-ae17-4b80fc9acedf",
+          "title": "Expense 18",
+          "payerId": "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da",
+          "amountCents": 17204,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        },
+        {
+          "id": "554e6d32-fcc7-419f-a3fb-2cb88271655b",
+          "title": "Expense 19",
+          "payerId": "4788f65e-3570-4df1-a001-8cc99ab2dcb8",
+          "amountCents": 15989,
+          "parts": {
+            "c2bdde2f-f7e8-4eb9-a2d9-adebd56938da": 1,
+            "4f40fac2-eb18-41c1-afd7-d5843593b2ae": 1,
+            "ee9628ae-129b-4ebd-a559-301c262adf55": 1,
+            "099c60c6-9788-453d-aec1-a3bd30e07aa4": 1,
+            "4788f65e-3570-4df1-a001-8cc99ab2dcb8": 1
+          }
+        }
+      ],
+      "contentionRounds": 1
+    }
+  ],
+  "fingerprintSha256": "e86a67094291a710f40174bff9da19a6b8ecdd465fec22a36dda91cad563e320",
+  "materialized": true,
+  "materializedAt": "2026-11-12T22:00:47Z",
+  "materializationProof": [
+    {
+      "potId": "f9586039-8069-48c6-abb9-b8c3ec60ba7b",
+      "finalVersion": 22,
+      "shareholdersCount": 5,
+      "expensesCount": 20,
+      "sqlVerified": true,
+      "httpVerified": true
+    },
+    {
+      "potId": "95a34170-15ae-4e85-a190-d3c77f5375cf",
+      "finalVersion": 22,
+      "shareholdersCount": 5,
+      "expensesCount": 20,
+      "sqlVerified": true,
+      "httpVerified": true
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "officialPartial": 15,
+  "closureCandidates": 1,
+  "otherPartial": 14,
+  "automaticPromotions": 0,
+  "obligations": [
+    {
+      "obligation": "L2M-C04-K",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "E1 + E3, comptages Command/READ exacts après reprise",
+      "contribution": "PARTIAL",
+      "remaining": "Le corpus composite répété avec takeover/rollback/crash pendant calcul manque.",
+      "originalClosureCondition": "Assembler le corpus répété Command réel + READ avec takeover, rollback et interruptions ; réconcilier effets/publications aux seules finalisations committées. Les répétitions Identity ne remplacent pas ce sujet composite."
+    },
+    {
+      "obligation": "L2M-E01-E",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "E1 : compteurs/positions denses sur commandes CHANGED",
+      "contribution": "INSUFFICIENT",
+      "remaining": "Aucun scénario UNCHANGED/REJECTED ni Identity rejetée.",
+      "originalClosureCondition": "Compléter l’oracle extérieur des compteurs et positions par famille pour Command UNCHANGED/REJECTED et Identity rejetée. Les tests existants vérifient événements, résultats et version ; ils ne comparent pas directement toutes ces positions."
+    },
+    {
+      "obligation": "L2M-C01-A-REPORT",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Snapshots K et slots des partitions ; deux Registrations dans le run final",
+      "contribution": "PARTIAL",
+      "remaining": "Pas de peuplement Identity multipartition entremêlé ni ensemble exact des slots en fenêtre.",
+      "originalClosureCondition": "Sur plusieurs événements Identity pertinents répartis et entremêlés, comparer par partition ensemble exact des slots et K. Le test existant à une EUI et deux positions vérifie le filtre User et les quatre K, sans ce peuplement complet."
+    },
+    {
+      "obligation": "L2M-C01-D-REPORT",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Collecteur pg_blocking_pids + K, E1/E3 sans régression",
+      "contribution": "INSUFFICIENT",
+      "remaining": "Pas de vraie publication retenue couplée à Discovery READ avant/après commit/rollback.",
+      "originalClosureCondition": "Coupler la publication concurrente désormais prouvée à une vraie Discovery READ et ses checkpoints/slots, avant puis après commit/rollback ; la fenêtre source sûre seule ne suffit pas."
+    },
+    {
+      "obligation": "L2M-C04-L-REPORT",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "writer-inventory-final/writer-candidates.csv.gz, références SQL dynamiques et outils",
+      "contribution": "PARTIAL",
+      "remaining": "Revue sémantique exhaustive et refus hors reset READ coordonné restent dus.",
+      "originalClosureCondition": "Terminer l’inventaire des voies SQL dynamiques et administratives de suppression/finalisation, attribuer leur protection transactionnelle, et prouver les refus hors reset READ coordonné."
+    },
+    {
+      "obligation": "L2M-C06-M-REPORT",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "writer-inventory-final/writer-candidates.csv.gz, transactions/compositions/tests inclus",
+      "contribution": "PARTIAL",
+      "remaining": "Attribuer chaque autorité physique à garde/poisoning/ownership et preuve ; corpus indirect non fermé.",
+      "originalClosureCondition": "Inventorier les transactions physiques de tous les writers et compositions, tests et Monolith compris ; associer chaque entrée à garde/poisoning/ownership et preuve. Le suffixe Identity isolé n’est pas un inventaire complet."
+    },
+    {
+      "obligation": "L2M-E01-H-REPORT",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Charge E1 CreateExpense + Registration initiale ; E3 après admission",
+      "contribution": "INSUFFICIENT",
+      "remaining": "Pas de charge mixte concurrente producteurs avec transactions lentes/aborts/reprises de connexions.",
+      "originalClosureCondition": "Exécuter une charge de sûreté mixte des producteurs applicables avec transactions lentes, aborts et reprises de connexions, réconcilier toutes les familles. Six interleavings Registration ne constituent pas cette campagne ; aucun benchmark requis."
+    },
+    {
+      "obligation": "L2M-E02-J-REPORT",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "e1-e3-06/receipt.json : PENDING extérieur, SIGKILL exit137/PID0, nouvelle génération ; Command et Registration uniques",
+      "contribution": "CLOSURE_CANDIDATE",
+      "remaining": "Revue humaine de la contribution ; aucun crash pendant calcul revendiqué, aucune promotion automatique.",
+      "originalClosureCondition": "Interrompre effectivement le processus après admission HTTP durable et avant finalisation ; redémarrer puis vérifier unique résultat/effet/publication et aucun abandon. Une connexion interrompue pendant publication couvre une autre frontière."
+    },
+    {
+      "obligation": "L2M-E01-G-INV-COMP",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Collecteur arêtes PostgreSQL disponible ; graphe échantillonné conservé",
+      "contribution": "INSUFFICIENT",
+      "remaining": "Forcer l’attente INVITATION puis COMMAND_COMPLETION, commit/rollback et exclusion arête inverse.",
+      "originalClosureCondition": "Attester en concurrence l’ordre de verrouillage INVITATION puis COMMAND_COMPLETION, les attentes et l’absence de cycle après commit/rollback. Les refus et acceptations HTTP ajoutés ne sont pas cet oracle de graphe."
+    },
+    {
+      "obligation": "L2M-E01-G-ID-IDCOMP",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Registration réelle et compteurs finaux denses",
+      "contribution": "INSUFFICIENT",
+      "remaining": "Pas de contention contrôlée simultanée sur les deux compteurs ni preuve de tous les chemins inverses.",
+      "originalClosureCondition": "Compléter le graphe d’attente des deux compteurs IDENTITY puis IDENTITY_COMPLETION, pas seulement la contention sur le premier compteur ; exclure les arêtes inverses sur tous les chemins concernés."
+    },
+    {
+      "obligation": "L2M-CON-05-CRASH",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "SIGKILL réel après admission sans claim acquis ; échéance lease et reprise observées",
+      "contribution": "PARTIAL",
+      "remaining": "Crash avec claim en cours, sans cession, attemptCount inchangé puis reprise après expiration à démontrer.",
+      "originalClosureCondition": "Démontrer sur le sujet Command/READ le crash sans cession avec attemptCount inchangé et reprise après expiration. La coupure PostgreSQL Identity et les ACK inconnus ne prouvent pas cette frontière processus."
+    },
+    {
+      "obligation": "L2M-CON-05-NOPURGE",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Aucune purge introduite ; inventaire candidats et label de propriété du collecteur",
+      "contribution": "PARTIAL",
+      "remaining": "Refus effectif du DELETE isolé hors succès et inventaire administratif exhaustif non exercés.",
+      "originalClosureCondition": "Compléter le refus effectif de DELETE isolé hors succès avec conservation du slot et l’inventaire des canaux administratifs. Les refus de reset partiel et les anciennes fonctions désactivées restent des contributions bornées."
+    },
+    {
+      "obligation": "L2M-C03-J-CRASH",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "Processus effectivement tué, SQL initial/final et génération distinguées",
+      "contribution": "PARTIAL",
+      "remaining": "Le processus était suspendu avant calcul ; coupure pendant calcul/finalisation Command et READ reste due.",
+      "originalClosureCondition": "Interrompre un processus pendant calcul/finalisation sur Command et READ, observer rollback/slot récupérable puis reprise ; ne pas assimiler une perte d’ACK à ce stimulus."
+    },
+    {
+      "obligation": "L2M-R8-03",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "writer-inventory-final/writer-candidates.csv.gz : SQL/transactions/DDL/compositions",
+      "contribution": "PARTIAL",
+      "remaining": "L’absence de match ne démontre pas l’absence de writer ; revue des canaux et refus physiques nécessaires.",
+      "originalClosureCondition": "Finaliser l’inventaire des writers et opérations administratives qui peuvent faire disparaître un slot derrière K, avec garde et refus effectif ; la contre-preuve injectée n’est pas une preuve universelle de non-purge."
+    },
+    {
+      "obligation": "L2M-R8-05",
+      "officialStatus": "CURRENT_PARTIAL",
+      "evidence": "writer-inventory-final/writer-candidates.csv.gz + conservation des anciens outils désactivés",
+      "contribution": "PARTIAL",
+      "remaining": "Auditer SQL indirect et autorités administratives, définir pouvoirs admis ; pas de prétention d’exhaustivité.",
+      "originalClosureCondition": "Rapprocher tout le corpus actif, y compris SQL construite dynamiquement, outils et autorités administratives, de la correction R8. Définir et auditer les pouvoirs administratifs admis ; une recherche textuelle seule n’est pas exhaustive."
+    }
+  ]
+}

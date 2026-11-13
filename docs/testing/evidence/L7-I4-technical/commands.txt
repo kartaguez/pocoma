@@ -1,0 +1,20 @@
+# Working directory: repository root unless marked app/
+# Every E1 invocation used PYTHONDONTWRITEBYTECODE=1 and -B.
+cd app && ./mvnw --batch-mode --no-transfer-progress -pl runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize -am package -DskipTests
+python3 -B -m unittest discover -s scripts/performance -p 'test_spec09_bench.py' -v
+python3 -B -m unittest discover -s scripts/performance -p 'test_l7_spec09_*.py' -v
+python3 -B -m unittest discover -s scripts/performance -p 'test_five_runtime_smoke.py' -v
+node scripts/performance/test-spec09-test-issuer.mjs
+python3 -B scripts/performance/plan-l7-spec09.py
+node --input-type=module --check < scripts/k6/v3-performance.js
+node --input-type=module --check < scripts/k6/lib/v3-api.js
+python3 -B scripts/performance/run-l7-spec09-e1.py --workspace /private/tmp/pocoma-l74-e1-01 --output docs/testing/evidence/L7-I4-technical/e1-01 --java-image sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5 --postgres-image sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+python3 -B scripts/performance/run-l7-spec09-e1.py --workspace /private/tmp/pocoma-l74-e1-02 --output docs/testing/evidence/L7-I4-technical/e1-02 --java-image sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5 --postgres-image sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+python3 -B scripts/performance/run-l7-spec09-e1.py --workspace /private/tmp/pocoma-l74-e1-03 --output docs/testing/evidence/L7-I4-technical/e1-03 --java-image sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5 --postgres-image sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+python3 -B scripts/performance/run-l7-spec09-e1.py --workspace /private/tmp/pocoma-l74-e1-e3-04 --output docs/testing/evidence/L7-I4-technical/e1-e3-04 --java-image sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5 --postgres-image sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 --crash-after-admission
+python3 -B scripts/performance/run-l7-spec09-e1.py --workspace /private/tmp/pocoma-l74-e1-e3-05 --output docs/testing/evidence/L7-I4-technical/e1-e3-05 --java-image sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5 --postgres-image sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 --crash-after-admission
+python3 -B scripts/performance/run-l7-spec09-e1.py --workspace /private/tmp/pocoma-l74-e1-e3-06 --output docs/testing/evidence/L7-I4-technical/e1-e3-06 --java-image sha256:be342f85ced5a78363529b23c3712b159bda24ef9ffb6a9dc533cde4543af6b5 --postgres-image sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 --crash-after-admission
+python3 -B scripts/testing/inventory-l74-writer-candidates.py --output docs/testing/evidence/L7-I4-technical/writer-inventory-final
+python3 -B scripts/testing/check-l74-evidence.py
+git diff --check
+git diff ef90dd6f5b5a36c0ec6ae9477fa5b810cb515941 -- app

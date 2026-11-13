@@ -1,0 +1,215 @@
+{
+  "status": "NOT_RUN",
+  "reason": "No two dedicated Configuration A hosts; user confirmed no remote target. Local E1/E3 are separate.",
+  "campaigns": [
+    {
+      "id": "F01-A",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-A",
+        "configuration": "A",
+        "potCount": 10,
+        "dataset": "medium",
+        "rate": 1,
+        "warmupSeconds": 180,
+        "sampleSeconds": 1200,
+        "c03P95Ms": 500,
+        "exactBalanceP95Ms": 500,
+        "stimulus": "nominal"
+      }
+    },
+    {
+      "id": "F01-B",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-B",
+        "configuration": "A",
+        "potCount": 100,
+        "dataset": "medium",
+        "rate": 10,
+        "warmupSeconds": 300,
+        "sampleSeconds": 900,
+        "c03P95Ms": 1000,
+        "backlog": "stationary by Consumption",
+        "stimulus": "sustained"
+      }
+    },
+    {
+      "id": "F01-C",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-C",
+        "configuration": "A",
+        "potCount": 250,
+        "dataset": "medium",
+        "rate": 50,
+        "warmupSeconds": 300,
+        "sampleSeconds": 180,
+        "nominalRecoverySeconds": 600,
+        "c03P95Ms": 3000,
+        "stimulus": "peak"
+      }
+    },
+    {
+      "id": "F01-D",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-D",
+        "configuration": "A",
+        "potCount": 10,
+        "dataset": "large",
+        "rate": 1,
+        "warmupSeconds": 180,
+        "sampleSeconds": 1200,
+        "c03P95Ms": 2000,
+        "stimulus": "nominal",
+        "remaining": "calibrate repeatable 200000-participation seed and cost probes"
+      }
+    },
+    {
+      "id": "F01-E",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-E",
+        "configuration": "A",
+        "rate": 1,
+        "warmupSeconds": 180,
+        "sampleSeconds": 1200,
+        "usableBindingP95Ms": 500,
+        "stimulus": "Registration",
+        "remaining": "verify separate network and SQL services and calibrate sampling cost during L7.4",
+        "observer": "scripts/performance/run-l7-spec09-registration.py",
+        "finish": "HTTP 200 /api/v3/me/pots?limit=1 with new bindingToken for the same fresh EUI",
+        "subjectPlanCommand": "python3 -B scripts/performance/run-l7-spec09-registration.py --run-id \"$POCOMA_F01E_RUN_UUID\" --subjects \"$POCOMA_TEST_SUBJECTS\" --report \"$POCOMA_F01E_PLAN\"",
+        "stimulusCommand": "python3 -B scripts/performance/run-l7-spec09-registration.py --execute --isolated-target --run-id \"$POCOMA_F01E_RUN_UUID\" --subjects \"$POCOMA_TEST_SUBJECTS\" --tokens \"$POCOMA_TEST_TOKEN_FILE\" --write-url \"$POCOMA_WRITE_URL\" --read-url \"$POCOMA_READ_URL\" --write-service pocoma-spec09-write --read-service pocoma-spec09-read --report \"$POCOMA_F01E_RECEIPT\"",
+        "maxOfferLagMs": 50,
+        "observationDeadlineSeconds": 8
+      }
+    },
+    {
+      "id": "F01-F",
+      "configuration": "B",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-F",
+        "configuration": "B",
+        "warmupSeconds": 180,
+        "sampleSeconds": 600,
+        "stimulus": "OIDC, Registration, Unlink",
+        "remaining": "import fixture on isolated Keycloak and calibrate OIDC and SQL observers on Configuration B",
+        "rate": 1,
+        "observer": "scripts/performance/run-l7-spec09-keycloak.py",
+        "prepareCommand": "python3 -B scripts/performance/run-l7-spec09-keycloak.py prepare --run-id \"$POCOMA_F01F_RUN_UUID\" --subjects \"$POCOMA_TEST_SUBJECTS\" --realm \"$POCOMA_B_REALM\" --realm-file \"$POCOMA_B_REALM_IMPORT\" --accounts \"$POCOMA_B_ACCOUNTS\" --report \"$POCOMA_F01F_PLAN\"",
+        "executeCommand": "python3 -B scripts/performance/run-l7-spec09-keycloak.py execute --isolated-target --run-id \"$POCOMA_F01F_RUN_UUID\" --issuer \"$POCOMA_B_ISSUER\" --accounts \"$POCOMA_B_ACCOUNTS\" --report \"$POCOMA_F01F_RECEIPT\" --write-url \"$POCOMA_WRITE_URL\" --read-url \"$POCOMA_READ_URL\" --write-service pocoma-spec09-write --read-service pocoma-spec09-read",
+        "matchedRegistrationTokenCommand": "python3 -B scripts/performance/run-l7-spec09-keycloak.py issue-tokens --isolated-target --run-id \"$POCOMA_F01F_RUN_UUID\" --issuer \"$POCOMA_B_ISSUER\" --accounts \"$POCOMA_B_ACCOUNTS\" --report \"$POCOMA_F01F_ISSUE_RECEIPT\" --tokens \"$POCOMA_TEST_TOKEN_FILE\""
+      }
+    },
+    {
+      "id": "F01-G",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-G",
+        "configuration": "A",
+        "dataset": "medium",
+        "backlog": 10000,
+        "recoveryRate": 1,
+        "convergenceSeconds": 300,
+        "observer": "scripts/performance/observe-l7-spec09-backlog.py",
+        "remaining": "materialize 10000 medium Pots, calibrate stock admission and observer cost on the isolated deployment, then execute during L7.4",
+        "producer": "scripts/performance/stock-l7-spec09-backlog.py",
+        "stockPlanCommand": "python3 -B scripts/performance/stock-l7-spec09-backlog.py --fixtures \"$POCOMA_F01G_FIXTURES\" --report \"$POCOMA_F01G_PLAN\" --concurrency 8",
+        "stockAdmissionCommand": "python3 -B scripts/performance/stock-l7-spec09-backlog.py --fixtures \"$POCOMA_F01G_FIXTURES\" --report \"$POCOMA_F01G_STOCK\" --concurrency 8 --execute-stock --isolated-and-workers-stopped --write-url \"$POCOMA_WRITE_URL\" --run-id \"$POCOMA_F01G_RUN_UUID\" --requests \"$POCOMA_INITIAL_REQUESTS\""
+      }
+    },
+    {
+      "id": "F01-H",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-H",
+        "configuration": "A",
+        "potCount": 1,
+        "dataset": "medium",
+        "warmupSeconds": 180,
+        "sampleSeconds": 600,
+        "stimulus": "contention"
+      }
+    },
+    {
+      "id": "F01-I",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-I",
+        "configuration": "A",
+        "stimulus": "globalLevels and historyDepth",
+        "remaining": "prepare and validate snapshots for all normative global volumes"
+      }
+    },
+    {
+      "id": "F01-J",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "F01-J",
+        "configuration": "A",
+        "potCount": 1,
+        "dataset": "medium",
+        "idleSeconds": 600,
+        "stimulus": "idle"
+      }
+    },
+    {
+      "id": "A11-L/M",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "A11-L/M",
+        "configuration": "A",
+        "stimulus": "paired DeletePot with F01-A/B/C/D",
+        "remaining": "timestamp the internal deleted=true landmark and reconcile all active pre-delete versions"
+      }
+    },
+    {
+      "id": "ENDURANCE",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "ENDURANCE",
+        "configuration": "A",
+        "potCount": 100,
+        "dataset": "medium",
+        "rate": 10,
+        "sampleSeconds": 3600,
+        "stimulus": "sustained"
+      }
+    },
+    {
+      "id": "SATURATION",
+      "configuration": "A",
+      "status": "NOT_RUN",
+      "contract": {
+        "id": "SATURATION",
+        "configuration": "A",
+        "potCount": 250,
+        "dataset": "medium",
+        "rates": [
+          1,
+          5,
+          10,
+          20,
+          35,
+          50
+        ],
+        "sampleSecondsPerRate": 900,
+        "stimulus": "ramp"
+      }
+    }
+  ]
+}

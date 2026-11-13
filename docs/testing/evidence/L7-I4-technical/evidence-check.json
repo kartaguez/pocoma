@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "scope": "artifact integrity and bounded E1/E3 attribution only",
+  "artifacts": 405,
+  "originalReceipts": 6,
+  "finalTestedSha": "230feb059c6086652ff54bb08d7584107c9f9b75",
+  "finalInputsCompared": 135,
+  "contractual": "NOT_RUN",
+  "automaticPromotions": 0
+}

@@ -1,6 +1,6 @@
 # L7.4 — Protocole d'exécution de SPEC-09
 
-**Verdict de préparation `L7_I4_PREPARATION_BLOCKED`.** Le manifeste des profils est versionné et son rendu a été vérifié statiquement. Les campagnes de certification n'ont pas été exécutées.
+**Mise à jour du 13 novembre 2026 : `L7_I4_TECHNICAL_EXECUTION_AUTHORIZED`.** Le mandat `GO_L7_I4_TECHNICAL_EXECUTION_WITH_I3_CERTIFICATION_DEFERRED` autorise l'exécution technique avant certification L7.3. E1 et un crash/reprise E3 sont exécutés ; les campagnes contractuelles restent NOT_RUN, faute de topologie A/B. [Bilan et décisions](L7_I4_SPEC09_Technical_Qualification_Report.md), [banc](L7_I4_Bench_Architecture_and_Instrumentation.md), [matrice contractuelle](L7_I4_SPEC09_Contract_Matrix.csv). Le verdict historique de préparation bloquée et les préparations décrites ci-dessous ne valent pas interdiction du nouveau mandat ; leurs limites de certification restent applicables.
 
 ## 1. Comparaison historique et qualification directe
 
@@ -28,11 +28,11 @@ python3 -B scripts/performance/v3-seed.py --profile medium --pots 10 \
   --output "$POCOMA_SEED_RECEIPT" --fixture-output "$PRE_SEEDED_POTS_FILE"
 ```
 
-Sur une pile de comparaison expressément réservée, après vérification des entrées du harnais historique, les commandes suivantes correspondent au générateur H et à la mesure comparative. Utiliser un répertoire de preuve neuf pour chaque côté et répétition. La variable `POSTGRES_CONTAINER` doit désigner le conteneur jetable de la campagne.
+Les anciens exemples de comparaison utilisant `v3_populated_db_generator.py` sont retirés de la procédure exécutable : ce générateur refuse désormais l'exécution depuis L73-ADMIN-01. Les populations et résultats historiques restent consultables ; leur comparaison exige un préparateur admissible neuf. La comparaison historique n'a pas été exécutée pendant L7.4.
 
 ```sh
-python3 -B scripts/performance/v3_populated_db_generator.py --profile H1 --output "$POCOMA_POPULATION_RECEIPT"
-python3 -B scripts/performance/v3_ab_sequential_discovery.py --profiles H1 --rates 1,10 --sample-resources --output "$POCOMA_COMPARISON_RECEIPT"
+# Références historiques seulement, ne pas lancer ces anciens exemples.
+# Voir L7_I3_Completion_Anomalies_and_Gaps_Register.md, L73-ADMIN-01.
 ```
 
 Le `v3-run.py` historique embarque des hypothèses Monolith, un budget propre à L6 et des destinations de collecte historiques. Les commandes rendues du banc courant préparent l'injection k6 sur deux URL. Leur rendu et leur syntaxe ont été contrôlés. Le rendu fournit la commande de préparation pour chaque profil indépendant. Le générateur déterministe enregistre un reçu de population, vérifie chaque résultat terminal, compare les identifiants et la version en HTTP READ puis vérifie l'état en SQL. Il écrit un manifeste compact consommé par k6 via `PRE_SEEDED_POTS_FILE`. Le stimulus réserve un Pot par VU et impose 10, 100 et 250 Pots à 1, 10 et 50/s. Toute itération abandonnée ou famine de l'injecteur invalide la preuve de l'offre. Le Grand Pot hors ligne contient 100 Shareholders, 2 000 Expenses et jusqu'à 200 000 participations. La matérialisation du Grand Pot et le coût du collecteur restent à calibrer. Identity, le rattrapage, les grandes volumétries et DeletePot exigent les préparations indiquées au manifeste. [Rendu final](../testing/evidence/L7-I2-I3/spec09-static-plan-05.json), [inspection k6](../testing/evidence/L7-I2-I3/spec09-k6-inspect.json).

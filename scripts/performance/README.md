@@ -2,6 +2,23 @@
 
 # Pocoma V3 — Performance Bench & Bounded Local Qualification Tooling
 
+## Current L7.4 entry point
+
+Use `run-l7-spec09-e1.py` for a new disposable five-runtime bench, read-only
+PostgreSQL/Micrometer collection and an optional real process crash after durable
+HTTP admission. It requires freshly packaged current JARs and pinned local image
+IDs. It creates and removes only its own labelled project; private tokens stay
+outside Git. E1/E3 do not certify SPEC-09. Configuration A/B hosts are unavailable;
+the thirteen contractual/planned campaign families remain NOT_RUN.
+
+[Commands, architecture and limitations](../../docs/v3/L7_I4_Bench_Architecture_and_Instrumentation.md),
+[qualification and decisions](../../docs/v3/L7_I4_SPEC09_Technical_Qualification_Report.md),
+[contract matrix](../../docs/v3/L7_I4_SPEC09_Contract_Matrix.csv).
+The L6 commands and topology assumptions below are historical descriptions, not
+the current L7.4 admission gate. Do not execute the disabled R9/R10/R11 population
+drivers. A rendered k6 command alone does not include all warmup, recovery,
+snapshot restoration and independent safety obligations.
+
 ## 1. Overview and Architecture
 
 This directory provides the canonical, composable, and non-intrusive performance benchmarking tooling for **Pocoma V3** (`kartaguez/pocoma`).

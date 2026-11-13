@@ -1,5 +1,6 @@
 # Documentation Pocoma
 
+- L7.4 — [qualification technique SPEC-09](v3/L7_I4_SPEC09_Technical_Qualification_Report.md), [contrat](v3/L7_I4_SPEC09_Contract_Matrix.csv), [banc/instrumentation](v3/L7_I4_Bench_Architecture_and_Instrumentation.md), [contribution aux15 obligations L7.3](v3/L7_I4_Contribution_to_L7_I3_Report.md), [réserves](v3/L7_I4_Anomalies_and_Reservations_Register.md), [preuves](testing/evidence/L7-I4-technical/README.md). E1 et E3 locaux PASS ; campagnes A/B NOT_RUN, une candidate E02-J sans certification automatique. L7.3 NOT_CERTIFIED, L7.5 BLOCKED, L7 OPEN.
 - [Audit de couverture et plan de certification L7.1](v3/L7_I1_Certification_Coverage_and_Execution_Plan.md) · [matrice des exigences et preuves](v3/L7_I1_Certification_Coverage_Matrix.csv) · [registre des réserves](v3/L7_I1_Residual_Reservations_Register.md).
 - [L7.2 Fonctionnel, sécurité et Bruno](v3/L7_I2_Functional_Security_and_Bruno_Certification_Report.md) · [L7.3 Sûreté opérationnelle et READ](v3/L7_I3_Operational_Safety_and_READ_Certification_Report.md) · [L7.4 Préparation SPEC-09](v3/L7_I4_SPEC09_Performance_Certification_Execution_Plan.md).
 

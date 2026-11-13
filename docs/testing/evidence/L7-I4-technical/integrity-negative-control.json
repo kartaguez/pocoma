@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "negativeControl": "one archived byte flipped; altered evidence rejected",
+  "changedArtifact": "e1-01/runtime.log.gz",
+  "observedError": "stored bytes changed: e1-01/runtime.log.gz",
+  "originalEvidenceUnchanged": true
+}
