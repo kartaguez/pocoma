@@ -1,0 +1,17 @@
+{
+  "mode": "CURRENT V3 empty owned fixture, existing SQL catalogue",
+  "fingerprint": "5283b798f03e7daaa01d556580548a096d4d4d5ddf802d3fe8fa3cbf6da97ef3",
+  "databasesBefore": "pocoma",
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS"
+  },
+  "reset": false,
+  "slotOrLeaseMutation": false,
+  "observedAt": 1794611898.053796
+}

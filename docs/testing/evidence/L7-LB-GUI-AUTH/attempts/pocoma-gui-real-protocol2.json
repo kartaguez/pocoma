@@ -1,0 +1,92 @@
+{
+  "verdict": "FAIL",
+  "checks": [
+    {
+      "name": "Cold collection config does not require sessions before native OAuth",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Cold PG01 gives actionable owner login error",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Guest login required after owner",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject expired",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject wrongIssuer",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject wrongAudience",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject wrongClient",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject missingSubject",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject missingOpenid",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Reject futureIssued",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Malformed token hidden in error",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Same subject across distinct tokens rejected",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native cache read without copying sessions to variables",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Legacy manual JWT variables not used",
+      "verdict": "PASS"
+    },
+    {
+      "name": "CLI uses its own private sessions, no native-cache dependence",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Partial CLI never mixes session sources",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Remote URL refused before request",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser owner",
+      "verdict": "PASS"
+    },
+    {
+      "name": "Native 4.2.1 parser guest",
+      "verdict": "PASS"
+    },
+    {
+      "name": "PG01 4.2.1 parser and pre-request use native sessions",
+      "verdict": "PASS"
+    }
+  ],
+  "errorClass": "Error",
+  "frames": [
+    "    at call (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/lib/journey.js:16:25)",
+    "    at async binding (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/lib/journey.js:39:21)",
+    "    at async exports.run (/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/lib/journey.js:45:13)",
+    "    at async main (/Users/julien.guezennec/Dev/projects/pocoma/scripts/local/test_bruno_gui.js:51:3)"
+  ]
+}

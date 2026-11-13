@@ -1,0 +1,14 @@
+{
+  "testedSha": "e54cadd40b6595f017927a1ae4cccd48511af1fe",
+  "testedDirty": false,
+  "testedInputs": "87bb54dd3a0e9fb122a0655c5ff4aa79cf4afe0317b8f69cac431504e420c8b6",
+  "publicationInputs": "87bb54dd3a0e9fb122a0655c5ff4aa79cf4afe0317b8f69cac431504e420c8b6",
+  "identical": true,
+  "modifiedSinceTechnicalSha": [
+    "docs/v3/L7_Local_Playground_GUI_Auth_Fix_Report.md",
+    "docs/v3/L7_Local_Playground_Implementation_Report.md",
+    "docs/v3/L7_Local_Playground_Qualification_Report.md",
+    "docs/v3/L7_Local_Playground_Reservations.md"
+  ],
+  "statement": "Only documentation/evidence after frozen technical proof; no app, realm, Bruno script, local runtime or test oracle changed."
+}

@@ -65,3 +65,13 @@ Les commits d'implémentation sont8012fb93,81a73e78,69f327f6 ; le commit de
 publication descendant contient ces rapports et preuves, sans changement des
 entrées runtime. La branche distante est contrôlée avant push, publication
 sans force. Le SHA final et l'égalité distant/local sont vérifiés à la livraison.
+
+## Correctif du14 novembre
+
+Le [rapport GUI OAuth](L7_Local_Playground_GUI_Auth_Fix_Report.md) remplace la
+procédure de copie manuelle de JWT par deux connexions natives Bruno et
+getOauth2CredentialVar. Preuves distinctes e54cadd4 :17 tests,23 contrôles
+installés4.2.1 dont PG01 réel, CLI1/1. Slice LOCAL DISTRIBUTION, aucun app/,
+franchissement NONE, gates globales/full non requis et non exécutés. Incident
+d’environnement décrit séparément ; validation humaine GUI et statut PARTIAL
+maintenus. Le rapport initial ci-dessus garde son attribution historique.

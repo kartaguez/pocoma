@@ -1,5 +1,7 @@
 # L7-LB / Jalon 1 — qualification du playground local
 
+Mise à jour du14 novembre : le [correctif OAuth natif GUI](L7_Local_Playground_GUI_Auth_Fix_Report.md) possède ses propres preuves au SHA e54cadd4. Le rapport ci-dessous décrit la **publication initiale f1ccd0dc du13 novembre** ; ses comparaisons d’entrées ne sont pas une certification des changements GUI ultérieurs. LOCAL_PLAYGROUND_PARTIAL reste inchangé.
+
 13 novembre 2026, Europe/Paris. Verdict proposé : **LOCAL_PLAYGROUND_PARTIAL**.
 Le runtime local, les deux installations et les parcours publics CLI sont
 qualifiés dans le périmètre ci-dessous. Le **parcours rendu dans Bruno GUI

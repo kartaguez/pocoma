@@ -1,0 +1,5 @@
+{
+  "initial": "Bruno GUI4.2.1: PG01 selected, Local environment; error Playground environment missing: bearerOwner reproduced in accessibility tree.",
+  "later": "Accessibility read timed out; screenshot failed with macOS AppleEvent -1712 / errAETimeout. No forced app closure, native login or human acceptance claimed.",
+  "conclusion": "NOT_RUN for rendered corrected flow; human validation still due"
+}

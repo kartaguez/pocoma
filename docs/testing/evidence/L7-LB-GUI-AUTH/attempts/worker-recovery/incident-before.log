@@ -1,0 +1,261 @@
+command-worker-1  | 
+command-worker-1  |   .   ____          _            __ _ _
+command-worker-1  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+command-worker-1  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+command-worker-1  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+command-worker-1  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+command-worker-1  |  =========|_|==============|___/=/_/_/_/
+command-worker-1  | 
+command-worker-1  |  :: Spring Boot ::                (v4.0.5)
+command-worker-1  | 
+command-worker-1  | 2026-11-13T22:25:52.812Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] c.k.p.PocomaProcessWorkerApplication     : Starting PocomaProcessWorkerApplication v0.0.1-SNAPSHOT using Java 21.0.8 with PID 1 (/app/runtime.jar started by root in /)
+command-worker-1  | 2026-11-13T22:25:52.816Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] c.k.p.PocomaProcessWorkerApplication     : The following 1 profile is active: "v3-consumption-worker-dev"
+command-worker-1  | 2026-11-13T22:25:54.720Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 0 (http)
+command-worker-1  | 2026-11-13T22:25:54.779Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+command-worker-1  | 2026-11-13T22:25:54.780Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+command-worker-1  | 2026-11-13T22:25:54.826Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1927 ms
+command-worker-1  | 2026-11-13T22:25:55.291Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] com.zaxxer.hikari.HikariDataSource       : command-worker-write-business - Starting...
+command-worker-1  | 2026-11-13T22:25:55.592Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] com.zaxxer.hikari.pool.HikariPool        : command-worker-write-business - Added connection org.postgresql.jdbc.PgConnection@554566a8
+command-worker-1  | 2026-11-13T22:25:55.594Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] com.zaxxer.hikari.HikariDataSource       : command-worker-write-business - Start completed.
+command-worker-1  | 2026-11-13T22:25:55.808Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] com.zaxxer.hikari.HikariDataSource       : command-worker-write-control - Starting...
+postgres-1        | 
+postgres-1        | Data page checksums are disabled.
+postgres-1        | 
+postgres-1        | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+postgres-1        | creating subdirectories ... ok
+postgres-1        | selecting dynamic shared memory implementation ... posix
+postgres-1        | selecting default "max_connections" ... 100
+postgres-1        | selecting default "shared_buffers" ... 128MB
+postgres-1        | selecting default time zone ... UTC
+postgres-1        | creating configuration files ... ok
+postgres-1        | running bootstrap script ... ok
+postgres-1        | sh: locale: not found
+postgres-1        | 2026-11-13 22:25:25.274 UTC [40] WARNING:  no usable system locales were found
+postgres-1        | performing post-bootstrap initialization ... ok
+postgres-1        | initdb: warning: enabling "trust" authentication for local connections
+postgres-1        | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+postgres-1        | syncing data to disk ... ok
+postgres-1        | 
+postgres-1        | 
+postgres-1        | Success. You can now start the database server using:
+postgres-1        | 
+postgres-1        |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+postgres-1        | 
+postgres-1        | waiting for server to start....2026-11-13 22:25:25.533 UTC [46] LOG:  starting PostgreSQL 17.6 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1        | 2026-11-13 22:25:25.535 UTC [46] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1        | 2026-11-13 22:25:25.536 UTC [49] LOG:  database system was shut down at 2026-11-13 22:25:25 UTC
+postgres-1        | 2026-11-13 22:25:25.539 UTC [46] LOG:  database system is ready to accept connections
+postgres-1        |  done
+postgres-1        | server started
+postgres-1        | CREATE DATABASE
+postgres-1        | 
+postgres-1        | 
+postgres-1        | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/01-keycloak.sql
+postgres-1        | CREATE ROLE
+postgres-1        | CREATE SCHEMA
+postgres-1        | 
+postgres-1        | 
+postgres-1        | waiting for server to shut down....2026-11-13 22:25:25.668 UTC [46] LOG:  received fast shutdown request
+postgres-1        | 2026-11-13 22:25:25.669 UTC [46] LOG:  aborting any active transactions
+postgres-1        | 2026-11-13 22:25:25.670 UTC [46] LOG:  background worker "logical replication launcher" (PID 52) exited with exit code 1
+postgres-1        | 2026-11-13 22:25:25.670 UTC [47] LOG:  shutting down
+postgres-1        | 2026-11-13 22:25:25.670 UTC [47] LOG:  checkpoint starting: shutdown immediate
+postgres-1        | 2026-11-13 22:25:25.693 UTC [47] LOG:  checkpoint complete: wrote 934 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.012 s, sync=0.010 s, total=0.024 s; sync files=308, longest=0.004 s, average=0.001 s; distance=4259 kB, estimate=4259 kB; lsn=0/1916198, redo lsn=0/1916198
+postgres-1        | 2026-11-13 22:25:25.697 UTC [46] LOG:  database system is shut down
+postgres-1        |  done
+postgres-1        | server stopped
+postgres-1        | 
+postgres-1        | PostgreSQL init process complete; ready for start up.
+postgres-1        | 
+postgres-1        | 2026-11-13 22:25:25.780 UTC [1] LOG:  starting PostgreSQL 17.6 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1        | 2026-11-13 22:25:25.780 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1        | 2026-11-13 22:25:25.780 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1        | 2026-11-13 22:25:25.781 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1        | 2026-11-13 22:25:25.782 UTC [70] LOG:  database system was shut down at 2026-11-13 22:25:25 UTC
+postgres-1        | 2026-11-13 22:25:25.784 UTC [1] LOG:  database system is ready to accept connections
+postgres-1        | 2026-11-13 22:25:26.596 UTC [1] LOG:  received SIGHUP, reloading configuration files
+postgres-1        | 2026-11-13 22:25:26.597 UTC [1] xid=0 state=00000 LOG:  parameter "log_line_prefix" changed to "%m [%p] xid=%x state=%e "
+postgres-1        | 2026-11-13 22:25:43.509 UTC [278] xid=0 state=42883 ERROR:  function aurora_version() does not exist at character 8
+postgres-1        | 2026-11-13 22:25:43.509 UTC [278] xid=0 state=42883 HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+postgres-1        | 2026-11-13 22:25:43.517 UTC [278] xid=0 state=42P01 ERROR:  relation "keycloak.migration_model" does not exist at character 25
+postgres-1        | 2026-11-13 22:25:44.010 UTC [286] xid=0 state=42P01 ERROR:  relation "keycloak.databasechangeloglock" does not exist at character 22
+postgres-1        | 2026-11-13 22:25:52.060 UTC [344] xid=0 state=42501 ERROR:  permission denied for table v3_command
+postgres-1        | 2026-11-13 22:25:52.314 UTC [358] xid=0 state=42501 ERROR:  permission denied for table v3_link_proposal
+postgres-1        | 2026-11-13 22:25:52.548 UTC [372] xid=0 state=42501 ERROR:  permission denied for table read_current_pot
+postgres-1        | 2026-11-13 22:25:52.783 UTC [386] xid=0 state=42501 ERROR:  permission denied for schema v3_read at character 15
+postgres-1        | 2026-11-13 22:30:25.611 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 22:34:07.069 UTC [1] xid=0 state=00000 LOG:  received SIGHUP, reloading configuration files
+postgres-1        | 2026-11-13 22:34:09.688 UTC [2418] xid=0 state=42501 ERROR:  permission denied for table v3_command
+postgres-1        | 2026-11-13 22:34:09.823 UTC [2432] xid=0 state=42501 ERROR:  permission denied for table v3_link_proposal
+postgres-1        | 2026-11-13 22:34:09.945 UTC [2446] xid=0 state=42501 ERROR:  permission denied for table read_current_pot
+postgres-1        | 2026-11-13 22:34:10.069 UTC [2460] xid=0 state=42501 ERROR:  permission denied for schema v3_read at character 15
+postgres-1        | 2026-11-13 22:34:55.103 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 3060 buffers (18.7%); 0 WAL file(s) added, 0 removed, 3 recycled; write=269.450 s, sync=0.038 s, total=269.493 s; sync files=1578, longest=0.001 s, average=0.001 s; distance=40540 kB, estimate=40540 kB; lsn=0/58E0408, redo lsn=0/40AD3D8
+postgres-1        | 2026-11-13 22:35:25.134 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 22:35:30.273 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 76 buffers (0.5%); 0 WAL file(s) added, 0 removed, 1 recycled; write=5.134 s, sync=0.003 s, total=5.139 s; sync files=26, longest=0.001 s, average=0.001 s; distance=27559 kB, estimate=39242 kB; lsn=0/5C0FD20, redo lsn=0/5B97198
+postgres-1        | 2026-11-13 22:40:25.379 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+command-worker-1  | 2026-11-13T22:25:55.821Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] com.zaxxer.hikari.pool.HikariPool        : command-worker-write-control - Added connection org.postgresql.jdbc.PgConnection@7e0f9528
+command-worker-1  | 2026-11-13T22:25:55.821Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] com.zaxxer.hikari.HikariDataSource       : command-worker-write-control - Start completed.
+command-worker-1  | 2026-11-13T22:25:56.233Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: v3-process-write-business]
+command-worker-1  | 2026-11-13T22:25:56.328Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.7.Final
+command-worker-1  | 2026-11-13T22:25:56.918Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+command-worker-1  | 2026-11-13T22:25:56.941Z  WARN 1 --- [pocoma-runtime-worker-process] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+command-worker-1  | 2026-11-13T22:25:56.948Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+command-worker-1  | 	Database JDBC URL [undefined/unknown]
+command-worker-1  | 	Database driver: undefined/unknown
+command-worker-1  | 	Database dialect: PostgreSQLDialect
+command-worker-1  | 	Database version: 13.0
+command-worker-1  | 	Default catalog/schema: unknown/unknown
+command-worker-1  | 	Autocommit mode: undefined/unknown
+command-worker-1  | 	Isolation level: <unknown>
+command-worker-1  | 	JDBC fetch size: undefined/unknown
+command-worker-1  | 	Pool: undefined/unknown
+command-worker-1  | 	Minimum pool size: undefined/unknown
+command-worker-1  | 	Maximum pool size: undefined/unknown
+command-worker-1  | 2026-11-13T22:25:57.424Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+command-worker-1  | 2026-11-13T22:25:57.433Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'v3-process-write-business'
+command-worker-1  | 2026-11-13T22:25:58.996Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 42363 (http) with context path '/'
+command-worker-1  | 2026-11-13T22:25:59.089Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 18083 (http)
+command-worker-1  | 2026-11-13T22:25:59.090Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+command-worker-1  | 2026-11-13T22:25:59.090Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.20]
+command-worker-1  | 2026-11-13T22:25:59.091Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 93 ms
+command-worker-1  | 2026-11-13T22:25:59.099Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+command-worker-1  | 2026-11-13T22:25:59.115Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 18083 (http) with context path '/'
+command-worker-1  | 2026-11-13T22:25:59.185Z  INFO 1 --- [pocoma-runtime-worker-process] [           main] c.k.p.PocomaProcessWorkerApplication     : Started PocomaProcessWorkerApplication in 6.945 seconds (process running for 7.87)
+command-worker-1  | 2026-11-13T22:25:59.388Z  INFO 1 --- [pocoma-runtime-worker-process] [.0-18083-exec-1] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServletRegistration'
+command-worker-1  | 2026-11-13T22:25:59.388Z  INFO 1 --- [pocoma-runtime-worker-process] [.0-18083-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServletRegistration'
+command-worker-1  | 2026-11-13T22:25:59.389Z  INFO 1 --- [pocoma-runtime-worker-process] [.0-18083-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+command-worker-1  | 2026-11-13T22:58:45.412Z  WARN 1 --- [pocoma-runtime-worker-process] [ v3-discovery-0] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-control - Failed to validate connection org.postgresql.jdbc.PgConnection@2df0a0ed (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+command-worker-1  | 2026-11-13T22:58:45.489Z  WARN 1 --- [pocoma-runtime-worker-process] [3-consumption-0] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-control - Failed to validate connection org.postgresql.jdbc.PgConnection@55415c13 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+command-worker-1  | 2026-11-13T22:58:45.489Z  WARN 1 --- [pocoma-runtime-worker-process] [renew-WRITE-2-0] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-control - Failed to validate connection org.postgresql.jdbc.PgConnection@d8ff1e8 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+command-worker-1  | 2026-11-13T22:58:56.304Z  WARN 1 --- [pocoma-runtime-worker-process] [rol:housekeeper] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-control - Failed to validate connection org.postgresql.jdbc.PgConnection@1c2655c2 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+command-worker-1  | 2026-11-13T23:00:03.534Z  WARN 1 --- [pocoma-runtime-worker-process] [rol:housekeeper] com.zaxxer.hikari.pool.HikariPool        : command-worker-write-control - Thread starvation or clock leap detected (housekeeper delta=1m11s903ms665µs658ns).
+command-worker-1  | 2026-11-13T23:00:03.714Z  WARN 1 --- [pocoma-runtime-worker-process] [ess:housekeeper] com.zaxxer.hikari.pool.HikariPool        : command-worker-write-business - Thread starvation or clock leap detected (housekeeper delta=1m42s566ms984µs798ns).
+command-worker-1  | 2026-11-13T23:00:05.709Z  WARN 1 --- [pocoma-runtime-worker-process] [ess:housekeeper] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-business - Failed to validate connection org.postgresql.jdbc.PgConnection@5b606b65 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+command-worker-1  | 2026-11-13T23:00:05.818Z  WARN 1 --- [pocoma-runtime-worker-process] [3-consumption-0] c.k.p.s.p.c.v3.V3ConsumptionWorker       : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException
+command-worker-1  | 2026-11-13T23:00:05.821Z  WARN 1 --- [pocoma-runtime-worker-process] [ v3-discovery-0] c.k.p.s.p.c.v3.V3ConsumptionWorker       : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException
+command-worker-1  | 2026-11-13T23:00:06.773Z  WARN 1 --- [pocoma-runtime-worker-process] [ess:housekeeper] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-business - Failed to validate connection org.postgresql.jdbc.PgConnection@aefd9d0 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:461) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.lambda$read$0(SpringAttemptTransactions.java:222) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.lambda$run$2(SpringAttemptTransactions.java:278) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:137) ~[spring-tx-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.run(SpringAttemptTransactions.java:252) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.read(SpringAttemptTransactions.java:217) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.read(AttemptTransactions.java:21) ~[pocoma-port-transaction-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine.discoverEvents(DiscoveryEngine.java:186) ~[pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.orchestrator.consumption.v3.NonBurnableConsumptionProtocol.discover(NonBurnableConsumptionProtocol.java:12) ~[pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.supra.polling.consumption.v3.V3DiscoveryLoop.runOnePass(V3DiscoveryLoop.java:56) ~[pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker.loop(V3ConsumptionWorker.java:686) ~[pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker.lambda$start$4(V3ConsumptionWorker.java:306) ~[pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+results-worker-1  | Caused by: org.postgresql.util.PSQLException: An I/O error occurred while sending to the backend.
+results-worker-1  | 	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:456) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:526) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:436) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:358) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:343) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:319) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:314) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar!/:na]
+results-worker-1  | 	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar!/:na]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate$1ExecuteStatementCallback.doInStatement(JdbcTemplate.java:452) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:412) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	... 13 common frames omitted
+results-worker-1  | Caused by: java.net.SocketTimeoutException: Read timed out
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl.timedRead(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl.implRead(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl.read(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl$1.read(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/java.net.Socket$SocketInputStream.read(Unknown Source) ~[na:na]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.readMore(VisibleBufferedInputStream.java:192) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:159) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:144) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.read(VisibleBufferedInputStream.java:76) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.PGStream.receiveChar(PGStream.java:477) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2314) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	... 23 common frames omitted
+results-worker-1  | 
+results-worker-1  | 2026-11-13T23:00:05.112Z ERROR 1 --- [pocoma-runtime-worker-materialize] [3-consumption-0] o.s.t.support.TransactionTemplate        : Application exception overridden by rollback exception
+results-worker-1  | 
+results-worker-1  | org.springframework.dao.DataAccessResourceFailureException: StatementCallback; SQL [set transaction read only]; An I/O error occurred while sending to the backend.
+results-worker-1  | 	at org.springframework.jdbc.support.SQLStateSQLExceptionTranslator.doTranslate(SQLStateSQLExceptionTranslator.java:152) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1549) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:427) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:461) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.lambda$read$0(SpringAttemptTransactions.java:222) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.lambda$run$2(SpringAttemptTransactions.java:278) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:137) ~[spring-tx-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.run(SpringAttemptTransactions.java:252) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.read(SpringAttemptTransactions.java:217) ~[pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.read(AttemptTransactions.java:21) ~[pocoma-port-transaction-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.lambda$navigate$5(ConsumptionEngine.java:249) ~[pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.measured(ConsumptionEngine.java:264) ~[pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine.navigate(ConsumptionEngine.java:246) ~[pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.orchestrator.consumption.v3.AbstractConsumptionProtocol.navigate(AbstractConsumptionProtocol.java:78) ~[pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionLoop.runOnePass(V3ConsumptionLoop.java:104) ~[pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker.loop(V3ConsumptionWorker.java:686) ~[pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker.lambda$start$5(V3ConsumptionWorker.java:309) ~[pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar!/:0.0.1-SNAPSHOT]
+results-worker-1  | 	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+results-worker-1  | Caused by: org.postgresql.util.PSQLException: An I/O error occurred while sending to the backend.
+results-worker-1  | 	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:456) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:526) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:436) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:358) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeCachedSql(PgStatement.java:343) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.executeWithFlags(PgStatement.java:319) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:314) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-7.0.2.jar!/:na]
+results-worker-1  | 	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-7.0.2.jar!/:na]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate$1ExecuteStatementCallback.doInStatement(JdbcTemplate.java:452) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:412) ~[spring-jdbc-7.0.6.jar!/:7.0.6]
+results-worker-1  | 	... 15 common frames omitted
+results-worker-1  | Caused by: java.net.SocketTimeoutException: Read timed out
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl.timedRead(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl.implRead(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl.read(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/sun.nio.ch.NioSocketImpl$1.read(Unknown Source) ~[na:na]
+results-worker-1  | 	at java.base/java.net.Socket$SocketInputStream.read(Unknown Source) ~[na:na]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.readMore(VisibleBufferedInputStream.java:192) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:159) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:144) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.VisibleBufferedInputStream.read(VisibleBufferedInputStream.java:76) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.PGStream.receiveChar(PGStream.java:477) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2314) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar!/:42.7.10]
+results-worker-1  | 	... 25 common frames omitted
+results-worker-1  | 
+results-worker-1  | 2026-11-13T23:00:05.118Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ v3-discovery-0] c.k.p.s.p.c.v3.V3ConsumptionWorker       : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions$Failure, causeType=org.springframework.dao.DataAccessResourceFailureException
+results-worker-1  | 2026-11-13T23:00:05.118Z  WARN 1 --- [pocoma-runtime-worker-materialize] [3-consumption-0] c.k.p.s.p.c.v3.V3ConsumptionWorker       : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions$Failure, causeType=org.springframework.dao.DataAccessResourceFailureException
+results-worker-1  | 2026-11-13T23:00:05.596Z  WARN 1 --- [pocoma-runtime-worker-materialize] [rol:housekeeper] com.zaxxer.hikari.pool.PoolBase          : results-worker-read-control - Failed to validate connection org.postgresql.jdbc.PgConnection@7b77a292 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+results-worker-1  | 2026-11-13T23:00:05.613Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ead:housekeeper] com.zaxxer.hikari.pool.PoolBase          : results-worker-write-source-read - Failed to validate connection org.postgresql.jdbc.PgConnection@625da5fd (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+results-worker-1  | 2026-11-13T23:00:05.665Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ess:housekeeper] com.zaxxer.hikari.pool.PoolBase          : results-worker-read-business - Failed to validate connection org.postgresql.jdbc.PgConnection@edd59d6 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+results-worker-1  | 2026-11-13T23:00:06.533Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ead:housekeeper] com.zaxxer.hikari.pool.PoolBase          : results-worker-write-source-read - Failed to validate connection org.postgresql.jdbc.PgConnection@28a51c62 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+results-worker-1  | 2026-11-13T23:00:06.575Z  WARN 1 --- [pocoma-runtime-worker-materialize] [rol:housekeeper] com.zaxxer.hikari.pool.PoolBase          : results-worker-read-control - Failed to validate connection org.postgresql.jdbc.PgConnection@c27ff0 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+results-worker-1  | 2026-11-13T23:00:38.889Z  WARN 1 --- [pocoma-runtime-worker-materialize] [rol:housekeeper] com.zaxxer.hikari.pool.HikariPool        : results-worker-read-control - Thread starvation or clock leap detected (housekeeper delta=46s433ms29µs688ns).
+postgres-1        | 2026-11-13 22:40:26.803 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 56 buffers (0.3%); 0 WAL file(s) added, 0 removed, 2 recycled; write=1.416 s, sync=0.004 s, total=1.425 s; sync files=11, longest=0.002 s, average=0.001 s; distance=27788 kB, estimate=38097 kB; lsn=0/76DC798, redo lsn=0/76BA1F8
+postgres-1        | 2026-11-13 22:45:25.882 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 22:45:46.154 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 242 buffers (1.5%); 0 WAL file(s) added, 0 removed, 2 recycled; write=20.257 s, sync=0.011 s, total=20.272 s; sync files=199, longest=0.002 s, average=0.001 s; distance=27550 kB, estimate=37042 kB; lsn=0/93689B0, redo lsn=0/91A1D48
+postgres-1        | 2026-11-13 22:50:25.255 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 22:50:28.077 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 70 buffers (0.4%); 0 WAL file(s) added, 0 removed, 1 recycled; write=2.816 s, sync=0.005 s, total=2.823 s; sync files=17, longest=0.003 s, average=0.001 s; distance=27640 kB, estimate=36102 kB; lsn=0/ACDF458, redo lsn=0/AC9FEB0
+postgres-1        | 2026-11-13 22:55:25.182 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 22:55:26.602 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 55 buffers (0.3%); 0 WAL file(s) added, 0 removed, 2 recycled; write=1.412 s, sync=0.003 s, total=1.421 s; sync files=11, longest=0.002 s, average=0.001 s; distance=25012 kB, estimate=34993 kB; lsn=0/C5242F8, redo lsn=0/C50D290
+postgres-1        | 2026-11-13 22:58:49.229 UTC [5818] xid=0 state=08006 LOG:  could not send data to client: Broken pipe
+postgres-1        | 2026-11-13 22:58:49.229 UTC [5818] xid=0 state=08006 FATAL:  connection to client lost
+postgres-1        | 2026-11-13 22:58:49.231 UTC [5638] xid=0 state=08006 LOG:  could not send data to client: Broken pipe
+postgres-1        | 2026-11-13 22:58:49.231 UTC [5638] xid=0 state=08006 FATAL:  connection to client lost
+postgres-1        | 2026-11-13 22:58:49.234 UTC [6078] xid=0 state=25P04 FATAL:  terminating connection due to transaction timeout
+postgres-1        | 2026-11-13 22:58:49.236 UTC [6078] xid=0 state=08006 LOG:  could not send data to client: Broken pipe
+postgres-1        | 2026-11-13 23:00:03.477 UTC [5759] xid=0 state=57014 ERROR:  canceling statement due to statement timeout
+postgres-1        | 2026-11-13 23:00:03.479 UTC [5759] xid=0 state=08006 LOG:  could not send data to client: Broken pipe
+postgres-1        | 2026-11-13 23:00:03.479 UTC [5759] xid=0 state=08006 FATAL:  connection to client lost
+postgres-1        | 2026-11-13 23:00:03.561 UTC [5556] xid=0 state=57014 ERROR:  canceling statement due to statement timeout
+postgres-1        | 2026-11-13 23:00:03.562 UTC [5556] xid=0 state=08006 LOG:  could not send data to client: Broken pipe
+postgres-1        | 2026-11-13 23:00:03.562 UTC [5556] xid=0 state=08006 FATAL:  connection to client lost
+postgres-1        | 2026-11-13 23:00:25.025 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 23:00:53.537 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 254 buffers (1.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=28.478 s, sync=0.019 s, total=28.513 s; sync files=201, longest=0.003 s, average=0.001 s; distance=10013 kB, estimate=32495 kB; lsn=0/CEDB090, redo lsn=0/CED4A10
+postgres-1        | 2026-11-13 23:05:25.667 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 23:05:28.996 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 33 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=3.309 s, sync=0.009 s, total=3.330 s; sync files=31, longest=0.005 s, average=0.001 s; distance=95 kB, estimate=29255 kB; lsn=0/CEEC6D8, redo lsn=0/CEEC680
+postgres-1        | 2026-11-13 23:10:26.102 UTC [68] xid=0 state=00000 LOG:  checkpoint starting: time
+postgres-1        | 2026-11-13 23:10:29.208 UTC [68] xid=0 state=00000 LOG:  checkpoint complete: wrote 31 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=3.092 s, sync=0.006 s, total=3.107 s; sync files=28, longest=0.004 s, average=0.001 s; distance=68 kB, estimate=26336 kB; lsn=0/CEFD810, redo lsn=0/CEFD7B8

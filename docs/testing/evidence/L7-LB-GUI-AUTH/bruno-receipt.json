@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/.bin/bru",
+    "run",
+    "PG01 Public Journey.bru",
+    "--env",
+    "Local",
+    "--sandbox=developer",
+    "--reporter-junit",
+    "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794612070-b38ec267/bruno.xml"
+  ],
+  "expected": [
+    "PG01"
+  ],
+  "actual": [
+    "PG01"
+  ],
+  "namedTests": 1,
+  "junitPass": true,
+  "exit": 0,
+  "success": true
+}

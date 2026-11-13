@@ -1,0 +1,36 @@
+{
+  "initialSha": "f1ccd0dc1ab76d94eb0d73402e9b5178ebf771b6",
+  "testedSha": "e54cadd40b6595f017927a1ae4cccd48511af1fe",
+  "testedDirty": false,
+  "operationalInputs": "87bb54dd3a0e9fb122a0655c5ff4aa79cf4afe0317b8f69cac431504e420c8b6",
+  "commands": [
+    "python3 -B -m unittest discover -s scripts/local -p 'test_*.py'",
+    "./pocoma-local gui --instance demo",
+    "./pocoma-local login --instance demo",
+    "python3 -B scripts/local/test_gui_auth_protocol.py --instance demo --output /tmp/pocoma-gui-e54cadd4-protocol.json",
+    "./pocoma-local bruno --instance demo"
+  ],
+  "unchanged": [
+    "app/",
+    "docker/keycloak/pocoma-realm.json",
+    "SQL",
+    "POM",
+    "runtime isolation rules"
+  ],
+  "mavenSlices": "NONE modified; LOCAL DISTRIBUTION primary",
+  "unexpectedSliceCrossing": "NONE",
+  "database": "CURRENT V3 bootstrap after owned cluster observed empty; no reset/historical V2",
+  "globalArchitectureGate": "NOT REQUIRED / NOT RUN",
+  "fullReactor": "NOT REQUIRED / NOT RUN; no global closure or main integration",
+  "verdict": "LOCAL_PLAYGROUND_PARTIAL",
+  "sourceReview": [
+    {
+      "path": "/Applications/Bruno.app/Contents/Resources/app.asar",
+      "version": "4.2.1",
+      "sha256": "fe9b4c89660ac3f1291707746f76b9b5850edda368a5e0250055687ab02ec767"
+    },
+    {
+      "reference": "https://docs.usebruno.com/auth/oauth2-2.0/authorization-code"
+    }
+  ]
+}

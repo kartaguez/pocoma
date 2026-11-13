@@ -1,0 +1,16 @@
+{
+  "state": "GUI_CONFIGURED",
+  "exit": 0,
+  "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-demo.bru",
+  "next": "In Bruno select Instance-demo; 00 Login Owner and 01 Login Guest > Auth > Get Access Token, then PG01.",
+  "instance": "demo",
+  "project": "pocoma-lb-demo-a4951783",
+  "sha": "e54cadd40b6595f017927a1ae4cccd48511af1fe",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:57823",
+    "read": "http://127.0.0.1:57824"
+  },
+  "issuer": "http://localhost:57825/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794612066-2fc0ef91"
+}

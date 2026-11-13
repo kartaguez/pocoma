@@ -1,0 +1,11 @@
+{
+  "expected": {
+    "pocoma_write": "f5a9ad708c589ca1fa3857a4337de49c64b3e1709ad786ef93c68a1cff3c8ef8",
+    "pocoma_read": "2411cce6e5009d1d6a6ec87a49593b6de08384cfff18f018489f4af130ba7975"
+  },
+  "observed": {
+    "pocoma_write": "f5a9ad708c589ca1fa3857a4337de49c64b3e1709ad786ef93c68a1cff3c8ef8",
+    "pocoma_read": "2411cce6e5009d1d6a6ec87a49593b6de08384cfff18f018489f4af130ba7975"
+  },
+  "equal": true
+}
