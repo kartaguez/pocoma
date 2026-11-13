@@ -1,0 +1,1 @@
+{"scenarios":["PG01"],"namedTests":1,"checks":["Registration and binding","CreatePot and idempotence","Invitation and confidentiality","Expense mutations and exact balances","Delete and history"],"fixtureReadInjection":false}

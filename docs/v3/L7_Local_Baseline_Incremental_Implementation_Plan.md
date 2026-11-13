@@ -1,7 +1,9 @@
 # L7-LB — Plan de convergence incrémental proposé
 
 13 novembre 2026 · [cadrage](L7_Local_Baseline_Scoping_Report.md).
-**PLAN / NO GO IMPLEMENTATION**. Aucune tâche ci-dessous n'a été exécutée.
+**GO I1a / I2 / I3** — mandat `GO_L7_LB_LOCAL_PLAYGROUND_IMPLEMENTATION`.
+Le Jalon 1 est implémenté ; voir le [rapport](L7_Local_Playground_Implementation_Report.md)
+et la [qualification](L7_Local_Playground_Qualification_Report.md). I1b/I4–I6 restent distincts.
 
 ## 1. Rattachement et chemin critique
 
@@ -14,10 +16,12 @@ sans modifier les contrats de sûreté/performance ni acter la clôture de L7.
 
 ```mermaid
 flowchart LR
-  I1[I1 Allocation obligations] --> I2[I2 Socle local et READY]
+  I1a[I1a Prérequis critiques] --> I2[I2 Socle local et READY]
+  I1b[I1b Réconciliation 522 obligations] --> I4
   I2 --> I3[I3 Bruno identité contrats]
-  I3 --> J[Premier start READY Bruno]
-  I1 --> I4[I4 Invariants sûreté résilience]
+  I3 --> J[LOCAL_PLAYGROUND_READY]
+  I1a --> I1b
+  I1b --> I4[I4 Invariants sûreté résilience]
   I2 --> I4
   I3 --> I4
   I2 --> I5[I5 Performance et diagnostic locaux]
@@ -27,11 +31,11 @@ flowchart LR
   J --> I6
 ```
 
-Chemin critique probable : **I1 → I2 → I3 → I4 → I6**, I5 rejoignant le gel.
+Chemin Jalon 1 : **I1a → I2 → I3** ; chemin baseline : **I1b/I4/I5 → I6**, I5 rejoignant le gel.
 Le risque principal de durée est l'audit writers/SQL indirect et des variantes
 partielles, puis les crashs/reprises avec vrais baux. I5 peut devenir critique
 si les seeds/sondes sont insuffisants. Premier parcours après I3 sans attendre
-les campagnes exhaustives ; ce checkpoint n'est pas le verdict de publication.
+les campagnes exhaustives ; ce jalon possède sa propre publication de branche et son verdict humain ; il ne certifie pas la baseline I6.
 
 ## 2. Travaux, sorties et effort
 
@@ -44,10 +48,10 @@ pour tenir le délai.
 
 | Incrément / effort | Périmètre exact et prérequis | Code / tests prospectifs | Documentation et preuves attendues | Sortie / dépendances / décisions |
 |---|---|---|---|---|
-| **L7-LB-I1 — Réconciliation**, 1–2j, S | Référence de ce cadrage et actes contractuels disponibles ; allouer les 522 IDs, retraits séparés, et toutes réserves héritées ; examiner les 15 et candidate E02-J | Aucun code produit ; établir inventaire des sujets/variantes/autorités, comparer entrées aux SHA historiques et planifier méthodes/oracles ; pas de replay nécessaire pour décider l'allocation | Vue par ID liée à matrice unique, verdict brut + local séparés, priorité A/B/C proposée, propriétaire, action/critère et source ; hashes et anciennes→cible hypothèses | Aucun ID critique sans traitement ; retirer aucun invariant ; E02-J proposée à revue sans promotion automatique ; GO I1 nécessaire. Le présent cadrage n'est pas sa clôture |
-| **L7-LB-I2 — Runtime plug-and-play**, 3–5j, L | I1 allocation initiale et profil cinq JVM fixés ; Docker ARM64 disponible au futur essai | Façade start/status/stop/reset, instances/labels/lock, Compose paramétré, bootstrap complet/reprise, pinning/build, secrets locaux, smoke API réel et conservation D3 ; tests de refus cible étrangère, collision, bootstrap interrompu, health trompeur, arrêt/redémarrage et reset isolé | Guide prérequis/ports, manifeste instance, reçus READY/NOT_READY et logs ; installation neuve indépendante, second start sans duplication, volume étranger inchangé ; inventaire temps froid/chaud | start en une commande et code0 seulement après smoke ; status courant ; reset protégé ; aucune destruction autre environnement. I3 peut préparer doc en parallèle ; décisions D1/D2/D3 acquises, pas de nouveau débat |
+| **L7-LB-I1b — Réconciliation exhaustive (différée I4/I6)**, 1–2j, S | Référence de ce cadrage et actes contractuels disponibles ; allouer les 522 IDs, retraits séparés, et toutes réserves héritées ; examiner les 15 et candidate E02-J | Aucun code produit ; établir inventaire des sujets/variantes/autorités, comparer entrées aux SHA historiques et planifier méthodes/oracles ; pas de replay nécessaire pour décider l'allocation | Vue par ID liée à matrice unique, verdict brut + local séparés, priorité A/B/C proposée, propriétaire, action/critère et source ; hashes et anciennes→cible hypothèses | Aucun ID critique sans traitement ; retirer aucun invariant ; E02-J proposée à revue sans promotion automatique ; GO Jalon 1 acquis pour I1a/I2/I3 ; I1b ne bloque pas I2 sauf lacune critique de sûreté |
+| **L7-LB-I2 — Runtime plug-and-play**, 3–5j, L | I1a prérequis critiques et profil cinq JVM fixés, sans attendre I1b ; Docker ARM64 disponible au futur essai | Façade start/status/stop/reset, instances/labels/lock, Compose paramétré, bootstrap complet/reprise, pinning/build, secrets locaux, smoke API réel et conservation D3 ; tests de refus cible étrangère, collision, bootstrap interrompu, health trompeur, arrêt/redémarrage et reset isolé | Guide prérequis/ports, manifeste instance, reçus READY/NOT_READY et logs ; installation neuve indépendante, second start sans duplication, volume étranger inchangé ; inventaire temps froid/chaud | start en une commande et code0 seulement après smoke ; status courant ; reset protégé ; aucune destruction autre environnement. I3 peut préparer doc en parallèle ; décisions D1/D2/D3 acquises, pas de nouveau débat |
 | **L7-LB-I3 — Bruno, identité, parcours et contrats**, 2,5–4j, M | I2 socle accessible ; realm/API réels ; premiers helpers connus dès I1 | Environnement deux URLs ; PKCE GUI/helper privé et CLI ; supprimer fuite argv et succès Bruno vide/ignoré ; jeu demo déterministe, suite E2E publique distincte B1 ; exemples consommateurs ; vérifications négatives JWT/binding/idempotence/tiers | Guide GUI + CLI, paquet API équivalent OpenAPI, mapping DTO/routes/limites/erreurs ; scénario complet Registration/Pot/invitation/mutations/consultation/Delete/histoire, reçus bruts expurgés et inventaire attendu | Premier **start → READY → Bruno** obtenu par autre lecteur ; aucune connaissance tables/modules ; D4 acquise. Le choix de mécanisme GUI dépend de la version verrouillée à qualifier, sans affaiblissement PKCE |
-| **L7-LB-I4 — Fonctionnel, sûreté et résilience**, 5–9j, XL | I1 allocation exhaustive ; I2 isolation/retention ; I3 scénarios utilisateur | Compléter les 15 stimuli et l'audit des autres variantes critiques ; inventaire writers/SQL/admin ; refus DELETE ; crash Command/READ pendant travail et reprise ; reset/rebuild exclusif. Corriger produit uniquement si défaut démontré, sans modifier contrat | Matrice preuves par ID, traces PG extérieures/locks/commit/rollback/claims/compteurs, XML frais et inventaire exact, comparaison de données ; rapport par réserve et derniers FAIL conservés | Zéro A ouverte sur invariants revendiqués ; pas d'exemption pour un test coûteux/quarantaine ; couverture consommateurs non filtrée selon changement. Audit indépendant des preuves ; revue de clôture E02-J et autres IDs explicite |
+| **L7-LB-I4 — Fonctionnel, sûreté et résilience**, 5–9j, XL | I1b allocation exhaustive ; I2 isolation/retention ; I3 scénarios utilisateur | Compléter les 15 stimuli et l'audit des autres variantes critiques ; inventaire writers/SQL/admin ; refus DELETE ; crash Command/READ pendant travail et reprise ; reset/rebuild exclusif. Corriger produit uniquement si défaut démontré, sans modifier contrat | Matrice preuves par ID, traces PG extérieures/locks/commit/rollback/claims/compteurs, XML frais et inventaire exact, comparaison de données ; rapport par réserve et derniers FAIL conservés | Zéro A ouverte sur invariants revendiqués ; pas d'exemption pour un test coûteux/quarantaine ; couverture consommateurs non filtrée selon changement. Audit indépendant des preuves ; revue de clôture E02-J et autres IDs explicite |
 | **L7-LB-I5 — Performance/exploitabilité locale**, 3–5j, L | I2/I3 stables ; oracle sûr pour chaque mesure ; I4 harness partagé disponible sans campagne simultanée | Profil local §3 ; consolidation SPEC-09/k6/collecteur, Balance exacte indépendante/Delete interne/W>V, âge backlog et ressources ; étalonnage injecteur/observateur ; dashboard cinq rôles ; incidents et diagnostic | Paramètres préenregistrés, seed réel, ≥3 répétitions proposées, bruts/p50/p95/p99/comptages/ressources/limites ; état initial/final par campagne ; rapport séparant local de SPEC-09 | Mesures valides et reproductibles, aucune garantie locale contredite ; garde mémoire/charge sans purge ; tous A/B contractuels demeurent à part. Ratifier profil local avant mesure, aucun seuil nouveau imposé au contrat |
 | **L7-LB-I6 — Publication**, 2–3j, M | I1–I5 sorties revues ; code/configuration/topologie/contrats gelés | Gates fraîches de stabilisation full/Architecture et protocoles applicables ; deux installations vierges, lifecycle/reset et parcours publics ; aucun ajout fonctionnel après gel sans requalification affectée | Manifeste candidate, rapport Q1–Q10, registre A/B/C, paquet API, archives vérifiables et audit ; procédure de récupération depuis Git indépendante du poste auteur | Aucun A ; B/C nommées et acceptées ; humain prononce V3_REFERENCE_BASELINE_ACCEPTED puis seulement tag. Pas de certificat production ni clôture automatique L7.5/L7/V3-7 |
 
@@ -189,3 +193,22 @@ commande avec verdict global attribuable. Préparer Bruno minimal en I2 permet
 de réduire le délai jusqu'au checkpoint I3 sans inclure une qualification
 exhaustive dans start. Le mandat de cadrage actuel n'autorise ni I1 supplémentaire,
 ni I2 code, ni campagne, ni tag.
+
+## Décisions D6–D9 appliquées au mandat Jalon 1
+
+- **D6** : `LOCAL_PLAYGROUND_READY` couvre installation, readiness réelle,
+  authentification et parcours Bruno. `V3_REFERENCE_BASELINE_ACCEPTED` demande
+  I4/I5/I6, preuves consolidées, performances, audit et acceptation humaine.
+  Aucun tag de référence n'est créé sous ce mandat.
+- **D7** : I1a est l'inventaire technique/sécurité ciblé consigné dans le
+  [plan d'implémentation](L7_Local_Playground_Implementation_Plan.md). I1b alloue
+  exhaustivement les 522 obligations pour I4/I6. Une lacune critique I1a bloque
+  le parcours concerné ; aucun invariant n'est écarté.
+- **D8** : métier/authentification, canari et outils de qualification ont des
+  états distincts ; les codes 0/1/2/3/4/130 sont définis au
+  [guide opérationnel](L7_Local_Playground_Quickstart.md). DEGRADED observabilité
+  ne devient pas indisponibilité métier ni qualification complète.
+- **D9** : les obligations non certifiées gardent leur verdict historique et
+  restent ouvertes. Une contribution partielle n'est pas automatiquement un
+  défaut produit. Un défaut connu de sécurité/intégrité/cohérence/perte de
+  données sur un parcours annoncé demeure bloquant, sans réserve admissible.

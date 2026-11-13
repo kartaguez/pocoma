@@ -1,9 +1,41 @@
-# L7-LB — Définition et acceptation de V3_REFERENCE_BASELINE
+# L7-LB — Deux jalons et leurs critères d’acceptation
 
 13 novembre 2026 · proposition pour revue · [cadrage](L7_Local_Baseline_Scoping_Report.md).
 **Aucune candidate n'est acceptée, aucun tag n'est créé par ce document.**
 
-## 1. Garantie et identité du jalon
+## 0. D6–D9 — LOCAL_PLAYGROUND_READY puis baseline consolidée
+
+**Jalon 1 — LOCAL_PLAYGROUND_READY** : I1a, I2 et I3 uniquement. Il exige
+installation vierge, cinq JVM et PG WRITE/READ, Keycloak Code+PKCE S256 réel,
+Bruno exécuté/inventorié, oracles de versions/balances/confidentialité, nouvelle
+mutation canari WRITE→READ, stop/restart/reset isolés, diagnostics conservés et
+contrôles ciblés applicables. Deux installations indépendantes sont recherchées,
+dont un checkout vierge ; absence de cette preuve signifie non-acceptation.
+Les conclusions permises sont READY_FOR_HUMAN_ACCEPTANCE, PARTIAL ou BLOCKED,
+préfixées `LOCAL_PLAYGROUND_`. L'humain décide, sans tag de référence.
+
+**D7** : I1a analyse les prérequis critiques ; I1b réconcilie les522 obligations
+pour I4/I6. I2/I3 n'attendent pas I1b ; une lacune critique I1a reste bloquante.
+
+**D8** : métier/authentification, canari et outillage sont indépendants dans le
+verdict. READY/code0 exige les trois disponibles. NOT_READY/code1 signifie
+indisponibilité critique ou preuve canari absente/périmée ; DEGRADED/code4 garde
+les deux premières disponibles avec observabilité absente. Refus2, verrou3,
+interruption130. Aucune qualification complète avec outils manquants.
+
+**D9** : toute obligation contractuelle non certifiée reste ouverte avec son
+verdict historique ; une preuve partielle ne devient pas automatiquement un
+défaut produit. Aucun défaut connu de sécurité, intégrité, cohérence ou perte
+de données n'est acceptable sur un parcours annoncé. La classification A
+ci-dessous concerne le **gel de la baseline consolidée**, sans requalifier
+collectivement les contributions partielles en défauts Jalon1.
+
+**Jalon 2 — V3_REFERENCE_BASELINE_ACCEPTED** : I1b/I4/I5/I6, qualification
+consolidée, performances, preuves, audit et acte humain. Les sections suivantes
+s'appliquent à ce second jalon. La livraison Jalon1 ne le certifie pas.
+Voir [qualification et limites du Jalon1](L7_Local_Playground_Qualification_Report.md).
+
+## 1. Garantie et identité du jalon consolidé
 
 Une référence Git identifiée permet à un développeur de récupérer, installer
 et démarrer Pocoma V3 sur Mac M4 ARM64/16Go sans état Pocoma préalable, d'obtenir
@@ -118,7 +150,7 @@ local ne constitue pas une dispense tacite. Tout désaccord sur les garanties
 
 D1 démarrage/readiness/smoke, D2 données/reset, D3 échec conservé, D4 Bruno réel
 et D5 publication sont **déjà validés**, ils ne sont pas remis en arbitrage.
-Les étapes restantes sont les GO I1 puis implémentation I2 dans leurs scopes,
+Le GO Jalon1 pour I1a/I2/I3 est acquis ; les étapes restantes sont I1b/I4–I6,
 la ratification du profil local avant mesures I5 et des modalités SPEC-10 avant
 futures campagnes externes, la revue des clôtures de réserves, puis l'acte de
 gel/acceptation et le tag. Aucun budget cloud ni choix Scaleway n'est nécessaire

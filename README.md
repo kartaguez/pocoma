@@ -6,6 +6,15 @@ Pocoma is a Java 21 application for shared pots: participants can record expense
 
 Pocoma is not presented as a production-ready financial product. Its purpose is to make difficult consistency and modularity choices explicit, executable, and testable.
 
+## Playground V3 local
+
+`./pocoma-local start` prépare les cinq JVM, PostgreSQL WRITE/READ et Keycloak.
+[Prérequis et démarrage](docs/v3/L7_Local_Playground_Quickstart.md) ·
+[Bruno GUI/CLI](docs/v3/L7_Local_Playground_Bruno.md) ·
+[Contrat BFF](docs/v3/L7_Local_Playground_Public_API.md) ·
+[Qualification et réserves Jalon1](docs/v3/L7_Local_Playground_Qualification_Report.md).
+L7-LB Jalon1 est distinct de la certification globale V3.
+
 ## Programme V3
 
 Le [plan directeur L0–L8](docs/v3/V3_Implementation_Master_Plan.md) est le point d’entrée opérationnel V3 ; le [canon](docs/v3/V3_Canon_and_Roadmap.md) et les SPEC portent les décisions normatives. **L1 ACCEPTED — internal V3 foundation**, avec [preuves et limites](docs/v3/L1_Documentary_Closure.md), sans certificat V3 complet. **L2 ACCEPTED WITH EXPLICIT RESERVATIONS**, officiellement clos le 30-10-2026 : [décision, preuves et réserves](docs/v3/L2_Documentary_Closure.md). G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. Prochaine intervention : cadrage L3 — Identity, autorisé sous ses propres critères et décisions.

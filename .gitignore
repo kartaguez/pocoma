@@ -16,3 +16,6 @@ __pycache__/
 
 # Raw certification staging only; durable retention must be verified separately.
 /certification-raw/
+
+# Per-instance local playground credentials, volumes metadata and diagnostics
+/.pocoma-local/

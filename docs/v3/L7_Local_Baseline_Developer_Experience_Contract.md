@@ -1,9 +1,10 @@
 # L7-LB — Contrat proposé de l'expérience développeur locale
 
 13 novembre 2026 · [cadrage](L7_Local_Baseline_Scoping_Report.md).
-**TARGET / NON IMPLÉMENTÉ** : les commandes `./pocoma-local` ci-dessous sont une
-interface à construire. Elles ne sont pas des instructions actuellement exécutables.
-D1–D5 du mandat humain sont acquis.
+**CONTRAT MIS À JOUR D6–D9 / JALON 1** : start/status/stop/reset, login et
+Bruno sont livrés par le [guide exécutable](L7_Local_Playground_Quickstart.md).
+Les ambitions verify/bench et la qualification exhaustive ci-dessous restent
+I4–I6 ; elles ne sont pas annoncées comme implémentées. D1–D9 sont acquis.
 
 ## 1. Modèle opérationnel et données
 
@@ -59,16 +60,16 @@ annoncer READY sur la seule lecture d'un ancien résultat.
 
 ## 2. Commandes et codes de sortie
 
-Codes proposés communs : `0` action réussie ; `1` contrôle/incident réel ou
+Codes de l'interface livrée : `0` action réussie ; `1` contrôle/incident réel ou
 NOT_READY ; `2` usage, précondition ou cible non autorisée ; `3` verrou/conflit
-d'instance ; `130` interruption contrôlée. Une campagne non concluante ou NOT_RUN
+d'instance ; `130` interruption contrôlée. `4` signifie DEGRADED (métier et canari disponibles, outils absents). Une campagne non concluante ou NOT_RUN
 requise sort non zéro (`1`) avec verdict détaillé, jamais succès de certification.
-Les codes sont un contrat cible à vérifier, pas le comportement des anciens scripts.
+Les états métier/authentification, canari, outillage sont séparés dans le JSON ; voir le guide pour la preuve réellement exécutée.
 
 | Commande | Préconditions et actions/contrôles | Données et idempotence | Artefacts, échecs et protection |
 |---|---|---|---|
 | `start` | Git/ref et toolchain déclarés ; Docker disponible, ports/réseau/disque/mémoire contrôlés ; récupérer/construire images du même SHA, PG/IdP prêts, bootstrap unique, grants validés, cinq JVM, observabilité, seed puis smoke | Initialise seulement l'instance neuve possédée ; conserve demo existante compatible ; nouveau start réutilise l'instance et revalide, sans reset ni qualification exhaustive | READY/NOT_READY + JSON ; contrôle manquant identifié ; `1` au défaut, `2` drift incompatible/cible étrangère, `3` concurrence. Préserver environnement et diagnostics en échec |
-| `status` | Lire manifeste puis observations PG/IdP/JVM/maintenance/metrics ; pas de migration/build/admission | Aucune mutation métier ; idempotent sur état stable ; contrôle de l'âge du dernier smoke | `0` READY courant (smoke encore attribuable et contrôles courants valides), `1` STOPPED/NOT_READY/UNKNOWN ; `2` propriété inconnue. Rapport par contrôle, pas ancien verdict vert recopié |
+| `status` | Lire manifeste puis observations PG/IdP/JVM/maintenance/metrics ; pas de migration/build/admission | Aucune mutation métier ; idempotent sur état stable ; contrôle de l'âge du dernier smoke | `0` READY courant (smoke ≤300 s, contenu et contrôles courants valides), `1` STOPPED/NOT_READY/UNKNOWN ; `2` propriété inconnue. Rapport par contrôle, pas ancien verdict vert recopié |
 | `stop` | Manifeste/propriété concordants ; drainage borné puis arrêt ordonné des cinq JVM et auxiliaires possédés ; enregistrer slots/leases/arrêt | Volumes et preuves conservés ; réexécution sur déjà arrêté = `0` ; aucune suppression | Journal durée/état/PID ; `1` drainage/arrêt échoué, `2` cible étrangère. Si SIGKILL nécessaire, tracer le recours et l'état incomplet ; ne pas purger le travail |
 | `reset --instance <id> --confirm RESET:<id>` | Deux facteurs : ID exact et confirmation exacte ; verrou ; prévisualiser ressources ; vérifier labels/UUID/chemins/DB/loopback ; arrêter seulement instance concernée, remplacer son état complet puis appliquer le pipeline bootstrap/seed/smoke de start | Destruction explicite du seul état demo sélectionné (WRITE+READ+realm) ; preuves préservées ; reset demandé de nouveau ramène au même état sémantique canonique, nouveau run-id technique distinct | Plan avant/après + hashes ; `0` seulement si état initial reconstitué READY ; refus (`2`) si mismatch, partagé, label absent ou symlink ; aucune commande globale prune/down sur projet implicite ; état partiel devient NOT_READY (`1`) sans réutilisation aveugle |
 | `verify --profile <nom>` | Demo arrêtée ; plan des contrôles et slices avant effet, projet qualification neuf ; bootstrap, tests déclarés, Bruno automatique, sécurité/reprise selon profil | Peut détruire seulement ses fixtures identifiées ; jamais données demo ; un nouveau run, aucun écrasement d'artefact ; garde l'environnement au défaut | Inventaire attendu/exécuté, XML/HTTP sans secrets, SQL physique, reçus ; `1` FAIL/PARTIAL/INCONCLUSIVE/NOT_RUN requis ; `2` précondition ; aucun cleanup automatique en échec |
@@ -85,7 +86,11 @@ Un changement de SHA/config/migration ne relance pas automatiquement une mise
 ## 3. Readiness réelle et diagnostic
 
 READY global est un résultat opérationnel daté et attribuable à un manifeste,
-pas une propriété déduite du nombre de conteneurs UP. Séquence cible :
+pas une propriété déduite du nombre de conteneurs UP. D8 distingue trois
+dimensions : métier/authentification, canari E2E et outillage. Une dégradation
+OBS sort4/DEGRADED si les deux premières dimensions sont disponibles ; une
+défaillance métier ou canari non prouvé sort1/NOT_READY. Le présent jalon ne
+revendique jamais une qualification globale (`fullyQualifiable=false`). Séquence cible :
 
 | ID de contrôle | Oracle obligatoire | Exemple de NOT_READY précis |
 |---|---|---|
@@ -200,3 +205,20 @@ Critère Q9 : un consommateur suivant uniquement ce paquet et les URLs publiques
 réalise login → Registration → création → résultat → consultation → invitation
 → mutations → suppression/histoire. Aucun nom de table ni connaissance du
 découpage interne requis ; sondes SQL restent des moyens de qualification.
+
+## Portée D6/D7/D9 et implémentation effective
+
+`LOCAL_PLAYGROUND_READY` est le Jalon 1 ; il ne vaut pas
+`V3_REFERENCE_BASELINE_ACCEPTED`. I1a prépare ses prérequis critiques ; I1b
+(réconciliation exhaustive des 522 obligations) se poursuit pour I4/I6 et ne
+conditionne pas I2/I3 hors lacune critique démontrée. Les obligations historiques
+non certifiées restent ouvertes avec leurs verdicts. Une preuve partielle ne
+constitue pas par elle-même un défaut produit ; aucun défaut connu de sécurité,
+intégrité, cohérence ou perte de données n'est admissible sur les parcours annoncés.
+
+Les tableaux prospectifs plus larges sont conservés comme cible I4–I6 ; la
+[qualification Jalon 1](L7_Local_Playground_Qualification_Report.md) fait foi
+sur les capacités réellement démontrées. Le seed initial est fixe par UUID
+possédé ; le canari avance à chaque start. Aucun seed terminé n'est réécrit si
+l'utilisateur a modifié sa demo. Une version applicative/config incompatible
+nécessite une nouvelle instance ou reset explicite, sans migration automatique.
