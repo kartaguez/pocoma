@@ -1,0 +1,1219 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] pocoma                                                             [pom]
+[INFO] pocoma-domain-pot                                                  [jar]
+[INFO] pocoma-domain-identity                                             [jar]
+[INFO] pocoma-domain-projection                                           [jar]
+[INFO] pocoma-domain-consumption                                          [jar]
+[INFO] pocoma-contract-authentication                                     [jar]
+[INFO] pocoma-contract-write-admission                                    [jar]
+[INFO] pocoma-port-transaction                                            [jar]
+[INFO] pocoma-contract-read-query                                         [jar]
+[INFO] pocoma-port-projection                                             [jar]
+[INFO] pocoma-engine-admit-command                                        [jar]
+[INFO] pocoma-engine-admit-identity                                       [jar]
+[INFO] pocoma-contract-consumption                                        [jar]
+[INFO] pocoma-engine-write-pot                                            [jar]
+[INFO] pocoma-engine-write-identity                                       [jar]
+[INFO] pocoma-engine-materialize-pot                                      [jar]
+[INFO] pocoma-engine-materialize-identity                                 [jar]
+[INFO] pocoma-engine-materialize-results                                  [jar]
+[INFO] pocoma-engine-read-pot                                             [jar]
+[INFO] pocoma-engine-read-identity                                        [jar]
+[INFO] pocoma-engine-read-results                                         [jar]
+[INFO] pocoma-orchestrator-consumption                                    [jar]
+[INFO] pocoma-supra-polling-consumption                                   [jar]
+[INFO] pocoma-supra-web-write                                             [jar]
+[INFO] pocoma-infra-tx-spring                                             [jar]
+[INFO] pocoma-infra-postgres-core                                         [jar]
+[INFO] pocoma-infra-postgres-read                                         [jar]
+[INFO] pocoma-supra-web-read                                              [jar]
+[INFO] pocoma-infra-security-spring                                       [jar]
+[INFO] pocoma-infra-postgres-write-source-read                            [jar]
+[INFO] pocoma-infra-postgres-write                                        [jar]
+[INFO] pocoma-infra-observability-micrometer                              [jar]
+[INFO] pocoma-compose-web-write-postgres                                  [jar]
+[INFO] pocoma-compose-polling-burnable-write-postgres                     [jar]
+[INFO] pocoma-compose-polling-nonburnable-materialize-postgres            [jar]
+[INFO] pocoma-engine-read-execution                                       [jar]
+[INFO] pocoma-compose-web-read-postgres                                   [jar]
+[INFO] pocoma-runtime-web-write                                           [jar]
+[INFO] pocoma-runtime-web-read                                            [jar]
+[INFO] pocoma-runtime-worker-process                                      [jar]
+[INFO] pocoma-runtime-worker-materialize                                  [jar]
+[INFO] 
+[INFO] --------------------< com.kartaguez.pocoma:pocoma >---------------------
+[INFO] Building pocoma 0.0.1-SNAPSHOT                                    [1/41]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma ---
+[INFO] 
+[INFO] ---------------< com.kartaguez.pocoma:pocoma-domain-pot >---------------
+[INFO] Building pocoma-domain-pot 0.0.1-SNAPSHOT                         [2/41]
+[INFO]   from domain-pot/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-pot/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-pot/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-pot ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 40 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-pot/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-pot ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 13 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-pot ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-domain-pot ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-pot/target/pocoma-domain-pot-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-domain-pot ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-domain-identity >-------------
+[INFO] Building pocoma-domain-identity 0.0.1-SNAPSHOT                    [3/41]
+[INFO]   from domain-identity/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-identity/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-identity/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-identity ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-identity/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-identity ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-domain-identity ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-identity/target/pocoma-domain-identity-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-domain-identity ---
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-domain-projection >------------
+[INFO] Building pocoma-domain-projection 0.0.1-SNAPSHOT                  [4/41]
+[INFO]   from domain-projection/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-projection/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-projection/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-projection ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 9 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-projection/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-projection ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-projection ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-domain-projection ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-projection/target/pocoma-domain-projection-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-domain-projection ---
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-domain-consumption >-----------
+[INFO] Building pocoma-domain-consumption 0.0.1-SNAPSHOT                 [5/41]
+[INFO]   from domain-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-domain-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-domain-consumption ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 5 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-domain-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-domain-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-domain-consumption ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-domain-consumption ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/domain-consumption/target/pocoma-domain-consumption-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-domain-consumption ---
+[INFO] 
+[INFO] --------< com.kartaguez.pocoma:pocoma-contract-authentication >---------
+[INFO] Building pocoma-contract-authentication 0.0.1-SNAPSHOT            [6/41]
+[INFO]   from contract-authentication/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-contract-authentication ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-authentication/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-authentication/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-contract-authentication ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-contract-authentication ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-authentication/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-contract-authentication ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-contract-authentication ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-contract-authentication ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-authentication/target/pocoma-contract-authentication-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-contract-authentication ---
+[INFO] 
+[INFO] --------< com.kartaguez.pocoma:pocoma-contract-write-admission >--------
+[INFO] Building pocoma-contract-write-admission 0.0.1-SNAPSHOT           [7/41]
+[INFO]   from contract-write-admission/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-contract-write-admission ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-write-admission/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-write-admission/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-contract-write-admission ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 11 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-contract-write-admission ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-write-admission/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-contract-write-admission ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-contract-write-admission ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-contract-write-admission ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-write-admission/target/pocoma-contract-write-admission-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-contract-write-admission ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-port-transaction >------------
+[INFO] Building pocoma-port-transaction 0.0.1-SNAPSHOT                   [8/41]
+[INFO]   from port-transaction/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-port-transaction ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/port-transaction/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/port-transaction/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-port-transaction ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-port-transaction ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/port-transaction/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-port-transaction ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-port-transaction ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-port-transaction ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/port-transaction/target/pocoma-port-transaction-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-port-transaction ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-contract-read-query >-----------
+[INFO] Building pocoma-contract-read-query 0.0.1-SNAPSHOT                [9/41]
+[INFO]   from contract-read-query/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-contract-read-query ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-read-query/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-read-query/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-contract-read-query ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 9 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-contract-read-query ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-read-query/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-contract-read-query ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-contract-read-query ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-contract-read-query ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-read-query/target/pocoma-contract-read-query-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-contract-read-query ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-port-projection >-------------
+[INFO] Building pocoma-port-projection 0.0.1-SNAPSHOT                   [10/41]
+[INFO]   from port-projection/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-port-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/port-projection/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/port-projection/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-port-projection ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 14 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-port-projection ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/port-projection/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-port-projection ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-port-projection ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-port-projection ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/port-projection/target/pocoma-port-projection-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-port-projection ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-engine-admit-command >----------
+[INFO] Building pocoma-engine-admit-command 0.0.1-SNAPSHOT              [11/41]
+[INFO]   from engine-admit-command/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-admit-command ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-command/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-command/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-admit-command ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-admit-command ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-command/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-admit-command ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-admit-command ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-admit-command ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-command/target/pocoma-engine-admit-command-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-admit-command ---
+[INFO] 
+[INFO] ---------< com.kartaguez.pocoma:pocoma-engine-admit-identity >----------
+[INFO] Building pocoma-engine-admit-identity 0.0.1-SNAPSHOT             [12/41]
+[INFO]   from engine-admit-identity/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-admit-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-identity/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-identity/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-admit-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-admit-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-identity/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-admit-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-admit-identity ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-admit-identity ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-admit-identity/target/pocoma-engine-admit-identity-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-admit-identity ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-contract-consumption >----------
+[INFO] Building pocoma-contract-consumption 0.0.1-SNAPSHOT              [13/41]
+[INFO]   from contract-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-contract-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-contract-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 24 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-contract-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-contract-consumption ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-contract-consumption ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-contract-consumption ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/contract-consumption/target/pocoma-contract-consumption-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-contract-consumption ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-engine-write-pot >------------
+[INFO] Building pocoma-engine-write-pot 0.0.1-SNAPSHOT                  [14/41]
+[INFO]   from engine-write-pot/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-write-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-pot/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-pot/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-write-pot ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-write-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-pot/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-write-pot ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-write-pot ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-write-pot ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-pot/target/pocoma-engine-write-pot-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-write-pot ---
+[INFO] 
+[INFO] ---------< com.kartaguez.pocoma:pocoma-engine-write-identity >----------
+[INFO] Building pocoma-engine-write-identity 0.0.1-SNAPSHOT             [15/41]
+[INFO]   from engine-write-identity/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-write-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-identity/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-identity/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-write-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-write-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-identity/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-write-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-write-identity ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-write-identity ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-write-identity/target/pocoma-engine-write-identity-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-write-identity ---
+[INFO] 
+[INFO] ---------< com.kartaguez.pocoma:pocoma-engine-materialize-pot >---------
+[INFO] Building pocoma-engine-materialize-pot 0.0.1-SNAPSHOT            [16/41]
+[INFO]   from engine-materialize-pot/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-materialize-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-pot/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-pot/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-materialize-pot ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-materialize-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-pot/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-materialize-pot ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-materialize-pot ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-materialize-pot ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-pot/target/pocoma-engine-materialize-pot-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-materialize-pot ---
+[INFO] 
+[INFO] ------< com.kartaguez.pocoma:pocoma-engine-materialize-identity >-------
+[INFO] Building pocoma-engine-materialize-identity 0.0.1-SNAPSHOT       [17/41]
+[INFO]   from engine-materialize-identity/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-materialize-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-identity/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-identity/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-materialize-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-materialize-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-identity/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-materialize-identity ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-materialize-identity ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-materialize-identity ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-identity/target/pocoma-engine-materialize-identity-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-materialize-identity ---
+[INFO] 
+[INFO] -------< com.kartaguez.pocoma:pocoma-engine-materialize-results >-------
+[INFO] Building pocoma-engine-materialize-results 0.0.1-SNAPSHOT        [18/41]
+[INFO]   from engine-materialize-results/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-materialize-results ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-results/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-results/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-materialize-results ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-materialize-results ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-results/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-materialize-results ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-materialize-results ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-materialize-results ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-materialize-results/target/pocoma-engine-materialize-results-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-materialize-results ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-engine-read-pot >-------------
+[INFO] Building pocoma-engine-read-pot 0.0.1-SNAPSHOT                   [19/41]
+[INFO]   from engine-read-pot/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-read-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-pot/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-pot/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-read-pot ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-read-pot ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-pot/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-read-pot ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-read-pot ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-read-pot ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-pot/target/pocoma-engine-read-pot-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-read-pot ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-engine-read-identity >----------
+[INFO] Building pocoma-engine-read-identity 0.0.1-SNAPSHOT              [20/41]
+[INFO]   from engine-read-identity/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-read-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-identity/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-identity/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-read-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-read-identity ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-identity/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-read-identity ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-read-identity ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-read-identity ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-identity/target/pocoma-engine-read-identity-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-read-identity ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-engine-read-results >-----------
+[INFO] Building pocoma-engine-read-results 0.0.1-SNAPSHOT               [21/41]
+[INFO]   from engine-read-results/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-read-results ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-results/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-results/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-read-results ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-read-results ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-results/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-read-results ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-read-results ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-read-results ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-results/target/pocoma-engine-read-results-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-read-results ---
+[INFO] 
+[INFO] --------< com.kartaguez.pocoma:pocoma-orchestrator-consumption >--------
+[INFO] Building pocoma-orchestrator-consumption 0.0.1-SNAPSHOT          [22/41]
+[INFO]   from orchestrator-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-orchestrator-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/orchestrator-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/orchestrator-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-orchestrator-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-orchestrator-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/orchestrator-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-orchestrator-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 5 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/v3/ConsumptionFailureClassificationTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/v3/ConsumptionFailureClassificationTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-orchestrator-consumption ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-orchestrator-consumption ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/orchestrator-consumption/target/pocoma-orchestrator-consumption-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-orchestrator-consumption ---
+[INFO] 
+[INFO] -------< com.kartaguez.pocoma:pocoma-supra-polling-consumption >--------
+[INFO] Building pocoma-supra-polling-consumption 0.0.1-SNAPSHOT         [23/41]
+[INFO]   from supra-polling-consumption/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-supra-polling-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-polling-consumption/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-polling-consumption/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-supra-polling-consumption ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 6 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-supra-polling-consumption ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-polling-consumption/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-supra-polling-consumption ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-supra-polling-consumption ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-supra-polling-consumption ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-polling-consumption/target/pocoma-supra-polling-consumption-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-supra-polling-consumption ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-supra-web-write >-------------
+[INFO] Building pocoma-supra-web-write 0.0.1-SNAPSHOT                   [24/41]
+[INFO]   from supra-web-write/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-supra-web-write ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-write/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-write/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-supra-web-write ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-supra-web-write ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-write/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-supra-web-write ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-supra-web-write ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-supra-web-write ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-write/target/pocoma-supra-web-write-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-supra-web-write ---
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-infra-tx-spring >-------------
+[INFO] Building pocoma-infra-tx-spring 0.0.1-SNAPSHOT                   [25/41]
+[INFO]   from infra-tx-spring/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-tx-spring ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-tx-spring/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-tx-spring/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-tx-spring ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-tx-spring ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-tx-spring ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 10 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-tx-spring ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-tx-spring ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-tx-spring/target/pocoma-infra-tx-spring-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-tx-spring ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-infra-postgres-core >-----------
+[INFO] Building pocoma-infra-postgres-core 0.0.1-SNAPSHOT               [26/41]
+[INFO]   from infra-postgres-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-postgres-core ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-core/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-core/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-postgres-core ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-postgres-core ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-core/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-postgres-core ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-postgres-core ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-postgres-core ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-core/target/pocoma-infra-postgres-core-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-postgres-core ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-infra-postgres-read >-----------
+[INFO] Building pocoma-infra-postgres-read 0.0.1-SNAPSHOT               [27/41]
+[INFO]   from infra-postgres-read/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-postgres-read ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 22 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-postgres-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 13 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-postgres-read ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-postgres-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 11 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-postgres-read ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-postgres-read ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-read/target/pocoma-infra-postgres-read-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-postgres-read ---
+[INFO] 
+[INFO] -------------< com.kartaguez.pocoma:pocoma-supra-web-read >-------------
+[INFO] Building pocoma-supra-web-read 0.0.1-SNAPSHOT                    [28/41]
+[INFO]   from supra-web-read/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-supra-web-read ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-read/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-read/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-supra-web-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 5 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-supra-web-read ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-read/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-supra-web-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-supra-web-read ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-supra-web-read ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/supra-web-read/target/pocoma-supra-web-read-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-supra-web-read ---
+[INFO] 
+[INFO] ---------< com.kartaguez.pocoma:pocoma-infra-security-spring >----------
+[INFO] Building pocoma-infra-security-spring 0.0.1-SNAPSHOT             [29/41]
+[INFO]   from infra-security-spring/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-security-spring ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-security-spring/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-security-spring/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-security-spring ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-security-spring ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-security-spring/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-security-spring ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-security-spring ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-security-spring ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-security-spring/target/pocoma-infra-security-spring-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-security-spring ---
+[INFO] 
+[INFO] ----< com.kartaguez.pocoma:pocoma-infra-postgres-write-source-read >----
+[INFO] Building pocoma-infra-postgres-write-source-read 0.0.1-SNAPSHOT  [30/41]
+[INFO]   from infra-postgres-write-source-read/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-postgres-write-source-read ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write-source-read/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write-source-read/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-postgres-write-source-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-postgres-write-source-read ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write-source-read/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-postgres-write-source-read ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-postgres-write-source-read ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-postgres-write-source-read ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write-source-read/target/pocoma-infra-postgres-write-source-read-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-postgres-write-source-read ---
+[INFO] 
+[INFO] ----------< com.kartaguez.pocoma:pocoma-infra-postgres-write >----------
+[INFO] Building pocoma-infra-postgres-write 0.0.1-SNAPSHOT              [31/41]
+[INFO]   from infra-postgres-write/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-postgres-write ---
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] Copying 42 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-postgres-write ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 18 source files with javac [debug parameters release 21] to target/classes
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/v3/PotCommandJson.java: Some input files use or override a deprecated API.
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write/src/main/java/com/kartaguez/pocoma/infra/postgres/write/v3/PotCommandJson.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-postgres-write ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-postgres-write ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 46 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java uses unchecked or unsafe operations.
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write/src/test/java/com/kartaguez/pocoma/infra/postgres/write/v3/ConsumptionLifecyclePostgresTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-postgres-write ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-postgres-write ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-postgres-write/target/pocoma-infra-postgres-write-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-postgres-write ---
+[INFO] 
+[INFO] -----< com.kartaguez.pocoma:pocoma-infra-observability-micrometer >-----
+[INFO] Building pocoma-infra-observability-micrometer 0.0.1-SNAPSHOT    [32/41]
+[INFO]   from infra-observability-micrometer/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-infra-observability-micrometer ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-observability-micrometer/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-observability-micrometer/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-infra-observability-micrometer ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-infra-observability-micrometer ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-observability-micrometer/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-infra-observability-micrometer ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-infra-observability-micrometer ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-infra-observability-micrometer ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/infra-observability-micrometer/target/pocoma-infra-observability-micrometer-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-infra-observability-micrometer ---
+[INFO] 
+[INFO] -------< com.kartaguez.pocoma:pocoma-compose-web-write-postgres >-------
+[INFO] Building pocoma-compose-web-write-postgres 0.0.1-SNAPSHOT        [33/41]
+[INFO]   from compose-web-write-postgres/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-compose-web-write-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-write-postgres/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-write-postgres/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-compose-web-write-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-compose-web-write-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-write-postgres/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-compose-web-write-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-compose-web-write-postgres ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-compose-web-write-postgres ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-write-postgres/target/pocoma-compose-web-write-postgres-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-compose-web-write-postgres ---
+[INFO] 
+[INFO] --< com.kartaguez.pocoma:pocoma-compose-polling-burnable-write-postgres >--
+[INFO] Building pocoma-compose-polling-burnable-write-postgres 0.0.1-SNAPSHOT [34/41]
+[INFO]   from compose-polling-burnable-write-postgres/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/src/test/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3ConsumptionWorkerTest.java: /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/src/test/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3ConsumptionWorkerTest.java uses unchecked or unsafe operations.
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/src/test/java/com/kartaguez/pocoma/supra/polling/consumption/v3/V3ConsumptionWorkerTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-burnable-write-postgres/target/pocoma-compose-polling-burnable-write-postgres-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-compose-polling-burnable-write-postgres ---
+[INFO] 
+[INFO] --< com.kartaguez.pocoma:pocoma-compose-polling-nonburnable-materialize-postgres >--
+[INFO] Building pocoma-compose-polling-nonburnable-materialize-postgres 0.0.1-SNAPSHOT [35/41]
+[INFO]   from compose-polling-nonburnable-materialize-postgres/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-nonburnable-materialize-postgres/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-nonburnable-materialize-postgres/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-nonburnable-materialize-postgres/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-polling-nonburnable-materialize-postgres/target/pocoma-compose-polling-nonburnable-materialize-postgres-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-compose-polling-nonburnable-materialize-postgres ---
+[INFO] 
+[INFO] ---------< com.kartaguez.pocoma:pocoma-engine-read-execution >----------
+[INFO] Building pocoma-engine-read-execution 0.0.1-SNAPSHOT             [36/41]
+[INFO]   from engine-read-execution/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-engine-read-execution ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-execution/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-execution/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-engine-read-execution ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-engine-read-execution ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-execution/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-engine-read-execution ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-engine-read-execution ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-engine-read-execution ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/engine-read-execution/target/pocoma-engine-read-execution-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-engine-read-execution ---
+[INFO] 
+[INFO] -------< com.kartaguez.pocoma:pocoma-compose-web-read-postgres >--------
+[INFO] Building pocoma-compose-web-read-postgres 0.0.1-SNAPSHOT         [37/41]
+[INFO]   from compose-web-read-postgres/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-compose-web-read-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-read-postgres/src/main/resources
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-read-postgres/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-compose-web-read-postgres ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-compose-web-read-postgres ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-read-postgres/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-compose-web-read-postgres ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-compose-web-read-postgres ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-compose-web-read-postgres ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/compose-web-read-postgres/target/pocoma-compose-web-read-postgres-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-compose-web-read-postgres ---
+[INFO] 
+[INFO] -----------< com.kartaguez.pocoma:pocoma-runtime-web-write >------------
+[INFO] Building pocoma-runtime-web-write 0.0.1-SNAPSHOT                 [38/41]
+[INFO]   from runtime-web-write/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-runtime-web-write ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-runtime-web-write ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-runtime-web-write ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-web-write/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-runtime-web-write ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-runtime-web-write ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-runtime-web-write ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-web-write/target/pocoma-runtime-web-write-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-runtime-web-write ---
+[INFO] Attaching repackaged archive /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-web-write/target/pocoma-runtime-web-write-0.0.1-SNAPSHOT-exec.jar with classifier exec
+[INFO] 
+[INFO] ------------< com.kartaguez.pocoma:pocoma-runtime-web-read >------------
+[INFO] Building pocoma-runtime-web-read 0.0.1-SNAPSHOT                  [39/41]
+[INFO]   from runtime-web-read/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-runtime-web-read ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-runtime-web-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-runtime-web-read ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-web-read/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-runtime-web-read ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 7 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-runtime-web-read ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-runtime-web-read ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-web-read/target/pocoma-runtime-web-read-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-runtime-web-read ---
+[INFO] Attaching repackaged archive /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-web-read/target/pocoma-runtime-web-read-0.0.1-SNAPSHOT-exec.jar with classifier exec
+[INFO] 
+[INFO] ---------< com.kartaguez.pocoma:pocoma-runtime-worker-process >---------
+[INFO] Building pocoma-runtime-worker-process 0.0.1-SNAPSHOT            [40/41]
+[INFO]   from runtime-worker-process/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-runtime-worker-process ---
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-runtime-worker-process ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-runtime-worker-process ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-process/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-runtime-worker-process ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 24 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-process/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-runtime-worker-process ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-runtime-worker-process ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-process/target/pocoma-runtime-worker-process-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-runtime-worker-process ---
+[INFO] Attaching repackaged archive /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-process/target/pocoma-runtime-worker-process-0.0.1-SNAPSHOT-exec.jar with classifier exec
+[INFO] 
+[INFO] -------< com.kartaguez.pocoma:pocoma-runtime-worker-materialize >-------
+[INFO] Building pocoma-runtime-worker-materialize 0.0.1-SNAPSHOT        [41/41]
+[INFO]   from runtime-worker-materialize/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ pocoma-runtime-worker-materialize ---
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ pocoma-runtime-worker-materialize ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ pocoma-runtime-worker-materialize ---
+[INFO] skip non existing resourceDirectory /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-materialize/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ pocoma-runtime-worker-materialize ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 17 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.5:test (default-test) @ pocoma-runtime-worker-materialize ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ pocoma-runtime-worker-materialize ---
+[INFO] Building jar: /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-materialize/target/pocoma-runtime-worker-materialize-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ pocoma-runtime-worker-materialize ---
+[INFO] Attaching repackaged archive /private/tmp/pocoma-lb-fresh-8012fb93/app/runtime-worker-materialize/target/pocoma-runtime-worker-materialize-0.0.1-SNAPSHOT-exec.jar with classifier exec
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for pocoma 0.0.1-SNAPSHOT:
+[INFO] 
+[INFO] pocoma ............................................. SUCCESS [  0.178 s]
+[INFO] pocoma-domain-pot .................................. SUCCESS [  1.015 s]
+[INFO] pocoma-domain-identity ............................. SUCCESS [  0.113 s]
+[INFO] pocoma-domain-projection ........................... SUCCESS [  0.118 s]
+[INFO] pocoma-domain-consumption .......................... SUCCESS [  0.065 s]
+[INFO] pocoma-contract-authentication ..................... SUCCESS [  0.028 s]
+[INFO] pocoma-contract-write-admission .................... SUCCESS [  0.079 s]
+[INFO] pocoma-port-transaction ............................ SUCCESS [  0.034 s]
+[INFO] pocoma-contract-read-query ......................... SUCCESS [  0.049 s]
+[INFO] pocoma-port-projection ............................. SUCCESS [  0.040 s]
+[INFO] pocoma-engine-admit-command ........................ SUCCESS [  0.034 s]
+[INFO] pocoma-engine-admit-identity ....................... SUCCESS [  0.056 s]
+[INFO] pocoma-contract-consumption ........................ SUCCESS [  0.082 s]
+[INFO] pocoma-engine-write-pot ............................ SUCCESS [  0.127 s]
+[INFO] pocoma-engine-write-identity ....................... SUCCESS [  0.093 s]
+[INFO] pocoma-engine-materialize-pot ...................... SUCCESS [  0.046 s]
+[INFO] pocoma-engine-materialize-identity ................. SUCCESS [  0.028 s]
+[INFO] pocoma-engine-materialize-results .................. SUCCESS [  0.052 s]
+[INFO] pocoma-engine-read-pot ............................. SUCCESS [  0.042 s]
+[INFO] pocoma-engine-read-identity ........................ SUCCESS [  0.049 s]
+[INFO] pocoma-engine-read-results ......................... SUCCESS [  0.025 s]
+[INFO] pocoma-orchestrator-consumption .................... SUCCESS [  0.208 s]
+[INFO] pocoma-supra-polling-consumption ................... SUCCESS [  0.119 s]
+[INFO] pocoma-supra-web-write ............................. SUCCESS [  0.131 s]
+[INFO] pocoma-infra-tx-spring ............................. SUCCESS [  0.348 s]
+[INFO] pocoma-infra-postgres-core ......................... SUCCESS [  0.201 s]
+[INFO] pocoma-infra-postgres-read ......................... SUCCESS [  0.265 s]
+[INFO] pocoma-supra-web-read .............................. SUCCESS [  0.146 s]
+[INFO] pocoma-infra-security-spring ....................... SUCCESS [  0.107 s]
+[INFO] pocoma-infra-postgres-write-source-read ............ SUCCESS [  0.091 s]
+[INFO] pocoma-infra-postgres-write ........................ SUCCESS [  1.189 s]
+[INFO] pocoma-infra-observability-micrometer .............. SUCCESS [  0.109 s]
+[INFO] pocoma-compose-web-write-postgres .................. SUCCESS [  0.205 s]
+[INFO] pocoma-compose-polling-burnable-write-postgres ..... SUCCESS [  0.260 s]
+[INFO] pocoma-compose-polling-nonburnable-materialize-postgres SUCCESS [  0.161 s]
+[INFO] pocoma-engine-read-execution ....................... SUCCESS [  0.045 s]
+[INFO] pocoma-compose-web-read-postgres ................... SUCCESS [  0.107 s]
+[INFO] pocoma-runtime-web-write ........................... SUCCESS [  0.253 s]
+[INFO] pocoma-runtime-web-read ............................ SUCCESS [  0.314 s]
+[INFO] pocoma-runtime-worker-process ...................... SUCCESS [  0.663 s]
+[INFO] pocoma-runtime-worker-materialize .................. SUCCESS [  0.525 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  8.011 s
+[INFO] Finished at: 2026-11-13T23:22:20+01:00
+[INFO] ------------------------------------------------------------------------
