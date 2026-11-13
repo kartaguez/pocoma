@@ -1,0 +1,44 @@
+meta {
+  name: 00 Login Owner
+  type: http
+  seq: 0
+}
+
+get {
+  url: {{readUrl}}/api/v3/me/binding
+  body: none
+  auth: oauth2
+}
+
+headers {
+  Connection: close
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://127.0.0.1:8765/callback
+  authorization_url: {{issuerUrl}}/protocol/openid-connect/auth?prompt=login&login_hint=third
+  access_token_url: {{issuerUrl}}/protocol/openid-connect/token
+  refresh_token_url: {{issuerUrl}}/protocol/openid-connect/token
+  client_id: pocoma-functional-tests
+  scope: openid
+  pkce: true
+  credentials_placement: body
+  credentials_id: playground-owner
+  token_source: access_token
+  token_placement: header
+  token_header_prefix: Bearer
+  auto_fetch_token: true
+  auto_refresh_token: true
+}
+
+settings {
+  timeout: 5000
+}
+
+tests {
+  test('Authenticated owner binding consultation', () => {
+    expect([200,404]).to.include(res.status);
+    expect(res.headers['cache-control']).to.equal('no-store');
+  });
+}

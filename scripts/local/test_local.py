@@ -125,6 +125,30 @@ class LocalSafety(unittest.TestCase):
             return ''
         bootstrap.initialize(sql,{r:'random-'+r for r in bootstrap.ROLES})
 
+    def test_gui_exports_only_public_configuration_and_no_authentication(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);target=root/'scripts/bruno-playground/environments';target.mkdir(parents=True)
+            m={'instance':'example','issuer':'http://localhost:1234/realms/pocoma','ports':{'write':1235,'read':1236}}
+            with patch.object(runtime,'ROOT',root),patch.object(runtime,'ownership'), \
+                 patch.object(runtime,'get_json',return_value={'issuer':m['issuer'],'code_challenge_methods_supported':['S256']}), \
+                 patch.object(runtime,'private') as private,patch.object(runtime,'interactive') as interactive:
+                r=runtime.gui(root,m)
+                text=(target/'Instance-example.bru').read_text()
+                self.assertEqual('GUI_CONFIGURED',r['state'])
+                self.assertIn('issuerUrl:',text)
+                self.assertNotIn('bearer',text)
+                self.assertNotIn('password',text)
+                private.assert_not_called();interactive.assert_not_called()
+
+    def test_gui_refuses_environment_symlink(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);target=root/'scripts/bruno-playground/environments';target.mkdir(parents=True)
+            (target/'Instance-example.bru').symlink_to(root/'unowned')
+            with patch.object(runtime,'ROOT',root),patch.object(runtime,'ownership'):
+                with self.assertRaisesRegex(runtime.Refusal,'SYMLINK'):
+                    runtime.gui(root,{'instance':'example'})
+            self.assertFalse((root/'unowned').exists())
+
     def test_bruno_zero_receipts_cannot_pass(self):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder);(path/'runs').mkdir()

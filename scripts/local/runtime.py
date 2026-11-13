@@ -71,7 +71,7 @@ def source_hash():
                  'scripts/operations/setup-v3-database.py', 'scripts/v3', 'scripts/functional-auth-proof.py',
                  'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json']).splitlines()
     paths = set(paths) | {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/local').glob('*.py') if not p.name.startswith('test_')}
-    paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/bruno-playground').rglob('*') if p.is_file()}
+    paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/bruno-playground').rglob('*') if p.is_file() and not (p.parent.name == 'environments' and p.name.startswith('Instance-'))}
     paths.update(['docker/keycloak/pocoma-realm.json', 'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json'])
     return hashlib.sha256(''.join(p + ':' + hashlib.sha256((ROOT / p).read_bytes()).hexdigest() + '\n'
                                  for p in sorted(paths) if (ROOT / p).is_file() and not Path(p).name.startswith('test_')).encode()).hexdigest()
@@ -662,9 +662,9 @@ def bruno(path, m, evidence, interactive_login=False):
     if not cli.exists():
         run(['npm', 'ci', '--prefix', ROOT / 'scripts/bruno-v3'], timeout=240, log=evidence / 'npm.log')
     environment = {**os.environ, 'POCOMA_PG_WRITE': urls(m)[0], 'POCOMA_PG_READ': urls(m)[1],
-        'POCOMA_PG_OWNER': tokens['third'], 'POCOMA_PG_GUEST': tokens['guest'],
+        'POCOMA_PG_ISSUER': m['issuer'], 'POCOMA_PG_OWNER': tokens['third'], 'POCOMA_PG_GUEST': tokens['guest'],
         'POCOMA_PG_RECEIPT': str(evidence / 'scenarios.jsonl')}
-    command = [str(cli), 'run', '--env', 'Local', '--sandbox=developer', '--reporter-junit', str(evidence / 'bruno.xml')]
+    command = [str(cli), 'run', 'PG01 Public Journey.bru', '--env', 'Local', '--sandbox=developer', '--reporter-junit', str(evidence / 'bruno.xml')]
     with (evidence / 'bruno-private.log').open('w') as output:
         result = subprocess.run(command, cwd=collection, env=environment, stdout=output, stderr=subprocess.STDOUT, timeout=180)
     # Bruno's default console may include response bodies on failure. Private log
@@ -687,10 +687,27 @@ def bruno(path, m, evidence, interactive_login=False):
     return dict(state='BRUNO_PASS' if success else 'BRUNO_FAIL', exit=0 if success else 1)
 
 
+def gui(path, m):
+    """Prepare only public endpoints; native Bruno owns the OAuth sessions."""
+    ownership(m)
+    target = ROOT / 'scripts/bruno-playground/environments' / ('Instance-' + m['instance'] + '.bru')
+    if target.is_symlink():
+        raise Refusal('PRE-SYMLINK')
+    discovery = get_json(m['issuer'] + '/.well-known/openid-configuration')
+    if discovery.get('issuer') != m['issuer'] or 'S256' not in discovery.get('code_challenge_methods_supported', []):
+        raise Refusal('IDP-DISCOVERY')
+    # No reset, migration, password read, browser callback listener or JWT export.
+    text = 'vars {\n  writeUrl: ' + urls(m)[0] + '\n  readUrl: ' + urls(m)[1] + '\n  issuerUrl: ' + m['issuer'] + '\n}\n'
+    target.write_text(text)
+    target.chmod(0o600)
+    return dict(state='GUI_CONFIGURED', exit=0, environment=str(target),
+                next='In Bruno select Instance-' + m['instance'] + '; 00 Login Owner and 01 Login Guest > Auth > Get Access Token, then PG01.')
+
+
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['start', 'status', 'stop', 'reset', 'bruno', 'login'])
+    parser.add_argument('command', choices=['start', 'status', 'stop', 'reset', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
@@ -718,14 +735,8 @@ def main():
                 result = stop(path, m, evidence)
             elif args.command == 'bruno':
                 result = bruno(path, m, evidence, args.interactive)
-            elif args.command == 'login':
-                token = interactive(m['issuer'])
-                # Generated environment stays under private owned state. No token stdout.
-                env = 'vars {\n  writeUrl: ' + urls(m)[0] + '\n  readUrl: ' + urls(m)[1] + '\n  bearerOwner: ' + token + '\n}\n'
-                guest = login(m['issuer'], 'guest', private(path)['users']['guest'])
-                env = env.replace('\n}', '\n  bearerGuest: ' + guest + '\n}')
-                (path / 'GUI-private.bru').write_text(env)
-                result = dict(state='AUTHENTICATED', exit=0, environment=str(path / 'GUI-private.bru'))
+            elif args.command in ('login', 'gui'):
+                result = gui(path, m)
             else:
                 ownership(m)
                 if args.dry_run:

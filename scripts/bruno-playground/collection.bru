@@ -1,7 +1,3 @@
 script:pre-request {
-  for (const [name, env] of [['writeUrl','POCOMA_PG_WRITE'], ['readUrl','POCOMA_PG_READ'], ['bearerOwner','POCOMA_PG_OWNER'], ['bearerGuest','POCOMA_PG_GUEST']]) {
-    const value = process.env[env] || bru.getEnvVar(name);
-    if (!value) throw new Error('Playground environment missing: ' + name);
-    bru.setVar(name, value);
-  }
+  require('./lib/session.js').configure(bru, process.env);
 }

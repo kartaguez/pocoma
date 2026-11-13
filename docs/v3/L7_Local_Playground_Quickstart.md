@@ -50,6 +50,7 @@ projets Docker ne sont pas modifiés.
 
 ```sh
 ./pocoma-local status
+./pocoma-local gui
 ./pocoma-local bruno
 ./pocoma-local stop
 ./pocoma-local start
@@ -140,3 +141,7 @@ Guides : [Bruno GUI/CLI](L7_Local_Playground_Bruno.md),
 [contrat consommateur BFF](L7_Local_Playground_Public_API.md).
 `verify`/`bench`, performance exhaustive, réconciliation I1b et certification
 restent des travaux I4–I6 ; la façade ne les annonce pas comme disponibles.
+
+Correctif GUI4.2.1 : `./pocoma-local gui` prépare un environnement de seules URLs.
+Les connexions Owner/Guest se font dans Auth > Get Access Token de Bruno ;
+aucune copie manuelle de JWT. Voir le [rapport du correctif](L7_Local_Playground_GUI_Auth_Fix_Report.md).

@@ -1,1 +1,19 @@
-{"scenarios":["PG01"],"namedTests":1,"checks":["Registration and binding","CreatePot and idempotence","Invitation and confidentiality","Expense mutations and exact balances","Delete and history"],"fixtureReadInjection":false}
+{
+  "scenarios": [
+    "PG01"
+  ],
+  "namedTests": 1,
+  "checks": [
+    "Registration and binding",
+    "CreatePot and idempotence",
+    "Invitation and confidentiality",
+    "Expense mutations and exact balances",
+    "Delete and history"
+  ],
+  "fixtureReadInjection": false,
+  "guiLoginRequests": [
+    "00 Login Owner.bru",
+    "01 Login Guest.bru"
+  ],
+  "cliSelection": "PG01 Public Journey.bru"
+}

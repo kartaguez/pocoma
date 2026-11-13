@@ -11,12 +11,16 @@ get {
 }
 
 headers {
-  Authorization: Bearer {{bearerOwner}}
   Connection: close
 }
 
 settings {
   timeout: 5000
+}
+
+script:pre-request {
+  const sessions = require('./lib/session.js').tokens(bru, process.env);
+  req.setHeader('Authorization', 'Bearer ' + sessions.owner);
 }
 
 tests {

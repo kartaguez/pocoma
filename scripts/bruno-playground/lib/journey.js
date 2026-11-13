@@ -1,7 +1,7 @@
 // Public consumer only. Evidence records method/path/status and assertions, no bodies or tokens.
 exports.run = async function (bru, expect) {
   const crypto = require('crypto'), fs = require('fs');
-  const owner = bru.getVar('bearerOwner'), guest = bru.getVar('bearerGuest');
+  const {owner,guest} = require('./session.js').tokens(bru, process.env);
   const trace = [], checks = [];
   if (!owner || !guest || owner === guest) throw new Error('Two distinct real sessions required');
   const call = async (who, method, path, data, binding, key) => {
