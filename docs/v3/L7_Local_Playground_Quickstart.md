@@ -10,7 +10,10 @@ Prérequis hôte : macOS ARM64, Docker Desktop démarré (VM ≥6 Gio, testé à
 Java/JDK 21, Python ≥3.11, Node 24/npm, Git, réseau pour Maven Central et les
 registres d'images. Les outils hôte se préparent une fois ; la façade vérifie les
 versions et installe les dépendances Bruno verrouillées. Prévoir ≥4 Gio libres
-au contrôle initial et davantage pour les téléchargements/caches. Un clone
+si des images doivent être téléchargées ; avec images déjà présentes, le contrôle
+initial exige ≥2 Gio pour build/données, et une reprise avec build en cache
+≥256 Mio pour diagnostics. Les observations sont dans `resources.json`.
+Prévoir davantage pour un clone complet et les caches de dépendances. Un clone
 complet contient plusieurs Go d’archives historiques de preuves ; prévoir une
 marge disque suffisante. Sur un poste contraint, le checkout Git sparse
 `app scripts docker docs/v3` suffit à la distribution (les archives historiques

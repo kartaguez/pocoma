@@ -20,7 +20,8 @@ d'invitation normalisée UTC Z ; délimiteurs SQL BEGIN/COMMIT composés sans
 commit intermédiaire ; Registration déjà liée vérifiée comme refus métier
 explicite ; reprise d’un worker arrêté : attente de la fenêtre physique
 de bail observée (≤240 s), sans mutation d’échéance et sans modifier le budget
-de polling public de 30 s ; un reçu de scénario seul ne suffit pas sans JUnit non vide.
+de polling public de 30 s ; garde disque différenciée entre installation
+(images absentes4Gio, images présentes2Gio) et reprise en cache256Mio ; un reçu de scénario seul ne suffit pas sans JUnit non vide.
 
 Déclaration de vérification : LOCAL DISTRIBUTION / orchestration et bootstrap
 CURRENT V3 ; consommateurs publics WEB/COMMAND/PROJECTION exercés par les cinq

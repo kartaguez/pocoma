@@ -504,10 +504,22 @@ def diagnostics(path, m, evidence):
         (evidence / 'diagnostics-error.txt').write_text('Container diagnostics unavailable; environment retained.\n')
 
 
-def preflight():
+def preflight(path, m):
     data = docker_json('info', '--format', '{{json .}}')
-    if data['MemTotal'] < 6 * 1024**3 or shutil.disk_usage(ROOT).free < 4 * 1024**3:
-        raise Refusal('PRE-RESOURCES: Docker >=6GiB, disk >=4GiB')
+    if data['MemTotal'] < 6 * 1024**3:
+        raise Refusal('PRE-RESOURCES: Docker >=6GiB')
+    # Cached restart needs diagnostic headroom, not a second cold-install budget.
+    cached = (HOME_LOCAL / 'builds' / m['inputs'] / 'receipt.json').exists()
+    minimum = 256 * 1024**2 if cached else 2 * 1024**3
+    for reference in IMAGES.values():
+        result = subprocess.run(['docker','image','inspect',reference],capture_output=True,text=True)
+        if result.returncode:
+            minimum = max(minimum, 4 * 1024**3)
+    free = shutil.disk_usage(ROOT).free
+    save(path / 'resources.json', dict(dockerMemoryBytes=data['MemTotal'], cpus=data['NCPU'],
+         freeDiskBytes=free, requiredDiskBytes=minimum, buildCached=cached))
+    if free < minimum:
+        raise Refusal('PRE-DISK: requiredBytes=' + str(minimum) + ', availableBytes=' + str(free))
     architecture = {'aarch64': 'arm64', 'x86_64': 'amd64'}.get(data['Architecture'], data['Architecture'])
     if architecture not in ('arm64', 'amd64'):
         raise Refusal('PRE-ARCHITECTURE')
@@ -517,7 +529,7 @@ def preflight():
 def start(path, m, evidence):
     if m['inputs'] != source_hash():
         raise Refusal('PRE-INPUT-DRIFT: use a new instance or explicit reset')
-    m['architecture'] = preflight()
+    m['architecture'] = preflight(path, m)
     active = run(['docker', 'ps', '-q', '--filter', 'label=' + LABEL]).splitlines()
     for resource in active:
         value, = docker_json('inspect', resource)

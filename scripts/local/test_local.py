@@ -130,6 +130,7 @@ class LocalSafety(unittest.TestCase):
             path=Path(folder);(path/'runs').mkdir()
             with patch.object(runtime,'ownership'),patch.object(runtime,'private',return_value={'users':{'bruno':'a','guest':'b','third':'c'}}),\
                  patch.object(runtime,'login',side_effect=['token-owner','token-guest','token-third']),\
+                 patch.object(runtime,'run',return_value=''),\
                  patch.object(runtime.subprocess,'run',return_value=subprocess.CompletedProcess([],0)):
                 result=runtime.bruno(path,{'ports':{'write':1,'read':2},'issuer':'http://localhost'},path/'runs')
             self.assertEqual('BRUNO_FAIL',result['state'])
