@@ -1,0 +1,228 @@
+[
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "start",
+      "--instance",
+      "j1-a-cbaf923f"
+    ],
+    "exit": 0,
+    "expected": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS"
+      },
+      "canaryProof": {
+        "potId": "90915829-906f-5f88-8140-048343fcdce4",
+        "version": 2,
+        "runId": "1794607729-f2cd4908",
+        "completedAt": 1794607770.35339
+      },
+      "observedAt": 1794607770.413048,
+      "instance": "j1-a-cbaf923f",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "sha": "8012fb931a53058f49895584ab86f4a1ccd9a951",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794607729-f2cd4908"
+    },
+    "seconds": 40.77167816692963
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "status",
+      "--instance",
+      "j1-a-cbaf923f"
+    ],
+    "exit": 0,
+    "expected": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "IDP-PKCE-SESSION": "PASS"
+      },
+      "canaryProof": {
+        "potId": "90915829-906f-5f88-8140-048343fcdce4",
+        "version": 2,
+        "runId": "1794607729-f2cd4908",
+        "completedAt": 1794607770.35339
+      },
+      "observedAt": 1794607771.871319,
+      "instance": "j1-a-cbaf923f",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "sha": "8012fb931a53058f49895584ab86f4a1ccd9a951",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794607770-a200ec1f"
+    },
+    "seconds": 1.4486327499616891
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "bruno",
+      "--instance",
+      "j1-a-cbaf923f"
+    ],
+    "exit": 0,
+    "expected": 0,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "j1-a-cbaf923f",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "sha": "8012fb931a53058f49895584ab86f4a1ccd9a951",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794607771-d088479b"
+    },
+    "seconds": 3.304020999930799
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "start",
+      "--instance",
+      "j1-a-cbaf923f"
+    ],
+    "exit": 0,
+    "expected": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS"
+      },
+      "canaryProof": {
+        "potId": "90915829-906f-5f88-8140-048343fcdce4",
+        "version": 3,
+        "runId": "1794607775-93922a51",
+        "completedAt": 1794607781.866395
+      },
+      "observedAt": 1794607781.908499,
+      "instance": "j1-a-cbaf923f",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "sha": "8012fb931a53058f49895584ab86f4a1ccd9a951",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794607775-93922a51"
+    },
+    "seconds": 6.610824249917641
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "status",
+      "--instance",
+      "j1-a-cbaf923f"
+    ],
+    "exit": 1,
+    "expected": 1,
+    "result": {
+      "state": "NOT_READY",
+      "exit": 1,
+      "business": "UNAVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "DEGRADED",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "FAIL",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "IDP-PKCE-SESSION": "PASS"
+      },
+      "canaryProof": {
+        "potId": "90915829-906f-5f88-8140-048343fcdce4",
+        "version": 3,
+        "runId": "1794607775-93922a51",
+        "completedAt": 1794607781.866395
+      },
+      "observedAt": 1794607783.445125,
+      "instance": "j1-a-cbaf923f",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "sha": "8012fb931a53058f49895584ab86f4a1ccd9a951",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794607782-988bba66"
+    },
+    "seconds": 1.284119708929211
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "start",
+      "--instance",
+      "j1-a-cbaf923f"
+    ],
+    "exit": 1,
+    "expected": 0,
+    "result": {
+      "state": "NOT_READY",
+      "exit": 1,
+      "control": "API-POLL-TIMEOUT:/commands/185be5eb-9c43-4d36-bd70-75737b0a2138/result",
+      "instance": "j1-a-cbaf923f",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794607783-e810d14a",
+      "environment": "PRESERVED"
+    },
+    "seconds": 39.51345579093322
+  }
+]

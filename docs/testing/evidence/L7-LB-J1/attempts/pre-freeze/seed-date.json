@@ -1,0 +1,8 @@
+{
+  "state": "NOT_READY",
+  "exit": 1,
+  "control": "API-ADMISSION",
+  "instance": "lb-one",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs/1794606656-18c88ae9",
+  "environment": "PRESERVED"
+}

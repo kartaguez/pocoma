@@ -1,0 +1,9 @@
+{
+  "testedSha": "69f327f6707635cea8a74f329f7d2d9c3ce5d3d6",
+  "testedInputs": "7d9158a2062dbe41df1a635d5179110eb024842e11f74ddd2aede92bae250e18",
+  "publicationInputs": "7d9158a2062dbe41df1a635d5179110eb024842e11f74ddd2aede92bae250e18",
+  "identicalOperationalInputs": true,
+  "addedTestScriptSha256": "3beac16d57d4134832239b5a98a1b7ccd4f8a46f6b421ae3b22bac1ec33cf118",
+  "executedTemporaryTestScriptSha256": "3beac16d57d4134832239b5a98a1b7ccd4f8a46f6b421ae3b22bac1ec33cf118",
+  "comparison": "Publication adds documentation/evidence and an exact copy of the executed callback test. No app, runtime, bootstrap, auth, canary or Bruno oracle input changed."
+}

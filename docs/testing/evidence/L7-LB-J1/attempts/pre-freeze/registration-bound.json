@@ -1,0 +1,14 @@
+{
+  "state": "BRUNO_FAIL",
+  "exit": 1,
+  "instance": "lb-one",
+  "project": "pocoma-lb-lb-one-83c444ca",
+  "sha": "2a4e7fd8a79d798b4bcb983a0d5f9466bc5241aa",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:55236",
+    "read": "http://127.0.0.1:55237"
+  },
+  "issuer": "http://localhost:55238/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs/1794606959-c3072e81"
+}

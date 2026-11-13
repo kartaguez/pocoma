@@ -6,7 +6,7 @@ aucune des 522 obligations, des15 réserves L7.3, ni les quarantaines i5_r05/i5_
 
 | ID | État / garantie affectée | Propriétaire et suite |
 |---|---|---|
-| LB-J1-GUI | NOT_RUN humain : flux navigateur interactif et ergonomie de la version GUI installée, guide livré ; Code+PKCE S256 et parcours Bruno CLI réels vérifiés séparément | Acceptant Jalon1 : exécuter login puis PG01 GUI, sans désactiver PKCE |
+| LB-J1-GUI | NOT_RUN humain : rendu navigateur et ergonomie Bruno GUI4.2.1, guide livré ; Code+PKCE S256, callback/state réels et parcours Bruno CLI4.3.0 vérifiés par protocoles automatisés séparés | Acceptant Jalon1 : exécuter login puis PG01 GUI, sans désactiver PKCE |
 | LB-J1-COLD | Installation indépendante depuis Git sans JAR/volume/état Pocoma local ; caches d'images de dépendances et Maven partagés sur le même Mac, pas deux hôtes neufs | I6 : second hôte/caches froids et récupération distante complète |
 | LB-J1-RESOURCES | Profil 16Go, Docker ≥6Gio (test8Gio), exécution séquentielle ; pas de garantie de capacité/concurrence de stacks | I5 : mesures locales préenregistrées, pas de campagne exhaustive sous ce mandat |
 | LB-J1-CLIENT | Contrat BFF documenté et PG01 exécutable ; pas de SDK généré ni de CORS SPA qualifié | Futur BFF : stockage session, callback/CSRF et politique navigateur à qualifier |

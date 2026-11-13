@@ -1,0 +1,7 @@
+{
+  "verdict": "FAIL",
+  "error": "RuntimeError:Qualification command failed: start j1-a-cbaf923f",
+  "resources": "PRESERVED",
+  "first": "j1-a-cbaf923f",
+  "second": "j1-b-cbaf923f"
+}

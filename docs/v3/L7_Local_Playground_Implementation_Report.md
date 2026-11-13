@@ -38,3 +38,30 @@ consignés dans le [rapport de qualification](L7_Local_Playground_Qualification_
 Les campagnes canoniques Maven ne sont pas déclarées closes par le smoke externe.
 Les gates des consommateurs deviendraient requises avant toute correction
 produit ; aucune n'a été nécessaire sous ce mandat.
+
+## Fichiers et publication
+
+Créés : `pocoma-local` ; `scripts/local/{runtime,bootstrap,auth,public_api}.py` ;
+`test_local.py`, `test_installation.py`, `test_interactive_protocol.py` ; collection
+`scripts/bruno-playground` (environnement, PG01, helper, inventaire, guide) ;
+sept documents `L7_Local_Playground_*` et preuves sous
+`docs/testing/evidence/L7-LB-J1`.
+Modifiés : `.gitignore`, README racine et index docs, trois documents de cadrage
+L7_Local_Baseline (plan, contrat développeur, jalons). Aucun fichier `app/`.
+La distribution utilise directement une image JRE pinnée avec montures JAR,
+sans ajouter de Dockerfile ou modifier celui du produit.
+
+Résultats :15 contrôles locaux PASS dans les deux checkouts ; deux installations
+indépendantes READY, Bruno1/1 à chaque exécution, reprise physique246,7s,
+isolation/reset et bootstrap interrompu PASS. Les empreintes opérationnelles
+restent identiques entre le SHA technique69f327f6 et la publication documentaire.
+Verdict proposé **LOCAL_PLAYGROUND_PARTIAL** : seule la validation rendue dans
+Bruno GUI4.2.1 avec login humain reste non exécutée au Jalon1. Le helper
+interactif/PKCE/callback a été vérifié par protocole réel automatisé ; il ne
+remplace pas cette revue GUI. Les autres obligations I1b/I4–I6 restent distinctes.
+La décision humaine et tout tag de référence sont hors publication actuelle.
+
+Les commits d'implémentation sont8012fb93,81a73e78,69f327f6 ; le commit de
+publication descendant contient ces rapports et preuves, sans changement des
+entrées runtime. La branche distante est contrôlée avant push, publication
+sans force. Le SHA final et l'égalité distant/local sont vérifiés à la livraison.

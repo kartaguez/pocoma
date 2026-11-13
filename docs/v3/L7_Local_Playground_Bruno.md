@@ -41,7 +41,7 @@ le reçu attendu manque ; la façade sort 1. La collection vide sort également 
 Ouvrir la collection `scripts/bruno-playground` dans Bruno. Employer un sandbox
 **Developer** pour ce helper local audité (`bru.sendRequest`, Node crypto/fs).
 La qualification automatique utilise le sandbox de la CLI 4.3.0 ; la version
-GUI installée sur un autre poste demeure à vérifier, sans désactiver PKCE.
+GUI4.2.1 installée sur ce Mac et celle d’un autre poste demeurent à vérifier, sans désactiver PKCE.
 
 ```sh
 ./pocoma-local login --instance demo
@@ -91,3 +91,6 @@ chaque réponse, 401 sans bearer, et confidentialité de l'invitation.
 Les autres opérations publiques sont décrites dans le [contrat BFF](L7_Local_Playground_Public_API.md).
 Les corpus historiques B2/B4 couvrent des variantes supplémentaires dans leurs
 propres campagnes ; leur présence ne certifie pas ces variantes au présent SHA.
+
+Contrôle reproductible du protocole du helper (après bruno, sans rendu GUI) :
+`python3 -B scripts/local/test_interactive_protocol.py --instance demo --output /tmp/pocoma-callback-new.json`.

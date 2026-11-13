@@ -1,0 +1,12 @@
+{
+  "verdict": "PASS",
+  "testedSha": "69f327f6707635cea8a74f329f7d2d9c3ce5d3d6",
+  "observations": {
+    "challengeMethod": "S256",
+    "hasState": true,
+    "wrongStateStatus": 400,
+    "callbackStatus": 200,
+    "resourceStatus": 200
+  },
+  "method": "Real Keycloak form and actual interactive callback server; HTTP browser session automated; no GUI rendering or human login claimed."
+}

@@ -1,0 +1,220 @@
+{
+  "services": {
+    "postgres": {
+      "image": "postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "command": [
+        "postgres",
+        "-c",
+        "log_min_error_statement=panic"
+      ],
+      "environment": {
+        "POSTGRES_USER": "pocoma",
+        "POSTGRES_DB": "pocoma",
+        "POSTGRES_PASSWORD_FILE": "/run/pg-password"
+      },
+      "volumes": [
+        "data:/var/lib/postgresql/data",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/pg-password:/run/pg-password:ro",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/pg-init.sql:/docker-entrypoint-initdb.d/01-keycloak.sql:ro"
+      ],
+      "mem_limit": "1024m",
+      "cpus": 1.5,
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U pocoma -d pocoma"
+        ],
+        "interval": "2s",
+        "timeout": "3s",
+        "retries": 40
+      }
+    },
+    "keycloak": {
+      "image": "quay.io/keycloak/keycloak@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "command": [
+        "start-dev",
+        "--import-realm",
+        "--hostname=http://localhost:56789",
+        "--health-enabled=true"
+      ],
+      "environment": {
+        "KC_DB": "postgres",
+        "KC_DB_URL": "jdbc:postgresql://postgres:5432/pocoma",
+        "KC_DB_SCHEMA": "keycloak",
+        "KC_DB_USERNAME": "keycloak",
+        "KC_DB_PASSWORD": "[REDACTED]",
+        "JAVA_OPTS_KC_HEAP": "-Xms128m -Xmx512m"
+      },
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/realm.json:/opt/keycloak/data/import/pocoma-realm.json:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56789:8080"
+      ],
+      "mem_limit": "896m",
+      "cpus": 1.5
+    },
+    "http-write": {
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "entrypoint": [
+        "java",
+        "-Xms64m",
+        "-Xmx384m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/app/runtime.jar",
+        "--spring.profiles.active=v3-http-admission",
+        "--spring.config.additional-location=file:/app/settings.properties"
+      ],
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/web-write.jar:/app/runtime.jar:ro",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/http-write.properties:/app/settings.properties:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56790:18080",
+        "127.0.0.1:56787:8080"
+      ],
+      "mem_limit": "640m",
+      "cpus": 1
+    },
+    "http-read": {
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "entrypoint": [
+        "java",
+        "-Xms64m",
+        "-Xmx384m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/app/runtime.jar",
+        "--spring.profiles.active=v3-http-read",
+        "--spring.config.additional-location=file:/app/settings.properties"
+      ],
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/web-read.jar:/app/runtime.jar:ro",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/http-read.properties:/app/settings.properties:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56791:18082",
+        "127.0.0.1:56788:8082"
+      ],
+      "mem_limit": "640m",
+      "cpus": 1
+    },
+    "command-worker": {
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "entrypoint": [
+        "java",
+        "-Xms64m",
+        "-Xmx384m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/app/runtime.jar",
+        "--spring.profiles.active=v3-consumption-worker-dev",
+        "--spring.config.additional-location=file:/app/settings.properties"
+      ],
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/worker-process.jar:/app/runtime.jar:ro",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/command-worker.properties:/app/settings.properties:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56792:18083"
+      ],
+      "mem_limit": "640m",
+      "cpus": 1
+    },
+    "results-worker": {
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "entrypoint": [
+        "java",
+        "-Xms64m",
+        "-Xmx384m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/app/runtime.jar",
+        "--spring.profiles.active=v3-read-worker",
+        "--spring.config.additional-location=file:/app/settings.properties"
+      ],
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/worker-materialize.jar:/app/runtime.jar:ro",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/results-worker.properties:/app/settings.properties:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56793:18084"
+      ],
+      "mem_limit": "640m",
+      "cpus": 1
+    },
+    "business-read-worker": {
+      "image": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "entrypoint": [
+        "java",
+        "-Xms64m",
+        "-Xmx384m",
+        "-XX:+UseSerialGC",
+        "-jar",
+        "/app/runtime.jar",
+        "--spring.profiles.active=v3-read-worker",
+        "--spring.config.additional-location=file:/app/settings.properties"
+      ],
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/worker-materialize.jar:/app/runtime.jar:ro",
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/business-read-worker.properties:/app/settings.properties:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56794:18085"
+      ],
+      "mem_limit": "640m",
+      "cpus": 1
+    },
+    "prometheus": {
+      "image": "prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      },
+      "volumes": [
+        "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      ],
+      "ports": [
+        "127.0.0.1:56795:9090"
+      ],
+      "mem_limit": "256m",
+      "cpus": 0.5
+    }
+  },
+  "networks": {
+    "default": {
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      }
+    }
+  },
+  "volumes": {
+    "data": {
+      "name": "pocoma-lb-j1-a-2ad2a840-ba43381e-data",
+      "labels": {
+        "io.pocoma.local.owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d"
+      }
+    }
+  }
+}
