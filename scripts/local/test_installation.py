@@ -42,7 +42,7 @@ def qualify(second, output):
     def preserve(result,name):
         src=Path(result['evidence'])
         dest=output/name;dest.mkdir()
-        for filename in ('receipt.json','public-requests.json','bruno-receipt.json','bruno.xml','scenarios.jsonl','checks.json'):
+        for filename in ('receipt.json','public-requests.json','bruno-receipt.json','bruno.xml','scenarios.jsonl','checks.json','recovery-window.json'):
             if (src/filename).exists():shutil.copyfile(src/filename,dest/filename)
     before=rt.run(['docker','ps','-aq']).splitlines()
     rt.save(output/'provenance.json',dict(sha=rt.run(['git','rev-parse','HEAD']),

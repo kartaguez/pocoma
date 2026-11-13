@@ -18,7 +18,9 @@ Aucun fichier sous `app/` modifié : ni contrat métier, ni POM, ni migration, n
 règle d'isolation, ni bail. Défauts corrigés dans **le nouvel outillage** : date
 d'invitation normalisée UTC Z ; délimiteurs SQL BEGIN/COMMIT composés sans
 commit intermédiaire ; Registration déjà liée vérifiée comme refus métier
-explicite ; un reçu de scénario seul ne suffit pas sans JUnit non vide.
+explicite ; reprise d’un worker arrêté : attente de la fenêtre physique
+de bail observée (≤240 s), sans mutation d’échéance et sans modifier le budget
+de polling public de 30 s ; un reçu de scénario seul ne suffit pas sans JUnit non vide.
 
 Déclaration de vérification : LOCAL DISTRIBUTION / orchestration et bootstrap
 CURRENT V3 ; consommateurs publics WEB/COMMAND/PROJECTION exercés par les cinq

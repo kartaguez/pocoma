@@ -10,7 +10,11 @@ Prérequis hôte : macOS ARM64, Docker Desktop démarré (VM ≥6 Gio, testé à
 Java/JDK 21, Python ≥3.11, Node 24/npm, Git, réseau pour Maven Central et les
 registres d'images. Les outils hôte se préparent une fois ; la façade vérifie les
 versions et installe les dépendances Bruno verrouillées. Prévoir ≥4 Gio libres
-au contrôle initial et davantage pour les téléchargements/caches.
+au contrôle initial et davantage pour les téléchargements/caches. Un clone
+complet contient plusieurs Go d’archives historiques de preuves ; prévoir une
+marge disque suffisante. Sur un poste contraint, le checkout Git sparse
+`app scripts docker docs/v3` suffit à la distribution (les archives historiques
+restent dans Git et ne sont ni altérées ni nécessaires au démarrage).
 
 ```sh
 git clone https://github.com/kartaguez/pocoma.git
@@ -58,7 +62,11 @@ Les diagnostics précédents restent conservés. Stop attend l'arrêt gracieux d
 JVM (45 s par service) puis des dépendances ; volumes et baux sont conservés.
 Le code d'arrêt Docker est conservé dans les reçus/logs privés ; aucun slot
 n'est purgé et aucun bail n'est raccourci. Une reprise après arrêt forcé peut
-attendre les baux existants (lease 240 s).
+attendre les baux existants (lease 240 s). Lorsqu’un worker arrêté doit
+redémarrer, start photographie la fenêtre physique PG de propriété/claim et
+attend son échéance avant le démarrage et le nouveau canari ; son reçu
+`recovery-window.json` conserve la durée réelle. Cette attente bornée par les
+240 s déclarées ne change ni les échéances ni le polling public de 30 s.
 
 Le verrou d'instance refuse les opérations concurrentes ; un second verrou
 sérialise start/reset entre instances, un verrou de build protège Maven. Les

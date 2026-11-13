@@ -349,6 +349,47 @@ def package(path, m, evidence):
         m['build'] = receipt
 
 
+def recovery_window(path, m, evidence):
+    """Wait the captured physical ownership window before restarting stopped workers.
+
+    This does not widen the public polling budget or mutate a lease. Active
+    workers may renew other partitions; only the captured time is awaited.
+    """
+    stopped = []
+    for name in ('command-worker', 'results-worker', 'business-read-worker'):
+        resource = compose(path, m, 'ps', '-aq', name)
+        if resource:
+            value, = docker_json('inspect', resource)
+            if not value['State']['Running']:
+                stopped.append(name)
+    if not stopped:
+        return
+    databases = set()
+    if 'command-worker' in stopped:
+        databases.add(('pocoma_write', 'v3_write'))
+    if any(name != 'command-worker' for name in stopped):
+        databases.add(('pocoma_read', 'v3_read'))
+    observations = {}
+    for db, schema in sorted(databases):
+        seconds = float(sql(path, m, db, f"""
+            SELECT greatest(0,coalesce(extract(epoch from (max(until)-clock_timestamp())),0))
+            FROM (SELECT owned_until AS until FROM {schema}.partition_ownership
+                  UNION ALL SELECT claimed_until FROM {schema}.consumption_slot) AS observed;
+        """))
+        if seconds > 241:
+            raise Refusal('RECOVERY-WINDOW-OUTSIDE-DECLARED-LEASE')
+        observations[db] = seconds
+    wait_seconds = max(observations.values(), default=0)
+    record = dict(stoppedWorkers=stopped, remainingSeconds=observations,
+                  action='WAIT_CAPTURED_WINDOW_NO_LEASE_MUTATION', startedAt=time.time())
+    save(evidence / 'recovery-window.json', record)
+    deadline = time.monotonic() + wait_seconds
+    while time.monotonic() < deadline:
+        time.sleep(min(.5, max(0, deadline-time.monotonic())))
+    record['completedAt'] = time.time()
+    save(evidence / 'recovery-window.json', record)
+
+
 def await_check(action, timeout, name):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -504,6 +545,7 @@ def start(path, m, evidence):
                 (_ for _ in ()).throw(RuntimeError()), 60, 'DB-INIT-TIMEOUT')
     initialize(lambda db, text: sql(path, m, db, text), credentials['passwords'])
     properties(path, m, credentials)
+    recovery_window(path, m, evidence)
     compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     await_check(lambda: get_json(m['issuer'] + '/.well-known/openid-configuration'), 150, 'IDP-TIMEOUT')
     compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', log=evidence / 'runtimes-up.log')

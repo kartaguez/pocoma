@@ -175,24 +175,15 @@ DB CURRENT pour installation V3 et SQL affecté ; baseline TRUSTED actuellement
 NONE, aucune certification implicite ; pas de migrations V2 historiques
 par défaut. Consigner toute exécution transitive et tout franchissement inattendu.
 
-## 5. Proposition du prochain mandat
+## 5. Mandat courant et suite
 
-**`GO_L7_LB_I1_RECONCILIATION`** : depuis la branche de référence intégrant le
-présent cadrage, confirmer SHA/propreté/synchronisation, allouer les522 IDs et
-réserves héritées en une vue traçable, comparer les entrées historiques→cible,
-réexaminer la candidate E02-J, fixer les preuves bloquantes locales et produire
-le plan concret I2 avec fichiers à modifier, checks et slices déclarés.
-
-I1 est principalement documentaire ; il constitue le premier incrément du
-**programme d'implémentation**, sans autoriser du code produit sous ce seul GO.
-Le premier mandat qui modifiera le runtime sera
-**`GO_L7_LB_I2_LOCAL_RUNTIME_IMPLEMENTATION`**, sur la sortie I1 revue :
-façade locale, Compose isolé, bootstrap complet, smoke minimal et conservation
-des diagnostics. Son premier résultat doit être une installation neuve en une
-commande avec verdict global attribuable. Préparer Bruno minimal en I2 permet
-de réduire le délai jusqu'au checkpoint I3 sans inclure une qualification
-exhaustive dans start. Le mandat de cadrage actuel n'autorise ni I1 supplémentaire,
-ni I2 code, ni campagne, ni tag.
+`GO_L7_LB_LOCAL_PLAYGROUND_IMPLEMENTATION` autorise I1a/I2/I3 en continu,
+implémentation, vérification ciblée, documentation et publication de branche.
+Il remplace les propositions historiques de GO séquentiels I1 puis I2.
+Le [plan concret I1a](L7_Local_Playground_Implementation_Plan.md) précède le code.
+I1b continue pour I4/I6 sans bloquer I2/I3, sauf lacune critique démontrée.
+Après le verdict Jalon1, la suite est I1b/I4/I5 puis I6 sous leurs décisions
+applicables. Ni certification globale, ni nouveau tag sous ce mandat.
 
 ## Décisions D6–D9 appliquées au mandat Jalon 1
 

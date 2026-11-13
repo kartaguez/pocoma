@@ -53,6 +53,19 @@ class LocalSafety(unittest.TestCase):
                 self.assertEqual(2,runtime.main())
             self.assertFalse((target/'manifest.json').exists())
 
+    def test_recovery_waits_observed_lease_without_mutation_or_polling_extension(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'compose',return_value='stopped-worker'), \
+             patch.object(runtime,'docker_json',return_value=[{'State':{'Running':False}}]), \
+             patch.object(runtime,'sql',return_value='0') as sql:
+            runtime.recovery_window(Path(folder),{},Path(folder))
+            data=json.loads((Path(folder)/'recovery-window.json').read_text())
+            self.assertEqual('WAIT_CAPTURED_WINDOW_NO_LEASE_MUTATION',data['action'])
+            self.assertEqual(2,sql.call_count)
+            for call in sql.call_args_list:
+                self.assertNotIn('UPDATE',call.args[3])
+                self.assertNotIn('DELETE',call.args[3])
+            self.assertIn('completedAt',data)
+
     def test_health_only_cannot_be_ready(self):
         result=runtime.verdict({'HTTP':'PASS'},False,'AVAILABLE')
         self.assertEqual('NOT_READY',result['state'])
