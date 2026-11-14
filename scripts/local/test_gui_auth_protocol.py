@@ -1,4 +1,4 @@
-"""Real IdP sessions -> installed Bruno4.2.1 cache API/VM -> delivered journeys.
+"""Real IdP sessions -> installed Bruno cache API/VM -> delivered journeys.
 
 No UI rendering/human acceptance claim. No JWT file, argv or stdout.
 """
@@ -25,12 +25,12 @@ def execute(instance, output):
         command=['/Applications/Bruno.app/Contents/MacOS/Bruno',str(runtime.ROOT/'scripts/local/test_bruno_gui.js')]
         result=subprocess.run(command,env=env,text=True,capture_output=True,timeout=600,cwd=runtime.ROOT)
         if result.returncode:
-            raise RuntimeError('Installed Bruno4.2.1 protocol control failed; no secret/response dump.')
+            raise RuntimeError('Installed Bruno protocol control failed; no secret/response dump.')
         receipt=json.loads(output.read_text());receipt.update(testedSha=runtime.run(['git','rev-parse','HEAD']),
             dirty=bool(runtime.run(['git','status','--porcelain'])),inputs=runtime.source_hash(),command=command,
             oidc='Real Keycloak: Authorization Code S256, missing/plain refused; private sessions passed in process environment only.')
         output.write_text(json.dumps(receipt,indent=2)+'\n')
-        print('Bruno4.2.1 delivered journeys through native cache/VM PASS; no rendered login claim.')
+        print('Bruno'+receipt['bruno']+' delivered journeys through native cache/VM PASS; no rendered login claim.')
 
 
 if __name__=='__main__':

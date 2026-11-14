@@ -19,7 +19,8 @@ import xml.etree.ElementTree as ET
 from uuid import uuid4
 from urllib.request import urlopen
 
-from auth import interactive, login, prove_pkce
+from auth import interactive, login
+from keycloak import LOCAL_PASSWORD, LOCAL_USERS, KeycloakFailure, access, discovery, identities
 from bootstrap import fingerprint, initialize, ROLES
 from public_api import PublicAPI, canary, seed
 
@@ -112,7 +113,7 @@ def locked(instance, create=False):
 
 @contextmanager
 def lifecycle_lock(command):
-    if command not in ('start', 'reset'):
+    if command not in ('start', 'reset', 'destroy'):
         yield
         return
     with (HOME_LOCAL / 'lifecycle.lock').open('a') as lock:
@@ -207,7 +208,7 @@ def private(path):
         return read(file)
     key = lambda: base64.b64encode(secrets.token_bytes(32)).decode()
     data = dict(passwords={role: secrets.token_urlsafe(32) for role in (*ROLES, 'pocoma', 'keycloak')},
-                users={name: secrets.token_urlsafe(24) for name in ('bruno', 'guest', 'third')},
+                users={name: LOCAL_PASSWORD for name in LOCAL_USERS},
                 lookup=key(), comparison=key(), invitation=key())
     save(file, data)
     return data
@@ -240,7 +241,7 @@ def render(path, m, credentials):
     password.chmod(0o644)
     realm = read(ROOT / 'docker/keycloak/pocoma-realm.json')
     template = realm['users'][0]
-    realm['users'] = [dict(template, username=user, email=user + '@pocoma.local',
+    realm['users'] = [dict(template, username=user, email=user + '@pocoma.local', enabled=True, requiredActions=[],
                            credentials=[dict(type='password', value=value, temporary=False)])
                       for user, value in credentials['users'].items()]
     save(path / 'realm.json', realm)
@@ -262,6 +263,7 @@ def render(path, m, credentials):
         command=['start-dev', '--import-realm', '--hostname=http://localhost:' + str(ports['issuer']), '--health-enabled=true'],
         environment=dict(KC_DB='postgres', KC_DB_URL='jdbc:postgresql://postgres:5432/pocoma', KC_DB_SCHEMA='keycloak',
                          KC_DB_USERNAME='keycloak', KC_DB_PASSWORD=credentials['passwords']['keycloak'],
+                         KC_BOOTSTRAP_ADMIN_USERNAME='admin', KC_BOOTSTRAP_ADMIN_PASSWORD=LOCAL_PASSWORD,
                          JAVA_OPTS_KC_HEAP='-Xms128m -Xmx512m'),
         volumes=[f'{path}/realm.json:/opt/keycloak/data/import/pocoma-realm.json:ro'],
         ports=[f'127.0.0.1:{ports["issuer"]}:8080'], mem_limit='896m', cpus=1.5)
@@ -392,11 +394,15 @@ def recovery_window(path, m, evidence):
 
 def await_check(action, timeout, name):
     deadline = time.monotonic() + timeout
+    last = None
     while time.monotonic() < deadline:
         try:
             return action()
-        except Exception:
+        except Exception as error:
+            last = error
             time.sleep(.5)
+    if isinstance(last, KeycloakFailure):
+        raise last
     raise RuntimeError(name)
 
 
@@ -559,7 +565,8 @@ def start(path, m, evidence):
     properties(path, m, credentials)
     recovery_window(path, m, evidence)
     compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
-    await_check(lambda: get_json(m['issuer'] + '/.well-known/openid-configuration'), 150, 'IDP-TIMEOUT')
+    await_check(lambda: discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
+    auth_checks, tokens = identities(m['issuer'], lambda data: save(evidence / 'keycloak-auth.json', data))
     compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', log=evidence / 'runtimes-up.log')
     observed_catalogue = catalogue(path, m)
     if m.get('catalogue') and m['catalogue'] != observed_catalogue:
@@ -568,11 +575,11 @@ def start(path, m, evidence):
     verify_acl(path, m, credentials)
     save(path / 'manifest.json', m)
     checks = current(path, m, wait=True)
+    checks.update(auth_checks)
     if 'FAIL' in checks.values():
         save(evidence / 'checks.json', checks)
         raise RuntimeError('READINESS:' + ','.join(k for k, v in checks.items() if v == 'FAIL'))
-    owner = prove_pkce(m['issuer'], 'bruno', credentials['users']['bruno'])
-    guest = login(m['issuer'], 'guest', credentials['users']['guest'])
+    owner, guest = tokens['bruno'], tokens['guest']
     write, read_url = urls(m)
     api, guest_api = PublicAPI(write, read_url, owner), PublicAPI(write, read_url, guest)
     demo_file = path / 'demo.json'
@@ -601,12 +608,18 @@ def verdict(checks, fresh, tools, proof=None):
                 checks=checks, canaryProof=proof, observedAt=time.time())
 
 
-def status(path, m):
+def status(path, m, evidence=None):
     ownership(m)
     checks = current(path, m)
+    auth_proof = {}
+    def record(data):
+        auth_proof.update(data)
+        if evidence:
+            save(evidence / 'keycloak-auth.json', data)
     try:
-        credentials = private(path)
-        token = login(m['issuer'], 'bruno', credentials['users']['bruno'])
+        auth_checks, tokens = identities(m['issuer'], record)
+        checks.update(auth_checks)
+        token = tokens['bruno']
         api = PublicAPI(*urls(m), token)
         proof_file = path / 'canary.json'
         if proof_file.exists():
@@ -620,9 +633,13 @@ def status(path, m):
         checks['IDP-PKCE-SESSION'] = 'PASS'
     except Exception:
         checks['IDP-PKCE-SESSION'] = 'FAIL'
+    checks.update(auth_proof.get('checks', {}))
     proof = read(path / 'canary.json') if (path / 'canary.json').exists() else None
     fresh = bool(proof and 0 <= time.time() - proof['completedAt'] <= MAX_AGE)
-    return verdict(checks, fresh, observability(m), proof)
+    result = verdict(checks, fresh, observability(m), proof)
+    if 'diagnostic' in auth_proof:
+        result['diagnostic'] = auth_proof['diagnostic']
+    return result
 
 
 def stop(path, m, evidence):
@@ -649,6 +666,42 @@ def stop(path, m, evidence):
     killed = [name for name, code in exit_codes.items() if code == 137]
     return dict(state='STOPPED' if not killed else 'STOPPED_WITH_FORCED_KILL', exit=0 if not killed else 1,
                 volumes='PRESERVED', runtimeExitCodes=exit_codes, forcedKill=killed, slotsBeforeStop=slots)
+
+
+def destruction_plan(path, m):
+    ownership(m)
+    return dict(state='DESTROY_PLAN', exit=0, instance=m['instance'], owner=m['owner'], project=m['project'],
+                volume=m['project'] + '-data', network=m['project'] + '_default',
+                services=[*RUNTIMES, 'postgres', 'keycloak', 'prometheus'],
+                persistentDataLost=['PostgreSQL WRITE/READ and Keycloak database in owned volume',
+                                    'Generated credentials, configuration, demo and canary checkpoints'],
+                retained=str(path / 'runs'),
+                operations=['Verify manifest/UUID/resource ownership', 'Gracefully stop this instance',
+                            'Compose down --volumes for this project only',
+                            'Remove generated instance files; retain lock and diagnostic runs'],
+                command='./pocoma-local destroy --instance ' + m['instance'] + ' --confirm DESTROY:' + m['instance'])
+
+
+def destroy(path, m, evidence):
+    plan = destruction_plan(path, m)
+    if not (path / 'compose.json').exists():
+        raise Refusal('DESTROY-COMPOSE-MISSING: retain state and inspect resource inventory')
+    save(evidence / 'destroy-plan.json', plan)
+    stopped = stop(path, m, evidence)
+    if stopped['exit']:
+        raise Refusal('DESTROY-STOP-INCOMPLETE: inspect diagnostics before retrying')
+    diagnostics(path, m, evidence)
+    ownership(m)
+    if (path / 'compose.json').exists():
+        compose(path, m, 'down', '--volumes', '--timeout', '45', timeout=180, log=evidence / 'destroy.log')
+    for query in (['ps', '-aq'], ['volume', 'ls', '-q'], ['network', 'ls', '-q']):
+        if run(['docker', *query, '--filter', 'label=com.docker.compose.project=' + m['project']]):
+            raise Refusal('DESTROY-RESOURCES-REMAIN: preserve manifest and inspect inventory')
+    # Keep historical diagnostics, but a subsequent start creates a fresh identity.
+    for file in path.iterdir():
+        if file.is_file() and file.name != 'lock':
+            file.unlink()
+    return dict(state='DESTROYED', exit=0, project=m['project'], diagnostics='PRESERVED')
 
 
 def validate_bruno_results(inventory, actual, suites, exit_code):
@@ -721,9 +774,7 @@ def gui(path, m):
     target = ROOT / 'scripts/bruno-playground/environments' / ('Instance-' + m['instance'] + '.bru')
     if target.is_symlink():
         raise Refusal('PRE-SYMLINK')
-    discovery = get_json(m['issuer'] + '/.well-known/openid-configuration')
-    if discovery.get('issuer') != m['issuer'] or 'S256' not in discovery.get('code_challenge_methods_supported', []):
-        raise Refusal('IDP-DISCOVERY')
+    discovery(m['issuer'])
     # No reset, migration, password read, browser callback listener or JWT export.
     text = 'vars {\n  writeUrl: ' + urls(m)[0] + '\n  readUrl: ' + urls(m)[1] + '\n  issuerUrl: ' + m['issuer'] + '\n}\n'
     if 'http-read' in m['ports']:
@@ -731,13 +782,14 @@ def gui(path, m):
     target.write_text(text)
     target.chmod(0o600)
     return dict(state='GUI_CONFIGURED', exit=0, environment=str(target),
+                **access(m['issuer']),
                 next='In Bruno select Instance-' + m['instance'] + '; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.')
 
 
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['start', 'status', 'stop', 'reset', 'bruno', 'login', 'gui'])
+    parser.add_argument('command', choices=['start', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
@@ -748,6 +800,8 @@ def main():
     try:
         if args.command == 'reset' and (args.instance is None or args.confirm != 'RESET:' + instance):
             raise Refusal('RESET-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED')
+        if args.command == 'destroy' and (args.instance is None or args.confirm != 'DESTROY:' + instance):
+            raise Refusal('DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED')
         with locked(instance, create=args.command == 'start') as path, lifecycle_lock(args.command):
             if not (path / 'manifest.json').exists():
                 if args.command != 'start':
@@ -760,13 +814,15 @@ def main():
             if args.command == 'start':
                 result = start(path, m, evidence)
             elif args.command == 'status':
-                result = status(path, m)
+                result = status(path, m, evidence)
             elif args.command == 'stop':
                 result = stop(path, m, evidence)
             elif args.command == 'bruno':
                 result = bruno(path, m, evidence, args.interactive)
             elif args.command in ('login', 'gui'):
                 result = gui(path, m)
+            elif args.command == 'destroy':
+                result = destruction_plan(path, m) if args.dry_run else destroy(path, m, evidence)
             else:
                 ownership(m)
                 if args.dry_run:
@@ -786,6 +842,9 @@ def main():
             result.update(instance=instance, project=m['project'], sha=run(['git', 'rev-parse', 'HEAD']),
                           dirty=bool(run(['git', 'status', '--porcelain'])), urls=dict(zip(('write', 'read'), urls(m))),
                           issuer=m.get('issuer'), evidence=str(evidence))
+            if args.command in ('start', 'status', 'gui', 'login') and m.get('issuer'):
+                result.update(access(m['issuer']))
+                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'status') else None
             save(evidence / 'receipt.json', result)
             if result['exit']:
                 diagnostics(path, m, evidence)
@@ -797,6 +856,11 @@ def main():
         control = str(error) if isinstance(error, (Refusal, RuntimeError)) else type(error).__name__
         result = dict(state='NOT_READY', exit=code, control=control, instance=instance,
                       evidence=str(evidence) if evidence else None, environment='PRESERVED')
+        if isinstance(error, KeycloakFailure):
+            result['diagnostic'] = dict(error.diagnostic, evidence=str(evidence / 'keycloak-auth.json') if evidence else None)
+            if evidence and not (evidence / 'keycloak-auth.json').exists():
+                save(evidence / 'keycloak-auth.json', dict(diagnostic=error.diagnostic,
+                     checks={str(error): 'FAIL'}, observedAt=time.time()))
         if evidence:
             save(evidence / 'receipt.json', result)
             diagnostics(path, m, evidence)

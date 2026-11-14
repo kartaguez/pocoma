@@ -46,6 +46,50 @@ class LocalSafety(unittest.TestCase):
             self.assertEqual(2, runtime.main())
             command.assert_not_called()
 
+    def test_destroy_requires_exact_explicit_instance_confirmation_before_docker(self):
+        for argv in (['destroy'], ['destroy','--confirm','DESTROY:demo'],
+                     ['destroy','--instance','demo','--confirm','DESTROY:other']):
+            with patch.object(sys,'argv',['runtime.py',*argv]), patch.object(runtime,'run') as command:
+                self.assertEqual(2,runtime.main())
+                command.assert_not_called()
+
+    def test_destroy_refuses_foreign_ownership_before_stop_or_file_removal(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership',side_effect=runtime.Refusal('FOREIGN')), \
+             patch.object(runtime,'stop') as stop:
+            with self.assertRaisesRegex(runtime.Refusal,'FOREIGN'):
+                runtime.destroy(Path(folder),{},Path(folder))
+            stop.assert_not_called()
+
+    def test_destroy_plan_is_read_only_and_destroy_retains_evidence(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership'), \
+             patch.object(runtime,'stop',return_value={'exit':0}), patch.object(runtime,'diagnostics'), \
+             patch.object(runtime,'compose') as compose, patch.object(runtime,'run',return_value=''):
+            path=Path(folder);evidence=path/'runs/run';evidence.mkdir(parents=True)
+            for name in ('manifest.json','secrets.json','compose.json','lock'):
+                (path/name).write_text('{}')
+            m={'instance':'target','owner':'uuid','project':'owned-project'}
+            runtime.destruction_plan(path,m)
+            compose.assert_not_called()
+            self.assertTrue((path/'secrets.json').exists())
+            result=runtime.destroy(path,m,evidence)
+            self.assertEqual('DESTROYED',result['state'])
+            compose.assert_called_once()
+            self.assertEqual(('down','--volumes','--timeout','45'),compose.call_args.args[2:])
+            self.assertTrue((path/'lock').exists())
+            self.assertTrue((evidence/'destroy-plan.json').exists())
+            self.assertFalse((path/'secrets.json').exists())
+            self.assertFalse((path/'manifest.json').exists())
+
+    def test_destroy_keeps_manifest_if_owned_resource_survives_compose_down(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership'), \
+             patch.object(runtime,'stop',return_value={'exit':0}), patch.object(runtime,'diagnostics'), \
+             patch.object(runtime,'compose'), patch.object(runtime,'run',return_value='residual'):
+            path=Path(folder);evidence=path/'runs/run';evidence.mkdir(parents=True)
+            for name in ('manifest.json','compose.json'):(path/name).write_text('{}')
+            with self.assertRaisesRegex(runtime.Refusal,'RESOURCES-REMAIN'):
+                runtime.destroy(path,{'instance':'target','owner':'id','project':'owned'},evidence)
+            self.assertTrue((path/'manifest.json').exists())
+
     def test_missing_manifest_does_not_create_ownership(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(runtime, 'HOME_LOCAL', Path(folder)):
             target=Path(folder)/'instances'/'orphan';target.mkdir(parents=True,mode=0o700)
@@ -130,7 +174,7 @@ class LocalSafety(unittest.TestCase):
             root=Path(folder);target=root/'scripts/bruno-playground/environments';target.mkdir(parents=True)
             m={'instance':'example','issuer':'http://localhost:1234/realms/pocoma','ports':{'write':1235,'read':1236}}
             with patch.object(runtime,'ROOT',root),patch.object(runtime,'ownership'), \
-                 patch.object(runtime,'get_json',return_value={'issuer':m['issuer'],'code_challenge_methods_supported':['S256']}), \
+                 patch.object(runtime,'discovery'), \
                  patch.object(runtime,'private') as private,patch.object(runtime,'interactive') as interactive:
                 r=runtime.gui(root,m)
                 text=(target/'Instance-example.bru').read_text()

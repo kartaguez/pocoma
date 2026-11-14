@@ -1,0 +1,946 @@
+[
+  {
+    "id": "J01-01-E00",
+    "method": "GET",
+    "path": "/realms/pocoma/.well-known/openid-configuration",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-02-I01",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-03-I02",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/4ff52058-d3ea-4f48-a07d-41ab08f6b52c/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-04-I03",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-05-I04",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-06-I05",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/b4dd35df-2d06-4425-a6bf-d9ed4d287d2b/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-07-I06",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-08-P01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-09-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/baf8f85f-eec1-40a0-9e7c-789f2c42216f/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-10-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-11-B02",
+    "method": "GET",
+    "path": "/api/v3/me/pots",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-12-S01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-13-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/34e2c3fd-8b85-4cf6-ae74-9397a799108e/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-14-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 8
+  },
+  {
+    "id": "J01-15-A06",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-16-V01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-17-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/8a597e26-4209-4da8-9c7a-755cd18252f8/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-18-V02",
+    "method": "GET",
+    "path": "/api/v3/invitations/by-creation-request/8a597e26-4209-4da8-9c7a-755cd18252f8",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-19-A07",
+    "method": "GET",
+    "path": "/api/v3/invitations/by-creation-request/8a597e26-4209-4da8-9c7a-755cd18252f8",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-20-V03",
+    "method": "POST",
+    "path": "/api/v3/invitations/available-shareholders/query",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-21-V04",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-22-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/102e98f1-386c-473c-a00e-c277aaafd1a6/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-23-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-24-X01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-25-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/2259783d-2d89-4e33-8693-4b4eeab6137f/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-26-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 11
+  },
+  {
+    "id": "J01-27-B01",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/4/balance",
+    "status": 200,
+    "tests": 2,
+    "assertions": 11
+  },
+  {
+    "id": "J01-28-H02",
+    "method": "POST",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/4/expenses/query",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-29-X02",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-30-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/0079df33-249a-4577-8bdf-6f2698eac39c/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-31-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-32-H02",
+    "method": "POST",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/5/expenses/query",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-33-X03",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-34-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/a5e67276-0386-4526-9374-a5f72f8bb1df/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-35-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 11
+  },
+  {
+    "id": "J01-36-B01",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/6/balance",
+    "status": 200,
+    "tests": 2,
+    "assertions": 11
+  },
+  {
+    "id": "J01-37-H01",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/4",
+    "status": 200,
+    "tests": 2,
+    "assertions": 11
+  },
+  {
+    "id": "J01-38-H02",
+    "method": "POST",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/4/expenses/query",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-39-S02",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-40-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/f9f6752d-51f6-42e0-b2e4-30f1ba5bc8a8/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-41-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 8
+  },
+  {
+    "id": "J01-42-S03",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-43-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/78988e79-9f94-480c-9a55-106baee40910/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-44-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 8
+  },
+  {
+    "id": "J01-45-S06",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-46-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/dbb70afd-0dbe-40c6-b83a-0157764b970a/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-47-X04",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-48-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/02237c75-3054-4f2a-9315-470a59133cf6/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-49-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-50-B01",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/10/balance",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J01-51-S05",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-52-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/944fc31f-886b-4143-8029-1208d70a629c/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-53-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 8
+  },
+  {
+    "id": "J01-54-A06",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-55-H01",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/4",
+    "status": 200,
+    "tests": 2,
+    "assertions": 11
+  },
+  {
+    "id": "J01-56-S04",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-57-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/77a08ad9-173e-4b22-b18f-c7cef4454ee9/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-58-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 8
+  },
+  {
+    "id": "J01-59-P02",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-60-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/ff75d93a-bd2f-4711-b927-56067f403239/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-61-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 200,
+    "tests": 2,
+    "assertions": 8
+  },
+  {
+    "id": "J01-62-P03",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-63-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/f8e9d5df-5364-426a-b434-3346631d9ea8/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J01-64-A12",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-65-A13",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/14",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J01-66-H01",
+    "method": "GET",
+    "path": "/api/v3/pots/920d2e76-0b14-4b1b-8b0d-67746738fb26/versions/13",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J02-01-E00",
+    "method": "GET",
+    "path": "/realms/pocoma/.well-known/openid-configuration",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-02-I01",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-03-I02",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/474d8562-f5de-41b5-8b8f-e344b6cb5526/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-04-I03",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-05-I04",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-06-I05",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/250135af-a0e3-49c0-9cd1-22d9d58f8434/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-07-I06",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-08-P01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-09-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/f6b7ec6d-5d79-4e89-9fda-3d758167e9ad/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-10-A04",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 4
+  },
+  {
+    "id": "J02-11-A05",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 409,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-12-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/7820827d-5430-4db1-a515-0fc7a5f66f9a",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J02-13-B02",
+    "method": "GET",
+    "path": "/api/v3/me/pots",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-14-B03",
+    "method": "GET",
+    "path": "/api/v3/me/pots",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-15-S01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-16-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/4542f1ba-0294-49fe-822a-5316dc578f80/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-17-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/7820827d-5430-4db1-a515-0fc7a5f66f9a",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J02-18-A01",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 401,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-19-A02",
+    "method": "GET",
+    "path": "/api/v3/me/pots",
+    "status": 400,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-20-A03",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 400,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-21-A06",
+    "method": "GET",
+    "path": "/api/v3/pots/7820827d-5430-4db1-a515-0fc7a5f66f9a",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-22-A08",
+    "method": "GET",
+    "path": "/api/v3/commands/4542f1ba-0294-49fe-822a-5316dc578f80/result",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-23-A09",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-24-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/7434bbe4-19b4-4c68-be88-cfa8f96b4694/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-25-A10",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-26-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/362ec377-8bed-47cb-ba07-3f99798bfb5f/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-27-A11",
+    "method": "POST",
+    "path": "/api/v3/pots/7820827d-5430-4db1-a515-0fc7a5f66f9a/versions/2/expenses/query",
+    "status": 400,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-28-P03",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-29-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/8df95a6b-c265-4371-ba25-30620473d912/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J02-30-A12",
+    "method": "GET",
+    "path": "/api/v3/pots/7820827d-5430-4db1-a515-0fc7a5f66f9a",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J02-31-A13",
+    "method": "GET",
+    "path": "/api/v3/pots/7820827d-5430-4db1-a515-0fc7a5f66f9a/versions/3",
+    "status": 404,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J03-01-E00",
+    "method": "GET",
+    "path": "/realms/pocoma/.well-known/openid-configuration",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J03-02-I01",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-03-I02",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/fd2dd22f-cc94-46d3-bc00-c56e1a8463de/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-04-I03",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J03-05-I04",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-06-I05",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/4ca17002-8a02-42c0-8cf9-2888f03ab3bd/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-07-I06",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J03-08-P01",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-09-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/bf6cb9c8-c571-40e2-a107-6bbb9085bb7c/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-10-P04",
+    "method": "GET",
+    "path": "/api/v3/pots/53f6aa14-bfbf-4aae-b37c-513879bde78f",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J03-11-P03",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-12-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/b5384345-6103-40ff-9575-204522b638c3/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-13-I07",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-14-I05",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/8b26dde3-ed22-483c-a286-827184b1cc07/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J03-15-I06",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J03-16-I04",
+    "method": "POST",
+    "path": "/api/v3/identity/requests",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-17-I05",
+    "method": "GET",
+    "path": "/api/v3/identity/requests/f2e6add4-70e0-42e7-922f-c61e7c63ca2c/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 7
+  },
+  {
+    "id": "J03-18-I06",
+    "method": "GET",
+    "path": "/api/v3/me/binding",
+    "status": 200,
+    "tests": 2,
+    "assertions": 5
+  },
+  {
+    "id": "J03-19-A14",
+    "method": "POST",
+    "path": "/api/v3/commands",
+    "status": 202,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-20-R01",
+    "method": "GET",
+    "path": "/api/v3/commands/1741016f-f6b8-4b03-8505-233ec7bd798e/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 6
+  },
+  {
+    "id": "J03-21-R02",
+    "method": "GET",
+    "path": "/api/v3/commands/bf6cb9c8-c571-40e2-a107-6bbb9085bb7c/result",
+    "status": 200,
+    "tests": 2,
+    "assertions": 4
+  }
+]

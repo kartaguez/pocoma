@@ -34,7 +34,8 @@ public et le canari. Pas de JAR Pocoma préinstallé nécessaire. Le Maven Wrapp
 est verrouillé en 3.9.14 ; les quatre modules sont assemblés avec `-am package
 -DskipTests`. Ce build n'est pas une preuve de test Maven.
 
-La sortie JSON fournit **write**, **read**, **issuer**, le projet et le dossier
+La sortie JSON fournit **write**, **read**, **issuer**, **keycloakAdmin**,
+**demoUsers**, le projet et le dossier
 de diagnostic. Les ports loopback sont attribués automatiquement puis conservés.
 Aucun port PG n'est publié. Chaque instance utilise son réseau, son cluster PG
 (WRITE/READ et stockage Keycloak), son volume, son realm et ses secrets. Aucun
@@ -84,9 +85,9 @@ propriété incohérente et ressource étrangère sont refusés avant mutation.
 État privé : `.pocoma-local/instances/<id>/manifest.json`, `secrets.json`,
 configurations, `demo.json`, `canary.json`, `runs/<run-id>/`. Racine et dossiers
 privés 0700, secrets 0600 ; les seules montures lues par les UID des conteneurs
-sont 0644 **sous ces dossiers privés**. Ne pas publier cet arbre. Les mots de
-passe synthétiques sont consultables localement dans `secrets.json` pour le
-login GUI ; ils ne doivent pas être copiés dans Git, tickets ou commandes.
+sont 0644 **sous ces dossiers privés**. Ne pas publier cet arbre. Les secrets
+techniques dans `secrets.json` ne doivent pas être copiés dans Git, tickets
+ou commandes. Les comptes de démonstration suivent la convention ci-dessous.
 
 Après échec, garder le JSON et le dossier `evidence`. Les logs conteneurs
 expurgés sont privés ; pas de copie automatique de bodies HTTP ni de bearer.
@@ -123,6 +124,32 @@ sa version avec une clé unique par invocation. Une preuve ancienne ne ferme
 pas la nouvelle invocation.
 
 ## Jeu de démonstration v1
+
+### Connexions Keycloak locales
+
+| Realm | Compte | Mot de passe | Usage |
+| --- | --- | --- | --- |
+| master | admin | pocoma | Console `http://localhost:<port issuer>/admin/` |
+| pocoma | third | pocoma | Owner Bruno |
+| pocoma | guest | pocoma | Guest Bruno |
+| pocoma | bruno | pocoma | Seed et compatibilité des scénarios |
+
+Convention **L7-LB local uniquement**, impropre à Internet/production et jamais
+implicite pour L8. `passwords.keycloak` est le compte PostgreSQL de Keycloak,
+pas le mot de passe admin. Les secrets techniques restent générés aléatoirement.
+La sortie `start`/`gui` indique l’URL admin, le realm et les usernames.
+Keycloak qualifie l’admin de bootstrap de temporaire (bannière normale) ; il
+persiste dans cette installation jetable jusqu’à reset/destroy.
+Les anciens volumes ne sont pas mis à jour par import/variables bootstrap :
+conserver leurs données et utiliser une nouvelle instance, ou confirmer un reset.
+Voir [diagnostic et cycle de nettoyage](L7_Local_Playground_Keycloak_Diagnostics.md).
+
+Avant READY, `keycloak-auth.json` prouve la connexion console Code+S256 de
+`admin` dans master, inspecte les comptes activés/sans action initiale via
+l’API admin, puis authentifie **third, guest et bruno** par le même client
+public et la même callback Code+PKCE que Bruno. Pour chaque compte, absence
+de PKCE et méthode plain sont refusées ; le sujet est comparé à l’ID réel du
+compte. `status` refait ces contrôles sans écrire de donnée métier.
 
 Seed entièrement public, checkpointé et rejouable après interruption :
 

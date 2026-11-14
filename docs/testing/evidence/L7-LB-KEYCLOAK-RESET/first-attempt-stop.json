@@ -1,0 +1,21 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {},
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "keycloak-validation",
+  "project": "pocoma-lb-keycloak-validation-b80171fb",
+  "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:51629",
+    "read": "http://127.0.0.1:51630"
+  },
+  "issuer": "http://localhost:51631/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs/1794674043-9da7bd7b"
+}

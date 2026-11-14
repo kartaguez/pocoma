@@ -1,0 +1,1371 @@
+{
+  "observedAt": 1794674929.19123,
+  "instances": [
+    {
+      "instance": "demo",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "a2d30a3b8dc8ef9ef2ba28466d71d49d8ae11b680f13699d0bbcf1ddca7b6c67",
+          "name": "pocoma-lb-demo-a4951783-http-write-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "http-write",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "d2b4bf7a6bf9d52e4a6336c6e11ffeb6a3d0f6ef92c8128be3861bfbfbe5c211",
+          "name": "pocoma-lb-demo-a4951783-command-worker-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "command-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "a7269b89584a83c0684b4766aee87f6241e0ea652c7756ce68a64be393187356",
+          "name": "pocoma-lb-demo-a4951783-business-read-worker-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "business-read-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "e0f790dadc8b4ad8aafb216a7b50f9ad3ba24c319f277bcc981d7ec663d9b56f",
+          "name": "pocoma-lb-demo-a4951783-results-worker-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "results-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "2ca0df72878493d51d906404faab8577765ce220322bcf748d3831bb7c166841",
+          "name": "pocoma-lb-demo-a4951783-http-read-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "http-read",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "5f1290efefd2e1da16837ce6d9b54b1c9e6cb318d791014dd4500e8cf99a4e59",
+          "name": "pocoma-lb-demo-a4951783-prometheus-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "prometheus",
+          "state": "exited",
+          "volumes": [
+            "56e64b14d64ec09717315cb9b89ed34504a4a169c57dd5ec7177e149fb939552"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "d07e2628b9f11bb186b98b31c2f8d14b2bceaf3eeb3a69afd732753cf7c9e052",
+          "name": "pocoma-lb-demo-a4951783-keycloak-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "7b3351697d0697365df4a0ec5a7f690e4a090da29adc1474374a591a5c1d5694",
+          "name": "pocoma-lb-demo-a4951783-postgres-1",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-demo-a4951783-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-demo-a4951783-data",
+          "name": "pocoma-lb-demo-a4951783-data",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41"
+        },
+        {
+          "kind": "network",
+          "id": "bc1e0e7b7c08c7d55a8054cee8c2ad7d866019fdfb5e8b79eb9edb485293ceb9",
+          "name": "pocoma-lb-demo-a4951783_default",
+          "project": "pocoma-lb-demo-a4951783",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41"
+        }
+      ],
+      "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+      "project": "pocoma-lb-demo-a4951783",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "demo",
+        "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+        "project": "pocoma-lb-demo-a4951783",
+        "volume": "pocoma-lb-demo-a4951783-data",
+        "network": "pocoma-lb-demo-a4951783_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance demo --confirm DESTROY:demo"
+      },
+      "privateFilesBytes": 169773135
+    },
+    {
+      "instance": "gui-test",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "a06e6c454370454ad68ec0c39f4248ec360232e0d1e129cafef9f688fc73bd0f",
+          "name": "pocoma-lb-gui-test-a39eabe4-http-read-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "http-read",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "6feaf94a53a34bb6dde199d892ea6415dd35c7730594d493bda0ffe65acc961a",
+          "name": "pocoma-lb-gui-test-a39eabe4-command-worker-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "command-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "b7947f7f94eda62e697391b00e82528c5f4081842d842abd3ec2661fd05b9ca4",
+          "name": "pocoma-lb-gui-test-a39eabe4-business-read-worker-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "business-read-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "f4771c93b5b38e924e298d5f847ac78dda3d0a938361f182cd4d047af0e791b0",
+          "name": "pocoma-lb-gui-test-a39eabe4-results-worker-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "results-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "69f95df4fb577957668046ff8a15482713a23d8f95cd87fd475d0fcf657740ae",
+          "name": "pocoma-lb-gui-test-a39eabe4-http-write-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "http-write",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "e76a7afc467a4790bb014a94276f877df80781d812ac08b7c4f0e5b868c46975",
+          "name": "pocoma-lb-gui-test-a39eabe4-prometheus-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "prometheus",
+          "state": "exited",
+          "volumes": [
+            "dde867d01bee0e687cf9545c2c93633acf3bf5c7c9c8fdef09444238b95e0626"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "63a00d3d7d5344da63ea70469039af9893e1694101f7214deb941265f7b9b42c",
+          "name": "pocoma-lb-gui-test-a39eabe4-keycloak-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "d89be20974c08bb75a29edb20bc18c92d05660410ba7f0964b010e5cbcf07c90",
+          "name": "pocoma-lb-gui-test-a39eabe4-postgres-1",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-gui-test-a39eabe4-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-gui-test-a39eabe4-data",
+          "name": "pocoma-lb-gui-test-a39eabe4-data",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50"
+        },
+        {
+          "kind": "network",
+          "id": "f0ad53c9363946d136c9328b9e76a9600b126ca6ca0f8ac3ae46845ece3cc338",
+          "name": "pocoma-lb-gui-test-a39eabe4_default",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50"
+        }
+      ],
+      "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+      "project": "pocoma-lb-gui-test-a39eabe4",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "gui-test",
+        "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+        "project": "pocoma-lb-gui-test-a39eabe4",
+        "volume": "pocoma-lb-gui-test-a39eabe4-data",
+        "network": "pocoma-lb-gui-test-a39eabe4_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance gui-test --confirm DESTROY:gui-test"
+      },
+      "privateFilesBytes": 168539284
+    },
+    {
+      "instance": "i3-bruno",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "150b864c9cb054812ca37ad0830812033c1be9a97aba23bcdfe59b90f486753b",
+          "name": "pocoma-lb-i3-bruno-e72e2740-http-write-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "http-write",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "7760edadd76cd559e539eef2bd6307cfb8dd513de26ae7cfd8e12e151958d49b",
+          "name": "pocoma-lb-i3-bruno-e72e2740-results-worker-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "results-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "b6f4cd9171545380d67b4e109475c2450670077ef4d29a440890c7382af1f302",
+          "name": "pocoma-lb-i3-bruno-e72e2740-business-read-worker-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "business-read-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "7acfc393641260b6286e5f648a11ee2312bd6d87cf8c3dea40463971720fac9b",
+          "name": "pocoma-lb-i3-bruno-e72e2740-command-worker-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "command-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "631051a900e540e6adc669b4010ce9fea290e9b1bd809da27e972818b3b2d43d",
+          "name": "pocoma-lb-i3-bruno-e72e2740-http-read-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "http-read",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "3b6751a8138c4e918b7cc69e1d45cd0405d84a8276b7e118c60dcd7ecead2b4c",
+          "name": "pocoma-lb-i3-bruno-e72e2740-prometheus-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "prometheus",
+          "state": "exited",
+          "volumes": [
+            "eacdebb448c0a6ec7f2503f34d19fb592fee2ccc32155b82b683cc3f88e91084"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "d445ce0c333b1712102eae69834ce579b0c661e6ed89c902640c049d51e2b7b0",
+          "name": "pocoma-lb-i3-bruno-e72e2740-keycloak-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "3c9c275ead3ceee8d7993b270921261f0257b3626174e520ff1108ef440fd9c8",
+          "name": "pocoma-lb-i3-bruno-e72e2740-postgres-1",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-i3-bruno-e72e2740-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-i3-bruno-e72e2740-data",
+          "name": "pocoma-lb-i3-bruno-e72e2740-data",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e"
+        },
+        {
+          "kind": "network",
+          "id": "fee834c32c810fe2ab4bbdc55377212d2fd063083006817932e5b66eeccfc9e2",
+          "name": "pocoma-lb-i3-bruno-e72e2740_default",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e"
+        }
+      ],
+      "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+      "project": "pocoma-lb-i3-bruno-e72e2740",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "i3-bruno",
+        "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+        "project": "pocoma-lb-i3-bruno-e72e2740",
+        "volume": "pocoma-lb-i3-bruno-e72e2740-data",
+        "network": "pocoma-lb-i3-bruno-e72e2740_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance i3-bruno --confirm DESTROY:i3-bruno"
+      },
+      "privateFilesBytes": 168489972
+    },
+    {
+      "instance": "i3-final",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "fc1a668b8de02d639cba38e011083282f80a50c3d290d781bd6610b7a43af013",
+          "name": "pocoma-lb-i3-final-1f5dfefa-http-read-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "http-read",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "2123a33aaea10deb44f654dc43e99b849fb6ddf9e41184d584e480350e9e79bd",
+          "name": "pocoma-lb-i3-final-1f5dfefa-http-write-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "http-write",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "f64e2845f1c086513a24ba5562892b62c510b3aa48d62ad4dfff8764cf360540",
+          "name": "pocoma-lb-i3-final-1f5dfefa-command-worker-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "command-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "508687a29b37d22b5908f2d5ea11d34b7f0c642fb1c108f797d9b6e8085a15d9",
+          "name": "pocoma-lb-i3-final-1f5dfefa-results-worker-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "results-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "068184e925e4bcfdbd9f73b6499bb4380c75fa399d88b4d3caa73ab25bf8982b",
+          "name": "pocoma-lb-i3-final-1f5dfefa-business-read-worker-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "business-read-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "a32b4b965120f30753b15cc9e76d0899f9c96ddfaa19886abdf407cc80df4ee4",
+          "name": "pocoma-lb-i3-final-1f5dfefa-prometheus-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "prometheus",
+          "state": "exited",
+          "volumes": [
+            "7953eb65ed7fc13fbd501a6904cd817973b50104588822de9c7d4ef33d7e4ea3"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "5f1a871ce7e3647a1f6d89ef6987106a4d72e6f63f560aad52e7b34357bab4ef",
+          "name": "pocoma-lb-i3-final-1f5dfefa-keycloak-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "7af255d20a3e6866b2b15db42e11a2f98f26922e837b1b1fb926d29e88b0406e",
+          "name": "pocoma-lb-i3-final-1f5dfefa-postgres-1",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-i3-final-1f5dfefa-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-i3-final-1f5dfefa-data",
+          "name": "pocoma-lb-i3-final-1f5dfefa-data",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c"
+        },
+        {
+          "kind": "network",
+          "id": "ece0572a28f3335b66dfc5537c2af65eb8fe3bd97eec7470b33c14c97e30a6c9",
+          "name": "pocoma-lb-i3-final-1f5dfefa_default",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c"
+        }
+      ],
+      "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+      "project": "pocoma-lb-i3-final-1f5dfefa",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "i3-final",
+        "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+        "project": "pocoma-lb-i3-final-1f5dfefa",
+        "volume": "pocoma-lb-i3-final-1f5dfefa-data",
+        "network": "pocoma-lb-i3-final-1f5dfefa_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance i3-final --confirm DESTROY:i3-final"
+      },
+      "privateFilesBytes": 168785323
+    },
+    {
+      "instance": "i3-workshop",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "78e7bf3003f8b520cc5dbd9098c77f9b11d8e24b2d04919d7b8c0e467a27b5ce",
+          "name": "pocoma-lb-i3-workshop-325b57b9-results-worker-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "results-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "9684d2620023ea2b4fc035c0995fe2a104e49dc2b83c09c641ceb353088318b3",
+          "name": "pocoma-lb-i3-workshop-325b57b9-command-worker-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "command-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "03bedd39b97b4372ba0ee5c43e4e1d5de6e76c4c06c0589ebacaa1e096216b06",
+          "name": "pocoma-lb-i3-workshop-325b57b9-http-read-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "http-read",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "5a099494209089654710474993d387903ba1b00d0548bb52b630239214a3dc22",
+          "name": "pocoma-lb-i3-workshop-325b57b9-business-read-worker-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "business-read-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "4a321d09f3bcd156c54966e3d1560ba775e1103c06e070afb391bde531c975bf",
+          "name": "pocoma-lb-i3-workshop-325b57b9-http-write-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "http-write",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "0f4dd150bc1695e4119a78a99f33e9140cf4d3d0d0d099e267b720e881bd1711",
+          "name": "pocoma-lb-i3-workshop-325b57b9-prometheus-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "prometheus",
+          "state": "exited",
+          "volumes": [
+            "11da69e09cf952967ca9b98d122764ea29fd77e6ebe9301f889d7c566bd14d41"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "e88318be99abc99027c12be6521a134c5503728cc3f8fb683d835b0004e18410",
+          "name": "pocoma-lb-i3-workshop-325b57b9-keycloak-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "08f255ac171f0e5b7a4fe116bfbe2049b54348752281e425fb715299b8104bb3",
+          "name": "pocoma-lb-i3-workshop-325b57b9-postgres-1",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-i3-workshop-325b57b9-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-i3-workshop-325b57b9-data",
+          "name": "pocoma-lb-i3-workshop-325b57b9-data",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22"
+        },
+        {
+          "kind": "network",
+          "id": "22398df6f0686e4ff5342721c37f61fdfb7a2c6cabd4bc646e4218238df156c7",
+          "name": "pocoma-lb-i3-workshop-325b57b9_default",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22"
+        }
+      ],
+      "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+      "project": "pocoma-lb-i3-workshop-325b57b9",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "i3-workshop",
+        "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+        "project": "pocoma-lb-i3-workshop-325b57b9",
+        "volume": "pocoma-lb-i3-workshop-325b57b9-data",
+        "network": "pocoma-lb-i3-workshop-325b57b9_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance i3-workshop --confirm DESTROY:i3-workshop"
+      },
+      "privateFilesBytes": 168716968
+    },
+    {
+      "instance": "j1-a-0bab6b8c",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c",
+      "resources": [],
+      "owner": "a28342a9-dc02-45ef-b2b6-68520c2f7033",
+      "project": "pocoma-lb-j1-a-0bab6b8c-a28342a9",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "j1-a-0bab6b8c",
+        "owner": "a28342a9-dc02-45ef-b2b6-68520c2f7033",
+        "project": "pocoma-lb-j1-a-0bab6b8c-a28342a9",
+        "volume": "pocoma-lb-j1-a-0bab6b8c-a28342a9-data",
+        "network": "pocoma-lb-j1-a-0bab6b8c-a28342a9_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance j1-a-0bab6b8c --confirm DESTROY:j1-a-0bab6b8c"
+      },
+      "privateFilesBytes": 161150
+    },
+    {
+      "instance": "j1-a-2ad2a840",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840",
+      "resources": [],
+      "owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d",
+      "project": "pocoma-lb-j1-a-2ad2a840-ba43381e",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "j1-a-2ad2a840",
+        "owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d",
+        "project": "pocoma-lb-j1-a-2ad2a840-ba43381e",
+        "volume": "pocoma-lb-j1-a-2ad2a840-ba43381e-data",
+        "network": "pocoma-lb-j1-a-2ad2a840-ba43381e_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance j1-a-2ad2a840 --confirm DESTROY:j1-a-2ad2a840"
+      },
+      "privateFilesBytes": 168685399
+    },
+    {
+      "instance": "j1-a-cbaf923f",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f",
+      "resources": [],
+      "owner": "9288f629-06e4-4765-8e12-2bd0fc399bac",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "j1-a-cbaf923f",
+        "owner": "9288f629-06e4-4765-8e12-2bd0fc399bac",
+        "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+        "volume": "pocoma-lb-j1-a-cbaf923f-9288f629-data",
+        "network": "pocoma-lb-j1-a-cbaf923f-9288f629_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance j1-a-cbaf923f --confirm DESTROY:j1-a-cbaf923f"
+      },
+      "privateFilesBytes": 229612
+    },
+    {
+      "instance": "j1-bootstrap-2ad2a840",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840",
+      "resources": [],
+      "owner": "b88f9eea-83fe-4070-a504-77ccd24ba097",
+      "project": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea",
+      "manifestState": "NEW",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "j1-bootstrap-2ad2a840",
+        "owner": "b88f9eea-83fe-4070-a504-77ccd24ba097",
+        "project": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea",
+        "volume": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea-data",
+        "network": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance j1-bootstrap-2ad2a840 --confirm DESTROY:j1-bootstrap-2ad2a840"
+      },
+      "privateFilesBytes": 15688
+    },
+    {
+      "instance": "keycloak-release-validation",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "9bf3cafc3fd4959c3d93b8ac048e3232ecfb9d67ebeee05a8e703f1ece101c20",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-business-read-worker-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "business-read-worker",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "711e7d1eee1a13aebb78c783e9e1ef53ff4d9162abca6089f34e6305fea29e5f",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-http-write-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "http-write",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "d301f2c7b2225c05cdbaee8c56d3bcaa96c906096a6ae4ae7b27f8f15ed97c0b",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-results-worker-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "results-worker",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "308536bf7603fcd1874a3cf81536e3cd2f209c51754706d5125c970382cffda1",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-http-read-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "http-read",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "43324a3accaa068c3093a09000ac9909eb9a99565d70b4570b44cf76d27e6a4c",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-command-worker-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "command-worker",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "dd0d3f10698552c65e8d11cbd05bf5c8c28393a1aa9d1674e148cfcb701e912c",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-prometheus-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "prometheus",
+          "state": "running",
+          "volumes": [
+            "dbe3c89ea15e9f916288ec4fd0e44a9ef0d36603f3d2e66ef227ae45a7c702d4"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "11d59bf6a515c3d686d6c00b57c1c28eedeb935b62732c7a972442ffee6abd51",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-keycloak-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "keycloak",
+          "state": "running",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "df3733004494683a8537ec0444cd8b224ab148b264dfe141ceebe62e1be16910",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-postgres-1",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "service": "postgres",
+          "state": "running",
+          "volumes": [
+            "pocoma-lb-keycloak-release-validation-0837ce8e-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-keycloak-release-validation-0837ce8e-data",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e-data",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36"
+        },
+        {
+          "kind": "network",
+          "id": "e25265d8437313590c2ee01a36a0d4c06ea222f48462bea83e62873ed240560f",
+          "name": "pocoma-lb-keycloak-release-validation-0837ce8e_default",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36"
+        }
+      ],
+      "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+      "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+      "manifestState": "RUNNING",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "keycloak-release-validation",
+        "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+        "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+        "volume": "pocoma-lb-keycloak-release-validation-0837ce8e-data",
+        "network": "pocoma-lb-keycloak-release-validation-0837ce8e_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance keycloak-release-validation --confirm DESTROY:keycloak-release-validation"
+      },
+      "privateFilesBytes": 168605321
+    },
+    {
+      "instance": "keycloak-validation",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "c26d299a2f5f6a54b5fc8fdb12d02a66ce1d6db23e0cb54ceb726b582beb4589",
+          "name": "pocoma-lb-keycloak-validation-b80171fb-keycloak-1",
+          "project": "pocoma-lb-keycloak-validation-b80171fb",
+          "owner": "b80171fb-e443-4d3a-8d78-8f4575759928",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "efb1c1f81703af02a1643fce2781be19dbaf424f2fcf488c0c17949d16945d5c",
+          "name": "pocoma-lb-keycloak-validation-b80171fb-postgres-1",
+          "project": "pocoma-lb-keycloak-validation-b80171fb",
+          "owner": "b80171fb-e443-4d3a-8d78-8f4575759928",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-keycloak-validation-b80171fb-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-keycloak-validation-b80171fb-data",
+          "name": "pocoma-lb-keycloak-validation-b80171fb-data",
+          "project": "pocoma-lb-keycloak-validation-b80171fb",
+          "owner": "b80171fb-e443-4d3a-8d78-8f4575759928"
+        },
+        {
+          "kind": "network",
+          "id": "8ae32c436c7728adf7477553170facbbc34cbb1869f6280c7be7c7caba5fbf99",
+          "name": "pocoma-lb-keycloak-validation-b80171fb_default",
+          "project": "pocoma-lb-keycloak-validation-b80171fb",
+          "owner": "b80171fb-e443-4d3a-8d78-8f4575759928"
+        }
+      ],
+      "owner": "b80171fb-e443-4d3a-8d78-8f4575759928",
+      "project": "pocoma-lb-keycloak-validation-b80171fb",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "keycloak-validation",
+        "owner": "b80171fb-e443-4d3a-8d78-8f4575759928",
+        "project": "pocoma-lb-keycloak-validation-b80171fb",
+        "volume": "pocoma-lb-keycloak-validation-b80171fb-data",
+        "network": "pocoma-lb-keycloak-validation-b80171fb_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance keycloak-validation --confirm DESTROY:keycloak-validation"
+      },
+      "privateFilesBytes": 168490911
+    },
+    {
+      "instance": "keycloak-validation-final",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "51a6a70ffbcaf5138d37fb392f52dd719266ac80e1e270a7852e2f5e27da973c",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-results-worker-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "results-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "fa55eef4ff19c8c1e839b7904de204df127c57a851f576260ea69592f74481df",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-http-read-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "http-read",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "a5c7d435924533402b4f2f68c47228491e4f916b07f653c88280e386bfa94853",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-command-worker-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "command-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "63ed1b25062d757f7b38ebb43f21cfe744bf7388b4f9fe0c8d69fd3ad6c1b410",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-http-write-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "http-write",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "7ddb3f6873de548bf8b0076326ac425d5ce0c99cf1ddb2a4ff7772f2e2cd0609",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-business-read-worker-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "business-read-worker",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "9d2c8e714c7802f5ecbdc6eba17d8150c8ce1aa89bf8fec6380edb1dc0be8c0a",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-prometheus-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "prometheus",
+          "state": "exited",
+          "volumes": [
+            "e5ccf1ae19c258c0df497595d22301ae48a5768e1899da21c7a94e061e091b10"
+          ]
+        },
+        {
+          "kind": "container",
+          "id": "251d59c2bd8d04e590822580bbb0cb0b06bfe986d350af20929246a40c9f4f3c",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-keycloak-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "keycloak",
+          "state": "exited",
+          "volumes": []
+        },
+        {
+          "kind": "container",
+          "id": "0eebac5e9622f365025cb4e0041aa2921e8203df62ef9899f41db05a68a6ac48",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-postgres-1",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "service": "postgres",
+          "state": "exited",
+          "volumes": [
+            "pocoma-lb-keycloak-validation-final-8dcc274e-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-keycloak-validation-final-8dcc274e-data",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e-data",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9"
+        },
+        {
+          "kind": "network",
+          "id": "54f8f3d10c9b9e23802ca8bea9903499328c94e1b6f8ca589f4da4b20f832922",
+          "name": "pocoma-lb-keycloak-validation-final-8dcc274e_default",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9"
+        }
+      ],
+      "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+      "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "keycloak-validation-final",
+        "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+        "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+        "volume": "pocoma-lb-keycloak-validation-final-8dcc274e-data",
+        "network": "pocoma-lb-keycloak-validation-final-8dcc274e_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance keycloak-validation-final --confirm DESTROY:keycloak-validation-final"
+      },
+      "privateFilesBytes": 168608353
+    },
+    {
+      "instance": "lb-one",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one",
+      "resources": [],
+      "owner": "83c444ca-e6cb-4288-bb4d-8419c156f746",
+      "project": "pocoma-lb-lb-one-83c444ca",
+      "manifestState": "STOPPED",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "lb-one",
+        "owner": "83c444ca-e6cb-4288-bb4d-8419c156f746",
+        "project": "pocoma-lb-lb-one-83c444ca",
+        "volume": "pocoma-lb-lb-one-83c444ca-data",
+        "network": "pocoma-lb-lb-one-83c444ca_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs",
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down --volumes for this project only",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance lb-one --confirm DESTROY:lb-one"
+      },
+      "privateFilesBytes": 300030
+    }
+  ],
+  "potentialOrphans": [],
+  "unrelatedResources": [
+    {
+      "kind": "volume",
+      "id": "11da69e09cf952967ca9b98d122764ea29fd77e6ebe9301f889d7c566bd14d41",
+      "name": "11da69e09cf952967ca9b98d122764ea29fd77e6ebe9301f889d7c566bd14d41",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "volume",
+      "id": "56e64b14d64ec09717315cb9b89ed34504a4a169c57dd5ec7177e149fb939552",
+      "name": "56e64b14d64ec09717315cb9b89ed34504a4a169c57dd5ec7177e149fb939552",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "volume",
+      "id": "7953eb65ed7fc13fbd501a6904cd817973b50104588822de9c7d4ef33d7e4ea3",
+      "name": "7953eb65ed7fc13fbd501a6904cd817973b50104588822de9c7d4ef33d7e4ea3",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "volume",
+      "id": "dbe3c89ea15e9f916288ec4fd0e44a9ef0d36603f3d2e66ef227ae45a7c702d4",
+      "name": "dbe3c89ea15e9f916288ec4fd0e44a9ef0d36603f3d2e66ef227ae45a7c702d4",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "volume",
+      "id": "dde867d01bee0e687cf9545c2c93633acf3bf5c7c9c8fdef09444238b95e0626",
+      "name": "dde867d01bee0e687cf9545c2c93633acf3bf5c7c9c8fdef09444238b95e0626",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "volume",
+      "id": "e5ccf1ae19c258c0df497595d22301ae48a5768e1899da21c7a94e061e091b10",
+      "name": "e5ccf1ae19c258c0df497595d22301ae48a5768e1899da21c7a94e061e091b10",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "volume",
+      "id": "eacdebb448c0a6ec7f2503f34d19fb592fee2ccc32155b82b683cc3f88e91084",
+      "name": "eacdebb448c0a6ec7f2503f34d19fb592fee2ccc32155b82b683cc3f88e91084",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "8a57e579114544781c3a0f9ef23ca0d61fa14551beac894813c354b8002378e9",
+      "name": "bridge",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "c9783d07eaba974fb784631b10a36a9f593c300c1a787c7e3512f62cd714a317",
+      "name": "host",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "769dcddd0739e10ca9bf141fcc2d3d395e76bfecc0e08f7f8822de2006f135ff",
+      "name": "none",
+      "project": null,
+      "owner": null
+    }
+  ],
+  "composeProjects": [
+    {
+      "Name": "pocoma-lb-demo-a4951783",
+      "Status": "exited(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-gui-test-a39eabe4",
+      "Status": "exited(8)",
+      "ConfigFiles": "/Users/julien.guezennec/dev/projects/pocoma/.pocoma-local/instances/gui-test/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-i3-bruno-e72e2740",
+      "Status": "exited(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-i3-final-1f5dfefa",
+      "Status": "exited(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-i3-workshop-325b57b9",
+      "Status": "exited(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-keycloak-release-validation-0837ce8e",
+      "Status": "running(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-keycloak-validation-b80171fb",
+      "Status": "exited(2)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/compose.json"
+    },
+    {
+      "Name": "pocoma-lb-keycloak-validation-final-8dcc274e",
+      "Status": "exited(8)",
+      "ConfigFiles": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/compose.json"
+    }
+  ],
+  "policy": "Dry-run only. No resource or persistent data is deleted. Explicit human confirmation required."
+}

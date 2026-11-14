@@ -1,4 +1,9 @@
-# Pocoma V3 Playground — Bruno GUI 4.2.1 et CLI 4.3.0
+# Pocoma V3 Playground — Bruno GUI 4.2.1/4.3.0 et CLI 4.3.0
+
+Le correctif Keycloak a exercé le moteur **4.3.0 effectivement installé**
+(cache OAuth, parseur, VM et transport réels). Les preuves GUI4.2.1 antérieures
+gardent leur attribution historique ; les connexions et le Runner rendus
+restent à observer séparément.
 
 Ouvrir **scripts/bruno-playground**, collection **Pocoma V3 Playground**.
 Elle contient 171 requêtes visibles : 51 par domaine, 2 connexions OAuth et
@@ -31,10 +36,9 @@ Ne pas contourner ce garde.
 1. **00 - Getting Started / E00 Environment Check → Send** : réponse 200,
    tests **E00 transport and privacy** et **E00 contract and variables**.
 2. **00 Login Owner → Auth → Get Access Token**. Dans la fenêtre Keycloak,
-   compte **third**, mot de passe du champ users.third dans le fichier privé
-   .pocoma-local/instances/<instance>/secrets.json.
+   compte **third**, mot de passe **pocoma** (convention L7-LB locale).
 3. **01 Login Guest → Auth → Get Access Token**. Compte **guest**, mot de passe
-   users.guest du même fichier. prompt=login demande une connexion distincte.
+   **pocoma**. prompt=login demande une connexion distincte.
 4. Revenir à Bruno. Les connexions ont les Token IDs distincts
    **playground-owner** et **playground-guest**. Leur bouton **Send** consulte
    le binding propre (200 ou 404) ; il ne fait pas d'inscription.
@@ -153,12 +157,20 @@ Pour supprimer les données d'une instance **explicitement choisie** :
 ~~~
 
 Le reset détruit seulement son volume possédé et recrée comptes/données
-synthétiques ; les mots de passe peuvent changer. Sélectionner à nouveau
+synthétiques ; les secrets techniques changent, les comptes de démonstration
+gardent **pocoma**. Sélectionner à nouveau
 l'environnement, puis sur **les deux connexions**, **Auth → Clear Cache →
-Get Access Token** avec les nouveaux mots de passe. Relancer J01.
+Get Access Token** avec **third / pocoma** et **guest / pocoma**. Relancer J01.
 Les UUID/bindings/invitations d'avant reset ne sont pas réutilisables.
 
 ## CLI et diagnostic
+
+La console Keycloak est accessible à l’URL `keycloakAdmin.url` imprimée par
+start/gui : realm **master**, **admin / pocoma**. Le compte **bruno / pocoma**
+reste disponible dans **pocoma** pour compatibilité. Ces identifiants ne
+concernent que les **nouvelles installations L7-LB** ; ils ne mettent pas à
+jour un ancien volume et ne s’appliquent pas à L8/production.
+[Diagnostics de provisionnement](L7_Local_Playground_Keycloak_Diagnostics.md).
 
 ~~~sh
 ./pocoma-local bruno --instance demo

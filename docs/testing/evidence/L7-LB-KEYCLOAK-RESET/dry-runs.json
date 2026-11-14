@@ -1,0 +1,665 @@
+[
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "demo",
+      "--confirm",
+      "DESTROY:demo",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "demo",
+      "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+      "project": "pocoma-lb-demo-a4951783",
+      "volume": "pocoma-lb-demo-a4951783-data",
+      "network": "pocoma-lb-demo-a4951783_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance demo --confirm DESTROY:demo",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:57823",
+        "read": "http://127.0.0.1:57824"
+      },
+      "issuer": "http://localhost:57825/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794674979-fd6c90b7"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "gui-test",
+      "--confirm",
+      "DESTROY:gui-test",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "gui-test",
+      "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+      "project": "pocoma-lb-gui-test-a39eabe4",
+      "volume": "pocoma-lb-gui-test-a39eabe4-data",
+      "network": "pocoma-lb-gui-test-a39eabe4_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance gui-test --confirm DESTROY:gui-test",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51869",
+        "read": "http://127.0.0.1:51870"
+      },
+      "issuer": "http://localhost:51871/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test/runs/1794674980-92e55327"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "i3-bruno",
+      "--confirm",
+      "DESTROY:i3-bruno",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "i3-bruno",
+      "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+      "project": "pocoma-lb-i3-bruno-e72e2740",
+      "volume": "pocoma-lb-i3-bruno-e72e2740-data",
+      "network": "pocoma-lb-i3-bruno-e72e2740_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance i3-bruno --confirm DESTROY:i3-bruno",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:65167",
+        "read": "http://127.0.0.1:65168"
+      },
+      "issuer": "http://localhost:65169/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno/runs/1794674980-3549bb32"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "i3-final",
+      "--confirm",
+      "DESTROY:i3-final",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "i3-final",
+      "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+      "project": "pocoma-lb-i3-final-1f5dfefa",
+      "volume": "pocoma-lb-i3-final-1f5dfefa-data",
+      "network": "pocoma-lb-i3-final-1f5dfefa_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance i3-final --confirm DESTROY:i3-final",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51014",
+        "read": "http://127.0.0.1:51015"
+      },
+      "issuer": "http://localhost:51016/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794674981-c06280ae"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "i3-workshop",
+      "--confirm",
+      "DESTROY:i3-workshop",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "i3-workshop",
+      "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+      "project": "pocoma-lb-i3-workshop-325b57b9",
+      "volume": "pocoma-lb-i3-workshop-325b57b9-data",
+      "network": "pocoma-lb-i3-workshop-325b57b9_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance i3-workshop --confirm DESTROY:i3-workshop",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:49760",
+        "read": "http://127.0.0.1:49761"
+      },
+      "issuer": "http://localhost:49762/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794674981-37b75e38"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-a-0bab6b8c",
+      "--confirm",
+      "DESTROY:j1-a-0bab6b8c",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "j1-a-0bab6b8c",
+      "owner": "a28342a9-dc02-45ef-b2b6-68520c2f7033",
+      "project": "pocoma-lb-j1-a-0bab6b8c-a28342a9",
+      "volume": "pocoma-lb-j1-a-0bab6b8c-a28342a9-data",
+      "network": "pocoma-lb-j1-a-0bab6b8c-a28342a9_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance j1-a-0bab6b8c --confirm DESTROY:j1-a-0bab6b8c",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:56455",
+        "read": "http://127.0.0.1:56456"
+      },
+      "issuer": "http://localhost:56457/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c/runs/1794674981-0f20e995"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-a-2ad2a840",
+      "--confirm",
+      "DESTROY:j1-a-2ad2a840",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "j1-a-2ad2a840",
+      "owner": "ba43381e-0c9a-404c-9fe1-a8ffa4f63a3d",
+      "project": "pocoma-lb-j1-a-2ad2a840-ba43381e",
+      "volume": "pocoma-lb-j1-a-2ad2a840-ba43381e-data",
+      "network": "pocoma-lb-j1-a-2ad2a840-ba43381e_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance j1-a-2ad2a840 --confirm DESTROY:j1-a-2ad2a840",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:56787",
+        "read": "http://127.0.0.1:56788"
+      },
+      "issuer": "http://localhost:56789/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/runs/1794674982-26737490"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-a-cbaf923f",
+      "--confirm",
+      "DESTROY:j1-a-cbaf923f",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "j1-a-cbaf923f",
+      "owner": "9288f629-06e4-4765-8e12-2bd0fc399bac",
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "volume": "pocoma-lb-j1-a-cbaf923f-9288f629-data",
+      "network": "pocoma-lb-j1-a-cbaf923f-9288f629_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance j1-a-cbaf923f --confirm DESTROY:j1-a-cbaf923f",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794674982-bc16e230"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-bootstrap-2ad2a840",
+      "--confirm",
+      "DESTROY:j1-bootstrap-2ad2a840",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "j1-bootstrap-2ad2a840",
+      "owner": "b88f9eea-83fe-4070-a504-77ccd24ba097",
+      "project": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea",
+      "volume": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea-data",
+      "network": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance j1-bootstrap-2ad2a840 --confirm DESTROY:j1-bootstrap-2ad2a840",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:57767",
+        "read": "http://127.0.0.1:57768"
+      },
+      "issuer": "http://localhost:57769/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840/runs/1794674982-24da28d9"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "keycloak-release-validation",
+      "--confirm",
+      "DESTROY:keycloak-release-validation",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "keycloak-release-validation",
+      "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+      "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+      "volume": "pocoma-lb-keycloak-release-validation-0837ce8e-data",
+      "network": "pocoma-lb-keycloak-release-validation-0837ce8e_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance keycloak-release-validation --confirm DESTROY:keycloak-release-validation",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:53123",
+        "read": "http://127.0.0.1:53124"
+      },
+      "issuer": "http://localhost:53125/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation/runs/1794674982-6b62504c"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "keycloak-validation",
+      "--confirm",
+      "DESTROY:keycloak-validation",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "keycloak-validation",
+      "owner": "b80171fb-e443-4d3a-8d78-8f4575759928",
+      "project": "pocoma-lb-keycloak-validation-b80171fb",
+      "volume": "pocoma-lb-keycloak-validation-b80171fb-data",
+      "network": "pocoma-lb-keycloak-validation-b80171fb_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance keycloak-validation --confirm DESTROY:keycloak-validation",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51629",
+        "read": "http://127.0.0.1:51630"
+      },
+      "issuer": "http://localhost:51631/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs/1794674983-76946cfa"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "keycloak-validation-final",
+      "--confirm",
+      "DESTROY:keycloak-validation-final",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "keycloak-validation-final",
+      "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+      "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+      "volume": "pocoma-lb-keycloak-validation-final-8dcc274e-data",
+      "network": "pocoma-lb-keycloak-validation-final-8dcc274e_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance keycloak-validation-final --confirm DESTROY:keycloak-validation-final",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51879",
+        "read": "http://127.0.0.1:51880"
+      },
+      "issuer": "http://localhost:51881/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs/1794674983-be12027e"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "lb-one",
+      "--confirm",
+      "DESTROY:lb-one",
+      "--dry-run"
+    ],
+    "exit": 0,
+    "result": {
+      "state": "DESTROY_PLAN",
+      "exit": 0,
+      "instance": "lb-one",
+      "owner": "83c444ca-e6cb-4288-bb4d-8419c156f746",
+      "project": "pocoma-lb-lb-one-83c444ca",
+      "volume": "pocoma-lb-lb-one-83c444ca-data",
+      "network": "pocoma-lb-lb-one-83c444ca_default",
+      "services": [
+        "http-write",
+        "http-read",
+        "command-worker",
+        "results-worker",
+        "business-read-worker",
+        "postgres",
+        "keycloak",
+        "prometheus"
+      ],
+      "persistentDataLost": [
+        "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+        "Generated credentials, configuration, demo and canary checkpoints"
+      ],
+      "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs",
+      "operations": [
+        "Verify manifest/UUID/resource ownership",
+        "Gracefully stop this instance",
+        "Compose down --volumes for this project only",
+        "Remove generated instance files; retain lock and diagnostic runs"
+      ],
+      "command": "./pocoma-local destroy --instance lb-one --confirm DESTROY:lb-one",
+      "sha": "80792858d6aac9c648ebcfac2fb2d84ccf80154e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:55236",
+        "read": "http://127.0.0.1:55237"
+      },
+      "issuer": "http://localhost:55238/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs/1794674983-d2ede76f"
+    }
+  }
+]

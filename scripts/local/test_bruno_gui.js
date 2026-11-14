@@ -1,8 +1,8 @@
-// Installed GUI 4.2.1 parser and actual script VM. No rendered GUI claim.
+// Installed GUI parser and actual script VM. No rendered GUI claim.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'../..'),collection=root+'/scripts/bruno-playground';
 const asar=process.env.POCOMA_TEST_BRUNO_ASAR||'/Applications/Bruno.app/Contents/Resources/app.asar';
-const pkg=require(asar+'/package.json');assert.equal(pkg.version,'4.2.1');
+const pkg=require(asar+'/package.json');assert.ok(['4.2.1','4.3.0'].includes(pkg.version),'Reviewed installed Bruno version');
 const Bru=require(asar+'/node_modules/@usebruno/js/src/bru');
 const Request=require(asar+'/node_modules/@usebruno/js/src/bruno-request');
 const lang=require(asar+'/node_modules/@usebruno/lang');
@@ -32,7 +32,7 @@ check('Changing instance clears sensitive scenario variables',()=>{const b=bru(c
 const files=[];
 function walk(folder){for(const p of fs.readdirSync(folder,{withFileTypes:true})){const f=path.join(folder,p.name);if(p.isDirectory())walk(f);else if(p.name.endsWith('.bru')&& !['folder.bru','collection.bru'].includes(p.name)&& !f.includes('/environments/'))files.push(f);}}
 walk(collection);
-for(const f of files) check('Native 4.2.1 parser '+path.relative(collection,f),()=>{
+for(const f of files) check('Native '+pkg.version+' parser '+path.relative(collection,f),()=>{
  const parsed=lang.bruToJsonV2(fs.readFileSync(f,'utf8'));assert.ok(parsed.meta.name);assert.ok(parsed.http.url);
  if(f.includes('Login ')){
   const o=parsed.auth.oauth2;assert.equal(o.grantType,'authorization_code');assert.equal(o.pkce,true);assert.equal(o.state,'');
@@ -53,9 +53,9 @@ async function main(){
  const vm=await runtime.runRequestScript(collectionScript+'\n'+script,request,envVariables,{},collection,()=>{throw new Error('Unexpected script logging');},{},{},undefined,{});
  assert.equal(request.headers.Authorization,'Bearer '+values['$oauth2.playground-owner.access_token']);
  assert.ok(!JSON.stringify(vm.runtimeVariables).includes(values['$oauth2.playground-owner.access_token']));assert.equal(vm.envVariables,null);
- results.push({name:'Actual 4.2.1 VM : explicit Registration pre-request, OAuth header only',verdict:'PASS'});
+ results.push({name:'Installed VM : explicit Registration pre-request, OAuth header only',verdict:'PASS'});
  await assert.rejects(()=>runtime.runRequestScript(collectionScript+'\n'+script,makeRequest({}),envVariables,{},collection,undefined,{},{},undefined,{}),/00 Login Owner/);
- results.push({name:'Actual 4.2.1 VM : cold native cache gives login instructions',verdict:'PASS'});
+ results.push({name:'Installed VM : cold native cache gives login instructions',verdict:'PASS'});
  await assert.rejects(()=>work.prepare(bru(cache()),new Request({method:'GET',url:envVariables.readUrl+'/api/v3/pots/abc',headers:{}}),{kind:'pot',role:'guest',binding:true}),/Prerequis absent : bindingGuest/);
  results.push({name:'No hidden Registration to repair missing binding',verdict:'PASS'});
  let protocol;
@@ -88,8 +88,8 @@ async function main(){
    // Allowlist only: no response body, headers or runtime variables are written.
    fs.writeFileSync(process.env.POCOMA_GUI_TEST_OUTPUT+'.requests.json',JSON.stringify(executed,null,2)+'\n');
   }
-  protocol={requests:executed.length,namedTests,assertions,journeys:inventory.journeys,transport:'Installed Bruno4.2.1 Bru.sendRequest',sessions:'Real Code+PKCE sessions read through native OAuth-cache API; no rendered login claim'};
-  results.push({name:'All delivered journeys: installed 4.2.1 request VM, real HTTP and native test VM',verdict:'PASS'});
+  protocol={requests:executed.length,namedTests,assertions,journeys:inventory.journeys,transport:'Installed Bruno'+pkg.version+' Bru.sendRequest',sessions:'Real Code+PKCE sessions read through native OAuth-cache API; no rendered login claim'};
+  results.push({name:'All delivered journeys: installed request VM, real HTTP and native test VM',verdict:'PASS'});
  }
  const receipt={verdict:'PASS',bruno:pkg.version,electron:process.versions.electron,asarSha256:crypto.createHash('sha256').update(require('original-fs').readFileSync(asar)).digest('hex'),requestFiles:files.length,checks:results,
   protocol,

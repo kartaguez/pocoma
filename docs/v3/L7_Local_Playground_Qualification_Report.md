@@ -1,3 +1,6 @@
+> **Correctif Keycloak du 14 novembre2026 : [rapport READY_FOR_CLEAN_RESET](L7_Local_Playground_Keycloak_Reset_Report.md), [preuves finales](../testing/evidence/L7-LB-KEYCLOAK-RESET/README.md) et [plan de nettoyage soumis à confirmation](L7_Local_Playground_Clean_Reset_Approval_Plan.md).**
+> Les verdicts historiques et réserves GUI ci-dessous restent inchangés.
+
 > **Reprise I3 du 14 novembre 2026 : [rapport et verdict I3_BRUNO_PARTIAL](L7_Local_Playground_Bruno_I3_Rework_Report.md).**
 > Qualification propre **7d951a34** : collection171 fichiers,25 opérations métier/12 routes,
 > CLI118 requêtes/236 tests/731 assertions avant et après reset ; moteur installé 4.2.1,

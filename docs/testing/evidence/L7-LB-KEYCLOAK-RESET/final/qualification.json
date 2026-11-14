@@ -1,0 +1,7 @@
+{
+  "verdict": "FAIL",
+  "instance": "keycloak-validation-final",
+  "inputs": "fc1b22d4c8d5000ed189448aaa78bfc845706c0a090496dda50b0bc538231c10",
+  "errorClass": "RuntimeError",
+  "resources": "PRESERVED"
+}

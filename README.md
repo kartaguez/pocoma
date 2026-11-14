@@ -15,6 +15,16 @@ Pocoma is not presented as a production-ready financial product. Its purpose is 
 [Qualification et réserves Jalon1](docs/v3/L7_Local_Playground_Qualification_Report.md).
 L7-LB Jalon1 est distinct de la certification globale V3.
 
+Après `./pocoma-local start`, la sortie indique l’URL **Keycloak Admin**
+(`http://localhost:<port>/admin/`) : realm **master**, compte **admin**.
+Le realm **pocoma** fournit **third** (Owner Bruno), **guest** et **bruno**
+(compatibilité/seed). Mot de passe des quatre comptes : **pocoma**, convention
+exclusive au playground L7-LB local, jamais pour L8 ou la production.
+Les secrets PostgreSQL et internes restent aléatoires ; les ports sont liés
+à loopback. `./pocoma-local gui` prépare l’environnement Bruno, puis les
+connexions Owner/Guest utilisent **Auth → Get Access Token**.
+[Diagnostic Keycloak et nettoyage contrôlé](docs/v3/L7_Local_Playground_Keycloak_Diagnostics.md).
+
 ## Programme V3
 
 Le [plan directeur L0–L8](docs/v3/V3_Implementation_Master_Plan.md) est le point d’entrée opérationnel V3 ; le [canon](docs/v3/V3_Canon_and_Roadmap.md) et les SPEC portent les décisions normatives. **L1 ACCEPTED — internal V3 foundation**, avec [preuves et limites](docs/v3/L1_Documentary_Closure.md), sans certificat V3 complet. **L2 ACCEPTED WITH EXPLICIT RESERVATIONS**, officiellement clos le 30-10-2026 : [décision, preuves et réserves](docs/v3/L2_Documentary_Closure.md). G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. Prochaine intervention : cadrage L3 — Identity, autorisé sous ses propres critères et décisions.
