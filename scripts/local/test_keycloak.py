@@ -117,7 +117,7 @@ class KeycloakContract(unittest.TestCase):
             credentials = runtime.private(path)
             self.assertEqual(dict.fromkeys(kc.LOCAL_USERS, 'pocoma'), credentials['users'])
             self.assertTrue(all(len(p) >= 32 and p != 'pocoma' for p in credentials['passwords'].values()))
-            m = dict(owner='id', project='test-project', ports=dict(issuer=12345, write=12346, read=12347, metrics=12348,
+            m = dict(owner='id', project='test-project', ports=dict(issuer=12345, write=12346, read=12347, metrics=12348, grafana=12350,
                          **dict.fromkeys(runtime.RUNTIMES, 12349)),
                      images={role: dict(digest=role) for role in runtime.IMAGES})
             runtime.render(path, m, credentials)

@@ -15,6 +15,7 @@ import socket
 import subprocess
 import sys
 import time
+import tempfile
 import xml.etree.ElementTree as ET
 from uuid import uuid4
 from urllib.request import urlopen
@@ -23,6 +24,7 @@ from auth import interactive, login
 from keycloak import LOCAL_PASSWORD, LOCAL_USERS, KeycloakFailure, access, discovery, identities
 from bootstrap import fingerprint, initialize, ROLES
 from public_api import PublicAPI, canary, seed
+import grafana
 
 ROOT = Path(__file__).resolve().parents[2]
 HOME_LOCAL = ROOT / '.pocoma-local'
@@ -34,7 +36,8 @@ RUNTIMES = {
     'business-read-worker': ('worker-materialize', 'v3-read-worker', 0, 18085),
 }
 IMAGES = {'postgres': 'postgres:17.6-alpine', 'keycloak': 'quay.io/keycloak/keycloak:26.7.0',
-          'jre': 'eclipse-temurin:21.0.8_9-jre', 'prometheus': 'prom/prometheus:v3.5.0'}
+          'jre': 'eclipse-temurin:21.0.8_9-jre', 'prometheus': 'prom/prometheus:v3.5.0',
+          'grafana': 'grafana/grafana:12.3.2'}
 LABEL = 'io.pocoma.local.owner'
 MAX_AGE = 300
 
@@ -74,6 +77,7 @@ def source_hash():
     paths = set(paths) | {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/local').glob('*.py') if not p.name.startswith('test_')}
     paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/bruno-playground').rglob('*') if p.is_file() and not (p.parent.name == 'environments' and p.name.startswith('Instance-'))}
     paths.update(['docker/keycloak/pocoma-realm.json', 'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json'])
+    paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'docker/grafana').rglob('*') if p.is_file()}
     return hashlib.sha256(''.join(p + ':' + hashlib.sha256((ROOT / p).read_bytes()).hexdigest() + '\n'
                                  for p in sorted(paths) if (ROOT / p).is_file() and not Path(p).name.startswith('test_')).encode()).hexdigest()
 
@@ -113,7 +117,7 @@ def locked(instance, create=False):
 
 @contextmanager
 def lifecycle_lock(command):
-    if command not in ('start', 'reset', 'destroy'):
+    if command not in ('start', 'upgrade-grafana', 'reset', 'destroy'):
         yield
         return
     with (HOME_LOCAL / 'lifecycle.lock').open('a') as lock:
@@ -124,14 +128,15 @@ def lifecycle_lock(command):
         yield
 
 
-def allocate_ports():
+def allocate_ports(names=None):
+    names = names or ['write', 'read', 'issuer', *RUNTIMES, 'metrics', 'grafana']
     sockets = []
     try:
-        for _ in range(9):
+        for _ in names:
             s = socket.socket()
-            s.bind(('127.0.0.1', 0))
             sockets.append(s)
-        return dict(zip(['write', 'read', 'issuer', *RUNTIMES, 'metrics'], [s.getsockname()[1] for s in sockets]))
+            s.bind(('127.0.0.1', 0))
+        return dict(zip(names, [s.getsockname()[1] for s in sockets]))
     finally:
         for s in sockets:
             s.close()
@@ -176,7 +181,7 @@ def ownership(m):
                 raise Refusal('PRE-EXTRA-NETWORK')
             if kind == 'container':
                 service = labels.get('com.docker.compose.service')
-                if service not in {*RUNTIMES, 'postgres', 'keycloak', 'prometheus'}:
+                if service not in {*RUNTIMES, 'postgres', 'keycloak', 'prometheus', 'grafana'}:
                     raise Refusal('PRE-EXTRA-CONTAINER')
     # A name collision without a project label must not be adopted by Compose.
     for kind, name in [('volume', project + '-data'), ('network', project + '_default')]:
@@ -214,9 +219,11 @@ def private(path):
     return data
 
 
-def prepare_images(path, m, evidence):
+def prepare_images(path, m, evidence, roles=None):
     images = {}
     for role, reference in IMAGES.items():
+        if roles is not None and role not in roles:
+            continue
         try:
             value, = docker_json('image', 'inspect', reference)
         except RuntimeError:
@@ -233,7 +240,7 @@ def prepare_images(path, m, evidence):
     return images
 
 
-def render(path, m, credentials):
+def render(path, m, credentials, *, deployment_path=None):
     labels = {LABEL: m['owner']}
     password = path / 'pg-password'
     password.write_text(credentials['passwords']['pocoma'])
@@ -281,6 +288,14 @@ def render(path, m, credentials):
     services['prometheus'] = dict(image=m['images']['prometheus']['digest'], labels=labels,
         volumes=[f'{path}/prometheus.yml:/etc/prometheus/prometheus.yml:ro'],
         ports=[f'127.0.0.1:{ports["metrics"]}:9090'], mem_limit='256m', cpus=.5)
+    grafana.provision(path, RUNTIMES)
+    services['grafana'] = grafana.service(path, m, LABEL)
+    # macOS may expose the same checkout as /dev and /Dev. Preserve the original
+    # mount spelling so Compose does not recreate unchanged database containers.
+    mount_root = m.get('mountRoot', str(deployment_path or path))
+    if not Path(mount_root).samefile(deployment_path or path):
+        raise Refusal('PRE-MOUNT-ROOT-DRIFT')
+    services = json.loads(json.dumps(services).replace(str(path) + '/', mount_root + '/'))
     save(path / 'compose.json', dict(services=services, networks={'default': {'labels': labels}},
         volumes={'data': {'name': m['project'] + '-data', 'labels': labels}}))
     return issuer
@@ -532,9 +547,93 @@ def preflight(path, m):
     return architecture
 
 
+def upgrade_grafana(path, m, evidence):
+    """Explicit Grafana upgrade/refresh of a stopped deployment, never a reset.
+
+    Legacy aggregate hashes do not carry per-file provenance. Prove production
+    equivalence to the recorded build revision and the generated deployment
+    instead of ignoring an arbitrary aggregate input mismatch.
+    """
+    ownership(m)
+    installed = 'grafana' in m['ports']
+    if installed and m['inputs'] == source_hash():
+        return start(path, m, evidence)
+    if m.get('state') != 'STOPPED':
+        raise Refusal('GRAFANA_UPGRADE_STOP_REQUIRED: stop this instance first; data is preserved')
+    for resource in compose(path, m, 'ps', '-aq').splitlines():
+        value, = docker_json('inspect', resource)
+        if value['State']['Running']:
+            raise Refusal('GRAFANA_UPGRADE_STOP_REQUIRED')
+    protected = ['app', 'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
+                 'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+                 'scripts/local/public_api.py', 'scripts/local/keycloak.py', 'scripts/local/auth.py',
+                 'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json']
+    baseline = m.get('build', {}).get('sha', '')
+    if not re.fullmatch(r'[0-9a-f]{40}', baseline):
+        raise Refusal('GRAFANA_UPGRADE_BASELINE_UNPROVEN')
+    changed = run(['git', 'diff', '--name-only', baseline, '--', *protected]).splitlines()
+    changed += run(['git', 'ls-files', '--others', '--exclude-standard', '--', *protected]).splitlines()
+    if changed:
+        save(evidence / 'grafana-upgrade-refused.json', dict(changedProtectedInputs=changed, baseline=baseline))
+        raise Refusal('GRAFANA_UPGRADE_PRODUCTION_DRIFT: preserve instance; inspect grafana-upgrade-refused.json')
+    for module, expected in m['build']['jars'].items():
+        if hashlib.sha256((path / (module + '.jar')).read_bytes()).hexdigest() != expected:
+            raise Refusal('GRAFANA_UPGRADE_JAR_DRIFT')
+    if not (path / 'secrets.json').is_file():
+        raise Refusal('GRAFANA_UPGRADE_SECRETS_MISSING')
+    old = read(path / 'compose.json')
+    if set(old['services']) != {*RUNTIMES, 'postgres', 'keycloak', 'prometheus', *(['grafana'] if installed else [])}:
+        raise Refusal('GRAFANA_UPGRADE_TOPOLOGY_DRIFT')
+    candidate = json.loads(json.dumps(m))
+    mount_root = Path(old['services']['keycloak']['volumes'][0].split(':')[0]).parent
+    if not mount_root.samefile(path):
+        raise Refusal('GRAFANA_UPGRADE_MOUNT_ROOT_DRIFT')
+    candidate['mountRoot'] = str(mount_root)
+    candidate['architecture'] = preflight(path, m)
+    images = prepare_images(path, candidate, evidence)
+    if {k: v for k, v in images.items() if k in m['images']} != m['images']:
+        raise Refusal('PRE-IMAGE-DIGEST-DRIFT')
+    candidate['images'] = images
+    if not installed:
+        candidate['ports'].update(allocate_ports(['grafana']))
+        if candidate['ports']['grafana'] in m['ports'].values():
+            raise Refusal('GRAFANA_UPGRADE_PORT_COLLISION: retry before mutation')
+    # Render in a staging directory; compare every pre-existing service/network/
+    # volume and generated dependency input before committing an additive change.
+    with tempfile.TemporaryDirectory(prefix='grafana-upgrade-', dir=path) as directory:
+        stage = Path(directory)
+        render(stage, candidate, read(path / 'secrets.json'), deployment_path=path)
+        new = json.loads((stage / 'compose.json').read_text().replace(str(stage), str(path)))
+        legacy = new if installed else dict(new, services={k: v for k, v in new['services'].items() if k != 'grafana'})
+        if legacy != old:
+            raise Refusal('GRAFANA_UPGRADE_COMPOSE_DRIFT')
+        for name in ('pg-password', 'pg-init.sql', 'realm.json', 'prometheus.yml'):
+            if (stage / name).read_bytes() != (path / name).read_bytes():
+                raise Refusal('GRAFANA_UPGRADE_CONFIG_DRIFT:' + name)
+        preserved = ['secrets.json', 'demo.json', 'canary.json', *[module + '.jar' for module in m['build']['jars']],
+                     *[name + '.properties' for name in RUNTIMES]]
+        hashes = {name: hashlib.sha256((path / name).read_bytes()).hexdigest()
+                  for name in preserved if (path / name).exists()}
+        save(evidence / 'manifest-before-upgrade.json', m)
+        save(evidence / 'compose-before-upgrade.json', old)  # Private: contains technical credentials.
+        grafana.provision(path, RUNTIMES)
+        save(path / 'compose.json', new)
+    candidate['inputs'] = source_hash()
+    candidate['grafanaUpgrade'] = dict(baseline=baseline, previousInputs=m['inputs'], inputs=candidate['inputs'],
+                                     preservedFiles=hashes, evidence=str(evidence), method='PRODUCTION_AND_DEPLOYMENT_EQUIVALENCE',
+                                     operation='REFRESH_PROVISIONING' if installed else 'ADD_GRAFANA')
+    save(evidence / 'grafana-upgrade.json', candidate['grafanaUpgrade'])
+    m.clear()
+    m.update(candidate)
+    save(path / 'manifest.json', m)
+    return start(path, m, evidence)
+
+
 def start(path, m, evidence):
     if m['inputs'] != source_hash():
-        raise Refusal('PRE-INPUT-DRIFT: use a new instance or explicit reset')
+        raise Refusal('PRE-INPUT-DRIFT: preserve data; Grafana/tooling-only upgrade: stop then upgrade-grafana; otherwise review drift or use a new instance')
+    if 'grafana' not in m['ports']:
+        raise Refusal('GRAFANA_UPGRADE_REQUIRED: run upgrade-grafana --instance ' + m['instance'])
     m['architecture'] = preflight(path, m)
     active = run(['docker', 'ps', '-q', '--filter', 'label=' + LABEL]).splitlines()
     for resource in active:
@@ -567,7 +666,7 @@ def start(path, m, evidence):
     compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     await_check(lambda: discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = identities(m['issuer'], lambda data: save(evidence / 'keycloak-auth.json', data))
-    compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', log=evidence / 'runtimes-up.log')
+    compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', 'grafana', log=evidence / 'runtimes-up.log')
     observed_catalogue = catalogue(path, m)
     if m.get('catalogue') and m['catalogue'] != observed_catalogue:
         raise Refusal('DB-CATALOGUE-DRIFT')
@@ -590,9 +689,14 @@ def start(path, m, evidence):
     save(path / 'canary.json', canary_result)
     save(evidence / 'public-requests.json', api.trace + guest_api.trace)
     tools = observability(m, wait=True)
+    grafana_checks, grafana_diagnostics = grafana.checks(m, RUNTIMES, await_check, save, evidence, wait=True)
+    checks.update(grafana_checks)
     m.update(state='RUNNING', startedAt=time.time())
     save(path / 'manifest.json', m)
-    return verdict(checks, True, tools, canary_result)
+    result = verdict(checks, True, tools, canary_result)
+    if grafana_diagnostics:
+        result['grafanaDiagnostics'] = grafana_diagnostics
+    return result
 
 
 def urls(m):
@@ -600,8 +704,10 @@ def urls(m):
 
 
 def verdict(checks, fresh, tools, proof=None):
-    business = all(v == 'PASS' for v in checks.values())
-    state = 'READY' if business and fresh and tools == 'AVAILABLE' else ('DEGRADED' if business and fresh else 'NOT_READY')
+    business = all(v == 'PASS' for k, v in checks.items() if not k.startswith('GRAFANA-'))
+    grafana_ready = all(v == 'PASS' for k, v in checks.items() if k.startswith('GRAFANA-'))
+    state = ('NOT_READY' if not grafana_ready else
+             'READY' if business and fresh and tools == 'AVAILABLE' else ('DEGRADED' if business and fresh else 'NOT_READY'))
     return dict(state=state, exit=0 if state == 'READY' else (4 if state == 'DEGRADED' else 1),
                 business='AVAILABLE' if business else 'UNAVAILABLE', canary='AVAILABLE' if fresh else 'STALE_OR_UNPROVEN',
                 qualificationTools=tools, fullyQualifiable=False,
@@ -634,11 +740,15 @@ def status(path, m, evidence=None):
     except Exception:
         checks['IDP-PKCE-SESSION'] = 'FAIL'
     checks.update(auth_proof.get('checks', {}))
+    grafana_checks, grafana_diagnostics = grafana.checks(m, RUNTIMES, await_check, save, evidence)
+    checks.update(grafana_checks)
     proof = read(path / 'canary.json') if (path / 'canary.json').exists() else None
     fresh = bool(proof and 0 <= time.time() - proof['completedAt'] <= MAX_AGE)
     result = verdict(checks, fresh, observability(m), proof)
     if 'diagnostic' in auth_proof:
         result['diagnostic'] = auth_proof['diagnostic']
+    if grafana_diagnostics:
+        result['grafanaDiagnostics'] = grafana_diagnostics
     return result
 
 
@@ -660,7 +770,10 @@ def stop(path, m, evidence):
             name = value['Config']['Labels'].get('com.docker.compose.service')
             if name in RUNTIMES:
                 exit_codes[name] = value['State']['ExitCode']
-        compose(path, m, 'stop', '-t', '30', 'keycloak', 'prometheus', 'postgres', timeout=120, log=evidence / 'stop-deps.log')
+        deps = ['keycloak', 'prometheus', 'postgres']
+        if 'grafana' in read(path / 'compose.json')['services']:
+            deps.insert(0, 'grafana')
+        compose(path, m, 'stop', '-t', '30', *deps, timeout=120, log=evidence / 'stop-deps.log')
     m['state'] = 'STOPPED'
     save(path / 'manifest.json', m)
     killed = [name for name, code in exit_codes.items() if code == 137]
@@ -687,7 +800,7 @@ def destruction_plan(path, m):
     ownership(m)
     return dict(state='DESTROY_PLAN', exit=0, instance=m['instance'], owner=m['owner'], project=m['project'],
                 volume=m['project'] + '-data', network=m['project'] + '_default',
-                services=[*RUNTIMES, 'postgres', 'keycloak', 'prometheus'],
+                services=[*RUNTIMES, 'postgres', 'keycloak', 'prometheus', *(['grafana'] if 'grafana' in m.get('ports', {}) else [])],
                 persistentDataLost=['PostgreSQL WRITE/READ and Keycloak database in owned volume',
                                     'Generated credentials, configuration, demo and canary checkpoints'],
                 retained=str(path / 'runs'), preservedUnownedVolumes=unowned_attached_volumes(m),
@@ -737,6 +850,8 @@ def destroy(path, m, evidence):
     for file in path.iterdir():
         if file.is_file() and file.name != 'lock':
             file.unlink()
+    if (path / 'grafana').exists():
+        shutil.rmtree(path / 'grafana')
     return dict(state='DESTROYED', exit=0, project=m['project'], diagnostics='PRESERVED', **volumes)
 
 
@@ -825,7 +940,7 @@ def gui(path, m):
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['start', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
+    parser.add_argument('command', choices=['start', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
@@ -849,6 +964,8 @@ def main():
             evidence.mkdir(parents=True)
             if args.command == 'start':
                 result = start(path, m, evidence)
+            elif args.command == 'upgrade-grafana':
+                result = upgrade_grafana(path, m, evidence)
             elif args.command == 'status':
                 result = status(path, m, evidence)
             elif args.command == 'stop':
@@ -881,9 +998,10 @@ def main():
             result.update(instance=instance, project=m['project'], sha=run(['git', 'rev-parse', 'HEAD']),
                           dirty=bool(run(['git', 'status', '--porcelain'])), urls=dict(zip(('write', 'read'), urls(m))),
                           issuer=m.get('issuer'), evidence=str(evidence))
-            if args.command in ('start', 'status', 'gui', 'login') and m.get('issuer'):
+            if args.command in ('start', 'upgrade-grafana', 'status', 'gui', 'login') and m.get('issuer'):
                 result.update(access(m['issuer']))
-                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'status') else None
+                result['grafana'] = grafana.access(m)
+                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'upgrade-grafana', 'status') else None
             save(evidence / 'receipt.json', result)
             if result['exit']:
                 diagnostics(path, m, evidence)

@@ -8,7 +8,8 @@ Pocoma is not presented as a production-ready financial product. Its purpose is 
 
 ## Playground V3 local
 
-`./pocoma-local start` prépare les cinq JVM, PostgreSQL WRITE/READ et Keycloak.
+`./pocoma-local start` prépare les cinq JVM, PostgreSQL WRITE/READ, Keycloak,
+Prometheus et Grafana (neuf conteneurs).
 [Prérequis et démarrage](docs/v3/L7_Local_Playground_Quickstart.md) ·
 [Bruno GUI/CLI](docs/v3/L7_Local_Playground_Bruno.md) ·
 [Contrat BFF](docs/v3/L7_Local_Playground_Public_API.md) ·
@@ -25,6 +26,13 @@ Les secrets PostgreSQL et internes restent aléatoires ; les ports sont liés
 connexions Owner/Guest utilisent **Auth → Get Access Token**.
 [Diagnostic Keycloak et nettoyage contrôlé](docs/v3/L7_Local_Playground_Keycloak_Diagnostics.md).
 [Remise à zéro exécutée et écart documenté](docs/v3/L7_Local_Playground_Clean_Reset_Report.md).
+
+`start` et `status` exposent aussi `grafana.url` : connexion **admin / pocoma**,
+exclusivement locale. Les deux dashboards Pocoma et la datasource Prometheus
+sont provisionnés automatiquement. Pour une ancienne instance arrêtée :
+`./pocoma-local upgrade-grafana --instance demo` vérifie l'équivalence de la
+distribution avant une mise à niveau sans reset.
+[Observabilité Grafana et diagnostic](docs/v3/L7_Local_Playground_Observability.md).
 
 ## Programme V3
 

@@ -65,8 +65,9 @@ def qualify(second, output):
         assert broken['business']=='UNAVAILABLE' and broken['checks']['JVM-results-worker']=='FAIL'
         recovered=command(rt.ROOT,first,'start');preserve(recovered,'first-recovery')
         rt.compose(p,m,'stop','prometheus')
-        degraded=command(rt.ROOT,first,'status',4);preserve(degraded,'observability-stopped')
+        degraded=command(rt.ROOT,first,'status',1);preserve(degraded,'observability-stopped')
         assert degraded['business']=='AVAILABLE' and degraded['qualificationTools']=='DEGRADED'
+        assert degraded['checks']['GRAFANA-DATASOURCE']=='FAIL'
         rt.compose(p,m,'start','prometheus')
         command(second,other,'start',2)  # Refuse concurrent playground before DB creation.
         command(rt.ROOT,first,'stop')
@@ -111,7 +112,7 @@ def qualify(second, output):
         rt.save(output/'qualification.json',dict(verdict='PASS',testedSha=rt.run(['git','rev-parse','HEAD']),
             checks=['two independent instances','fresh checkout with no targets/local state','real PKCE S256 and missing/plain refusal',
                     'five JVMs','Bruno nonempty JUnit and exact inventory','new canary on restart','no demo duplication',
-                    'critical worker NOT_READY exit1','observability DEGRADED exit4','concurrent instance refusal',
+                    'critical worker NOT_READY exit1','mandatory Grafana datasource NOT_READY exit1','concurrent instance refusal',
                     'explicit reset and dry-run','foreign volume byte hashes unchanged','transactional bootstrap rollback and resume',
                     'existing external containers retained'],
             firstVolumeHashBefore=original_volume_hash,firstVolumeHashAfter=volume_hash(),

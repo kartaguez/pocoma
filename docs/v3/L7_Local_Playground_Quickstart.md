@@ -35,16 +35,18 @@ est verrouillé en 3.9.14 ; les quatre modules sont assemblés avec `-am package
 -DskipTests`. Ce build n'est pas une preuve de test Maven.
 
 La sortie JSON fournit **write**, **read**, **issuer**, **keycloakAdmin**,
-**demoUsers**, le projet et le dossier
+**demoUsers**, **grafana**, le projet et le dossier
 de diagnostic. Les ports loopback sont attribués automatiquement puis conservés.
 Aucun port PG n'est publié. Chaque instance utilise son réseau, son cluster PG
 (WRITE/READ et stockage Keycloak), son volume, son realm et ses secrets. Aucun
 nom/volume du Compose historique n'est réutilisé. Images versionnées : PG
-17.6-alpine, Keycloak 26.7.0, JRE Temurin 21.0.8_9, Prometheus 3.5.0 ; leurs
+17.6-alpine, Keycloak 26.7.0, JRE Temurin 21.0.8_9, Prometheus 3.5.0,
+Grafana OSS 12.3.2 (ARM64/AMD64) ; leurs
 digests natifs effectifs sont dans le manifeste privé et la preuve expurgée.
 
 Les cinq JVM ont chacune un heap max de 384 Mio et une limite de 640 Mio ; PG
-1024 Mio, Keycloak 896 Mio, Prometheus 256 Mio, soit 5376 Mio de limites de
+1024 Mio, Keycloak 896 Mio, Prometheus 256 Mio, Grafana 384 Mio / 0,5 CPU,
+soit 5760 Mio de limites de
 conteneurs. Les instances de playground s'exécutent successivement sur 16 Go :
 un autre playground actif est refusé, jamais arrêté implicitement. Les autres
 projets Docker ne sont pas modifiés.
@@ -95,8 +97,24 @@ Le bootstrap est transactionnel **par base**, marque chaque base seulement
 après SQL et grants complets ; une interruption entre WRITE et READ reprend
 la base manquante. Aucun baseline TRUSTED ni migration historique V2 n'est
 supposé. Un changement d'entrées productives/SQL/outillage fait refuser le
-start existant : utiliser une nouvelle instance ou reset explicite après
-avoir conservé ses données. Pas de mise à niveau automatique.
+start existant. Pour une instance sans Grafana, une mise à niveau explicite
+non destructive est disponible :
+
+```sh
+./pocoma-local stop --instance demo
+./pocoma-local upgrade-grafana --instance demo
+./pocoma-local status --instance demo
+```
+
+Elle vérifie la propriété Docker, la révision du build, les sources applicatives,
+SQL/authentification, les JAR, les images et l'équivalence des services et fichiers
+générés existants. Elle ajoute uniquement Grafana à la topologie, conserve les
+ports, données et secrets, puis exécute le démarrage normal et un nouveau canari.
+Le reçu privé `grafana-upgrade.json` relie les empreintes avant/après. Une dérive
+applicative ou une provenance insuffisante reste bloquante ; conserver l'instance,
+inspecter le diagnostic et utiliser une instance distincte pour le nouveau code.
+Les autres changements d'entrées restent refusés par `PRE-INPUT-DRIFT`.
+Aucun reset implicite. Voir [observabilité et mise à niveau](L7_Local_Playground_Observability.md).
 
 ## Readiness et codes
 
@@ -115,6 +133,23 @@ sont pas livrées. Les outils d'observabilité demandent cinq scrapes UP, des
 métriques JVM et Pocoma présentes. Une réponse Actuator seule ne suffit pas :
 PG, empreintes de catalogue, rôles actifs, maintenance, issuer et session PKCE
 sont contrôlés ; le canari exige une nouvelle version et son contenu/balance.
+
+Grafana est obligatoire : `GRAFANA-HTTP` (santé et authentification admin),
+`GRAFANA-DATASOURCE` (Prometheus interne, santé et métriques des cinq JVM),
+`GRAFANA-DASHBOARD` (les deux dashboards provisionnés et les requêtes PromQL)
+doivent passer. Leur échec donne **NOT_READY / 1**, même si `business=AVAILABLE`.
+Une panne Prometheus fait donc aussi échouer la datasource Grafana ; le code4
+reste le contrat des autres dégradations d'outillage sans échec d'un contrôle
+obligatoire. Preuves : `runs/<id>/grafana.json`.
+
+## Ouvrir Grafana
+
+Lire `grafana.url` dans `start` ou `status`, se connecter avec **admin / pocoma**,
+puis ouvrir **Dashboards → Pocoma**. `grafana.dashboardUrl` ouvre directement
+**Pocoma runtime**. Le second dashboard est **Pocoma V3 - Architecture &
+Observability Overview**. Aucun import ni réglage de datasource n'est nécessaire.
+Les accès sont locaux uniquement ; les modifications UI Grafana sont éphémères.
+Voir [lecture des panels, métriques absentes et diagnostics](L7_Local_Playground_Observability.md).
 
 `status` ne soumet aucune commande métier : il relit les dépendances, ouvre
 une session PKCE, contrôle le canari et sa fraîcheur **300 s max**. Après cette
