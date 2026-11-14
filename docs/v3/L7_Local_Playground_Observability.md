@@ -101,7 +101,10 @@ une panne Grafana. Un `status` après arrêt est normalement NOT_READY.
 ./pocoma-local status --instance demo
 ```
 
-La commande exige une ancienne instance arrêtée, son manifeste et ses secrets.
+La commande exige une instance arrêtée, son manifeste et ses secrets pour une
+mise à niveau. Elle sait également rafraîchir le provisioning d'une instance
+déjà équipée de Grafana, avec les mêmes contrôles d'équivalence, sans changer
+son port ni ses conteneurs. À entrées identiques, elle reprend simplement start.
 Elle refuse les ressources étrangères, une provenance Git absente, une différence
 applicative/SQL/authentification par rapport à la révision enregistrée du build,
 un JAR modifié, des digests différents, une topologie ou configuration générée
@@ -113,7 +116,7 @@ Elle conserve UUID/projet, volume PostgreSQL, ports existants, comptes Keycloak,
 secrets et checkpoints de démonstration. Les chemins macOS de casse différente
 ne sont acceptés que s'ils désignent physiquement le même dossier ; leur graphie
 initiale est conservée pour éviter une recréation inutile par Compose.
-Elle ajoute le port et le service Grafana, enregistre le lien entre anciennes
+Elle ajoute le port et le service Grafana si nécessaire, enregistre le lien entre anciennes
 et nouvelles empreintes dans `grafana-upgrade.json`, puis démarre normalement
 avec un nouveau canari. Le packaging éventuel est borné aux quatre runtimes,
 avec tests Maven sautés ; ce n'est pas une preuve Maven.
@@ -131,7 +134,9 @@ l'instance intacte. Retrouver la révision/build et les fichiers déployés pour
 une migration revue. Une instance neuve, sous un autre nom, permet de qualifier
 le nouveau code sans effacer l'ancienne (arrêter l'autre playground avant start).
 Les modifications ultérieures d'entrées continuent de déclencher
-`PRE-INPUT-DRIFT` ; la mise à niveau n'est pas un contournement général.
+`PRE-INPUT-DRIFT` au start. La commande explicite ne peut les accepter que si
+l'équivalence applicative et du déploiement est prouvée ; elle ne contourne
+aucune dérive des sources protégées, JAR, images ou configurations existantes.
 
 ## Persistance et nettoyage
 

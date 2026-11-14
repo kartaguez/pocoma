@@ -1,0 +1,27 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {
+    "business-read-worker": 143,
+    "command-worker": 143,
+    "http-read": 143,
+    "http-write": 143,
+    "results-worker": 143
+  },
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "demo",
+  "project": "pocoma-lb-demo-33dd8c1d",
+  "sha": "8b1675d225647793a5626576b413324702b9adf5",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:54610",
+    "read": "http://127.0.0.1:54611"
+  },
+  "issuer": "http://localhost:54612/realms/pocoma",
+  "evidence": "./.pocoma-local/instances/demo/runs/1794693978-3f8ab2e7"
+}

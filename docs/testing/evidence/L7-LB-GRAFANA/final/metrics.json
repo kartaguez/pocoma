@@ -1,0 +1,72 @@
+{
+  "projectionExpression": "sum(rate(pocoma_v3_attempt_outcomes_total{consumption=~\"PotVersion|PotBalance|PotVisibility|CurrentBinding|CommandResult|IdentityRequestResult\"}[1m])) by (consumption, outcome)",
+  "projectionSeries": [
+    {
+      "metric": {
+        "consumption": "CommandResult",
+        "outcome": "committed"
+      },
+      "value": [
+        1794693709.904,
+        "0.7884592592592593"
+      ]
+    },
+    {
+      "metric": {
+        "consumption": "IdentityRequestResult",
+        "outcome": "committed"
+      },
+      "value": [
+        1794693709.904,
+        "0.23887999999999998"
+      ]
+    },
+    {
+      "metric": {
+        "consumption": "CurrentBinding",
+        "outcome": "committed"
+      },
+      "value": [
+        1794693709.904,
+        "0.038988888888888885"
+      ]
+    },
+    {
+      "metric": {
+        "consumption": "PotBalance",
+        "outcome": "committed"
+      },
+      "value": [
+        1794693709.904,
+        "0.6506333333333333"
+      ]
+    },
+    {
+      "metric": {
+        "consumption": "PotVersion",
+        "outcome": "committed"
+      },
+      "value": [
+        1794693709.904,
+        "0.6506333333333333"
+      ]
+    },
+    {
+      "metric": {
+        "consumption": "PotVisibility",
+        "outcome": "committed"
+      },
+      "value": [
+        1794693709.904,
+        "0.6506333333333333"
+      ]
+    }
+  ],
+  "finitePanelQueries": 31,
+  "states": {
+    "PRESENT": 24,
+    "ZERO": 7,
+    "ABSENT": 0,
+    "NONFINITE": 0
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "repository": "kartaguez/pocoma",
+  "remote": "https://github.com/kartaguez/pocoma.git",
+  "repositoryVerified": "GitHub connector: owner kartaguez, admin/push permissions; matches mission repository and origin",
+  "authorization": "Mission GO_L7_LB_GRAFANA_INTEGRATION: deliver Docker qualification evidence/docs/report and publish feat/l7-lb-local-playground after verification",
+  "technicalSecretMatches": 0,
+  "bearerLikeTokens": 0,
+  "personalAbsolutePaths": 0,
+  "policy": "Public copies redact personal filesystem prefixes; raw Maven logs retained privately, digest/result summaries published",
+  "redactions": [
+    {
+      "path": "completion/commands.json",
+      "rawSha256": "7e8ca940e622264584f91d5ee921030984b2e094becbcc1bbde7cd28eeed72f1",
+      "publishedSha256": "9ed7611a1ff089eb8add09d828bf7351305d43832564f91f6fe1b288a31cf3c4"
+    },
+    {
+      "path": "completion/qualification.json",
+      "rawSha256": "6de163d50d5c9f3fde0b63a159c79c03606469ce20aaa83386c7f55b657f95ae",
+      "publishedSha256": "748b712797ef56518bd5c5cfeceba312ffa6e1fafb1895c24dae5029f202bcd5"
+    },
+    {
+      "path": "completion/start/receipt.json",
+      "rawSha256": "e6b70e65e3874ee35462b7ea331472f384c0c7e9feb88d0f05a7f30bb4f5d7ee",
+      "publishedSha256": "964234aad97472f1dad5539d2de47066f400763a5d70c7f5d98b19860df73789"
+    },
+    {
+      "path": "completion/status/receipt.json",
+      "rawSha256": "d9d8ee456bdda3670e03aaa12712e01d050e7fe940209edfaaafdc831005e7a8",
+      "publishedSha256": "8b21f7c79c7bbf910a5b5707685ecf0378dd7701a63cec99b135a589337932c2"
+    },
+    {
+      "path": "docker/commands.json",
+      "rawSha256": "f4e4123c3202e5e6ef4cf787eafb680120fabc1461be92cf3ff0e96d4201ba5c",
+      "publishedSha256": "da3682f4a8114301b8ceddefc09e6876395108ad0af532e5ff236e90cb56ad14"
+    },
+    {
+      "path": "docker/demo-upgrade/receipt.json",
+      "rawSha256": "465535b9aa8d6fca3bc693dde120bc9769963e53effd60857f1f68d9364aef0d",
+      "publishedSha256": "bbf7bca4f007a00cade7e2086e3287f625c5a541b3bc007c4f696e4d27904160"
+    },
+    {
+      "path": "docker/qualification.json",
+      "rawSha256": "8fa75d5421319cde32037fc80cb47e857984c942579f082e26b0d65c1946c93b",
+      "publishedSha256": "b3b11b65d740051030fe12d1f74ef2939a83dc9a1e3771e77562d33702f5f13c"
+    },
+    {
+      "path": "docker-qualified/commands.json",
+      "rawSha256": "a963c148d7955d5014d5d171c81df089499aff1cd035f0340369c42a74f57813",
+      "publishedSha256": "7a3f96d17b8145a89d0f09e089cb6cef27d79047e579525908b0b96e964d2e18"
+    },
+    {
+      "path": "docker-qualified/datasource-stopped/receipt.json",
+      "rawSha256": "36fd4c5278bde6789b5d60744da0ce843f77ebfaff70d850e2e6bbd5eee77fa4",
+      "publishedSha256": "08912ef8c7e04d09e061eb738bbebeb37d445dab6861bb48424829556a7e11bb"
+    },
+    {
+      "path": "docker-qualified/demo-bruno/bruno-receipt.json",
+      "rawSha256": "e1015b5f4bd3a3cd959354e558e3fb7fd0f433d1377821efde1918228ee649ab",
+      "publishedSha256": "62e2b87f5d361dcf2c08d398cdc1b800b730d70ff0ed67a572be8565c8a03c39"
+    },
+    {
+      "path": "docker-qualified/demo-bruno/receipt.json",
+      "rawSha256": "60dfba4db6c2faac4907859e396cd4f303ccf7161aa19e5b1f9a6c5a72de57f4",
+      "publishedSha256": "95c829266a5f81054c234ad31b30a40e619e403e131595b87a5762266e8b8dab"
+    },
+    {
+      "path": "docker-qualified/demo-restart/receipt.json",
+      "rawSha256": "9f9961158be3e4596c46419dce8bff4d32c296fd9a18d6d26a06d2c61c52a050",
+      "publishedSha256": "10393351bd3c05f0d57d697e9c3633765434eb6b37aa33bed0d83e51593a77a4"
+    },
+    {
+      "path": "docker-qualified/demo-restart-status/receipt.json",
+      "rawSha256": "b18d1cf4610b78f233534722bf9bf507c657311863b0a3bc65694109c20637e2",
+      "publishedSha256": "f8c45cfb4ec6f093f1ab3bb2c807412b116a71dcc42e29c107043310c0b3026b"
+    },
+    {
+      "path": "docker-qualified/demo-restored/receipt.json",
+      "rawSha256": "cc98173c79c7c03898807ffaa602e470ab6a76e774885f097e1adcce37cde6bc",
+      "publishedSha256": "9cef0cf10f013bd0c094a2f43d8d359267e102ebdad0180619601c8ccf6fc04f"
+    },
+    {
+      "path": "docker-qualified/demo-status/receipt.json",
+      "rawSha256": "3cf3d223a05744152e06c79526c58aee622466e9d364f397b8ae11d56a808558",
+      "publishedSha256": "b9779cc6db095ece28dbbc1dfd6de5049743f20da9be37f6b1bf2bd629f51ac2"
+    },
+    {
+      "path": "docker-qualified/demo-stop/receipt.json",
+      "rawSha256": "c5ea8cabf82b762ae871cf17219c707e3a2ca76dffcb862f7325426670605cec",
+      "publishedSha256": "7a920ebfe9b4a9442c23a34091ccfb41f2fafc7ea7122a6d28d412f3be841b28"
+    },
+    {
+      "path": "docker-qualified/demo-stop-for-fixture/receipt.json",
+      "rawSha256": "42ec536d7eedc702ddadee755ee8a514031fb21514136bd169773d4ed394e644",
+      "publishedSha256": "f3c0c3d96a3c19176eefb7418b8a9e4b4c41a86a284b445aa4827ab9cbcd67b2"
+    },
+    {
+      "path": "docker-qualified/demo-upgrade/grafana-upgrade.json",
+      "rawSha256": "4e7067230737364b4c4415ebcf68299e66a38512eddda17fb0b5f0bbdae5db0e",
+      "publishedSha256": "3e0c30652a46a83e7de24404cf94aba31e4e49d3f5ba92c8af762fe81393b2b3"
+    },
+    {
+      "path": "docker-qualified/demo-upgrade/package.log",
+      "rawSha256": "c9e0416ac4c7356b606b8b717ff54f38df30faa3a796c80dbcbaa1e6fa2d4f33",
+      "published": "package-summary.json only"
+    },
+    {
+      "path": "docker-qualified/demo-upgrade/receipt.json",
+      "rawSha256": "34fb53dcfee98e6d138c5398af6b3a907cbcc42a8fb0580a7a45566dc36a1ff5",
+      "publishedSha256": "eea4afbfdb008558e1363a8eafc3701ff42cf924ae423b80a174694ed365d289"
+    },
+    {
+      "path": "docker-qualified/fixture-bruno/bruno-receipt.json",
+      "rawSha256": "e7920d8d34a5775525723efec50e740a572944dac47c92adeded607d68603af4",
+      "publishedSha256": "77e1cb3c2d1d04ca8bbe494cceb99d3da4940adfd0ae10b1bf0d5d3b27028e6f"
+    },
+    {
+      "path": "docker-qualified/fixture-bruno/receipt.json",
+      "rawSha256": "4a754a3cb68b958659bc059a6b68bcc9c119f57dbb8bc070f00b8514c137c2bd",
+      "publishedSha256": "6d0da7da0c2f9d56b3cddb39be361c0eb77d9a1fc931588ee5690359ae8a7975"
+    },
+    {
+      "path": "docker-qualified/fixture-destroy/receipt.json",
+      "rawSha256": "7852a79e830e1230ae1e64256416aa52df40168d364a40d947cfa2ec13ccfba4",
+      "publishedSha256": "5f548fe8aa4e3e369285b3252aa576249bc5983c942a71ced653dc20db921f8a"
+    },
+    {
+      "path": "docker-qualified/fixture-destroy-plan/receipt.json",
+      "rawSha256": "d0669012ca5565e96c8e2c58b5e2126c23c4a73a1c0810cb3cf537123f7b5c98",
+      "publishedSha256": "e6ae4b1fedaa5210a9e6a61cf3cbc2b4cf41002222f4024ab7961f8049fd71b1"
+    },
+    {
+      "path": "docker-qualified/fixture-fresh/receipt.json",
+      "rawSha256": "14d6aa7297775b8614d8aeccd74370f8597a4428b196984270ba21ad79d96a18",
+      "publishedSha256": "37aa9dc50221d50e6d3d414660f8f533626f85709a8e0f9d27d0ba816f2416ee"
+    },
+    {
+      "path": "docker-qualified/fixture-reset/receipt.json",
+      "rawSha256": "c5a85e0ada25e494dc90d18564d090122c333d174194f6c93681b29a493e64c1",
+      "publishedSha256": "477f94c455f11d3b9b4a0ae4379fdeb4526beb26e03a39946b85ed33893c6e3b"
+    },
+    {
+      "path": "docker-qualified/fixture-reset-status/receipt.json",
+      "rawSha256": "ce2bf18e8c48a4ae5273f668407f86235addee938d69e64376d93f91d8f9ad40",
+      "publishedSha256": "aad9bdd79b0c969d538cd386f74db30ff78692b84114b7e2fe4d817209766cb7"
+    },
+    {
+      "path": "docker-qualified/fixture-status/receipt.json",
+      "rawSha256": "90a33777bcf05387cb5e2e4239e4c14ce4fe114383650f597a5304fabd77ea4e",
+      "publishedSha256": "d36000692c3ef0295e3ea6cc7b4e79b8e347e5a5e3971298feddff9006d7b187"
+    },
+    {
+      "path": "docker-qualified/grafana-stopped/receipt.json",
+      "rawSha256": "5ceb31ef30752d33291da594a2d24591728109f937c4e126267ac6432b5ff447",
+      "publishedSha256": "1a922beca8ee0f8e379dda72ccdfe86e99b801a55bbdbda9645f55fb35b8927e"
+    },
+    {
+      "path": "final/commands.json",
+      "rawSha256": "543b5427dc2a4519823cb289350e47314d1dd2e4d0a9271996779cdd938e5bcf",
+      "publishedSha256": "8809681902b25063098e8a24ac3901ea7058d579f1604ce5b60b2727eff52e64"
+    },
+    {
+      "path": "final/datasource-stopped/receipt.json",
+      "rawSha256": "a164e2dc0bc65e19f2e50b78c347f66e8a2de6134f65ec3798e38792acb32fa5",
+      "publishedSha256": "92bd296c77be799a2f3c642729d7eb81e8f6d0d52ccd5056d09c09ddb89e92eb"
+    },
+    {
+      "path": "final/demo-after-traffic/receipt.json",
+      "rawSha256": "1d83b22c1cf3aaae7cdce7c3dd528f582404abb1f030e04da87194967291eb7b",
+      "publishedSha256": "ea47cb9394e3ea2e8dd458723c214f4f13719debbd223f68e7d0f0fdffa329a7"
+    },
+    {
+      "path": "final/demo-bruno/bruno-receipt.json",
+      "rawSha256": "953a67f8f72d6d84b86544da57f8cf28ca424938006b570c9f5fe5b1694d3d3b",
+      "publishedSha256": "989294d5d4aad6c4522ad398785586b128727a5333204622c8aa518aacdc3f3f"
+    },
+    {
+      "path": "final/demo-bruno/receipt.json",
+      "rawSha256": "40184f1ffef761e32fca47bcd73bc28b3c4bd31c69fe81c958d86c8c4e655bc8",
+      "publishedSha256": "c50c2146c967e9e685ede6a906902a599d9027b4e079aa2872be6f9983e3e202"
+    },
+    {
+      "path": "final/demo-restart/receipt.json",
+      "rawSha256": "76f66ecb280d4e6b058a7beda6c8bc7efc61a6d227949a9db884c7e172394839",
+      "publishedSha256": "0a53cba1e3fadddd692d8ced059d0b2245c9864d462c64ac4087032184ec1f58"
+    },
+    {
+      "path": "final/demo-restart-status/receipt.json",
+      "rawSha256": "48cec3b386b2fe4279ea048221f925c4aa6ab2f825d8137544fa6982c908d799",
+      "publishedSha256": "8eeb94362c304d44d9ece69f75fbe83f740172fee0e6a9717a0f8095685993fa"
+    },
+    {
+      "path": "final/demo-restored/receipt.json",
+      "rawSha256": "85a76cf1e86fff279f4b02c8bccc17a1644db256dc80a74e356e2dbc579daaef",
+      "publishedSha256": "1cf14eafd28162d6b7df5e41ea2f881d41e84b971319b88489d01ed27181eb6d"
+    },
+    {
+      "path": "final/demo-status/receipt.json",
+      "rawSha256": "e601bc1ecd821f724b86733ce2a4b8f66244b0af3523cfe04d392c42303cc840",
+      "publishedSha256": "40c44a2f0cf19c6049f71b31080d28af759dc67cf4a0844cb38cc157ce20b79d"
+    },
+    {
+      "path": "final/demo-stop/receipt.json",
+      "rawSha256": "4c551f05ba55396052dc46f05d4fa5f8dc785599e0d231ac264128992c1c7b35",
+      "publishedSha256": "2b4e5b4a528df349c20c7016d5b5acf62ffbae40216ae0d97ab976969bc98052"
+    },
+    {
+      "path": "final/demo-stop-for-fixture/receipt.json",
+      "rawSha256": "5902f3e08ebe7ef2c71cdd2ff4a10ce4dac657e62e22611a3bb8fd49c7f63cd4",
+      "publishedSha256": "c240899249699771648bf3a3f41c1dcff106c13b31c455cd4ad64f50eeda77ba"
+    },
+    {
+      "path": "final/demo-upgrade/grafana-upgrade.json",
+      "rawSha256": "fcb78f82feb4758306ae9ab138dcee4a12ecc075a22351138c0f6a64b4ce742a",
+      "publishedSha256": "f7acb41cad207f010fe3eb4b8ce43b0b6726b17984bb4c6f890ce90f2f6a7eed"
+    },
+    {
+      "path": "final/demo-upgrade/package.log",
+      "rawSha256": "7e36b26845a7b0d42d30cc0f5fd13ec5501aa3e1a9c155ff647428f01a5accfb",
+      "published": "package-summary.json only"
+    },
+    {
+      "path": "final/demo-upgrade/receipt.json",
+      "rawSha256": "9ce319f00742d85d7f798c438c948331171f826b153c062985396ab6ca09c789",
+      "publishedSha256": "23d3316df3eca1ec49f002ddc64d293925bf2d89849c6019e859cc1e41951077"
+    },
+    {
+      "path": "final/fixture-bruno/bruno-receipt.json",
+      "rawSha256": "5e04ee4da03e5254d696a78149eac41c575a57116c3ef8484e7818d533c44ea2",
+      "publishedSha256": "f20c0dd332153666fad34d69de07a8cbd5957303437f20aedada231efec0701f"
+    },
+    {
+      "path": "final/fixture-bruno/receipt.json",
+      "rawSha256": "3deeaf7f68447c50dc6f87ed4a6cf14a547405017b2b5f9485b8b84bca51319f",
+      "publishedSha256": "28a4301dd1a6e765dc7b9d2bbcb3adea545d40c4993e4d4a44c3fdbe473fcee2"
+    },
+    {
+      "path": "final/fixture-destroy/receipt.json",
+      "rawSha256": "41c1f688dadba4669cd988b097e01f24e23de2a1ff60db4c86ccb02f14e10d3f",
+      "publishedSha256": "3caa77a8d4896c6ce9171cf5cb2ad627efd544ffae3f9794a01bbaa79f5e11e6"
+    },
+    {
+      "path": "final/fixture-destroy-plan/receipt.json",
+      "rawSha256": "bb6058c3ba0ce4b510aa2dabcb52c069c025a91da5a1f038f1ac1220f0bb326a",
+      "publishedSha256": "a16ef836f4b45301c1dde37809d05dfef2ca517ea7f10667173df7f60c9b5661"
+    },
+    {
+      "path": "final/fixture-fresh/receipt.json",
+      "rawSha256": "8af2e87f26ad391e744b016612f2fcf63457f278ccd5a5409331578026912ba1",
+      "publishedSha256": "27119d45360c1e8232b809b487ce9a542a38bcb9b562e3341cf2ac0807f59f60"
+    },
+    {
+      "path": "final/fixture-reset/receipt.json",
+      "rawSha256": "772fbc2857b2b6c53a55a9014044ab73e645a9e40e6c11d25de4da6af08b72f9",
+      "publishedSha256": "e81ea89e1529f465504f41ebddfc77142be8fd4e8f226bb016c6becfc9c8c5c7"
+    },
+    {
+      "path": "final/fixture-reset-status/receipt.json",
+      "rawSha256": "9ea15049d5110f6dc2012d0549a2e0e76034714a9b6afa22d82d330cb5d71f8b",
+      "publishedSha256": "5dc2ca83048d182eec12e8ab68f18ab983bb5a4876dd6ae9a7ef75120f9532d6"
+    },
+    {
+      "path": "final/fixture-status/receipt.json",
+      "rawSha256": "62aa3fc2bfacb512b0520f769e35b3db7ec76a4a459bfbc8bbcd531f4136484d",
+      "publishedSha256": "9947c0a541e6ca510fae80669dba270e227f615440f04b87997c910a5af241ee"
+    },
+    {
+      "path": "final/grafana-stopped/receipt.json",
+      "rawSha256": "7550a38ed7f13701f190508c363b0a597e7ac231d714e8a0b8f919b6f0867ae1",
+      "publishedSha256": "ffee0300799706b7f3d0cdbadb1ee9676276b630d41f1bb89f4bfc40ca72c4e9"
+    },
+    {
+      "path": "final/native-installed.json",
+      "rawSha256": "407c7e8244dbf1998fd0840ec1e749874695928548b3119c3ad518d2bb5225d8",
+      "publishedSha256": "a4827dcd50f62d613768c2ac2a48e964b4da0a7e67eca92ebeac20634dab2c08"
+    },
+    {
+      "path": "manifest-public.json",
+      "rawSha256": "64589694d3394327a16a20ddd3ef4b261c8a52c643d242cca9ba88598958f85a",
+      "publishedSha256": "f7abe193ffd8a6b0d38a41aca7c6cdb7b13dee89f02adce9cd0afbdc21d7a2f0"
+    }
+  ]
+}

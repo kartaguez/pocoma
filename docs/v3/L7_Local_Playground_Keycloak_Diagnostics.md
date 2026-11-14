@@ -114,3 +114,10 @@ pris pour une entrée d’instance et provoquer PRE-PRIVATE-PERMISSIONS.
 Vérifier qu’il s’agit bien d’un fichier régulier sans symlink, puis le conserver
 sous un nom unique dans le dossier privé `.pocoma-local/finder-metadata/`.
 Ne pas rendre les répertoires publics ni contourner les contrôles UUID/labels.
+
+## Grafana local
+
+`GRAFANA-HTTP`, `GRAFANA-DATASOURCE` et `GRAFANA-DASHBOARD` sont obligatoires pour
+READY. Le JSON `grafanaDiagnostics` et le fichier privé `runs/<id>/grafana.json`
+permettent de distinguer une panne Grafana/datasource d'un défaut métier.
+Voir [observabilité locale et mise à niveau sans reset](L7_Local_Playground_Observability.md).

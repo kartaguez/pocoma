@@ -1,0 +1,21 @@
+{
+  "state": "DESTROYED",
+  "exit": 0,
+  "project": "pocoma-lb-grafana-validation-13ef4f10",
+  "diagnostics": "PRESERVED",
+  "removedOwnedVolumes": [
+    "pocoma-lb-grafana-validation-13ef4f10-data"
+  ],
+  "preservedUnownedVolumes": [
+    "986b8724dec62868f295cc1161a0cb9cd3744d66cfddac82bcf2756550e05280"
+  ],
+  "instance": "grafana-validation",
+  "sha": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:63050",
+    "read": "http://127.0.0.1:63051"
+  },
+  "issuer": "http://localhost:63052/realms/pocoma",
+  "evidence": "./.pocoma-local/instances/grafana-validation/runs/1794693539-136dd507"
+}

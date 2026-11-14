@@ -1,0 +1,8 @@
+{
+  "result": "BUILD SUCCESS",
+  "rawLogSha256": "7e36b26845a7b0d42d30cc0f5fd13ec5501aa3e1a9c155ff647428f01a5accfb",
+  "bytes": 67085,
+  "rawLogRetention": "Private instance run; unredacted log not published",
+  "command": "./app/mvnw -f app/pom.xml -pl runtime-web-read,runtime-web-write,runtime-worker-materialize,runtime-worker-process -am package -DskipTests",
+  "tests": "SKIPPED: packaging only"
+}

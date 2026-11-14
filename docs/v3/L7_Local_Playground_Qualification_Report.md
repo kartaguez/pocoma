@@ -158,3 +158,12 @@ exécuter login avec le navigateur puis PG01 dans Bruno, consigner version GUI,
 connexion interactive et résultat du test, corriger/requalifier toute anomalie,
 puis soumettre le verdict à l'humain. Cette revue ne certifiera pas
 V3_REFERENCE_BASELINE_ACCEPTED ni les obligations I4–I6.
+
+## Extension Grafana L7-LB — novembre 2026
+
+La distribution locale comporte désormais neuf conteneurs et ajoute trois
+contrôles Grafana obligatoires à READY. Les anciennes observations à huit
+conteneurs et les anciens résultats DEGRADED sur arrêt de Prometheus restent
+historiques ; le contrat courant et ses preuves sont dans le
+[rapport Grafana](L7_Local_Playground_Grafana_Report.md).
+La mise à niveau de demo est explicite et non destructive, sans reset.

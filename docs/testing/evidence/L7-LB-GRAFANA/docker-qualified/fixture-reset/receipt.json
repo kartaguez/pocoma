@@ -1,0 +1,52 @@
+{
+  "state": "READY",
+  "exit": 0,
+  "business": "AVAILABLE",
+  "canary": "AVAILABLE",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS",
+    "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+    "KEYCLOAK-ADMIN-AUTH": "PASS",
+    "KEYCLOAK-ADMIN-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-PKCE": "PASS",
+    "KEYCLOAK-GUEST-ENABLED": "PASS",
+    "KEYCLOAK-GUEST-PKCE": "PASS",
+    "KEYCLOAK-BRUNO-ENABLED": "PASS",
+    "KEYCLOAK-BRUNO-PKCE": "PASS",
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "PASS",
+    "GRAFANA-DASHBOARD": "PASS"
+  },
+  "canaryProof": {
+    "potId": "b56686c5-9acf-5459-9ba9-a6b979b0b495",
+    "version": 2,
+    "runId": "1794693494-b89bed72",
+    "completedAt": 1794693536.411584
+  },
+  "observedAt": 1794693536.797653,
+  "removedOwnedVolumes": [
+    "pocoma-lb-grafana-validation-d1203e9d-data"
+  ],
+  "preservedUnownedVolumes": [
+    "5a8a2a41fd70711f282e322e9543955e21d70856471de44a11565282b746896e"
+  ],
+  "instance": "grafana-validation",
+  "project": "pocoma-lb-grafana-validation-13ef4f10",
+  "sha": "c7df9da4d3e3d7b824dcfc50bd474c46371d310b",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:63050",
+    "read": "http://127.0.0.1:63051"
+  },
+  "issuer": "http://localhost:63052/realms/pocoma",
+  "evidence": "./.pocoma-local/instances/grafana-validation/runs/1794693494-b89bed72"
+}

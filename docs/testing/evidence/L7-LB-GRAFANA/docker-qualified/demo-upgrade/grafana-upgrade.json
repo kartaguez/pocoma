@@ -1,0 +1,21 @@
+{
+  "baseline": "47a0c094f803f019e32c91709e171791cde67f2e",
+  "previousInputs": "c6325dc490b0383a85c7baa855dc2687b1e0bcb7062400ffa1f18b035ae5735e",
+  "inputs": "01d8e3592b204ba5c6ec4c91b1a2ee138c1a0ba0883324b0094949d6efbf35d6",
+  "preservedFiles": {
+    "secrets.json": "bcb69f72756713c6868a4396fdcd7e91c60720e2c73b9ee4d11d1bb88e8c51cd",
+    "demo.json": "beb1e07d6ff8cf2d4b550fe8cbab3ef2fe2c6122c5413d3bf631223dfe34c394",
+    "canary.json": "34c7ce03d554ca538dc06db746e389f813467a44f10c3dd1cd6835dd41ce004d",
+    "web-read.jar": "f9576b376ca4881bedc532fba4fe1a2e929724be4624e69784c570cee8301211",
+    "web-write.jar": "51f0368a5bb1a9424571c913234c5cbe21c82496e660321b211ce25ceb275496",
+    "worker-materialize.jar": "fd7edc4963de6bf7cbe693ce782aae0c3cc96ab270d47c811b15336dec864440",
+    "worker-process.jar": "a87637e16f5589bab8fefa39283b2981bbf6cf3b2fe3270016f3c48c10b8da22",
+    "http-write.properties": "98065f02410cebad81f0fd3cc751419a8772f1deae526b8ce74499a509541e0d",
+    "http-read.properties": "84ff84d17c3c12ed6d822f204231c3793dcbed01b0f72c463ccc8ff9f0165ba7",
+    "command-worker.properties": "34187dbce14b9a2f258029df305217eb6b7fd54f85295ef891f628f1a0f5e3a0",
+    "results-worker.properties": "752a21554ec0bd37452a9f62e5574bc5c119bdb78c1c7187183289f443c76835",
+    "business-read-worker.properties": "fb92e51ffc693da4da45d1b93a3c33ac54f85f0345c0dad3d1f90d37a7c594da"
+  },
+  "evidence": "./.pocoma-local/instances/demo/runs/1794693129-6ad82b07",
+  "method": "PRODUCTION_AND_DEPLOYMENT_EQUIVALENCE"
+}

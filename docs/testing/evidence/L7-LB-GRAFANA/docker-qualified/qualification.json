@@ -1,0 +1,7 @@
+{
+  "verdict": "L7_LB_GRAFANA_BLOCKED_WITH_EVIDENCE",
+  "inputs": "01d8e3592b204ba5c6ec4c91b1a2ee138c1a0ba0883324b0094949d6efbf35d6",
+  "errorClass": "AssertionError",
+  "diagnostic": "",
+  "resources": "PRESERVED"
+}

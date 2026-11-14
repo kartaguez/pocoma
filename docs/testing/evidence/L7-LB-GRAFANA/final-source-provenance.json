@@ -1,0 +1,28 @@
+{
+  "commit": "8b1675d225647793a5626576b413324702b9adf5",
+  "inputs": "711336711899a0aa04074515ab11cc9bc11d79c910ba9975a47c61f4eab85e4a",
+  "sourceHashes": {
+    "scripts/local/runtime.py": "d7d78f664510950670c5cdc66a9d96bf5deade57a5b1923cee71d0767860bc15",
+    "scripts/local/grafana.py": "fbc31d5cd465f863902d0ae52c84c7db6677e0b64e5738d976623354f2bbce90",
+    "scripts/local/test_grafana.py": "d6d25fd126d7d05b0ebd61caa6a9d8b3311bb32dde664602952c49d7da5b2f1a",
+    "scripts/local/test_grafana_installation.py": "dfe6843965d860d360e33e849df19afe152ec33a5951e3d41664c1bf608541ce",
+    "docker/grafana/dashboards/pocoma-runtime.json": "2c2a43e8748803c41da5df55437a2a1f0909fbaadf1b8a41ba1ee5ffb9593314",
+    "docker/grafana/dashboards/pocoma-v3-overview.json": "70d36fe61032aa666bc010d9f381f536abb8dfcfd832d23c1491d3c833e8c42d",
+    "docker/grafana/provisioning/dashboards/dashboards.yml": "155a3d592b058ed28c3d68f536f15f48a7194f6ffd481c009ecc1ab0ace92f62",
+    "docker/grafana/provisioning/datasources/prometheus.yml": "1e6f61206a1e791f6060b085cd11dd7264f24118db6879e6a04a69543ff5377a"
+  },
+  "preexistingDirtyBrunoFiles": [
+    "docs/v3/L7_Local_Playground_Bruno.md",
+    "scripts/bruno-playground/02 - Pots/P01 Create Pot.bru",
+    "scripts/bruno-playground/02 - Pots/P02 Update Pot Details.bru",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot.bru",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details.bru",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot.bru",
+    "scripts/bruno-playground/90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot.bru",
+    "scripts/bruno-playground/README.md",
+    "scripts/bruno-playground/lib/workspace.js",
+    "scripts/local/test_bruno_gui.js"
+  ],
+  "note": "Preexisting Bruno edits retained in worktree, excluded from Grafana commits; no clean remote checkout certification.",
+  "qualificationOracleCommit": "4ff1784992c0074fd543cb48e809fc0fe48f3223"
+}

@@ -1,0 +1,7 @@
+{
+  "verdict": "L7_LB_GRAFANA_BLOCKED_WITH_EVIDENCE",
+  "inputs": "5777d81288d39622babe886eb54d64dcd8f1f264dc92871e7f24db0dda782573",
+  "errorClass": "RuntimeError",
+  "diagnostic": "Failed phase: demo-upgrade; private evidence ./.pocoma-local/instances/demo/runs/1794692985-6c43355c",
+  "resources": "PRESERVED"
+}

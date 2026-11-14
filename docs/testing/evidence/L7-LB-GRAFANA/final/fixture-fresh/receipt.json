@@ -1,0 +1,65 @@
+{
+  "state": "READY",
+  "exit": 0,
+  "business": "AVAILABLE",
+  "canary": "AVAILABLE",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS",
+    "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+    "KEYCLOAK-ADMIN-AUTH": "PASS",
+    "KEYCLOAK-ADMIN-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-PKCE": "PASS",
+    "KEYCLOAK-GUEST-ENABLED": "PASS",
+    "KEYCLOAK-GUEST-PKCE": "PASS",
+    "KEYCLOAK-BRUNO-ENABLED": "PASS",
+    "KEYCLOAK-BRUNO-PKCE": "PASS",
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "PASS",
+    "GRAFANA-DASHBOARD": "PASS"
+  },
+  "canaryProof": {
+    "potId": "1c48d222-65ca-5157-89b5-886b163ea4b5",
+    "version": 2,
+    "runId": "1794693981-deeb2c4c",
+    "completedAt": 1794694019.9760551
+  },
+  "observedAt": 1794694020.399633,
+  "instance": "grafana-final-validation",
+  "project": "pocoma-lb-grafana-final-validation-8cb0087f",
+  "sha": "8b1675d225647793a5626576b413324702b9adf5",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:65013",
+    "read": "http://127.0.0.1:65014"
+  },
+  "issuer": "http://localhost:65015/realms/pocoma",
+  "evidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794693981-deeb2c4c",
+  "keycloakAdmin": {
+    "url": "http://localhost:65015/admin/",
+    "realm": "master",
+    "username": "admin"
+  },
+  "demoUsers": {
+    "realm": "pocoma",
+    "owner": "third",
+    "guest": "guest",
+    "bruno": "bruno"
+  },
+  "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+  "grafana": {
+    "url": "http://127.0.0.1:65022/",
+    "username": "admin",
+    "dashboard": "Pocoma runtime",
+    "dashboardUrl": "http://127.0.0.1:65022/d/pocoma-runtime"
+  },
+  "keycloakAuthEvidence": "./.pocoma-local/instances/grafana-final-validation/runs/1794693981-deeb2c4c/keycloak-auth.json"
+}

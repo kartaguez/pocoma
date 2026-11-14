@@ -1,0 +1,1 @@
+Bruno composition CHECK PASS: 118 requests, 236 named tests, 3 journeys

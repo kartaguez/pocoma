@@ -1,0 +1,22 @@
+[
+  {
+    "command": [
+      "./pocoma-local",
+      "upgrade-grafana",
+      "--instance",
+      "demo"
+    ],
+    "phase": "demo-upgrade",
+    "exit": 2,
+    "expected": 0,
+    "seconds": 1.7405775829975028,
+    "result": {
+      "state": "NOT_READY",
+      "exit": 2,
+      "control": "GRAFANA_UPGRADE_COMPOSE_DRIFT",
+      "instance": "demo",
+      "evidence": "./.pocoma-local/instances/demo/runs/1794692985-6c43355c",
+      "environment": "PRESERVED"
+    }
+  }
+]
