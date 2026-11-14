@@ -1,0 +1,23 @@
+{
+  "after-reset-cli/bruno-receipt.json": "2c6e4a205de03789380d4c6ed318ec58e2eb70ad828b0074eaff308b9530be25",
+  "after-reset-cli/bruno.xml": "6ebdae2d1da443349ccf24f66fca56b62331817a8de53543966cf5b226780df6",
+  "after-reset-cli/receipt.json": "0ef0e96cc8f05b7fb2a8263986e63aad48568fdb3a471ba630ac635f107f9fa1",
+  "after-reset-cli/scenarios.jsonl": "613d13bb8b8569d29ac6540c836b2cfe3fe87d4ffe7904b4533725c9c56d75f0",
+  "commands.json": "922734b422917d744aebbf60693515a00f8f33287980b93ddc958e6c5d8b12be",
+  "fresh-cli/bruno-receipt.json": "1b0cbe976d086cefb38302db8663f6b46379036591a821edd8f1acb1a66a90c7",
+  "fresh-cli/bruno.xml": "5909378f3abe3c671fdbddafb3705f3cd8f7d042cc03a8d54b515951d2df7d4e",
+  "fresh-cli/receipt.json": "d549a32cd20ea0c1431545555cfc9604dd4f32cca6dcb4806546bb0c0aeeb2a6",
+  "fresh-cli/scenarios.jsonl": "ccd36a2d9ad0a46cb8d6b3f2295da99154e44cea524b2270be531abc8f3cb90b",
+  "gui-observations.json": "08c025883c0a95a6a0b404d6fa1f788978035e627059cce65b7cb696b9f07b81",
+  "manifest-public.json": "cab58ac61d2afb4a14545fb60c639cf80450005337794771a35b87bcbff28ae0",
+  "native-421.json": "b46d5631b0a6e044c5ab0564d2862f95973ac4d13b2fe8b615d6ab999369c7ee",
+  "native-421.json.requests.json": "92b30a1c988600551a762679c7c41bec160fd74b4a1ca2a8320cbf428bb74da8",
+  "package.log.gz": "16b529936594dc148e5fcf5ec7e0d69191de397a225767a7e597654224806771",
+  "publication-input-comparison.json": "4be67a5282c04759ae2514401c99cd2fb23b9b1457872c2440c04ec4b197d2f1",
+  "qualification.json": "0960cf5c1ff7873143c94d0dd327cf1b5a345159647457244575f792bb59f0d5",
+  "secret-scan.json": "15867511cfab495950448385fc05cd637149733e9c9f4b876511dd2545927922",
+  "technical/bruno.xml": "d427f1d699aa958e6cea7f0c0cab92e3b47b6deae79fb8342f5b32e090c198e0",
+  "technical/receipt.json": "218968359251d3a6f7904951cd53cbdc82f0151cd55e7a57415b27b9875bc116",
+  "technical/requests.jsonl": "eb3bd31f93b749cc55c429661a514675af303b932d09dffd00daffe28c4a747e",
+  "unit-controls.log.gz": "f2098d105308cd46fb6691ad372556ab791c5e8aad7dff498c861217ff2fc3b7"
+}

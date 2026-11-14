@@ -1,3 +1,12 @@
+> **Reprise I3 du 14 novembre 2026 : [rapport et verdict I3_BRUNO_PARTIAL](L7_Local_Playground_Bruno_I3_Rework_Report.md).**
+> Qualification propre **7d951a34** : collection171 fichiers,25 opérations métier/12 routes,
+> CLI118 requêtes/236 tests/731 assertions avant et après reset ; moteur installé 4.2.1,
+> mêmes118 requêtes/236 tests/730 assertions. Quatre requêtes techniques/8 tests passent.
+> GUI réellement observé : collection/Instance, E00=200 et 2 tests PASS, formulaire Owner
+> Code + S256 ouvert. Login complet, parcours Runner, bascule et reprise GUI restent à valider.
+> [Preuves actuelles](../testing/evidence/L7-LB-I3-REWORK/README.md).
+> Le rapport historique ci-dessous conserve son attribution ; il ne remplace pas ces réserves.
+
 # L7-LB / Jalon 1 — qualification du playground local
 
 Mise à jour du14 novembre : le [correctif OAuth natif GUI](L7_Local_Playground_GUI_Auth_Fix_Report.md) possède ses propres preuves au SHA e54cadd4. Le rapport ci-dessous décrit la **publication initiale f1ccd0dc du13 novembre** ; ses comparaisons d’entrées ne sont pas une certification des changements GUI ultérieurs. LOCAL_PLAYGROUND_PARTIAL reste inchangé.
@@ -34,7 +43,7 @@ Les secrets/configurations privées et les volumes restent hors Git.
 
 Mac **Apple M4, 16 Gio**, macOS27.0/26A428 ; Docker ARM64, 10 CPU,
 8 319 504 384 octets de mémoire VM. JDK hôte Temurin21, JRE conteneur21.0.8,
-Python3.14.7, Node24.15.0, Maven Wrapper3.9.14, Bruno CLI4.3.0.
+Python3.14.7, Node24.15.0, Maven Wrapper3.9.14, Bruno CLI 4.3.0.
 Images natives et digests identifiés dans le manifeste ; PG17.6-alpine,
 Keycloak26.7.0, Temurin21.0.8_9-jre, Prometheus3.5.0. Pas d'émulation amd64.
 
@@ -70,7 +79,7 @@ libérés ; tous les volumes et diagnostics d'instance sont conservés.
 | Reset sûr | Mauvaise confirmation refusée2, dry-run0, reset explicite0 ; labels/UUID et cible vérifiés |
 | Isolation physique | Hash de **tous les fichiers du volume A arrêté** identique avant/après reset B : `200860e952c13341b4660659bfb046c44a8e2bed0ec3c84aa407d1b0597b4b1e` ; conteneurs externes préexistants conservés |
 | Bootstrap interrompu | Fixture PG distincte `j1-bootstrap-2ad2a840` ; division par zéro injectée avant marqueur, absence physique du schéma Command/marqueur après rollback, relance réussie et marqueur unique ; assertions exécutées dans le test d'installation |
-| PKCE et callback | Missing/plain refusés par Keycloak ; Code+S256 réel. Helper interactif testé avec session navigateur **HTTP automatisée**, state forgé→400, callback réelle→200, token accepté par ressource→200 ; aucun rendu GUI/humain revendiqué |
+| PKCE et callback | Missing/plain refusés par Keycloak ; Code + S256 réel. Helper interactif testé avec session navigateur **HTTP automatisée**, state forgé→400, callback réelle→200, token accepté par ressource→200 ; aucun rendu GUI/humain revendiqué |
 | Secrets | Scan des preuves publiées contre les credentials/clés de toutes les fixtures et les formes JWT : PASS ; pas de bearer/password dans argv, aucun reporter JSON stockant les bodies |
 
 La [preuve callback](../testing/evidence/L7-LB-J1/69f327f6/interactive-protocol.json)

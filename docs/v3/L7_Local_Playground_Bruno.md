@@ -28,7 +28,7 @@ Ne pas contourner ce garde.
 
 ## Authentifier les deux identités
 
-1. **00 - Getting Started / E00 Environment Check → Send** : réponse200,
+1. **00 - Getting Started / E00 Environment Check → Send** : réponse 200,
    tests **E00 transport and privacy** et **E00 contract and variables**.
 2. **00 Login Owner → Auth → Get Access Token**. Dans la fenêtre Keycloak,
    compte **third**, mot de passe du champ users.third dans le fichier privé
@@ -165,13 +165,13 @@ Les UUID/bindings/invitations d'avant reset ne sont pas réutilisables.
 python3 -B scripts/local/sync_bruno_playground.py --check
 ~~~
 
-La CLI4.3.0 exécute **90 - End-to-End Journeys** récursivement, les mêmes
+La CLI 4.3.0 exécute **90 - End-to-End Journeys** récursivement, les mêmes
 fichiers que le GUI. Le lanceur obtient les sessions au vrai Keycloak par
 formulaire HTTP + Authorization Code/PKCE S256 ; aucun password grant ni
 cache GUI nécessaire. --interactive conserve le login navigateur du helper
 CLI pour Owner ; ce n'est pas la connexion native GUI.
 
-BRUNO_PASS exige exactement les118 requêtes, les236 identités de tests,
+BRUNO_PASS exige exactement les 118 requêtes, les 236 identités de tests,
 des assertions non nulles, zéro erreur/échec/skip, des routes/méthodes/statuts
 conformes et des fichiers de preuve frais. Les reçus comptent aussi les
 polls physiques. La console CLI est écartée pour éviter les bodies sensibles
@@ -192,7 +192,7 @@ méthodes/chemins/statuts/comptages. PASS CLI ne valide pas l'expérience GUI.
 
 ## Recette humaine GUI encore requise
 
-Consigner version4.2.1, instance et SHA, puis : ouverture/Instance, les deux
+Consigner version 4.2.1, instance et SHA, puis : ouverture/Instance, les deux
 connexions natives terminées, un P02 modifié envoyé seul avec résultat/Pot,
 J01/J02/J03 dans le Runner et tests affichés, passage Owner→Guest, reset
 explicite puis J01. Ne partager ni JWT ni réponses sensibles. Reporter

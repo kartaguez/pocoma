@@ -1,0 +1,227 @@
+[
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "start",
+      "--instance",
+      "i3-final"
+    ],
+    "phase": "fresh-start",
+    "seconds": 50.748883082997054,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS"
+      },
+      "canaryProof": {
+        "potId": "d68dfd9b-ee67-5ad5-93f9-3ed56419b917",
+        "version": 2,
+        "runId": "1794646039-ddf8abeb",
+        "completedAt": 1794646089.597714
+      },
+      "observedAt": 1794646089.678793,
+      "instance": "i3-final",
+      "project": "pocoma-lb-i3-final-2df3e09b",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:50298",
+        "read": "http://127.0.0.1:50299"
+      },
+      "issuer": "http://localhost:50300/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646039-ddf8abeb"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "gui",
+      "--instance",
+      "i3-final"
+    ],
+    "phase": "fresh-gui-config",
+    "seconds": 0.576822540955618,
+    "exit": 0,
+    "result": {
+      "state": "GUI_CONFIGURED",
+      "exit": 0,
+      "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-i3-final.bru",
+      "next": "In Bruno select Instance-i3-final; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+      "instance": "i3-final",
+      "project": "pocoma-lb-i3-final-2df3e09b",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:50298",
+        "read": "http://127.0.0.1:50299"
+      },
+      "issuer": "http://localhost:50300/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646089-0ce22b64"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "bruno",
+      "--instance",
+      "i3-final"
+    ],
+    "phase": "fresh-cli",
+    "seconds": 9.339891999959946,
+    "exit": 0,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "i3-final",
+      "project": "pocoma-lb-i3-final-2df3e09b",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:50298",
+        "read": "http://127.0.0.1:50299"
+      },
+      "issuer": "http://localhost:50300/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646090-5001832c"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "reset",
+      "--instance",
+      "i3-final",
+      "--dry-run",
+      "--confirm",
+      "RESET:i3-final"
+    ],
+    "phase": "reset-plan",
+    "seconds": 0.5466966249514371,
+    "exit": 0,
+    "result": {
+      "state": "RESET_PLAN",
+      "exit": 0,
+      "project": "pocoma-lb-i3-final-2df3e09b",
+      "volume": "pocoma-lb-i3-final-2df3e09b-data",
+      "instance": "i3-final",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:50298",
+        "read": "http://127.0.0.1:50299"
+      },
+      "issuer": "http://localhost:50300/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646108-191e0c40"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "reset",
+      "--instance",
+      "i3-final",
+      "--confirm",
+      "RESET:i3-final"
+    ],
+    "phase": "reset",
+    "seconds": 49.96483387495391,
+    "exit": 0,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS"
+      },
+      "canaryProof": {
+        "potId": "5f626faa-97dc-5aba-885c-99775ab5b7c7",
+        "version": 2,
+        "runId": "1794646109-0de796e1",
+        "completedAt": 1794646158.807554
+      },
+      "observedAt": 1794646158.8960278,
+      "instance": "i3-final",
+      "project": "pocoma-lb-i3-final-1f5dfefa",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:51014",
+        "read": "http://127.0.0.1:51015"
+      },
+      "issuer": "http://localhost:51016/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646109-0de796e1"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "gui",
+      "--instance",
+      "i3-final"
+    ],
+    "phase": "reset-gui-config",
+    "seconds": 0.6286027079913765,
+    "exit": 0,
+    "result": {
+      "state": "GUI_CONFIGURED",
+      "exit": 0,
+      "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-i3-final.bru",
+      "next": "In Bruno select Instance-i3-final; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+      "instance": "i3-final",
+      "project": "pocoma-lb-i3-final-1f5dfefa",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:51014",
+        "read": "http://127.0.0.1:51015"
+      },
+      "issuer": "http://localhost:51016/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646159-b8b90c99"
+    }
+  },
+  {
+    "argv": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "bruno",
+      "--instance",
+      "i3-final"
+    ],
+    "phase": "after-reset-cli",
+    "seconds": 9.499586124904454,
+    "exit": 0,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "i3-final",
+      "project": "pocoma-lb-i3-final-1f5dfefa",
+      "sha": "7d951a34754c67d8fa88be669c3929ea7c7b2d04",
+      "dirty": false,
+      "urls": {
+        "write": "http://127.0.0.1:51014",
+        "read": "http://127.0.0.1:51015"
+      },
+      "issuer": "http://localhost:51016/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794646159-8e1d2d05"
+    }
+  }
+]

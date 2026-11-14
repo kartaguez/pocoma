@@ -1,0 +1,475 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="J01-01-E00 Environment Check" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/01 E00 Environment Check.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.775" hostname="MacBook-Air-de-Julien.local" time="0.060">
+    <testcase name="J01-01-E00 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/01 E00 Environment Check" time="0.030"/>
+    <testcase name="J01-01-E00 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/01 E00 Environment Check" time="0.030"/>
+  </testsuite>
+  <testsuite name="J01-02-I01 Register Owner" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/02 I01 Register Owner.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.019">
+    <testcase name="J01-02-I01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/02 I01 Register Owner" time="0.010"/>
+    <testcase name="J01-02-I01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/02 I01 Register Owner" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-03-I02 Owner Identity Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/03 I02 Owner Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.153">
+    <testcase name="J01-03-I02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/03 I02 Owner Identity Result" time="0.077"/>
+    <testcase name="J01-03-I02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/03 I02 Owner Identity Result" time="0.077"/>
+  </testsuite>
+  <testsuite name="J01-04-I03 Owner Binding" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/04 I03 Owner Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.030">
+    <testcase name="J01-04-I03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/04 I03 Owner Binding" time="0.015"/>
+    <testcase name="J01-04-I03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/04 I03 Owner Binding" time="0.015"/>
+  </testsuite>
+  <testsuite name="J01-05-I04 Register Guest" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/05 I04 Register Guest.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.019">
+    <testcase name="J01-05-I04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/05 I04 Register Guest" time="0.010"/>
+    <testcase name="J01-05-I04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/05 I04 Register Guest" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-06-I05 Guest Identity Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/06 I05 Guest Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.132">
+    <testcase name="J01-06-I05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/06 I05 Guest Identity Result" time="0.066"/>
+    <testcase name="J01-06-I05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/06 I05 Guest Identity Result" time="0.066"/>
+  </testsuite>
+  <testsuite name="J01-07-I06 Guest Binding" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/07 I06 Guest Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J01-07-I06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/07 I06 Guest Binding" time="0.010"/>
+    <testcase name="J01-07-I06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/07 I06 Guest Binding" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-08-P01 Create Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J01-08-P01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot" time="0.008"/>
+    <testcase name="J01-08-P01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot" time="0.008"/>
+  </testsuite>
+  <testsuite name="J01-09-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/09 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.125">
+    <testcase name="J01-09-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/09 R01 Command Result" time="0.062"/>
+    <testcase name="J01-09-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/09 R01 Command Result" time="0.062"/>
+  </testsuite>
+  <testsuite name="J01-10-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/10 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.024">
+    <testcase name="J01-10-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/10 P04 Read Current Pot" time="0.012"/>
+    <testcase name="J01-10-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/10 P04 Read Current Pot" time="0.012"/>
+  </testsuite>
+  <testsuite name="J01-11-B02 My Pots First Page" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/11 B02 My Pots First Page.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.024">
+    <testcase name="J01-11-B02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/11 B02 My Pots First Page" time="0.012"/>
+    <testcase name="J01-11-B02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/11 B02 My Pots First Page" time="0.012"/>
+  </testsuite>
+  <testsuite name="J01-12-S01 Add Owner and Free Guest" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/12 S01 Add Owner and Free Guest.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J01-12-S01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/12 S01 Add Owner and Free Guest" time="0.008"/>
+    <testcase name="J01-12-S01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/12 S01 Add Owner and Free Guest" time="0.008"/>
+  </testsuite>
+  <testsuite name="J01-13-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/13 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.147">
+    <testcase name="J01-13-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/13 R01 Command Result" time="0.074"/>
+    <testcase name="J01-13-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/13 R01 Command Result" time="0.074"/>
+  </testsuite>
+  <testsuite name="J01-14-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/14 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.026">
+    <testcase name="J01-14-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/14 P04 Read Current Pot" time="0.013"/>
+    <testcase name="J01-14-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/14 P04 Read Current Pot" time="0.013"/>
+  </testsuite>
+  <testsuite name="J01-15-A06 Guest Hidden Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/15 A06 Guest Hidden Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.021">
+    <testcase name="J01-15-A06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/15 A06 Guest Hidden Current Pot" time="0.011"/>
+    <testcase name="J01-15-A06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/15 A06 Guest Hidden Current Pot" time="0.011"/>
+  </testsuite>
+  <testsuite name="J01-16-V01 Create Invitation" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/16 V01 Create Invitation.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.018">
+    <testcase name="J01-16-V01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/16 V01 Create Invitation" time="0.009"/>
+    <testcase name="J01-16-V01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/16 V01 Create Invitation" time="0.009"/>
+  </testsuite>
+  <testsuite name="J01-17-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/17 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.132">
+    <testcase name="J01-17-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/17 R01 Command Result" time="0.066"/>
+    <testcase name="J01-17-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/17 R01 Command Result" time="0.066"/>
+  </testsuite>
+  <testsuite name="J01-18-V02 Retrieve Private Invitation" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/18 V02 Retrieve Private Invitation.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.019">
+    <testcase name="J01-18-V02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/18 V02 Retrieve Private Invitation" time="0.010"/>
+    <testcase name="J01-18-V02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/18 V02 Retrieve Private Invitation" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-19-A07 Guest Hidden Invitation" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/19 A07 Guest Hidden Invitation.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.012">
+    <testcase name="J01-19-A07 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/19 A07 Guest Hidden Invitation" time="0.006"/>
+    <testcase name="J01-19-A07 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/19 A07 Guest Hidden Invitation" time="0.006"/>
+  </testsuite>
+  <testsuite name="J01-20-V03 Guest Available Shareholders" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/20 V03 Guest Available Shareholders.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.033">
+    <testcase name="J01-20-V03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/20 V03 Guest Available Shareholders" time="0.016"/>
+    <testcase name="J01-20-V03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/20 V03 Guest Available Shareholders" time="0.016"/>
+  </testsuite>
+  <testsuite name="J01-21-V04 Guest Accept Invitation" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/21 V04 Guest Accept Invitation.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.017">
+    <testcase name="J01-21-V04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/21 V04 Guest Accept Invitation" time="0.008"/>
+    <testcase name="J01-21-V04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/21 V04 Guest Accept Invitation" time="0.008"/>
+  </testsuite>
+  <testsuite name="J01-22-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/22 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.125">
+    <testcase name="J01-22-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/22 R01 Command Result" time="0.062"/>
+    <testcase name="J01-22-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/22 R01 Command Result" time="0.062"/>
+  </testsuite>
+  <testsuite name="J01-23-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/23 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.024">
+    <testcase name="J01-23-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/23 P04 Read Current Pot" time="0.012"/>
+    <testcase name="J01-23-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/23 P04 Read Current Pot" time="0.012"/>
+  </testsuite>
+  <testsuite name="J01-24-X01 Create Expense" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/24 X01 Create Expense.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J01-24-X01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/24 X01 Create Expense" time="0.008"/>
+    <testcase name="J01-24-X01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/24 X01 Create Expense" time="0.008"/>
+  </testsuite>
+  <testsuite name="J01-25-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/25 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.130">
+    <testcase name="J01-25-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/25 R01 Command Result" time="0.065"/>
+    <testcase name="J01-25-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/25 R01 Command Result" time="0.065"/>
+  </testsuite>
+  <testsuite name="J01-26-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/26 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.135">
+    <testcase name="J01-26-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/26 P04 Read Current Pot" time="0.067"/>
+    <testcase name="J01-26-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/26 P04 Read Current Pot" time="0.067"/>
+  </testsuite>
+  <testsuite name="J01-27-B01 Exact Balances" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/27 B01 Exact Balances.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J01-27-B01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/27 B01 Exact Balances" time="0.010"/>
+    <testcase name="J01-27-B01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/27 B01 Exact Balances" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-28-H02 Query Referenced Expenses" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/28 H02 Query Referenced Expenses.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.026">
+    <testcase name="J01-28-H02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/28 H02 Query Referenced Expenses" time="0.013"/>
+    <testcase name="J01-28-H02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/28 H02 Query Referenced Expenses" time="0.013"/>
+  </testsuite>
+  <testsuite name="J01-29-X02 Update Expense Details" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/29 X02 Update Expense Details.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J01-29-X02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/29 X02 Update Expense Details" time="0.007"/>
+    <testcase name="J01-29-X02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/29 X02 Update Expense Details" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-30-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/30 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.129">
+    <testcase name="J01-30-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/30 R01 Command Result" time="0.064"/>
+    <testcase name="J01-30-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/30 R01 Command Result" time="0.064"/>
+  </testsuite>
+  <testsuite name="J01-31-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/31 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.027">
+    <testcase name="J01-31-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/31 P04 Read Current Pot" time="0.014"/>
+    <testcase name="J01-31-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/31 P04 Read Current Pot" time="0.014"/>
+  </testsuite>
+  <testsuite name="J01-32-H02 Query Referenced Expenses" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/32 H02 Query Referenced Expenses.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J01-32-H02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/32 H02 Query Referenced Expenses" time="0.007"/>
+    <testcase name="J01-32-H02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/32 H02 Query Referenced Expenses" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-33-X03 Update Expense Financials" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/33 X03 Update Expense Financials.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.012">
+    <testcase name="J01-33-X03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/33 X03 Update Expense Financials" time="0.006"/>
+    <testcase name="J01-33-X03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/33 X03 Update Expense Financials" time="0.006"/>
+  </testsuite>
+  <testsuite name="J01-34-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/34 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.124">
+    <testcase name="J01-34-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/34 R01 Command Result" time="0.062"/>
+    <testcase name="J01-34-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/34 R01 Command Result" time="0.062"/>
+  </testsuite>
+  <testsuite name="J01-35-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/35 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.022">
+    <testcase name="J01-35-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/35 P04 Read Current Pot" time="0.011"/>
+    <testcase name="J01-35-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/35 P04 Read Current Pot" time="0.011"/>
+  </testsuite>
+  <testsuite name="J01-36-B01 Exact Balances" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/36 B01 Exact Balances.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.027">
+    <testcase name="J01-36-B01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/36 B01 Exact Balances" time="0.013"/>
+    <testcase name="J01-36-B01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/36 B01 Exact Balances" time="0.013"/>
+  </testsuite>
+  <testsuite name="J01-37-H01 Read Exact Pot History" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/37 H01 Read Exact Pot History.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.022">
+    <testcase name="J01-37-H01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/37 H01 Read Exact Pot History" time="0.011"/>
+    <testcase name="J01-37-H01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/37 H01 Read Exact Pot History" time="0.011"/>
+  </testsuite>
+  <testsuite name="J01-38-H02 Query Referenced Expenses" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/38 H02 Query Referenced Expenses.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J01-38-H02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/38 H02 Query Referenced Expenses" time="0.007"/>
+    <testcase name="J01-38-H02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/38 H02 Query Referenced Expenses" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-39-S02 Rename Shareholder KEEP" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/39 S02 Rename Shareholder KEEP.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J01-39-S02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/39 S02 Rename Shareholder KEEP" time="0.008"/>
+    <testcase name="J01-39-S02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/39 S02 Rename Shareholder KEEP" time="0.008"/>
+  </testsuite>
+  <testsuite name="J01-40-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/40 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.126">
+    <testcase name="J01-40-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/40 R01 Command Result" time="0.063"/>
+    <testcase name="J01-40-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/40 R01 Command Result" time="0.063"/>
+  </testsuite>
+  <testsuite name="J01-41-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/41 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J01-41-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/41 P04 Read Current Pot" time="0.010"/>
+    <testcase name="J01-41-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/41 P04 Read Current Pot" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-42-S03 Update Shareholder Weights" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/42 S03 Update Shareholder Weights.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J01-42-S03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/42 S03 Update Shareholder Weights" time="0.007"/>
+    <testcase name="J01-42-S03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/42 S03 Update Shareholder Weights" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-43-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/43 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.126">
+    <testcase name="J01-43-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/43 R01 Command Result" time="0.063"/>
+    <testcase name="J01-43-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/43 R01 Command Result" time="0.063"/>
+  </testsuite>
+  <testsuite name="J01-44-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/44 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.021">
+    <testcase name="J01-44-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/44 P04 Read Current Pot" time="0.010"/>
+    <testcase name="J01-44-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/44 P04 Read Current Pot" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-45-S06 Attach Own Free Shareholder SELF" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/45 S06 Attach Own Free Shareholder SELF.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J01-45-S06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/45 S06 Attach Own Free Shareholder SELF" time="0.007"/>
+    <testcase name="J01-45-S06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/45 S06 Attach Own Free Shareholder SELF" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-46-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/46 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.128">
+    <testcase name="J01-46-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/46 R01 Command Result" time="0.064"/>
+    <testcase name="J01-46-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/46 R01 Command Result" time="0.064"/>
+  </testsuite>
+  <testsuite name="J01-47-X04 Delete Expense" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/47 X04 Delete Expense.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J01-47-X04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/47 X04 Delete Expense" time="0.007"/>
+    <testcase name="J01-47-X04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/47 X04 Delete Expense" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-48-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/48 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.128">
+    <testcase name="J01-48-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/48 R01 Command Result" time="0.064"/>
+    <testcase name="J01-48-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/48 R01 Command Result" time="0.064"/>
+  </testsuite>
+  <testsuite name="J01-49-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/49 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J01-49-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/49 P04 Read Current Pot" time="0.010"/>
+    <testcase name="J01-49-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/49 P04 Read Current Pot" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-50-B01 Exact Balances" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/50 B01 Exact Balances.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.019">
+    <testcase name="J01-50-B01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/50 B01 Exact Balances" time="0.009"/>
+    <testcase name="J01-50-B01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/50 B01 Exact Balances" time="0.009"/>
+  </testsuite>
+  <testsuite name="J01-51-S05 Guest Voluntary Departure DETACH" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/51 S05 Guest Voluntary Departure DETACH.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J01-51-S05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/51 S05 Guest Voluntary Departure DETACH" time="0.007"/>
+    <testcase name="J01-51-S05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/51 S05 Guest Voluntary Departure DETACH" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-52-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/52 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.127">
+    <testcase name="J01-52-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/52 R01 Command Result" time="0.063"/>
+    <testcase name="J01-52-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/52 R01 Command Result" time="0.063"/>
+  </testsuite>
+  <testsuite name="J01-53-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/53 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.026">
+    <testcase name="J01-53-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/53 P04 Read Current Pot" time="0.013"/>
+    <testcase name="J01-53-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/53 P04 Read Current Pot" time="0.013"/>
+  </testsuite>
+  <testsuite name="J01-54-A06 Guest Hidden Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/54 A06 Guest Hidden Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.021">
+    <testcase name="J01-54-A06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/54 A06 Guest Hidden Current Pot" time="0.010"/>
+    <testcase name="J01-54-A06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/54 A06 Guest Hidden Current Pot" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-55-H01 Read Exact Pot History" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/55 H01 Read Exact Pot History.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.058">
+    <testcase name="J01-55-H01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/55 H01 Read Exact Pot History" time="0.029"/>
+    <testcase name="J01-55-H01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/55 H01 Read Exact Pot History" time="0.029"/>
+  </testsuite>
+  <testsuite name="J01-56-S04 Delete Guest Shareholder" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/56 S04 Delete Guest Shareholder.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J01-56-S04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/56 S04 Delete Guest Shareholder" time="0.008"/>
+    <testcase name="J01-56-S04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/56 S04 Delete Guest Shareholder" time="0.008"/>
+  </testsuite>
+  <testsuite name="J01-57-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/57 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.127">
+    <testcase name="J01-57-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/57 R01 Command Result" time="0.063"/>
+    <testcase name="J01-57-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/57 R01 Command Result" time="0.063"/>
+  </testsuite>
+  <testsuite name="J01-58-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/58 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J01-58-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/58 P04 Read Current Pot" time="0.010"/>
+    <testcase name="J01-58-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/58 P04 Read Current Pot" time="0.010"/>
+  </testsuite>
+  <testsuite name="J01-59-P02 Update Pot Details" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J01-59-P02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details" time="0.007"/>
+    <testcase name="J01-59-P02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details" time="0.007"/>
+  </testsuite>
+  <testsuite name="J01-60-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/60 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.148">
+    <testcase name="J01-60-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/60 R01 Command Result" time="0.074"/>
+    <testcase name="J01-60-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/60 R01 Command Result" time="0.074"/>
+  </testsuite>
+  <testsuite name="J01-61-P04 Read Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/61 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.018">
+    <testcase name="J01-61-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/61 P04 Read Current Pot" time="0.009"/>
+    <testcase name="J01-61-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/61 P04 Read Current Pot" time="0.009"/>
+  </testsuite>
+  <testsuite name="J01-62-P03 Delete Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/62 P03 Delete Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.010">
+    <testcase name="J01-62-P03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/62 P03 Delete Pot" time="0.005"/>
+    <testcase name="J01-62-P03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/62 P03 Delete Pot" time="0.005"/>
+  </testsuite>
+  <testsuite name="J01-63-R01 Command Result" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/63 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.122">
+    <testcase name="J01-63-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/63 R01 Command Result" time="0.061"/>
+    <testcase name="J01-63-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/63 R01 Command Result" time="0.061"/>
+  </testsuite>
+  <testsuite name="J01-64-A12 Deleted Current Pot" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/64 A12 Deleted Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.018">
+    <testcase name="J01-64-A12 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/64 A12 Deleted Current Pot" time="0.009"/>
+    <testcase name="J01-64-A12 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/64 A12 Deleted Current Pot" time="0.009"/>
+  </testsuite>
+  <testsuite name="J01-65-A13 Deleted Terminal Version" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/65 A13 Deleted Terminal Version.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.018">
+    <testcase name="J01-65-A13 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/65 A13 Deleted Terminal Version" time="0.009"/>
+    <testcase name="J01-65-A13 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/65 A13 Deleted Terminal Version" time="0.009"/>
+  </testsuite>
+  <testsuite name="J01-66-H01 Read Exact Pot History" file="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/66 H01 Read Exact Pot History.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J01-66-H01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/66 H01 Read Exact Pot History" time="0.010"/>
+    <testcase name="J01-66-H01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J01 Complete Ledger and Invitation/66 H01 Read Exact Pot History" time="0.010"/>
+  </testsuite>
+  <testsuite name="J02-01-E00 Environment Check" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/01 E00 Environment Check.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J02-01-E00 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/01 E00 Environment Check" time="0.007"/>
+    <testcase name="J02-01-E00 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/01 E00 Environment Check" time="0.007"/>
+  </testsuite>
+  <testsuite name="J02-02-I01 Register Owner" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/02 I01 Register Owner.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J02-02-I01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/02 I01 Register Owner" time="0.008"/>
+    <testcase name="J02-02-I01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/02 I01 Register Owner" time="0.008"/>
+  </testsuite>
+  <testsuite name="J02-03-I02 Owner Identity Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/03 I02 Owner Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.123">
+    <testcase name="J02-03-I02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/03 I02 Owner Identity Result" time="0.062"/>
+    <testcase name="J02-03-I02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/03 I02 Owner Identity Result" time="0.062"/>
+  </testsuite>
+  <testsuite name="J02-04-I03 Owner Binding" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/04 I03 Owner Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J02-04-I03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/04 I03 Owner Binding" time="0.008"/>
+    <testcase name="J02-04-I03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/04 I03 Owner Binding" time="0.008"/>
+  </testsuite>
+  <testsuite name="J02-05-I04 Register Guest" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/05 I04 Register Guest.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J02-05-I04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/05 I04 Register Guest" time="0.008"/>
+    <testcase name="J02-05-I04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/05 I04 Register Guest" time="0.008"/>
+  </testsuite>
+  <testsuite name="J02-06-I05 Guest Identity Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/06 I05 Guest Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.136">
+    <testcase name="J02-06-I05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/06 I05 Guest Identity Result" time="0.068"/>
+    <testcase name="J02-06-I05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/06 I05 Guest Identity Result" time="0.068"/>
+  </testsuite>
+  <testsuite name="J02-07-I06 Guest Binding" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/07 I06 Guest Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.023">
+    <testcase name="J02-07-I06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/07 I06 Guest Binding" time="0.012"/>
+    <testcase name="J02-07-I06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/07 I06 Guest Binding" time="0.012"/>
+  </testsuite>
+  <testsuite name="J02-08-P01 Create Pot" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.018">
+    <testcase name="J02-08-P01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot" time="0.009"/>
+    <testcase name="J02-08-P01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot" time="0.009"/>
+  </testsuite>
+  <testsuite name="J02-09-R01 Command Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/09 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.133">
+    <testcase name="J02-09-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/09 R01 Command Result" time="0.067"/>
+    <testcase name="J02-09-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/09 R01 Command Result" time="0.067"/>
+  </testsuite>
+  <testsuite name="J02-10-A04 Replay Same Intention" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/10 A04 Replay Same Intention.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J02-10-A04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/10 A04 Replay Same Intention" time="0.008"/>
+    <testcase name="J02-10-A04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/10 A04 Replay Same Intention" time="0.008"/>
+  </testsuite>
+  <testsuite name="J02-11-A05 Conflicting Idempotency Key" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/11 A05 Conflicting Idempotency Key.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J02-11-A05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/11 A05 Conflicting Idempotency Key" time="0.007"/>
+    <testcase name="J02-11-A05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/11 A05 Conflicting Idempotency Key" time="0.007"/>
+  </testsuite>
+  <testsuite name="J02-12-P04 Read Current Pot" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/12 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.018">
+    <testcase name="J02-12-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/12 P04 Read Current Pot" time="0.009"/>
+    <testcase name="J02-12-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/12 P04 Read Current Pot" time="0.009"/>
+  </testsuite>
+  <testsuite name="J02-13-B02 My Pots First Page" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/13 B02 My Pots First Page.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.017">
+    <testcase name="J02-13-B02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/13 B02 My Pots First Page" time="0.009"/>
+    <testcase name="J02-13-B02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/13 B02 My Pots First Page" time="0.009"/>
+  </testsuite>
+  <testsuite name="J02-14-B03 My Pots Next Page" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/14 B03 My Pots Next Page.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.009">
+    <testcase name="J02-14-B03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/14 B03 My Pots Next Page" time="0.005"/>
+    <testcase name="J02-14-B03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/14 B03 My Pots Next Page" time="0.005"/>
+  </testsuite>
+  <testsuite name="J02-15-S01 Add Owner and Free Guest" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/15 S01 Add Owner and Free Guest.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.010">
+    <testcase name="J02-15-S01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/15 S01 Add Owner and Free Guest" time="0.005"/>
+    <testcase name="J02-15-S01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/15 S01 Add Owner and Free Guest" time="0.005"/>
+  </testsuite>
+  <testsuite name="J02-16-R01 Command Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/16 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.120">
+    <testcase name="J02-16-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/16 R01 Command Result" time="0.060"/>
+    <testcase name="J02-16-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/16 R01 Command Result" time="0.060"/>
+  </testsuite>
+  <testsuite name="J02-17-P04 Read Current Pot" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/17 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.019">
+    <testcase name="J02-17-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/17 P04 Read Current Pot" time="0.009"/>
+    <testcase name="J02-17-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/17 P04 Read Current Pot" time="0.009"/>
+  </testsuite>
+  <testsuite name="J02-18-A01 No Bearer" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/18 A01 No Bearer.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.008">
+    <testcase name="J02-18-A01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/18 A01 No Bearer" time="0.004"/>
+    <testcase name="J02-18-A01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/18 A01 No Bearer" time="0.004"/>
+  </testsuite>
+  <testsuite name="J02-19-A02 Invalid Cursor" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/19 A02 Invalid Cursor.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.009">
+    <testcase name="J02-19-A02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/19 A02 Invalid Cursor" time="0.004"/>
+    <testcase name="J02-19-A02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/19 A02 Invalid Cursor" time="0.004"/>
+  </testsuite>
+  <testsuite name="J02-20-A03 Unknown Identity Field" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/20 A03 Unknown Identity Field.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.011">
+    <testcase name="J02-20-A03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/20 A03 Unknown Identity Field" time="0.005"/>
+    <testcase name="J02-20-A03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/20 A03 Unknown Identity Field" time="0.005"/>
+  </testsuite>
+  <testsuite name="J02-21-A06 Guest Hidden Current Pot" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/21 A06 Guest Hidden Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J02-21-A06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/21 A06 Guest Hidden Current Pot" time="0.008"/>
+    <testcase name="J02-21-A06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/21 A06 Guest Hidden Current Pot" time="0.008"/>
+  </testsuite>
+  <testsuite name="J02-22-A08 Guest Hidden Owner Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/22 A08 Guest Hidden Owner Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.007">
+    <testcase name="J02-22-A08 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/22 A08 Guest Hidden Owner Result" time="0.004"/>
+    <testcase name="J02-22-A08 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/22 A08 Guest Hidden Owner Result" time="0.004"/>
+  </testsuite>
+  <testsuite name="J02-23-A09 Guest Delete Forbidden" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/23 A09 Guest Delete Forbidden.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.012">
+    <testcase name="J02-23-A09 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/23 A09 Guest Delete Forbidden" time="0.006"/>
+    <testcase name="J02-23-A09 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/23 A09 Guest Delete Forbidden" time="0.006"/>
+  </testsuite>
+  <testsuite name="J02-24-R01 Command Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/24 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.124">
+    <testcase name="J02-24-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/24 R01 Command Result" time="0.062"/>
+    <testcase name="J02-24-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/24 R01 Command Result" time="0.062"/>
+  </testsuite>
+  <testsuite name="J02-25-A10 Expired Invitation Rejected" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/25 A10 Expired Invitation Rejected.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J02-25-A10 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/25 A10 Expired Invitation Rejected" time="0.007"/>
+    <testcase name="J02-25-A10 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/25 A10 Expired Invitation Rejected" time="0.007"/>
+  </testsuite>
+  <testsuite name="J02-26-R01 Command Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/26 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.123">
+    <testcase name="J02-26-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/26 R01 Command Result" time="0.061"/>
+    <testcase name="J02-26-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/26 R01 Command Result" time="0.061"/>
+  </testsuite>
+  <testsuite name="J02-27-A11 Empty Expense Batch" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/27 A11 Empty Expense Batch.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.008">
+    <testcase name="J02-27-A11 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/27 A11 Empty Expense Batch" time="0.004"/>
+    <testcase name="J02-27-A11 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/27 A11 Empty Expense Batch" time="0.004"/>
+  </testsuite>
+  <testsuite name="J02-28-P03 Delete Pot" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/28 P03 Delete Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J02-28-P03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/28 P03 Delete Pot" time="0.007"/>
+    <testcase name="J02-28-P03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/28 P03 Delete Pot" time="0.007"/>
+  </testsuite>
+  <testsuite name="J02-29-R01 Command Result" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/29 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.126">
+    <testcase name="J02-29-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/29 R01 Command Result" time="0.063"/>
+    <testcase name="J02-29-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/29 R01 Command Result" time="0.063"/>
+  </testsuite>
+  <testsuite name="J02-30-A12 Deleted Current Pot" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/30 A12 Deleted Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.019">
+    <testcase name="J02-30-A12 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/30 A12 Deleted Current Pot" time="0.009"/>
+    <testcase name="J02-30-A12 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/30 A12 Deleted Current Pot" time="0.009"/>
+  </testsuite>
+  <testsuite name="J02-31-A13 Deleted Terminal Version" file="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/31 A13 Deleted Terminal Version.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J02-31-A13 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/31 A13 Deleted Terminal Version" time="0.008"/>
+    <testcase name="J02-31-A13 contract and variables" status="pass" classname="90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/31 A13 Deleted Terminal Version" time="0.008"/>
+  </testsuite>
+  <testsuite name="J03-01-E00 Environment Check" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/01 E00 Environment Check.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J03-01-E00 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/01 E00 Environment Check" time="0.007"/>
+    <testcase name="J03-01-E00 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/01 E00 Environment Check" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-02-I01 Register Owner" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/02 I01 Register Owner.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.013">
+    <testcase name="J03-02-I01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/02 I01 Register Owner" time="0.006"/>
+    <testcase name="J03-02-I01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/02 I01 Register Owner" time="0.006"/>
+  </testsuite>
+  <testsuite name="J03-03-I02 Owner Identity Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/03 I02 Owner Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.125">
+    <testcase name="J03-03-I02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/03 I02 Owner Identity Result" time="0.063"/>
+    <testcase name="J03-03-I02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/03 I02 Owner Identity Result" time="0.063"/>
+  </testsuite>
+  <testsuite name="J03-04-I03 Owner Binding" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/04 I03 Owner Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.020">
+    <testcase name="J03-04-I03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/04 I03 Owner Binding" time="0.010"/>
+    <testcase name="J03-04-I03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/04 I03 Owner Binding" time="0.010"/>
+  </testsuite>
+  <testsuite name="J03-05-I04 Register Guest" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/05 I04 Register Guest.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.012">
+    <testcase name="J03-05-I04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/05 I04 Register Guest" time="0.006"/>
+    <testcase name="J03-05-I04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/05 I04 Register Guest" time="0.006"/>
+  </testsuite>
+  <testsuite name="J03-06-I05 Guest Identity Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/06 I05 Guest Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.121">
+    <testcase name="J03-06-I05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/06 I05 Guest Identity Result" time="0.061"/>
+    <testcase name="J03-06-I05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/06 I05 Guest Identity Result" time="0.061"/>
+  </testsuite>
+  <testsuite name="J03-07-I06 Guest Binding" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/07 I06 Guest Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.017">
+    <testcase name="J03-07-I06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/07 I06 Guest Binding" time="0.008"/>
+    <testcase name="J03-07-I06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/07 I06 Guest Binding" time="0.008"/>
+  </testsuite>
+  <testsuite name="J03-08-P01 Create Pot" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J03-08-P01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot" time="0.007"/>
+    <testcase name="J03-08-P01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-09-R01 Command Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/09 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.121">
+    <testcase name="J03-09-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/09 R01 Command Result" time="0.061"/>
+    <testcase name="J03-09-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/09 R01 Command Result" time="0.061"/>
+  </testsuite>
+  <testsuite name="J03-10-P04 Read Current Pot" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/10 P04 Read Current Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.017">
+    <testcase name="J03-10-P04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/10 P04 Read Current Pot" time="0.008"/>
+    <testcase name="J03-10-P04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/10 P04 Read Current Pot" time="0.008"/>
+  </testsuite>
+  <testsuite name="J03-11-P03 Delete Pot" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/11 P03 Delete Pot.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J03-11-P03 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/11 P03 Delete Pot" time="0.007"/>
+    <testcase name="J03-11-P03 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/11 P03 Delete Pot" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-12-R01 Command Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/12 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.122">
+    <testcase name="J03-12-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/12 R01 Command Result" time="0.061"/>
+    <testcase name="J03-12-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/12 R01 Command Result" time="0.061"/>
+  </testsuite>
+  <testsuite name="J03-13-I07 Unlink Guest Self" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/13 I07 Unlink Guest Self.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.015">
+    <testcase name="J03-13-I07 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/13 I07 Unlink Guest Self" time="0.007"/>
+    <testcase name="J03-13-I07 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/13 I07 Unlink Guest Self" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-14-I05 Guest Identity Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/14 I05 Guest Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.119">
+    <testcase name="J03-14-I05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/14 I05 Guest Identity Result" time="0.059"/>
+    <testcase name="J03-14-I05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/14 I05 Guest Identity Result" time="0.059"/>
+  </testsuite>
+  <testsuite name="J03-15-I06 Guest Binding" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/15 I06 Guest Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J03-15-I06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/15 I06 Guest Binding" time="0.007"/>
+    <testcase name="J03-15-I06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/15 I06 Guest Binding" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-16-I04 Register Guest" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/16 I04 Register Guest.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.011">
+    <testcase name="J03-16-I04 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/16 I04 Register Guest" time="0.006"/>
+    <testcase name="J03-16-I04 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/16 I04 Register Guest" time="0.006"/>
+  </testsuite>
+  <testsuite name="J03-17-I05 Guest Identity Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/17 I05 Guest Identity Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.121">
+    <testcase name="J03-17-I05 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/17 I05 Guest Identity Result" time="0.061"/>
+    <testcase name="J03-17-I05 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/17 I05 Guest Identity Result" time="0.061"/>
+  </testsuite>
+  <testsuite name="J03-18-I06 Guest Binding" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/18 I06 Guest Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.013">
+    <testcase name="J03-18-I06 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/18 I06 Guest Binding" time="0.007"/>
+    <testcase name="J03-18-I06 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/18 I06 Guest Binding" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-19-A14 Stale Guest Binding" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/19 A14 Stale Guest Binding.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.014">
+    <testcase name="J03-19-A14 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/19 A14 Stale Guest Binding" time="0.007"/>
+    <testcase name="J03-19-A14 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/19 A14 Stale Guest Binding" time="0.007"/>
+  </testsuite>
+  <testsuite name="J03-20-R01 Command Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/20 R01 Command Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.120">
+    <testcase name="J03-20-R01 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/20 R01 Command Result" time="0.060"/>
+    <testcase name="J03-20-R01 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/20 R01 Command Result" time="0.060"/>
+  </testsuite>
+  <testsuite name="J03-21-R02 Historical Guest Result" file="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/21 R02 Historical Guest Result.bru" errors="0" failures="0" skipped="0" tests="2" timestamp="2026-11-14T08:49:28.776" hostname="MacBook-Air-de-Julien.local" time="0.016">
+    <testcase name="J03-21-R02 transport and privacy" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/21 R02 Historical Guest Result" time="0.008"/>
+    <testcase name="J03-21-R02 contract and variables" status="pass" classname="90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/21 R02 Historical Guest Result" time="0.008"/>
+  </testsuite>
+</testsuites>
