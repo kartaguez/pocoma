@@ -277,6 +277,12 @@
       "path": "manifest-public.json",
       "rawSha256": "64589694d3394327a16a20ddd3ef4b261c8a52c643d242cca9ba88598958f85a",
       "publishedSha256": "f7abe193ffd8a6b0d38a41aca7c6cdb7b13dee89f02adce9cd0afbdc21d7a2f0"
+    },
+    {
+      "path": "image-platforms.txt",
+      "rawSha256": "161b6e6075cef2cd70847076a40d036f40266d77a7985632d6b83304c88df6c1",
+      "publishedSha256": "4d9bb13777a5887035884aeb2040336135355ec574c005f193d8099e5ae255b9",
+      "transformation": "trailing whitespace removed; content unchanged"
     }
   ]
 }
