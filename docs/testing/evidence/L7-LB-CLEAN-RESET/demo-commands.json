@@ -1,0 +1,198 @@
+[
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "start",
+      "--instance",
+      "demo"
+    ],
+    "exit": 0,
+    "seconds": 50.52297566700145,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 2,
+        "runId": "1794675870-dd60c442",
+        "completedAt": 1794675920.930845
+      },
+      "observedAt": 1794675921.0182168,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675870-dd60c442",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "keycloakAuthEvidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675870-dd60c442/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "status",
+      "--instance",
+      "demo"
+    ],
+    "exit": 0,
+    "seconds": 2.6369259579987556,
+    "result": {
+      "state": "READY",
+      "exit": 0,
+      "business": "AVAILABLE",
+      "canary": "AVAILABLE",
+      "qualificationTools": "AVAILABLE",
+      "fullyQualifiable": false,
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "PASS",
+        "JVM-results-worker": "PASS",
+        "JVM-business-read-worker": "PASS",
+        "DB-CURRENT": "PASS",
+        "IDP-DISCOVERY": "PASS",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK-ADMIN-AUTH": "PASS",
+        "KEYCLOAK-ADMIN-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-ENABLED": "PASS",
+        "KEYCLOAK-THIRD-PKCE": "PASS",
+        "KEYCLOAK-GUEST-ENABLED": "PASS",
+        "KEYCLOAK-GUEST-PKCE": "PASS",
+        "KEYCLOAK-BRUNO-ENABLED": "PASS",
+        "KEYCLOAK-BRUNO-PKCE": "PASS",
+        "IDP-PKCE-SESSION": "PASS"
+      },
+      "canaryProof": {
+        "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+        "version": 2,
+        "runId": "1794675870-dd60c442",
+        "completedAt": 1794675920.930845
+      },
+      "observedAt": 1794675923.618731,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675921-20b37d2e",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "keycloakAuthEvidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675921-20b37d2e/keycloak-auth.json"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "gui",
+      "--instance",
+      "demo"
+    ],
+    "exit": 0,
+    "seconds": 0.5699979579985666,
+    "result": {
+      "state": "GUI_CONFIGURED",
+      "exit": 0,
+      "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-demo.bru",
+      "keycloakAdmin": {
+        "url": "http://localhost:54612/admin/",
+        "realm": "master",
+        "username": "admin"
+      },
+      "demoUsers": {
+        "realm": "pocoma",
+        "owner": "third",
+        "guest": "guest",
+        "bruno": "bruno"
+      },
+      "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+      "next": "In Bruno select Instance-demo; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675923-3c68e4fa",
+      "keycloakAuthEvidence": null
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "bruno",
+      "--instance",
+      "demo"
+    ],
+    "exit": 0,
+    "seconds": 10.295573457999126,
+    "result": {
+      "state": "BRUNO_PASS",
+      "exit": 0,
+      "instance": "demo",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:54610",
+        "read": "http://127.0.0.1:54611"
+      },
+      "issuer": "http://localhost:54612/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675924-654f34d5"
+    }
+  }
+]

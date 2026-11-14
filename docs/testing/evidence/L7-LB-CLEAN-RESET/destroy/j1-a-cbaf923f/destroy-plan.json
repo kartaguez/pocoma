@@ -1,0 +1,31 @@
+{
+  "state": "DESTROY_PLAN",
+  "exit": 0,
+  "instance": "j1-a-cbaf923f",
+  "owner": "9288f629-06e4-4765-8e12-2bd0fc399bac",
+  "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+  "volume": "pocoma-lb-j1-a-cbaf923f-9288f629-data",
+  "network": "pocoma-lb-j1-a-cbaf923f-9288f629_default",
+  "services": [
+    "http-write",
+    "http-read",
+    "command-worker",
+    "results-worker",
+    "business-read-worker",
+    "postgres",
+    "keycloak",
+    "prometheus"
+  ],
+  "persistentDataLost": [
+    "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+    "Generated credentials, configuration, demo and canary checkpoints"
+  ],
+  "retained": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs",
+  "operations": [
+    "Verify manifest/UUID/resource ownership",
+    "Gracefully stop this instance",
+    "Compose down --volumes for this project only",
+    "Remove generated instance files; retain lock and diagnostic runs"
+  ],
+  "command": "./pocoma-local destroy --instance j1-a-cbaf923f --confirm DESTROY:j1-a-cbaf923f"
+}

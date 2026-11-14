@@ -1,0 +1,9 @@
+{
+  "baseSha": "47a0c094f803f019e32c91709e171791cde67f2e",
+  "qualifiedInputs": "c6325dc490b0383a85c7baa855dc2687b1e0bcb7062400ffa1f18b035ae5735e",
+  "publicationInputs": "c6325dc490b0383a85c7baa855dc2687b1e0bcb7062400ffa1f18b035ae5735e",
+  "changedFrozenFiles": [],
+  "frozenFileCount": 807,
+  "privateSecretsOrJwtFound": false,
+  "verdict": "QUALIFIED_EXECUTABLE_INPUTS_UNCHANGED"
+}

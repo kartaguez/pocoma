@@ -1,0 +1,93 @@
+{
+  "verdict": "EXCLUDED_VOLUMES_DELETED",
+  "missingVolumes": [
+    {
+      "volume": "11da69e09cf952967ca9b98d122764ea29fd77e6ebe9301f889d7c566bd14d41",
+      "attachedTo": [
+        {
+          "instance": "i3-workshop",
+          "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+          "project": "pocoma-lb-i3-workshop-325b57b9",
+          "container": "0f4dd150bc1695e4119a78a99f33e9140cf4d3d0d0d099e267b720e881bd1711",
+          "service": "prometheus"
+        }
+      ]
+    },
+    {
+      "volume": "56e64b14d64ec09717315cb9b89ed34504a4a169c57dd5ec7177e149fb939552",
+      "attachedTo": [
+        {
+          "instance": "demo",
+          "owner": "a4951783-e941-4a2c-a387-ce19cbcffe41",
+          "project": "pocoma-lb-demo-a4951783",
+          "container": "5f1290efefd2e1da16837ce6d9b54b1c9e6cb318d791014dd4500e8cf99a4e59",
+          "service": "prometheus"
+        }
+      ]
+    },
+    {
+      "volume": "7953eb65ed7fc13fbd501a6904cd817973b50104588822de9c7d4ef33d7e4ea3",
+      "attachedTo": [
+        {
+          "instance": "i3-final",
+          "owner": "1f5dfefa-d639-43da-8430-232fe9c50b8c",
+          "project": "pocoma-lb-i3-final-1f5dfefa",
+          "container": "a32b4b965120f30753b15cc9e76d0899f9c96ddfaa19886abdf407cc80df4ee4",
+          "service": "prometheus"
+        }
+      ]
+    },
+    {
+      "volume": "dbe3c89ea15e9f916288ec4fd0e44a9ef0d36603f3d2e66ef227ae45a7c702d4",
+      "attachedTo": [
+        {
+          "instance": "keycloak-release-validation",
+          "owner": "0837ce8e-f1d0-464d-ac7e-7d32e8addb36",
+          "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+          "container": "dd0d3f10698552c65e8d11cbd05bf5c8c28393a1aa9d1674e148cfcb701e912c",
+          "service": "prometheus"
+        }
+      ]
+    },
+    {
+      "volume": "dde867d01bee0e687cf9545c2c93633acf3bf5c7c9c8fdef09444238b95e0626",
+      "attachedTo": [
+        {
+          "instance": "gui-test",
+          "owner": "a39eabe4-7bd3-458d-907b-0f7f83691b50",
+          "project": "pocoma-lb-gui-test-a39eabe4",
+          "container": "e76a7afc467a4790bb014a94276f877df80781d812ac08b7c4f0e5b868c46975",
+          "service": "prometheus"
+        }
+      ]
+    },
+    {
+      "volume": "e5ccf1ae19c258c0df497595d22301ae48a5768e1899da21c7a94e061e091b10",
+      "attachedTo": [
+        {
+          "instance": "keycloak-validation-final",
+          "owner": "8dcc274e-1d11-4afd-95cf-8974bfa6c3f9",
+          "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+          "container": "9d2c8e714c7802f5ecbdc6eba17d8150c8ce1aa89bf8fec6380edb1dc0be8c0a",
+          "service": "prometheus"
+        }
+      ]
+    },
+    {
+      "volume": "eacdebb448c0a6ec7f2503f34d19fb592fee2ccc32155b82b683cc3f88e91084",
+      "attachedTo": [
+        {
+          "instance": "i3-bruno",
+          "owner": "e72e2740-e18e-462e-8d38-952fc57d567e",
+          "project": "pocoma-lb-i3-bruno-e72e2740",
+          "container": "3b6751a8138c4e918b7cc69e1d45cd0405d84a8276b7e118c60dcd7ecead2b4c",
+          "service": "prometheus"
+        }
+      ]
+    }
+  ],
+  "cause": "Inventory classified unlabelled Prometheus image volumes as unrelated; Compose down --volumes removes anonymous volumes attached to owned containers.",
+  "impact": "Historical Prometheus data in seven anonymous volumes was deleted. Contents were not backed up; preservation/recovery is not claimed. No remaining evidence indicates a different project attachment.",
+  "userInformed": true,
+  "correction": "Inventory distinguishes unowned attached volumes. Reset/destroy remove containers without --volumes and delete only UUID/project-labelled named volumes."
+}

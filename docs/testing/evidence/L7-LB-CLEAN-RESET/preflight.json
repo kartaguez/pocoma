@@ -1,0 +1,22 @@
+{
+  "verdict": "PASS",
+  "instances": [
+    "demo",
+    "gui-test",
+    "i3-bruno",
+    "i3-final",
+    "i3-workshop",
+    "j1-a-0bab6b8c",
+    "j1-a-2ad2a840",
+    "j1-a-cbaf923f",
+    "j1-bootstrap-2ad2a840",
+    "keycloak-release-validation",
+    "keycloak-validation",
+    "keycloak-validation-final",
+    "lb-one"
+  ],
+  "resourcesUnchanged": true,
+  "ownershipUnchanged": true,
+  "inputs": "999c85a83150de0611375397a9bab97760f04b44490b824a34f6a509ad33fc58",
+  "excludedResourcesPreserved": true
+}

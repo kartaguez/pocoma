@@ -1,0 +1,135 @@
+{
+  "observedAt": 1794675404.4357219,
+  "instances": [
+    {
+      "instance": "demo",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 1578737
+    },
+    {
+      "instance": "gui-test",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 260605
+    },
+    {
+      "instance": "i3-bruno",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 155990
+    },
+    {
+      "instance": "i3-final",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 458800
+    },
+    {
+      "instance": "i3-workshop",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 384077
+    },
+    {
+      "instance": "j1-a-0bab6b8c",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 134944
+    },
+    {
+      "instance": "j1-a-2ad2a840",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 289390
+    },
+    {
+      "instance": "j1-a-cbaf923f",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 203406
+    },
+    {
+      "instance": "j1-bootstrap-2ad2a840",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 3094
+    },
+    {
+      "instance": "keycloak-release-validation",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 357688
+    },
+    {
+      "instance": "keycloak-validation",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 112685
+    },
+    {
+      "instance": "keycloak-validation-final",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 348223
+    },
+    {
+      "instance": "lb-one",
+      "directory": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one",
+      "resources": [],
+      "manifestState": "NO_MANIFEST",
+      "plan": "RETAIN: no ownership authority",
+      "privateFilesBytes": 273817
+    }
+  ],
+  "potentialOrphans": [],
+  "unrelatedResources": [
+    {
+      "kind": "network",
+      "id": "8a57e579114544781c3a0f9ef23ca0d61fa14551beac894813c354b8002378e9",
+      "name": "bridge",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "c9783d07eaba974fb784631b10a36a9f593c300c1a787c7e3512f62cd714a317",
+      "name": "host",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "769dcddd0739e10ca9bf141fcc2d3d395e76bfecc0e08f7f8822de2006f135ff",
+      "name": "none",
+      "project": null,
+      "owner": null
+    }
+  ],
+  "composeProjects": [],
+  "policy": "Dry-run only. No resource or persistent data is deleted. Explicit human confirmation required."
+}

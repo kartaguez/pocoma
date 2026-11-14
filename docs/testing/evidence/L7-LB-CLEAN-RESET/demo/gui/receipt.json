@@ -1,0 +1,29 @@
+{
+  "state": "GUI_CONFIGURED",
+  "exit": 0,
+  "environment": "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-playground/environments/Instance-demo.bru",
+  "keycloakAdmin": {
+    "url": "http://localhost:54612/admin/",
+    "realm": "master",
+    "username": "admin"
+  },
+  "demoUsers": {
+    "realm": "pocoma",
+    "owner": "third",
+    "guest": "guest",
+    "bruno": "bruno"
+  },
+  "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+  "next": "In Bruno select Instance-demo; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.",
+  "instance": "demo",
+  "project": "pocoma-lb-demo-33dd8c1d",
+  "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:54610",
+    "read": "http://127.0.0.1:54611"
+  },
+  "issuer": "http://localhost:54612/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675923-3c68e4fa",
+  "keycloakAuthEvidence": null
+}

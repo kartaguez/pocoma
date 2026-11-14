@@ -23,7 +23,7 @@ def inventory():
             row.update(manifestState='NO_MANIFEST', plan='RETAIN: no ownership authority')
         row['privateFilesBytes'] = sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
         instances.append(row)
-    unrelated, orphans = [], []
+    unrelated, orphans, unowned_attached, attachments = [], [], [], {}
     for kind, query, inspect in (
         ('container', ['ps', '-aq'], ['inspect']),
         ('volume', ['volume', 'ls', '-q'], ['volume', 'inspect']),
@@ -37,13 +37,22 @@ def inventory():
             if kind == 'container':
                 row.update(service=labels.get('com.docker.compose.service'), state=value['State']['Status'],
                            volumes=[mount['Name'] for mount in value.get('Mounts', []) if mount['Type'] == 'volume'])
+                for mount in value.get('Mounts', []):
+                    if mount['Type'] == 'volume':
+                        attachments.setdefault(mount['Name'], []).append(dict(container=row['id'], service=row['service'],
+                            owner=owner, project=project, destination=mount['Destination']))
             if owner in owners and owners[owner]['project'] == project:
                 owners[owner]['resources'].append(row)
+            elif kind == 'volume' and any(ref['owner'] in owners and owners[ref['owner']]['project'] == ref['project']
+                                         for ref in attachments.get(row['name'], [])):
+                unowned_attached.append(dict(row, attachedTo=attachments[row['name']],
+                    action='PRESERVE: attached to playground but without matching owner/project labels'))
             elif owner or (project or '').startswith('pocoma-lb-') or row['name'].startswith('pocoma-lb-'):
                 orphans.append(dict(row, action='RETAIN: ownership requires investigation; no automatic deletion'))
             else:
                 unrelated.append(row)
     return dict(observedAt=time.time(), instances=instances, potentialOrphans=orphans,
+                unownedAttachedVolumes=unowned_attached,
                 unrelatedResources=unrelated, composeProjects=rt.docker_json('compose', 'ls', '--all', '--format', 'json'),
                 policy='Dry-run only. No resource or persistent data is deleted. Explicit human confirmation required.')
 

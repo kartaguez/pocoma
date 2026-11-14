@@ -1,0 +1,128 @@
+{
+  "observedAt": 1794675756.8222861,
+  "instances": [
+    {
+      "instance": "volume-proof",
+      "directory": "/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-volume-proof-58gzvfad/instances/volume-proof",
+      "resources": [
+        {
+          "kind": "container",
+          "id": "db711065cafff1db62bee733d86528aa6e7b4a1c8c3f7370eb10f1e0c8c7ae8b",
+          "name": "pocoma-lb-volume-proof-5a9f5577-postgres-1",
+          "project": "pocoma-lb-volume-proof-5a9f5577",
+          "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a",
+          "service": "postgres",
+          "state": "running",
+          "volumes": [
+            "5db1487ec90a031d2e4400b21eb765dfc469f815db573b28e7519c7cba06467b",
+            "pocoma-lb-volume-proof-5a9f5577-data"
+          ]
+        },
+        {
+          "kind": "volume",
+          "id": "pocoma-lb-volume-proof-5a9f5577-data",
+          "name": "pocoma-lb-volume-proof-5a9f5577-data",
+          "project": "pocoma-lb-volume-proof-5a9f5577",
+          "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a"
+        },
+        {
+          "kind": "network",
+          "id": "5233f94128dc535b1a89da1905a439bf944fc369e6127fa8ad1da674da8a949a",
+          "name": "pocoma-lb-volume-proof-5a9f5577_default",
+          "project": "pocoma-lb-volume-proof-5a9f5577",
+          "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a"
+        }
+      ],
+      "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a",
+      "project": "pocoma-lb-volume-proof-5a9f5577",
+      "manifestState": "NEW",
+      "plan": {
+        "state": "DESTROY_PLAN",
+        "exit": 0,
+        "instance": "volume-proof",
+        "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a",
+        "project": "pocoma-lb-volume-proof-5a9f5577",
+        "volume": "pocoma-lb-volume-proof-5a9f5577-data",
+        "network": "pocoma-lb-volume-proof-5a9f5577_default",
+        "services": [
+          "http-write",
+          "http-read",
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "postgres",
+          "keycloak",
+          "prometheus"
+        ],
+        "persistentDataLost": [
+          "PostgreSQL WRITE/READ and Keycloak database in owned volume",
+          "Generated credentials, configuration, demo and canary checkpoints"
+        ],
+        "retained": "/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-volume-proof-58gzvfad/instances/volume-proof/runs",
+        "preservedUnownedVolumes": [
+          "5db1487ec90a031d2e4400b21eb765dfc469f815db573b28e7519c7cba06467b"
+        ],
+        "operations": [
+          "Verify manifest/UUID/resource ownership",
+          "Gracefully stop this instance",
+          "Compose down without --volumes; preserve unowned attached volumes",
+          "Remove only the named data volume after checking its owner/project labels",
+          "Remove generated instance files; retain lock and diagnostic runs"
+        ],
+        "command": "./pocoma-local destroy --instance volume-proof --confirm DESTROY:volume-proof"
+      },
+      "privateFilesBytes": 1371
+    }
+  ],
+  "potentialOrphans": [],
+  "unownedAttachedVolumes": [
+    {
+      "kind": "volume",
+      "id": "5db1487ec90a031d2e4400b21eb765dfc469f815db573b28e7519c7cba06467b",
+      "name": "5db1487ec90a031d2e4400b21eb765dfc469f815db573b28e7519c7cba06467b",
+      "project": null,
+      "owner": null,
+      "attachedTo": [
+        {
+          "container": "db711065cafff1db62bee733d86528aa6e7b4a1c8c3f7370eb10f1e0c8c7ae8b",
+          "service": "postgres",
+          "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a",
+          "project": "pocoma-lb-volume-proof-5a9f5577",
+          "destination": "/foreign"
+        }
+      ],
+      "action": "PRESERVE: attached to playground but without matching owner/project labels"
+    }
+  ],
+  "unrelatedResources": [
+    {
+      "kind": "network",
+      "id": "8a57e579114544781c3a0f9ef23ca0d61fa14551beac894813c354b8002378e9",
+      "name": "bridge",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "c9783d07eaba974fb784631b10a36a9f593c300c1a787c7e3512f62cd714a317",
+      "name": "host",
+      "project": null,
+      "owner": null
+    },
+    {
+      "kind": "network",
+      "id": "769dcddd0739e10ca9bf141fcc2d3d395e76bfecc0e08f7f8822de2006f135ff",
+      "name": "none",
+      "project": null,
+      "owner": null
+    }
+  ],
+  "composeProjects": [
+    {
+      "Name": "pocoma-lb-volume-proof-5a9f5577",
+      "Status": "running(1)",
+      "ConfigFiles": "/var/folders/tv/bctjvrln2mn7t3z1vc6b2wz80000gn/T/pocoma-volume-proof-58gzvfad/instances/volume-proof/compose.json"
+    }
+  ],
+  "policy": "Dry-run only. No resource or persistent data is deleted. Explicit human confirmation required."
+}

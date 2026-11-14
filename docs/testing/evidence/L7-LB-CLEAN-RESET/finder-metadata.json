@@ -1,0 +1,6 @@
+{
+  "action": "ARCHIVED_NOT_DELETED",
+  "source": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/.DS_Store",
+  "destination": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/finder-metadata/instances-1794676057.DS_Store",
+  "reason": "Finder created a regular .DS_Store in the instance directory; inventory treats entries as private instance directories. Existing privacy guard retained unchanged."
+}

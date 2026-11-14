@@ -74,8 +74,12 @@ distinct, protégé par instance explicite, UUID/labels et confirmation exacte :
 ./pocoma-local destroy --instance ancienne --confirm DESTROY:ancienne
 ```
 
-Destroy arrête proprement, retire les conteneurs/réseau/volume de ce seul
-projet Compose, puis efface les fichiers générés (secrets, configuration,
+Destroy arrête proprement, retire les conteneurs et le réseau de ce seul
+projet Compose **sans `--volumes`**, puis retire explicitement le seul volume
+nommé dont le nom, le projet et le label UUID ont été validés. Les volumes
+sans propriété explicite sont conservés, même attachés à un conteneur possédé ;
+leur liste figure dans `preservedUnownedVolumes` et `volume-removal.json`.
+Cette même protection s’applique au reset. Destroy efface les fichiers générés (secrets, configuration,
 JAR, manifeste, demo/canary). Les diagnostics runs et le verrou sont conservés.
 Un start ultérieur crée une nouvelle identité. La commande refuse toute
 propriété étrangère ou Compose manquant. Aucune commande prune globale.
@@ -94,6 +98,19 @@ campagne, qualifier une instance neuve, relire l’inventaire/dry-run, puis
 obtenir la confirmation humaine exacte des cibles. Ne pas lancer en boucle
 les resets : ils recréent des instances et empêchent le retour à une seule demo.
 
+`unownedAttachedVolumes` distingue les volumes montés par le playground mais
+sans labels de propriété (notamment le volume anonyme `/prometheus` de l’image).
+Un montage prouve son usage, pas l’autorisation de le supprimer. Les volumes
+détachés conservés restent listés sans attribution ; consulter les reçus
+`volume-removal.json` précédents avant toute décision manuelle. Ne pas utiliser
+`Compose down --volumes` pour retirer un volume dont la propriété n’est pas prouvée.
+
 La preuve automatisée des protocoles et du moteur Bruno ne remplace pas la
 recette GUI : ouverture, connexion rendue, Get Access Token, Send et Runner
 doivent être observés séparément. Voir le [guide Bruno](L7_Local_Playground_Bruno.md).
+
+Un fichier Finder `.DS_Store` placé directement dans `instances/` peut être
+pris pour une entrée d’instance et provoquer PRE-PRIVATE-PERMISSIONS.
+Vérifier qu’il s’agit bien d’un fichier régulier sans symlink, puis le conserver
+sous un nom unique dans le dossier privé `.pocoma-local/finder-metadata/`.
+Ne pas rendre les répertoires publics ni contourner les contrôles UUID/labels.

@@ -1,0 +1,353 @@
+[
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "demo",
+      "--confirm",
+      "DESTROY:demo"
+    ],
+    "exit": 0,
+    "seconds": 1.8622112499979266,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-demo-a4951783",
+      "diagnostics": "PRESERVED",
+      "instance": "demo",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:57823",
+        "read": "http://127.0.0.1:57824"
+      },
+      "issuer": "http://localhost:57825/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/demo/runs/1794675369-9c6ca086"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "gui-test",
+      "--confirm",
+      "DESTROY:gui-test"
+    ],
+    "exit": 0,
+    "seconds": 1.9281455840027775,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-gui-test-a39eabe4",
+      "diagnostics": "PRESERVED",
+      "instance": "gui-test",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51869",
+        "read": "http://127.0.0.1:51870"
+      },
+      "issuer": "http://localhost:51871/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/gui-test/runs/1794675371-a1f6be51"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "i3-bruno",
+      "--confirm",
+      "DESTROY:i3-bruno"
+    ],
+    "exit": 0,
+    "seconds": 1.9079765829992539,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-i3-bruno-e72e2740",
+      "diagnostics": "PRESERVED",
+      "instance": "i3-bruno",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:65167",
+        "read": "http://127.0.0.1:65168"
+      },
+      "issuer": "http://localhost:65169/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-bruno/runs/1794675372-0e7c3ce7"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "i3-final",
+      "--confirm",
+      "DESTROY:i3-final"
+    ],
+    "exit": 0,
+    "seconds": 1.8717702079993614,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-i3-final-1f5dfefa",
+      "diagnostics": "PRESERVED",
+      "instance": "i3-final",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51014",
+        "read": "http://127.0.0.1:51015"
+      },
+      "issuer": "http://localhost:51016/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-final/runs/1794675374-f110bbb2"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "i3-workshop",
+      "--confirm",
+      "DESTROY:i3-workshop"
+    ],
+    "exit": 0,
+    "seconds": 1.9114101249979285,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-i3-workshop-325b57b9",
+      "diagnostics": "PRESERVED",
+      "instance": "i3-workshop",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:49760",
+        "read": "http://127.0.0.1:49761"
+      },
+      "issuer": "http://localhost:49762/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/i3-workshop/runs/1794675376-70f7441b"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-a-0bab6b8c",
+      "--confirm",
+      "DESTROY:j1-a-0bab6b8c"
+    ],
+    "exit": 0,
+    "seconds": 0.789451459000702,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-j1-a-0bab6b8c-a28342a9",
+      "diagnostics": "PRESERVED",
+      "instance": "j1-a-0bab6b8c",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:56455",
+        "read": "http://127.0.0.1:56456"
+      },
+      "issuer": "http://localhost:56457/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-0bab6b8c/runs/1794675378-6911a63b"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-a-2ad2a840",
+      "--confirm",
+      "DESTROY:j1-a-2ad2a840"
+    ],
+    "exit": 0,
+    "seconds": 0.7666171250020852,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-j1-a-2ad2a840-ba43381e",
+      "diagnostics": "PRESERVED",
+      "instance": "j1-a-2ad2a840",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:56787",
+        "read": "http://127.0.0.1:56788"
+      },
+      "issuer": "http://localhost:56789/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-2ad2a840/runs/1794675379-00383fc7"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-a-cbaf923f",
+      "--confirm",
+      "DESTROY:j1-a-cbaf923f"
+    ],
+    "exit": 0,
+    "seconds": 0.7459348750016943,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-j1-a-cbaf923f-9288f629",
+      "diagnostics": "PRESERVED",
+      "instance": "j1-a-cbaf923f",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:55699",
+        "read": "http://127.0.0.1:55700"
+      },
+      "issuer": "http://localhost:55701/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-a-cbaf923f/runs/1794675380-4b853a65"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "j1-bootstrap-2ad2a840",
+      "--confirm",
+      "DESTROY:j1-bootstrap-2ad2a840"
+    ],
+    "exit": 0,
+    "seconds": 0.7127688330001547,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-j1-bootstrap-2ad2a840-b88f9eea",
+      "diagnostics": "PRESERVED",
+      "instance": "j1-bootstrap-2ad2a840",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:57767",
+        "read": "http://127.0.0.1:57768"
+      },
+      "issuer": "http://localhost:57769/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/j1-bootstrap-2ad2a840/runs/1794675380-6a1edfcc"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "keycloak-release-validation",
+      "--confirm",
+      "DESTROY:keycloak-release-validation"
+    ],
+    "exit": 0,
+    "seconds": 3.354303083000559,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-keycloak-release-validation-0837ce8e",
+      "diagnostics": "PRESERVED",
+      "instance": "keycloak-release-validation",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:53123",
+        "read": "http://127.0.0.1:53124"
+      },
+      "issuer": "http://localhost:53125/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-release-validation/runs/1794675381-c3fb35ae"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "keycloak-validation",
+      "--confirm",
+      "DESTROY:keycloak-validation"
+    ],
+    "exit": 0,
+    "seconds": 1.1463205410000228,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-keycloak-validation-b80171fb",
+      "diagnostics": "PRESERVED",
+      "instance": "keycloak-validation",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51629",
+        "read": "http://127.0.0.1:51630"
+      },
+      "issuer": "http://localhost:51631/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation/runs/1794675385-7aedf954"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "keycloak-validation-final",
+      "--confirm",
+      "DESTROY:keycloak-validation-final"
+    ],
+    "exit": 0,
+    "seconds": 1.6504214169981424,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-keycloak-validation-final-8dcc274e",
+      "diagnostics": "PRESERVED",
+      "instance": "keycloak-validation-final",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:51879",
+        "read": "http://127.0.0.1:51880"
+      },
+      "issuer": "http://localhost:51881/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/keycloak-validation-final/runs/1794675386-58d07e2f"
+    }
+  },
+  {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/pocoma-local",
+      "destroy",
+      "--instance",
+      "lb-one",
+      "--confirm",
+      "DESTROY:lb-one"
+    ],
+    "exit": 0,
+    "seconds": 0.7287283750010829,
+    "result": {
+      "state": "DESTROYED",
+      "exit": 0,
+      "project": "pocoma-lb-lb-one-83c444ca",
+      "diagnostics": "PRESERVED",
+      "instance": "lb-one",
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "dirty": true,
+      "urls": {
+        "write": "http://127.0.0.1:55236",
+        "read": "http://127.0.0.1:55237"
+      },
+      "issuer": "http://localhost:55238/realms/pocoma",
+      "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/lb-one/runs/1794675387-27e74d5f"
+    }
+  }
+]

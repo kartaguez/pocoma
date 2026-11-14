@@ -668,6 +668,21 @@ def stop(path, m, evidence):
                 volumes='PRESERVED', runtimeExitCodes=exit_codes, forcedKill=killed, slotsBeforeStop=slots)
 
 
+def unowned_attached_volumes(m):
+    """A mount is not ownership: preserve volumes without this project's labels."""
+    preserved = set()
+    for resource in run(['docker', 'ps', '-aq', '--filter', 'label=com.docker.compose.project=' + m['project']]).splitlines():
+        container, = docker_json('inspect', resource)
+        for mount in container.get('Mounts', []):
+            if mount['Type'] != 'volume':
+                continue
+            volume, = docker_json('volume', 'inspect', mount['Name'])
+            labels = volume.get('Labels') or {}
+            if (labels.get(LABEL) != m['owner'] or labels.get('com.docker.compose.project') != m['project']):
+                preserved.add(mount['Name'])
+    return sorted(preserved)
+
+
 def destruction_plan(path, m):
     ownership(m)
     return dict(state='DESTROY_PLAN', exit=0, instance=m['instance'], owner=m['owner'], project=m['project'],
@@ -675,11 +690,37 @@ def destruction_plan(path, m):
                 services=[*RUNTIMES, 'postgres', 'keycloak', 'prometheus'],
                 persistentDataLost=['PostgreSQL WRITE/READ and Keycloak database in owned volume',
                                     'Generated credentials, configuration, demo and canary checkpoints'],
-                retained=str(path / 'runs'),
+                retained=str(path / 'runs'), preservedUnownedVolumes=unowned_attached_volumes(m),
                 operations=['Verify manifest/UUID/resource ownership', 'Gracefully stop this instance',
-                            'Compose down --volumes for this project only',
+                            'Compose down without --volumes; preserve unowned attached volumes',
+                            'Remove only the named data volume after checking its owner/project labels',
                             'Remove generated instance files; retain lock and diagnostic runs'],
                 command='./pocoma-local destroy --instance ' + m['instance'] + ' --confirm DESTROY:' + m['instance'])
+
+
+def remove_project(path, m, evidence, log_name):
+    ownership(m)
+    preserved = unowned_attached_volumes(m)
+    # Compose --volumes also deletes anonymous image volumes without owner labels.
+    compose(path, m, 'down', '--timeout', '45', timeout=180, log=evidence / log_name)
+    ownership(m)
+    removed = []
+    for volume in run(['docker', 'volume', 'ls', '-q', '--filter', 'label=com.docker.compose.project=' + m['project']]).splitlines():
+        value, = docker_json('volume', 'inspect', volume)
+        labels = value.get('Labels') or {}
+        if (volume != m['project'] + '-data' or labels.get(LABEL) != m['owner']
+                or labels.get('com.docker.compose.project') != m['project']):
+            raise Refusal('PRE-FOREIGN-VOLUME')
+        run(['docker', 'volume', 'rm', volume])
+        removed.append(volume)
+    for volume in preserved:
+        docker_json('volume', 'inspect', volume)  # Must still exist after Compose down.
+    for query in (['ps', '-aq'], ['volume', 'ls', '-q'], ['network', 'ls', '-q']):
+        if run(['docker', *query, '--filter', 'label=com.docker.compose.project=' + m['project']]):
+            raise Refusal('DESTROY-RESOURCES-REMAIN: preserve manifest and inspect inventory')
+    result = dict(removedOwnedVolumes=removed, preservedUnownedVolumes=preserved)
+    save(evidence / 'volume-removal.json', result)
+    return result
 
 
 def destroy(path, m, evidence):
@@ -691,17 +732,12 @@ def destroy(path, m, evidence):
     if stopped['exit']:
         raise Refusal('DESTROY-STOP-INCOMPLETE: inspect diagnostics before retrying')
     diagnostics(path, m, evidence)
-    ownership(m)
-    if (path / 'compose.json').exists():
-        compose(path, m, 'down', '--volumes', '--timeout', '45', timeout=180, log=evidence / 'destroy.log')
-    for query in (['ps', '-aq'], ['volume', 'ls', '-q'], ['network', 'ls', '-q']):
-        if run(['docker', *query, '--filter', 'label=com.docker.compose.project=' + m['project']]):
-            raise Refusal('DESTROY-RESOURCES-REMAIN: preserve manifest and inspect inventory')
+    volumes = remove_project(path, m, evidence, 'destroy.log')
     # Keep historical diagnostics, but a subsequent start creates a fresh identity.
     for file in path.iterdir():
         if file.is_file() and file.name != 'lock':
             file.unlink()
-    return dict(state='DESTROYED', exit=0, project=m['project'], diagnostics='PRESERVED')
+    return dict(state='DESTROYED', exit=0, project=m['project'], diagnostics='PRESERVED', **volumes)
 
 
 def validate_bruno_results(inventory, actual, suites, exit_code):
@@ -831,7 +867,9 @@ def main():
                     stop(path, m, evidence)
                     diagnostics(path, m, evidence)
                     if (path / 'compose.json').exists():
-                        compose(path, m, 'down', '--volumes', '--timeout', '45', timeout=180, log=evidence / 'reset.log')
+                        volumes = remove_project(path, m, evidence, 'reset.log')
+                    else:
+                        volumes = {}
                     # Retain all runs, remove only owned generated inputs, rebootstrap.
                     for file in path.iterdir():
                         if file.is_file() and file.name not in ('lock', 'manifest.json'):
@@ -839,6 +877,7 @@ def main():
                     m = new_manifest(path, instance)
                     save(path / 'manifest.json', m)
                     result = start(path, m, evidence)
+                    result.update(volumes)
             result.update(instance=instance, project=m['project'], sha=run(['git', 'rev-parse', 'HEAD']),
                           dirty=bool(run(['git', 'status', '--porcelain'])), urls=dict(zip(('write', 'read'), urls(m))),
                           issuer=m.get('issuer'), evidence=str(evidence))

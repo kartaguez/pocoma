@@ -63,7 +63,8 @@ class LocalSafety(unittest.TestCase):
     def test_destroy_plan_is_read_only_and_destroy_retains_evidence(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership'), \
              patch.object(runtime,'stop',return_value={'exit':0}), patch.object(runtime,'diagnostics'), \
-             patch.object(runtime,'compose') as compose, patch.object(runtime,'run',return_value=''):
+             patch.object(runtime,'compose') as compose, patch.object(runtime,'run',return_value=''), \
+             patch.object(runtime,'unowned_attached_volumes',return_value=[]):
             path=Path(folder);evidence=path/'runs/run';evidence.mkdir(parents=True)
             for name in ('manifest.json','secrets.json','compose.json','lock'):
                 (path/name).write_text('{}')
@@ -74,7 +75,7 @@ class LocalSafety(unittest.TestCase):
             result=runtime.destroy(path,m,evidence)
             self.assertEqual('DESTROYED',result['state'])
             compose.assert_called_once()
-            self.assertEqual(('down','--volumes','--timeout','45'),compose.call_args.args[2:])
+            self.assertEqual(('down','--timeout','45'),compose.call_args.args[2:])
             self.assertTrue((path/'lock').exists())
             self.assertTrue((evidence/'destroy-plan.json').exists())
             self.assertFalse((path/'secrets.json').exists())
@@ -83,7 +84,8 @@ class LocalSafety(unittest.TestCase):
     def test_destroy_keeps_manifest_if_owned_resource_survives_compose_down(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'ownership'), \
              patch.object(runtime,'stop',return_value={'exit':0}), patch.object(runtime,'diagnostics'), \
-             patch.object(runtime,'compose'), patch.object(runtime,'run',return_value='residual'):
+             patch.object(runtime,'compose'), patch.object(runtime,'run',side_effect=['','residual']), \
+             patch.object(runtime,'unowned_attached_volumes',return_value=[]):
             path=Path(folder);evidence=path/'runs/run';evidence.mkdir(parents=True)
             for name in ('manifest.json','compose.json'):(path/name).write_text('{}')
             with self.assertRaisesRegex(runtime.Refusal,'RESOURCES-REMAIN'):

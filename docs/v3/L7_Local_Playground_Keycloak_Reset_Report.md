@@ -1,3 +1,5 @@
+> **Exécution après confirmation : [demo disponible avec écart de nettoyage documenté](L7_Local_Playground_Clean_Reset_Report.md).** Le texte ci-dessous conserve le plan et l’attribution de la première phase ; les sept volumes Prometheus annoncés comme exclus n’ont pas été préservés.
+
 # L7-LB — correction Keycloak et préparation du clean reset
 
 Mandat GO_L7_LB_KEYCLOAK_BOOTSTRAP_AND_CLEAN_RESET, 14 novembre 2026 (Europe/Paris).

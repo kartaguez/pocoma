@@ -24,6 +24,7 @@ Les secrets PostgreSQL et internes restent aléatoires ; les ports sont liés
 à loopback. `./pocoma-local gui` prépare l’environnement Bruno, puis les
 connexions Owner/Guest utilisent **Auth → Get Access Token**.
 [Diagnostic Keycloak et nettoyage contrôlé](docs/v3/L7_Local_Playground_Keycloak_Diagnostics.md).
+[Remise à zéro exécutée et écart documenté](docs/v3/L7_Local_Playground_Clean_Reset_Report.md).
 
 ## Programme V3
 

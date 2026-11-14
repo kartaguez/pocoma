@@ -1,0 +1,11 @@
+{
+  "verdict": "PASS",
+  "project": "pocoma-lb-volume-proof-5a9f5577",
+  "owner": "5a9f5577-91d1-4635-8dc1-29a49ffc603a",
+  "anonymousVolume": "5db1487ec90a031d2e4400b21eb765dfc469f815db573b28e7519c7cba06467b",
+  "ownedVolume": "pocoma-lb-volume-proof-5a9f5577-data",
+  "anonymousContentPreserved": true,
+  "inventoryClassification": "unownedAttachedVolumes, not unrelatedResources",
+  "onlyOwnedLabelledVolumeRemoved": true,
+  "inputs": "c6325dc490b0383a85c7baa855dc2687b1e0bcb7062400ffa1f18b035ae5735e"
+}

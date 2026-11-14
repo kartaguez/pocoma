@@ -1,3 +1,5 @@
+> **Remise à zéro confirmée : [rapport demo READY et écart de périmètre](L7_Local_Playground_Clean_Reset_Report.md).** Une seule demo exploitable ; réserve explicite sur les sept anciens volumes Prometheus. Aucun verdict historique modifié.
+
 > **Correctif Keycloak du 14 novembre2026 : [rapport READY_FOR_CLEAN_RESET](L7_Local_Playground_Keycloak_Reset_Report.md), [preuves finales](../testing/evidence/L7-LB-KEYCLOAK-RESET/README.md) et [plan de nettoyage soumis à confirmation](L7_Local_Playground_Clean_Reset_Approval_Plan.md).**
 > Les verdicts historiques et réserves GUI ci-dessous restent inchangés.
 
