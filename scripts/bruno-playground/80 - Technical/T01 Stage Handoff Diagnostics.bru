@@ -1,0 +1,42 @@
+meta {
+  name: T01 Stage Handoff Diagnostics
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{readUrl}}/api/v3/diagnostics/stage-handoffs?limit=10
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"T01","role":"owner","kind":"diagnostics","status":200};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"T01","role":"owner","kind":"diagnostics","status":200};
+  const work = require('./lib/workspace.js');
+  test('T01 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('T01 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Endpoint technique authentifie READ, sans mutation ni clear. Aucune preuve metier deduite des timings.
+  Identite : owner. Prerequis : URLs de l environnement ; session native si role authentifie.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

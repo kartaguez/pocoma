@@ -1,0 +1,55 @@
+meta {
+  name: A05 Conflicting Idempotency Key
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "operation": "CreatePot",
+    "potId": "{{potId}}",
+    "observedVersion": 0,
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "label": "Conflit"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"A05","role":"owner","kind":"conflict","status":409,"requires":["replayAdmission"],"operation":"CreatePot"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"A05","role":"owner","kind":"conflict","status":409,"requires":["replayAdmission"],"operation":"CreatePot"};
+  const work = require('./lib/workspace.js');
+  test('A05 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('A05 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Copie de la derniere intention avec label different sous la meme cle ; 409 attendu, aucune nouvelle admission.
+  Identite : owner. Prerequis : replayAdmission.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

@@ -1,0 +1,50 @@
+meta {
+  name: A11 Empty Expense Batch
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{readUrl}}/api/v3/pots/{{potId}}/versions/{{readVersion}}/expenses/query
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+body:json {
+  {
+    "references": []
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"A11","role":"actor","kind":"error","binding":true,"status":400,"requires":["potId","readVersion"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"A11","role":"actor","kind":"error","binding":true,"status":400,"requires":["potId","readVersion"]};
+  const work = require('./lib/workspace.js');
+  test('A11 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('A11 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  400 : batch vide interdit. Le batch valide est H02 avec 1..50 references.
+  Identite : actor. Prerequis : potId, readVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

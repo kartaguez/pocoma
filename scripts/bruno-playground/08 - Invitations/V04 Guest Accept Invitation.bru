@@ -1,0 +1,57 @@
+meta {
+  name: V04 Guest Accept Invitation
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "AttachShareholderViaInvitation",
+    "potId": "{{potId}}",
+    "observedVersion": 0,
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "invitationToken": "{{invitationToken}}",
+      "shareholderId": "{{shareholderGuestId}}"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"V04","role":"guest","requires":["potId","invitationToken","shareholderGuestId"],"operation":"AttachShareholderViaInvitation","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"V04","role":"guest","requires":["potId","invitationToken","shareholderGuestId"],"operation":"AttachShareholderViaInvitation","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('V04 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('V04 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  AttachShareholderViaInvitation : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Guest actif et non encore attache ; place libre, invitation non expiree ; observation 0.
+  Identite : guest. Prerequis : potId, invitationToken, shareholderGuestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

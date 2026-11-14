@@ -1,0 +1,39 @@
+meta {
+  name: T03 READ Prometheus
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{managementReadUrl}}/actuator/prometheus
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"T03","role":"none","kind":"prometheus","status":200,"requires":["managementReadUrl"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"T03","role":"none","kind":"prometheus","status":200,"requires":["managementReadUrl"]};
+  const work = require('./lib/workspace.js');
+  test('T03 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('T03 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Endpoint technique READ local, aucune preuve metier deduite de ce resultat.
+  URLs preparees par ./pocoma-local gui ; aucun reset ni secret requis.
+}

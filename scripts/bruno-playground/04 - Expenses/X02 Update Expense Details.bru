@@ -1,0 +1,58 @@
+meta {
+  name: X02 Update Expense Details
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "UpdateExpenseDetails",
+    "potId": "{{potId}}",
+    "observedVersion": {{potVersion}},
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "id": "{{expenseId}}",
+      "label": "Transport corrige",
+      "date": "2026-11-15"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"X02","role":"actor","requires":["potId","potVersion"],"operation":"UpdateExpenseDetails","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"X02","role":"actor","requires":["potId","potVersion"],"operation":"UpdateExpenseDetails","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('X02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('X02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  UpdateExpenseDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

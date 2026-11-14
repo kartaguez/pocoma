@@ -1,1 +1,10 @@
-{"version":"1","name":"Pocoma V3 — Local Playground","type":"collection","ignore":["node_modules","results"]}
+{
+  "version": "1",
+  "name": "Pocoma V3 Playground",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    "results",
+    "lib"
+  ]
+}

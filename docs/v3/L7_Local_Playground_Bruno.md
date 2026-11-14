@@ -1,120 +1,203 @@
-# Playground — Bruno GUI 4.2.1 et CLI 4.3.0
+# Pocoma V3 Playground — Bruno GUI 4.2.1 et CLI 4.3.0
 
-Le correctif GUI est décrit dans le [rapport dédié](L7_Local_Playground_GUI_Auth_Fix_Report.md).
-Le jalon reste **LOCAL_PLAYGROUND_PARTIAL** jusqu'à validation humaine. La
-collection est `scripts/bruno-playground`, distincte des corpus historiques.
+Ouvrir **scripts/bruno-playground**, collection **Pocoma V3 Playground**.
+Elle contient 171 requêtes visibles : 51 par domaine, 2 connexions OAuth et
+118 étapes réparties en trois parcours. Les collections scripts/bruno-v3
+et scripts/bruno servent aux qualifications spécialisées et à l'historique.
+[Couverture des 25 opérations métier / 12 routes](L7_Local_Playground_Bruno_API_Coverage.csv).
 
-## Préparer les URLs de l'instance
+## Démarrer et choisir l'environnement
 
-Pour une instance déjà démarrée :
+Depuis un checkout neuf, avec Java21, Node24 et Docker disponibles :
 
-```sh
+~~~sh
+./pocoma-local start
+./pocoma-local gui
+~~~
+
+Dans Bruno, **Open Collection** → dossier scripts/bruno-playground, puis le
+sélecteur en haut à droite → **Instance-demo**. La commande gui prépare uniquement
+les URLs publiques ; elle ne connecte aucun compte et ne modifie aucune donnée.
+**Local** est réservé à la CLI, qui injecte ses URLs.
+
+Pour une instance nommée, ajouter --instance i3-bruno aux commandes
+et choisir **Instance-i3-bruno**. Si une ancienne installation refuse
+PRE-INPUT-DRIFT, conserver ses volumes et utiliser une nouvelle instance
+après arrêt explicite de l'ancienne ; ou effectuer le reset décrit plus bas.
+Ne pas contourner ce garde.
+
+## Authentifier les deux identités
+
+1. **00 - Getting Started / E00 Environment Check → Send** : réponse200,
+   tests **E00 transport and privacy** et **E00 contract and variables**.
+2. **00 Login Owner → Auth → Get Access Token**. Dans la fenêtre Keycloak,
+   compte **third**, mot de passe du champ users.third dans le fichier privé
+   .pocoma-local/instances/<instance>/secrets.json.
+3. **01 Login Guest → Auth → Get Access Token**. Compte **guest**, mot de passe
+   users.guest du même fichier. prompt=login demande une connexion distincte.
+4. Revenir à Bruno. Les connexions ont les Token IDs distincts
+   **playground-owner** et **playground-guest**. Leur bouton **Send** consulte
+   le binding propre (200 ou 404) ; il ne fait pas d'inscription.
+
+Conserver **Use system browser for OAuth** décoché pour utiliser le navigateur
+intégré. **Grant Type = Authorization Code**, **Use PKCE** coché, scope openid,
+client public pocoma-functional-tests, Client Secret vide, State vide
+(Bruno génère et vérifie son état aléatoire). Callback exacte
+http://127.0.0.1:8765/callback, interceptée par Bruno : aucun serveur Python
+supplémentaire n'est requis.
+
+Les sessions restent dans le cache OAuth natif. Aucune copie/importation de
+JWT n'est nécessaire. Les requêtes métier lisent ce cache, vérifient
+fraîcheur/issuer/audience/client et utilisent le bearer seulement en header.
+Les API valident la signature et les autorisations réelles. openid ne fournit
+pas preferred_username dans ce realm : les sujets séparent les sessions.
+Owner et Guest désignent ici les deux contextes de développement ; ce ne sont
+pas des rôles OAuth ajoutés au produit.
+
+Le sandbox **Developer** est nécessaire aux modules JavaScript locaux,
+comme dans la collection précédente. Garder TLS et les protections PKCE/state
+actifs. Ne pas exporter cache OAuth, timelines, réponses Binding/invitation
+ou variables runtime sensibles.
+
+## Lancer un parcours
+
+Dans **90 - End-to-End Journeys**, clic droit sur le dossier choisi →
+**Run Folder** ; vérifier la sélection, puis **Run**. Ne pas lancer toute
+la collection : les dossiers par domaine sont un atelier, pas une séquence
+globale. Authentifier les deux comptes avant de lancer un parcours.
+
+| Dossier | Étapes | Résultat attendu |
+| --- | ---: | --- |
+| **J01 Complete Ledger and Invitation** | 66 | Inscription/binding, Pot, invitation Guest, toutes les commandes, dépense10/3 puis20/3, soldes exacts ±5/3 puis ±10/3, histoire, départ volontaire, suppressions |
+| **J02 Errors Privacy and Idempotency** | 31 | Replay même requestId, conflit409, pagination, 401/400/404 masqué, refus métier FORBIDDEN et INVALID_INVITATION |
+| **J03 Unlink Re-register and Historical Ownership** | 21 | Unlink de Guest, binding inactif, nouvelle inscription, ancien binding INVALID_BINDING, ancien résultat toujours propre au même requester |
+
+Les 118 étapes correspondent à **236 tests nommés**. Chaque admission montre
+son vrai POST et son JSON ; l'étape résultat est un vrai GET séparé. Une
+réponse202 signifie admission durable, jamais succès métier. Les GET
+asynchrones répètent seulement **le même endpoint** dans leur pre-request
+au plus30s, puis l'appel affiché doit vérifier le contrat attendu. Aucun
+POST caché, accès SQL, fixture ou helper de qualification externe.
+
+J01 et J02 nettoient leurs Pots. J03 supprime son Pot **avant** de désaffilier
+Guest, puis vérifie le résultat historique. Les parcours génèrent de nouveaux
+UUID et peuvent être rejoués ; une Registration déjà active est explicitement
+vérifiée comme REJECTED / TARGET_ALREADY_BOUND. Les opérations des résultats
+Identity se nomment REGISTRATION/UNLINK, leurs admissions Registration/Unlink.
+
+## Explorer une requête isolée et garder son Pot
+
+Après les connexions, envoyer dans cet ordre :
+
+~~~text
+01 - Identity and Registration
+  I01 Register Owner → I02 Owner Identity Result → I03 Owner Binding
+02 - Pots
+  P01 Create Pot
+05 - Results
+  R01 Command Result
+02 - Pots
+  P04 Read Current Pot
+~~~
+
+Le Pot reste disponible. Modifier le JSON de **P02 Update Pot Details**,
+**Send**, puis **R01 Command Result**, **P04 Read Current Pot**. Le dernier
+résultat actualise potVersion. Une modification de payload reçoit une nouvelle
+clé d'idempotence ; **A04 Replay Same Intention** reprend explicitement
+la dernière intention mémorisée avec son ancienne clé.
+
+Pour inviter : préparer Guest avec **I04 → I05 → I06**, ajouter les places
+avec **S01 → R01 → P04**, puis **V01 → R01 → V02 → V03 → V04 → R01**.
+**V02 Retrieve Private Invitation** conserve le secret en mémoire ; il n'est
+jamais placé dans une URL d'API. **V03** ne révèle que les places éligibles.
+**S05 Guest Voluntary Departure DETACH** libère sa place ; après **R01**,
+Guest perd l'accès courant et conserve l'accès historique autorisé.
+
+Pour modifier les poids ou les dépenses, lire l'onglet **Docs** de la requête
+(via le chevron des onglets si masqué). Chaque requête indique ses variables
+prérequises, son identité et le résultat attendu. Modifier corps et chemin
+est permis. Pour forcer une variable d'exploration, ajouter avant work.prepare
+dans **Script / Pre Request**, par exemple :
+
+~~~js
+bru.setVar('historyVersion', 4);
+~~~
+
+Les références Expense sont recopiées automatiquement de P04/H01 :
+ne pas reconstruire ces objets opaques.
+
+| Variables | Nature / alimentation |
+| --- | --- |
+| writeUrl, readUrl, issuerUrl, managementReadUrl | URLs publiques d'environnement, préparées par gui |
+| actor | Paramètre public : owner par défaut, guest possible dans l'environnement pour les requêtes par domaine marquées actor ; les parcours fixent leurs identités |
+| pageLimit, invitationTtlSeconds | Réglages initiaux runtime,20 et600 ; modifiables dans le pre-request ou dans l'environnement avant une nouvelle session |
+| potId, shareholderOwnerId, shareholderGuestId, expenseId | UUID de scénario ; renouvelés par P01 |
+| commandRequestId, identityOwnerRequestId, identityGuestRequestId, invitationRequestId | Capturés des admissions ; R01 choisit l'identité qui a admis la commande |
+| potVersion, readVersion, historyVersion, deletedVersion, expenseReferences, nextCursor | État de scénario en mémoire ; résultat, Pot, histoire et navigation alimentent les étapes suivantes |
+| bindingOwner, bindingGuest, bindingActor, staleGuestBinding, invitationToken, replayAdmission | **Sensibles**, mémoire runtime seulement ; aucune sauvegarde d'environnement |
+| Sessions Owner/Guest | **Sensibles**, cache OAuth natif GUI ou environnement du seul processus CLI ; jamais des variables bearer à créer |
+
+Une requête Owner n'exige pas de session Guest. Les deux sujets utilisés
+doivent être distincts. Un changement d'issuer vide le contexte runtime ;
+une session d'une autre instance est refusée avec la connexion à renouveler.
+Aucune variable bearerOwner n'est attendue.
+
+## Réinitialiser et reprendre
+
+Pour supprimer les données d'une instance **explicitement choisie** :
+
+~~~sh
+./pocoma-local reset --instance demo --dry-run --confirm RESET:demo
+./pocoma-local reset --instance demo --confirm RESET:demo
 ./pocoma-local gui --instance demo
-```
+~~~
 
-Dans un checkout neuf, démarrer d'abord sa nouvelle instance avec
-`./pocoma-local start --instance demo`. La préparation GUI n'effectue aucun
-reset, migration ou redémarrage et conserve la garde de compatibilité de start.
-Le correctif peut donc se préparer sur l'instance existante déjà en service.
+Le reset détruit seulement son volume possédé et recrée comptes/données
+synthétiques ; les mots de passe peuvent changer. Sélectionner à nouveau
+l'environnement, puis sur **les deux connexions**, **Auth → Clear Cache →
+Get Access Token** avec les nouveaux mots de passe. Relancer J01.
+Les UUID/bindings/invitations d'avant reset ne sont pas réutilisables.
 
-La commande écrit `environments/Instance-demo.bru` dans la collection. Ce fichier
-local ignoré de Git contient **uniquement** `writeUrl`, `readUrl`, `issuerUrl`,
-issus du manifeste possédé et de la discovery réelle. Dans Bruno, ouvrir
-`scripts/bruno-playground`, puis choisir **Instance-demo** dans le sélecteur
-d'environnement. `Local` reste l'environnement de la CLI, dont les URLs sont
-injectées par la façade ; ne pas supposer les ports8080/8081/8082 dans le GUI.
-`./pocoma-local login` est désormais un alias de cette préparation : il n'exporte
-plus de JWT et ne revendique pas une authentification déjà accomplie.
+## CLI et diagnostic
 
-## Se connecter dans Bruno, sans copier de JWT
+~~~sh
+./pocoma-local bruno --instance demo
+python3 -B scripts/local/sync_bruno_playground.py --check
+~~~
 
-Utiliser le navigateur **intégré** de Bruno pour ce parcours local. Dans les
-préférences OAuth, garder « Use system browser for OAuth » désactivé. Les flux
-système/custom-scheme ne sont pas qualifiés par ce guide. Le sandbox Developer
-est requis par les helpers locaux déjà utilisés par PG01 ; ne pas désactiver
-la vérification TLS, modifier PKCE ou élargir les permissions du client.
+La CLI4.3.0 exécute **90 - End-to-End Journeys** récursivement, les mêmes
+fichiers que le GUI. Le lanceur obtient les sessions au vrai Keycloak par
+formulaire HTTP + Authorization Code/PKCE S256 ; aucun password grant ni
+cache GUI nécessaire. --interactive conserve le login navigateur du helper
+CLI pour Owner ; ce n'est pas la connexion native GUI.
 
-1. Ouvrir **00 Login Owner**, onglet **Auth**. La configuration livrée affiche
-   OAuth2 / Authorization Code, client `pocoma-functional-tests`, scope `openid`,
-   **Use PKCE activé**, Token ID `playground-owner`. Cliquer **Get Access Token**
-   et se connecter dans la fenêtre Keycloak avec le compte synthétique **third**.
-2. Ouvrir **01 Login Guest**, onglet **Auth**, cliquer **Get Access Token** et se
-   connecter avec **guest**. Son Token ID est **playground-guest**. `prompt=login`
-   force un nouveau formulaire pour éviter la réutilisation silencieuse du compte
-   propriétaire. Le login_hint suggère le compte mais ne remplace pas la saisie.
-3. Les mots de passe existants sont dans
-   `.pocoma-local/instances/demo/secrets.json`, champ `users`. Les saisir
-   uniquement dans le formulaire de cette instance Keycloak locale. Aucun
-   client secret n'est nécessaire et aucun JWT ne doit être copié dans Bruno.
-4. Ouvrir **PG01 Public Journey** et cliquer **Send**. Le panneau Tests doit
-   afficher le test **PG01 Registration binding Pot invitation mutations balance
-   delete history** réussi. Les demandes de connexion ont leurs propres tests
-   simples ; elles ne constituent pas à elles seules la preuve métier PG01.
-
-Bruno stocke les sessions dans son cache OAuth natif ; les scripts les lisent
-via `bru.getOauth2CredentialVar('$oauth2.<Token ID>.access_token')`. Ils ne les
-copient ni dans les environnements `.bru`, ni dans les runtime variables, ni
-dans les logs. Ne pas partager/exporter le cache OAuth, les timelines/debugs
-OAuth ou les bodies des réponses Binding/invitation. Aucun `GUI-private.bru`
-n'est à importer : l'ancienne procédure de copie manuelle de tokens est retirée.
-
-La callback exacte autorisée est `http://127.0.0.1:8765/callback`. Le navigateur
-intégré intercepte la redirection ; **aucun serveur Python n'a à écouter ce port**
-pour l'auth native Bruno. Laisser le champ State vide : Bruno4.2.1 génère un
-state aléatoire et vérifie son retour. PKCE envoie un challenge S256 et échange
-le code avec le verifier. Le realm conserve publicClient=true,
-directAccessGrantsEnabled=false et son unique redirect exacte. Pas de password
-grant, wildcard redirect, secret partagé ou allongement de durée des tokens.
-
-## Expiration et diagnostics
+BRUNO_PASS exige exactement les118 requêtes, les236 identités de tests,
+des assertions non nulles, zéro erreur/échec/skip, des routes/méthodes/statuts
+conformes et des fichiers de preuve frais. Les reçus comptent aussi les
+polls physiques. La console CLI est écartée pour éviter les bodies sensibles
+en cas d'échec ; JUnit garde les assertions booléennes et les reçus seulement
+méthodes/chemins/statuts/comptages. PASS CLI ne valide pas l'expérience GUI.
 
 | Symptôme | Action |
-|---|---|
-| `Session owner ... 00 Login Owner` | Auth > Get Access Token sur la connexion propriétaire, puis relancer PG01 |
-| `Session guest ... 01 Login Guest` | Auth > Get Access Token sur la connexion invité |
-| `Deux identites distinctes requises` | Guest : Auth > Clear Cache, puis Get Access Token et compte guest ; pas third |
-| Mauvais issuer après changement d'instance | Choisir le bon environnement, Clear Cache/Get Access Token sur les deux connexions |
-| Erreur de discovery ou de transport | Vérifier l'instance et ses URLs avec status/gui ; ne pas remplacer le JWT ni désactiver TLS/PKCE |
-| Pre-request inconnu après mise à jour des fichiers | Recharger la collection dans Bruno ; conserver les changements non sauvegardés avant de fermer l'application |
+| --- | --- |
+| Session owner/guest absente, expirée ou invalide | Connexion nommée → Auth → Get Access Token ; revenir à la requête |
+| Deux identités distinctes requises | Guest → Clear Cache → Get Access Token, compte guest |
+| Prerequis absent | Lire Docs ; effectuer admission/résultat/binding indiqué ou choisir un objet existant |
+| 404 résultat puis timeout | Conserver requestId, consulter status ; ne pas réadmettre aveuglément |
+| REJECTED / OBSOLETE ou INVALID_BINDING | Relire binding/Pot ; comprendre le refus avant une nouvelle intention |
+| B03 sans nextCursor | Fin de pagination normale ; pas de page suivante inexistante |
+| Onglet Not Found après mise à jour | Ancienne requête PG01 retirée ; fermer cet onglet, ouvrir les nouveaux dossiers |
+| Ports erronés / issuer différent | gui, bonne Instance puis nouvelles connexions |
+| Réponse503 / timeout | status et diagnostics ; ne pas augmenter silencieusement les attentes |
 
-Les deux connexions doivent être obtenues **avant PG01** : l'auto-fetch natif
-Bruno s'exécute après le pre-request, alors que PG01 doit disposer des deux
-identités avant ses requêtes internes. Si un token expire, PG01 refuse avec
-l'action à effectuer ; renouveler via les connexions natives, sans durée étendue.
-Le contrôle de claims côté script est un garde de cache/ergonomie, pas une
-validation de signature : les API restent l'autorité AuthN/AuthZ/binding.
+## Recette humaine GUI encore requise
 
-## CLI automatisée préservée
+Consigner version4.2.1, instance et SHA, puis : ouverture/Instance, les deux
+connexions natives terminées, un P02 modifié envoyé seul avec résultat/Pot,
+J01/J02/J03 dans le Runner et tests affichés, passage Owner→Guest, reset
+explicite puis J01. Ne partager ni JWT ni réponses sensibles. Reporter
+PASS/FAIL pour chaque étape et des diagnostics expurgés.
 
-```sh
-./pocoma-local bruno --instance demo
-```
-
-CLI verrouillée4.3.0, Node24. Le lanceur authentifie third et guest auprès du
-vrai Keycloak par formulaire + Authorization Code + PKCE S256, puis transmet
-les sessions au seul processus Bruno par environnement. La CLI sélectionne
-explicitement **PG01 Public Journey.bru**, afin de ne pas ouvrir les connexions
-natives GUI. Aucune dépendance à un cache GUI ou à une session humaine préalable.
-La variante `./pocoma-local bruno --instance demo --interactive` conserve son
-login propriétaire interactif via le helper Python, puis lance cette même CLI.
-
-L'inventaire attendu est PG01 exactement une fois et un JUnit frais avec1 test
-nommé PASS, zéro failure/error/skip. Une collection vide ou une session absente
-ne peut pas produire BRUNO_PASS. Les reçus contiennent méthodes/routes/statuts,
-jamais les bodies ou les tokens ; aucun reporter JSON de réponses n'est activé.
-Ne pas imprimer l'environnement de processus ou lancer le shell avec tracing.
-
-## Parcours et attentes
-
-PG01 exerce Registration/résultat/binding, CreatePot et replay idempotent,
-lecture V1, deux actionnaires, refus d'accès du tiers avant invitation,
-création/récupération confidentielle de l'invitation, consultation des places,
-acceptation et visibilité guest, dépense10/3 puis correction20/3, balances
-indépendantes ±5/3 puis ±10/3, histoire exacteV4 et batch Expense référencé,
-UpdatePotDetails, Delete terminalV7, courant/V7 en404 et histoireV6 conservée.
-Chaque réponse est no-store ; l'absence de bearer donne401. Les autres opérations
-sont décrites au [contrat consommateur](L7_Local_Playground_Public_API.md).
-
-Source officielle du comportement natif : [Bruno Authorization Code](https://docs.usebruno.com/auth/oauth2-2.0/authorization-code),
-complétée par l'inspection des modules réellement installés4.2.1 identifiés dans
-les preuves. La documentation courante ne remplace pas ce contrôle de version.
+Le [rapport I3](L7_Local_Playground_Bruno_I3_Rework_Report.md) distingue les
+observations GUI effectives, les moteurs natifs sans rendu et l'acceptation
+humaine ; aucun résultat de cette recette n'est présumé.

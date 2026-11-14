@@ -1,0 +1,57 @@
+meta {
+  name: J03-19-A14 Stale Guest Binding
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "UpdatePotDetails",
+    "potId": "{{potId}}",
+    "observedVersion": {{potVersion}},
+    "bindingToken": "{{staleGuestBinding}}",
+    "payload": {
+      "label": "Ancien binding refuse"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J03-19-A14","role":"guest","kind":"commandAdmission","outcome":"REJECTED","rejection":"INVALID_BINDING","requires":["potId","potVersion","staleGuestBinding"],"operation":"UpdatePotDetails"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J03-19-A14","role":"guest","kind":"commandAdmission","outcome":"REJECTED","rejection":"INVALID_BINDING","requires":["potId","potVersion","staleGuestBinding"],"operation":"UpdatePotDetails"};
+  const work = require('./lib/workspace.js');
+  test('J03-19-A14 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J03-19-A14 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J03 ; etape 19. Source : 09 - Access Control and Errors/A14 Stale Guest Binding.bru.
+  Apres Unlink/reinscription : ancien binding invalide malgre JWT valide. R01 doit montrer REJECTED INVALID_BINDING.
+  Identite : guest. Prerequis : potId, potVersion, staleGuestBinding.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

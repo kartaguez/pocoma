@@ -1,4 +1,4 @@
-"""Real IdP sessions -> installed Bruno4.2.1 cache API -> full public PG01.
+"""Real IdP sessions -> installed Bruno4.2.1 cache API/VM -> delivered journeys.
 
 No UI rendering/human acceptance claim. No JWT file, argv or stdout.
 """
@@ -23,14 +23,14 @@ def execute(instance, output):
              'POCOMA_GUI_TEST_WRITE':runtime.urls(m)[0],'POCOMA_GUI_TEST_READ':runtime.urls(m)[1],
              'POCOMA_GUI_TEST_ISSUER':m['issuer'],'POCOMA_GUI_TEST_OUTPUT':str(output.resolve())}
         command=['/Applications/Bruno.app/Contents/MacOS/Bruno',str(runtime.ROOT/'scripts/local/test_bruno_gui.js')]
-        result=subprocess.run(command,env=env,text=True,capture_output=True,timeout=180,cwd=runtime.ROOT)
+        result=subprocess.run(command,env=env,text=True,capture_output=True,timeout=600,cwd=runtime.ROOT)
         if result.returncode:
             raise RuntimeError('Installed Bruno4.2.1 protocol control failed; no secret/response dump.')
         receipt=json.loads(output.read_text());receipt.update(testedSha=runtime.run(['git','rev-parse','HEAD']),
             dirty=bool(runtime.run(['git','status','--porcelain'])),inputs=runtime.source_hash(),command=command,
             oidc='Real Keycloak: Authorization Code S256, missing/plain refused; private sessions passed in process environment only.')
         output.write_text(json.dumps(receipt,indent=2)+'\n')
-        print('Bruno4.2.1 native-cache public PG01 PASS; no token persisted.')
+        print('Bruno4.2.1 delivered journeys through native cache/VM PASS; no rendered login claim.')
 
 
 if __name__=='__main__':

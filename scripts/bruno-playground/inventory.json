@@ -1,19 +1,1550 @@
 {
-  "scenarios": [
-    "PG01"
+  "requests": [
+    {
+      "id": "J01-01-E00",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/01 E00 Environment Check.bru",
+      "source": "00 - Getting Started/E00 Environment Check.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/realms/pocoma/.well-known/openid-configuration",
+      "status": 200,
+      "tests": [
+        "J01-01-E00 transport and privacy",
+        "J01-01-E00 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-02-I01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/02 I01 Register Owner.bru",
+      "source": "01 - Identity and Registration/I01 Register Owner.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J01-02-I01 transport and privacy",
+        "J01-02-I01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-03-I02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/03 I02 Owner Identity Result.bru",
+      "source": "01 - Identity and Registration/I02 Owner Identity Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityOwnerRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-03-I02 transport and privacy",
+        "J01-03-I02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-04-I03",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/04 I03 Owner Binding.bru",
+      "source": "01 - Identity and Registration/I03 Owner Binding.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J01-04-I03 transport and privacy",
+        "J01-04-I03 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-05-I04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/05 I04 Register Guest.bru",
+      "source": "01 - Identity and Registration/I04 Register Guest.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J01-05-I04 transport and privacy",
+        "J01-05-I04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-06-I05",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/06 I05 Guest Identity Result.bru",
+      "source": "01 - Identity and Registration/I05 Guest Identity Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityGuestRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-06-I05 transport and privacy",
+        "J01-06-I05 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-07-I06",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/07 I06 Guest Binding.bru",
+      "source": "01 - Identity and Registration/I06 Guest Binding.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J01-07-I06 transport and privacy",
+        "J01-07-I06 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-08-P01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/08 P01 Create Pot.bru",
+      "source": "02 - Pots/P01 Create Pot.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-08-P01 transport and privacy",
+        "J01-08-P01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-09-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/09 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-09-R01 transport and privacy",
+        "J01-09-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-10-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/10 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-10-P04 transport and privacy",
+        "J01-10-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-11-B02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/11 B02 My Pots First Page.bru",
+      "source": "06 - Balances and Navigation/B02 My Pots First Page.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/pots",
+      "status": 200,
+      "tests": [
+        "J01-11-B02 transport and privacy",
+        "J01-11-B02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-12-S01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/12 S01 Add Owner and Free Guest.bru",
+      "source": "03 - Shareholders/S01 Add Owner and Free Guest.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-12-S01 transport and privacy",
+        "J01-12-S01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-13-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/13 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-13-R01 transport and privacy",
+        "J01-13-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-14-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/14 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-14-P04 transport and privacy",
+        "J01-14-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-15-A06",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/15 A06 Guest Hidden Current Pot.bru",
+      "source": "09 - Access Control and Errors/A06 Guest Hidden Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 404,
+      "tests": [
+        "J01-15-A06 transport and privacy",
+        "J01-15-A06 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-16-V01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/16 V01 Create Invitation.bru",
+      "source": "08 - Invitations/V01 Create Invitation.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-16-V01 transport and privacy",
+        "J01-16-V01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-17-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/17 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-17-R01 transport and privacy",
+        "J01-17-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-18-V02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/18 V02 Retrieve Private Invitation.bru",
+      "source": "08 - Invitations/V02 Retrieve Private Invitation.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/invitations/by-creation-request/{{invitationRequestId}}",
+      "status": 200,
+      "tests": [
+        "J01-18-V02 transport and privacy",
+        "J01-18-V02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-19-A07",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/19 A07 Guest Hidden Invitation.bru",
+      "source": "09 - Access Control and Errors/A07 Guest Hidden Invitation.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/invitations/by-creation-request/{{invitationRequestId}}",
+      "status": 404,
+      "tests": [
+        "J01-19-A07 transport and privacy",
+        "J01-19-A07 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-20-V03",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/20 V03 Guest Available Shareholders.bru",
+      "source": "08 - Invitations/V03 Guest Available Shareholders.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/invitations/available-shareholders/query",
+      "status": 200,
+      "tests": [
+        "J01-20-V03 transport and privacy",
+        "J01-20-V03 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-21-V04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/21 V04 Guest Accept Invitation.bru",
+      "source": "08 - Invitations/V04 Guest Accept Invitation.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-21-V04 transport and privacy",
+        "J01-21-V04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-22-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/22 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-22-R01 transport and privacy",
+        "J01-22-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-23-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/23 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-23-P04 transport and privacy",
+        "J01-23-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-24-X01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/24 X01 Create Expense.bru",
+      "source": "04 - Expenses/X01 Create Expense.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-24-X01 transport and privacy",
+        "J01-24-X01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-25-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/25 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-25-R01 transport and privacy",
+        "J01-25-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-26-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/26 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-26-P04 transport and privacy",
+        "J01-26-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-27-B01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/27 B01 Exact Balances.bru",
+      "source": "06 - Balances and Navigation/B01 Exact Balances.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/balance",
+      "status": 200,
+      "tests": [
+        "J01-27-B01 transport and privacy",
+        "J01-27-B01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-28-H02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/28 H02 Query Referenced Expenses.bru",
+      "source": "07 - History/H02 Query Referenced Expenses.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/expenses/query",
+      "status": 200,
+      "tests": [
+        "J01-28-H02 transport and privacy",
+        "J01-28-H02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-29-X02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/29 X02 Update Expense Details.bru",
+      "source": "04 - Expenses/X02 Update Expense Details.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-29-X02 transport and privacy",
+        "J01-29-X02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-30-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/30 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-30-R01 transport and privacy",
+        "J01-30-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-31-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/31 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-31-P04 transport and privacy",
+        "J01-31-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-32-H02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/32 H02 Query Referenced Expenses.bru",
+      "source": "07 - History/H02 Query Referenced Expenses.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/expenses/query",
+      "status": 200,
+      "tests": [
+        "J01-32-H02 transport and privacy",
+        "J01-32-H02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-33-X03",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/33 X03 Update Expense Financials.bru",
+      "source": "04 - Expenses/X03 Update Expense Financials.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-33-X03 transport and privacy",
+        "J01-33-X03 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-34-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/34 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-34-R01 transport and privacy",
+        "J01-34-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-35-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/35 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-35-P04 transport and privacy",
+        "J01-35-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-36-B01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/36 B01 Exact Balances.bru",
+      "source": "06 - Balances and Navigation/B01 Exact Balances.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/balance",
+      "status": 200,
+      "tests": [
+        "J01-36-B01 transport and privacy",
+        "J01-36-B01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-37-H01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/37 H01 Read Exact Pot History.bru",
+      "source": "07 - History/H01 Read Exact Pot History.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{historyVersion}}",
+      "status": 200,
+      "tests": [
+        "J01-37-H01 transport and privacy",
+        "J01-37-H01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-38-H02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/38 H02 Query Referenced Expenses.bru",
+      "source": "07 - History/H02 Query Referenced Expenses.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/expenses/query",
+      "status": 200,
+      "tests": [
+        "J01-38-H02 transport and privacy",
+        "J01-38-H02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-39-S02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/39 S02 Rename Shareholder KEEP.bru",
+      "source": "03 - Shareholders/S02 Rename Shareholder KEEP.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-39-S02 transport and privacy",
+        "J01-39-S02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-40-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/40 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-40-R01 transport and privacy",
+        "J01-40-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-41-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/41 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-41-P04 transport and privacy",
+        "J01-41-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-42-S03",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/42 S03 Update Shareholder Weights.bru",
+      "source": "03 - Shareholders/S03 Update Shareholder Weights.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-42-S03 transport and privacy",
+        "J01-42-S03 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-43-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/43 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-43-R01 transport and privacy",
+        "J01-43-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-44-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/44 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-44-P04 transport and privacy",
+        "J01-44-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-45-S06",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/45 S06 Attach Own Free Shareholder SELF.bru",
+      "source": "03 - Shareholders/S06 Attach Own Free Shareholder SELF.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-45-S06 transport and privacy",
+        "J01-45-S06 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-46-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/46 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-46-R01 transport and privacy",
+        "J01-46-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-47-X04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/47 X04 Delete Expense.bru",
+      "source": "04 - Expenses/X04 Delete Expense.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-47-X04 transport and privacy",
+        "J01-47-X04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-48-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/48 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-48-R01 transport and privacy",
+        "J01-48-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-49-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/49 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-49-P04 transport and privacy",
+        "J01-49-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-50-B01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/50 B01 Exact Balances.bru",
+      "source": "06 - Balances and Navigation/B01 Exact Balances.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/balance",
+      "status": 200,
+      "tests": [
+        "J01-50-B01 transport and privacy",
+        "J01-50-B01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-51-S05",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/51 S05 Guest Voluntary Departure DETACH.bru",
+      "source": "03 - Shareholders/S05 Guest Voluntary Departure DETACH.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-51-S05 transport and privacy",
+        "J01-51-S05 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-52-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/52 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-52-R01 transport and privacy",
+        "J01-52-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-53-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/53 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-53-P04 transport and privacy",
+        "J01-53-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-54-A06",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/54 A06 Guest Hidden Current Pot.bru",
+      "source": "09 - Access Control and Errors/A06 Guest Hidden Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 404,
+      "tests": [
+        "J01-54-A06 transport and privacy",
+        "J01-54-A06 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-55-H01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/55 H01 Read Exact Pot History.bru",
+      "source": "07 - History/H01 Read Exact Pot History.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{historyVersion}}",
+      "status": 200,
+      "tests": [
+        "J01-55-H01 transport and privacy",
+        "J01-55-H01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-56-S04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/56 S04 Delete Guest Shareholder.bru",
+      "source": "03 - Shareholders/S04 Delete Guest Shareholder.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-56-S04 transport and privacy",
+        "J01-56-S04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-57-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/57 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-57-R01 transport and privacy",
+        "J01-57-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-58-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/58 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-58-P04 transport and privacy",
+        "J01-58-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-59-P02",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/59 P02 Update Pot Details.bru",
+      "source": "02 - Pots/P02 Update Pot Details.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-59-P02 transport and privacy",
+        "J01-59-P02 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-60-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/60 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-60-R01 transport and privacy",
+        "J01-60-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-61-P04",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/61 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J01-61-P04 transport and privacy",
+        "J01-61-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-62-P03",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/62 P03 Delete Pot.bru",
+      "source": "02 - Pots/P03 Delete Pot.bru",
+      "journey": "J01",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J01-62-P03 transport and privacy",
+        "J01-62-P03 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-63-R01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/63 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J01-63-R01 transport and privacy",
+        "J01-63-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-64-A12",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/64 A12 Deleted Current Pot.bru",
+      "source": "09 - Access Control and Errors/A12 Deleted Current Pot.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 404,
+      "tests": [
+        "J01-64-A12 transport and privacy",
+        "J01-64-A12 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-65-A13",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/65 A13 Deleted Terminal Version.bru",
+      "source": "09 - Access Control and Errors/A13 Deleted Terminal Version.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{deletedVersion}}",
+      "status": 404,
+      "tests": [
+        "J01-65-A13 transport and privacy",
+        "J01-65-A13 contract and variables"
+      ]
+    },
+    {
+      "id": "J01-66-H01",
+      "file": "90 - End-to-End Journeys/J01 Complete Ledger and Invitation/66 H01 Read Exact Pot History.bru",
+      "source": "07 - History/H01 Read Exact Pot History.bru",
+      "journey": "J01",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{historyVersion}}",
+      "status": 200,
+      "tests": [
+        "J01-66-H01 transport and privacy",
+        "J01-66-H01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-01-E00",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/01 E00 Environment Check.bru",
+      "source": "00 - Getting Started/E00 Environment Check.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/realms/pocoma/.well-known/openid-configuration",
+      "status": 200,
+      "tests": [
+        "J02-01-E00 transport and privacy",
+        "J02-01-E00 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-02-I01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/02 I01 Register Owner.bru",
+      "source": "01 - Identity and Registration/I01 Register Owner.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J02-02-I01 transport and privacy",
+        "J02-02-I01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-03-I02",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/03 I02 Owner Identity Result.bru",
+      "source": "01 - Identity and Registration/I02 Owner Identity Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityOwnerRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-03-I02 transport and privacy",
+        "J02-03-I02 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-04-I03",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/04 I03 Owner Binding.bru",
+      "source": "01 - Identity and Registration/I03 Owner Binding.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J02-04-I03 transport and privacy",
+        "J02-04-I03 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-05-I04",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/05 I04 Register Guest.bru",
+      "source": "01 - Identity and Registration/I04 Register Guest.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J02-05-I04 transport and privacy",
+        "J02-05-I04 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-06-I05",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/06 I05 Guest Identity Result.bru",
+      "source": "01 - Identity and Registration/I05 Guest Identity Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityGuestRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-06-I05 transport and privacy",
+        "J02-06-I05 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-07-I06",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/07 I06 Guest Binding.bru",
+      "source": "01 - Identity and Registration/I06 Guest Binding.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J02-07-I06 transport and privacy",
+        "J02-07-I06 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-08-P01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/08 P01 Create Pot.bru",
+      "source": "02 - Pots/P01 Create Pot.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J02-08-P01 transport and privacy",
+        "J02-08-P01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-09-R01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/09 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-09-R01 transport and privacy",
+        "J02-09-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-10-A04",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/10 A04 Replay Same Intention.bru",
+      "source": "09 - Access Control and Errors/A04 Replay Same Intention.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J02-10-A04 transport and privacy",
+        "J02-10-A04 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-11-A05",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/11 A05 Conflicting Idempotency Key.bru",
+      "source": "09 - Access Control and Errors/A05 Conflicting Idempotency Key.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 409,
+      "tests": [
+        "J02-11-A05 transport and privacy",
+        "J02-11-A05 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-12-P04",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/12 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J02-12-P04 transport and privacy",
+        "J02-12-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-13-B02",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/13 B02 My Pots First Page.bru",
+      "source": "06 - Balances and Navigation/B02 My Pots First Page.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/pots",
+      "status": 200,
+      "tests": [
+        "J02-13-B02 transport and privacy",
+        "J02-13-B02 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-14-B03",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/14 B03 My Pots Next Page.bru",
+      "source": "06 - Balances and Navigation/B03 My Pots Next Page.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/pots",
+      "status": 200,
+      "tests": [
+        "J02-14-B03 transport and privacy",
+        "J02-14-B03 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-15-S01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/15 S01 Add Owner and Free Guest.bru",
+      "source": "03 - Shareholders/S01 Add Owner and Free Guest.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J02-15-S01 transport and privacy",
+        "J02-15-S01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-16-R01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/16 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-16-R01 transport and privacy",
+        "J02-16-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-17-P04",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/17 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J02-17-P04 transport and privacy",
+        "J02-17-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-18-A01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/18 A01 No Bearer.bru",
+      "source": "09 - Access Control and Errors/A01 No Bearer.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 401,
+      "tests": [
+        "J02-18-A01 transport and privacy",
+        "J02-18-A01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-19-A02",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/19 A02 Invalid Cursor.bru",
+      "source": "09 - Access Control and Errors/A02 Invalid Cursor.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/pots",
+      "status": 400,
+      "tests": [
+        "J02-19-A02 transport and privacy",
+        "J02-19-A02 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-20-A03",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/20 A03 Unknown Identity Field.bru",
+      "source": "09 - Access Control and Errors/A03 Unknown Identity Field.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 400,
+      "tests": [
+        "J02-20-A03 transport and privacy",
+        "J02-20-A03 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-21-A06",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/21 A06 Guest Hidden Current Pot.bru",
+      "source": "09 - Access Control and Errors/A06 Guest Hidden Current Pot.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 404,
+      "tests": [
+        "J02-21-A06 transport and privacy",
+        "J02-21-A06 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-22-A08",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/22 A08 Guest Hidden Owner Result.bru",
+      "source": "09 - Access Control and Errors/A08 Guest Hidden Owner Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{ownerCommandRequestId}}/result",
+      "status": 404,
+      "tests": [
+        "J02-22-A08 transport and privacy",
+        "J02-22-A08 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-23-A09",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/23 A09 Guest Delete Forbidden.bru",
+      "source": "09 - Access Control and Errors/A09 Guest Delete Forbidden.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J02-23-A09 transport and privacy",
+        "J02-23-A09 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-24-R01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/24 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-24-R01 transport and privacy",
+        "J02-24-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-25-A10",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/25 A10 Expired Invitation Rejected.bru",
+      "source": "09 - Access Control and Errors/A10 Expired Invitation Rejected.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J02-25-A10 transport and privacy",
+        "J02-25-A10 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-26-R01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/26 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-26-R01 transport and privacy",
+        "J02-26-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-27-A11",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/27 A11 Empty Expense Batch.bru",
+      "source": "09 - Access Control and Errors/A11 Empty Expense Batch.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{readVersion}}/expenses/query",
+      "status": 400,
+      "tests": [
+        "J02-27-A11 transport and privacy",
+        "J02-27-A11 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-28-P03",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/28 P03 Delete Pot.bru",
+      "source": "02 - Pots/P03 Delete Pot.bru",
+      "journey": "J02",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J02-28-P03 transport and privacy",
+        "J02-28-P03 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-29-R01",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/29 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J02-29-R01 transport and privacy",
+        "J02-29-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-30-A12",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/30 A12 Deleted Current Pot.bru",
+      "source": "09 - Access Control and Errors/A12 Deleted Current Pot.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 404,
+      "tests": [
+        "J02-30-A12 transport and privacy",
+        "J02-30-A12 contract and variables"
+      ]
+    },
+    {
+      "id": "J02-31-A13",
+      "file": "90 - End-to-End Journeys/J02 Errors Privacy and Idempotency/31 A13 Deleted Terminal Version.bru",
+      "source": "09 - Access Control and Errors/A13 Deleted Terminal Version.bru",
+      "journey": "J02",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}/versions/{{deletedVersion}}",
+      "status": 404,
+      "tests": [
+        "J02-31-A13 transport and privacy",
+        "J02-31-A13 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-01-E00",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/01 E00 Environment Check.bru",
+      "source": "00 - Getting Started/E00 Environment Check.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/realms/pocoma/.well-known/openid-configuration",
+      "status": 200,
+      "tests": [
+        "J03-01-E00 transport and privacy",
+        "J03-01-E00 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-02-I01",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/02 I01 Register Owner.bru",
+      "source": "01 - Identity and Registration/I01 Register Owner.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J03-02-I01 transport and privacy",
+        "J03-02-I01 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-03-I02",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/03 I02 Owner Identity Result.bru",
+      "source": "01 - Identity and Registration/I02 Owner Identity Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityOwnerRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-03-I02 transport and privacy",
+        "J03-03-I02 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-04-I03",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/04 I03 Owner Binding.bru",
+      "source": "01 - Identity and Registration/I03 Owner Binding.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J03-04-I03 transport and privacy",
+        "J03-04-I03 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-05-I04",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/05 I04 Register Guest.bru",
+      "source": "01 - Identity and Registration/I04 Register Guest.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J03-05-I04 transport and privacy",
+        "J03-05-I04 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-06-I05",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/06 I05 Guest Identity Result.bru",
+      "source": "01 - Identity and Registration/I05 Guest Identity Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityGuestRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-06-I05 transport and privacy",
+        "J03-06-I05 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-07-I06",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/07 I06 Guest Binding.bru",
+      "source": "01 - Identity and Registration/I06 Guest Binding.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J03-07-I06 transport and privacy",
+        "J03-07-I06 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-08-P01",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/08 P01 Create Pot.bru",
+      "source": "02 - Pots/P01 Create Pot.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J03-08-P01 transport and privacy",
+        "J03-08-P01 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-09-R01",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/09 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-09-R01 transport and privacy",
+        "J03-09-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-10-P04",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/10 P04 Read Current Pot.bru",
+      "source": "02 - Pots/P04 Read Current Pot.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/pots/{{potId}}",
+      "status": 200,
+      "tests": [
+        "J03-10-P04 transport and privacy",
+        "J03-10-P04 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-11-P03",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/11 P03 Delete Pot.bru",
+      "source": "02 - Pots/P03 Delete Pot.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J03-11-P03 transport and privacy",
+        "J03-11-P03 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-12-R01",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/12 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-12-R01 transport and privacy",
+        "J03-12-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-13-I07",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/13 I07 Unlink Guest Self.bru",
+      "source": "01 - Identity and Registration/I07 Unlink Guest Self.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J03-13-I07 transport and privacy",
+        "J03-13-I07 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-14-I05",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/14 I05 Guest Identity Result.bru",
+      "source": "01 - Identity and Registration/I05 Guest Identity Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityGuestRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-14-I05 transport and privacy",
+        "J03-14-I05 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-15-I06",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/15 I06 Guest Binding.bru",
+      "source": "01 - Identity and Registration/I06 Guest Binding.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J03-15-I06 transport and privacy",
+        "J03-15-I06 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-16-I04",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/16 I04 Register Guest.bru",
+      "source": "01 - Identity and Registration/I04 Register Guest.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/identity/requests",
+      "status": 202,
+      "tests": [
+        "J03-16-I04 transport and privacy",
+        "J03-16-I04 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-17-I05",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/17 I05 Guest Identity Result.bru",
+      "source": "01 - Identity and Registration/I05 Guest Identity Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/identity/requests/{{identityGuestRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-17-I05 transport and privacy",
+        "J03-17-I05 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-18-I06",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/18 I06 Guest Binding.bru",
+      "source": "01 - Identity and Registration/I06 Guest Binding.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/me/binding",
+      "status": 200,
+      "tests": [
+        "J03-18-I06 transport and privacy",
+        "J03-18-I06 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-19-A14",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/19 A14 Stale Guest Binding.bru",
+      "source": "09 - Access Control and Errors/A14 Stale Guest Binding.bru",
+      "journey": "J03",
+      "method": "POST",
+      "pathTemplate": "/api/v3/commands",
+      "status": 202,
+      "tests": [
+        "J03-19-A14 transport and privacy",
+        "J03-19-A14 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-20-R01",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/20 R01 Command Result.bru",
+      "source": "05 - Results/R01 Command Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{commandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-20-R01 transport and privacy",
+        "J03-20-R01 contract and variables"
+      ]
+    },
+    {
+      "id": "J03-21-R02",
+      "file": "90 - End-to-End Journeys/J03 Unlink Re-register and Historical Ownership/21 R02 Historical Guest Result.bru",
+      "source": "05 - Results/R02 Historical Guest Result.bru",
+      "journey": "J03",
+      "method": "GET",
+      "pathTemplate": "/api/v3/commands/{{historicalCommandRequestId}}/result",
+      "status": 200,
+      "tests": [
+        "J03-21-R02 transport and privacy",
+        "J03-21-R02 contract and variables"
+      ]
+    }
   ],
-  "namedTests": 1,
-  "checks": [
-    "Registration and binding",
-    "CreatePot and idempotence",
-    "Invitation and confidentiality",
-    "Expense mutations and exact balances",
-    "Delete and history"
+  "journeys": [
+    "J01",
+    "J02",
+    "J03"
   ],
+  "namedTests": 236,
   "fixtureReadInjection": false,
+  "cliSelection": "90 - End-to-End Journeys",
   "guiLoginRequests": [
-    "00 Login Owner.bru",
-    "01 Login Guest.bru"
-  ],
-  "cliSelection": "PG01 Public Journey.bru"
+    "00 - Getting Started/00 Login Owner.bru",
+    "00 - Getting Started/01 Login Guest.bru"
+  ]
 }

@@ -1,0 +1,56 @@
+meta {
+  name: X04 Delete Expense
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{writeUrl}}/api/v3/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  Idempotency-Key: {{idempotencyKey}}
+}
+
+body:json {
+  {
+    "operation": "DeleteExpense",
+    "potId": "{{potId}}",
+    "observedVersion": {{potVersion}},
+    "bindingToken": "{{bindingActor}}",
+    "payload": {
+      "id": "{{expenseId}}"
+    }
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"X04","role":"actor","requires":["potId","potVersion"],"operation":"DeleteExpense","kind":"commandAdmission"};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"X04","role":"actor","requires":["potId","potVersion"],"operation":"DeleteExpense","kind":"commandAdmission"};
+  const work = require('./lib/workspace.js');
+  test('X04 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('X04 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  DeleteExpense : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

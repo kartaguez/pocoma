@@ -1,0 +1,39 @@
+meta {
+  name: T04 Stage Handoff Alias
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{readUrl}}/actuator/stage-handoffs?limit=10
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"T04","role":"none","kind":"diagnostics","status":200,"requires":[]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"T04","role":"none","kind":"diagnostics","status":200,"requires":[]};
+  const work = require('./lib/workspace.js');
+  test('T04 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('T04 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Endpoint technique READ local, aucune preuve metier deduite de ce resultat.
+  URLs preparees par ./pocoma-local gui ; aucun reset ni secret requis.
+}

@@ -651,39 +651,67 @@ def stop(path, m, evidence):
                 volumes='PRESERVED', runtimeExitCodes=exit_codes, forcedKill=killed, slotsBeforeStop=slots)
 
 
+def validate_bruno_results(inventory, actual, suites, exit_code):
+    """No empty, duplicate, reordered, partial, skipped or wrong-route proof passes."""
+    expected = inventory['requests']
+    cases = [c for suite in suites for c in suite.findall('testcase')]
+    junit_pass = (bool(expected) and len(suites) == len(expected)
+        and all(s.get('file') == item['file'] and s.get('tests') == str(len(item['tests']))
+            and all(s.get(key) == '0' for key in ('failures','errors','skipped'))
+            and [c.get('name') for c in s.findall('testcase')] == item['tests']
+            for s,item in zip(suites,expected))
+        and all(c.get('status') == 'pass' and all(c.find(tag) is None for tag in ('failure','error','skipped')) for c in cases))
+    receipts_pass = len(actual) == len(expected) and bool(expected)
+    for record,item in zip(actual,expected):
+        pattern = re.escape(item['pathTemplate'])
+        pattern = re.sub(r'\\\{\\\{.*?\\\}\\\}', '[^/]+', pattern)
+        trace = record.get('requests',[])
+        receipts_pass = receipts_pass and (record.get('request') == item['id'] and record.get('verdict') == 'PASS'
+            and type(record.get('assertions')) is int and record['assertions'] >= 3 and bool(trace)
+            and trace[-1].get('method') == item['method'] and trace[-1].get('status') == item['status']
+            and re.fullmatch(pattern,trace[-1].get('path','')) is not None)
+    return dict(success=junit_pass and receipts_pass and exit_code == 0,junitPass=junit_pass,
+        namedTests=len(cases),assertions=sum(r.get('assertions',0) for r in actual),
+        httpRequests=sum(len(r.get('requests',[])) for r in actual))
+
+
 def bruno(path, m, evidence, interactive_login=False):
     ownership(m)
+    run([sys.executable, '-B', ROOT / 'scripts/local/sync_bruno_playground.py', '--check'])
+    for name in ('scenarios.jsonl', 'bruno.xml', 'bruno-receipt.json'):
+        if (evidence / name).exists():
+            raise Refusal('PRE-BRUNO-EVIDENCE-NOT-FRESH')
     credentials = private(path)
-    tokens = {name: login(m['issuer'], name, password) for name, password in credentials['users'].items()}
+    tokens = {name: login(m['issuer'], name, credentials['users'][name]) for name in ('third','guest')}
     if interactive_login:
         tokens['third'] = interactive(m['issuer'])
     collection = ROOT / 'scripts/bruno-playground'
     cli = ROOT / 'scripts/bruno-v3/node_modules/.bin/bru'
     if not cli.exists():
         run(['npm', 'ci', '--prefix', ROOT / 'scripts/bruno-v3'], timeout=240, log=evidence / 'npm.log')
+    if run([cli, '--version']) != '4.3.0':
+        raise Refusal('PRE-BRUNO-VERSION')
     environment = {**os.environ, 'POCOMA_PG_WRITE': urls(m)[0], 'POCOMA_PG_READ': urls(m)[1],
         'POCOMA_PG_ISSUER': m['issuer'], 'POCOMA_PG_OWNER': tokens['third'], 'POCOMA_PG_GUEST': tokens['guest'],
         'POCOMA_PG_RECEIPT': str(evidence / 'scenarios.jsonl')}
-    command = [str(cli), 'run', 'PG01 Public Journey.bru', '--env', 'Local', '--sandbox=developer', '--reporter-junit', str(evidence / 'bruno.xml')]
-    with (evidence / 'bruno-private.log').open('w') as output:
-        result = subprocess.run(command, cwd=collection, env=environment, stdout=output, stderr=subprocess.STDOUT, timeout=180)
-    # Bruno's default console may include response bodies on failure. Private log
-    # is redacted before the command returns, no JSON reporter persists bodies.
-    logfile = evidence / 'bruno-private.log'
-    text = logfile.read_text()
-    for token in tokens.values():
-        text = text.replace(token, '[REDACTED]')
-    logfile.write_text(text)
+    if 'http-read' in m['ports']:
+        environment['POCOMA_PG_MANAGEMENT'] = 'http://127.0.0.1:' + str(m['ports']['http-read'])
+    command = [str(cli), 'run', '90 - End-to-End Journeys', '-r', '--env', 'Local', '--sandbox=developer', '--bail', '--reporter-junit', str(evidence / 'bruno.xml')]
+    # CLI console can print response bodies on failure. Retain only named boolean
+    # assertions in JUnit and allowlisted method/path/status receipts, never stdout.
+    result = subprocess.run(command, cwd=collection, env=environment, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=600)
     file = evidence / 'scenarios.jsonl'
     actual = [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
-    expected = read(collection / 'inventory.json')['scenarios']
-    expected_tests = read(collection / 'inventory.json')['namedTests']
+    inventory = read(collection / 'inventory.json')
+    expected = [r['id'] for r in inventory['requests']]
     report = evidence / 'bruno.xml'
-    cases = ET.parse(report).findall('.//testcase') if report.exists() else []
-    junit_pass = len(cases) == expected_tests and all(c.get('status') == 'pass' and c.find('failure') is None and c.find('error') is None for c in cases)
-    success = junit_pass and result.returncode == 0 and [r['scenario'] for r in actual if r['verdict'] == 'PASS'] == expected
+    suites = ET.parse(report).findall('.//testsuite') if report.exists() else []
+    qualification = validate_bruno_results(inventory,actual,suites,result.returncode)
+    success = qualification['success']
     save(evidence / 'bruno-receipt.json', dict(command=command, expected=expected,
-        actual=[r['scenario'] for r in actual], namedTests=len(cases), junitPass=junit_pass, exit=result.returncode, success=success))
+        actual=[r['request'] for r in actual], **qualification,
+        journeys=inventory['journeys'], exit=result.returncode,
+        testedSha=run(['git','rev-parse','HEAD']), dirty=bool(run(['git','status','--porcelain'])), inputs=source_hash()))
     return dict(state='BRUNO_PASS' if success else 'BRUNO_FAIL', exit=0 if success else 1)
 
 
@@ -698,10 +726,12 @@ def gui(path, m):
         raise Refusal('IDP-DISCOVERY')
     # No reset, migration, password read, browser callback listener or JWT export.
     text = 'vars {\n  writeUrl: ' + urls(m)[0] + '\n  readUrl: ' + urls(m)[1] + '\n  issuerUrl: ' + m['issuer'] + '\n}\n'
+    if 'http-read' in m['ports']:
+        text = text.replace('\n}', '\n  managementReadUrl: http://127.0.0.1:' + str(m['ports']['http-read']) + '\n}')
     target.write_text(text)
     target.chmod(0o600)
     return dict(state='GUI_CONFIGURED', exit=0, environment=str(target),
-                next='In Bruno select Instance-' + m['instance'] + '; 00 Login Owner and 01 Login Guest > Auth > Get Access Token, then PG01.')
+                next='In Bruno select Instance-' + m['instance'] + '; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.')
 
 
 def main():

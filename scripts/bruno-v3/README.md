@@ -1,3 +1,5 @@
+> **Playground interactif de reference : [Pocoma V3 Playground](../bruno-playground/README.md).** Ce corpus est un banc de qualification specialise (fixtures incluses), pas le client interactif du playground.
+
 # Pocoma V3 — Recette Bruno
 
 ## Installation vierge L7.2

@@ -1,7 +1,7 @@
 meta {
   name: 01 Login Guest
   type: http
-  seq: 1
+  seq: 3
 }
 
 get {
@@ -41,4 +41,11 @@ tests {
     expect([200,404]).to.include(res.status);
     expect(res.headers['cache-control']).to.equal('no-store');
   });
+}
+
+docs {
+  Auth > Get Access Token, navigateur integre. Owner = third ; Guest = guest.
+  Client public, Authorization Code + PKCE S256, aucun secret client.
+  Apres la connexion, Send consulte uniquement le binding (200 ou 404).
+  Les tokens restent dans le cache OAuth natif ; ne pas exporter les timelines.
 }

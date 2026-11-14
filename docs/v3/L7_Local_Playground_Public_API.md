@@ -94,7 +94,7 @@ Enveloppe commune :
 Rationnels en entrée : `{"numerator":"10","denominator":"3"}` ; poids strictement
 positifs, participant weight `null` pour le poids par défaut. Dates Expense
 `YYYY-MM-DD`. Rationnels en sortie : `{"n":"10","d":"3"}`. Les soldes positifs
-sont créanciers ; somme exacte zéro. Exemples exécutables dans PG01 : deux parts
+sont créanciers ; somme exacte zéro. Exemples exécutables dans J01 : deux parts
 égales, payeur10/3 → soldes +5/3,−5/3 ; correction20/3 → +10/3,−10/3.
 
 Unlink se soumet sur `/identity/requests` :
@@ -140,6 +140,7 @@ puis vérifier l'histoire V<D autorisée ; un 404 seul n'est pas une preuve de
 suppression. Les résultats sont liés à l'identité historique du requester,
 pas rendus publics par un binding partagé ou révoqué.
 
-La collection démontre un sous-ensemble représentatif, pas une certification
-exhaustive de toutes les variantes publiques. Les limites non qualifiées et
+La collection interactive inventorie les 25 opérations métier courantes et les
+couvre par des requêtes explicites ; ses parcours ne certifient pas toutes les
+variantes ni les campagnes de charge. Voir la [matrice de couverture](L7_Local_Playground_Bruno_API_Coverage.csv). Les limites non qualifiées et
 les verdicts historiques restent dans le [registre](L7_Local_Playground_Reservations.md).

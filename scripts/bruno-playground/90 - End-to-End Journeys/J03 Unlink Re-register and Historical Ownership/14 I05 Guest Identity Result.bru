@@ -1,0 +1,43 @@
+meta {
+  name: J03-14-I05 Guest Identity Result
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{readUrl}}/api/v3/identity/requests/{{identityGuestRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J03-14-I05","role":"guest","kind":"identityResult","wait":true,"status":200,"requires":["identityGuestRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J03-14-I05","role":"guest","kind":"identityResult","wait":true,"status":200,"requires":["identityGuestRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('J03-14-I05 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J03-14-I05 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J03 ; etape 14. Source : 01 - Identity and Registration/I05 Guest Identity Result.bru.
+  Resultat propre terminal, correlation requestId/operation ; le resultat ne fournit pas de bindingToken.
+  Identite : guest. Prerequis : identityGuestRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

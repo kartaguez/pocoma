@@ -1,0 +1,50 @@
+meta {
+  name: V03 Guest Available Shareholders
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{readUrl}}/api/v3/invitations/available-shareholders/query
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+body:json {
+  {
+    "token": "{{invitationToken}}"
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"V03","role":"guest","kind":"places","binding":true,"status":200,"requires":["bindingGuest","invitationToken"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"V03","role":"guest","kind":"places","binding":true,"status":200,"requires":["bindingGuest","invitationToken"]};
+  const work = require('./lib/workspace.js');
+  test('V03 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('V03 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Le secret reste dans le corps, jamais dans l URL. Seulement shareholderId/name, aucune donnee du Pot. Capture la premiere place eligible dans shareholderGuestId.
+  Identite : guest. Prerequis : bindingGuest, invitationToken.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

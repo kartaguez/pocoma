@@ -1,0 +1,43 @@
+meta {
+  name: B02 My Pots First Page
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{readUrl}}/api/v3/me/pots?limit={{pageLimit}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"B02","role":"actor","kind":"navigation","binding":true,"wait":true,"status":200};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"B02","role":"actor","kind":"navigation","binding":true,"wait":true,"status":200};
+  const work = require('./lib/workspace.js');
+  test('B02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('B02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Navigation propre, limite 1..100 (defaut 20). Capture nextCursor opaque, pas de reconstruction du curseur.
+  Identite : actor. Prerequis : URLs de l environnement ; session native si role authentifie.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

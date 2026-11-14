@@ -1,3 +1,5 @@
+> Reprise I3 : pour Bruno GUI et CLI, suivre le [guide courant](L7_Local_Playground_Bruno.md). PG01 est remplacé par les requêtes par domaine et les trois parcours visibles J01/J02/J03.
+
 # Pocoma V3 — playground local
 
 Mandat Jalon 1 : I1a/I2/I3. La [qualification](L7_Local_Playground_Qualification_Report.md)

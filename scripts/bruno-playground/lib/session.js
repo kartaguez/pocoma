@@ -2,9 +2,11 @@
 // Tokens remain local variables: never setEnvVar, setVar, console, files or URLs.
 const CLIENT = 'pocoma-functional-tests';
 const IDS = {owner:'playground-owner',guest:'playground-guest'};
-const FLOW = {owner:'00 Login Owner',guest:'01 Login Guest'};
+const FLOW = {owner:'00 - Getting Started / 00 Login Owner',guest:'00 - Getting Started / 01 Login Guest'};
 
 exports.configure = function (bru, processEnv = {}) {
+  const issuer = processEnv.POCOMA_PG_ISSUER || bru.getEnvVar('issuerUrl');
+  if (bru.getVar('issuerUrl') && bru.getVar('issuerUrl') !== issuer) bru.deleteAllVars();
   for (const [name, env] of [['writeUrl','POCOMA_PG_WRITE'],['readUrl','POCOMA_PG_READ'],['issuerUrl','POCOMA_PG_ISSUER']]) {
     const value = processEnv[env] || bru.getEnvVar(name);
     if (!value) throw new Error('Environnement playground absent : lancer ./pocoma-local gui puis choisir Instance-<id>.');
@@ -13,13 +15,21 @@ exports.configure = function (bru, processEnv = {}) {
       throw new Error('Playground requires exact local public URLs.');
     bru.setVar(name,value.replace(/\/$/,'')); // Only public configuration, never sessions.
   }
+  const management = processEnv.POCOMA_PG_MANAGEMENT || bru.getEnvVar('managementReadUrl');
+  if (management) {
+    const url = new URL(management);
+    if (!['localhost','127.0.0.1'].includes(url.hostname) || url.protocol !== 'http:' || url.username || url.password || url.search || url.hash)
+      throw new Error('Playground requires exact local public URLs.');
+    bru.setVar('managementReadUrl',management.replace(/\/$/,''));
+  }
 };
 
 function session(bru, env, role) {
+  if (!IDS[role]) throw new Error('Identite attendue : owner ou guest.');
   const cli = Boolean(env.POCOMA_PG_OWNER || env.POCOMA_PG_GUEST);
   const token = cli ? env[role==='owner'?'POCOMA_PG_OWNER':'POCOMA_PG_GUEST']
     : bru.getOauth2CredentialVar('$oauth2.'+IDS[role]+'.access_token');
-  const action = 'Session '+role+' absente, expiree ou invalide : ouvrir '+FLOW[role]+', Auth > Get Access Token, puis relancer PG01.';
+  const action = 'Session '+role+' absente, expiree ou invalide : ouvrir '+FLOW[role]+', Auth > Get Access Token, puis relancer la requete.';
   try {
     if (typeof token!=='string' || token.split('.').length!==3) throw new Error();
     const claims=JSON.parse(Buffer.from(token.split('.')[1],'base64url').toString('utf8'));
@@ -31,6 +41,8 @@ function session(bru, env, role) {
     return {token,subject:claims.sub};
   } catch (_) { throw new Error(action); }
 }
+
+exports.session = session;
 
 exports.tokens = function (bru, env = {}) {
   const owner=session(bru,env,'owner'), guest=session(bru,env,'guest');

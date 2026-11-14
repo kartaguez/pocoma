@@ -1,0 +1,45 @@
+meta {
+  name: J01-58-P04 Read Current Pot
+  type: http
+  seq: 58
+}
+
+get {
+  url: {{readUrl}}/api/v3/pots/{{potId}}?minVersion={{potVersion}}
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J01-58-P04","role":"owner","kind":"pot","binding":true,"wait":true,"status":200,"requires":["potId","potVersion"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J01-58-P04","role":"owner","kind":"pot","binding":true,"wait":true,"status":200,"requires":["potId","potVersion"]};
+  const work = require('./lib/workspace.js');
+  test('J01-58-P04 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J01-58-P04 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.check(bru, expect, res.body.shareholders.find(s => s.id === bru.getVar('shareholderGuestId')).deleted, 'Actionnaire supprime');
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J01 ; etape 58. Source : 02 - Pots/P04 Read Current Pot.bru.
+  Pot complet courant W >= version demandee. Capture readVersion et les references Expense opaques ; aucune approximation historique.
+  Identite : actor. Prerequis : potId, potVersion.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

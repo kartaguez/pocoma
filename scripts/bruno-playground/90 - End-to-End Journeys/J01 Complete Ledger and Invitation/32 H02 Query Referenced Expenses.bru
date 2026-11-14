@@ -1,0 +1,52 @@
+meta {
+  name: J01-32-H02 Query Referenced Expenses
+  type: http
+  seq: 32
+}
+
+post {
+  url: {{readUrl}}/api/v3/pots/{{potId}}/versions/{{readVersion}}/expenses/query
+  body: json
+  auth: none
+}
+
+headers {
+  Connection: close
+  Content-Type: application/json
+  X-Pocoma-Binding-Token: {{bindingActor}}
+}
+
+body:json {
+  {
+    "references": {{expenseReferences}}
+  }
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J01-32-H02","role":"owner","kind":"expenses","binding":true,"status":200,"requires":["potId","readVersion","expenseReferences"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J01-32-H02","role":"owner","kind":"expenses","binding":true,"status":200,"requires":["potId","readVersion","expenseReferences"]};
+  const work = require('./lib/workspace.js');
+  test('J01-32-H02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J01-32-H02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.check(bru, expect, res.body.expenses[0].label === 'Transport corrige', 'Details Expense modifies');
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J01 ; etape 32. Source : 07 - History/H02 Query Referenced Expenses.bru.
+  References recopiees de P04/H01 a la meme version : 1..50 uniques. DTO public reference/label/date/amount/payerId/participants.
+  Identite : actor. Prerequis : potId, readVersion, expenseReferences.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

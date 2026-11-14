@@ -1,0 +1,43 @@
+meta {
+  name: J02-26-R01 Command Result
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{readUrl}}/api/v3/commands/{{commandRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J02-26-R01","role":"command","kind":"commandResult","wait":true,"status":200,"requires":["commandRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J02-26-R01","role":"command","kind":"commandResult","wait":true,"status":200,"requires":["commandRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('J02-26-R01 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J02-26-R01 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J02 ; etape 26. Source : 05 - Results/R01 Command Result.bru.
+  Resultat propre COMPLETED ou REJECTED attendu par la requete admission precedente. Capture potVersion seulement si le resultat en fournit une ; aucune convergence READ supposee.
+  Identite : command. Prerequis : commandRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}

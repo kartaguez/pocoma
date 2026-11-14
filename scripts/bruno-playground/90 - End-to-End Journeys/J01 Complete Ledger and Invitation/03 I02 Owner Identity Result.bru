@@ -1,0 +1,43 @@
+meta {
+  name: J01-03-I02 Owner Identity Result
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{readUrl}}/api/v3/identity/requests/{{identityOwnerRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Connection: close
+}
+
+settings {
+  timeout: 5000
+}
+
+script:pre-request {
+  const options = {"id":"J01-03-I02","role":"owner","kind":"identityResult","wait":true,"status":200,"requires":["identityOwnerRequestId"]};
+  await require('./lib/workspace.js').prepare(bru, req, options);
+}
+
+tests {
+  const options = {"id":"J01-03-I02","role":"owner","kind":"identityResult","wait":true,"status":200,"requires":["identityOwnerRequestId"]};
+  const work = require('./lib/workspace.js');
+  test('J01-03-I02 transport and privacy', () => work.transport(bru, res, expect, options));
+  test('J01-03-I02 contract and variables', () => {
+    work.verify(bru, req, res, expect, options);
+    work.record(bru, req, res, options);
+  });
+}
+
+docs {
+  Parcours J01 ; etape 3. Source : 01 - Identity and Registration/I02 Owner Identity Result.bru.
+  Resultat propre terminal, correlation requestId/operation ; le resultat ne fournit pas de bindingToken.
+  Identite : owner. Prerequis : identityOwnerRequestId.
+  Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent
+  le meme endpoint au plus 30 s avant l appel affiche ; aucun POST cache.
+  Modifier le JSON librement ; une nouvelle intention recoit une nouvelle cle.
+}
