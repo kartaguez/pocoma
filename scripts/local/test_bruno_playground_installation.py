@@ -32,7 +32,8 @@ def execute(instance, output):
         argv=[str(runtime.ROOT/'pocoma-local'),action,'--instance',instance,*extra]
         started=time.monotonic()
         result=subprocess.run(argv,cwd=runtime.ROOT,text=True,capture_output=True,timeout=1500)
-        try:data=json.loads(result.stdout)
+        # The facade's CURRENT bootstrap prints human progress before its receipt.
+        try:data=json.loads(result.stdout[result.stdout.index('{'):])
         except (json.JSONDecodeError,ValueError):raise RuntimeError('Facade did not produce a JSON receipt')
         commands.append(dict(argv=argv,phase=phase,seconds=time.monotonic()-started,exit=result.returncode,result=data))
         runtime.save(output/'commands.json',commands)
