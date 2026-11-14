@@ -54,7 +54,7 @@ pas preferred_username dans ce realm : les sujets séparent les sessions.
 Owner et Guest désignent ici les deux contextes de développement ; ce ne sont
 pas des rôles OAuth ajoutés au produit.
 
-Le sandbox **Developer** est nécessaire aux modules JavaScript locaux,
+Dans la barre de collection, bouton **</> / JavaScript Sandbox** →\n**Developer Mode**. Ce mode est nécessaire aux modules JavaScript locaux,
 comme dans la collection précédente. Garder TLS et les protections PKCE/state
 actifs. Ne pas exporter cache OAuth, timelines, réponses Binding/invitation
 ou variables runtime sensibles.
@@ -62,7 +62,7 @@ ou variables runtime sensibles.
 ## Lancer un parcours
 
 Dans **90 - End-to-End Journeys**, clic droit sur le dossier choisi →
-**Run Folder** ; vérifier la sélection, puis **Run**. Ne pas lancer toute
+**Run** ; dans **Collection Runner**, vérifier la sélection, puis **Run**. Ne pas lancer toute
 la collection : les dossiers par domaine sont un atelier, pas une séquence
 globale. Authentifier les deux comptes avant de lancer un parcours.
 
@@ -116,7 +116,7 @@ Guest perd l'accès courant et conserve l'accès historique autorisé.
 Pour modifier les poids ou les dépenses, lire l'onglet **Docs** de la requête
 (via le chevron des onglets si masqué). Chaque requête indique ses variables
 prérequises, son identité et le résultat attendu. Modifier corps et chemin
-est permis. Pour forcer une variable d'exploration, ajouter avant work.prepare
+est permis. Pour forcer une variable d'exploration, ajouter avant l’appel prepare
 dans **Script / Pre Request**, par exemple :
 
 ~~~js

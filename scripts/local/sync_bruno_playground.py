@@ -19,7 +19,7 @@ def outputs():
     files, inventory = {}, []
     for journey in journeys:
         folder = '90 - End-to-End Journeys/'+journey['id']+' '+journey['name']
-        files[folder+'/folder.bru'] = 'meta {\n  name: '+journey['id']+' '+journey['name']+'\n  seq: '+str(len(inventory)+1)+'\n}\n\ndocs {\n  '+journey['description']+'\n  Run Folder : toutes les etapes sont visibles et editables.\n}\n'
+        files[folder+'/folder.bru'] = 'meta {\n  name: '+journey['id']+' '+journey['name']+'\n  seq: '+str(len(inventory)+1)+'\n}\n\ndocs {\n  '+journey['description']+'\n  Menu Run : toutes les etapes sont visibles et editables.\n}\n'
         for number, step in enumerate(journey['steps'],1):
             entry = sources[step['request']]
             text = (COLLECTION/entry['file']).read_text()

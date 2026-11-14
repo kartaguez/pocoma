@@ -17,7 +17,7 @@ puis **01 Login Guest** (guest). Mots de passe synthétiques locaux dans
 uniquement dans le formulaire Keycloak, sans copier de JWT.
 
 Premier parcours : **90 - End-to-End Journeys / J01 Complete Ledger and Invitation**,
-**Run Folder**. Les 66 étapes sont des requêtes explicites, éditables.
+**Run**. Les 66 étapes sont des requêtes explicites, éditables.
 J02 traite erreurs/confidentialité/idempotence ; J03 traite Unlink et réinscription.
 Pour conserver un Pot d'exploration, utiliser les dossiers par domaine ; J01/J02
 suppriment leur Pot à la fin. La CLI exécute exactement ces trois dossiers :
