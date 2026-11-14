@@ -12,9 +12,22 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import grafana as gf
 import runtime as rt
+from test_grafana_installation import verify_external
 
 
 class GrafanaContract(unittest.TestCase):
+    def test_external_inventory_distinguishes_live_attached_tsdb_and_detects_real_loss(self):
+        before=dict(containers={'other':dict(state='exited')},volumes={'outside':'same','prometheus':'old'})
+        after=dict(containers=copy.deepcopy(before['containers']),volumes={'outside':'same','prometheus':'new','added':'new'})
+        verify_external(before,after,{'prometheus':'prometheus'})
+        after['volumes']['outside']='changed'
+        with self.assertRaisesRegex(AssertionError,'external volume changed'):
+            verify_external(before,after,{'prometheus':'prometheus'})
+        del after['volumes']['prometheus']
+        after['volumes']['outside']='same'
+        with self.assertRaisesRegex(AssertionError,'volume disappeared'):
+            verify_external(before,after,{'prometheus':'prometheus'})
+
     def fixture(self, path):
         m = dict(instance='test', owner='owner', project='project', state='STOPPED', inputs='old',
                  ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})

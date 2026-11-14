@@ -12,6 +12,25 @@ import runtime as rt
 import test_gui_auth_protocol
 
 
+def attached_volumes(path, m):
+    result = {}
+    rt.ownership(m)
+    for resource in rt.compose(path, m, 'ps', '-aq').splitlines():
+        data, = rt.docker_json('inspect', resource)
+        for mount in data.get('Mounts', []):
+            if mount['Type'] == 'volume':
+                result[mount['Name']] = data['Config']['Labels']['com.docker.compose.service']
+    return result
+
+
+def verify_external(before, after, mutable_attached):
+    assert before['containers'] == after['containers'], 'An external container changed'
+    for name, digest in before['volumes'].items():
+        assert name in after['volumes'], 'A pre-existing volume disappeared: ' + name
+        if name not in mutable_attached:
+            assert after['volumes'][name] == digest, 'An external volume changed: ' + name
+
+
 def qualify(instance, fixture, output):
     if output.exists() or (rt.HOME_LOCAL/'instances'/fixture).exists() or fixture == instance:
         raise RuntimeError('Require NEW output and distinct NEW fixture')
@@ -64,6 +83,8 @@ def qualify(instance, fixture, output):
     try:
         other_before=external()
         rt.save(output/'external-before.json',other_before)
+        mutable_attached=attached_volumes(path,m)
+        rt.save(output/'attached-before.json',mutable_attached)
         original_containers = {name: rt.compose(path,m,'ps','-aq',name) for name in ('postgres','keycloak')}
         files_before={name:hashlib.sha256((path/name).read_bytes()).hexdigest() for name in ('secrets.json','demo.json')}
         rt.compose(path,m,'start','postgres')
@@ -140,8 +161,9 @@ def qualify(instance, fixture, output):
         command('destroy','fixture-destroy',target=fixture,extra=('--confirm','DESTROY:'+fixture))
         assert demo_volume==volume_hash(m['project']+'-data')
         other_after=external()
-        assert all(other_after[k].get(name)==value for k,items in other_before.items() for name,value in items.items())
+        verify_external(other_before,other_after,mutable_attached)
         rt.save(output/'external-preservation.json',dict(before=other_before,after=other_after,
+            mutableAttachedVolumes=mutable_attached,
             addedUnownedVolumes=sorted(set(other_after['volumes'])-set(other_before['volumes'])),
             demoVolumeHashWhileStopped=demo_volume,fixture='DESTROYED_ONLY_OWNED_RESOURCES'))
         command('start','demo-final-start')
@@ -167,8 +189,83 @@ def qualify(instance, fixture, output):
         raise
 
 
+def resume_cleanup(instance, previous, output):
+    """Complete only the failed inventory oracle and final restart from retained evidence.
+
+    Prior command receipts and their failed verdict remain untouched. This path
+    requires every preceding real lifecycle command to have its expected result.
+    """
+    output.mkdir(parents=True, exist_ok=False)
+    path=rt.HOME_LOCAL/'instances'/instance
+    m=rt.load_manifest(path)
+    prior=rt.read(previous/'qualification.json')
+    commands=rt.read(previous/'commands.json')
+    assert prior['verdict']=='L7_LB_GRAFANA_BLOCKED_WITH_EVIDENCE' and prior['errorClass']=='AssertionError'
+    assert commands[-1]['phase']=='fixture-destroy' and all(c['exit']==c['expected'] for c in commands)
+    assert m['state']=='STOPPED' and prior['inputs']==m['inputs']==rt.source_hash()
+    assert rt.read(previous/'metrics.json')['finitePanelQueries']==31
+    assert rt.read(previous/'native-installed.json')['verdict']=='PASS'
+    rt.ownership(m)
+    before=rt.read(previous/'external-before.json')
+    after=dict(containers={},volumes={})
+    for resource in rt.run(['docker','ps','-aq']).splitlines():
+        data,=rt.docker_json('inspect',resource)
+        if data['Config']['Labels'].get(rt.LABEL)!=m['owner']:
+            after['containers'][resource]=dict(name=data['Name'],state=data['State']['Status'],image=data['Image'])
+    for name in rt.run(['docker','volume','ls','-q']).splitlines():
+        if name==m['project']+'-data':continue
+        raw=rt.run(['docker','run','--rm','--network','none','--mount',f'type=volume,source={name},target=/proof,readonly',
+            m['images']['postgres']['digest'],'sh','-c','find /proof -type f -exec sha256sum {} \\; | sort'],timeout=120)
+        after['volumes'][name]=hashlib.sha256(raw.encode()).hexdigest()
+    mutable=attached_volumes(path,m)
+    # These surviving containers/mounts predate the prior campaign; no adoption of
+    # a new container/volume as a retrospective exception is allowed.
+    cutoff=(previous/'external-before.json').stat().st_mtime
+    from datetime import datetime
+    for resource in rt.compose(path,m,'ps','-aq').splitlines():
+        data,=rt.docker_json('inspect',resource)
+        assert datetime.fromisoformat(data['Created'].replace('Z','+00:00')).timestamp()<cutoff
+    for name in mutable:
+        data,=rt.docker_json('volume','inspect',name)
+        assert datetime.fromisoformat(data['CreatedAt'].replace('Z','+00:00')).timestamp()<cutoff
+    verify_external(before,after,mutable)
+    rt.save(output/'external-preservation.json',dict(before=before,after=after,mutableAttachedVolumes=mutable,
+        changedAttachedVolumes=[name for name,digest in before['volumes'].items() if after['volumes'][name]!=digest],
+        addedUnownedVolumes=sorted(set(after['volumes'])-set(before['volumes'])),
+        note='Only the existing demo Prometheus TSDB changes during collection; outside volume bytes and containers unchanged.'))
+    completed=[]
+    for action in ('start','status'):
+        print('Running completion '+action,flush=True)
+        argv=[str(rt.ROOT/'pocoma-local'),action,'--instance',instance]
+        result=subprocess.run(argv,text=True,capture_output=True,timeout=1800,cwd=rt.ROOT)
+        data=json.loads(result.stdout[result.stdout.index('{'):])
+        completed.append(dict(command=argv,exit=result.returncode,result=data))
+        rt.save(output/'commands.json',completed)
+        dest=output/action;dest.mkdir()
+        for name in ('receipt.json','grafana.json','keycloak-auth.json','public-requests.json','recovery-window.json'):
+            source=Path(data['evidence'])/name
+            if source.exists():shutil.copyfile(source,dest/name)
+        assert result.returncode==0 and data['state']=='READY'
+    old_proof=next(c['result']['canaryProof'] for c in reversed(commands)
+                   if c['result'].get('instance')==instance and c['result'].get('canaryProof'))
+    assert completed[0]['result']['canaryProof']['version']==old_proof['version']+1
+    assert completed[1]['result']['canaryProof']==completed[0]['result']['canaryProof']
+    assert rt.source_hash()==prior['inputs']
+    rt.save(output/'qualification.json',dict(verdict='L7_LB_GRAFANA_READY',instance=instance,inputs=prior['inputs'],
+        testedSha=rt.run(['git','rev-parse','HEAD']),dirty=bool(rt.run(['git','status','--porcelain'])),
+        prerequisiteEvidence=str(previous),prerequisiteVerdict='Lifecycle commands all match expected exits; raw inventory-oracle failure retained',
+        completed=['external containers and external volume byte hashes unchanged',
+                   'existing demo Prometheus TSDB identified by pre-existing owned container/mount; volume retained',
+                   'fixture reset/destroy and all preceding checks retained at identical production input fingerprint',
+                   'final start/status READY with fresh canary and Grafana controls'],resources='DEMO_RUNNING; FIXTURES_DESTROYED; EXTERNAL_RESOURCES_PRESERVED',
+        limitations=['No rendered UI acceptance, clean remote checkout certification or full Maven reactor.']))
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--instance',default='demo');parser.add_argument('--fixture',required=True)
     parser.add_argument('--output',type=Path,required=True)
-    args=parser.parse_args();qualify(args.instance,args.fixture,args.output.resolve())
+    parser.add_argument('--resume-cleanup',type=Path)
+    args=parser.parse_args()
+    if args.resume_cleanup:resume_cleanup(args.instance,args.resume_cleanup.resolve(),args.output.resolve())
+    else:qualify(args.instance,args.fixture,args.output.resolve())
