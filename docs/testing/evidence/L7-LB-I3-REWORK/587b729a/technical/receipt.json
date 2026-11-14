@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/julien.guezennec/Dev/projects/pocoma/scripts/bruno-v3/node_modules/.bin/bru",
+    "run",
+    "80 - Technical",
+    "-r",
+    "--env",
+    "Local",
+    "--sandbox=developer",
+    "--bail",
+    "--reporter-junit",
+    "/private/tmp/pocoma-i3-final/technical/bruno.xml"
+  ],
+  "success": true,
+  "junitPass": true,
+  "namedTests": 8,
+  "assertions": 14,
+  "httpRequests": 4
+}

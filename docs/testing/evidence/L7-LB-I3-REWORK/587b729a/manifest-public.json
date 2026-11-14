@@ -1,0 +1,73 @@
+{
+  "instance": "i3-workshop",
+  "owner": "325b57b9-b8bf-4c4f-8926-2eb556aa9c22",
+  "project": "pocoma-lb-i3-workshop-325b57b9",
+  "ports": {
+    "write": 49760,
+    "read": 49761,
+    "issuer": 49762,
+    "http-write": 49763,
+    "http-read": 49764,
+    "command-worker": 49765,
+    "results-worker": 49766,
+    "business-read-worker": 49767,
+    "metrics": 49768
+  },
+  "sha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+  "inputs": "2a78e9a1bdf883976498694cf6f6aef4efa61861a6d7d423b8e997bc227a66b0",
+  "architecture": "arm64",
+  "images": {
+    "postgres": {
+      "reference": "postgres:17.6-alpine",
+      "digest": "postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+      "id": "sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+      "architecture": "arm64"
+    },
+    "keycloak": {
+      "reference": "quay.io/keycloak/keycloak:26.7.0",
+      "digest": "quay.io/keycloak/keycloak@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+      "id": "sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+      "architecture": "arm64"
+    },
+    "jre": {
+      "reference": "eclipse-temurin:21.0.8_9-jre",
+      "digest": "eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "id": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+      "architecture": "arm64"
+    },
+    "prometheus": {
+      "reference": "prom/prometheus:v3.5.0",
+      "digest": "prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+      "id": "sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+      "architecture": "arm64"
+    }
+  },
+  "build": {
+    "command": [
+      "/Users/julien.guezennec/Dev/projects/pocoma/app/mvnw",
+      "-f",
+      "/Users/julien.guezennec/Dev/projects/pocoma/app/pom.xml",
+      "-pl",
+      "runtime-web-read,runtime-web-write,runtime-worker-materialize,runtime-worker-process",
+      "-am",
+      "package",
+      "-DskipTests"
+    ],
+    "sha": "ccd19625704853f145e1381fba39066e048335a7",
+    "inputs": "2a78e9a1bdf883976498694cf6f6aef4efa61861a6d7d423b8e997bc227a66b0",
+    "jars": {
+      "web-read": "841d1b2f97a100cd8d2547f4a2c05df61bc098b01473d051cb8cd30ca88d73f2",
+      "web-write": "05be15a7ada4e46e0715d39746bf34fb55d58440aee6e7c31b7e220f5988bc21",
+      "worker-materialize": "9e3a7c3007af6f710db80af790e46fd70fd97b1408bcf1e237b8433801af03a3",
+      "worker-process": "4002df4ad7646a721b5381a20f4e6dbedc7ed8a906598ddcfac3a9d14d53bd85"
+    },
+    "tests": "SKIPPED: packaging only"
+  },
+  "toolchain": {
+    "python": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "docker": "29.9.2/29.9.2",
+    "compose": "5.6.1",
+    "node": "v24.15.0",
+    "java": "openjdk 21 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)"
+  }
+}

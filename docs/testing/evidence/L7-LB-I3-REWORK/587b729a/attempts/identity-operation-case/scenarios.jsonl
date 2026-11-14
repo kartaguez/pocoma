@@ -1,0 +1,2 @@
+{"request":"J01-01-E00","verdict":"PASS","role":"none","assertions":5,"operation":null,"requests":[{"method":"GET","path":"/realms/pocoma/.well-known/openid-configuration","status":200}]}
+{"request":"J01-02-I01","verdict":"PASS","role":"owner","assertions":6,"operation":"Registration","requests":[{"method":"POST","path":"/api/v3/identity/requests","status":202}]}

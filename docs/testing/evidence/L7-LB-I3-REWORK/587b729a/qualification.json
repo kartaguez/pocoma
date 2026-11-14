@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS",
+  "testedSha": "587b729a7522adbb2afd2390ffb7c033c0199aa7",
+  "dirty": false,
+  "inputs": "2a78e9a1bdf883976498694cf6f6aef4efa61861a6d7d423b8e997bc227a66b0",
+  "inputsAfter": "2a78e9a1bdf883976498694cf6f6aef4efa61861a6d7d423b8e997bc227a66b0",
+  "instance": "i3-workshop",
+  "initialProject": "pocoma-lb-i3-workshop-bd769e4d",
+  "resetProject": "pocoma-lb-i3-workshop-325b57b9",
+  "qualification": "Fresh databases/realm, existing host dependency caches, canonical distribution package only; no full reactor or Java test claim",
+  "gui": "Native4.2.1 parser/request VM/test VM/HTTP transport; rendered login and runner require separate evidence",
+  "sourceHashes": {
+    "scripts/local/test_bruno_playground_installation.py": "cdc72f8319934d5b8aa4e5c87ca5721a2b714c7234bf2b3a0d72c99456b4f980",
+    "scripts/local/test_bruno_gui.js": "097dc08fbf7b971af7e2fb7055f72eac88bf3421922143cb43dca1b6635f8a6d",
+    "scripts/local/test_gui_auth_protocol.py": "f09de860bfa92dca8fc75912c8abe88271fd7318dbcabd054aaa899ebacccf4c",
+    "scripts/local/test_bruno_qualification.py": "660889d9ca80130296c31a922e4661fc98560e568a0510c19dd770b31b9d0cf4"
+  }
+}
