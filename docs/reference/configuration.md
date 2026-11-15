@@ -8,7 +8,7 @@ Tous les runtimes JVM utilisent l'image **`eclipse-temurin:21.0.8_9-jre`**, la l
 
 | Runtime | Module & Profil Spring | Ports internes (HTTP / Actuator) | Paramètres clés de concurrence et pools JDBC | Fichier source |
 | :--- | :--- | :---: | :--- | :--- |
-| `http-write` | `runtime-web-write`<br>`v3-http-admission` | `8080` / `18080` | Tomcat `maxThreads=4`, `admission.maximum=4`, pool `minimum-idle=1` | [`http-write.properties`](../../docker/v3-five-runtimes/http-write.properties) |
+| `http-write` | `runtime-web-write`<br>`v3-http-admission` | `8080` / `18080` | Tomcat `maxThreads=4`, `pocoma.v3.http.admission.capacity=4` (sémaphore d'admission + pool Hikari `v3-http-admission` `maximumPoolSize=4` / `minimumIdle=4`) | [`http-write.properties`](../../docker/v3-five-runtimes/http-write.properties) |
 | `http-read` | `runtime-web-read`<br>`v3-http-read` | `8082` / `18082` | Tomcat `maxThreads=4`, `http-permits=8` (`Q=8`), `sql-permits=8`, pool principal `maximum-pool-size=8` / `minimum-idle=8`, pool maintenance `1` | [`http-read.properties`](../../docker/v3-five-runtimes/http-read.properties) |
 | `command-worker` | `runtime-worker-process`<br>`v3-consumption-worker-dev` | — / `18083` | **JDBC pur (sans JPA/Hibernate)** ; `worker-limit=2`, `Command=2`, `IdentityRequest=2`, `write-business=4`, `write-control=8` | [`command-worker.properties`](../../docker/v3-five-runtimes/command-worker.properties) |
 | `results-worker` | `runtime-worker-materialize`<br>`v3-read-worker` | — / `18084` | `worker-limit=2`, `MaterializeCommandResult=2`, `MaterializeIdentityRequestResult=2`, `write-source-read=4`, `read-business=4`, `read-control=4` | [`results-worker.properties`](../../docker/v3-five-runtimes/results-worker.properties) |
@@ -27,7 +27,7 @@ Paramètres de coordination définis entre `ProcessSettings`, `MaterializeSettin
 | `retry-max-failures` | `3` | Nombre maximal d'échecs avant report |
 | `retry-delay-ms` | `30000` | Temporisation de réessai (**30 s**) |
 | `drain-timeout` | `90000` | Délai de drainage à l'arrêt gracieux (**90 s**) |
-| Polling workers (`min-poll` / `max-poll` / `error-poll`) | `2` / `20` / `50` | Intervalles de scrutation configurés dans les `.properties` locaux (en secondes) |
+| Polling workers (`min-poll` / `max-poll` / `error-poll`) | `2` / `20` / `50` | Intervalles de scrutation configurés dans les `.properties` locaux (**en millisecondes**, lus via `Duration.ofMillis(...)`) |
 
 > [!IMPORTANT]
 > **`30 s` = TTL du bail SQL, pas SLA de reprise de bout en bout** : la réduction des baux à `30000 ms` réduit l'attente maximale sur le bail expiré, mais le délai effectif de reprise après arrêt non gracieux dépend aussi des cycles de scrutation/acquisition des workers et de `claim-duration-ms=60000` si un slot était réclamé. Côté exploitation locale, `./pocoma-local` conserve un budget d'observation de récupération borné à **`270 s`**.

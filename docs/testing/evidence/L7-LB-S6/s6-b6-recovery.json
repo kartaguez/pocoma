@@ -1,0 +1,95 @@
+{
+  "instance": "l7lb-s6",
+  "project": "pocoma-lb-l7lb-s6-fedc9d37",
+  "pre": {
+    "state": "READY",
+    "operationalState": "OPERATIONAL",
+    "qualificationState": "QUALIFIED",
+    "admission_capacity_available": 4.0,
+    "command_count": 9,
+    "lease_count": 36
+  },
+  "during_pg_pause": {
+    "paused_at_utc": 1794778203.601768,
+    "write_probe_status": 503,
+    "write_probe_duration_s": 5.036,
+    "admission_capacity_available_after_probe": 3.0,
+    "worker_states": {
+      "command-worker": {
+        "health_code": 503,
+        "readiness_code": 200,
+        "draining_metric": 1.0
+      },
+      "results-worker": {
+        "health_code": 503,
+        "readiness_code": 200,
+        "draining_metric": 1.0
+      },
+      "business-read-worker": {
+        "health_code": 503,
+        "readiness_code": 200,
+        "draining_metric": 1.0
+      }
+    },
+    "cli_status": {
+      "exit_code": 1,
+      "state": "NOT_READY",
+      "operationalState": "UNAVAILABLE",
+      "checks": {
+        "JVM-http-write": "PASS",
+        "JVM-http-read": "PASS",
+        "JVM-command-worker": "FAIL",
+        "JVM-results-worker": "FAIL",
+        "JVM-business-read-worker": "FAIL",
+        "DB-CURRENT": "FAIL",
+        "IDP-DISCOVERY": "PASS",
+        "IDP-PKCE-SESSION": "FAIL",
+        "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+        "KEYCLOAK_ADMIN_AUTH_FAILED": "FAIL",
+        "GRAFANA-HTTP": "PASS",
+        "GRAFANA-DATASOURCE": "PASS",
+        "GRAFANA-DASHBOARD": "PASS"
+      }
+    },
+    "cli_start_while_pg_down": {
+      "exit_code": 1,
+      "stderr_tail": [],
+      "unnecessary_runtime_restarts": []
+    }
+  },
+  "recovery": {
+    "unpaused_at_utc": 1794778233.5496352,
+    "cli_start_exit_code": 0,
+    "cli_start_duration_s": 23.031,
+    "runtime_recovery_artifact": {
+      "observedAt": 1794778242.037657,
+      "reasons": {
+        "http-write": "ADMISSION_CAPACITY_DEPLETED:3.0/4",
+        "command-worker": "WORKER_HEALTH_DOWN",
+        "results-worker": "WORKER_HEALTH_DOWN",
+        "business-read-worker": "WORKER_HEALTH_DOWN"
+      },
+      "restarted": [
+        "http-write",
+        "command-worker",
+        "results-worker",
+        "business-read-worker"
+      ]
+    },
+    "post_start_state": "READY",
+    "post_start_operationalState": "OPERATIONAL",
+    "post_start_qualificationState": "QUALIFIED"
+  },
+  "post": {
+    "cli_status_exit_code": 0,
+    "state": "READY",
+    "operationalState": "OPERATIONAL",
+    "qualificationState": "QUALIFIED",
+    "admission_capacity_available": 4.0,
+    "command_count": 10,
+    "probe_partial_rows": 0,
+    "lease_count": 36,
+    "renewed_owner_tokens": 36,
+    "fencing": "PASS"
+  }
+}

@@ -37,6 +37,7 @@ RUNTIMES = {
     'results-worker': ('worker-materialize', 'v3-read-worker', 0, 18084),
     'business-read-worker': ('worker-materialize', 'v3-read-worker', 0, 18085),
 }
+WORKERS = ('command-worker', 'results-worker', 'business-read-worker')
 IMAGES = {'postgres': 'postgres:17.6-alpine', 'keycloak': 'quay.io/keycloak/keycloak:26.7.0',
           'jre': 'eclipse-temurin:21.0.8_9-jre', 'prometheus': 'prom/prometheus:v3.5.0',
           'grafana': 'grafana/grafana:12.3.2'}
@@ -518,6 +519,63 @@ def verify_acl(path, m, credentials):
             raise RuntimeError('DB-ACL:' + role)
 
 
+def configured_admission_capacity(path):
+    props = path / 'http-write.properties'
+    if not props.exists():
+        props = ROOT / 'docker/v3-five-runtimes/http-write.properties'
+    if props.exists():
+        match = re.search(r'(?m)^pocoma\.v3\.http\.admission\.capacity=(\d+)\s*$', props.read_text())
+        if match:
+            return int(match.group(1))
+    return 1
+
+
+def scrape_prometheus_text(port):
+    try:
+        with urlopen(f'http://127.0.0.1:{port}/actuator/prometheus', timeout=2) as response:
+            return response.read().decode()
+    except Exception:
+        return None
+
+
+def recover_fail_closed_runtimes(path, m, evidence):
+    """Detect already-Up runtimes stuck in fail-closed draining or depleted admission capacity and restart them once."""
+    reasons = {}
+    expected_capacity = configured_admission_capacity(path)
+    for name in RUNTIMES:
+        port = m['ports'][name]
+        try:
+            readiness = get_json(f'http://127.0.0.1:{port}/actuator/health/readiness')
+        except Exception:
+            continue
+        if readiness.get('status') != 'UP':
+            continue
+        if name in WORKERS:
+            try:
+                health = get_json(f'http://127.0.0.1:{port}/actuator/health')
+                if health.get('status') != 'UP':
+                    reasons[name] = 'WORKER_HEALTH_DOWN'
+                    continue
+            except Exception:
+                reasons[name] = 'WORKER_HEALTH_DOWN'
+                continue
+            text = scrape_prometheus_text(port)
+            if text is not None and recovery.metric(text, 'pocoma_v3_worker_state', state='draining') == 1.0:
+                reasons[name] = 'WORKER_DRAINING'
+        elif name == 'http-write':
+            text = scrape_prometheus_text(port)
+            if text is not None:
+                available = recovery.metric(text, 'pocoma_v3_admission_capacity_available')
+                if available is not None and available < expected_capacity:
+                    reasons[name] = f'ADMISSION_CAPACITY_DEPLETED:{available}/{expected_capacity}'
+    if not reasons:
+        return []
+    restarted = list(reasons)
+    save(evidence / 'runtime-recovery.json', dict(observedAt=time.time(), reasons=reasons, restarted=restarted))
+    compose(path, m, 'restart', *restarted, log=evidence / 'runtimes-recovery-restart.log')
+    return restarted
+
+
 def current(path, m, *, wait=False):
     checks = {}
     def check(name, action):
@@ -530,9 +588,18 @@ def current(path, m, *, wait=False):
         except Exception:
             checks[name] = 'FAIL'
     def healthy(name):
-        data = get_json(f'http://127.0.0.1:{m["ports"][name]}/actuator/health/readiness')
+        port = m['ports'][name]
+        data = get_json(f'http://127.0.0.1:{port}/actuator/health/readiness')
         if data.get('status') != 'UP':
             raise RuntimeError(name)
+        if name in WORKERS:
+            health = get_json(f'http://127.0.0.1:{port}/actuator/health')
+            if health.get('status') != 'UP':
+                raise RuntimeError(name + ':DRAINING')
+        if name == 'http-write':
+            text = scrape_prometheus_text(port)
+            if text is not None and recovery.metric(text, 'pocoma_v3_admission_capacity_available') == 0.0:
+                raise RuntimeError(name + ':CAPACITY_EXHAUSTED')
     for name in RUNTIMES:
         check('JVM-' + name, lambda name=name: healthy(name))
     def database():
@@ -710,7 +777,17 @@ def start(path, m, evidence):
             history['lastSuccessfulStart'] = dict(attempt)
         result.update(lastStart=dict(attempt), lastSuccessfulStart=history.get('lastSuccessfulStart'),
                       currentGeneration=result['canaryProof']['generation'], generationQualified=True,
-                      technical='AVAILABLE', businessEvidence='PROVEN', proofFreshness='FRESH')
+                      technical='AVAILABLE', businessEvidence='PROVEN', proofFreshness='FRESH',
+                      operationalState='OPERATIONAL',
+                      operational=dict(state='OPERATIONAL', servicesAvailable=True,
+                                       workersOperational=True, dependenciesAccessible=True,
+                                       observability=result.get('qualificationTools', 'AVAILABLE')),
+                      qualificationState='QUALIFIED',
+                      qualification=dict(state='QUALIFIED',
+                                         lastQualificationAt=result['canaryProof'].get('completedAt'),
+                                         lastQualificationRunId=result['canaryProof'].get('runId'),
+                                         generationQualified=True, proofFreshness='FRESH',
+                                         proofValid=True, proofAgeSeconds=0.0, maxAgeSeconds=MAX_AGE))
         return result
     except (Exception, KeyboardInterrupt) as error:
         control = str(error) if isinstance(error, (RuntimeError, Refusal)) else type(error).__name__
@@ -774,6 +851,7 @@ def start_distribution(path, m, evidence):
     m['catalogue'] = observed_catalogue
     verify_acl(path, m, credentials)
     save(path / 'manifest.json', m)
+    recover_fail_closed_runtimes(path, m, evidence)
     checks = current(path, m, wait=True)
     checks.update(auth_checks)
     if 'FAIL' in checks.values():
@@ -901,13 +979,37 @@ def status(path, m, evidence=None, diagnostic_run=None):
     if recovery.identity(before) != recovery.identity(after):
         freshness.update(generationQualified=False, demonstrated=False)
     proof = dict(proof, generationQualified=freshness['generationQualified']) if proof else None
-    result = verdict(checks, freshness['demonstrated'], observability(m), proof)
+    tools = observability(m)
+    result = verdict(checks, freshness['demonstrated'], tools, proof)
     technical = all(v == 'PASS' for k, v in checks.items() if not k.startswith('GRAFANA-'))
+    grafana_ready = all(v == 'PASS' for k, v in checks.items() if k.startswith('GRAFANA-'))
+    workers_operational = all(checks.get('JVM-' + w) == 'PASS' for w in WORKERS)
+    dependencies_accessible = (checks.get('DB-CURRENT') == 'PASS' and checks.get('IDP-DISCOVERY') == 'PASS')
+    services_available = bool(technical and grafana_ready)
+    operational_state = ('UNAVAILABLE' if not services_available else
+                         'OPERATIONAL' if tools == 'AVAILABLE' else 'DEGRADED_OBSERVABILITY')
+    qualification_state = ('QUALIFIED' if freshness['demonstrated'] else
+                           'STALE' if proof and freshness['generationQualified'] and content_valid and not freshness['fresh'] else
+                           'GENERATION_MISMATCH' if proof and not freshness['generationQualified'] else
+                           'UNQUALIFIED')
     result.update(technical='AVAILABLE' if technical else 'UNAVAILABLE',
         businessEvidence='PROVEN' if freshness['demonstrated'] else 'UNPROVEN',
         lastStart=history.get('lastStart'), lastSuccessfulStart=history.get('lastSuccessfulStart'),
         currentGeneration=after, generationQualified=freshness['generationQualified'],
-        proofFreshness='FRESH' if freshness['fresh'] else 'STALE_OR_MISSING', proofAgeSeconds=freshness['ageSeconds'])
+        proofFreshness='FRESH' if freshness['fresh'] else 'STALE_OR_MISSING', proofAgeSeconds=freshness['ageSeconds'],
+        operationalState=operational_state,
+        operational=dict(state=operational_state, servicesAvailable=services_available,
+                         workersOperational=workers_operational, dependenciesAccessible=dependencies_accessible,
+                         observability=tools),
+        qualificationState=qualification_state,
+        qualification=dict(state=qualification_state,
+                           lastQualificationAt=proof.get('completedAt') if proof else None,
+                           lastQualificationRunId=proof.get('runId') if proof else None,
+                           generationQualified=freshness['generationQualified'],
+                           proofFreshness='FRESH' if freshness['fresh'] else 'STALE_OR_MISSING',
+                           proofValid=bool(content_valid),
+                           proofAgeSeconds=freshness['ageSeconds'],
+                           maxAgeSeconds=MAX_AGE))
     if technical and not freshness['demonstrated']:
         result['business'] = 'UNPROVEN'
     if late:
@@ -1144,6 +1246,8 @@ def main():
     args = parser.parse_args()
     if args.run and args.command != 'status':
         parser.error('--run is only valid with status')
+    if args.dry_run and args.command not in ('reset', 'destroy'):
+        parser.error('--dry-run is only valid with reset or destroy')
     instance = args.instance or 'demo'
     path = evidence = m = None
     try:

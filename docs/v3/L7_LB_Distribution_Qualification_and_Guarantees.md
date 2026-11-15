@@ -1,8 +1,8 @@
 # L7-LB/S5 — Qualification finale de la distribution locale et garanties consolidées
 
-- **Mandat** : `GO_L7_LB_S5_FINAL_DISTRIBUTION_QUALIFICATION`
+- **Mandat** : `GO_L7_LB_S5_FINAL_DISTRIBUTION_QUALIFICATION` (complété par [`L7_LB_S6_Operational_Hardening_Report.md`](L7_LB_S6_Operational_Hardening_Report.md) sous `GO_L7_LB_S6_OPERATIONAL_HARDENING`)
 - **Date de qualification** : 15 novembre 2026
-- **Branche / SHA de référence** : `feat/l7-lb-local-playground` @ `5009d03a20ea781f1aa789ebd089a2174d06cecd` (code source, SQL baselines, `.properties` Docker et scripts CLI strictement inchangés)
+- **Branche / SHA de référence S5** : `feat/l7-lb-local-playground` @ `5009d03a20ea781f1aa789ebd089a2174d06cecd` (code source, SQL baselines, `.properties` Docker et scripts CLI strictement inchangés en S5 ; durcissements ciblés S6 appliqués ensuite sur base `f9c0ef64` sans modification des invariants métier ni des baselines SQL)
 - **Instance de qualification dédiée** : `l7lb-s5` (`owner=b8d3620d-8f07-4ed7-8371-4630411dffa7`, projet Compose `pocoma-lb-l7lb-s5-b8d3620d`, ports `55574..55583`), exécutée depuis un clone propre isolé puis arrêtée et détruite après collecte complète des preuves
 - **Instance protégée `demo`** : intouchée (`pocoma-lb-demo-33dd8c1d`, `490` fichiers, `9` conteneurs arrêtés et volume `pocoma-lb-demo-33dd8c1d-data` vérifiés byte à byte entre `demo-integrity-before.json` et `demo-integrity-after.json`)
 
@@ -14,7 +14,8 @@
 | **S5-B — Résilience & gestion des pannes** | **`PASS_WITH_RESERVATIONS`** | Porte B franchie (`B2..B6`) : zéro perte de commande admise, zéro double effet métier, fencing `PASS` (`100 %` de rotation `owner_token` après expiration des baux). Réserves documentées : topologie mono-worker (reprise après redémarrage, non failover multi-nœuds), écart `/actuator/health/readiness` vs `/actuator/health` sur workers en état `draining`, et verrouillage fail-closed d'admission `http-write` (`capacity=1`) après admission `UNRESOLVED` sur coupure PG. |
 | **S5-C — Performances & limites opérationnelles** | **`PASS`** | Enveloppe reproductible mesurée sur `P0` (`1 cmd/s`), `P1` (`10 cmd/s`), `P2` (`25 cmd/s` soutenus, `0` erreur) et `P3` (`50 cmd/s` demandés -> saturation d'admission à `41.37 cmd/s`, `1036` rejets fail-fast `503`, drainage `0.884 s`), `P4` ignoré par garde `C2`, plus balayage READ `Q=8` jusqu'à `1390.13 req/s` (`0` HTTP `503`). Cumul `8417` commandes sans perte ni quarantaine. |
 | **Verdict global S5** | **`L7_LB_S5_QUALIFIED_WITH_RESERVATIONS`** | La distribution locale démontre des garanties fortes de sûreté CQRS, d'idempotence, de fencing et de reproductibilité d'installation, avec des limites d'exploitation et d'auto-guérison clairement bornées et documentées. |
-| **Clôture `L7-LB`** | **Recommandée sous réserves documentées** | Aucun blocant de sûreté ni régression de données détecté sur `5009d03a20ea781f1aa789ebd089a2174d06cecd` ; les réserves identifiées relèvent de comportements fail-closed documentés, d'observabilité CLI et d'alignements mineurs de documentation. |
+| **Durcissement S6** | **`L7_LB_S6_QUALIFIED_WITH_RESERVATIONS`** | Voir [`L7_LB_S6_Operational_Hardening_Report.md`](L7_LB_S6_Operational_Hardening_Report.md) : récupération PG par `./pocoma-local start` (`23,031 s`, `0` intervention Docker), `admission.capacity=4` effectif (`0` `503` à `50 cmd/s`, enveloppe WRITE maintenue à `25 cmd/s`), séparation `operationalState` / `qualificationState`, rejet `--dry-run` hors `reset`/`destroy`. |
+| **Clôture `L7-LB`** | **Clôture recommandée (`L7_LB_CLOSURE_RECOMMENDED`)** | Critères de sortie S5 + S6 satisfaits sous les bornes documentées. |
 
 ---
 
@@ -177,6 +178,9 @@ Pics mesurés en `P3` (`docker stats --no-stream` + `/actuator/prometheus`) :
    - [`docs/reference/configuration.md`](../reference/configuration.md#L30) mentionne les paramètres `min-poll=2` / `max-poll=20` / `error-poll=50` « en secondes », alors que `ProcessSettings` et `MaterializeSettings` utilisent `Duration.ofMillis(...)` (**millisecondes**). Le même tableau omet `capacity=1` (défaut actif sur `http-write`).
    - Option `--dry-run` acceptée sans effet sur `./pocoma-local start` (active uniquement sur `reset`/`destroy`).
 6. **Sensibilité à l'espace disque hôte (Environnement)** : le seuil `PRE-DISK` (`256 MiB`) et la croissance rapide sous charge/journaux nécessitent au moins plusieurs gigaoctets libres avant campagne longue.
+
+> [!NOTE]
+> **Levées de réserves en S6** (`f9c0ef64` → S6) : les points **1** (récupération CLI après coupure PG), **2** (`pocoma.v3.http.admission.capacity=4` effectif), **3** (distinction additive `operationalState` vs `qualificationState` en cas de preuve `STALE`) et **5** (unités `min-poll`/`max-poll`/`error-poll` en ms et rejet explicite `--dry-run` hors `reset`/`destroy`) ont été corrigés et requalifiés dans [`L7_LB_S6_Operational_Hardening_Report.md`](L7_LB_S6_Operational_Hardening_Report.md) tout en conservant les mesures historiques S5 intactes ci-dessus.
 
 ---
 

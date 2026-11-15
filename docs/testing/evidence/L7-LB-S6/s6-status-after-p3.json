@@ -1,0 +1,174 @@
+{
+  "state": "READY",
+  "exit": 0,
+  "business": "AVAILABLE",
+  "canary": "AVAILABLE",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS",
+    "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+    "KEYCLOAK-ADMIN-AUTH": "PASS",
+    "KEYCLOAK-ADMIN-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-PKCE": "PASS",
+    "KEYCLOAK-GUEST-ENABLED": "PASS",
+    "KEYCLOAK-GUEST-PKCE": "PASS",
+    "KEYCLOAK-BRUNO-ENABLED": "PASS",
+    "KEYCLOAK-BRUNO-PKCE": "PASS",
+    "IDP-PKCE-SESSION": "PASS",
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "PASS",
+    "GRAFANA-DASHBOARD": "PASS"
+  },
+  "canaryProof": {
+    "potId": "0ad845c1-10e3-5a2d-98e0-23f4beefc880",
+    "version": 3,
+    "runId": "1794778235-c8dde35e",
+    "completedAt": 1794778255.192817,
+    "generationId": "55bbe6640284e32921042c78e91ca629bf42023a717f16c9353410626ae7835a",
+    "generation": {
+      "http-write": {
+        "containerId": "6d73ef5553783f27bd34d61d37c2bc2d6f264cb003caf16c8906d33067f255a0",
+        "createdAt": "2026-11-15T21:28:40.275717212Z",
+        "startedAt": "2026-11-15T21:30:42.297061838Z",
+        "running": true
+      },
+      "http-read": {
+        "containerId": "8c4a7c2dbf63c3ef49f372a7bafc4c8b9b2a685eba7bec19f2166d99e962a673",
+        "createdAt": "2026-11-15T21:28:40.275700504Z",
+        "startedAt": "2026-11-15T21:28:40.619646712Z",
+        "running": true
+      },
+      "command-worker": {
+        "containerId": "b0c7f0a736c29abbba0d3ca15971d7eae263519dc5d354f216c003053d4e2828",
+        "createdAt": "2026-11-15T21:28:40.276571296Z",
+        "startedAt": "2026-11-15T21:30:45.347474048Z",
+        "running": true
+      },
+      "results-worker": {
+        "containerId": "0e34605d57e64bbc59831d2b39fbe03615fa9b1519e9d4e24b060de788750252",
+        "createdAt": "2026-11-15T21:28:40.276599712Z",
+        "startedAt": "2026-11-15T21:30:45.273847256Z",
+        "running": true
+      },
+      "business-read-worker": {
+        "containerId": "e2927e7acc9bfc1ea3ba5b080381de7bb791ca4a3c9f7c6b01e249ca9b0c60de",
+        "createdAt": "2026-11-15T21:28:40.276416921Z",
+        "startedAt": "2026-11-15T21:30:45.315651465Z",
+        "running": true
+      }
+    },
+    "generationQualified": true
+  },
+  "observedAt": 1794778526.186305,
+  "technical": "AVAILABLE",
+  "businessEvidence": "PROVEN",
+  "lastStart": {
+    "runId": "1794778235-c8dde35e",
+    "startedAt": 1794778235.530557,
+    "state": "SUCCEEDED",
+    "sha": "f9c0ef64eb2249955e7acc7b74b9e157bf2620ba",
+    "dirty": true,
+    "completedAt": 1794778256.5621371,
+    "generationId": "55bbe6640284e32921042c78e91ca629bf42023a717f16c9353410626ae7835a"
+  },
+  "lastSuccessfulStart": {
+    "runId": "1794778235-c8dde35e",
+    "startedAt": 1794778235.530557,
+    "state": "SUCCEEDED",
+    "sha": "f9c0ef64eb2249955e7acc7b74b9e157bf2620ba",
+    "dirty": true,
+    "completedAt": 1794778256.5621371,
+    "generationId": "55bbe6640284e32921042c78e91ca629bf42023a717f16c9353410626ae7835a"
+  },
+  "currentGeneration": {
+    "http-write": {
+      "containerId": "6d73ef5553783f27bd34d61d37c2bc2d6f264cb003caf16c8906d33067f255a0",
+      "createdAt": "2026-11-15T21:28:40.275717212Z",
+      "startedAt": "2026-11-15T21:30:42.297061838Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "8c4a7c2dbf63c3ef49f372a7bafc4c8b9b2a685eba7bec19f2166d99e962a673",
+      "createdAt": "2026-11-15T21:28:40.275700504Z",
+      "startedAt": "2026-11-15T21:28:40.619646712Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "b0c7f0a736c29abbba0d3ca15971d7eae263519dc5d354f216c003053d4e2828",
+      "createdAt": "2026-11-15T21:28:40.276571296Z",
+      "startedAt": "2026-11-15T21:30:45.347474048Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "0e34605d57e64bbc59831d2b39fbe03615fa9b1519e9d4e24b060de788750252",
+      "createdAt": "2026-11-15T21:28:40.276599712Z",
+      "startedAt": "2026-11-15T21:30:45.273847256Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "e2927e7acc9bfc1ea3ba5b080381de7bb791ca4a3c9f7c6b01e249ca9b0c60de",
+      "createdAt": "2026-11-15T21:28:40.276416921Z",
+      "startedAt": "2026-11-15T21:30:45.315651465Z",
+      "running": true
+    }
+  },
+  "generationQualified": true,
+  "proofFreshness": "FRESH",
+  "proofAgeSeconds": 270.95296597480774,
+  "operationalState": "OPERATIONAL",
+  "operational": {
+    "state": "OPERATIONAL",
+    "servicesAvailable": true,
+    "workersOperational": true,
+    "dependenciesAccessible": true,
+    "observability": "AVAILABLE"
+  },
+  "qualificationState": "QUALIFIED",
+  "qualification": {
+    "state": "QUALIFIED",
+    "lastQualificationAt": 1794778255.192817,
+    "lastQualificationRunId": "1794778235-c8dde35e",
+    "generationQualified": true,
+    "proofFreshness": "FRESH",
+    "proofValid": true,
+    "proofAgeSeconds": 270.95296597480774,
+    "maxAgeSeconds": 300
+  },
+  "instance": "l7lb-s6",
+  "project": "pocoma-lb-l7lb-s6-fedc9d37",
+  "sha": "f9c0ef64eb2249955e7acc7b74b9e157bf2620ba",
+  "dirty": true,
+  "urls": {
+    "write": "http://127.0.0.1:59686",
+    "read": "http://127.0.0.1:59687"
+  },
+  "issuer": "http://localhost:59688/realms/pocoma",
+  "evidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/l7lb-s6/runs/1794778522-13c87593",
+  "keycloakAdmin": {
+    "url": "http://localhost:59688/admin/",
+    "realm": "master",
+    "username": "admin"
+  },
+  "demoUsers": {
+    "realm": "pocoma",
+    "owner": "third",
+    "guest": "guest",
+    "bruno": "bruno"
+  },
+  "credentialsConvention": "L7-LB local only: password pocoma for admin/third/guest/bruno; never production or L8.",
+  "grafana": {
+    "url": "http://127.0.0.1:59695/",
+    "username": "admin",
+    "dashboard": "Pocoma runtime",
+    "dashboardUrl": "http://127.0.0.1:59695/d/pocoma-runtime"
+  },
+  "keycloakAuthEvidence": "/Users/julien.guezennec/Dev/projects/pocoma/.pocoma-local/instances/l7lb-s6/runs/1794778522-13c87593/keycloak-auth.json"
+}
