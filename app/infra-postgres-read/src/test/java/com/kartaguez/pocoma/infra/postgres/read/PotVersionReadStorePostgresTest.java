@@ -42,7 +42,7 @@ class PotVersionReadStorePostgresTest {
         assertEquals(value(q,1,false),f.tx.read(c -> s.read(q,1,c).orElseThrow()),"fresh RC read compares the concurrent committed winner");
     }
     @Test void migrationAndPrivileges() throws Exception {
-        var f=new ReadStoreFixture(PG); assertEquals(0,f.migrate("3"));
+        var f=new ReadStoreFixture(PG); assertEquals(0,f.migrate("1"));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?, 'read_pot_version','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         assertThrows(RuntimeException.class,() -> f.oracle.update("insert into read_current_pot values (?,1)",UUID.randomUUID()));
         var p=UUID.randomUUID(); var s=new JdbcPotVersionStore(f.source,f.tx); f.write(() -> s.insertAndAdvance(value(p,1,false)));

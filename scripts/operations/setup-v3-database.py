@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Pocoma V3 — Idempotent Local PostgreSQL Initialization for V3 Observability Demonstration.
+"""Pocoma — Idempotent Local PostgreSQL Initialization for V3 Distribution.
 
 Initializes:
-1. Database `pocoma_read` if absent, with pgcrypto extension.
-2. Roles: `pocoma_write`, `pocoma_read`, `pocoma_admission`, `pocoma_react`, `pocoma_injector`.
-3. Schemas: `v3_write` in `pocoma` and `v3_read` in `pocoma_read`.
-4. Flyway migrations with required placeholders:
-   - Write: V1..V10 on v3_write in pocoma
-   - Read: V1..V7, V10 on v3_read in pocoma_read
+1. Databases `pocoma_write` and `pocoma_read` if absent, with pgcrypto extension.
+2. Roles: `pocoma_write`, `pocoma_read`, `pocoma_admission`, `pocoma_write_source_read`,
+   `pocoma_read_http`, `pocoma_read_status`, `pocoma_react`, `pocoma_injector`.
+3. Schemas: `v3_write` in `pocoma_write` and `v3_read` in `pocoma_read`.
+4. Consolidated initial baselines:
+   - Write: `db/write/migration/V1__initial_schema.sql` on `v3_write` in `pocoma_write`
+   - Read: `db/read/migration/V1__initial_schema.sql` on `v3_read` in `pocoma_read`
 5. Routing, lifecycle, discovery, identity logging, and admission SQL scripts.
 6. Dedicated SELECT grants for WRITE source, HTTP READ and READ maintenance status.
 """
@@ -128,17 +129,7 @@ def initialize_v3_write():
     psql("pocoma_write", "CREATE SCHEMA IF NOT EXISTS v3_write AUTHORIZATION pocoma;")
 
     write_migrations = [
-        "app/infra-postgres-write/src/main/resources/db/v3-pot/migration/V1__pot_components.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-pot/migration/V3__point_history_indexes.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-pot/migration/V4__write_effect_indexes.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-admission/migration/V7__public_admission.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-admission/migration/V8__admission_column_reads.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-admission/migration/V9__link_proposal.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-invitation/migration/V10__invitation_history.sql",
-        "app/infra-postgres-write/src/main/resources/db/v3-identity/migration/V11__sequential_request_publication.sql",
+        "app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql",
     ]
     apply_migrations("pocoma_write", "v3_write", "pocoma", "pocoma_write", write_migrations)
 
@@ -203,14 +194,7 @@ def initialize_v3_read():
     psql("pocoma_read", "CREATE SCHEMA IF NOT EXISTS v3_read AUTHORIZATION pocoma;")
 
     read_migrations = [
-        "app/infra-postgres-read/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V3__pot_version.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V4__pot_balance.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V5__pot_visibility.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V6__current_binding.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-invitation/migration/V10__current_invitation.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
     ]
     apply_migrations("pocoma_read", "v3_read", "pocoma", "pocoma_read", read_migrations)
 
@@ -264,12 +248,31 @@ def grant_runtime_readers():
         psql_script(database, schema, content, variables)
 
 
+def verify_compatible_target():
+    for db, schema in (("pocoma_write", "v3_write"), ("pocoma_read", "v3_read")):
+        exists = psql("pocoma", f"SELECT 1 FROM pg_database WHERE datname='{db}'")
+        if not exists:
+            continue
+        flyway_schemas = psql(
+            db,
+            "SELECT string_agg(schemaname, ',') FROM pg_tables "
+            "WHERE tablename = 'flyway_schema_history' "
+            "AND schemaname NOT IN ('pg_catalog', 'information_schema');"
+        )
+        if flyway_schemas:
+            raise RuntimeError(
+                f"INCOMPATIBLE-LEGACY-FLYWAY-HISTORY: database '{db}' contains flyway_schema_history "
+                f"in schema(s) [{flyway_schemas}]; refusing implicit baseline migration without modifying data."
+            )
+
+
 def main():
     global POSTGRES_CONTAINER
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--postgres-container", default=os.environ.get("POCOMA_POSTGRES_CONTAINER", POSTGRES_CONTAINER))
     args = parser.parse_args()
     POSTGRES_CONTAINER = args.postgres_container
+    verify_compatible_target()
     initialize_databases_and_roles()
     initialize_v3_write()
     initialize_v3_read()

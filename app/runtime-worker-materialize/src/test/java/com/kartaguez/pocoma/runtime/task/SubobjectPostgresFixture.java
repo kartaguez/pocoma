@@ -50,8 +50,8 @@ final class SubobjectPostgresFixture implements AutoCloseable {
     static final String IMAGE =
             "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73";
     static final Path ROOT = Path.of("../..").toAbsolutePath().normalize();
-    static final String V1 = "classpath:db/v3-consumption-read/migration";
-    static final String V2 = "classpath:db/v3-read-business/migration";
+    static final String V1 = "filesystem:../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration";
+    static final String V2 = "filesystem:../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration";
     final PostgreSQLContainer pg;
     final String schema = "i1_" + UUID.randomUUID().toString().replace("-", "");
     final String adminRole = schema + "_a",

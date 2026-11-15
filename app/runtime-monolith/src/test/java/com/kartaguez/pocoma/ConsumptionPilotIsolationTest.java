@@ -76,10 +76,7 @@ class ConsumptionPilotIsolationTest {
                 .schemas(schema)
                 .defaultSchema(schema)
                 .locations(
-                        "classpath:db/v3-pot/migration",
-                        "classpath:db/v3-pot-execution/migration",
-                        "classpath:db/v3-consumption-write/migration",
-                        "classpath:db/v3-identity/migration")
+                        "classpath:db/write/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",
@@ -97,7 +94,7 @@ class ConsumptionPilotIsolationTest {
                 .schemas(schema)
                 .defaultSchema(schema)
                 .locations(
-                        "classpath:db/v3-consumption-read/migration")
+                        "classpath:db/read/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

@@ -359,9 +359,7 @@ class InvitationReadPostgresTest extends InvitationFixture {
                     .schemas(fresh.schema)
                     .defaultSchema(fresh.schema)
                     .locations(
-                            "classpath:db/v3-consumption-read/migration",
-                            "classpath:db/v3-read-business/migration",
-                            "classpath:db/v3-read-invitation/migration")
+                            "classpath:db/read/migration")
                     .placeholders(
                             Map.of(
                                     "expectedDatabase",

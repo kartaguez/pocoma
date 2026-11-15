@@ -576,24 +576,17 @@ def run_destructive_reconstruction(operation_id, operator_id, read_url, is_recov
     transition("MAINTENANCE", "MAINTENANCE", "SCHEMA_CREATED", operation_id, operator_id)
     print("   ✓ Clean schema v3_read created and verified (phase: SCHEMA_CREATED).")
 
-    # Step 8: Apply Canonical Versioned Migrations
-    print("8. Applying canonical versioned DDL migration scripts (V1..V7, V10)...")
+    # Step 8: Apply Canonical Baseline Migration
+    print("8. Applying canonical READ baseline DDL (V1__initial_schema.sql)...")
     read_migrations = [
-        "app/infra-postgres-read/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V2__subobject_version.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V3__pot_version.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V4__pot_balance.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V5__pot_visibility.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V6__current_binding.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-business/migration/V7__terminal_results.sql",
-        "app/infra-postgres-read/src/main/resources/db/v3-read-invitation/migration/V10__current_invitation.sql",
+        "app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql",
     ]
     apply_migrations(READ_DB, READ_SCHEMA, POSTGRES_ADMIN_USER, READ_ROLE, read_migrations)
     if not check_tables_exist(CANONICAL_MIGRATION_TABLES):
         print("FATAL: Postcondition failed: Not all canonical migration tables were created!", file=sys.stderr)
         return 1
     transition("MAINTENANCE", "MAINTENANCE", "MIGRATED", operation_id, operator_id)
-    print("   ✓ Migrations V1..V7, V10 applied and 14 tables verified (phase: MIGRATED).")
+    print("   ✓ Baseline V1__initial_schema.sql applied and 14 tables verified (phase: MIGRATED).")
 
     # Step 9-10: Bootstrap Routing and Initialize Checkpoints
     print("9. Bootstrapping routing contracts and permissions...")

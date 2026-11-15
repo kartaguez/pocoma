@@ -39,7 +39,7 @@ class ReadConsumptionLifecyclePrivilegesPostgresTest {
                 .dataSource(source)
                 .schemas(schema)
                 .defaultSchema(schema)
-                .locations("classpath:db/v3-consumption-read/migration")
+                .locations("classpath:db/read/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

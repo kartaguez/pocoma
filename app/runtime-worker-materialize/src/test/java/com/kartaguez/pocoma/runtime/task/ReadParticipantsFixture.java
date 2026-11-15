@@ -51,7 +51,7 @@ final class ReadParticipantsFixture implements AutoCloseable {
     ReadParticipantsFixture(PostgreSQLContainer pg,String scenario,int workerLimit) throws Exception {
         f=new InterAuthorityPostgresFixture(pg,"L4-"+scenario);
         Flyway.configure().dataSource(f.read.admin).schemas(f.read.schema).defaultSchema(f.read.schema).createSchemas(false)
-            .locations("classpath:db/v3-consumption-read/migration","classpath:db/v3-read-business/migration")
+            .locations("classpath:db/read/migration")
             .placeholders(Map.of("expectedDatabase",pg.getDatabaseName(),"expectedSchema",f.read.schema,"expectedAdmin",f.read.adminRole,"expectedRuntime",f.read.runtimeRole)).load().migrate();
         f.read.script("grant-l2-discovery.sql",Map.of("runtime_role",f.read.runtimeRole,"reactivation_role",f.read.reactivationRole));
         pot=f.publish(); identityRequest=publishIdentity(new IdentityRequest.Registration(),null);

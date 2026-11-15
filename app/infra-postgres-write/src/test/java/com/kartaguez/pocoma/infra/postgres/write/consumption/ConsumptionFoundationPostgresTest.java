@@ -88,13 +88,10 @@ class ConsumptionFoundationPostgresTest {
                 .locations(
                         l2
                                 ? new String[] {
-                                    "classpath:db/v3-pot/migration",
-                                    "classpath:db/v3-pot-execution/migration",
-                                    "classpath:db/v3-consumption-write/migration"
+                                    "classpath:db/write/migration"
                                 }
                                 : new String[] {
-                                    "classpath:db/v3-pot/migration",
-                                    "classpath:db/v3-pot-execution/migration"
+                                    "classpath:db/write/migration"
                                 })
                 .placeholders(values)
                 .load();

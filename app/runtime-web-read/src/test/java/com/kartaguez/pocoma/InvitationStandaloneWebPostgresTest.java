@@ -32,9 +32,7 @@ class InvitationStandaloneWebPostgresTest {
                 .schemas(f.schema)
                 .defaultSchema(f.schema)
                 .locations(
-                        "classpath:db/v3-consumption-read/migration",
-                        "classpath:db/v3-read-business/migration",
-                        "classpath:db/v3-read-invitation/migration")
+                        "classpath:db/read/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

@@ -80,7 +80,7 @@ class PotHistoryPostgresTest {
                         .defaultSchema(schema)
                         .schemas(schema)
                         .createSchemas(true)
-                        .locations("classpath:db/v3-pot/migration")
+                        .locations("classpath:db/write/migration")
                         .cleanDisabled(true)
                         .load();
         flyway.migrate();

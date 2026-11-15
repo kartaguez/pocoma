@@ -14,7 +14,8 @@ ROLES = ('pocoma_write', 'pocoma_read', 'pocoma_admission', 'pocoma_write_source
 
 
 def fingerprint():
-    paths = sorted({*ROOT.glob('app/infra-postgres-*/src/main/resources/db/v3-*/**/*.sql'),
+    paths = sorted({*ROOT.glob('app/infra-postgres-write/src/main/resources/db/write/migration/*.sql'),
+                    *ROOT.glob('app/infra-postgres-read/src/main/resources/db/read/migration/*.sql'),
                     *ROOT.glob('scripts/v3/*.sql'),
                     ROOT / 'scripts/operations/setup-v3-database.py', Path(__file__)})
     return hashlib.sha256(''.join(str(p.relative_to(ROOT)) + ':' +
@@ -22,7 +23,36 @@ def fingerprint():
                                  for p in paths).encode()).hexdigest()
 
 
+def verify_compatible_state(sql, expected):
+    """Refuse legacy Flyway or incompatible pre-existing schemas before any mutation."""
+    for db, schema in (('pocoma_write', 'v3_write'), ('pocoma_read', 'v3_read')):
+        exists = sql('pocoma', f"SELECT 1 FROM pg_database WHERE datname='{db}';")
+        if exists.strip() != '1':
+            continue
+        flyway = sql(db, "SELECT string_agg(schemaname, ',') FROM pg_tables "
+                         "WHERE tablename = 'flyway_schema_history' "
+                         "AND schemaname NOT IN ('pg_catalog', 'information_schema');")
+        if flyway.strip():
+            raise RuntimeError(
+                f"INCOMPATIBLE-LEGACY-FLYWAY-HISTORY: database '{db}' contains flyway_schema_history "
+                f"in schema(s) [{flyway.strip()}]; refusing implicit baseline migration without modifying data."
+            )
+        marker = sql(db, "SELECT to_regclass('public.pocoma_local_bootstrap') IS NOT NULL;")
+        if marker.strip() == 't':
+            if sql(db, 'SELECT fingerprint FROM public.pocoma_local_bootstrap;').strip() != expected:
+                raise RuntimeError('DB-INPUT-DRIFT')
+        else:
+            existing = sql(db, f"SELECT string_agg(tablename, ',') FROM pg_tables WHERE schemaname = '{schema}';")
+            if existing.strip():
+                raise RuntimeError(
+                    f"INCOMPATIBLE-EXISTING-SCHEMA: database '{db}' schema '{schema}' already contains "
+                    f"tables without matching baseline marker; refusing implicit migration without modifying data."
+                )
+
+
 def initialize(sql, passwords):
+    expected = fingerprint()
+    verify_compatible_state(sql, expected)
     spec = importlib.util.spec_from_file_location('existing_bootstrap', ROOT / 'scripts/operations/setup-v3-database.py')
     helper = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helper)
@@ -61,7 +91,6 @@ def initialize(sql, passwords):
     helper.initialize_v3_write()
     helper.initialize_v3_read()
     helper.grant_runtime_readers()
-    expected = fingerprint()
     for db, statements in pending.items():
         marker = sql(db, "SELECT to_regclass('public.pocoma_local_bootstrap') IS NOT NULL;")
         if marker.strip() == 't':

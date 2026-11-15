@@ -127,7 +127,7 @@ final class CompositionHttpFixture implements AutoCloseable {
         root.execute("create extension if not exists pg_stat_statements with schema public");
         root.execute("create role " + role + " login password 'ephemeral-i1-fixture'");
         Flyway.configure().dataSource(url, pg.getUsername(), pg.getPassword()).schemas(schema).defaultSchema(schema)
-            .locations("classpath:db/v3-consumption-read/migration", "classpath:db/v3-read-business/migration")
+            .locations("classpath:db/read/migration")
             .placeholders(Map.of("expectedDatabase", "i1_read", "expectedSchema", schema, "expectedAdmin", pg.getUsername(), "expectedRuntime", role)).load().migrate();
         var ds = new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword()); admin = new JdbcTemplate(ds);
         // Fixture HTTP role can only SELECT; injector and independent observer retain separate
@@ -185,11 +185,7 @@ final class CompositionHttpFixture implements AutoCloseable {
                 .schemas(admissionSchema)
                 .defaultSchema(admissionSchema)
                 .locations(
-                        "classpath:db/v3-pot/migration",
-                        "classpath:db/v3-pot-execution/migration",
-                        "classpath:db/v3-consumption-write/migration",
-                        "classpath:db/v3-identity/migration",
-                        "classpath:db/v3-admission/migration")
+                        "classpath:db/write/migration")
                 .placeholders(
                         Map.of(
                                 "expectedDatabase",

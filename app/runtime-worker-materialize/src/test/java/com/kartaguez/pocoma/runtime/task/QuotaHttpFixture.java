@@ -78,7 +78,7 @@ final class QuotaHttpFixture implements AutoCloseable {
         root.execute("create extension if not exists pg_stat_statements with schema public");
         root.execute("create role " + role + " login password 'ephemeral-i1-fixture'");
         Flyway.configure().dataSource(url, pg.getUsername(), pg.getPassword()).schemas(schema).defaultSchema(schema)
-            .locations("classpath:db/v3-consumption-read/migration", "classpath:db/v3-read-business/migration")
+            .locations("classpath:db/read/migration")
             .placeholders(Map.of("expectedDatabase", "i1_read", "expectedSchema", schema, "expectedAdmin", pg.getUsername(), "expectedRuntime", role)).load().migrate();
         var ds = new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword()); admin = new JdbcTemplate(ds);
         new com.kartaguez.pocoma.infra.postgres.read.maintenance.JdbcReadMaintenanceAuthority(admin)
