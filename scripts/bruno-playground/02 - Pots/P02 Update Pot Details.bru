@@ -48,6 +48,7 @@ tests {
 }
 
 docs {
+  Sequence manuelle : P01 Create Pot -> 05 - Results / R01 Command Result -> P02 -> R01 -> P04. potVersion doit etre positive ; observedVersion: 0 est refuse avec INVALID_INPUT.
   UpdatePotDetails : 202 avec requestId seulement. Ouvrir R01 Command Result pour connaitre le resultat metier et actualiser potVersion. Createur ou membre actif ; binding courant, version observee et references valides.
   Identite : actor. Prerequis : potId, potVersion.
   Chaque Send appelle la methode et le corps visibles. Les GET asynchrones attendent

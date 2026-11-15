@@ -42,6 +42,12 @@ avant le GET affiché. Les POST ne déclenchent aucune autre mutation.
 Aucun token dans les environnements. Binding, invitation et replay sont des
 variables runtime sensibles : ne pas exporter les variables, réponses ou timelines.
 
+En exploration manuelle : **P01 Create Pot → 05 - Results / R01 Command Result →
+P02 Update Pot Details → R01 → P04 Read Current Pot**. P01 répond 202 et laisse
+`potVersion` à 0 ; R01 récupère le résultat métier et renseigne sa version positive.
+Sans cette lecture, `observedVersion: 0` entraîne `INVALID_INPUT` sur la modification.
+Le script bloque désormais cet envoi et indique le prérequis manquant.
+
 Maintenance : modifier les .bru par domaine, puis composer les parcours :
 
     python3 -B scripts/local/sync_bruno_playground.py

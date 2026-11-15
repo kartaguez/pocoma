@@ -58,6 +58,37 @@ async function main(){
  results.push({name:'Installed VM : cold native cache gives login instructions',verdict:'PASS'});
  await assert.rejects(()=>work.prepare(bru(cache()),new Request({method:'GET',url:envVariables.readUrl+'/api/v3/pots/abc',headers:{}}),{kind:'pot',role:'guest',binding:true}),/Prerequis absent : bindingGuest/);
  results.push({name:'No hidden Registration to repair missing binding',verdict:'PASS'});
+ const potSession=bru(cache());
+ potSession.setVar('potId',crypto.randomUUID());potSession.setVar('bindingOwner','synthetic-binding');
+ potSession.setVar('commandRequestId',crypto.randomUUID());potSession.setVar('commandRole','owner');
+ potSession.setVar('commandOperation','CreatePot');potSession.setVar('commandOutcome','COMPLETED');
+ const updateFile=collection+'/02 - Pots/P02 Update Pot Details.bru';
+ const update=lang.bruToJsonV2(fs.readFileSync(updateFile,'utf8'));
+ const updateRequest=()=>({method:'POST',url:update.http.url,headers:{'Content-Type':'application/json'},
+  data:update.body.json,body:{mode:'json'},oauth2CredentialVariables:cache(),pathname:updateFile});
+ // P01 is an admission only: P02 must not replace its requestId before R01.
+ await assert.rejects(()=>runtime.runRequestScript(collectionScript+'\n'+update.script.req,updateRequest(),envVariables,potSession.getAllVars(),collection,undefined,{},{},undefined,{}),/R01 Command Result/);
+ results.push({name:'Installed VM : P02 before R01 gives actionable prerequisite',verdict:'PASS'});
+ await work.prepare(potSession,new Request({method:'GET',url:envVariables.readUrl+'/api/v3/pots/'+potSession.getVar('potId'),headers:{}}),
+  {kind:'pot',role:'owner',requires:['potId','potVersion']});
+ results.push({name:'Pot reads still accept minVersion zero',verdict:'PASS'});
+ await work.prepare(potSession,new Request({method:'POST',url:envVariables.writeUrl+'/api/v3/commands',headers:{}}),
+  {kind:'commandAdmission',operation:'CreateInvitation',role:'owner',requires:['potId','potVersion']});
+ results.push({name:'Invitation admission still accepts observation zero',verdict:'PASS'});
+ const TestRuntime=require(asar+'/node_modules/@usebruno/js/src/runtime/test-runtime');
+ const result=lang.bruToJsonV2(fs.readFileSync(collection+'/05 - Results/R01 Command Result.bru','utf8'));
+ const terminal=await new TestRuntime({runtime:'nodevm'}).runTests(result.tests,
+  {method:'GET',url:envVariables.readUrl+'/api/v3/commands/'+potSession.getVar('commandRequestId')+'/result',headers:{}},
+  {status:200,headers:{'cache-control':'no-store'},data:{requestId:potSession.getVar('commandRequestId'),operation:'CreatePot',outcome:'COMPLETED',resultingPotVersion:1}},
+  envVariables,potSession.getAllVars(),collection,undefined,{},{},undefined,{});
+ assert.ok(terminal.results.every(r=>r.status==='pass'));
+ const edited=updateRequest();
+ const prepared=await runtime.runRequestScript(collectionScript+'\n'+update.script.req,edited,envVariables,terminal.runtimeVariables,collection,undefined,{},{},undefined,{});
+ const resolved=new Bru({runtime:'nodevm',envVariables,runtimeVariables:prepared.runtimeVariables});
+ const body=JSON.parse(resolved.interpolate(edited.data));
+ assert.equal(body.operation,'UpdatePotDetails');assert.equal(body.observedVersion,1);
+ assert.equal(body.potId,potSession.getVar('potId'));assert.equal(body.payload.label,'Voyage Bruno modifie');
+ results.push({name:'Installed VMs : R01 propagates positive version to P02 visible JSON',verdict:'PASS'});
  let protocol;
  if(process.env.POCOMA_GUI_TEST_OWNER){
   const TestRuntime=require(asar+'/node_modules/@usebruno/js/src/runtime/test-runtime');

@@ -110,6 +110,11 @@ résultat actualise potVersion. Une modification de payload reçoit une nouvelle
 clé d'idempotence ; **A04 Replay Same Intention** reprend explicitement
 la dernière intention mémorisée avec son ancienne clé.
 
+**R01 est indispensable entre P01 et P02** : la réponse202 de création ne
+fournit qu'un requestId et laisse potVersion à0. Une modification avec
+observedVersion:0 est refusée par l'API avec INVALID_INPUT. Le pre-request
+signale cette version absente et indique R01 avant tout envoi de la modification.
+
 Pour inviter : préparer Guest avec **I04 → I05 → I06**, ajouter les places
 avec **S01 → R01 → P04**, puis **V01 → R01 → V02 → V03 → V04 → R01**.
 **V02 Retrieve Private Invitation** conserve le secret en mémoire ; il n'est
@@ -195,6 +200,7 @@ méthodes/chemins/statuts/comptages. PASS CLI ne valide pas l'expérience GUI.
 | Session owner/guest absente, expirée ou invalide | Connexion nommée → Auth → Get Access Token ; revenir à la requête |
 | Deux identités distinctes requises | Guest → Clear Cache → Get Access Token, compte guest |
 | Prerequis absent | Lire Docs ; effectuer admission/résultat/binding indiqué ou choisir un objet existant |
+| Version du Pot absente ou invalide / INVALID_INPUT sur P02 avec observedVersion:0 | Après P01, envoyer 05 - Results / R01 Command Result ; vérifier COMPLETED et une resultingPotVersion positive, puis P02 → R01 → P04 |
 | 404 résultat puis timeout | Conserver requestId, consulter status ; ne pas réadmettre aveuglément |
 | REJECTED / OBSOLETE ou INVALID_BINDING | Relire binding/Pot ; comprendre le refus avant une nouvelle intention |
 | B03 sans nextCursor | Fin de pagination normale ; pas de page suivante inexistante |

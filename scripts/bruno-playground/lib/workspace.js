@@ -43,6 +43,12 @@ exports.prepare = async function (bru, req, options) {
     for (const key of ['potId','shareholderOwnerId','shareholderGuestId','expenseId']) bru.setVar(key,crypto.randomUUID());
   }
   for (const name of options.requires || []) required(bru,name);
+  if (options.kind === 'commandAdmission' && (options.requires || []).includes('potVersion') &&
+      !['CreatePot','CreateInvitation','AttachShareholderViaInvitation'].includes(options.operation)) {
+    const version = Number(bru.getVar('potVersion'));
+    if (!Number.isSafeInteger(version) || version <= 0)
+      throw new Error('Version du Pot absente ou invalide : executer 05 - Results / R01 Command Result apres P01 Create Pot et apres chaque commande, puis relancer la requete. Un HTTP 202 confirme seulement l admission.');
+  }
   const role = roleOf(bru,options.role);
   bru.setVar('_requestRole',role);
   if (role !== 'none') {
