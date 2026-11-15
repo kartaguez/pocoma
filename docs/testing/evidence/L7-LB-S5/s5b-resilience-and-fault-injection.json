@@ -1,0 +1,834 @@
+{
+  "captured_at_utc": "2026-11-15T20:20:38.590367+00:00",
+  "phase": "S5-B",
+  "instance": "l7lb-s5",
+  "project": "pocoma-lb-l7lb-s5-b8d3620d",
+  "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+  "resilience_pots": [
+    "1fa5ee6d-0555-4e29-9c05-98e7aacba3a0",
+    "c7c99f63-ea86-4b22-89b7-ceac049a1981",
+    "13bbb27f-cc02-4f63-8ff9-2785e81873b6",
+    "673db86e-1944-427c-ba87-f1212e84e1b5",
+    "8ba2697b-1087-4c1e-a57a-8105e505c96b",
+    "6871392b-6cd9-4583-aa5a-097f4e5f441f",
+    "a50e34ba-9be8-4b06-9d01-f57d085ca1a3",
+    "5ae9de1f-f791-4cd4-8a21-e02a02b44c4f"
+  ],
+  "pre_baseline": {
+    "sql": {
+      "write": {
+        "commands_total": 149,
+        "commands_pending": 0,
+        "commands_terminal": 149,
+        "command_results": 149,
+        "completion_events": 149,
+        "pot_headers": 35,
+        "pot_events": 144,
+        "slots_available": 0,
+        "slots_quarantined": 0,
+        "active_leases": 8
+      },
+      "read": {
+        "read_command_result": 149,
+        "read_pot_version": 144,
+        "read_pot_balance": 140,
+        "read_pot_visibility_state": 31,
+        "read_current_pot": 31,
+        "results_slots_available": 0,
+        "business_read_slots_available": 0,
+        "slots_quarantined": 0,
+        "results_active_leases": 8,
+        "business_read_active_leases": 20
+      }
+    },
+    "health": {
+      "http-write": {
+        "code": 200,
+        "status": "UP"
+      },
+      "http-read": {
+        "code": 200,
+        "status": "UP"
+      },
+      "command-worker": {
+        "code": 200,
+        "status": "UP"
+      },
+      "results-worker": {
+        "code": 200,
+        "status": "UP"
+      },
+      "business-read-worker": {
+        "code": 200,
+        "status": "UP"
+      }
+    },
+    "readiness": {
+      "http-write": {
+        "code": 200,
+        "status": "UP"
+      },
+      "http-read": {
+        "code": 200,
+        "status": "UP"
+      },
+      "command-worker": {
+        "code": 200,
+        "status": "UP"
+      },
+      "results-worker": {
+        "code": 200,
+        "status": "UP"
+      },
+      "business-read-worker": {
+        "code": 200,
+        "status": "UP"
+      }
+    },
+    "status": "READY",
+    "requalified_generation": true
+  },
+  "scenarios": {
+    "B2": {
+      "scenario": "B2_command_worker_sigkill",
+      "topology_note": "Single command-worker runtime instance covering all 8 WRITE partitions; demonstrates crash and same-worker restart after lease TTL expiry, NOT multi-node active failover.",
+      "container_killed": "929ac57f66d2",
+      "exit_code_observed": 137,
+      "t_fault_utc": "2026-11-15T20:16:10.274076+00:00",
+      "detection_probe": {
+        "code": null,
+        "status": "URLError"
+      },
+      "idempotent_replay_verified": true,
+      "during_outage_sql": {
+        "write": {
+          "commands_total": 173,
+          "commands_pending": 8,
+          "commands_terminal": 165,
+          "command_results": 165,
+          "completion_events": 165,
+          "pot_headers": 43,
+          "pot_events": 160,
+          "slots_available": 0,
+          "slots_quarantined": 0,
+          "active_leases": 8
+        },
+        "read": {
+          "read_command_result": 165,
+          "read_pot_version": 160,
+          "read_pot_balance": 156,
+          "read_pot_visibility_state": 39,
+          "read_current_pot": 39,
+          "results_slots_available": 0,
+          "business_read_slots_available": 0,
+          "slots_quarantined": 0,
+          "results_active_leases": 8,
+          "business_read_active_leases": 20
+        }
+      },
+      "during_outage_leases_still_held_count": 8,
+      "pre_expiry_fencing_checks": [
+        {
+          "elapsed_since_call_s": 6.469,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 13.512
+        },
+        {
+          "elapsed_since_call_s": 6.934,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 13.056
+        },
+        {
+          "elapsed_since_call_s": 7.389,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 12.593
+        },
+        {
+          "elapsed_since_call_s": 7.85,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 12.135
+        },
+        {
+          "elapsed_since_call_s": 8.317,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 11.67
+        }
+      ],
+      "status_before_cli_requalify": {
+        "state": "NOT_READY",
+        "exit": 1,
+        "technical": "AVAILABLE",
+        "business": "UNPROVEN",
+        "businessEvidence": "UNPROVEN",
+        "generationQualified": false,
+        "proofFreshness": "FRESH",
+        "checks_passed": 20,
+        "checks_total": 20
+      },
+      "fencing": {
+        "total_partitions": 8,
+        "changed_owner_tokens": 8,
+        "unchanged_owner_tokens": 0,
+        "pre_min_owned_until_epoch": 1794773793.964908,
+        "pre_max_owned_until_epoch": 1794773793.964908,
+        "first_new_lease_observed_epoch": 1794773793.99311,
+        "waited_past_earliest_old_expiry": true,
+        "verdict": "PASS"
+      },
+      "metrics_b7": {
+        "instant_panne_utc": "2026-11-15T20:16:10.274076+00:00",
+        "detection_s": 0.155,
+        "outage_before_restart_s": 3.632,
+        "reprise_composant_s": 6.469,
+        "acquisition_nouveau_lease_depuis_panne_s": 23.719,
+        "acquisition_nouveau_lease_depuis_restart_s": 20.087,
+        "reprise_traitement_utile_depuis_restart_s": 20.087,
+        "retour_ready_cli_depuis_restart_s": 38.074,
+        "qualify_generation_cli_duration_s": 13.168,
+        "backlog_maximal_write_commands": 8,
+        "temps_drainage_depuis_restart_s": 20.568,
+        "perte_observee": false,
+        "double_effet_observe": false,
+        "fencing": "PASS"
+      }
+    },
+    "B3": {
+      "scenario": "B3_results_worker_sigkill",
+      "container_killed": "bee830637717",
+      "exit_code_observed": 137,
+      "t_fault_utc": "2026-11-15T20:16:56.650747+00:00",
+      "detection_probe": {
+        "code": null,
+        "status": "URLError"
+      },
+      "decoupled_behavior_while_dead": {
+        "during_outage_sql": {
+          "write": {
+            "commands_total": 182,
+            "commands_pending": 0,
+            "commands_terminal": 182,
+            "command_results": 182,
+            "completion_events": 182,
+            "pot_headers": 43,
+            "pot_events": 177,
+            "slots_available": 0,
+            "slots_quarantined": 0,
+            "active_leases": 8
+          },
+          "read": {
+            "read_command_result": 174,
+            "read_pot_version": 177,
+            "read_pot_balance": 173,
+            "read_pot_visibility_state": 39,
+            "read_current_pot": 39,
+            "results_slots_available": 0,
+            "business_read_slots_available": 0,
+            "slots_quarantined": 0,
+            "results_active_leases": 8,
+            "business_read_active_leases": 20
+          }
+        },
+        "http_result_endpoint_status_while_dead": 401,
+        "pot0_business_read_version_already_materialized": 4
+      },
+      "pre_expiry_fencing_checks": [
+        {
+          "elapsed_since_call_s": 5.244,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 14.079
+        },
+        {
+          "elapsed_since_call_s": 5.942,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 13.623
+        },
+        {
+          "elapsed_since_call_s": 6.402,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 13.157
+        },
+        {
+          "elapsed_since_call_s": 6.881,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 12.686
+        },
+        {
+          "elapsed_since_call_s": 7.331,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 12.231
+        }
+      ],
+      "status_before_cli_requalify": {
+        "state": "NOT_READY",
+        "exit": 1,
+        "technical": "AVAILABLE",
+        "business": "UNPROVEN",
+        "businessEvidence": "UNPROVEN",
+        "generationQualified": false,
+        "proofFreshness": "FRESH",
+        "checks_passed": 20,
+        "checks_total": 20
+      },
+      "fencing": {
+        "total_partitions": 8,
+        "changed_owner_tokens": 8,
+        "unchanged_owner_tokens": 0,
+        "pre_min_owned_until_epoch": 1794773837.369515,
+        "pre_max_owned_until_epoch": 1794773837.369515,
+        "first_new_lease_observed_epoch": 1794773837.774466,
+        "waited_past_earliest_old_expiry": true,
+        "verdict": "PASS"
+      },
+      "metrics_b7": {
+        "instant_panne_utc": "2026-11-15T20:16:56.650747+00:00",
+        "detection_s": 0.167,
+        "outage_before_restart_s": 1.081,
+        "reprise_composant_s": 5.244,
+        "acquisition_nouveau_lease_depuis_panne_s": 21.124,
+        "acquisition_nouveau_lease_depuis_restart_s": 20.042,
+        "reprise_traitement_utile_depuis_restart_s": 19.561,
+        "retour_ready_cli_depuis_restart_s": 37.961,
+        "qualify_generation_cli_duration_s": 13.372,
+        "backlog_maximal_results_slots": 2,
+        "temps_drainage_depuis_restart_s": 20.042,
+        "perte_observee": false,
+        "double_effet_observe": false,
+        "fencing": "PASS"
+      }
+    },
+    "B4": {
+      "scenario": "B4_business_read_worker_sigkill",
+      "container_killed": "338214d90394",
+      "exit_code_observed": 137,
+      "t_fault_utc": "2026-11-15T20:17:39.947357+00:00",
+      "detection_probe": {
+        "code": null,
+        "status": "URLError"
+      },
+      "decoupled_behavior_while_dead": {
+        "during_outage_sql": {
+          "write": {
+            "commands_total": 191,
+            "commands_pending": 0,
+            "commands_terminal": 191,
+            "command_results": 191,
+            "completion_events": 191,
+            "pot_headers": 43,
+            "pot_events": 186,
+            "slots_available": 0,
+            "slots_quarantined": 0,
+            "active_leases": 8
+          },
+          "read": {
+            "read_command_result": 191,
+            "read_pot_version": 178,
+            "read_pot_balance": 174,
+            "read_pot_visibility_state": 39,
+            "read_current_pot": 39,
+            "results_slots_available": 0,
+            "business_read_slots_available": 0,
+            "slots_quarantined": 0,
+            "results_active_leases": 8,
+            "business_read_active_leases": 20
+          }
+        },
+        "result_available_while_read_down": true,
+        "http_read_pot_version_while_dead": 4,
+        "coherent_pre_version_across_all_read_tables": true
+      },
+      "pre_expiry_fencing_checks": [
+        {
+          "elapsed_since_call_s": 5.091,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 16.482
+        },
+        {
+          "elapsed_since_call_s": 5.97,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 16.026
+        },
+        {
+          "elapsed_since_call_s": 6.437,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 15.558
+        },
+        {
+          "elapsed_since_call_s": 6.902,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 15.09
+        },
+        {
+          "elapsed_since_call_s": 7.361,
+          "lease_gauge": {
+            "read": 0,
+            "write": 0
+          },
+          "new_owner_tokens": 0,
+          "min_old_ttl_remaining_s": 14.631
+        }
+      ],
+      "status_before_cli_requalify": {
+        "state": "NOT_READY",
+        "exit": 1,
+        "technical": "AVAILABLE",
+        "business": "UNPROVEN",
+        "businessEvidence": "UNPROVEN",
+        "generationQualified": false,
+        "proofFreshness": "FRESH",
+        "checks_passed": 20,
+        "checks_total": 20
+      },
+      "fencing": {
+        "total_partitions": 20,
+        "changed_owner_tokens": 20,
+        "unchanged_owner_tokens": 0,
+        "pre_min_owned_until_epoch": 1794773883.200762,
+        "pre_max_owned_until_epoch": 1794773883.204094,
+        "first_new_lease_observed_epoch": 1794773883.509482,
+        "waited_past_earliest_old_expiry": true,
+        "verdict": "PASS"
+      },
+      "metrics_b7": {
+        "instant_panne_utc": "2026-11-15T20:17:39.947357+00:00",
+        "detection_s": 0.158,
+        "outage_before_restart_s": 1.187,
+        "reprise_composant_s": 5.091,
+        "acquisition_nouveau_lease_depuis_panne_s": 23.562,
+        "acquisition_nouveau_lease_depuis_restart_s": 22.375,
+        "reprise_traitement_utile_depuis_restart_s": 22.375,
+        "retour_ready_cli_depuis_restart_s": 47.129,
+        "qualify_generation_cli_duration_s": 19.362,
+        "backlog_maximal_business_read_slots": 3,
+        "temps_drainage_depuis_restart_s": 22.873,
+        "perte_observee": false,
+        "double_effet_observe": false,
+        "fencing": "PASS"
+      }
+    },
+    "B5a": {
+      "scenario": "B5a_http_write_sigkill",
+      "container_killed": "335bde9cdef1",
+      "exit_code_observed": 137,
+      "outage_effects": {
+        "write_post_during_outage": {
+          "code": null,
+          "detail": "API-NETWORK-ERROR:POST:/commands"
+        },
+        "http_read_during_write_outage_status": 200,
+        "workers_leases_unaffected": {
+          "command": {
+            "read": 0,
+            "write": 8
+          },
+          "results": {
+            "read": 8,
+            "write": 0
+          },
+          "business-read": {
+            "read": 20,
+            "write": 0
+          }
+        },
+        "sql_leases_while_write_down": {
+          "write": 8,
+          "results": 8,
+          "business_read": 20
+        }
+      },
+      "auth_check_after_restart_anon_status": 401,
+      "status_before_cli_requalify": {
+        "state": "NOT_READY",
+        "exit": 1,
+        "technical": "AVAILABLE",
+        "business": "UNPROVEN",
+        "businessEvidence": "UNPROVEN",
+        "generationQualified": false,
+        "proofFreshness": "FRESH",
+        "checks_passed": 20,
+        "checks_total": 20
+      },
+      "metrics_b7": {
+        "instant_panne_utc": "2026-11-15T20:18:33.664451+00:00",
+        "detection_s": 0.19,
+        "reprise_composant_s": 5.092,
+        "reprise_traitement_utile_depuis_restart_s": 5.85,
+        "retour_ready_cli_depuis_restart_s": 28.523,
+        "backlog_maximal": 0,
+        "temps_drainage_s": 0.0,
+        "perte_observee": false,
+        "double_effet_observe": false,
+        "fencing": "Non applicable (stateless HTTP runtime)"
+      }
+    },
+    "B5b": {
+      "scenario": "B5b_http_read_sigkill",
+      "container_killed": "00f0340e007f",
+      "exit_code_observed": 137,
+      "outage_effects": {
+        "read_get_during_outage": {
+          "code": null,
+          "detail": "URLError"
+        },
+        "write_post_202_during_read_outage_count": 4,
+        "background_convergence_completed_while_http_read_dead": true,
+        "workers_leases_unaffected": {
+          "command": {
+            "read": 0,
+            "write": 8
+          },
+          "results": {
+            "read": 8,
+            "write": 0
+          },
+          "business-read": {
+            "read": 20,
+            "write": 0
+          }
+        }
+      },
+      "auth_check_after_restart_anon_status": 401,
+      "status_before_cli_requalify": {
+        "state": "NOT_READY",
+        "exit": 1,
+        "technical": "AVAILABLE",
+        "business": "UNPROVEN",
+        "businessEvidence": "UNPROVEN",
+        "generationQualified": false,
+        "proofFreshness": "FRESH",
+        "checks_passed": 20,
+        "checks_total": 20
+      },
+      "metrics_b7": {
+        "instant_panne_utc": "2026-11-15T20:19:04.836059+00:00",
+        "detection_s": 0.177,
+        "reprise_composant_s": 4.926,
+        "reprise_traitement_utile_depuis_restart_s": 5.361,
+        "retour_ready_cli_depuis_restart_s": 27.587,
+        "backlog_maximal": 0,
+        "temps_drainage_s": 0.0,
+        "perte_observee": false,
+        "double_effet_observe": false,
+        "fencing": "Non applicable (stateless HTTP runtime)"
+      }
+    },
+    "B6": {
+      "scenario": "B6_postgres_reversible_pause",
+      "topology_note": "Both pocoma_write and pocoma_read run on the shared local PostgreSQL container; pausing PostgreSQL makes both databases temporarily unreachable simultaneously.",
+      "container_paused": "42ca21bea203",
+      "pause_duration_s": 14.149,
+      "admission_capacity_before_pause": 1,
+      "during_pause": {
+        "write_probe": {
+          "code": 503,
+          "elapsed_s": 5.046,
+          "body": "{\"code\":\"UNAVAILABLE\",\"message\":\"Request unavailable\",\"traceId\":\"b0c0d93b-05c6-49da-9947-bce9ff4b4cd1\"}"
+        },
+        "read_probe": {
+          "code": 503,
+          "elapsed_s": 1.018,
+          "body": "{\"code\":\"UNAVAILABLE\",\"message\":\"Request unavailable\",\"traceId\":\"5b672999-b172-4ffd-ae46-23e1afa36be5\"}"
+        },
+        "health_at_end_of_pause": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 503,
+            "status": "DOWN"
+          },
+          "results-worker": {
+            "code": 503,
+            "status": "DOWN"
+          },
+          "business-read-worker": {
+            "code": 503,
+            "status": "DOWN"
+          }
+        },
+        "readiness_at_end_of_pause": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "worker_state_at_end_of_pause": {
+          "command-worker": "draining",
+          "results-worker": "draining",
+          "business-read-worker": "draining"
+        },
+        "admission_capacity_at_end_of_pause": 0,
+        "leases_at_end_of_pause": {
+          "command-worker": {
+            "read": 0,
+            "write": 0
+          },
+          "results-worker": {
+            "read": 0,
+            "write": 0
+          },
+          "business-read-worker": {
+            "read": 20,
+            "write": 0
+          }
+        }
+      },
+      "after_unpause_5s": {
+        "health": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 503,
+            "status": "DOWN"
+          },
+          "results-worker": {
+            "code": 503,
+            "status": "DOWN"
+          },
+          "business-read-worker": {
+            "code": 503,
+            "status": "DOWN"
+          }
+        },
+        "readiness": {
+          "http-write": {
+            "code": 200,
+            "status": "UP"
+          },
+          "http-read": {
+            "code": 200,
+            "status": "UP"
+          },
+          "command-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "results-worker": {
+            "code": 200,
+            "status": "UP"
+          },
+          "business-read-worker": {
+            "code": 200,
+            "status": "UP"
+          }
+        },
+        "worker_state": {
+          "command-worker": "draining",
+          "results-worker": "draining",
+          "business-read-worker": "draining"
+        },
+        "admission_capacity": 0,
+        "leases": {
+          "command-worker": {
+            "read": 0,
+            "write": 0
+          },
+          "results-worker": {
+            "read": 0,
+            "write": 0
+          },
+          "business-read-worker": {
+            "read": 20,
+            "write": 0
+          }
+        },
+        "fail_closed_workers": [
+          "command-worker",
+          "results-worker",
+          "business-read-worker"
+        ],
+        "fail_closed_http_write": true,
+        "restart_targets": [
+          "command-worker",
+          "results-worker",
+          "business-read-worker",
+          "http-write"
+        ],
+        "recovery_action": "fail_closed_requires_runtime_restart (command-worker,results-worker,business-read-worker,http-write)",
+        "worker_logs_tail_excerpt": {
+          "command-worker": [
+            "\tat org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:159) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:144) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.VisibleBufferedInputStream.read(VisibleBufferedInputStream.java:76) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.PGStream.receiveChar(PGStream.java:477) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2314) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\t... 24 common frames omitted",
+            "",
+            "2026-11-15T20:19:42.444Z  WARN 1 --- [pocoma-runtime-worker-process] [ v3-discovery-0] c.k.p.s.p.consumption.ConsumptionWorker  : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException",
+            "2026-11-15T20:19:42.444Z  WARN 1 --- [pocoma-runtime-worker-process] [3-consumption-0] c.k.p.s.p.consumption.ConsumptionWorker  : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException",
+            "2026-11-15T20:19:43.738Z  WARN 1 --- [pocoma-runtime-worker-process] [rol:housekeeper] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-control - Failed to validate connection org.postgresql.jdbc.PgConnection@13b3bfc8 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.",
+            "2026-11-15T20:19:46.861Z  WARN 1 --- [pocoma-runtime-worker-process] [rol:housekeeper] com.zaxxer.hikari.pool.PoolBase          : command-worker-write-control - Failed to validate connection org.postgresql.jdbc.PgConnection@178c2966 (This connection has been closed.). Possibly consider using a shorter maxLifetime value."
+          ],
+          "results-worker": [
+            "\tat org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:159) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:144) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.VisibleBufferedInputStream.read(VisibleBufferedInputStream.java:76) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.PGStream.receiveChar(PGStream.java:477) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2314) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\t... 24 common frames omitted",
+            "",
+            "2026-11-15T20:19:42.441Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ v3-discovery-0] c.k.p.s.p.consumption.ConsumptionWorker  : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException",
+            "2026-11-15T20:19:42.945Z  WARN 1 --- [pocoma-runtime-worker-materialize] [3-consumption-0] com.zaxxer.hikari.pool.PoolBase          : results-worker-read-control - Failed to validate connection org.postgresql.jdbc.PgConnection@76d268e (This connection has been closed.). Possibly consider using a shorter maxLifetime value.",
+            "2026-11-15T20:19:43.448Z  WARN 1 --- [pocoma-runtime-worker-materialize] [3-consumption-0] com.zaxxer.hikari.pool.PoolBase          : results-worker-read-control - Failed to validate connection org.postgresql.jdbc.PgConnection@356e8b99 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.",
+            "2026-11-15T20:19:43.450Z  WARN 1 --- [pocoma-runtime-worker-materialize] [3-consumption-0] c.k.p.s.p.consumption.ConsumptionWorker  : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException"
+          ],
+          "business-read-worker": [
+            "\tat org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:159) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.VisibleBufferedInputStream.ensureBytes(VisibleBufferedInputStream.java:144) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.VisibleBufferedInputStream.read(VisibleBufferedInputStream.java:76) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.PGStream.receiveChar(PGStream.java:477) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2314) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\tat org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar!/:42.7.10]",
+            "\t... 24 common frames omitted",
+            "",
+            "2026-11-15T20:19:42.441Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ess:housekeeper] com.zaxxer.hikari.pool.PoolBase          : business-read-worker-read-business - Failed to validate connection org.postgresql.jdbc.PgConnection@75615857 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.",
+            "2026-11-15T20:19:42.443Z  WARN 1 --- [pocoma-runtime-worker-materialize] [3-consumption-0] c.k.p.s.p.consumption.ConsumptionWorker  : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException",
+            "2026-11-15T20:19:42.444Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ v3-discovery-0] c.k.p.s.p.consumption.ConsumptionWorker  : Unresolved Worker opportunity retained: type=com.kartaguez.pocoma.port.transaction.AttemptTransactions$Failure, causeType=org.springframework.transaction.CannotCreateTransactionException",
+            "2026-11-15T20:19:43.846Z  WARN 1 --- [pocoma-runtime-worker-materialize] [ess:housekeeper] com.zaxxer.hikari.pool.PoolBase          : business-read-worker-read-business - Failed to validate connection org.postgresql.jdbc.PgConnection@5e1a5f (This connection has been closed.). Possibly consider using a shorter maxLifetime value."
+          ]
+        },
+        "http_read_auto_recovered_status": 200,
+        "http_write_post_unpause_status": 503,
+        "http_write_post_unpause_body": {
+          "code": "UNAVAILABLE",
+          "message": "Request unavailable",
+          "traceId": "7e865e9f-7aea-498e-a739-877facf41a76"
+        }
+      },
+      "status_before_cli_requalify": {
+        "state": "NOT_READY",
+        "exit": 1,
+        "technical": "AVAILABLE",
+        "business": "UNPROVEN",
+        "businessEvidence": "UNPROVEN",
+        "generationQualified": false,
+        "proofFreshness": "FRESH",
+        "checks_passed": 20,
+        "checks_total": 20
+      },
+      "post_recovery_sql": {
+        "write": {
+          "commands_total": 211,
+          "commands_pending": 0,
+          "commands_terminal": 211,
+          "command_results": 211,
+          "completion_events": 211,
+          "pot_headers": 43,
+          "pot_events": 206,
+          "slots_available": 0,
+          "slots_quarantined": 0,
+          "active_leases": 8
+        },
+        "read": {
+          "read_command_result": 211,
+          "read_pot_version": 206,
+          "read_pot_balance": 202,
+          "read_pot_visibility_state": 39,
+          "read_current_pot": 39,
+          "results_slots_available": 0,
+          "business_read_slots_available": 0,
+          "slots_quarantined": 0,
+          "results_active_leases": 8,
+          "business_read_active_leases": 20
+        }
+      },
+      "metrics_b7": {
+        "instant_panne_utc": "2026-11-15T20:19:37.394112+00:00",
+        "detection_s": 7.606,
+        "reprise_composant_s": 21.103,
+        "reprise_traitement_utile_depuis_unpause_s": 26.46,
+        "retour_ready_cli_depuis_unpause_s": 46.925,
+        "backlog_maximal_pending": 0,
+        "temps_drainage_s": 0.0,
+        "perte_observee": false,
+        "double_effet_observe": false,
+        "fencing": "PASS (fail-closed worker drain + lease expiry fencing + http-write UNRESOLVED capacity lock on PG outage)"
+      }
+    }
+  },
+  "gate_b_verdict": "PASS"
+}

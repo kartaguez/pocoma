@@ -1,0 +1,522 @@
+{
+  "captured_at_utc": "2026-11-15T19:45:50.316212+00:00",
+  "mandate": "GO_L7_LB_S5_FINAL_DISTRIBUTION_QUALIFICATION",
+  "git": {
+    "branch": "feat/l7-lb-local-playground",
+    "sha": "5009d03a20ea781f1aa789ebd089a2174d06cecd",
+    "status_porcelain": "?? docs/testing/evidence/L7-LB-S5/",
+    "remotes": "origin\thttps://github.com/kartaguez/pocoma.git (fetch)\norigin\thttps://github.com/kartaguez/pocoma.git (push)"
+  },
+  "host": {
+    "uname": "Darwin MacBook-Air-de-Julien.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:57 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8132 arm64",
+    "sw_vers": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+    "sysctl": "hw.ncpu: 10\nhw.physicalcpu: 10\nhw.logicalcpu: 10\nhw.memsize: 17179869184",
+    "df_k": "Filesystem   1024-blocks      Used Available Capacity iused    ifree %iused  Mounted on\n/dev/disk3s5   239362496 196729396   4793104    98% 1363614 47931040    3%   /System/Volumes/Data\n/dev/disk3s5   239362496 196729396   4793104    98% 1363614 47931040    3%   /System/Volumes/Data"
+  },
+  "docker": {
+    "version": "Client=29.9.2 Server=29.9.2",
+    "info": "ServerVersion=29.9.2 NCPU=10 MemTotal=8319504384 Architecture=aarch64 OperatingSystem=Docker Desktop",
+    "images": {
+      "postgres:17.6-alpine": "sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 [\"postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94\"]",
+      "quay.io/keycloak/keycloak:26.7.0": "sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13 [\"quay.io/keycloak/keycloak@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13\"]",
+      "eclipse-temurin:21.0.8_9-jre": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc [\"eclipse-temurin@sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc\"]",
+      "prom/prometheus:v3.5.0": "sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996 [\"prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996\"]",
+      "grafana/grafana:12.3.2": "sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1 [\"grafana/grafana@sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1\"]"
+    }
+  },
+  "toolchain": {
+    "python3": "Python 3.14.7",
+    "java": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)",
+    "mvnw": "Apache Maven 3.9.14 (996c630dbc656c76214ce58821dcc58be960875b)\nMaven home: /Users/julien.guezennec/.m2/wrapper/dists/apache-maven-3.9.14/db91789b\nJava version: 21, vendor: Eclipse Adoptium, runtime: /Users/julien.guezennec/.sdkman/candidates/java/21-tem\nDefault locale: fr_FR, platform encoding: UTF-8\nOS name: \"mac os x\", version: \"27.0\", arch: \"aarch64\", family: \"mac\"",
+    "node": "v24.15.0",
+    "npm": "12.0.2",
+    "k6": "k6 v1.7.1 (commit/devel, go1.26.1, darwin/arm64)",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "psql_host": null,
+    "wrk_host": null,
+    "hey_host": null,
+    "ab_host": "/usr/sbin/ab"
+  },
+  "existing_instances": [
+    {
+      "instance": "demo",
+      "owner": "33dd8c1d-4dbd-4310-9011-50b0c6de18be",
+      "project": "pocoma-lb-demo-33dd8c1d",
+      "ports": {
+        "write": 54610,
+        "read": 54611,
+        "issuer": 54612,
+        "http-write": 54613,
+        "http-read": 54614,
+        "command-worker": 54615,
+        "results-worker": 54616,
+        "business-read-worker": 54617,
+        "metrics": 54618,
+        "grafana": 61347
+      },
+      "sha": "47a0c094f803f019e32c91709e171791cde67f2e",
+      "state": "STOPPED"
+    },
+    {
+      "instance": "grafana-final-validation",
+      "manifest": false
+    },
+    {
+      "instance": "grafana-validation",
+      "manifest": false
+    },
+    {
+      "instance": "gui-test",
+      "manifest": false
+    },
+    {
+      "instance": "i3-bruno",
+      "manifest": false
+    },
+    {
+      "instance": "i3-final",
+      "manifest": false
+    },
+    {
+      "instance": "i3-workshop",
+      "manifest": false
+    },
+    {
+      "instance": "j1-a-0bab6b8c",
+      "manifest": false
+    },
+    {
+      "instance": "j1-a-2ad2a840",
+      "manifest": false
+    },
+    {
+      "instance": "j1-a-cbaf923f",
+      "manifest": false
+    },
+    {
+      "instance": "j1-bootstrap-2ad2a840",
+      "manifest": false
+    },
+    {
+      "instance": "keycloak-release-validation",
+      "manifest": false
+    },
+    {
+      "instance": "keycloak-validation",
+      "manifest": false
+    },
+    {
+      "instance": "keycloak-validation-final",
+      "manifest": false
+    },
+    {
+      "instance": "lb-one",
+      "manifest": false
+    },
+    {
+      "instance": "recovery-evidence-fix",
+      "owner": "71045f8b-61e3-4a87-b92e-c94505914e08",
+      "project": "pocoma-lb-recovery-evidence-fix-71045f8b",
+      "ports": {
+        "write": 56456,
+        "read": 56457,
+        "issuer": 56458,
+        "http-write": 56459,
+        "http-read": 56460,
+        "command-worker": 56461,
+        "results-worker": 56462,
+        "business-read-worker": 56463,
+        "metrics": 56464,
+        "grafana": 56465
+      },
+      "sha": "b7b12c3da8b9fbca0d085110b13ffd1523c6dd7a",
+      "state": "STOPPED"
+    }
+  ],
+  "occupied_tcp_ports": [
+    {
+      "command": "ControlCe",
+      "pid": 734,
+      "name": "*:7000"
+    },
+    {
+      "command": "ControlCe",
+      "pid": 734,
+      "name": "*:7000"
+    },
+    {
+      "command": "ControlCe",
+      "pid": 734,
+      "name": "*:5000"
+    },
+    {
+      "command": "ControlCe",
+      "pid": 734,
+      "name": "*:5000"
+    },
+    {
+      "command": "rapportd",
+      "pid": 801,
+      "name": "*:49152"
+    },
+    {
+      "command": "rapportd",
+      "pid": 801,
+      "name": "*:49152"
+    },
+    {
+      "command": "Code\\x20H",
+      "pid": 1965,
+      "name": "127.0.0.1:49170"
+    },
+    {
+      "command": "Code\\x20H",
+      "pid": 1967,
+      "name": "127.0.0.1:49441"
+    },
+    {
+      "command": "Notion",
+      "pid": 2673,
+      "name": "127.0.0.1:49390"
+    },
+    {
+      "command": "Google",
+      "pid": 2769,
+      "name": "[::1]:7679"
+    },
+    {
+      "command": "Antigravi",
+      "pid": 47056,
+      "name": "127.0.0.1:50342"
+    },
+    {
+      "command": "Antigravi",
+      "pid": 47056,
+      "name": "127.0.0.1:50343"
+    },
+    {
+      "command": "language_",
+      "pid": 47357,
+      "name": "127.0.0.1:50353"
+    },
+    {
+      "command": "language_",
+      "pid": 47357,
+      "name": "127.0.0.1:50354"
+    },
+    {
+      "command": "language_",
+      "pid": 47357,
+      "name": "127.0.0.1:50370"
+    },
+    {
+      "command": "Antigravi",
+      "pid": 47382,
+      "name": "127.0.0.1:50368"
+    },
+    {
+      "command": "Code\\x20H",
+      "pid": 98976,
+      "name": "127.0.0.1:52276"
+    }
+  ],
+  "runtime_properties": {
+    "http-write.properties": {
+      "spring.flyway.enabled": "false",
+      "spring.jpa.open-in-view": "false",
+      "management.health.db.enabled": "false",
+      "management.endpoints.web.exposure.include": "health,prometheus",
+      "management.endpoint.health.probes.enabled": "true",
+      "management.prometheus.metrics.export.enabled": "true",
+      "server.port": "8080",
+      "server.address": "0.0.0.0",
+      "management.server.port": "18080",
+      "management.server.address": "0.0.0.0",
+      "pocoma.v3.http.issuer": "http://localhost:8081/realms/pocoma",
+      "pocoma.v3.http.audience": "pocoma-api",
+      "pocoma.v3.http.jwk-set-uri": "http://keycloak:8080/realms/pocoma/protocol/openid-connect/certs",
+      "pocoma.v3.http.admission.url": "jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write",
+      "pocoma.v3.http.admission.username": "pocoma_admission",
+      "pocoma.v3.http.admission.password": "<REDACTED>",
+      "pocoma.v3.http.admission.database": "pocoma_write",
+      "pocoma.v3.http.admission.schema": "v3_write",
+      "pocoma.v3.http.admission.lookup-key-id": "stable",
+      "pocoma.v3.http.admission.lookup-key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "pocoma.v3.http.admission.comparison-current": "k1",
+      "pocoma.v3.http.admission.comparison-key-ids": "k1",
+      "pocoma.v3.http.admission.comparison-keys.k1": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "pocoma.v3.http.admission.maximum": "4",
+      "pocoma.v3.http.admission.minimum-idle": "1"
+    },
+    "http-read.properties": {
+      "spring.flyway.enabled": "false",
+      "spring.jpa.open-in-view": "false",
+      "management.health.db.enabled": "false",
+      "management.endpoints.web.exposure.include": "health,prometheus",
+      "management.endpoint.health.probes.enabled": "true",
+      "management.prometheus.metrics.export.enabled": "true",
+      "server.port": "8082",
+      "server.address": "0.0.0.0",
+      "management.server.port": "18082",
+      "management.server.address": "0.0.0.0",
+      "pocoma.v3.http.issuer": "http://localhost:8081/realms/pocoma",
+      "pocoma.v3.http.audience": "pocoma-api",
+      "pocoma.v3.http.jwk-set-uri": "http://keycloak:8080/realms/pocoma/protocol/openid-connect/certs",
+      "pocoma.v3.http.read.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.http.read.username": "pocoma_read_http",
+      "pocoma.v3.http.read.password": "<REDACTED>",
+      "pocoma.v3.http.read.http-permits": "8",
+      "pocoma.v3.http.read.sql-permits": "8",
+      "pocoma.v3.http.read.maximum-pool-size": "8",
+      "pocoma.v3.http.read.minimum-idle": "8",
+      "pocoma.v3.worker.read-limits.expense-batch": "50",
+      "pocoma.v3.worker.read-limits.navigation-page": "100",
+      "pocoma.v3.worker.read-limits.response-budget": "16000000",
+      "pocoma.v3.http.read.maintenance.username": "pocoma_read_status",
+      "pocoma.v3.http.read.maintenance.password": "<REDACTED>"
+    },
+    "command-worker.properties": {
+      "spring.flyway.enabled": "false",
+      "spring.jpa.open-in-view": "false",
+      "management.health.db.enabled": "false",
+      "management.endpoints.web.exposure.include": "health,prometheus",
+      "management.endpoint.health.probes.enabled": "true",
+      "management.prometheus.metrics.export.enabled": "true",
+      "server.port": "0",
+      "management.server.port": "18083",
+      "management.server.address": "0.0.0.0",
+      "pocoma.v3.worker.min-poll": "2",
+      "pocoma.v3.worker.max-poll": "20",
+      "pocoma.v3.worker.error-poll": "50",
+      "pocoma.v3.worker.enabled": "true",
+      "pocoma.v3.worker.quantum": "4",
+      "pocoma.v3.worker.environment": "DEV",
+      "pocoma.v3.worker.fixture-identity": "false",
+      "pocoma.v3.worker.identity-authority": "real",
+      "pocoma.v3.worker.identity-request": "true",
+      "pocoma.v3.worker.command-enabled": "true",
+      "pocoma.v3.worker.technical-probes": "false",
+      "pocoma.v3.worker.worker-name": "command-worker",
+      "pocoma.v3.worker.worker-limit": "2",
+      "pocoma.v3.worker.consumption-limits": "Command=2,IdentityRequest=2",
+      "pocoma.v3.worker.partitions": "Command=0|1|2|3;IdentityRequest=0|1|2|3",
+      "pocoma.v3.worker.lifecycle.batch-size": "32",
+      "pocoma.v3.worker.lifecycle.claim-duration-ms": "60000",
+      "pocoma.v3.worker.lifecycle.lease-duration-ms": "30000",
+      "pocoma.v3.worker.dev-targets": "postgres,5432,pocoma_write,v3_write,pocoma_write,172.28.0.2/32,5432",
+      "pocoma.v3.pilot.write.database": "pocoma_write",
+      "pocoma.v3.pilot.write.schema": "v3_write",
+      "pocoma.v3.pilot.write.username": "pocoma_write",
+      "pocoma.v3.pilot.write.password": "<REDACTED>",
+      "pocoma.v3.pilot.write.url": "jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write",
+      "pocoma.v3.worker.write-business.url": "jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write",
+      "pocoma.v3.worker.write-business.username": "pocoma_write",
+      "pocoma.v3.worker.write-business.password": "<REDACTED>",
+      "pocoma.v3.worker.write-business.minimum-idle": "4",
+      "pocoma.v3.worker.write-business.maximum-pool-size": "4",
+      "pocoma.v3.worker.write-control.url": "jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write",
+      "pocoma.v3.worker.write-control.username": "pocoma_write",
+      "pocoma.v3.worker.write-control.password": "<REDACTED>",
+      "pocoma.v3.worker.write-control.minimum-idle": "8",
+      "pocoma.v3.worker.write-control.maximum-pool-size": "8",
+      "pocoma.v3.process.source-read-role": "pocoma_write_source_read"
+    },
+    "results-worker.properties": {
+      "spring.main.web-application-type": "servlet",
+      "spring.flyway.enabled": "false",
+      "spring.jpa.open-in-view": "false",
+      "management.health.db.enabled": "false",
+      "management.endpoints.web.exposure.include": "health,prometheus",
+      "management.endpoint.health.probes.enabled": "true",
+      "management.prometheus.metrics.export.enabled": "true",
+      "server.port": "0",
+      "management.server.port": "18084",
+      "management.server.address": "0.0.0.0",
+      "pocoma.v3.worker.min-poll": "2",
+      "pocoma.v3.worker.max-poll": "20",
+      "pocoma.v3.worker.error-poll": "50",
+      "pocoma.v3.worker.enabled": "true",
+      "pocoma.v3.worker.quantum": "4",
+      "pocoma.v3.worker.environment": "DEV",
+      "pocoma.v3.worker.fixture-identity": "false",
+      "pocoma.v3.worker.identity-authority": "real",
+      "pocoma.v3.worker.identity-request": "false",
+      "pocoma.v3.worker.command-enabled": "false",
+      "pocoma.v3.worker.technical-probes": "false",
+      "pocoma.v3.worker.worker-name": "results-worker",
+      "pocoma.v3.worker.worker-limit": "2",
+      "pocoma.v3.worker.read-participants": "MaterializeCommandResult,MaterializeIdentityRequestResult",
+      "pocoma.v3.worker.consumption-limits": "MaterializeCommandResult=2,MaterializeIdentityRequestResult=2",
+      "pocoma.v3.worker.partitions": "MaterializeCommandResult=0|1|2|3;MaterializeIdentityRequestResult=0|1|2|3",
+      "pocoma.v3.worker.lifecycle.batch-size": "32",
+      "pocoma.v3.worker.lifecycle.claim-duration-ms": "60000",
+      "pocoma.v3.worker.lifecycle.lease-duration-ms": "30000",
+      "pocoma.v3.worker.dev-targets": "postgres,5432,pocoma_write,v3_write,pocoma_write_source_read,172.28.0.2/32,5432;postgres,5432,pocoma_read,v3_read,pocoma_read,172.28.0.2/32,5432",
+      "pocoma.v3.pilot.write.database": "pocoma_write",
+      "pocoma.v3.pilot.write.schema": "v3_write",
+      "pocoma.v3.pilot.read.database": "pocoma_read",
+      "pocoma.v3.pilot.read.schema": "v3_read",
+      "pocoma.v3.pilot.read.username": "pocoma_read",
+      "pocoma.v3.pilot.read.password": "<REDACTED>",
+      "pocoma.v3.pilot.read.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.worker.write-source-read.url": "jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write",
+      "pocoma.v3.worker.write-source-read.username": "pocoma_write_source_read",
+      "pocoma.v3.worker.write-source-read.password": "<REDACTED>",
+      "pocoma.v3.worker.write-source-read.minimum-idle": "4",
+      "pocoma.v3.worker.write-source-read.maximum-pool-size": "4",
+      "pocoma.v3.worker.read-business.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.worker.read-business.username": "pocoma_read",
+      "pocoma.v3.worker.read-business.password": "<REDACTED>",
+      "pocoma.v3.worker.read-business.minimum-idle": "4",
+      "pocoma.v3.worker.read-business.maximum-pool-size": "4",
+      "pocoma.v3.worker.read-control.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.worker.read-control.username": "pocoma_read",
+      "pocoma.v3.worker.read-control.password": "<REDACTED>",
+      "pocoma.v3.worker.read-control.minimum-idle": "8",
+      "pocoma.v3.worker.read-control.maximum-pool-size": "8"
+    },
+    "business-read-worker.properties": {
+      "spring.main.web-application-type": "servlet",
+      "spring.flyway.enabled": "false",
+      "spring.jpa.open-in-view": "false",
+      "management.health.db.enabled": "false",
+      "management.endpoints.web.exposure.include": "health,prometheus",
+      "management.endpoint.health.probes.enabled": "true",
+      "management.prometheus.metrics.export.enabled": "true",
+      "server.port": "0",
+      "management.server.port": "18085",
+      "management.server.address": "0.0.0.0",
+      "pocoma.v3.worker.min-poll": "2",
+      "pocoma.v3.worker.max-poll": "20",
+      "pocoma.v3.worker.error-poll": "50",
+      "pocoma.v3.worker.enabled": "true",
+      "pocoma.v3.worker.quantum": "4",
+      "pocoma.v3.worker.environment": "DEV",
+      "pocoma.v3.worker.fixture-identity": "false",
+      "pocoma.v3.worker.identity-authority": "real",
+      "pocoma.v3.worker.identity-request": "false",
+      "pocoma.v3.worker.command-enabled": "false",
+      "pocoma.v3.worker.technical-probes": "false",
+      "pocoma.v3.worker.worker-name": "business-read-worker",
+      "pocoma.v3.worker.worker-limit": "3",
+      "pocoma.v3.worker.read-participants": "MaterializePotVersion,MaterializePotBalance,MaterializePotVisibility,MaterializeCurrentBinding,MaterializeInvitation",
+      "pocoma.v3.worker.consumption-limits": "MaterializePotVersion=2,MaterializePotBalance=2,MaterializePotVisibility=2,MaterializeCurrentBinding=2,MaterializeInvitation=2",
+      "pocoma.v3.worker.partitions": "MaterializePotVersion=0|1|2|3;MaterializePotBalance=0|1|2|3;MaterializePotVisibility=0|1|2|3;MaterializeCurrentBinding=0|1|2|3;MaterializeInvitation=0|1|2|3",
+      "pocoma.v3.worker.lifecycle.batch-size": "32",
+      "pocoma.v3.worker.lifecycle.claim-duration-ms": "60000",
+      "pocoma.v3.worker.lifecycle.lease-duration-ms": "30000",
+      "pocoma.v3.worker.dev-targets": "postgres,5432,pocoma_write,v3_write,pocoma_write_source_read,172.28.0.2/32,5432;postgres,5432,pocoma_read,v3_read,pocoma_read,172.28.0.2/32,5432",
+      "pocoma.v3.pilot.write.database": "pocoma_write",
+      "pocoma.v3.pilot.write.schema": "v3_write",
+      "pocoma.v3.pilot.read.database": "pocoma_read",
+      "pocoma.v3.pilot.read.schema": "v3_read",
+      "pocoma.v3.pilot.read.username": "pocoma_read",
+      "pocoma.v3.pilot.read.password": "<REDACTED>",
+      "pocoma.v3.pilot.read.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.worker.write-source-read.url": "jdbc:postgresql://postgres:5432/pocoma_write?currentSchema=v3_write",
+      "pocoma.v3.worker.write-source-read.username": "pocoma_write_source_read",
+      "pocoma.v3.worker.write-source-read.password": "<REDACTED>",
+      "pocoma.v3.worker.write-source-read.minimum-idle": "5",
+      "pocoma.v3.worker.write-source-read.maximum-pool-size": "5",
+      "pocoma.v3.worker.read-business.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.worker.read-business.username": "pocoma_read",
+      "pocoma.v3.worker.read-business.password": "<REDACTED>",
+      "pocoma.v3.worker.read-business.minimum-idle": "5",
+      "pocoma.v3.worker.read-business.maximum-pool-size": "5",
+      "pocoma.v3.worker.read-control.url": "jdbc:postgresql://postgres:5432/pocoma_read?currentSchema=v3_read",
+      "pocoma.v3.worker.read-control.username": "pocoma_read",
+      "pocoma.v3.worker.read-control.password": "<REDACTED>",
+      "pocoma.v3.worker.read-control.minimum-idle": "9",
+      "pocoma.v3.worker.read-control.maximum-pool-size": "9"
+    }
+  },
+  "keycloak_realm_summary": {
+    "realm": "pocoma",
+    "enabled": true,
+    "sslRequired": "none",
+    "clients": [
+      {
+        "clientId": "pocoma-functional-tests",
+        "publicClient": true,
+        "directAccessGrantsEnabled": false,
+        "standardFlowEnabled": true,
+        "redirectUris": [
+          "http://127.0.0.1:8765/callback"
+        ],
+        "pkce": "S256",
+        "defaultClientScopes": [
+          "basic",
+          "pocoma-api-access"
+        ],
+        "optionalClientScopes": [
+          "pocoma:pot:create",
+          "pocoma:pot:view",
+          "pocoma:pot:update",
+          "pocoma:pot:delete"
+        ]
+      }
+    ],
+    "users": [
+      "bruno",
+      "link-e2",
+      "link-e3"
+    ]
+  },
+  "container_limits": {
+    "postgres": {
+      "mem_limit": "1024m",
+      "cpus": 1.5
+    },
+    "keycloak": {
+      "mem_limit": "896m",
+      "cpus": 1.5,
+      "JAVA_OPTS_KC_HEAP": "-Xms128m -Xmx512m"
+    },
+    "http-write": {
+      "mem_limit": "640m",
+      "cpus": 1,
+      "JAVA_TOOL_OPTIONS": null
+    },
+    "http-read": {
+      "mem_limit": "640m",
+      "cpus": 1,
+      "JAVA_TOOL_OPTIONS": null
+    },
+    "command-worker": {
+      "mem_limit": "640m",
+      "cpus": 1,
+      "JAVA_TOOL_OPTIONS": null
+    },
+    "results-worker": {
+      "mem_limit": "640m",
+      "cpus": 1,
+      "JAVA_TOOL_OPTIONS": null
+    },
+    "business-read-worker": {
+      "mem_limit": "640m",
+      "cpus": 1,
+      "JAVA_TOOL_OPTIONS": null
+    },
+    "prometheus": {
+      "mem_limit": "256m",
+      "cpus": 0.5
+    },
+    "grafana": {
+      "mem_limit": "384m",
+      "cpus": 0.5
+    },
+    "total_configured_mem_limit_mib": 5760,
+    "total_configured_cpus_sum": 9.0
+  },
+  "resource_assessment_for_s5c": {
+    "host_ncpu": 10,
+    "host_ram_gib": 16,
+    "docker_vm_ncpu": 10,
+    "docker_vm_ram_gib": 7.75,
+    "sum_container_mem_limits_gib": 5.625,
+    "sum_container_cpus_limits": 9.0,
+    "disk_free_note": "/dev/disk3s5 has ~4.5 GiB free before clean clone; hardlinked local git clone preserves >2 GiB free required by PRE-DISK.",
+    "verdict": "ADEQUATE_WITH_OBSERVATION",
+    "note": "Docker VM has 10 vCPU / 7.75 GiB RAM (vs 5.625 GiB sum of container limits), sufficient to run and interpret S5-C P0..P3 (and evaluate P4 conditionally without memory pressure/OOMKill), though host sharing and disk headroom require hardlink clone and monitoring Docker memory/CPU stats."
+  }
+}
