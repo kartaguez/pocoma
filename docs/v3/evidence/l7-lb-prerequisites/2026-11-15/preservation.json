@@ -1,0 +1,48 @@
+{
+  "hostFilesPreserved": 25,
+  "bytesAndModesIdentical": true,
+  "secretsAndConfigurationsUnchanged": true,
+  "containersIdentical": true,
+  "allDemoContainersRunning": true,
+  "volumesPreserved": true,
+  "stableData": {
+    "keycloak.user_entity": {
+      "rows": 4,
+      "identical": true
+    },
+    "keycloak.credential": {
+      "rows": 4,
+      "identical": true
+    },
+    "keycloak.realm": {
+      "rows": 2,
+      "identical": true
+    },
+    "keycloak.client": {
+      "rows": 14,
+      "identical": true
+    },
+    "v3_write.v3_pot_identity": {
+      "rows": 29,
+      "identical": true
+    },
+    "v3_read.read_current_pot": {
+      "rows": 29,
+      "identical": true
+    },
+    "v3_write.v3_pot_event": {
+      "rows": 154,
+      "identical": true
+    },
+    "sqlRoles": {
+      "rows": 1,
+      "identical": true
+    }
+  },
+  "historicalCheckoutPreserved": true,
+  "noDemoFacadeStart": true,
+  "noResetDestroyOrVolumeDeletion": true,
+  "demoTechnical": "AVAILABLE",
+  "demoProofFreshness": "STALE_OR_MISSING",
+  "note": "Demo canary intentionally unchanged; its former process generation is no longer a fresh business proof."
+}

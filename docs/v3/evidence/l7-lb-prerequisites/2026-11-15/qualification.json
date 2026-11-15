@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "qualifiedSha": "da7912e3707a72c801c39c08858f65e801a508cb",
+  "instance": "hardening-qualified",
+  "noMavenTests": true,
+  "fullReactor": false,
+  "globalArchitectureGate": false
+}

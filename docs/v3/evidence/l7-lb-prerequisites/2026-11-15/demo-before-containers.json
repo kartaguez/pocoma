@@ -1,0 +1,60 @@
+{
+  "business-read-worker": {
+    "id": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+    "state": "running",
+    "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+    "volumes": []
+  },
+  "command-worker": {
+    "id": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+    "state": "running",
+    "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+    "volumes": []
+  },
+  "grafana": {
+    "id": "6b1995775e6f2b6d623dd4220f148472700f35fd4b8d03cc1d2554f3e02b2fbb",
+    "state": "running",
+    "image": "sha256:ba93c9d192e58b23e064c7f501d453426ccf4a85065bf25b705ab1e98602bfb1",
+    "volumes": []
+  },
+  "http-read": {
+    "id": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+    "state": "running",
+    "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+    "volumes": []
+  },
+  "http-write": {
+    "id": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+    "state": "running",
+    "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+    "volumes": []
+  },
+  "keycloak": {
+    "id": "49b44d7b84ee4989beeb0434c3e053b0dce204088f70fe564fa979a72ca3f589",
+    "state": "running",
+    "image": "sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13",
+    "volumes": []
+  },
+  "postgres": {
+    "id": "74240b3506517c7b8c7502ed41d5ae7b5e207257dfa47b547576335259cfd039",
+    "state": "running",
+    "image": "sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+    "volumes": [
+      "pocoma-lb-demo-33dd8c1d-data"
+    ]
+  },
+  "prometheus": {
+    "id": "48e316d8aef78c01ff41e46bc4bd356d193da23845a9c91f85b37cd2e9981ab1",
+    "state": "running",
+    "image": "sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+    "volumes": [
+      "c4b0f254fb8dd331655ec936159235309d41ac29818f08ed5c0608d98451761f"
+    ]
+  },
+  "results-worker": {
+    "id": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+    "state": "running",
+    "image": "sha256:66bb900643426ad01996d25bada7d56751913f9cec3b827fcb715d2ec9a0fbfc",
+    "volumes": []
+  }
+}

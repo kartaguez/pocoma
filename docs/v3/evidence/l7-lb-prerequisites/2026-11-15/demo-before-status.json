@@ -1,0 +1,126 @@
+{
+  "state": "NOT_READY",
+  "exit": 1,
+  "business": "UNPROVEN",
+  "canary": "STALE_OR_UNPROVEN",
+  "qualificationTools": "AVAILABLE",
+  "fullyQualifiable": false,
+  "checks": {
+    "JVM-http-write": "PASS",
+    "JVM-http-read": "PASS",
+    "JVM-command-worker": "PASS",
+    "JVM-results-worker": "PASS",
+    "JVM-business-read-worker": "PASS",
+    "DB-CURRENT": "PASS",
+    "IDP-DISCOVERY": "PASS",
+    "KEYCLOAK-OIDC-DISCOVERY": "PASS",
+    "KEYCLOAK-ADMIN-AUTH": "PASS",
+    "KEYCLOAK-ADMIN-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-ENABLED": "PASS",
+    "KEYCLOAK-THIRD-PKCE": "PASS",
+    "KEYCLOAK-GUEST-ENABLED": "PASS",
+    "KEYCLOAK-GUEST-PKCE": "PASS",
+    "KEYCLOAK-BRUNO-ENABLED": "PASS",
+    "KEYCLOAK-BRUNO-PKCE": "PASS",
+    "IDP-PKCE-SESSION": "PASS",
+    "GRAFANA-HTTP": "PASS",
+    "GRAFANA-DATASOURCE": "PASS",
+    "GRAFANA-DASHBOARD": "PASS"
+  },
+  "canaryProof": {
+    "potId": "781047aa-eaf1-51e7-8a03-d512e1389f7e",
+    "version": 18,
+    "runId": "1794740543-85587d0e",
+    "completedAt": 1794740704.119193,
+    "generationId": "b431c701a98ed027bdab47e301ac397dad440cf5172e6f2dd718be6d884c0aa8",
+    "generation": {
+      "http-write": {
+        "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+        "createdAt": "2026-11-14T17:15:35.410432175Z",
+        "startedAt": "2026-11-15T11:02:36.512031297Z",
+        "running": true
+      },
+      "http-read": {
+        "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+        "createdAt": "2026-11-14T17:15:35.410071592Z",
+        "startedAt": "2026-11-15T11:02:36.36723588Z",
+        "running": true
+      },
+      "command-worker": {
+        "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+        "createdAt": "2026-11-14T17:15:35.412248133Z",
+        "startedAt": "2026-11-15T11:02:36.14661188Z",
+        "running": true
+      },
+      "results-worker": {
+        "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+        "createdAt": "2026-11-14T17:15:35.41058505Z",
+        "startedAt": "2026-11-15T11:02:36.716866631Z",
+        "running": true
+      },
+      "business-read-worker": {
+        "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+        "createdAt": "2026-11-14T17:15:35.410558633Z",
+        "startedAt": "2026-11-15T11:02:36.060989839Z",
+        "running": true
+      }
+    },
+    "generationQualified": true
+  },
+  "observedAt": 1794743225.5081291,
+  "technical": "AVAILABLE",
+  "businessEvidence": "UNPROVEN",
+  "lastStart": {
+    "runId": "1794740543-85587d0e",
+    "startedAt": 1794740543.888053,
+    "state": "SUCCEEDED",
+    "sha": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc",
+    "dirty": true,
+    "completedAt": 1794740705.444831,
+    "generationId": "b431c701a98ed027bdab47e301ac397dad440cf5172e6f2dd718be6d884c0aa8"
+  },
+  "lastSuccessfulStart": {
+    "runId": "1794740543-85587d0e",
+    "startedAt": 1794740543.888053,
+    "state": "SUCCEEDED",
+    "sha": "60b12fc3cb81f42a89db0688b0406a4a986f6ffc",
+    "dirty": true,
+    "completedAt": 1794740705.444831,
+    "generationId": "b431c701a98ed027bdab47e301ac397dad440cf5172e6f2dd718be6d884c0aa8"
+  },
+  "currentGeneration": {
+    "http-write": {
+      "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+      "createdAt": "2026-11-14T17:15:35.410432175Z",
+      "startedAt": "2026-11-15T11:02:36.512031297Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+      "createdAt": "2026-11-14T17:15:35.410071592Z",
+      "startedAt": "2026-11-15T11:02:36.36723588Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+      "createdAt": "2026-11-14T17:15:35.412248133Z",
+      "startedAt": "2026-11-15T11:02:36.14661188Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+      "createdAt": "2026-11-14T17:15:35.41058505Z",
+      "startedAt": "2026-11-15T11:02:36.716866631Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+      "createdAt": "2026-11-14T17:15:35.410558633Z",
+      "startedAt": "2026-11-15T11:02:36.060989839Z",
+      "running": true
+    }
+  },
+  "generationQualified": true,
+  "proofFreshness": "STALE_OR_MISSING",
+  "proofAgeSeconds": 2521.361415863037
+}

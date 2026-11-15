@@ -1,0 +1,9 @@
+{
+  "technicalValuesCompared": 26,
+  "filesChecked": 35,
+  "jwtMatches": 0,
+  "leaks": 0,
+  "method": "Compare against both actual instances technical secrets in memory; do not export secret values.",
+  "success": true,
+  "scope": "Final evidence, report and quickstart; gzip inspected after decompression."
+}

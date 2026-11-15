@@ -1,0 +1,27 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {
+    "business-read-worker": 143,
+    "command-worker": 143,
+    "http-read": 143,
+    "http-write": 143,
+    "results-worker": 143
+  },
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "hardening-qualified",
+  "project": "pocoma-lb-hardening-qualified-df81b8c4",
+  "sha": "da7912e3707a72c801c39c08858f65e801a508cb",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:61458",
+    "read": "http://127.0.0.1:61459"
+  },
+  "issuer": "http://localhost:61460/realms/pocoma",
+  "evidence": "/private/tmp/pocoma-l7-lb-hardening-qualification/source/.pocoma-local/instances/hardening-qualified/runs/1794743306-d5b0add4"
+}

@@ -1,0 +1,19 @@
+{
+  "sha": "da7912e3707a72c801c39c08858f65e801a508cb",
+  "remote": "https://github.com/kartaguez/pocoma.git",
+  "branch": "feat/l7-lb-local-playground",
+  "command": [
+    "git",
+    "clone",
+    "--depth",
+    "1",
+    "--single-branch",
+    "--branch",
+    "feat/l7-lb-local-playground",
+    "https://github.com/kartaguez/pocoma.git",
+    "/private/tmp/pocoma-l7-lb-hardening-qualification/source"
+  ],
+  "clean": true,
+  "noIgnoredArtifacts": true,
+  "observedAt": 1794743221.5343812
+}

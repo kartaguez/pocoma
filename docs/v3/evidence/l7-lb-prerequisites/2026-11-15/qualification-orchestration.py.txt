@@ -1,0 +1,184 @@
+"""Authorized, isolated qualification; no reset/destroy/down/volume deletion.
+
+Demo is suspended/resumed through its existing Compose containers only. Its
+persistent host files and stable SQL rows are compared without exporting values.
+"""
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import time
+
+BASE=Path(__file__).resolve().parent
+SOURCE=BASE/'source'
+OUT=BASE/'evidence'
+HISTORICAL=Path('/Users/julien.guezennec/Dev/projects/pocoma')
+EXPECTED='da7912e3707a72c801c39c08858f65e801a508cb'
+INSTANCE='hardening-qualified'
+OUT.mkdir(exist_ok=False)
+sys.path.insert(0,str(HISTORICAL/'scripts/local'))
+import runtime as rt
+
+commands=[]
+
+def save(name,data):
+    (OUT/name).write_text(json.dumps(data,indent=2)+'\n')
+
+def query(args,cwd=SOURCE):
+    return subprocess.check_output([str(a) for a in args],cwd=cwd,text=True).strip()
+
+def files(path):
+    return {str(p.relative_to(path)):(hashlib.sha256(p.read_bytes()).hexdigest(),p.stat().st_mode & 0o777)
+            for p in path.rglob('*') if p.is_file() and 'runs' not in p.relative_to(path).parts and p.name!='lock'}
+
+def facade(action,phase):
+    print('BEGIN '+phase,flush=True)
+    began=time.time()
+    result=subprocess.run(['./pocoma-local',action,'--instance',INSTANCE],cwd=SOURCE,
+                          capture_output=True,text=True,timeout=1800)
+    try:data=json.loads(result.stdout[result.stdout.index('{'):])
+    except (ValueError,IndexError):
+        # Retain raw failure privately only; it is not publication allowlisted.
+        (BASE/(phase+'.private.txt')).write_text(result.stdout+result.stderr)
+        raise RuntimeError('FACADE-OUTPUT-INVALID:'+phase)
+    commands.append(dict(phase=phase,cwd=str(SOURCE),command=['./pocoma-local',action,'--instance',INSTANCE],
+                         exit=result.returncode,seconds=time.time()-began,result=data))
+    save('commands.json',commands)
+    target=OUT/phase;target.mkdir()
+    evidence=Path(data['evidence']) if data.get('evidence') else None
+    if evidence:
+        for name in ('receipt.json','checks.json','keycloak-auth.json','grafana.json','worker-recovery.json',
+                     'generation-before.json','start-attempt.json','bruno-receipt.json','bruno.xml','scenarios.jsonl'):
+            if (evidence/name).is_file():shutil.copyfile(evidence/name,target/name)
+    print('END '+phase+': '+data['state']+' / '+str(result.returncode),flush=True)
+    if result.returncode:raise RuntimeError('FACADE-FAILED:'+phase)
+    return data
+
+path=HISTORICAL/'.pocoma-local/instances/demo'
+m=rt.load_manifest(path)
+rt.ownership(m)
+
+def demo_containers():
+    result={}
+    for resource in rt.compose(path,m,'ps','-aq').splitlines():
+        row,=rt.docker_json('inspect',resource)
+        result[row['Config']['Labels']['com.docker.compose.service']]=dict(id=row['Id'],state=row['State']['Status'],
+            image=row['Image'],volumes=sorted(x['Name'] for x in row.get('Mounts',[]) if x['Type']=='volume'))
+    return result
+
+def stable_data():
+    result={}
+    for db,table in [('pocoma','keycloak.user_entity'),('pocoma','keycloak.credential'),('pocoma','keycloak.realm'),
+                     ('pocoma','keycloak.client'),('pocoma_write','v3_write.v3_pot_identity'),
+                     ('pocoma_read','v3_read.read_current_pot'),('pocoma_write','v3_write.v3_pot_event')]:
+        result[table]=rt.sql(path,m,db,'SELECT md5(row_to_json(t)::text) FROM '+table+' t ORDER BY 1;').splitlines()
+    result['sqlRoles']=rt.sql(path,m,'pocoma',"SELECT md5(string_agg(rolname || ':' || coalesce(rolpassword,''), E'\\n' ORDER BY rolname)) FROM pg_authid;").splitlines()
+    return result
+
+def demo_compose(args,phase):
+    print('BEGIN '+phase,flush=True)
+    began=time.time();rt.compose(path,m,*args,timeout=300)
+    commands.append(dict(phase=phase,cwd=str(HISTORICAL),command=['docker','compose','-p',m['project'],'-f',str(path/'compose.json'),*args],exit=0,seconds=time.time()-began))
+    save('commands.json',commands)
+    print('END '+phase,flush=True)
+
+assert query(['git','rev-parse','HEAD'])==EXPECTED
+assert query(['git','branch','--show-current'])=='feat/l7-lb-local-playground'
+assert not query(['git','status','--porcelain=v1','--untracked-files=all'])
+assert not query(['git','ls-files','--others','--ignored','--exclude-standard'])
+assert not (SOURCE/'.pocoma-local').exists()
+assert not (SOURCE/'scripts/bruno-v3/node_modules').exists()
+assert not list((SOURCE/'app').glob('*/target'))
+save('clone-initial.json',dict(sha=EXPECTED,remote=query(['git','remote','get-url','origin']),branch='feat/l7-lb-local-playground',
+     command=['git','clone','--depth','1','--single-branch','--branch','feat/l7-lb-local-playground',
+              'https://github.com/kartaguez/pocoma.git',str(SOURCE)],clean=True,noIgnoredArtifacts=True,observedAt=time.time()))
+historical_before=dict(sha=query(['git','rev-parse','HEAD'],HISTORICAL),status=query(['git','status','--porcelain=v1'],HISTORICAL))
+files_before=files(path)
+untracked_before={p:hashlib.sha256((HISTORICAL/p).read_bytes()).hexdigest() for p in
+                  query(['git','ls-files','--others','--exclude-standard'],HISTORICAL).splitlines() if (HISTORICAL/p).is_file()}
+containers_before=demo_containers()
+assert len(containers_before)==9 and all(v['state']=='running' for v in containers_before.values())
+volumes_before=set(query(['docker','volume','ls','-q']).splitlines())
+before_status=rt.status(path,m)
+save('demo-before-status.json',before_status)
+stable_before=stable_data()
+save('demo-before-containers.json',containers_before)
+suspended=False
+failure=None
+try:
+    suspended=True
+    demo_compose(['stop','--timeout','45',*rt.RUNTIMES],'demo-stop-runtimes')
+    demo_compose(['stop','--timeout','45','keycloak','prometheus','grafana','postgres'],'demo-stop-dependencies')
+    assert all(v['state']!='running' for v in demo_containers().values())
+    assert files_before==files(path)
+    start=facade('start','clean-start')
+    assert start['state']=='READY' and start['business']=='AVAILABLE'
+    fixture_path=SOURCE/'.pocoma-local/instances'/INSTANCE
+    fm=json.loads((fixture_path/'manifest.json').read_text())
+    save('manifest-public.json',{k:fm[k] for k in ('instance','owner','project','sha','inputs','architecture','ports','images','build','toolchain')})
+    shutil.copyfile(fixture_path/'resources.json',OUT/'resources.json')
+    recovery=json.loads((Path(start['evidence'])/'worker-recovery.json').read_text())
+    observed=recovery['observations'][-1]['workers']
+    assert recovery['state']=='RECOVERED' and all(v['qualified'] for v in observed.values())
+    assert sum(v['expectedLeases'] for v in observed.values())==36
+    package=Path(start['evidence'])/'package.log'
+    if package.exists():
+        import gzip
+        with gzip.open(OUT/'package.log.gz','wb') as stream:stream.write(package.read_bytes())
+        save('package-encoding.json',dict(sha256=hashlib.sha256(package.read_bytes()).hexdigest(),
+             encoding='gzip lossless',tests='NOT RUN: packaging only'))
+    facade('bruno','clean-bruno')
+    facade('status','clean-status')
+except Exception as error:
+    failure=dict(errorClass=type(error).__name__,control=str(error) if isinstance(error,RuntimeError) else 'QUALIFICATION-ASSERTION-OR-TRANSPORT')
+    save('failure.json',failure)
+finally:
+    if (SOURCE/'.pocoma-local/instances'/INSTANCE/'compose.json').is_file():
+        try:facade('stop','clean-stop')
+        except Exception as error:
+            failure=dict(errorClass=type(error).__name__,control='CLEAN-STOP-FAILED')
+            save('failure.json',failure)
+            # Best-effort stop of this exact new fixture only; still restore demo.
+            fixture_path=SOURCE/'.pocoma-local/instances'/INSTANCE
+            fm=json.loads((fixture_path/'manifest.json').read_text())
+            subprocess.run(['docker','compose','-p',fm['project'],'-f',str(fixture_path/'compose.json'),
+                            'stop','--timeout','45'],capture_output=True,text=True,timeout=300)
+    if suspended:
+        demo_compose(['start','postgres'],'demo-resume-postgres')
+        rt.await_check(lambda:rt.sql(path,m,'pocoma','SELECT 1;'),60,'DEMO-PG-RESUME')
+        demo_compose(['start','keycloak'],'demo-resume-keycloak')
+        rt.await_check(lambda:rt.discovery(m['issuer']),150,'DEMO-IDP-RESUME')
+        demo_compose(['start',*rt.RUNTIMES,'prometheus','grafana'],'demo-resume-runtimes')
+        before_generation=rt.generations(path,m)
+        recovered=rt.recovery.await_coverage(lambda:rt.worker_coverage(path,m),lambda:rt.generations(path,m),
+                       lambda data:save('demo-worker-recovery.json',data),before_generation)
+        def healthy():
+            checks=rt.current(path,m)
+            if 'FAIL' in checks.values():raise RuntimeError('DEMO-TECHNICAL-WAIT')
+        rt.await_check(healthy,150,'DEMO-TECHNICAL-RESUME')
+        rt.await_check(lambda:rt.identities(m['issuer'],lambda data:None),150,'DEMO-AUTH-RESUME')
+        final=rt.status(path,m)
+        save('demo-final-status.json',final)
+        after=demo_containers();save('demo-final-containers.json',after)
+        assert all(v['state']=='running' for v in after.values())
+        assert containers_before==after
+        assert files_before==files(path)
+        stable_after=stable_data()
+        assert stable_before==stable_after
+        assert volumes_before.issubset(set(query(['docker','volume','ls','-q']).splitlines()))
+        assert historical_before==dict(sha=query(['git','rev-parse','HEAD'],HISTORICAL),status=query(['git','status','--porcelain=v1'],HISTORICAL))
+        assert untracked_before=={p:hashlib.sha256((HISTORICAL/p).read_bytes()).hexdigest() for p in untracked_before}
+        save('preservation.json',dict(hostFilesPreserved=len(files_before),bytesAndModesIdentical=True,
+             secretsAndConfigurationsUnchanged=True,containersIdentical=True,allDemoContainersRunning=True,
+             volumesPreserved=True,stableData={key:dict(rows=len(stable_before[key]),identical=True) for key in stable_before},
+             historicalCheckoutPreserved=True,noDemoFacadeStart=True,noResetDestroyOrVolumeDeletion=True,
+             demoTechnical=final.get('technical'),demoProofFreshness=final.get('proofFreshness'),
+             note='Demo canary intentionally unchanged; its former process generation is no longer a fresh business proof.'))
+save('clone-final.json',dict(sha=query(['git','rev-parse','HEAD']),status=query(['git','status','--porcelain=v1','--untracked-files=all']),
+     onlyIgnoredGeneratedArtifacts=True,observedAt=time.time()))
+save('qualification.json',dict(success=failure is None,qualifiedSha=EXPECTED,instance=INSTANCE,
+     noMavenTests=True,fullReactor=False,globalArchitectureGate=False))
+print('QUALIFICATION '+('PASS' if failure is None else 'FAIL')+'; DEMO PRESERVED',flush=True)
+if failure:sys.exit(1)
