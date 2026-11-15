@@ -114,7 +114,7 @@ class KeycloakContract(unittest.TestCase):
         original = (runtime.ROOT / 'docker/keycloak/pocoma-realm.json').read_bytes()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)
-            credentials = runtime.private(path)
+            credentials = runtime.private(path, create=True)
             self.assertEqual(dict.fromkeys(kc.LOCAL_USERS, 'pocoma'), credentials['users'])
             self.assertTrue(all(len(p) >= 32 and p != 'pocoma' for p in credentials['passwords'].values()))
             m = dict(owner='id', project='test-project', ports=dict(issuer=12345, write=12346, read=12347, metrics=12348, grafana=12350,
@@ -145,7 +145,8 @@ class KeycloakContract(unittest.TestCase):
             path = Path(directory)
             runtime.save(path / 'secrets.json', {'users': {'guest': 'old-private'}})
             before = (path / 'secrets.json').read_bytes()
-            runtime.private(path)
+            with self.assertRaises(runtime.prerequisites.Failure):
+                runtime.private(path)
             self.assertEqual(before, (path / 'secrets.json').read_bytes())
 
     def test_status_cannot_be_ready_when_guest_authentication_fails(self):

@@ -9,9 +9,14 @@ l'acceptation humaine et de V3_REFERENCE_BASELINE_ACCEPTED.
 ## Démarrer depuis Git
 
 Prérequis hôte : macOS ARM64, Docker Desktop démarré (VM ≥6 Gio, testé à 8 Gio),
-Java/JDK 21, Python ≥3.11, Node 24/npm, Git, réseau pour Maven Central et les
-registres d'images. Les outils hôte se préparent une fois ; la façade vérifie les
-versions et installe les dépendances Bruno verrouillées. Prévoir ≥4 Gio libres
+Java 21 (JDK 21 pour construire), Python ≥3.11, Node 24/npm, Git, réseau pour
+Maven Central, npm et les registres d'images. Le contrat des versions supportées
+est centralisé dans `scripts/local/toolchain.json`. Python est contrôlé avant
+l'import du runtime ; `start` contrôle ses outils, configurations et ressources
+avant de créer l'état de l'instance ou d'installer les dépendances Bruno
+verrouillées. npm ≥7 est nécessaire à leur préparation (lock v3 ; npm12 qualifié),
+pas si la CLI locale 4.3.0 est déjà valide. Maven système n'est pas requis.
+Prévoir ≥4 Gio libres
 si des images doivent être téléchargées ; avec images déjà présentes, le contrôle
 initial exige ≥2 Gio pour build/données, et une reprise avec build en cache
 ≥256 Mio pour diagnostics. Les observations sont dans `resources.json`.
@@ -20,6 +25,16 @@ complet contient plusieurs Go d’archives historiques de preuves ; prévoir une
 marge disque suffisante. Sur un poste contraint, le checkout Git sparse
 `app scripts docker docs/v3` suffit à la distribution (les archives historiques
 restent dans Git et ne sont ni altérées ni nécessaires au démarrage).
+
+Java/JDK et Node ne sont pas exigés pour `--help`, `status`, `stop`, `gui`,
+`login`, `destroy` ou le dry-run de reset. `bruno` demande Node et la CLI, pas
+Java. Un build déjà en cache ne demande pas `javac` ; un build nécessaire
+contrôle aussi le JDK sélectionné par `JAVA_HOME` (ou le PATH). Docker CLI,
+daemon accessible et plugin `docker compose` sont contrôlés pour les commandes
+qui les utilisent ; les capacités Compose de la distribution sont validées sans
+création de service avant un démarrage. Les versions Engine/Compose ne reçoivent
+pas un minimum arbitraire dérivé du seul poste qualifié.
+Voir [refus de prérequis et configurations invalides](L7_LB_Prerequisites_Hardening_and_Requalification_Report.md#diagnostics-et-configurations).
 
 ```sh
 git clone https://github.com/kartaguez/pocoma.git
@@ -102,6 +117,15 @@ privés 0700, secrets 0600 ; les seules montures lues par les UID des conteneurs
 sont 0644 **sous ces dossiers privés**. Ne pas publier cet arbre. Les secrets
 techniques dans `secrets.json` ne doivent pas être copiés dans Git, tickets
 ou commandes. Les comptes de démonstration suivent la convention ci-dessous.
+
+Les secrets sont créés seulement lors de l'initialisation explicite d'une instance
+vierge. Toute instance avec manifeste mais sans `secrets.json`, même encore
+`NEW`, est refusée avec `PRE-SECRETS-MISSING`, sans régénération. JSON invalide,
+clés manquantes ou incohérence entre secrets et fichiers générés provoquent un
+refus avant écriture. Restaurer les fichiers d'origine depuis une sauvegarde,
+conserver les volumes et inspecter la cible ; aucune récupération automatique.
+Un répertoire partiel sans manifeste n'est pas adopté. Les confirmations de
+reset/destroy restent explicites ; l'arrêt de sécurité n'exige pas les secrets.
 
 Après échec, garder le JSON et le dossier `evidence`. Les logs conteneurs
 expurgés sont privés ; pas de copie automatique de bodies HTTP ni de bearer.

@@ -26,6 +26,7 @@ from bootstrap import fingerprint, initialize, ROLES
 from public_api import PublicAPI, canary, seed
 import grafana
 import recovery
+import prerequisites
 
 ROOT = Path(__file__).resolve().parents[2]
 HOME_LOCAL = ROOT / '.pocoma-local'
@@ -77,7 +78,8 @@ def source_hash():
                  'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json']).splitlines()
     paths = set(paths) | {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/local').glob('*.py') if not p.name.startswith('test_')}
     paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'scripts/bruno-playground').rglob('*') if p.is_file() and not (p.parent.name == 'environments' and p.name.startswith('Instance-'))}
-    paths.update(['docker/keycloak/pocoma-realm.json', 'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json'])
+    paths.update(['pocoma-local', 'scripts/local/toolchain.json', 'docker/keycloak/pocoma-realm.json',
+                  'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json'])
     paths |= {str(p.relative_to(ROOT)) for p in (ROOT / 'docker/grafana').rglob('*') if p.is_file()}
     return hashlib.sha256(''.join(p + ':' + hashlib.sha256((ROOT / p).read_bytes()).hexdigest() + '\n'
                                  for p in sorted(paths) if (ROOT / p).is_file() and not Path(p).name.startswith('test_')).encode()).hexdigest()
@@ -151,12 +153,7 @@ def new_manifest(path, instance):
 
 
 def load_manifest(path):
-    m = read(path / 'manifest.json')
-    if (m['schema'] != 1 or m['instance'] != path.name or
-        not re.fullmatch(r'[0-9a-f-]{36}', m['owner']) or
-        m['project'] != 'pocoma-lb-' + path.name + '-' + m['owner'][:8]):
-        raise Refusal('PRE-MANIFEST-IDENTITY')
-    return m
+    return prerequisites.manifest(path)
 
 
 def docker_json(*args):
@@ -208,15 +205,26 @@ def sql(path, m, database, text, timeout=90):
                 '-v', 'ON_ERROR_STOP=1', '-U', 'pocoma', '-d', database], input=text, timeout=timeout)
 
 
-def private(path):
+def private(path, *, create=False):
     file = path / 'secrets.json'
     if file.exists():
-        return read(file)
+        return prerequisites.credentials(file, ROLES, LOCAL_USERS)
+    if not create or (path / 'compose.json').exists():
+        prerequisites.reject('PRE-SECRETS-MISSING', 'Original secrets.json for this instance', 'secrets absent',
+            'Restore the original secrets from backup; preserve data. Secrets will not be regenerated.')
+    if (path / 'manifest.json').exists():
+        m = load_manifest(path)
+        if m['state'] != 'NEW' or any(key in m for key in ('build', 'images', 'issuer')):
+            prerequisites.reject('PRE-SECRETS-MISSING', 'Original secrets.json for a previously initialized instance',
+                                 'existing deployment identity; regeneration refused')
     key = lambda: base64.b64encode(secrets.token_bytes(32)).decode()
     data = dict(passwords={role: secrets.token_urlsafe(32) for role in (*ROLES, 'pocoma', 'keycloak')},
                 users={name: LOCAL_PASSWORD for name in LOCAL_USERS},
                 lookup=key(), comparison=key(), invitation=key())
-    save(file, data)
+    # Exclusive creation: a concurrent/partial initialization must never replace secrets.
+    with file.open('x', encoding='utf-8') as stream:
+        stream.write(json.dumps(data, indent=2) + '\n')
+    file.chmod(0o600)
     return data
 
 
@@ -581,7 +589,7 @@ def diagnostics(path, m, evidence):
         (evidence / 'diagnostics-error.txt').write_text('Container diagnostics unavailable; environment retained.\n')
 
 
-def preflight(path, m):
+def preflight(path, m, *, record=True):
     data = docker_json('info', '--format', '{{json .}}')
     if data['MemTotal'] < 6 * 1024**3:
         raise Refusal('PRE-RESOURCES: Docker >=6GiB')
@@ -593,8 +601,9 @@ def preflight(path, m):
         if result.returncode:
             minimum = max(minimum, 4 * 1024**3)
     free = shutil.disk_usage(ROOT).free
-    save(path / 'resources.json', dict(dockerMemoryBytes=data['MemTotal'], cpus=data['NCPU'],
-         freeDiskBytes=free, requiredDiskBytes=minimum, buildCached=cached))
+    if record:
+        save(path / 'resources.json', dict(dockerMemoryBytes=data['MemTotal'], cpus=data['NCPU'],
+             freeDiskBytes=free, requiredDiskBytes=minimum, buildCached=cached))
     if free < minimum:
         raise Refusal('PRE-DISK: requiredBytes=' + str(minimum) + ', availableBytes=' + str(free))
     architecture = {'aarch64': 'arm64', 'x86_64': 'amd64'}.get(data['Architecture'], data['Architecture'])
@@ -738,7 +747,7 @@ def start_distribution(path, m, evidence):
     cli = ROOT / 'scripts/bruno-v3/node_modules/.bin/bru'
     if not cli.exists():
         run(['npm', 'ci', '--prefix', ROOT / 'scripts/bruno-v3'], timeout=300, log=evidence / 'npm.log')
-    if run([cli, '--version']) != '4.3.0':
+    if run([cli, '--version']) != prerequisites.contract(ROOT)['brunoVersion']:
         raise Refusal('PRE-BRUNO-VERSION')
     images = prepare_images(path, m, evidence)
     if m.get('images') and m['images'] != images:
@@ -1051,7 +1060,7 @@ def bruno(path, m, evidence, interactive_login=False):
     cli = ROOT / 'scripts/bruno-v3/node_modules/.bin/bru'
     if not cli.exists():
         run(['npm', 'ci', '--prefix', ROOT / 'scripts/bruno-v3'], timeout=240, log=evidence / 'npm.log')
-    if run([cli, '--version']) != '4.3.0':
+    if run([cli, '--version']) != prerequisites.contract(ROOT)['brunoVersion']:
         raise Refusal('PRE-BRUNO-VERSION')
     environment = {**os.environ, 'POCOMA_PG_WRITE': urls(m)[0], 'POCOMA_PG_READ': urls(m)[1],
         'POCOMA_PG_ISSUER': m['issuer'], 'POCOMA_PG_OWNER': tokens['third'], 'POCOMA_PG_GUEST': tokens['guest'],
@@ -1095,9 +1104,37 @@ def gui(path, m):
                 next='In Bruno select Instance-' + m['instance'] + '; 00 - Getting Started / 00 Login Owner and 01 Login Guest > Auth > Get Access Token; Run Folder 90 - End-to-End Journeys / J01.')
 
 
+def prepare(command, instance, dry_run=False):
+    """All prerequisites before even creating the instance directory or lock file."""
+    if not re.fullmatch(r'[a-z][a-z0-9-]{0,30}', instance):
+        raise Refusal('PRE-INSTANCE-ID')
+    path = HOME_LOCAL / 'instances' / instance
+    safe_tree(HOME_LOCAL)
+    safe_tree(path)
+    m = prerequisites.instance(path, command, RUNTIMES, ROLES, LOCAL_USERS)
+    starting = command in ('start', 'upgrade-grafana') or (command == 'reset' and not dry_run)
+    build_required = False
+    if starting:
+        prerequisites.sources(ROOT, RUNTIMES)
+        prerequisites.probe('git', ['rev-parse', '--verify', 'HEAD'], 'Git and repository metadata',
+                            'Install Git and use a Git clone, then retry.', cwd=ROOT)
+        inputs = source_hash()
+        build_required = not (HOME_LOCAL / 'builds' / inputs / 'receipt.json').exists()
+    prerequisites.tools(ROOT, command, dry_run, build_required=build_required)
+    if starting:
+        preflight(path, dict(inputs=inputs), record=False)
+        active = run(['docker', 'ps', '-q', '--filter', 'label=' + LABEL]).splitlines()
+        for resource in active:
+            value, = docker_json('inspect', resource)
+            if not m or value['Config']['Labels'].get(LABEL) != m['owner']:
+                raise Refusal('PRE-OTHER-PLAYGROUND-ACTIVE: stop the other instance first')
+    if m:
+        ownership(m)
+
+
 def main():
     os.umask(0o077)
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(prog='pocoma-local', description=__doc__)
     parser.add_argument('command', choices=['start', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
@@ -1114,12 +1151,16 @@ def main():
             raise Refusal('RESET-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED')
         if args.command == 'destroy' and (args.instance is None or args.confirm != 'DESTROY:' + instance):
             raise Refusal('DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED')
+        prepare(args.command, instance, args.dry_run)
         with locked(instance, create=args.command == 'start') as path, lifecycle_lock(args.command):
+            # Revalidate under the lock before writes; preparation above does not create state.
+            prerequisites.instance(path, args.command, RUNTIMES, ROLES, LOCAL_USERS)
             if not (path / 'manifest.json').exists():
                 if args.command != 'start':
                     raise Refusal('PRE-MANIFEST-MISSING')
                 m = new_manifest(path, instance)
                 save(path / 'manifest.json', m)
+                private(path, create=True)
             m = load_manifest(path)
             evidence = path / 'runs' / (str(int(time.time())) + '-' + uuid4().hex[:8])
             evidence.mkdir(parents=True)
@@ -1154,6 +1195,7 @@ def main():
                             file.unlink()
                     m = new_manifest(path, instance)
                     save(path / 'manifest.json', m)
+                    private(path, create=True)
                     result = start(path, m, evidence)
                     result.update(volumes)
             result.update(instance=instance, project=m['project'], sha=run(['git', 'rev-parse', 'HEAD']),
@@ -1169,11 +1211,13 @@ def main():
             print(json.dumps(result, indent=2))
             return result['exit']
     except (Exception, KeyboardInterrupt) as error:
-        code = error.code if isinstance(error, Refusal) else (130 if isinstance(error, KeyboardInterrupt) else 1)
+        code = error.code if isinstance(error, (Refusal, prerequisites.Failure)) else (130 if isinstance(error, KeyboardInterrupt) else 1)
         # Do not stringify HTTP errors: their URLs can contain authorization codes.
         control = str(error) if isinstance(error, (Refusal, RuntimeError)) else type(error).__name__
         result = dict(state='NOT_READY', exit=code, control=control, instance=instance,
                       evidence=str(evidence) if evidence else None, environment='PRESERVED')
+        if isinstance(error, prerequisites.Failure):
+            result['diagnostic'] = error.diagnostic
         if isinstance(error, KeycloakFailure):
             result['diagnostic'] = dict(error.diagnostic, evidence=str(evidence / 'keycloak-auth.json') if evidence else None)
             if evidence and not (evidence / 'keycloak-auth.json').exists():

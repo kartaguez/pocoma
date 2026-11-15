@@ -90,7 +90,7 @@ def qualify(second, output):
         atomic='j1-bootstrap-'+suffix
         with rt.locked(atomic,create=True) as ap:
             am=rt.new_manifest(ap,atomic);am.update(architecture=m['architecture'],images=m['images'])
-            credentials=rt.private(ap);am['issuer']=rt.render(ap,am,credentials);rt.save(ap/'manifest.json',am)
+            credentials=rt.private(ap, create=True);am['issuer']=rt.render(ap,am,credentials);rt.save(ap/'manifest.json',am)
             rt.compose(ap,am,'up','-d','postgres')
             rt.await_check(lambda:rt.sql(ap,am,'pocoma',"SELECT 1 FROM pg_namespace WHERE nspname='keycloak';") or (_ for _ in ()).throw(RuntimeError()),60,'ATOMIC-PG')
             def failing(db,text):

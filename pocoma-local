@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-exec python3 -B "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/scripts/local/runtime.py" "$@"
+if ! command -v python3 >/dev/null 2>&1; then
+  printf '%s\n' 'ERROR — Python unavailable' 'Required: python3 (see scripts/local/toolchain.json)' \
+    'Detected: not found in PATH' 'Action: install Python and rerun ./pocoma-local.' >&2
+  exit 2
+fi
+exec python3 -B "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/scripts/local/entrypoint.py" "$@"

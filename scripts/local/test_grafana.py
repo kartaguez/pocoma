@@ -31,7 +31,7 @@ class GrafanaContract(unittest.TestCase):
     def fixture(self, path):
         m = dict(instance='test', owner='owner', project='project', state='STOPPED', inputs='old',
                  ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})
-        rt.render(path, m, rt.private(path))
+        rt.render(path, m, rt.private(path, create=True))
         return m
 
     def test_ten_distinct_loopback_ports_including_grafana(self):
