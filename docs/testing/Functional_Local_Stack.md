@@ -1,5 +1,8 @@
 # Local functional infrastructure
 
+> [!NOTE]
+> **Fixture de test fonctionnel uniquement (`runtime-monolith`)** : cette stack sert exclusivement aux tests fonctionnels locaux contre le monolithe. Pour la distribution locale à 5 runtimes JVM orchestrée par `./pocoma-local`, consultez [Démarrage rapide](../getting-started/quickstart.md).
+
 This stack is for local functional testing only. It contains PostgreSQL 16.6,
 Keycloak 26.7.0 and the existing `runtime-monolith`. All passwords in the realm,
 Compose file and proof script are disposable local test credentials. Never reuse

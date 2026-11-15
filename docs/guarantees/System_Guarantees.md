@@ -1,5 +1,8 @@
 # System Guarantees — CURRENT et limites
 
+> [!WARNING]
+> **Document historique V2** : établi sur la baseline `c3192f4` (2026-10-05) avant le programme V3/L7 et la consolidation S3. Pour la topologie, la persistance et les réserves courantes, consultez [Vue d'ensemble de l'architecture](../architecture/overview.md), [Persistance PostgreSQL](../architecture/persistence.md) et le [Registre des réserves connues](../v3/L7_Local_Playground_Reservations.md).
+
 Baseline `c3192f4` (2026-10-05). **GUARANTEED BY CODE/SCHEMA** désigne une propriété bornée par les transactions et contraintes présentes ; **PROVEN BY TESTS** nomme seulement les scénarios couverts, sans preuve universelle. **MEASURED** exige une mesure reproductible publiée. **TARGET** et **NOT SPECIFIED** ne sont pas des garanties. Voir le [modèle fonctionnel](../product/Functional_Model.md) et l'[architecture](../architecture/Architecture.md).
 
 Mise à jour bornée du 2026-10-16 : [clôture WP0–WP6 Consumption](../plans/2026-10-16-consumption-generic-transactional-protocol-wp6-closure.md), sans nouvelle baseline globale du système. Les statuts PROVEN de ce chantier renvoient aux scénarios exécutés et à leurs qualifications T01–T11.

@@ -2,202 +2,98 @@
 
 [![Pocoma CI](https://github.com/kartaguez/pocoma/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kartaguez/pocoma/actions/workflows/ci.yml)
 
-Pocoma is a Java 21 application for shared pots: participants can record expenses and derive balances. It is also a serious architecture laboratory for asynchronous command processing, versioned domain state, durable workers, and projection-based reads.
+Pocoma est une plateforme transactionnelle asynchrone bâtie sur le modèle **CQRS** (*Command Query Responsibility Segregation*) en Java 21 / Spring Boot et PostgreSQL 17. Elle sépare strictement l'admission HTTP des commandes, leur traitement asynchrone, la matérialisation des vues de lecture et l'exposition HTTP en lecture seule, avec authentification **OIDC** (Keycloak) et observabilité **Prometheus / Grafana**.
 
-Pocoma is not presented as a production-ready financial product. Its purpose is to make difficult consistency and modularity choices explicit, executable, and testable.
+## Grandes responsabilités du système
 
-## Playground V3 local
+- **Admission HTTP et idempotence (`http-write`)** : expose l'API `/api/v3`, vérifie les jetons OIDC et la liaison applicative (`Binding`), applique le contrôle d'idempotence et enregistre les commandes entrantes côté écriture.
+- **Traitement transactionnel asynchrone (`command-worker`)** : exécute la logique métier sur les partitions d'écriture en JDBC pur (sans JPA/Hibernate) et gère les baux de partition avec renouvellement groupé (`renewBatch`) et fencing strict.
+- **Matérialisation des projections (`results-worker`, `business-read-worker`)** : consomme les résultats et états d'écriture pour mettre à jour les modèles de lecture dédiés sans couplage synchrone avec l'écriture.
+- **Lecture HTTP protégée (`http-read`)** : valide les requêtes et jetons **avant** acquisition des sémaphores de concurrence (`Q=8`), puis sert les vues matérialisées depuis le store de lecture.
+- **Sécurité et observabilité** : authentification OIDC (Code + PKCE S256 via Keycloak), secrets locaux chiffrés/rédigés dans les journaux et métriques Actuator collectées toutes les 2 s par Prometheus vers Grafana.
 
-`./pocoma-local start` prépare les cinq JVM, PostgreSQL WRITE/READ, Keycloak,
-Prometheus et Grafana (neuf conteneurs).
-[Prérequis et démarrage](docs/v3/L7_Local_Playground_Quickstart.md) ·
-[Bruno GUI/CLI](docs/v3/L7_Local_Playground_Bruno.md) ·
-[Contrat BFF](docs/v3/L7_Local_Playground_Public_API.md) ·
-[Qualification et réserves Jalon1](docs/v3/L7_Local_Playground_Qualification_Report.md).
-L7-LB Jalon1 est distinct de la certification globale V3.
+## Architecture générale
 
-Après `./pocoma-local start`, la sortie indique l’URL **Keycloak Admin**
-(`http://localhost:<port>/admin/`) : realm **master**, compte **admin**.
-Le realm **pocoma** fournit **third** (Owner Bruno), **guest** et **bruno**
-(compatibilité/seed). Mot de passe des quatre comptes : **pocoma**, convention
-exclusive au playground L7-LB local, jamais pour L8 ou la production.
-Les secrets PostgreSQL et internes restent aléatoires ; les ports sont liés
-à loopback. `./pocoma-local gui` prépare l’environnement Bruno, puis les
-connexions Owner/Guest utilisent **Auth → Get Access Token**.
-[Diagnostic Keycloak et nettoyage contrôlé](docs/v3/L7_Local_Playground_Keycloak_Diagnostics.md).
-[Remise à zéro exécutée et écart documenté](docs/v3/L7_Local_Playground_Clean_Reset_Report.md).
-
-`start` et `status` exposent aussi `grafana.url` : connexion **admin / pocoma**,
-exclusivement locale. Les deux dashboards Pocoma et la datasource Prometheus
-sont provisionnés automatiquement. Pour une ancienne instance arrêtée :
-`./pocoma-local upgrade-grafana --instance demo` vérifie l'équivalence de la
-distribution avant une mise à niveau sans reset.
-[Observabilité Grafana et diagnostic](docs/v3/L7_Local_Playground_Observability.md).
-
-## Programme V3
-
-Le [plan directeur L0–L8](docs/v3/V3_Implementation_Master_Plan.md) est le point d’entrée opérationnel V3 ; le [canon](docs/v3/V3_Canon_and_Roadmap.md) et les SPEC portent les décisions normatives. **L1 ACCEPTED — internal V3 foundation**, avec [preuves et limites](docs/v3/L1_Documentary_Closure.md), sans certificat V3 complet. **L2 ACCEPTED WITH EXPLICIT RESERVATIONS**, officiellement clos le 30-10-2026 : [décision, preuves et réserves](docs/v3/L2_Documentary_Closure.md). G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. Prochaine intervention : cadrage L3 — Identity, autorisé sous ses propres critères et décisions.
-
-Les chaînes et commandes décrites ci-dessous représentent l’architecture historique encore présente ; elles ne sont pas les contrats ni une distribution V3 certifiée. La convergence vers une seule implémentation Pocoma et la distribution Docker Compose finale sont des chantiers futurs L7/L8 proposés dans le plan directeur.
-
-## Why Pocoma Exists
-
-A shared-pot domain looks simple until an HTTP request, a business mutation, an event, several projections, and an authorization decision happen in different processes and at different times. Pocoma explores how to keep that system honest:
-
-- accepting work must not be confused with completing it;
-- concurrent writers must not silently overwrite newer state;
-- a committed mutation must not lose its business event;
-- a read must not quietly bypass a lagging projection by consulting the write model;
-- retries and worker races must not duplicate authoritative effects;
-- identity and authorization evidence must survive asynchronous execution without persisting bearer tokens.
-
-The emphasis is not on architecture labels. It is on the invariants those boundaries enforce and on the failure modes they make visible.
-
-## Architectural Problems
-
-### Admit now, execute later
-
-`POST /api/v1/commands` authenticates the caller, validates the request envelope, persists an immutable command, and returns `202 Accepted` only after that commit. It does not execute Pot business logic. A separate Command runtime later claims, reloads, authorizes, and executes the intent. This keeps HTTP latency and availability separate from distributed mutation work while preserving the submitted intent, authentication evidence, provenance, and eventual outcome.
-
-### Fence concurrent mutations
-
-Pot mutations operate on a global Pot version. Update commands carry an expected version, business preconditions reject stale state, and persistence advances the active version with a compare-and-set. The winning transaction creates exactly the next version; a command based on an obsolete version cannot be applied as though it were current.
-
-### Avoid a fragile dual write
-
-The winning Command transaction contains the primary mutation, terminal outcome, business Event append, provenance, and final claim fencing. If the worker has lost ownership, the final compare-and-set fails and the whole transaction rolls back. Downstream delivery starts from the durable outbox rather than from an after-commit callback.
-
-### Build reads without disguising the write model as READ
-
-Durable Events create versioned `ProjectionTask`s. Projection workers calculate and publish immutable artifacts such as `AUTH@V`, `READ_POT@V`, and `POT_BALANCES@V`. Exact reads request explicit projection identities and versions. They do not silently fall back to PRIMARY when an artifact is absent.
-
-### Expose asynchronous consistency
-
-Projection work is asynchronous, so temporary unavailability is a valid state rather than something to hide. Exact Pot reads distinguish not-ready (`409`) and failed (`503`) projections. An independent latest-known-version consumer records the greatest Event version it has successfully observed, while worker health, polling, and progress metrics support operations. Pocoma does not claim a bounded convergence time, an availability SLA, or an always-ready `CURRENT` Pot view.
-
-### Let workers race safely
-
-Discovery is best effort and may return the same work to several workers. Durable slots, claims, leases, takeovers, and claim-id fencing decide who may commit. Retries and restarts are expected; losing attempts cannot finalize authoritative effects. Event work is also segmented by Pot so every consequence of one Event is assigned to the same segment.
-
-### Keep business logic independent of runtimes
-
-Domain types and policies do not depend on Spring, HTTP, or persistence. Pure projectors calculate artifacts; engines implement use cases; ports describe required capabilities; adapters connect PostgreSQL, Spring transactions, validation, and HTTP; runtime modules are independent composition roots. This makes business behavior testable without a framework and makes technological replacement or runtime extraction an assembly concern.
-
-### Carry identity across the asynchronous boundary
-
-Spring Security's OAuth2 Resource Server validates the bearer token at admission. Pocoma persists the attested external identity, the presented Binding identity, bounded authentication evidence, and external capabilities—not the raw token. The Command worker re-resolves and fences the exact external-identity/Binding occurrence before committing business work. Read-side authorization uses explicit versioned `AUTH` artifacts; result ownership remains tied to the historical external identity captured for that result.
-
-## Core Guarantees
-
-The precise scope, evidence, and limits of each statement are maintained in [System Guarantees](docs/guarantees/System_Guarantees.md). In summary:
-
-- accepted Commands and Registration Requests are durable and immutable before asynchronous execution;
-- the winning Command execution commits its state change, outcome, business Event, provenance, and ownership fence atomically;
-- stale Pot writes are rejected through expected-version checks and an active-version compare-and-set;
-- exact projection reads do not silently fall back to the write model or another version;
-- missing, failed, and lagging asynchronous work remains explicit; no maximum convergence time is promised;
-- durable claims, retries, takeovers, and fencing make worker execution restart-safe for the tested scenarios;
-- exact projection identities include projection type, target identity, and target version, and published artifacts are immutable;
-- result ownership is evaluated against the historical external identity rather than today's Binding.
-
-These are bounded engineering guarantees, not claims of universal correctness. The canonical document separates properties guaranteed by code/schema, scenarios proven by tests, measured behavior, targets, and unspecified behavior.
-
-## How the System Works
+L'orchestrateur local [`./pocoma-local`](scripts/local/entrypoint.py) déploie une topologie complète de **9 conteneurs** (5 runtimes JVM et 4 services d'infrastructure) :
 
 ```text
-OAuth2 client
-    │
-    ▼
-Web runtime ── commit immutable Command ──► PostgreSQL PRIMARY
-    │                                             │
-    └── 202 Accepted                              ▼
-                                      Command worker claims + fences
-                                                  │
-                                      state + outcome + Event
-                                           one transaction
-                                                  │
-                         ┌────────────────────────┴───────────────────────┐
-                         ▼                                                ▼
-              Event worker creates                            Result consumers and
-              versioned ProjectionTasks                       current-state indexes
-                         │
-                         ▼
-              Projection worker publishes
-              immutable AUTH/READ/BALANCE @ V
-                         │
-                         ▼
-              exact, authorization-aware reads
+Client / Bruno ──(OIDC PKCE S256)──▶ Keycloak (26.7.0)
+      │
+      ├── HTTP écriture (/api/v3) ──▶ http-write (:8080 interne) ──▶ PostgreSQL WRITE (pocoma_write / v3_write)
+      │                                                                       ▲
+      │                                                      command-worker ──┘ (8 partitions WRITE)
+      │                                                                       │
+      │                              results-worker (8 partitions READ) ◀─────┤ (lecture source WRITE → READ)
+      │                              business-read-worker (20 partitions) ◀───┘
+      │                                                                       ▼
+      └── HTTP lecture  (/api/v3) ──▶ http-read  (:8082 interne) ──▶ PostgreSQL READ (pocoma_read / v3_read)
+
+Métriques Actuator (:18080–:18085) ──▶ Prometheus (v3.5.0, 2 s) ──▶ Grafana (12.3.2)
 ```
 
-The reactor currently has nine independent runtime composition roots: Web, Command, Command Result, Event, ProjectionTask, Binding, Latest Known Version, Registration, and Registration Result. No runtime module depends on another runtime module; coordination happens through durable state and explicit contracts.
+> Les bases de données ne publient aucun port hôte vers l'extérieur ; l'accès et l'isolation réseau sont gérés par la topologie locale de [`./pocoma-local`](docs/operations/local-instances.md).
 
-## Architecture
+## Prérequis principaux
 
-The codebase follows dependency direction rather than framework ownership:
+Vérifiés automatiquement au lancement de `./pocoma-local` ([`scripts/local/toolchain.json`](scripts/local/toolchain.json)) :
 
-```text
-domain → engines/projectors → ports → adapters/supras → runtime composition roots
-```
+- **Docker Engine / Docker Desktop** démarré et accessible via le socket Docker
+- **Python ≥ 3.11**
+- **JDK 21** (`java` 21)
+- **Node 24** et **npm ≥ 7** (pour les outils Bruno locaux)
+- Environnement propre : aucune variable globale `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` ou `_JAVA_OPTIONS`, et aucun fichier `maven.config` / `jvm.config` / `extensions.xml` dans `app/.mvn/`
 
-- **Domain** owns business values, policies, version concepts, and generic Consumption primitives.
-- **Engines and projectors** implement business use cases and pure projection calculations.
-- **Ports** state what an engine needs without choosing a technology.
-- **Adapters and supras** bind PostgreSQL, transactions, HTTP, authentication, and worker-specific recipes.
-- **Runtimes** assemble one deployable capability and activate only its own loop or API.
+Pour les détails d'installation et la préparation du poste, voir [Prérequis](docs/getting-started/prerequisites.md).
 
-See the [V3 architecture catalogue and dependency matrix](docs/v3/L7_Target_Modular_Architecture_and_Migration_Plan.md) and the [L7 implementation and qualification report](docs/v3/L7_Modular_Refactoring_Implementation_and_Qualification_Report.md).
+## Installation et démarrage rapide
 
-## Running Locally
-
-Prerequisites:
-
-- Java 21;
-- Docker for PostgreSQL and integration tests;
-- an OAuth2/OIDC issuer when exercising authenticated HTTP endpoints.
-
-Start PostgreSQL and Keycloak, provision the V3 schemas and roles, then start the five local
-processes. The runbook lists the configuration and the independent Web Write, Web Read, Process
-and Materialize runtime artifacts. [Runtime start commands](docs/operations/cmd-start-runtimes.md)
-
-## Validation
-
-The Maven Wrapper is the supported entry point. The full command used by CI is:
+Créer et démarrer l'instance locale par défaut (`demo`) depuis la racine du dépôt :
 
 ```bash
-cd app
-./mvnw --batch-mode --no-transfer-progress test
+./pocoma-local start --instance demo
 ```
 
-The reactor includes module tests, PostgreSQL integration tests through Testcontainers, and global architecture tests. During development, use the smallest canonical verification slice that proves the change; the normative [Reactor Verification Policy](docs/testing/Reactor_Verification_Policy.md) defines those slices and the conditions for escalating to a global proof. See [Continuous Integration](docs/development/ci.md) for the permanent CI contract.
+Vérifier que l'instance est `READY` et que le canari fonctionnel a réussi :
 
-## Observability
+```bash
+./pocoma-local status --instance demo
+```
 
-Worker runtimes expose Spring Boot Actuator health, liveness, readiness, and Prometheus endpoints. Bounded-cardinality metrics cover polling cycles, candidates, executions, duration, running state, and selected capability progress. Durable slots, claims, failures, outcomes, projection failures, and latest-known-version watermarks retain the operational state that metrics deliberately do not duplicate.
+Démarrer Bruno en mode interface graphique ou exécuter les parcours automatisés :
 
-See the [Command runtime](docs/architecture/command-consumption-runtime.md) and [transactional Consumption model](docs/architecture/consumption-transactional-execution.md) for the concrete semantics and limits.
+```bash
+./pocoma-local gui --instance demo
+./pocoma-local bruno --instance demo
+```
+
+Arrêter proprement l'instance tout en conservant les volumes et données PostgreSQL / Keycloak :
+
+```bash
+./pocoma-local stop --instance demo
+```
 
 ## Documentation
 
-The [documentation index](docs/README.md) is the canonical map of `CURRENT`, `TARGET`, historical, and superseded material.
+| Besoin | Document |
+| :--- | :--- |
+| Index complet de la documentation | [docs/README.md](docs/README.md) |
+| Prérequis système et toolchain | [docs/getting-started/prerequisites.md](docs/getting-started/prerequisites.md) |
+| Parcours complet de première utilisation | [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md) |
+| Architecture produit et flux CQRS | [docs/architecture/overview.md](docs/architecture/overview.md) |
+| Runtimes JVM, parallélisme et baux SQL | [docs/architecture/runtimes.md](docs/architecture/runtimes.md) |
+| Bases WRITE/READ et baselines SQL V1 | [docs/architecture/persistence.md](docs/architecture/persistence.md) |
+| Sécurité OIDC, PKCE et secrets | [docs/architecture/security.md](docs/architecture/security.md) |
+| Gestion des instances locales | [docs/operations/local-instances.md](docs/operations/local-instances.md) |
+| Diagnostic et codes d'erreur | [docs/operations/troubleshooting.md](docs/operations/troubleshooting.md) |
+| Référence CLI `./pocoma-local` | [docs/reference/commands.md](docs/reference/commands.md) |
+| Référence de configuration des runtimes | [docs/reference/configuration.md](docs/reference/configuration.md) |
+| Politique de vérification Maven par slices | [docs/testing/Reactor_Verification_Policy.md](docs/testing/Reactor_Verification_Policy.md) |
+| Archives historiques L1–L7 et migrations | [docs/archive/README.md](docs/archive/README.md) |
 
-- **System behavior and guarantees:** [Functional Model](docs/product/Functional_Model.md), [Architecture](docs/architecture/Architecture.md), and [System Guarantees](docs/guarantees/System_Guarantees.md).
-- **Write-side model:** [durable Command admission](docs/architecture/recorded-command-intake.md), [Command persistence](docs/architecture/recorded-command-persistence.md), and [write-side closure](docs/architecture/write-side-closure.md).
-- **Consumption architecture:** [transactional execution](docs/architecture/consumption-transactional-execution.md), [Command runtime](docs/architecture/command-consumption-runtime.md), and [Event runtime](docs/architecture/consumption-event-pull-runtime.md).
-- **Read and projection architecture:** [projection engine](docs/architecture/projection-engine.md), [ProjectionTask execution](docs/architecture/projection-task-execution.md), and [exact-read target](docs/architecture/read-side-target.md). The documentation index identifies which specialized documents are delivered descriptions and which remain target references.
-- **Active design work and debt:** [technical debt registry](docs/debts/README.md). Completed plans and archived designs remain evidence, not current specifications.
+## Contribution, sécurité et licence
 
-## Project Status
+Les contributions ciblées, testées et respectant les frontières modulaires documentées sont les bienvenues. Consultez [CONTRIBUTING.md](CONTRIBUTING.md) et respectez le [Code of Conduct](CODE_OF_CONDUCT.md).
 
-Pocoma is under active architectural development and is primarily maintained by one person. The repository contains substantial executable proofs, but its APIs, deployment model, migrations, and operational practices may still change. There is no published SLA/SLO, compatibility promise, or claim that the application is ready to hold real financial data in production.
+Merci de ne pas divulguer publiquement une vulnérabilité exploitable : suivez les instructions de [SECURITY.md](SECURITY.md) pour tout signalement privé.
 
-## Contributing
-
-Contributions are welcome when they are small, focused, tested, and consistent with the documented boundaries. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-## Security
-
-Please do not disclose an exploitable vulnerability in a public issue. Follow [SECURITY.md](SECURITY.md) for private reporting or for requesting a private contact channel without publishing sensitive details.
-
-## License
-
-Pocoma is licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution information.
+Pocoma est distribué sous licence [Apache License 2.0](LICENSE). Voir [NOTICE](NOTICE) pour les informations d'attribution.

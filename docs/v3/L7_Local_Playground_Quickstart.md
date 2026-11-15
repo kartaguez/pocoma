@@ -1,3 +1,4 @@
+> Navigation produit : pour le guide développeur structuré et la référence CLI à jour, voir [Démarrage rapide](../getting-started/quickstart.md) et [Référence des commandes](../reference/commands.md).
 > Reprise I3 : pour Bruno GUI et CLI, suivre le [guide courant](L7_Local_Playground_Bruno.md). PG01 est remplacé par les requêtes par domaine et les trois parcours visibles J01/J02/J03.
 
 # Pocoma V3 — playground local
@@ -86,7 +87,7 @@ Les diagnostics précédents restent conservés. Stop attend l'arrêt gracieux d
 JVM (45 s par service) puis des dépendances ; volumes et baux sont conservés.
 Le code d'arrêt Docker est conservé dans les reçus/logs privés ; aucun slot
 n'est purgé et aucun bail n'est raccourci. Une reprise après arrêt forcé peut
-attendre les baux existants (lease 240 s). `start` photographie les identifiants,
+attendre les baux existants (TTL SQL nominal réduit à `30 s` via `lease-duration-ms=30000`, anciennement `240 s`). `start` photographie les identifiants,
 dates de création et dates de démarrage réels des cinq conteneurs runtime,
 avant puis après Compose. Il distingue création, recréation, redémarrage et
 conservation. Un worker peut être RUNNING sans avoir acquis ses partitions :
@@ -96,8 +97,8 @@ Après la readiness technique, `start` attend une couverture effective de toutes
 les partitions : 8 baux utilisables pour command-worker, 8 pour results-worker,
 20 pour business-read-worker. Les métriques sont lues directement sur chaque
 worker et corroborées par les 36 propriétés SQL non expirées du catalogue L7-LB.
-Une couverture partielle ne suffit pas. Le budget de récupération est de 270 s
-(240 s de bail inchangé et 30 s de marge technique), avec observations bornées ;
+Une couverture partielle ne suffit pas. Le budget d'observation de récupération de `pocoma-local` reste borné à `270 s`
+(historiquement dimensionné sur `240 s` de bail + `30 s` de marge technique ; malgré la réduction du TTL SQL à `30 s`, le délai effectif inclut scrutation et `claim-duration-ms=60000`), avec observations bornées ;
 il n’impose aucune pause fixe. Le premier démarrage et une reprise conservant
 la couverture complète passent dès la première observation. Les observations,
 générations, transitions et durées sont conservées dans `worker-recovery.json`.

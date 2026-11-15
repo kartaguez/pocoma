@@ -1,5 +1,8 @@
 # Functional Model — CURRENT
 
+> [!WARNING]
+> **Document historique V2 (`/api/v1`)** : ce document décrit le comportement fonctionnel de l'ancienne baseline V2 (`c14751f`, 2026-10-03) et ne couvre pas l'API ni la topologie courante. Pour la documentation produit actuelle, consultez [Vue d'ensemble de l'architecture](../architecture/overview.md) et la [Référence API publique V3](../v3/L7_Local_Playground_Public_API.md).
+
 État livré au HEAD `c14751f` (2026-10-03). Ce texte décrit les comportements observables. Les mécanismes et leurs limites de preuve figurent dans [Architecture](../architecture/Architecture.md) et [System Guarantees](../guarantees/System_Guarantees.md). Une admission acceptée, une décision métier terminale et une vue de lecture disponible sont trois moments distincts.
 
 ## Identité et inscription

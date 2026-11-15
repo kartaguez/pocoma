@@ -1,5 +1,7 @@
 # L7-LB — Keycloak et remise à zéro contrôlée
 
+> Navigation produit : voir aussi [Démarrage rapide](../getting-started/quickstart.md) et [Diagnostic et résolution des incidents locaux](../operations/troubleshooting.md).
+
 Depuis Git : Docker Desktop actif, JDK21, Node24 et Python≥3.11, puis
 `./pocoma-local start --instance demo` et `./pocoma-local gui --instance demo`.
 La sortie donne les URLs et le dossier `evidence`. Admin : URL
@@ -53,7 +55,7 @@ comme un simple URLError ni assimilé à un mauvais mot de passe.
 
 `./pocoma-local stop --instance demo` conserve données/volumes. Après arrêt
 Docker, redémarrer Docker puis `./pocoma-local start --instance demo`, `status`
-et `gui`. Les baux existants peuvent nécessiter l’attente documentée de 240s.
+et `gui`. Le TTL nominal des baux runtime est désormais de `30 s` (`lease-duration-ms=30000`), tandis que `pocoma-local` conserve un budget d'observation de récupération borné jusqu'à `270 s` (historiquement lié aux `240 s`).
 Si PRE-INPUT-DRIFT apparaît, utiliser une instance neuve après arrêt de l’autre,
 ou confirmer volontairement un reset ; ne pas modifier le manifeste à la main.
 

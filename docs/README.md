@@ -1,5 +1,46 @@
 # Documentation Pocoma
 
+## Documentation produit courante (distribution locale)
+
+Cette section rassemble les guides à jour pour comprendre, installer, exploiter et tester Pocoma en local sans connaissance préalable de l'historique L0–L7.
+
+### Prise en main
+- [Prérequis et préparation du poste](getting-started/prerequisites.md)
+- [Démarrage rapide (Quickstart)](getting-started/quickstart.md)
+
+### Architecture produit
+- [Vue d'ensemble de l'architecture](architecture/overview.md)
+- [Runtimes JVM et parallélisme](architecture/runtimes.md)
+- [Persistance PostgreSQL et baselines SQL](architecture/persistence.md)
+- [Sécurité, authentification et gestion des secrets](architecture/security.md)
+
+### Exploitation et référence
+- [Exploitation des instances locales (`pocoma-local`)](operations/local-instances.md)
+- [Diagnostic et résolution des incidents locaux](operations/troubleshooting.md)
+- [Référence des commandes (`./pocoma-local`)](reference/commands.md)
+- [Référence de configuration des runtimes](reference/configuration.md)
+
+### Références techniques applicables
+- [Référence API publique `/api/v3`](v3/L7_Local_Playground_Public_API.md)
+- [Guide Bruno GUI & CLI (`J01`/`J02`/`J03`)](v3/L7_Local_Playground_Bruno.md)
+- [Observabilité locale (Prometheus & Grafana)](v3/L7_Local_Playground_Observability.md)
+- [Diagnostics Keycloak et remise à zéro contrôlée](v3/L7_Local_Playground_Keycloak_Diagnostics.md)
+- [Récupération locale et preuves d'exécution](v3/L7_Local_Playground_Recovery_and_Evidence.md)
+- [Registre des réserves connues](v3/L7_Local_Playground_Reservations.md)
+- [Politique de vérification Maven par slices](testing/Reactor_Verification_Policy.md)
+- [Architecture modulaire et matrice normatives V3](v3/L7_Target_Modular_Architecture_and_Migration_Plan.md)
+- [Développement et CI](development/ci.md)
+
+### Archives
+- [Index des archives documentaires et migrations isolées](archive/README.md)
+
+---
+
+## Archives et historique des jalons L1-L7 et V2
+
+> [!NOTE]
+> Les entrées ci-dessous constituent l'index historique des livrables, rapports de qualification et jalons V2/L1–L7 conservés pour traçabilité. Pour l'installation et l'usage courant, commencez par le [Démarrage rapide](getting-started/quickstart.md).
+
 - L7-LB — [correction OAuth natif Bruno GUI4.2.1](v3/L7_Local_Playground_GUI_Auth_Fix_Report.md) ; parcours sans copie manuelle de JWT, verdict LOCAL_PLAYGROUND_PARTIAL maintenu.
 
 - L7-LB Jalon1 — [start et cycle de vie](v3/L7_Local_Playground_Quickstart.md), [Bruno](v3/L7_Local_Playground_Bruno.md), [API BFF](v3/L7_Local_Playground_Public_API.md), [I1a et scope](v3/L7_Local_Playground_Implementation_Plan.md), [implémentation](v3/L7_Local_Playground_Implementation_Report.md), [qualification](v3/L7_Local_Playground_Qualification_Report.md), [réserves](v3/L7_Local_Playground_Reservations.md). Mandat GO I1a/I2/I3 ; D6–D9 appliquées ; I1b/I4–I6 et acceptation humaine distinctes.
@@ -64,7 +105,7 @@
 
 - [Ratification humaine et GO L5/I1](v3/L5_I1_Human_Ratification_and_GO.md) — **GO historique — IMPLEMENTATION AUTHORIZED**, `f46d63a9`, 04-11-2026 : D4 initial approuvé avec réserves physiques, D6 full unique à Q5 sous couverture effective, plan I1 approuvé. T1+B1 : 15 minutes indicatives, campagne saine menée à terme ; I2–I4/Q5 exclus. Statuts de préparation ci-dessous historiques.
 
-## Programme V3 courant
+### Programme V3 (jalons L5–L7 — suivi historique)
 
 - [Clôture humaine L5/I1](v3/L5_I1_Acceptance_and_Closure_Decision.md) — **L5/I1 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS**, décision du 04-11-2026 sur `a2c83d3e9ea651b8cb3015692fede6652677ddfd`, sources qualifiées `46b94ce69a4b0f42474d38ac10b26daa78bb6b23`. R-I1-01…04 et réserves L1–L4 maintenues ; EXTERNAL AUTHN NOT QUALIFIED. **L5/I2 — CLOSED — LOCAL BOUNDED PASS WITH EXPLICIT RESERVATIONS**, selon l’[acte I2](v3/L5_I2_Acceptance_and_Closure_Decision.md) ; L5 OPEN. Full natif unique dû à Q5 sous couverture effective G5/Architecture, B5 et preuves externes dus indépendamment ; aucune certification globale ni qualification production.
 

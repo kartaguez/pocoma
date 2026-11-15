@@ -1,5 +1,8 @@
 # Architecture V2 après WP6 — archive
 
+> [!NOTE]
+> **Document historique archivé (V2)** : pour la documentation architecture courante de la distribution locale, voir [Vue d'ensemble de l'architecture](overview.md) et [Runtimes JVM et parallélisme](runtimes.md).
+
 Référence du réacteur courant. [Architecture et matrice normatives V3](../v3/L7_Target_Modular_Architecture_and_Migration_Plan.md)
 
 
