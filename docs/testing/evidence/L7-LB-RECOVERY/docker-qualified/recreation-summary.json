@@ -1,0 +1,11 @@
+{
+  "state": "PASS",
+  "generationDetected": true,
+  "leasesInitiallyLive": true,
+  "recoverySeconds": 232.34811115264893,
+  "recoveredAt": 1794737713.040354,
+  "firstAdmissionAt": 1794737713.066296,
+  "canarySeconds": 0.8203136920928955,
+  "unchangedCanaryBudgetSeconds": 30,
+  "mutationsAtResultingVersion": 1
+}

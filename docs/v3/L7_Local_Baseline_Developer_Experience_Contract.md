@@ -69,7 +69,7 @@ Les états métier/authentification, canari, outillage sont séparés dans le JS
 | Commande | Préconditions et actions/contrôles | Données et idempotence | Artefacts, échecs et protection |
 |---|---|---|---|
 | `start` | Git/ref et toolchain déclarés ; Docker disponible, ports/réseau/disque/mémoire contrôlés ; récupérer/construire images du même SHA, PG/IdP prêts, bootstrap unique, grants validés, cinq JVM, observabilité, seed puis smoke | Initialise seulement l'instance neuve possédée ; conserve demo existante compatible ; nouveau start réutilise l'instance et revalide, sans reset ni qualification exhaustive | READY/NOT_READY + JSON ; contrôle manquant identifié ; `1` au défaut, `2` drift incompatible/cible étrangère, `3` concurrence. Préserver environnement et diagnostics en échec |
-| `status` | Lire manifeste puis observations PG/IdP/JVM/maintenance/metrics ; pas de migration/build/admission | Aucune mutation métier ; idempotent sur état stable ; contrôle de l'âge du dernier smoke | `0` READY courant (smoke ≤300 s, contenu et contrôles courants valides), `1` STOPPED/NOT_READY/UNKNOWN ; `2` propriété inconnue. Rapport par contrôle, pas ancien verdict vert recopié |
+| `status` | Lire manifeste puis observations PG/IdP/JVM/maintenance/metrics ; pas de migration/build/admission | Aucune mutation métier ; idempotent sur état stable ; contrôle de l'âge du dernier smoke | `0` READY courant (smoke ≤300 s, même génération effective des cinq runtimes, contenu et contrôles courants valides), `1` STOPPED/NOT_READY/UNKNOWN ; `2` propriété inconnue. Rapport par contrôle, pas ancien verdict vert recopié |
 | `stop` | Manifeste/propriété concordants ; drainage borné puis arrêt ordonné des cinq JVM et auxiliaires possédés ; enregistrer slots/leases/arrêt | Volumes et preuves conservés ; réexécution sur déjà arrêté = `0` ; aucune suppression | Journal durée/état/PID ; `1` drainage/arrêt échoué, `2` cible étrangère. Si SIGKILL nécessaire, tracer le recours et l'état incomplet ; ne pas purger le travail |
 | `reset --instance <id> --confirm RESET:<id>` | Deux facteurs : ID exact et confirmation exacte ; verrou ; prévisualiser ressources ; vérifier labels/UUID/chemins/DB/loopback ; arrêter seulement instance concernée, remplacer son état complet puis appliquer le pipeline bootstrap/seed/smoke de start | Destruction explicite du seul état demo sélectionné (WRITE+READ+realm) ; preuves préservées ; reset demandé de nouveau ramène au même état sémantique canonique, nouveau run-id technique distinct | Plan avant/après + hashes ; `0` seulement si état initial reconstitué READY ; refus (`2`) si mismatch, partagé, label absent ou symlink ; aucune commande globale prune/down sur projet implicite ; état partiel devient NOT_READY (`1`) sans réutilisation aveugle |
 | `verify --profile <nom>` | Demo arrêtée ; plan des contrôles et slices avant effet, projet qualification neuf ; bootstrap, tests déclarés, Bruno automatique, sécurité/reprise selon profil | Peut détruire seulement ses fixtures identifiées ; jamais données demo ; un nouveau run, aucun écrasement d'artefact ; garde l'environnement au défaut | Inventaire attendu/exécuté, XML/HTTP sans secrets, SQL physique, reçus ; `1` FAIL/PARTIAL/INCONCLUSIVE/NOT_RUN requis ; `2` précondition ; aucun cleanup automatique en échec |
@@ -108,7 +108,13 @@ bornes ; une campagne de reconstruction applique son oracle plus strict à la
 barrière B. Ne pas copier un nombre global de checkpoints sans comparer le
 catalogue actif (4 partitions, 7 participants READ actuellement).
 
-Délais séparés build/bootstrap/IdP/JVM/smoke, mesurés par horloge monotone.
+Le [contrat de reprise et de preuves](L7_Local_Playground_Recovery_and_Evidence.md)
+précise la couverture des 36 partitions avant admission, les générations réelles,
+les champs JSON additionnels de `status` et le rapprochement des résultats tardifs.
+Une preuve sans génération, même récente, ne qualifie pas les processus actuels.
+Le dernier start tenté et le dernier start réussi sont conservés séparément.
+
+Délais séparés build/bootstrap/IdP/JVM/récupération/smoke, mesurés par horloge monotone.
 Au dépassement : NOT_READY, contrôle exact, dernière observation, code non nul.
 Pas d'augmentation automatique de délai ni retry métier non déclaré. Un start
 interrompu conserve son manifeste « incomplet » et un reçu ; reprise sous

@@ -20,3 +20,10 @@ aucune des 522 obligations, des15 réserves L7.3, ni les quarantaines i5_r05/i5_
 La [qualification](L7_Local_Playground_Qualification_Report.md) porte la décision
 proposée et les preuves manquantes de Jalon1. Les rapports historiques L7.3
 NOT_CERTIFIED, L7.4 non certifié, L7.5 BLOCKED et L7 OPEN sont inchangés.
+
+
+La [correction de reprise et de preuves](L7_Local_Playground_Recovery_Fix_Report.md)
+qualifie le remplacement réel des trois workers avec anciens baux non expirés,
+le 15 novembre 2026. Elle complète LB-J1-RESTART pour l’orchestration locale,
+sans fermer les campagnes adverses I4, les réserves de sûreté ou les gates I6.
+Les verdicts historiques restent attribués à leurs campagnes d’origine.

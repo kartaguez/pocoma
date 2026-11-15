@@ -1,0 +1,32 @@
+{
+  "http-write": {
+    "containerId": "b23e6a44d2af528c847c56866e69bd42196fca91b94d471b860d564b89231428",
+    "createdAt": "2026-11-15T10:10:42.907355384Z",
+    "startedAt": "2026-11-15T10:10:43.575254592Z",
+    "running": true
+  },
+  "http-read": {
+    "containerId": "d3bacdf678b35f868afaa74be12ebc4d51129a9d33f9f566889c04dd4c4a85ce",
+    "createdAt": "2026-11-15T10:10:42.905886217Z",
+    "startedAt": "2026-11-15T10:10:43.143628134Z",
+    "running": true
+  },
+  "command-worker": {
+    "containerId": "7da69fab68dc70d30c113dd739e31dde293af865207aefda6e188850de0ed886",
+    "createdAt": "2026-11-15T10:10:42.906873634Z",
+    "startedAt": "2026-11-15T10:10:43.432967176Z",
+    "running": true
+  },
+  "results-worker": {
+    "containerId": "79de84d88490893d0d4e4df16dc22b07d510a6c232e8f6df496f24d0722ccfa1",
+    "createdAt": "2026-11-15T10:10:42.909139259Z",
+    "startedAt": "2026-11-15T10:10:43.303070217Z",
+    "running": true
+  },
+  "business-read-worker": {
+    "containerId": "fc7ea8be669dabe239ed6273e17eb61683585fede568f363cb6233074a36b0cc",
+    "createdAt": "2026-11-15T10:10:42.908031009Z",
+    "startedAt": "2026-11-15T10:10:44.124756259Z",
+    "running": true
+  }
+}

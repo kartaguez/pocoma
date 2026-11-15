@@ -1,0 +1,64 @@
+{
+  "runId": "1794737124-a1417807",
+  "generation": {
+    "http-write": {
+      "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+      "createdAt": "2026-11-14T17:15:35.410432175Z",
+      "startedAt": "2026-11-14T22:11:18.87863343Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+      "createdAt": "2026-11-14T17:15:35.410071592Z",
+      "startedAt": "2026-11-14T22:11:18.693843221Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+      "createdAt": "2026-11-14T17:15:35.412248133Z",
+      "startedAt": "2026-11-14T22:11:19.002142472Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+      "createdAt": "2026-11-14T17:15:35.41058505Z",
+      "startedAt": "2026-11-14T22:11:18.613475596Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+      "createdAt": "2026-11-14T17:15:35.410558633Z",
+      "startedAt": "2026-11-14T22:11:18.774835138Z",
+      "running": true
+    }
+  },
+  "generationId": "c4e9e08aacc9e7e4358ab99b567805ec58f4ec6ee805e7ee9e940b9bf27815b4",
+  "recoveryState": "RECOVERED",
+  "admissions": [
+    {
+      "requestId": "7230e225-d627-41e4-aec3-810c55bca0ed",
+      "path": "/commands",
+      "observedAt": 1794737136.0147579,
+      "operation": "CreatePot",
+      "idempotencyKey": "canary-create-v1"
+    },
+    {
+      "requestId": "e82af6b8-f6e1-47d7-94af-1a30f5225a68",
+      "path": "/commands",
+      "observedAt": 1794737136.0973408,
+      "operation": "UpdatePotDetails",
+      "idempotencyKey": "1794737124-a1417807"
+    }
+  ],
+  "lastPoll": {
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e/versions/13/balance",
+    "startedAt": 1794737136.691815,
+    "budgetSeconds": 30,
+    "observedAt": 1794737136.698074,
+    "status": 200,
+    "result": {
+      "potVersion": 13
+    },
+    "completedAt": 1794737136.6988318
+  }
+}

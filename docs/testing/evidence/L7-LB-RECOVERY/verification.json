@@ -1,0 +1,25 @@
+{
+  "state": "PASS",
+  "pythonTests": 80,
+  "pythonFailures": 0,
+  "pythonErrors": 0,
+  "command": "python3 -B -m unittest discover -s scripts/local -p 'test_*.py'",
+  "testedHead": "b7b12c3da8b9fbca0d085110b13ffd1523c6dd7a",
+  "dirty": true,
+  "qualifiedInputs": "266f0f638960da638f5370be64f134bfbde85e96ee4beea6f8645e1df9e571d4",
+  "sourceHashes": {
+    "scripts/local/runtime.py": "c26d5886ad3a1d9f8fdc7f03e7089ec42d63252cab64e3fb821570e382c5c9b8",
+    "scripts/local/public_api.py": "4a9d1a4247256f2e56c519668ce3f9fd700507cf9459774936f015812eeb221d",
+    "scripts/local/recovery.py": "4272abbcf028d2f2170cd7d80800ba871ce6c00fb72f901febaea9e9d3a8ef0b",
+    "scripts/local/test_local.py": "d0cda937472c2ffcf492e48326e6cedc15ff1c2cbf35deabf6114566955f57e6",
+    "scripts/local/test_recovery.py": "01171bf2bdbf06b442c765aa5d1a9a9feb1bfc85a8fdb976d06fc5c6ff90de8a",
+    "scripts/local/test_recovery_installation.py": "f691bfe6d78b3596a445c58d70c0eb42766f3adb90129fa126cc0fc7a92e4b0f"
+  },
+  "appDiff": "",
+  "globalArchitectureGate": "NOT REQUIRED",
+  "fullReactor": "NOT RUN / NOT REQUIRED",
+  "database": "CURRENT V3 fixture; no historical migrations",
+  "secretScan": "PASS: exact private values from demo and fixture plus JWT pattern; values not exported",
+  "evidenceFiles": 119,
+  "evidenceBytes": 962554
+}

@@ -1,0 +1,127 @@
+{
+  "runId": "1794737405-65d3591d",
+  "generation": {
+    "http-write": {
+      "containerId": "b23e6a44d2af528c847c56866e69bd42196fca91b94d471b860d564b89231428",
+      "createdAt": "2026-11-15T10:10:42.907355384Z",
+      "startedAt": "2026-11-15T10:10:43.575254592Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "d3bacdf678b35f868afaa74be12ebc4d51129a9d33f9f566889c04dd4c4a85ce",
+      "createdAt": "2026-11-15T10:10:42.905886217Z",
+      "startedAt": "2026-11-15T10:10:43.143628134Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "7da69fab68dc70d30c113dd739e31dde293af865207aefda6e188850de0ed886",
+      "createdAt": "2026-11-15T10:10:42.906873634Z",
+      "startedAt": "2026-11-15T10:10:43.432967176Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "79de84d88490893d0d4e4df16dc22b07d510a6c232e8f6df496f24d0722ccfa1",
+      "createdAt": "2026-11-15T10:10:42.909139259Z",
+      "startedAt": "2026-11-15T10:10:43.303070217Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "fc7ea8be669dabe239ed6273e17eb61683585fede568f363cb6233074a36b0cc",
+      "createdAt": "2026-11-15T10:10:42.908031009Z",
+      "startedAt": "2026-11-15T10:10:44.124756259Z",
+      "running": true
+    }
+  },
+  "generationId": "fa470d3bcce726096ecca8341a820a2d0b3c264b110cb7d518e65912fbe9dff9",
+  "recoveryState": "RECOVERED",
+  "admissions": [
+    {
+      "requestId": "7054ecf4-d801-4d63-baeb-848c7a96ab0d",
+      "path": "/identity/requests",
+      "observedAt": 1794737456.479087,
+      "operation": "Registration",
+      "idempotencyKey": "registration-c8984773-3cda-40cd-9a2c-830594f483f2"
+    },
+    {
+      "requestId": "51d89b79-db5c-4f44-a095-dbdbbcef7548",
+      "path": "/commands",
+      "observedAt": 1794737457.0710242,
+      "operation": "CreatePot",
+      "idempotencyKey": "seed-v1-create"
+    },
+    {
+      "requestId": "b60a6e58-8eb5-4fba-a05b-9bb371ae4c10",
+      "path": "/commands",
+      "observedAt": 1794737457.241944,
+      "operation": "AddShareholders",
+      "idempotencyKey": "seed-v1-shares"
+    },
+    {
+      "requestId": "68803135-0c3e-4c73-9ddc-b1f94105208f",
+      "path": "/commands",
+      "observedAt": 1794737457.496744,
+      "operation": "CreateExpense",
+      "idempotencyKey": "seed-v1-expense"
+    },
+    {
+      "requestId": "bc5668e3-d217-49ad-a135-a13869a97036",
+      "path": "/commands",
+      "observedAt": 1794737457.640557,
+      "operation": "CreateInvitation",
+      "idempotencyKey": "seed-v1-invite"
+    },
+    {
+      "requestId": "6b1779fa-8c69-4793-a0f5-8b1a81db6f8e",
+      "path": "/commands",
+      "observedAt": 1794737458.091069,
+      "operation": "CreatePot",
+      "idempotencyKey": "seed-v1-deleted-create"
+    },
+    {
+      "requestId": "f6e2097f-fd04-47a1-aaf1-c4ba8a916f7a",
+      "path": "/commands",
+      "observedAt": 1794737458.2236958,
+      "operation": "DeletePot",
+      "idempotencyKey": "seed-v1-deleted-delete"
+    },
+    {
+      "requestId": "992994f0-3d8c-439a-9671-02713f6336d7",
+      "path": "/commands",
+      "observedAt": 1794737458.4371579,
+      "operation": "CreatePot",
+      "idempotencyKey": "canary-create-v1"
+    },
+    {
+      "requestId": "adc980ef-a6c4-42b2-9960-820006f42b78",
+      "path": "/commands",
+      "observedAt": 1794737458.727946,
+      "operation": "UpdatePotDetails",
+      "idempotencyKey": "1794737405-65d3591d"
+    },
+    {
+      "requestId": "97e00c9e-a779-413a-847e-ff26e5514ea8",
+      "path": "/identity/requests",
+      "observedAt": 1794737456.90415,
+      "operation": "Registration",
+      "idempotencyKey": "registration-97b748a4-1b84-4ea2-92fc-9dbf8ca8653e"
+    },
+    {
+      "requestId": "d811139c-3574-457e-bfa0-f10a43015410",
+      "path": "/commands",
+      "observedAt": 1794737457.7999518,
+      "operation": "AttachShareholderViaInvitation",
+      "idempotencyKey": "seed-v1-accept"
+    }
+  ],
+  "lastPoll": {
+    "path": "/pots/48e1fd34-a20f-56e6-aa23-d7a532387f95/versions/2/balance",
+    "startedAt": 1794737458.866838,
+    "budgetSeconds": 30,
+    "observedAt": 1794737458.8768141,
+    "status": 200,
+    "result": {
+      "potVersion": 2
+    },
+    "completedAt": 1794737458.878172
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "observedAt": 1794737464.4424162,
+  "generation": {
+    "http-write": {
+      "containerId": "b23e6a44d2af528c847c56866e69bd42196fca91b94d471b860d564b89231428",
+      "createdAt": "2026-11-15T10:10:42.907355384Z",
+      "startedAt": "2026-11-15T10:10:43.575254592Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "d3bacdf678b35f868afaa74be12ebc4d51129a9d33f9f566889c04dd4c4a85ce",
+      "createdAt": "2026-11-15T10:10:42.905886217Z",
+      "startedAt": "2026-11-15T10:10:43.143628134Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "7da69fab68dc70d30c113dd739e31dde293af865207aefda6e188850de0ed886",
+      "createdAt": "2026-11-15T10:10:42.906873634Z",
+      "startedAt": "2026-11-15T10:10:43.432967176Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "79de84d88490893d0d4e4df16dc22b07d510a6c232e8f6df496f24d0722ccfa1",
+      "createdAt": "2026-11-15T10:10:42.909139259Z",
+      "startedAt": "2026-11-15T10:10:43.303070217Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "fc7ea8be669dabe239ed6273e17eb61683585fede568f363cb6233074a36b0cc",
+      "createdAt": "2026-11-15T10:10:42.908031009Z",
+      "startedAt": "2026-11-15T10:10:44.124756259Z",
+      "running": true
+    }
+  },
+  "leases": {
+    "write": [
+      {
+        "consumptionId": "2999e75c-272d-5afe-a966-c9364ef021fe",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:03.769204+00:00",
+        "remainingSeconds": 239.436831
+      },
+      {
+        "consumptionId": "2999e75c-272d-5afe-a966-c9364ef021fe",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:03.771648+00:00",
+        "remainingSeconds": 239.438925
+      },
+      {
+        "consumptionId": "2999e75c-272d-5afe-a966-c9364ef021fe",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:03.772519+00:00",
+        "remainingSeconds": 239.439794
+      },
+      {
+        "consumptionId": "2999e75c-272d-5afe-a966-c9364ef021fe",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:03.773402+00:00",
+        "remainingSeconds": 239.440677
+      },
+      {
+        "consumptionId": "98f7268d-d340-581c-b83d-010926223e14",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:03.779973+00:00",
+        "remainingSeconds": 239.447247
+      },
+      {
+        "consumptionId": "98f7268d-d340-581c-b83d-010926223e14",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:03.781038+00:00",
+        "remainingSeconds": 239.448311
+      },
+      {
+        "consumptionId": "98f7268d-d340-581c-b83d-010926223e14",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:03.781637+00:00",
+        "remainingSeconds": 239.448909
+      },
+      {
+        "consumptionId": "98f7268d-d340-581c-b83d-010926223e14",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:03.782187+00:00",
+        "remainingSeconds": 239.449458
+      }
+    ],
+    "read": [
+      {
+        "consumptionId": "63664303-d33e-5d42-8cce-c4dae8023311",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:01.778566+00:00",
+        "remainingSeconds": 237.341707
+      },
+      {
+        "consumptionId": "63664303-d33e-5d42-8cce-c4dae8023311",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:01.780362+00:00",
+        "remainingSeconds": 237.343491
+      },
+      {
+        "consumptionId": "63664303-d33e-5d42-8cce-c4dae8023311",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:01.780995+00:00",
+        "remainingSeconds": 237.344123
+      },
+      {
+        "consumptionId": "63664303-d33e-5d42-8cce-c4dae8023311",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:01.781515+00:00",
+        "remainingSeconds": 237.344642
+      },
+      {
+        "consumptionId": "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:01.787399+00:00",
+        "remainingSeconds": 237.350525
+      },
+      {
+        "consumptionId": "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:01.789554+00:00",
+        "remainingSeconds": 237.352679
+      },
+      {
+        "consumptionId": "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:01.790536+00:00",
+        "remainingSeconds": 237.35366
+      },
+      {
+        "consumptionId": "1d8ff246-358f-5ddd-a7f5-416efcfd7445",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:01.794845+00:00",
+        "remainingSeconds": 237.357968
+      },
+      {
+        "consumptionId": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:02.802457+00:00",
+        "remainingSeconds": 238.365579
+      },
+      {
+        "consumptionId": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:02.805894+00:00",
+        "remainingSeconds": 238.369015
+      },
+      {
+        "consumptionId": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:02.808265+00:00",
+        "remainingSeconds": 238.371386
+      },
+      {
+        "consumptionId": "7b8d2838-bf7a-5117-868a-e5c14b4c0221",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:02.809527+00:00",
+        "remainingSeconds": 238.372647
+      },
+      {
+        "consumptionId": "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:02.834385+00:00",
+        "remainingSeconds": 238.397504
+      },
+      {
+        "consumptionId": "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:02.83664+00:00",
+        "remainingSeconds": 238.399758
+      },
+      {
+        "consumptionId": "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:02.837839+00:00",
+        "remainingSeconds": 238.400956
+      },
+      {
+        "consumptionId": "924cd9e3-435d-5804-9d1e-c6aecadb9ab4",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:02.839021+00:00",
+        "remainingSeconds": 238.402137
+      },
+      {
+        "consumptionId": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:02.845604+00:00",
+        "remainingSeconds": 238.408719
+      },
+      {
+        "consumptionId": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:02.847018+00:00",
+        "remainingSeconds": 238.410132
+      },
+      {
+        "consumptionId": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:02.848051+00:00",
+        "remainingSeconds": 238.411164
+      },
+      {
+        "consumptionId": "190a93c6-b8af-5ac7-8001-72e2ec53c2df",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:02.849923+00:00",
+        "remainingSeconds": 238.413035
+      },
+      {
+        "consumptionId": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:02.856965+00:00",
+        "remainingSeconds": 238.420076
+      },
+      {
+        "consumptionId": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:02.858842+00:00",
+        "remainingSeconds": 238.421953
+      },
+      {
+        "consumptionId": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:02.859634+00:00",
+        "remainingSeconds": 238.422744
+      },
+      {
+        "consumptionId": "3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:02.860419+00:00",
+        "remainingSeconds": 238.423528
+      },
+      {
+        "consumptionId": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
+        "partitionId": 0,
+        "ownedUntil": "2026-11-15T10:15:02.86467+00:00",
+        "remainingSeconds": 238.427778
+      },
+      {
+        "consumptionId": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
+        "partitionId": 1,
+        "ownedUntil": "2026-11-15T10:15:02.865509+00:00",
+        "remainingSeconds": 238.428616
+      },
+      {
+        "consumptionId": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
+        "partitionId": 2,
+        "ownedUntil": "2026-11-15T10:15:02.866035+00:00",
+        "remainingSeconds": 238.429139
+      },
+      {
+        "consumptionId": "b4d04cce-b5da-5d1b-9698-5ff9af9a46fa",
+        "partitionId": 3,
+        "ownedUntil": "2026-11-15T10:15:02.912007+00:00",
+        "remainingSeconds": 238.47511
+      }
+    ]
+  }
+}

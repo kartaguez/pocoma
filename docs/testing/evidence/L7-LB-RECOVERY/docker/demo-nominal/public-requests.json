@@ -1,0 +1,100 @@
+[
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "startedAt": 1794737135.739519,
+    "status": 200,
+    "completedAt": 1794737135.792585
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "startedAt": 1794737135.7932448,
+    "status": 202,
+    "completedAt": 1794737136.013639
+  },
+  {
+    "method": "GET",
+    "path": "/commands/7230e225-d627-41e4-aec3-810c55bca0ed/result",
+    "startedAt": 1794737136.016862,
+    "status": 200,
+    "completedAt": 1794737136.030139
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e?minVersion=1",
+    "startedAt": 1794737136.036072,
+    "status": 200,
+    "completedAt": 1794737136.048542
+  },
+  {
+    "method": "POST",
+    "path": "/commands",
+    "startedAt": 1794737136.051577,
+    "status": 202,
+    "completedAt": 1794737136.0961878
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e82af6b8-f6e1-47d7-94af-1a30f5225a68/result",
+    "startedAt": 1794737136.098909,
+    "status": 404,
+    "completedAt": 1794737136.115616
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e82af6b8-f6e1-47d7-94af-1a30f5225a68/result",
+    "startedAt": 1794737136.221833,
+    "status": 404,
+    "completedAt": 1794737136.230608
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e82af6b8-f6e1-47d7-94af-1a30f5225a68/result",
+    "startedAt": 1794737136.33281,
+    "status": 404,
+    "completedAt": 1794737136.3442612
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e82af6b8-f6e1-47d7-94af-1a30f5225a68/result",
+    "startedAt": 1794737136.445834,
+    "status": 404,
+    "completedAt": 1794737136.451924
+  },
+  {
+    "method": "GET",
+    "path": "/commands/e82af6b8-f6e1-47d7-94af-1a30f5225a68/result",
+    "startedAt": 1794737136.555844,
+    "status": 200,
+    "completedAt": 1794737136.5625541
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e?minVersion=13",
+    "startedAt": 1794737136.566717,
+    "status": 503,
+    "completedAt": 1794737136.576606
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e?minVersion=13",
+    "startedAt": 1794737136.6797812,
+    "status": 200,
+    "completedAt": 1794737136.688716
+  },
+  {
+    "method": "GET",
+    "path": "/pots/781047aa-eaf1-51e7-8a03-d512e1389f7e/versions/13/balance",
+    "startedAt": 1794737136.692724,
+    "status": 200,
+    "completedAt": 1794737136.697042
+  },
+  {
+    "method": "GET",
+    "path": "/me/binding",
+    "startedAt": 1794737136.701354,
+    "status": 401,
+    "completedAt": 1794737136.708129
+  }
+]

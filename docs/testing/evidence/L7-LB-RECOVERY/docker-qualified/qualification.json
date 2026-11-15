@@ -1,0 +1,25 @@
+{
+  "state": "PASS",
+  "inputs": "266f0f638960da638f5370be64f134bfbde85e96ee4beea6f8645e1df9e571d4",
+  "sha": "b7b12c3da8b9fbca0d085110b13ffd1523c6dd7a",
+  "dirty": true,
+  "fixture": "recovery-evidence-fix",
+  "scenario": "Actual worker recreation during start with unexpired ownership leases",
+  "checks": [
+    "warm start without recreation",
+    "case alias without recreation",
+    "fresh start",
+    "full partition coverage",
+    "240s lease recovery before admission",
+    "unchanged 30s canary",
+    "one mutation",
+    "late-result GET only",
+    "generation-qualified status",
+    "Keycloak",
+    "WRITE/READ",
+    "Prometheus",
+    "Grafana dashboards",
+    "Bruno",
+    "demo preservation"
+  ]
+}

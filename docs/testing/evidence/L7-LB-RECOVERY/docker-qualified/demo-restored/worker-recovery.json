@@ -1,0 +1,108 @@
+{
+  "startedAt": 1794737753.517768,
+  "budgetSeconds": 270,
+  "before": {
+    "http-write": {
+      "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+      "createdAt": "2026-11-14T17:15:35.410432175Z",
+      "startedAt": "2026-11-14T22:11:18.87863343Z",
+      "running": false
+    },
+    "http-read": {
+      "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+      "createdAt": "2026-11-14T17:15:35.410071592Z",
+      "startedAt": "2026-11-14T22:11:18.693843221Z",
+      "running": false
+    },
+    "command-worker": {
+      "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+      "createdAt": "2026-11-14T17:15:35.412248133Z",
+      "startedAt": "2026-11-14T22:11:19.002142472Z",
+      "running": false
+    },
+    "results-worker": {
+      "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+      "createdAt": "2026-11-14T17:15:35.41058505Z",
+      "startedAt": "2026-11-14T22:11:18.613475596Z",
+      "running": false
+    },
+    "business-read-worker": {
+      "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+      "createdAt": "2026-11-14T17:15:35.410558633Z",
+      "startedAt": "2026-11-14T22:11:18.774835138Z",
+      "running": false
+    }
+  },
+  "after": {
+    "http-write": {
+      "containerId": "19e17b3e2a76b16410bc5f06bea5b25818b3ef276ac76a73084a96e6be25ab2b",
+      "createdAt": "2026-11-14T17:15:35.410432175Z",
+      "startedAt": "2026-11-15T10:15:42.727555592Z",
+      "running": true
+    },
+    "http-read": {
+      "containerId": "ea86a191856938a3f2fc2a23036bf1a1cfbfde75d05f613d6e8d64fa2353960f",
+      "createdAt": "2026-11-14T17:15:35.410071592Z",
+      "startedAt": "2026-11-15T10:15:42.089960717Z",
+      "running": true
+    },
+    "command-worker": {
+      "containerId": "6c25ba8f69bae681c62a4a97616f16e0e49572006e0345ce146b151f12323ae7",
+      "createdAt": "2026-11-14T17:15:35.412248133Z",
+      "startedAt": "2026-11-15T10:15:42.571242717Z",
+      "running": true
+    },
+    "results-worker": {
+      "containerId": "f7a4b68bdd95399fcca9865edf9dd43d222c55c84182d2f1ccf28274fa805c5d",
+      "createdAt": "2026-11-14T17:15:35.41058505Z",
+      "startedAt": "2026-11-15T10:15:42.442304342Z",
+      "running": true
+    },
+    "business-read-worker": {
+      "containerId": "7f6af382162c503baa6f354c77adb792db7666142bd319a7f1ee823d2c2ab0aa",
+      "createdAt": "2026-11-14T17:15:35.410558633Z",
+      "startedAt": "2026-11-15T10:15:42.262953675Z",
+      "running": true
+    }
+  },
+  "transitions": {
+    "http-write": "RESTARTED",
+    "http-read": "RESTARTED",
+    "command-worker": "RESTARTED",
+    "results-worker": "RESTARTED",
+    "business-read-worker": "RESTARTED"
+  },
+  "generationId": "50564f8fc2942297c50c55ee60c3d93bc70f30fef3147cebf22ba8e0bdea74e9",
+  "observations": [
+    {
+      "observedAt": 1794737753.993273,
+      "workers": {
+        "command-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "results-worker": {
+          "expectedLeases": 8,
+          "localUsableLeases": 8.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        },
+        "business-read-worker": {
+          "expectedLeases": 20,
+          "localUsableLeases": 20.0,
+          "running": true,
+          "missingPartitions": [],
+          "qualified": true
+        }
+      },
+      "qualified": true
+    }
+  ],
+  "state": "RECOVERED",
+  "completedAt": 1794737754.7248378,
+  "seconds": 1.2070698738098145
+}

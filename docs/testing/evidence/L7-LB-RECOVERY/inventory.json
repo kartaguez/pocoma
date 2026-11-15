@@ -1,0 +1,599 @@
+{
+  "files": [
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/commands.json",
+      "bytes": 27515,
+      "sha256": "b793d1ef5e08fa76dbbb22de90d1d17d2a1f8a1d70ee72483cef0aba21088b29"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-bruno/bruno-receipt.json",
+      "bytes": 4984,
+      "sha256": "42bd74e73a03946f245ca0cb1621715b5517b36870719b58471bd37282d636ba"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-bruno/bruno.xml",
+      "bytes": 78563,
+      "sha256": "6d3cd396447410e1f9492cf2147032f049d42948cd1cfde25d59ecb20f98fae4"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-bruno/receipt.json",
+      "bytes": 433,
+      "sha256": "c7a70f129ffd89dfbda471686f6cab5fe8af0688582ba64a7ce20c0f6ef9bf6e"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-bruno/scenarios.jsonl",
+      "bytes": 32680,
+      "sha256": "b14074c70439bbb852c28115276c3fe8f1bb7a94059469de8eda7c0794e2b5a1"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/command-observations.json",
+      "bytes": 2169,
+      "sha256": "e6af802a0b8621818efadf0251b4556c9168d4dc9b3101681e531c4c4bd84177"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/generation-before.json",
+      "bytes": 1178,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/grafana.json",
+      "bytes": 9319,
+      "sha256": "26c153b206521669e334ce4d67c6619a0daf5d112d126f51cc9dad65a8e803df"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "99c595802122c00d146db8ff1111297d2f4be6ef3a1938c565057404b78d3af1"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/public-requests.json",
+      "bytes": 1951,
+      "sha256": "aa70ea938778efa73f44206be54fee7d7f604fba8ea9b11199fa5a7ea0d70019"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/receipt.json",
+      "bytes": 5559,
+      "sha256": "bf074c0b8135e94d923e2470818e6db53a72fd49a4e5d60524732e4f9b3e37d4"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/start-attempt.json",
+      "bytes": 287,
+      "sha256": "5eb194a75cad4b565863bcfcd13d4356a24759779d635574951dd1cfe2479960"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-case-alias/worker-recovery.json",
+      "bytes": 3666,
+      "sha256": "94d5931aec7b8f29dfc69ae084b16f334966719fa7660a2a1dbc9412065fb782"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/command-observations.json",
+      "bytes": 2172,
+      "sha256": "ee31997126cfab1331f7fac67dd6c6404159d7d2c8c4f97b63b79d8325cb1480"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/generation-before.json",
+      "bytes": 1178,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/grafana.json",
+      "bytes": 9325,
+      "sha256": "baf58a08655963a703badedc05b6e86d36e86612274a8289485b1dd07ca3118d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "c0532710f8404ab245ffc71318f242ab53cd375f8a8877c4d663d5e1dacf196e"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/public-requests.json",
+      "bytes": 2528,
+      "sha256": "10cf09d7c6df4e8e74f55a035457f29d215e4e607ccc245bc02ea3c3906fa289"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/receipt.json",
+      "bytes": 5562,
+      "sha256": "fd21edcdef5f45767120753ba00babedd797358717af082836da187e6ee39308"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/start-attempt.json",
+      "bytes": 288,
+      "sha256": "ff813368be00c9d05d204011fe1eea5ab334d88285c7c93c7edd4768e17f300a"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/tooling-refresh.json",
+      "bytes": 680,
+      "sha256": "bfd34e399653431d32d037e82b7344eede2170a0eb78a3cb4d5b9e81f5fd7bb3"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-nominal/worker-recovery.json",
+      "bytes": 3664,
+      "sha256": "071349cf68a8916c4cf173eadd6c09ff8504794adc14664ecc59024126a2ad4f"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-status/grafana.json",
+      "bytes": 9319,
+      "sha256": "26c153b206521669e334ce4d67c6619a0daf5d112d126f51cc9dad65a8e803df"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-status/keycloak-auth.json",
+      "bytes": 387,
+      "sha256": "8392cf6cf6fa84c29302dff84966592056434321cab53616665afc719496b1b6"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/demo-status/receipt.json",
+      "bytes": 5634,
+      "sha256": "c5e30f4bec0ab6523b1b441ce39e62d2cd18235e80f3b43ebc87b97e5c8663ac"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/historical-late-result/grafana.json",
+      "bytes": 9319,
+      "sha256": "26c153b206521669e334ce4d67c6619a0daf5d112d126f51cc9dad65a8e803df"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/historical-late-result/keycloak-auth.json",
+      "bytes": 387,
+      "sha256": "f1cb292849e16085a5d51df51eb049e0c4cf79edc998fd4989a777c45cc48faa"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/historical-late-result/late-result.json",
+      "bytes": 315,
+      "sha256": "ab58556e1c0bcb3260fc002ef3f74abd066cdec047835ebb4979969bdb419bab"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/historical-late-result/receipt.json",
+      "bytes": 5990,
+      "sha256": "1f5d3842f9f748072fc2fe704e81c5b65d6c2546414c1d96b57ea69d7d589fd9"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker/initial.json",
+      "bytes": 8208,
+      "sha256": "45db6ea4e1dc555a2180e6d8e446c7d60f92670385d85aa7a0aa8303caa91169"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/commands.json",
+      "bytes": 68483,
+      "sha256": "0f31ae602575d4bfee86c880ccbbb9ce9bd04a56f1bea1369f6b561bd8c697d7"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-bruno/bruno-receipt.json",
+      "bytes": 4984,
+      "sha256": "84a8dfaed146160bfb260c3b31d76dea43d47fb9b591b4aef63434b1e800e144"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-bruno/bruno.xml",
+      "bytes": 78563,
+      "sha256": "74c00c036a30e4b7a4aa1e7a672bd1eb53631aab6d29b54300f95288b7417b2f"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-bruno/command-result.json",
+      "bytes": 433,
+      "sha256": "35721081fb4d15f82b154577881c2499fc4449c0e788111a92a0e8fa65447e1f"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-bruno/receipt.json",
+      "bytes": 433,
+      "sha256": "35721081fb4d15f82b154577881c2499fc4449c0e788111a92a0e8fa65447e1f"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-bruno/scenarios.jsonl",
+      "bytes": 31986,
+      "sha256": "3efc0c61de9069ea15f4fe538b8e901a3ced6f3ec588ea36809426f1aedef9d3"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/command-observations.json",
+      "bytes": 2169,
+      "sha256": "6657722ff325335e5e3e8afc28cca185992a8f78f9d58157252af4dd5352cb6d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/command-result.json",
+      "bytes": 5560,
+      "sha256": "e8ab6258558ce2d2065c3018e77d1dcc88f1d0c22709d5979ec184522a97aadd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/generation-before.json",
+      "bytes": 1178,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/grafana.json",
+      "bytes": 9321,
+      "sha256": "a220b1a6003a479c6909707bc181143c5afb1f7d8f2940849ad58ca7013b2ced"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "19a85a447dfbe367be71f8e9a6e9fcaadb04417f3ad71171426c4dbb53d4097e"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/public-requests.json",
+      "bytes": 1763,
+      "sha256": "aebc97bcd12952aa4730945854cd83d9d31152bba7cd9332d7e627da96116384"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/receipt.json",
+      "bytes": 5560,
+      "sha256": "e8ab6258558ce2d2065c3018e77d1dcc88f1d0c22709d5979ec184522a97aadd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/start-attempt.json",
+      "bytes": 287,
+      "sha256": "8d8f4fb02eac4c4b14a6af11bed05834f506a94c006a36e6cdb49c55e52bfcdb"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-case-alias/worker-recovery.json",
+      "bytes": 3663,
+      "sha256": "7e2383f4f850fc9007ff6841f0e95af224538d1349ec1597754a6c10fee9bcd1"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-final-status/command-result.json",
+      "bytes": 5632,
+      "sha256": "d8313affa88fb305af73af9935a293c3c28b74e9035cd82103f441734d863fa7"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-final-status/grafana.json",
+      "bytes": 9313,
+      "sha256": "5859e946a57d04d8910e4d0a9a9c0cd50485575797df397c058918aae90cad89"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-final-status/keycloak-auth.json",
+      "bytes": 387,
+      "sha256": "8203d235a02d9731a67875a38856fc82695823e1962de1d9814e280db657945f"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-final-status/receipt.json",
+      "bytes": 5632,
+      "sha256": "d8313affa88fb305af73af9935a293c3c28b74e9035cd82103f441734d863fa7"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/command-observations.json",
+      "bytes": 2171,
+      "sha256": "6ec908ba30c8e49d3573fb5d2fc8736dfb11aab4a489c3333d3cbd4584c99cb8"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/command-result.json",
+      "bytes": 5562,
+      "sha256": "526aa33f542fbc78d32a5adc0f1f40100397df4d70a15771a376b49259963e07"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/generation-before.json",
+      "bytes": 1178,
+      "sha256": "d414448d1229ed09c1523f95e2cc9aa02d2b21cfeacaaede7f3b8dd9e7e3bf6c"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/grafana.json",
+      "bytes": 9312,
+      "sha256": "0551f7aaf129b850f3e702b68bbd6950a4e4721607400fe7e149e27c7fa40b36"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "e6f3807b12caaebdb39a88e09239ffe9affdbd2faa3a551de12c4899133e5ed8"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/public-requests.json",
+      "bytes": 1763,
+      "sha256": "0df2ecd3fd815706c3e34ccb2588e3544ffd1de33485b61ff9ba269fe35acc61"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/receipt.json",
+      "bytes": 5562,
+      "sha256": "526aa33f542fbc78d32a5adc0f1f40100397df4d70a15771a376b49259963e07"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/start-attempt.json",
+      "bytes": 288,
+      "sha256": "89de4a514b479e8aff6af7d62d5a149450d453306650537305dc5b960d5d6339"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/tooling-refresh.json",
+      "bytes": 680,
+      "sha256": "1848ada69c969fc1d21352acb5e7a71ed147480246cd14fe6fa6873ad565ce1d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-nominal/worker-recovery.json",
+      "bytes": 3662,
+      "sha256": "7e514330ba76b6d180ccb6aec495a0950551458bb6a8915049a94005feb132cb"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/command-observations.json",
+      "bytes": 2171,
+      "sha256": "8c90673ea6351c785e29ca19c9698d0d5f5c5bfec1625b1381da043829d1c85c"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/command-result.json",
+      "bytes": 5560,
+      "sha256": "e8a90f0ae96ed5dd370245dc0aa1cc69a7a8f021a0fed39e1c3c9d605ea47457"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/generation-before.json",
+      "bytes": 1183,
+      "sha256": "10ba58492dbada410505686daa818980e4cafe7f81b30666786ce2331ec75d9d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/grafana.json",
+      "bytes": 9307,
+      "sha256": "ef8fe9a424a30a1f79859648be9a1180203b8fde4b80f109eaf480b17185af1d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/keycloak-auth.json",
+      "bytes": 387,
+      "sha256": "58680a4bc7d4dd2ada86cdc3b3e10b62eee53585ce0cb8f3da3111912239e4f2"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/public-requests.json",
+      "bytes": 3501,
+      "sha256": "284799690871865732a1dac1be3c7f7688226eafade0fb0bc667437fe8bb88ca"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/receipt.json",
+      "bytes": 5560,
+      "sha256": "e8a90f0ae96ed5dd370245dc0aa1cc69a7a8f021a0fed39e1c3c9d605ea47457"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/start-attempt.json",
+      "bytes": 286,
+      "sha256": "b689122741e634cbee5a30123d9d580794f4f436c93dbf6c76b77d29786358d0"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-restored/worker-recovery.json",
+      "bytes": 3670,
+      "sha256": "627fd9a2f12417efcd7c03a856aec7b933663934321a6aea2548db739e1f8d76"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-status/command-result.json",
+      "bytes": 5634,
+      "sha256": "653bd85fab802c207d6bbb3c7d14b0a8713b677b5d24656b64c25ce403ad3329"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-status/grafana.json",
+      "bytes": 9318,
+      "sha256": "62bd27d6e184dd24c7643beb1c105e81afff37a14e2300de5ed6da5c74de01d1"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-status/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "e48df0a0d236c4f0081dcf43962947f45eb14bc7be3696f0466c18392ded001a"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-status/receipt.json",
+      "bytes": 5634,
+      "sha256": "653bd85fab802c207d6bbb3c7d14b0a8713b677b5d24656b64c25ce403ad3329"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-stop/command-result.json",
+      "bytes": 712,
+      "sha256": "3dc22c7ed1066b8031b8f7eb7aa9dd320b019d5191dfb62764811369500dfdcc"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/demo-stop/receipt.json",
+      "bytes": 712,
+      "sha256": "3dc22c7ed1066b8031b8f7eb7aa9dd320b019d5191dfb62764811369500dfdcc"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/existing-domain-preservation.json",
+      "bytes": 182,
+      "sha256": "ff11a95a49f4243ce0d1eb9cc617aa9473a2d1c68df29525236a88c7aaefd942"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-bruno/bruno-receipt.json",
+      "bytes": 5001,
+      "sha256": "cd0179f60478c89ac7655088750d5c9d73fe0517ea14cfd1043d412e738116bd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-bruno/bruno.xml",
+      "bytes": 78563,
+      "sha256": "cb955521108120cfe9d00f4ee0c8a1f6dc1bed6bb6d356b4461657ac21a60af7"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-bruno/command-result.json",
+      "bytes": 484,
+      "sha256": "0b37c2b067b269105ae1af18b937207b07cc69801b68c9e2933dfa8fd2456acd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-bruno/receipt.json",
+      "bytes": 484,
+      "sha256": "0b37c2b067b269105ae1af18b937207b07cc69801b68c9e2933dfa8fd2456acd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-bruno/scenarios.jsonl",
+      "bytes": 32184,
+      "sha256": "5077698d8303590b66619a4572b90ab722a5625dcb1587b1949f7ad519715576"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/command-observations.json",
+      "bytes": 4221,
+      "sha256": "6d9a11b85db3f4065bc36aaa711bab9a236a22fd47cd45661d87055d7e161f40"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/command-result.json",
+      "bytes": 5633,
+      "sha256": "b51828f8f4c2715c928e7ac3a0c6097ef3e57929b4d44544e4a64ef4a60b5d22"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/generation-before.json",
+      "bytes": 130,
+      "sha256": "ac22e84f965c8d66db15404cdea05e9e871280f25d316bf1c4897e5b703ed77e"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/grafana.json",
+      "bytes": 9309,
+      "sha256": "3403612e4b297ab0b615efdee487051029c04acbde2de0f42b37196a3bf4ce2d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/keycloak-auth.json",
+      "bytes": 386,
+      "sha256": "1d30f182291747e77702834b4ce07c2c77c46444f075ab869544336c2cdf4c28"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/public-requests.json",
+      "bytes": 8964,
+      "sha256": "841113df9a20ee5ae7502174799df1cad6eb3d63d38bee6add688c7440cccda9"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/receipt.json",
+      "bytes": 5633,
+      "sha256": "b51828f8f4c2715c928e7ac3a0c6097ef3e57929b4d44544e4a64ef4a60b5d22"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/start-attempt.json",
+      "bytes": 288,
+      "sha256": "8d170a52dfb9b7452d0ac45fa5a465728a744985e2164f05e8fe95e436e4d6e6"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first/worker-recovery.json",
+      "bytes": 2557,
+      "sha256": "15f17a1f1ac736e51bdf0a64a75947c0ce12642b81d4f6739e845ad1cfa8e25b"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first-status/command-result.json",
+      "bytes": 5705,
+      "sha256": "f9f4cbf220d99230f71939345c581dd90fc5ae49488da7acc760531a531b52bd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first-status/grafana.json",
+      "bytes": 9320,
+      "sha256": "fa571f7f140925b6f41a5be8697fb0c7f021bf4923a91cf81e64c0740574cd8f"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first-status/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "6397ed1b39fc72f44a45fb30daabf609d354ea9c112aa57cb0f5aa46e20896d6"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-first-status/receipt.json",
+      "bytes": 5705,
+      "sha256": "f9f4cbf220d99230f71939345c581dd90fc5ae49488da7acc760531a531b52bd"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/command-observations.json",
+      "bytes": 2170,
+      "sha256": "308181a2c3d872e3b882642193a09b8a1e34c456e0d7344d1827a815c1097ccc"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/command-result.json",
+      "bytes": 4738,
+      "sha256": "5e49069dbd2e6efe3ad10238a4c732ded09279a60f2d7253a730b9c3e3fae3ae"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/generation-before.json",
+      "bytes": 1180,
+      "sha256": "095722f1ce411e533f0a952dea21060d1e5e22a0b002c9ec5cbd877bb07e8738"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/grafana.json",
+      "bytes": 9318,
+      "sha256": "66f0c185a9b590c947eefb737e8096c1538f0d83a10b7835b3cade9e1328bb06"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/keycloak-auth.json",
+      "bytes": 388,
+      "sha256": "16689109d80caa2feda1aa69c9df7bedc96a200dc09c7be276a4e49ce3514cd2"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/public-requests.json",
+      "bytes": 2911,
+      "sha256": "a7237d245d0cca441b02c186527f6e62653b8a2f3f614aeb8204bd1a27e7538b"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/receipt.json",
+      "bytes": 4738,
+      "sha256": "5e49069dbd2e6efe3ad10238a4c732ded09279a60f2d7253a730b9c3e3fae3ae"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/start-attempt.json",
+      "bytes": 286,
+      "sha256": "ca5b95da8d6711d5c43973c97f87c45da1407bc8ddcf0444a6123d995b2cf1b7"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated/worker-recovery.json",
+      "bytes": 137302,
+      "sha256": "7f144b0c271425300881e5945c87f903adb186904e1ddb1aa903ac9d7d452efc"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated-status/command-result.json",
+      "bytes": 5699,
+      "sha256": "28c43f25d353ad868df9a5f65200323c99b42d5eb00788580502ed92816a59f2"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated-status/grafana.json",
+      "bytes": 9317,
+      "sha256": "cabfc8fb6310dafb7ad56c59ca35ccc1bf80691230df5d76f5bdf3fb68616e14"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated-status/keycloak-auth.json",
+      "bytes": 387,
+      "sha256": "894da24bf07b71ececfaa2e012a196a80418315529e9b0cd0a95e2143f3b9cc4"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-recreated-status/receipt.json",
+      "bytes": 5699,
+      "sha256": "28c43f25d353ad868df9a5f65200323c99b42d5eb00788580502ed92816a59f2"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-stop/command-result.json",
+      "bytes": 763,
+      "sha256": "06e6acbf13500560114314a8b8baf61876241c4959fbfaf90d4dea379e8e786b"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/fixture-stop/receipt.json",
+      "bytes": 763,
+      "sha256": "06e6acbf13500560114314a8b8baf61876241c4959fbfaf90d4dea379e8e786b"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/historical-late-result/command-result.json",
+      "bytes": 5989,
+      "sha256": "24998586fa77152bb56637c2baa4f4981448ed33e8677fa6656da94080bf8f61"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/historical-late-result/grafana.json",
+      "bytes": 9318,
+      "sha256": "62bd27d6e184dd24c7643beb1c105e81afff37a14e2300de5ed6da5c74de01d1"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/historical-late-result/keycloak-auth.json",
+      "bytes": 387,
+      "sha256": "972feb19e5db820978eb34b0811e9c29d34116c147bd6a84140c243b2c438913"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/historical-late-result/late-result.json",
+      "bytes": 314,
+      "sha256": "c13f378b589c4e20523ddb034c99ed5383561f412b8c1ec7ca034821df47d641"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/historical-late-result/receipt.json",
+      "bytes": 5989,
+      "sha256": "24998586fa77152bb56637c2baa4f4981448ed33e8677fa6656da94080bf8f61"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/initial.json",
+      "bytes": 8340,
+      "sha256": "88c6278841dd7c8116eeaed1466ea8e4e8b7efa5627d7e0710f0dfdf7b99f568"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/leases-before-recreation.json",
+      "bytes": 8733,
+      "sha256": "d7f623177ef128961f137372c9a651ceb0584f10955da3c6518925999c865b6d"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/preservation.json",
+      "bytes": 5291,
+      "sha256": "891db9f38179dab3af47231a94145282ecf11f9ccf28b9bfdae236540c727a73"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/qualification.json",
+      "bytes": 710,
+      "sha256": "8b6977f5877e002b9b398289091437757ab7676bb8a8df12c72bd53852848f80"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/docker-qualified/recreation-summary.json",
+      "bytes": 314,
+      "sha256": "d9e1621807d87c780d65aa1f2669e105ac217320d945f5a783d6ed8805609447"
+    },
+    {
+      "path": "docs/testing/evidence/L7-LB-RECOVERY/python-tests.txt",
+      "bytes": 2013,
+      "sha256": "80eb448e0210a333d11553d300243d1a7ec7c2e19971787ee78f6ae32a35c956"
+    }
+  ]
+}

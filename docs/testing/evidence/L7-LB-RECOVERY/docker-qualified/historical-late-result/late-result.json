@@ -1,0 +1,13 @@
+{
+  "sourceRunId": "1794676508-e55784d4",
+  "originalState": "NOT_READY",
+  "observedAt": 1794737382.874076,
+  "requestId": "8a22eb39-b241-4263-8910-da026287ebad",
+  "status": 200,
+  "result": {
+    "outcome": "COMPLETED",
+    "resultingPotVersion": 4
+  },
+  "originalVerdictPreserved": true,
+  "readOnly": true
+}

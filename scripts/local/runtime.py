@@ -25,6 +25,7 @@ from keycloak import LOCAL_PASSWORD, LOCAL_USERS, KeycloakFailure, access, disco
 from bootstrap import fingerprint, initialize, ROLES
 from public_api import PublicAPI, canary, seed
 import grafana
+import recovery
 
 ROOT = Path(__file__).resolve().parents[2]
 HOME_LOCAL = ROOT / '.pocoma-local'
@@ -201,10 +202,10 @@ def pg_id(path, m):
     return value
 
 
-def sql(path, m, database, text):
+def sql(path, m, database, text, timeout=90):
     # stdin, no password args/environment; local socket inside owned PG only.
     return run(['docker', 'exec', '-i', pg_id(path, m), 'psql', '-X', '-q', '-tA',
-                '-v', 'ON_ERROR_STOP=1', '-U', 'pocoma', '-d', database], input=text, timeout=90)
+                '-v', 'ON_ERROR_STOP=1', '-U', 'pocoma', '-d', database], input=text, timeout=timeout)
 
 
 def private(path):
@@ -366,45 +367,100 @@ def package(path, m, evidence):
         m['build'] = receipt
 
 
-def recovery_window(path, m, evidence):
-    """Wait the captured physical ownership window before restarting stopped workers.
+def generations(path, m):
+    """Actual container/process incarnations; never infer recreation from Compose stdout."""
+    result = {}
+    if not (path / 'compose.json').exists():
+        return dict.fromkeys(RUNTIMES)
+    for name in RUNTIMES:
+        resource = compose(path, m, 'ps', '-aq', name, timeout=10)
+        if not resource:
+            result[name] = None
+            continue
+        value, = json.loads(run(['docker', 'inspect', resource], timeout=10))
+        result[name] = dict(containerId=value['Id'], createdAt=value['Created'],
+                            startedAt=value['State']['StartedAt'], running=value['State']['Running'])
+    return result
 
-    This does not widen the public polling budget or mutate a lease. Active
-    workers may renew other partitions; only the captured time is awaited.
+
+def worker_coverage(path, m):
+    texts, rows = {}, {}
+    for name in recovery.PARTICIPANTS:
+        with urlopen(f'http://127.0.0.1:{m["ports"][name]}/actuator/prometheus', timeout=2) as response:
+            texts[name] = response.read().decode()
+    for authority in ('write', 'read'):
+        schema = 'v3_' + authority
+        raw = sql(path, m, 'pocoma_' + authority, f"""
+            BEGIN READ ONLY;
+            SET LOCAL statement_timeout='2000ms';
+            SELECT coalesce(json_agg(json_build_object(
+                'consumptionId',c.consumption_id,'partitionId',p.partition_id,
+                'partitionCount',c.partition_count,
+                'live',coalesce(p.owner_token IS NOT NULL AND p.owned_until>clock_timestamp(),false)
+            )), '[]') FROM {schema}.consumption_routing_contract c
+            LEFT JOIN {schema}.partition_ownership p USING(consumption_id);
+            COMMIT;
+        """, timeout=4)
+        rows[authority] = json.loads(raw)
+    return recovery.coverage(texts, rows)
+
+
+def recover_workers(path, m, evidence, before):
+    return recovery.await_coverage(lambda: worker_coverage(path, m), lambda: generations(path, m),
+        lambda record: save(evidence / 'worker-recovery.json', record), before)
+
+
+def refresh_tooling(path, m, evidence):
+    """Prove an existing deployment unchanged before adopting new local-only tooling.
+
+    No reset, build, container restart or silent production-input hash bypass.
     """
-    stopped = []
-    for name in ('command-worker', 'results-worker', 'business-read-worker'):
-        resource = compose(path, m, 'ps', '-aq', name)
-        if resource:
-            value, = docker_json('inspect', resource)
-            if not value['State']['Running']:
-                stopped.append(name)
-    if not stopped:
-        return
-    databases = set()
-    if 'command-worker' in stopped:
-        databases.add(('pocoma_write', 'v3_write'))
-    if any(name != 'command-worker' for name in stopped):
-        databases.add(('pocoma_read', 'v3_read'))
-    observations = {}
-    for db, schema in sorted(databases):
-        seconds = float(sql(path, m, db, f"""
-            SELECT greatest(0,coalesce(extract(epoch from (max(until)-clock_timestamp())),0))
-            FROM (SELECT owned_until AS until FROM {schema}.partition_ownership
-                  UNION ALL SELECT claimed_until FROM {schema}.consumption_slot) AS observed;
-        """))
-        if seconds > 241:
-            raise Refusal('RECOVERY-WINDOW-OUTSIDE-DECLARED-LEASE')
-        observations[db] = seconds
-    wait_seconds = max(observations.values(), default=0)
-    record = dict(stoppedWorkers=stopped, remainingSeconds=observations,
-                  action='WAIT_CAPTURED_WINDOW_NO_LEASE_MUTATION', startedAt=time.time())
-    save(evidence / 'recovery-window.json', record)
-    deadline = time.monotonic() + wait_seconds
-    while time.monotonic() < deadline:
-        time.sleep(min(.5, max(0, deadline-time.monotonic())))
-    record['completedAt'] = time.time()
-    save(evidence / 'recovery-window.json', record)
+    ownership(m)
+    baseline = m.get('build', {}).get('sha', '')
+    if not re.fullmatch(r'[0-9a-f]{40}', baseline):
+        raise Refusal('PRE-TOOLING-BASELINE-UNPROVEN')
+    protected = ['app', 'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
+        'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+        'scripts/local/keycloak.py', 'scripts/local/auth.py',
+        'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json']
+    try:
+        changed = run(['git', 'diff', '--name-only', baseline, '--', *protected]).splitlines()
+        changed += run(['git', 'ls-files', '--others', '--exclude-standard', '--', *protected]).splitlines()
+    except RuntimeError:
+        raise Refusal('PRE-INPUT-DRIFT: tooling baseline unavailable') from None
+    if changed:
+        save(evidence / 'tooling-refresh-refused.json', dict(baseline=baseline, changedProtectedInputs=changed))
+        raise Refusal('PRE-INPUT-DRIFT: production inputs changed; preserve instance')
+    for module, expected in m['build']['jars'].items():
+        if hashlib.sha256((path / (module + '.jar')).read_bytes()).hexdigest() != expected:
+            raise Refusal('PRE-JAR-HASH')
+    old = read(path / 'compose.json')
+    mount_root = Path(old['services']['keycloak']['volumes'][0].split(':')[0]).parent
+    if not mount_root.samefile(path):
+        raise Refusal('PRE-MOUNT-ROOT-DRIFT')
+    candidate = json.loads(json.dumps(m))
+    candidate['mountRoot'] = str(mount_root)
+    with tempfile.TemporaryDirectory(prefix='tooling-refresh-', dir=path) as directory:
+        stage = Path(directory)
+        render(stage, candidate, read(path / 'secrets.json'), deployment_path=path)
+        if read(stage / 'compose.json') != old:
+            raise Refusal('PRE-TOOLING-COMPOSE-DRIFT')
+        for name in ('pg-password', 'pg-init.sql', 'realm.json', 'prometheus.yml'):
+            if (stage / name).read_bytes() != (path / name).read_bytes():
+                raise Refusal('PRE-TOOLING-CONFIG-DRIFT:' + name)
+    previous = m['inputs']
+    candidate['inputs'] = source_hash()
+    build = HOME_LOCAL / 'builds' / candidate['inputs']
+    build.mkdir(parents=True, exist_ok=True)
+    receipt = dict(m['build'], inputs=candidate['inputs'], reusedFromInputs=previous,
+                   reuse='PRODUCTION_AND_DEPLOYMENT_EQUIVALENCE; original build SHA retained')
+    for module in receipt['jars']:
+        shutil.copyfile(path / (module + '.jar'), build / (module + '.jar'))
+    save(build / 'receipt.json', receipt)
+    save(evidence / 'tooling-refresh.json', dict(baseline=baseline, previousInputs=previous,
+        inputs=candidate['inputs'], jars=receipt['jars'], method=receipt['reuse']))
+    m.update(candidate)
+    save(path / 'manifest.json', m)
 
 
 def await_check(action, timeout, name):
@@ -630,10 +686,47 @@ def upgrade_grafana(path, m, evidence):
 
 
 def start(path, m, evidence):
+    history_file = path / 'start-history.json'
+    history = read(history_file) if history_file.exists() else {}
+    attempt = dict(runId=evidence.name, startedAt=time.time(), state='STARTING',
+                   sha=run(['git', 'rev-parse', 'HEAD']), dirty=bool(run(['git', 'status', '--porcelain'])))
+    history['lastStart'] = attempt
+    save(history_file, history)
+    save(evidence / 'start-attempt.json', attempt)
+    try:
+        result = start_distribution(path, m, evidence)
+        attempt.update(state='SUCCEEDED' if result['exit'] == 0 else 'FAILED',
+                       completedAt=time.time(), generationId=result['canaryProof']['generationId'])
+        if result['exit'] == 0:
+            history['lastSuccessfulStart'] = dict(attempt)
+        result.update(lastStart=dict(attempt), lastSuccessfulStart=history.get('lastSuccessfulStart'),
+                      currentGeneration=result['canaryProof']['generation'], generationQualified=True,
+                      technical='AVAILABLE', businessEvidence='PROVEN', proofFreshness='FRESH')
+        return result
+    except (Exception, KeyboardInterrupt) as error:
+        control = str(error) if isinstance(error, (RuntimeError, Refusal)) else type(error).__name__
+        attempt.update(state='FAILED', completedAt=time.time(), control=control)
+        try:
+            attempt['generation'] = generations(path, m)
+            attempt['generationId'] = recovery.identity(attempt['generation'])
+        except Exception:
+            attempt['generationObservation'] = 'UNAVAILABLE'
+        save(evidence / 'failure.json', dict(runId=evidence.name, control=control, observedAt=time.time(),
+            recoveryEvidence='worker-recovery.json', httpEvidence='public-requests.json',
+            commandEvidence='command-observations.json', generation=attempt.get('generation')))
+        raise
+    finally:
+        save(history_file, history)
+        save(evidence / 'start-attempt.json', attempt)
+
+
+def start_distribution(path, m, evidence):
     if m['inputs'] != source_hash():
-        raise Refusal('PRE-INPUT-DRIFT: preserve data; Grafana/tooling-only upgrade: stop then upgrade-grafana; otherwise review drift or use a new instance')
+        refresh_tooling(path, m, evidence)
     if 'grafana' not in m['ports']:
         raise Refusal('GRAFANA_UPGRADE_REQUIRED: run upgrade-grafana --instance ' + m['instance'])
+    before = generations(path, m)
+    save(evidence / 'generation-before.json', before)
     m['architecture'] = preflight(path, m)
     active = run(['docker', 'ps', '-q', '--filter', 'label=' + LABEL]).splitlines()
     for resource in active:
@@ -662,7 +755,6 @@ def start(path, m, evidence):
                 (_ for _ in ()).throw(RuntimeError()), 60, 'DB-INIT-TIMEOUT')
     initialize(lambda db, text: sql(path, m, db, text), credentials['passwords'])
     properties(path, m, credentials)
-    recovery_window(path, m, evidence)
     compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     await_check(lambda: discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = identities(m['issuer'], lambda data: save(evidence / 'keycloak-auth.json', data))
@@ -678,19 +770,34 @@ def start(path, m, evidence):
     if 'FAIL' in checks.values():
         save(evidence / 'checks.json', checks)
         raise RuntimeError('READINESS:' + ','.join(k for k, v in checks.items() if v == 'FAIL'))
+    recovered = recover_workers(path, m, evidence, before)
+    checks['WORKER-PARTITIONS'] = 'PASS'
     owner, guest = tokens['bruno'], tokens['guest']
     write, read_url = urls(m)
-    api, guest_api = PublicAPI(write, read_url, owner), PublicAPI(write, read_url, guest)
+    def persist(client):
+        save(evidence / 'public-requests.json', sorted(api.trace + guest_api.trace, key=lambda row: row['startedAt']))
+        save(evidence / 'command-observations.json', dict(runId=evidence.name, generation=recovered['after'],
+            generationId=recovered['generationId'], recoveryState=recovered['state'],
+            admissions=api.admissions + guest_api.admissions, lastPoll=client.last_poll))
+    api, guest_api = PublicAPI(write, read_url, owner, persist), PublicAPI(write, read_url, guest, persist)
     demo_file = path / 'demo.json'
     demo = seed(m['owner'], api, guest_api, read(demo_file) if demo_file.exists() else {}, lambda s: save(demo_file, s))
     run_id = evidence.name
     state = {}
     canary_result = canary(m['owner'], api, run_id, state, lambda s: save(evidence / 'canary-intent.json', s))
+    after = generations(path, m)
+    if recovery.identity(after) != recovered['generationId']:
+        raise RuntimeError('CANARY-GENERATION-CHANGED')
+    canary_result.update(generationId=recovered['generationId'], generation=after)
     save(path / 'canary.json', canary_result)
     save(evidence / 'public-requests.json', api.trace + guest_api.trace)
     tools = observability(m, wait=True)
     grafana_checks, grafana_diagnostics = grafana.checks(m, RUNTIMES, await_check, save, evidence, wait=True)
     checks.update(grafana_checks)
+    final_generation = generations(path, m)
+    if (recovery.identity(final_generation) != recovered['generationId']
+            or not all(row and row['running'] for row in final_generation.values())):
+        raise RuntimeError('CANARY-GENERATION-CHANGED')
     m.update(state='RUNNING', startedAt=time.time())
     save(path / 'manifest.json', m)
     result = verdict(checks, True, tools, canary_result)
@@ -714,9 +821,32 @@ def verdict(checks, fresh, tools, proof=None):
                 checks=checks, canaryProof=proof, observedAt=time.time())
 
 
-def status(path, m, evidence=None):
+def late_result(path, api, run_id, evidence):
+    if not re.fullmatch(r'[0-9]{10}-[0-9a-f]{8}', run_id):
+        raise Refusal('DIAGNOSTIC-RUN-ID')
+    original = path / 'runs' / run_id
+    receipt = read(original / 'receipt.json')
+    match = re.search(r'API-POLL-TIMEOUT:(/commands/[0-9a-f-]{36}/result)', receipt.get('control', ''))
+    if not match:
+        raise Refusal('DIAGNOSTIC-NO-COMMAND-TIMEOUT')
+    route = match[1]
+    code, data = api.call('GET', route)
+    result = dict(sourceRunId=run_id, originalState=receipt['state'], observedAt=time.time(),
+        requestId=route.split('/')[2], status=code,
+        result={k: data[k] for k in ('outcome', 'resultingPotVersion') if k in data},
+        originalVerdictPreserved=True, readOnly=True)
+    if evidence:
+        save(evidence / 'late-result.json', result)
+    return result
+
+
+def status(path, m, evidence=None, diagnostic_run=None):
     ownership(m)
     checks = current(path, m)
+    before = generations(path, m)
+    history = read(path / 'start-history.json') if (path / 'start-history.json').exists() else {}
+    late = None
+    content_valid = False
     auth_proof = {}
     def record(data):
         auth_proof.update(data)
@@ -727,6 +857,18 @@ def status(path, m, evidence=None):
         checks.update(auth_checks)
         token = tokens['bruno']
         api = PublicAPI(*urls(m), token)
+        requested = diagnostic_run
+        last = history.get('lastStart', {})
+        if not requested and last.get('state') == 'FAILED' and last.get('control', '').startswith('API-POLL-TIMEOUT:/commands/'):
+            requested = last['runId']
+        if requested:
+            try:
+                late = late_result(path, api, requested, evidence)
+            except Exception as error:
+                late = dict(sourceRunId=requested, control='LATE-RESULT-OBSERVATION-FAILED',
+                            errorClass=type(error).__name__, originalVerdictPreserved=True)
+                if evidence:
+                    save(evidence / 'late-result.json', late)
         proof_file = path / 'canary.json'
         if proof_file.exists():
             proof = read(proof_file)
@@ -736,6 +878,7 @@ def status(path, m, evidence=None):
             status_code, view = api.call('GET', '/pots/' + proof['potId'], binding=binding['bindingToken'])
             if status_code != 200 or view['potVersion'] != proof['version'] or view['label'] != 'canary-' + proof['runId']:
                 raise RuntimeError('READ-CANARY')
+            content_valid = True
         checks['IDP-PKCE-SESSION'] = 'PASS'
     except Exception:
         checks['IDP-PKCE-SESSION'] = 'FAIL'
@@ -743,8 +886,23 @@ def status(path, m, evidence=None):
     grafana_checks, grafana_diagnostics = grafana.checks(m, RUNTIMES, await_check, save, evidence)
     checks.update(grafana_checks)
     proof = read(path / 'canary.json') if (path / 'canary.json').exists() else None
-    fresh = bool(proof and 0 <= time.time() - proof['completedAt'] <= MAX_AGE)
-    result = verdict(checks, fresh, observability(m), proof)
+    after = generations(path, m)
+    freshness = recovery.proof_state(proof, after, time.time(), MAX_AGE)
+    freshness['demonstrated'] = freshness['demonstrated'] and content_valid
+    if recovery.identity(before) != recovery.identity(after):
+        freshness.update(generationQualified=False, demonstrated=False)
+    proof = dict(proof, generationQualified=freshness['generationQualified']) if proof else None
+    result = verdict(checks, freshness['demonstrated'], observability(m), proof)
+    technical = all(v == 'PASS' for k, v in checks.items() if not k.startswith('GRAFANA-'))
+    result.update(technical='AVAILABLE' if technical else 'UNAVAILABLE',
+        businessEvidence='PROVEN' if freshness['demonstrated'] else 'UNPROVEN',
+        lastStart=history.get('lastStart'), lastSuccessfulStart=history.get('lastSuccessfulStart'),
+        currentGeneration=after, generationQualified=freshness['generationQualified'],
+        proofFreshness='FRESH' if freshness['fresh'] else 'STALE_OR_MISSING', proofAgeSeconds=freshness['ageSeconds'])
+    if technical and not freshness['demonstrated']:
+        result['business'] = 'UNPROVEN'
+    if late:
+        result['lateResult'] = late
     if 'diagnostic' in auth_proof:
         result['diagnostic'] = auth_proof['diagnostic']
     if grafana_diagnostics:
@@ -945,7 +1103,10 @@ def main():
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--interactive', action='store_true')
+    parser.add_argument('--run', help='status only: read the late result of a timed-out run')
     args = parser.parse_args()
+    if args.run and args.command != 'status':
+        parser.error('--run is only valid with status')
     instance = args.instance or 'demo'
     path = evidence = m = None
     try:
@@ -967,7 +1128,7 @@ def main():
             elif args.command == 'upgrade-grafana':
                 result = upgrade_grafana(path, m, evidence)
             elif args.command == 'status':
-                result = status(path, m, evidence)
+                result = status(path, m, evidence, args.run)
             elif args.command == 'stop':
                 result = stop(path, m, evidence)
             elif args.command == 'bruno':

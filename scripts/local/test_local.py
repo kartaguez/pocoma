@@ -99,18 +99,20 @@ class LocalSafety(unittest.TestCase):
                 self.assertEqual(2,runtime.main())
             self.assertFalse((target/'manifest.json').exists())
 
-    def test_recovery_waits_observed_lease_without_mutation_or_polling_extension(self):
-        with tempfile.TemporaryDirectory() as folder, patch.object(runtime,'compose',return_value='stopped-worker'), \
-             patch.object(runtime,'docker_json',return_value=[{'State':{'Running':False}}]), \
-             patch.object(runtime,'sql',return_value='0') as sql:
-            runtime.recovery_window(Path(folder),{},Path(folder))
-            data=json.loads((Path(folder)/'recovery-window.json').read_text())
-            self.assertEqual('WAIT_CAPTURED_WINDOW_NO_LEASE_MUTATION',data['action'])
-            self.assertEqual(2,sql.call_count)
-            for call in sql.call_args_list:
-                self.assertNotIn('UPDATE',call.args[3])
-                self.assertNotIn('DELETE',call.args[3])
-            self.assertIn('completedAt',data)
+    def test_recovery_coverage_uses_read_only_sql_without_polling_extension(self):
+        from test_recovery import observations
+        texts, rows = observations()
+        responses = iter([__import__('io').BytesIO(texts[name].encode()) for name in runtime.recovery.PARTICIPANTS])
+        with patch.object(runtime, 'urlopen', side_effect=lambda *a, **k: next(responses)), \
+             patch.object(runtime, 'sql', side_effect=[json.dumps(rows['write']),json.dumps(rows['read'])]) as sql:
+            coverage = runtime.worker_coverage(Path('/unused'), {'ports':dict.fromkeys(runtime.recovery.PARTICIPANTS,1)})
+        self.assertTrue(all(row['qualified'] for row in coverage.values()))
+        self.assertEqual(36,sum(row['expectedLeases'] for row in coverage.values()))
+        self.assertEqual(2,sql.call_count)
+        for call in sql.call_args_list:
+            self.assertIn('BEGIN READ ONLY;',call.args[3])
+            self.assertNotIn('UPDATE',call.args[3])
+            self.assertNotIn('DELETE',call.args[3])
 
     def test_health_only_cannot_be_ready(self):
         result=runtime.verdict({'HTTP':'PASS'},False,'AVAILABLE')

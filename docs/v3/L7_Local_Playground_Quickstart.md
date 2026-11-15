@@ -71,11 +71,23 @@ Les diagnostics précédents restent conservés. Stop attend l'arrêt gracieux d
 JVM (45 s par service) puis des dépendances ; volumes et baux sont conservés.
 Le code d'arrêt Docker est conservé dans les reçus/logs privés ; aucun slot
 n'est purgé et aucun bail n'est raccourci. Une reprise après arrêt forcé peut
-attendre les baux existants (lease 240 s). Lorsqu’un worker arrêté doit
-redémarrer, start photographie la fenêtre physique PG de propriété/claim et
-attend son échéance avant le démarrage et le nouveau canari ; son reçu
-`recovery-window.json` conserve la durée réelle. Cette attente bornée par les
-240 s déclarées ne change ni les échéances ni le polling public de 30 s.
+attendre les baux existants (lease 240 s). `start` photographie les identifiants,
+dates de création et dates de démarrage réels des cinq conteneurs runtime,
+avant puis après Compose. Il distingue création, recréation, redémarrage et
+conservation. Un worker peut être RUNNING sans avoir acquis ses partitions :
+les baux de son prédécesseur restent protégés jusqu’à leur échéance.
+
+Après la readiness technique, `start` attend une couverture effective de toutes
+les partitions : 8 baux utilisables pour command-worker, 8 pour results-worker,
+20 pour business-read-worker. Les métriques sont lues directement sur chaque
+worker et corroborées par les 36 propriétés SQL non expirées du catalogue L7-LB.
+Une couverture partielle ne suffit pas. Le budget de récupération est de 270 s
+(240 s de bail inchangé et 30 s de marge technique), avec observations bornées ;
+il n’impose aucune pause fixe. Le premier démarrage et une reprise conservant
+la couverture complète passent dès la première observation. Les observations,
+générations, transitions et durées sont conservées dans `worker-recovery.json`.
+Le canari commence ensuite ; son polling métier conserve son budget de 30 s.
+Voir le [contrat détaillé de reprise et diagnostic](L7_Local_Playground_Recovery_and_Evidence.md).
 
 Le verrou d'instance refuse les opérations concurrentes ; un second verrou
 sérialise start/reset entre instances, un verrou de build protège Maven. Les
@@ -96,8 +108,11 @@ expurgés sont privés ; pas de copie automatique de bodies HTTP ni de bearer.
 Le bootstrap est transactionnel **par base**, marque chaque base seulement
 après SQL et grants complets ; une interruption entre WRITE et READ reprend
 la base manquante. Aucun baseline TRUSTED ni migration historique V2 n'est
-supposé. Un changement d'entrées productives/SQL/outillage fait refuser le
-start existant. Pour une instance sans Grafana, une mise à niveau explicite
+supposé. Un changement d’entrées productives/SQL fait refuser le start existant.
+Une évolution du seul tooling local est adoptée par `start` uniquement après
+preuve d’équivalence des entrées productives au SHA du build, des hashes JAR,
+du Compose et des configurations générées. `tooling-refresh.json` conserve
+cette preuve ; aucun reset ni nouveau build n’est implicite. Pour une instance sans Grafana, une mise à niveau explicite
 non destructive est disponible :
 
 ```sh

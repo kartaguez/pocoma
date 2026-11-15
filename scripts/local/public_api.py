@@ -14,9 +14,12 @@ def require(value, control):
 
 
 class PublicAPI:
-    def __init__(self, write, read, token):
+    def __init__(self, write, read, token, persist=None):
         self.write, self.read, self.token = write, read, token
         self.trace = []
+        self.admissions = []
+        self.persist = persist or (lambda api: None)
+        self.last_poll = None
 
     def call(self, method, path, body=None, binding=None, key=None, token=True):
         base = self.write if method == 'POST' and path in ('/commands', '/identity/requests') else self.read
@@ -31,31 +34,60 @@ class PublicAPI:
             headers['Content-Type'] = 'application/json'
         request = urllib.request.Request(base + '/api/v3' + path, method=method, headers=headers,
                                          data=None if body is None else json.dumps(body).encode())
+        record = dict(method=method, path=path, startedAt=time.time())
         try:
-            response = urllib.request.urlopen(request, timeout=10)
-        except urllib.error.HTTPError as error:
-            response = error
+            try:
+                response = urllib.request.urlopen(request, timeout=10)
+            except urllib.error.HTTPError as error:
+                response = error
+        except (urllib.error.URLError, TimeoutError, OSError) as error:
+            record.update(completedAt=time.time(), status=None, control='API-NETWORK-ERROR', errorClass=type(error).__name__)
+            self.trace.append(record)
+            self.persist(self)
+            raise RuntimeError('API-NETWORK-ERROR:' + method + ':' + path) from None
         with response:
             status = response.code
-            data = json.loads(response.read())
+            record.update(status=status, completedAt=time.time())
+            self.trace.append(record)
+            self.persist(self)
+            try:
+                data = json.loads(response.read())
+            except (urllib.error.URLError, TimeoutError, OSError) as error:
+                record.update(completedAt=time.time(), control='API-NETWORK-ERROR', errorClass=type(error).__name__)
+                self.persist(self)
+                raise RuntimeError('API-NETWORK-ERROR:' + method + ':' + path) from None
+            record['completedAt'] = time.time()
+            self.persist(self)
             require(response.headers.get('Cache-Control') == 'no-store', 'API-CACHE-CONTROL')
         # No response bodies, binding, invitation links, or credentials in evidence.
-        self.trace.append(dict(method=method, path=path, status=status))
         return status, data
 
     def poll(self, path, binding=None, predicate=lambda data: True):
         deadline = time.monotonic() + 30
+        self.last_poll = dict(path=path, startedAt=time.time(), budgetSeconds=30)
+        self.persist(self)
         while time.monotonic() < deadline:
             status, data = self.call('GET', path, binding=binding)
+            # Strict allowlist: never archive arbitrary bodies (binding/invitation secrets).
+            self.last_poll.update(observedAt=time.time(), status=status,
+                result={k: data[k] for k in ('outcome', 'resultingPotVersion', 'potVersion') if k in data})
+            self.persist(self)
             if status == 200 and predicate(data):
+                self.last_poll['completedAt'] = time.time()
+                self.persist(self)
                 return data
             require(status in (200, 404, 503), 'API-POLL-STATUS')
             time.sleep(.1)
+        self.last_poll.update(control='API-POLL-TIMEOUT', completedAt=time.time())
+        self.persist(self)
         raise RuntimeError('API-POLL-TIMEOUT:' + path)
 
     def submit(self, path, body, key):
         status, data = self.call('POST', path, body, key=key)
-        require(status == 202 and set(data) == {'requestId'}, 'API-ADMISSION:' + path + ':' + str(status) + ':' + str(data.get('code', '')))
+        require(status == 202 and set(data) == {'requestId'}, 'API-ADMISSION:' + path + ':' + str(status))
+        self.admissions.append(dict(requestId=data['requestId'], path=path, observedAt=time.time(),
+                                    operation=body.get('operation'), idempotencyKey=key))
+        self.persist(self)
         result = self.poll(path + '/' + data['requestId'] + '/result')
         require(result.get('outcome') == 'COMPLETED', 'API-BUSINESS-RESULT')
         return data['requestId'], result
