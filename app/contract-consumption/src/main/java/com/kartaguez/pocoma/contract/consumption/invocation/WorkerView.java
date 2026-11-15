@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.contract.consumption.invocation;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
 import java.util.*;
 
 public interface WorkerView {

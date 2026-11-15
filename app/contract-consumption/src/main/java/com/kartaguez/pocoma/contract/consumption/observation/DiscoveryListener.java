@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.contract.consumption.observation;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
 import java.util.UUID;
 
 public interface DiscoveryListener {

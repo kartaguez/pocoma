@@ -1,8 +1,8 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.v3.*;
+import com.kartaguez.pocoma.domain.projection.*;
 
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.v3.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
 import java.util.*;
 import java.util.function.Function;
 

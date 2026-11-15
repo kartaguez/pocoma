@@ -1,10 +1,10 @@
 package com.kartaguez.pocoma.architecture.qualification;
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 
-import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition.Authority;
+import com.kartaguez.pocoma.domain.consumption.*;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -34,7 +34,7 @@ public record QualificationSettings(
         Pool readBusiness,
         Pool readControl,
         List<DevTarget> allowedTargets,
-        V3ConsumptionWorker.Settings polling,
+        ConsumptionWorker.Settings polling,
         LifecycleSettings lifecycle) {
     public static final String PROFILE = "v3-consumption-worker-dev";
     public static final String READ_PROFILE = "v3-read-worker";
@@ -284,7 +284,7 @@ public record QualificationSettings(
                                         PREFIX + "lifecycle.retry-max-failures", Integer.class, 3),
                                 duration(env, "lifecycle.retry-delay-ms", 30000)));
         var settings =
-                new V3ConsumptionWorker.Settings(
+                new ConsumptionWorker.Settings(
                         batch,
                         env.getProperty(PREFIX + "quantum", Integer.class, 1),
                         duration(env, "min-poll", 10),
@@ -455,11 +455,11 @@ public record QualificationSettings(
     public static ConsumptionDefinition definition(String name) {
         return switch (name) {
             case "IdentityRequest" ->
-                    com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions().stream()
+                    com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog.definitions().stream()
                             .filter(d -> d.family() == ConsumableFamily.IDENTITY_REQUEST)
                             .findFirst()
                             .orElseThrow();
-            case "Command" -> com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions().getFirst();
+            case "Command" -> com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog.definitions().getFirst();
             case "I5ReadPotProbe" -> probeDefinitions().get(0);
             case "I5ReadCompletionProbe" -> probeDefinitions().get(1);
             default -> {
@@ -467,13 +467,13 @@ public record QualificationSettings(
                 if (index < 0)
                     throw new IllegalArgumentException("source/participant not delivered");
                 int catalogIndex = index == 6 ? 5 : index < 3 ? index + 2 : index + 3;
-                yield com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions().get(catalogIndex);
+                yield com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog.definitions().get(catalogIndex);
             }
         };
     }
 
     public List<ConsumptionDefinition> catalog() {
-        var result = new ArrayList<>(com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions());
+        var result = new ArrayList<>(com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog.definitions());
         if (technicalProbes) result.addAll(probeDefinitions());
         return List.copyOf(result);
     }

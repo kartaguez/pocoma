@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_JAR = ROOT / "app/runtime-worker-process/target/pocoma-runtime-worker-process-0.0.1-SNAPSHOT-exec.jar"
-MAIN = "com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentTools"
+MAIN = "com.kartaguez.pocoma.runtime.command.dev.WorkerDevelopmentTools"
 
 
 def properties(path: Path) -> dict[str, str]:

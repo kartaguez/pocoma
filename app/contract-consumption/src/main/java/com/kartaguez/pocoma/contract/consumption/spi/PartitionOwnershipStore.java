@@ -3,7 +3,7 @@ import com.kartaguez.pocoma.contract.consumption.participation.*;
 import com.kartaguez.pocoma.contract.consumption.spi.*;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 
 import java.time.Duration;

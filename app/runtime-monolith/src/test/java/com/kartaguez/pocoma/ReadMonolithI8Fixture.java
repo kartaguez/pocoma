@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
-import com.kartaguez.pocoma.compose.web.read.v3.V3ReadFacadeComposition;
-import com.kartaguez.pocoma.infra.postgres.core.v3.*;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
+import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
+import com.kartaguez.pocoma.infra.postgres.core.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
@@ -9,26 +9,26 @@ import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.domain.consumption.v3.*;
+import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
-import com.kartaguez.pocoma.engine.write.identity.v3.ExecuteIdentityRequest;
+import com.kartaguez.pocoma.domain.identity.BindingToken;
+import com.kartaguez.pocoma.engine.write.identity.ExecuteIdentityRequest;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.v3.*;
-import com.kartaguez.pocoma.infra.postgres.write.v3.PotCommandJson;
-import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
-import com.kartaguez.pocoma.infra.postgres.write.v3.identity.*;
-import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
-import com.kartaguez.pocoma.port.transaction.v3.*;
+import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
+import com.kartaguez.pocoma.infra.postgres.write.*;
+import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.identity.*;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
+import com.kartaguez.pocoma.port.transaction.*;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
@@ -179,7 +179,7 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
                             "grant-l2-discovery.sql")) script(script, w);
         }
         script("grant-l7-write-source-read.sql",true);
-        var maintenance=new com.kartaguez.pocoma.infra.postgres.read.v3.maintenance.JdbcReadMaintenanceAuthority(read);
+        var maintenance=new com.kartaguez.pocoma.infra.postgres.read.maintenance.JdbcReadMaintenanceAuthority(read);
         maintenance.ensureInitialized();
         read.execute("grant select on public.read_maintenance_state to "+readRole);
         String prefix = "pocoma.v3.worker.";
@@ -492,12 +492,12 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         return result.toString();
     }
 
-    V3ConsumptionWorker worker(ConfigurableApplicationContext ctx) {
-        return ctx.getBean("materializeWorker", V3ConsumptionWorker.class);
+    ConsumptionWorker worker(ConfigurableApplicationContext ctx) {
+        return ctx.getBean("materializeWorker", ConsumptionWorker.class);
     }
 
     void drain(ConfigurableApplicationContext ctx) throws Exception {
-        var workers = ctx.getBeansOfType(V3ConsumptionWorker.class).values();
+        var workers = ctx.getBeansOfType(ConsumptionWorker.class).values();
         var callback = new AtomicInteger();
         workers.forEach(worker -> worker.requestDrain(callback::incrementAndGet));
         await(() -> callback.get() == workers.size() && workers.stream()
@@ -718,21 +718,21 @@ public final class ReadMonolithI8Fixture implements AutoCloseable {
         return values;
     }
 
-    static com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources
+    static com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources
             materialize(ConfigurableApplicationContext context) {
-        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration.Resources.class);
+        return context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration.Resources.class);
     }
 
-    static com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources
+    static com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources
             process(ConfigurableApplicationContext context) {
-        return context.getBean(com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration.Resources.class);
+        return context.getBean(com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration.Resources.class);
     }
 
-    V3ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {
+    ReadFacadeComposition.Services services(ConfigurableApplicationContext context) {
         var resources = materialize(context);
-        var settings = context.getBean(com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings.class);
-        return V3ReadFacadeComposition.create(resources.readBusiness, resources.readEffects,
-                new com.kartaguez.pocoma.contract.readquery.ReadLimitsV3(
+        var settings = context.getBean(com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings.class);
+        return ReadFacadeComposition.create(resources.readBusiness, resources.readEffects,
+                new com.kartaguez.pocoma.contract.readquery.ReadLimits(
                         Integer.parseInt(properties.get(WORKER + "read-limits.expense-batch").toString()),
                         Integer.parseInt(properties.get(WORKER + "read-limits.navigation-page").toString()),
                         Integer.parseInt(properties.get(WORKER + "read-limits.response-budget").toString())),

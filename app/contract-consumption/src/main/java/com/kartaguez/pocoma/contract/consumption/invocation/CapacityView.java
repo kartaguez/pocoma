@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.contract.consumption.invocation;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import java.util.Map;
 
 public interface CapacityView {

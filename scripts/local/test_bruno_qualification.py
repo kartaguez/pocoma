@@ -83,9 +83,9 @@ class BrunoQualification(unittest.TestCase):
             if url.startswith(('{{writeUrl}}','{{readUrl}}')):
                 route=re.sub(r'^\{\{[^}]+\}\}', '',url)
                 declared.add((method,normalize(route)))
-        source=root/'app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read/v3'
+        source=root/'app/supra-web-read/src/main/java/com/kartaguez/pocoma/supra/web/read'
         public=set()
-        for file in [source/'V3ReadController.java',source/'V3InvitationController.java',root/'app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/v3/V3AdmissionController.java']:
+        for file in [source/'ReadController.java',source/'InvitationController.java',root/'app/supra-web-write/src/main/java/com/kartaguez/pocoma/supra/web/write/AdmissionController.java']:
             text=file.read_text()
             for method,path in re.findall(r'@(Get|Post)Mapping\("([^"]+)"\)',text):
                 if not path.startswith('/api/v3'):path='/api/v3'+path

@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma;
 
-import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeComposeConfiguration;
-import com.kartaguez.pocoma.compose.polling.process.v3.ProcessComposeConfiguration;
-import com.kartaguez.pocoma.compose.web.read.v3.V3ReadHttpConfiguration;
-import com.kartaguez.pocoma.compose.web.write.v3.V3AdmissionHttpConfiguration;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeComposeConfiguration;
+import com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration;
+import com.kartaguez.pocoma.compose.web.read.ReadHttpConfiguration;
+import com.kartaguez.pocoma.compose.web.write.AdmissionHttpConfiguration;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,8 +28,8 @@ import java.util.Set;
             "org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration"
         })
 @Import({
-    V3AdmissionHttpConfiguration.class,
-    V3ReadHttpConfiguration.class,
+    AdmissionHttpConfiguration.class,
+    ReadHttpConfiguration.class,
     ProcessComposeConfiguration.class,
     MaterializeComposeConfiguration.class
 })

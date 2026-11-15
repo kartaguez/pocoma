@@ -1,8 +1,8 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
-import com.kartaguez.pocoma.compose.polling.materialize.v3.V3ReadParticipants;
-import com.kartaguez.pocoma.compose.web.read.v3.V3ReadFacadeComposition;
-import com.kartaguez.pocoma.infra.postgres.core.v3.*;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
+import com.kartaguez.pocoma.compose.polling.materialize.ReadParticipants;
+import com.kartaguez.pocoma.compose.web.read.ReadFacadeComposition;
+import com.kartaguez.pocoma.infra.postgres.core.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
@@ -10,24 +10,24 @@ import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
-import com.kartaguez.pocoma.contract.readquery.ReadLimitsV3;
-import com.kartaguez.pocoma.contract.readquery.ReadPotV3Result;
+import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
+import com.kartaguez.pocoma.contract.readquery.ReadLimits;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.domain.consumption.v3.*;
+import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.read.pot.v3.*;
+import com.kartaguez.pocoma.engine.read.pot.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
-import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
-import com.kartaguez.pocoma.port.transaction.v3.*;
+import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
+import com.kartaguez.pocoma.port.transaction.*;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.*;
@@ -60,7 +60,7 @@ class ReadWorkerResourcesPostgresTest {
 
     private static Field fixtureField(Object target, String name) throws NoSuchFieldException {
         if (target instanceof com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol)
-            return com.kartaguez.pocoma.orchestrator.consumption.v3.AbstractConsumptionProtocol.class
+            return com.kartaguez.pocoma.orchestrator.consumption.AbstractConsumptionProtocol.class
                     .getDeclaredField("engine");
         return target.getClass().getDeclaredField(name);
     }
@@ -97,8 +97,8 @@ class ReadWorkerResourcesPostgresTest {
     }
 
     @SuppressWarnings("unchecked")
-    static List<V3ConsumptionWorker.Binding> bindings(V3ConsumptionWorker worker) {
-        return (List<V3ConsumptionWorker.Binding>) field(worker, "bindings");
+    static List<ConsumptionWorker.Binding> bindings(ConsumptionWorker worker) {
+        return (List<ConsumptionWorker.Binding>) field(worker, "bindings");
     }
 
     static Object invoke(Object target, Method method, Object[] args) throws Throwable {
@@ -118,7 +118,7 @@ class ReadWorkerResourcesPostgresTest {
         }
     }
 
-    static V3ConsumptionWorker.Binding binding(V3ConsumptionWorker worker, String name) {
+    static ConsumptionWorker.Binding binding(ConsumptionWorker worker, String name) {
         return bindings(worker).stream()
                 .filter(b -> b.definition().equals(MaterializeSettings.definition(name)))
                 .findFirst()
@@ -590,7 +590,7 @@ class ReadWorkerResourcesPostgresTest {
                 var ctx = f.start();
                 var worker = f.worker(ctx);
                 var capacity = materialize(ctx).capacityView().orElseThrow();
-                var processWorker = ctx.getBean("processWorker", V3ConsumptionWorker.class);
+                var processWorker = ctx.getBean("processWorker", ConsumptionWorker.class);
                 var cohostedBindings = new ArrayList<>(bindings(worker));
                 cohostedBindings.addAll(bindings(processWorker));
                 assertNotSame(capacity, process(ctx).capacityView().orElseThrow());
@@ -779,10 +779,10 @@ class ReadWorkerResourcesPostgresTest {
                         new HoldingReadSource(materialize(ctx).readBusiness);
                 var readOwner = new SpringAttemptTransactions(heldRead, manager(heldRead), 60);
                 var facade =
-                        V3ReadFacadeComposition.create(
+                        ReadFacadeComposition.create(
                                 heldRead,
                                 readOwner,
-                                new ReadLimitsV3(50, 20, 16000000),
+                                new ReadLimits(50, 20, 16000000),
                                 Set.copyOf(MaterializeSettings.READ_NAMES),
                                 Optional::empty);
                 try (var threads = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -814,7 +814,7 @@ class ReadWorkerResourcesPostgresTest {
                                                         0));
                         latch(heldRead.entered, "two actual READ consultation loans");
                         assertInstanceOf(
-                                ReadPotV3Result.Unavailable.class,
+                                ReadPotResult.Unavailable.class,
                                 facade.current(f.eui("owner"), "not-used", pot.value(), 0),
                                 "third consultation rejected by quota without borrowing control");
                         // READ upper-bound loans stand for four effects plus the two consultation
@@ -908,9 +908,9 @@ class ReadWorkerResourcesPostgresTest {
                         f.physical("T10-batch-" + batch);
                         heldRead.release.countDown();
                         assertInstanceOf(
-                                ReadPotV3Result.Available.class, a.get(10, TimeUnit.SECONDS));
+                                ReadPotResult.Available.class, a.get(10, TimeUnit.SECONDS));
                         assertInstanceOf(
-                                ReadPotV3Result.Available.class, b.get(10, TimeUnit.SECONDS));
+                                ReadPotResult.Available.class, b.get(10, TimeUnit.SECONDS));
                     } finally {
                         heldRead.release.countDown();
                         for (var loan : loans) loan.close();
@@ -938,7 +938,7 @@ class ReadWorkerResourcesPostgresTest {
                     var owner = new SpringAttemptTransactions(fault, manager(fault), 60);
                     var resources = materialize(ctx);
                     var participants =
-                            V3ReadParticipants.create(
+                            ReadParticipants.create(
                                     materialize(ctx).writeSourceRead,
                                     resources.sourceReads,
                                     fault,
@@ -961,7 +961,7 @@ class ReadWorkerResourcesPostgresTest {
                     replace(
                             selected.engine(),
                             "participant",
-                            participants.get(V3ReadParticipants.Name.POT_VERSION).participant());
+                            participants.get(ReadParticipants.Name.POT_VERSION).participant());
                     for (boolean committed : List.of(batch == 32)) {
                         fault.commitFirst = committed;
                         fault.armed.set(true);

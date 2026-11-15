@@ -1,11 +1,11 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.v3.*;
+import com.kartaguez.pocoma.domain.projection.*;
 
-import static com.kartaguez.pocoma.contract.readquery.ReadPotV3Result.*;
-import com.kartaguez.pocoma.domain.pot.v3.*;
-import com.kartaguez.pocoma.domain.projection.v3.*;
+import static com.kartaguez.pocoma.contract.readquery.ReadPotResult.*;
+import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.domain.projection.*;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.*;
@@ -19,9 +19,9 @@ public interface InvitationRead {
     }
     public record Place(UUID shareholderId, String name) {}
     public interface Queries {
-        ReadPotV3Result<Link> link(ExternalIdentity eui, UUID creationRequestId);
+        ReadPotResult<Link> link(ExternalIdentity eui, UUID creationRequestId);
 
-        ReadPotV3Result<List<Place>> places(
+        ReadPotResult<List<Place>> places(
                 ExternalIdentity eui, String bindingToken, String invitationToken);
     }
 

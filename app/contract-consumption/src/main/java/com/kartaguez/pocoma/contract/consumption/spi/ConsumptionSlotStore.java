@@ -3,11 +3,11 @@ import com.kartaguez.pocoma.contract.consumption.participation.*;
 import com.kartaguez.pocoma.contract.consumption.spi.*;
 import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings.RetryPolicy;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 import java.time.*;
 import java.util.*;

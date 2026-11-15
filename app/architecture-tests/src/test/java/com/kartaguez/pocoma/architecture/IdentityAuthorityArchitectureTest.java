@@ -1,0 +1,231 @@
+package com.kartaguez.pocoma.architecture;
+import com.kartaguez.pocoma.compose.polling.process.IdentityRequestComposition;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.tngtech.archunit.core.importer.*;
+
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.*;
+import java.util.*;
+
+/** Identity and its Pot adapter share the existing L2 owner and unique EUI protection path. */
+class IdentityAuthorityArchitectureTest {
+    static final String ROOT = "com.kartaguez.pocoma";
+    static final com.tngtech.archunit.core.domain.JavaClasses CLASSES =
+            new ClassFileImporter()
+                    .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+                    .importPackages(ROOT);
+
+    @Test
+    void l3_identity_authority_has_no_owner_or_runtime() {
+        var authority =
+                CLASSES.stream()
+                        .filter(c -> c.getSimpleName().equals("JdbcIdentityAuthority"))
+                        .findFirst()
+                        .orElseThrow();
+        assertTrue(
+                authority.getAllRawInterfaces().stream()
+                        .anyMatch(c -> c.getSimpleName().equals("IdentityAuthority")));
+        assertTrue(
+                authority.getMethodCallsFromSelf().stream()
+                        .anyMatch(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("SpringAttemptTransactions")
+                                                && c.getTarget().getName().equals("guarded")));
+        noClasses()
+                .that()
+                .resideInAPackage(ROOT + ".infra.postgres.write.identity..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "org.springframework.transaction.annotation..",
+                        "org.springframework.transaction.support.TransactionTemplate",
+                        "org.springframework.orm.jpa..",
+                        "jakarta.persistence..",
+                        ROOT + ".runtime..",
+                        ROOT + ".infra.postgres.read..")
+                .check(CLASSES);
+        for (var c :
+                CLASSES.stream()
+                        .filter(
+                                c ->
+                                        c.getPackageName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".infra.postgres.write.identity"))
+                        .toList()) {
+            for (var dependency : c.getDirectDependenciesFromSelf()) {
+                if (dependency.getTargetClass().getPackageName().startsWith(ROOT + ".domain.pot")) {
+                    assertEquals("JdbcIdentityPotActorAuthority", c.getSimpleName());
+                    assertEquals(
+                            ROOT + ".domain.pot.value.UserId",
+                            dependency.getTargetClass().getName());
+                }
+            }
+        }
+        for (var c :
+                CLASSES.stream()
+                        .filter(
+                                c ->
+                                        c.getPackageName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".infra.postgres.write.identity"))
+                        .toList()) {
+            assertFalse(
+                    c.getMethodCallsFromSelf().stream()
+                            .anyMatch(
+                                    call ->
+                                            Set.of(
+                                                                    "commit",
+                                                                    "rollback",
+                                                                    "getConnection",
+                                                                    "setSavepoint",
+                                                                    "bindResource",
+                                                                    "registerSynchronization",
+                                                                    "write",
+                                                                    "read",
+                                                                    "scheduleAtFixedRate")
+                                                            .contains(call.getTarget().getName())
+                                                    && !call.getTargetOwner()
+                                                            .getName()
+                                                            .equals(c.getName())),
+                    c.getName());
+        }
+    }
+
+    @Test
+    void l3_real_authority_delegates_without_a_second_lock_protocol() throws Exception {
+        var adapter =
+                CLASSES.stream()
+                        .filter(c -> c.getSimpleName().equals("JdbcIdentityPotActorAuthority"))
+                        .findFirst()
+                        .orElseThrow();
+        assertTrue(
+                adapter.getAllRawInterfaces().stream()
+                        .anyMatch(c -> c.getSimpleName().equals("PotActorAuthority")));
+        var calls = adapter.getMethodCallsFromSelf();
+        assertEquals(
+                1,
+                calls.stream()
+                        .filter(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("JdbcIdentityAuthority")
+                                                && c.getTarget()
+                                                        .getName()
+                                                        .equals("lockInCanonicalOrder"))
+                        .count());
+        assertTrue(
+                calls.stream()
+                        .anyMatch(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("JdbcIdentityAuthority")
+                                                && c.getTarget().getName().equals("current")));
+        var code =
+                Files.readString(
+                        Path.of(
+                                "../infra-postgres-write/src/main/java/"
+                                    + "com/kartaguez/pocoma/infra/postgres/write/identity/"
+                                    + "JdbcIdentityPotActorAuthority.java"));
+        assertFalse(code.toLowerCase(Locale.ROOT).contains("for update"));
+        assertFalse(code.contains("pg_advisory"));
+        assertFalse(code.contains("v3_pot_"));
+        assertTrue(code.contains("v3_identity_anchor_state,"));
+        assertTrue(code.contains("v3_identity_version_state immediate"));
+    }
+
+    @Test
+    void l3_identity_participant_and_factory_keep_l2_ownership() {
+        noClasses()
+                .that()
+                .haveNameMatching(".*engine.write.identity.ExecuteIdentityRequest.*")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "org.springframework..",
+                        "jakarta.persistence..",
+                        "java.sql..",
+                        "javax.sql..",
+                        ROOT + ".infra..",
+                        ROOT + ".runtime..")
+                .check(CLASSES);
+        noClasses()
+                .that()
+                .haveNameMatching(".*engine.write.identity.ExecuteIdentityRequest.*")
+                .should()
+                .dependOnClassesThat()
+                .haveFullyQualifiedName(ROOT + ".port.transaction.AttemptTransactions")
+                .check(CLASSES);
+        var factory =
+                CLASSES.stream()
+                        .filter(c -> c.getSimpleName().equals("IdentityRequestComposition"))
+                        .findFirst()
+                        .orElseThrow();
+        assertFalse(
+                factory.getMethodCallsFromSelf().stream()
+                        .anyMatch(
+                                c ->
+                                        Set.of(
+                                                        "commit",
+                                                        "rollback",
+                                                        "getConnection",
+                                                        "write",
+                                                        "read")
+                                                .contains(c.getTarget().getName())));
+        assertTrue(
+                factory.getMethodCallsFromSelf().stream()
+                        .anyMatch(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("ConsumptionLifecycleComposition")
+                                                && c.getTarget().getName().equals("assemble")));
+    }
+
+    @Test
+    void l3_canonical_acquisition_is_the_only_eui_writer_path() throws Exception {
+        var root = Path.of("../infra-postgres-write/src/main/java");
+        try (var files = Files.walk(root)) {
+            for (var path : files.filter(p -> p.toString().endsWith(".java")).toList()) {
+                String code = Files.readString(path);
+                if (code.contains("insert into v3_eui_authority")
+                        || code.contains("update v3_eui_authority"))
+                    assertEquals("JdbcIdentityAuthority.java", path.getFileName().toString());
+            }
+        }
+        var code =
+                Files.readString(
+                        root.resolve(
+                                "com/kartaguez/pocoma/infra/postgres/write/identity/JdbcIdentityAuthority.java"));
+        assertTrue(code.contains("ExternalUserIdentity::compareKeys"));
+        assertTrue(code.contains("on conflict (issuer,subject) do nothing"));
+        assertFalse(code.contains("pg_advisory"));
+        assertFalse(code.contains("REQUIRES_NEW"));
+        var generator =
+                CLASSES.stream()
+                        .filter(c -> c.getSimpleName().equals("SecureBindingTokenGenerator"))
+                        .findFirst()
+                        .orElseThrow();
+        assertTrue(
+                generator.getMethodCallsFromSelf().stream()
+                        .anyMatch(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getName()
+                                                        .equals("java.security.SecureRandom")
+                                                && c.getTarget().getName().equals("nextBytes")));
+        assertFalse(
+                generator.getDirectDependenciesFromSelf().stream()
+                        .anyMatch(d -> d.getTargetClass().getName().equals("java.util.UUID")));
+    }
+}

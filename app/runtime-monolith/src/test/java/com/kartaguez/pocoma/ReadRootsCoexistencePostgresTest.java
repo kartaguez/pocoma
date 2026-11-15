@@ -1,15 +1,15 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.domain.consumption.v3.*;
+import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.orchestrator.consumption.v3.WorkerCapacity;
+import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.*;
@@ -40,7 +40,7 @@ class ReadRootsCoexistencePostgresTest {
             f.select(List.of(), false);
             var idle = f.start();
             assertTrue(
-                    idle.getBeansOfType(V3ConsumptionWorker.class).isEmpty(),
+                    idle.getBeansOfType(ConsumptionWorker.class).isEmpty(),
                     "monolith empty selection has no Worker");
             assertTrue(materialize(idle).capacityView().isEmpty());
             assertNotNull(f.services(idle));

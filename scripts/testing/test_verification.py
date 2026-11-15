@@ -26,15 +26,15 @@ class SelectionTests(unittest.TestCase):
         self.assertEqual(plans[0]['command'][4], 'engine-write-identity,domain-pot')
         self.assertTrue(all(p['expected'] and all(p['expected'].values()) for p in plans))
         for plan in plans:
-            self.assertFalse(any('V3WorkerResourcesPostgresTest' in c for c in plan['expected']))
-            self.assertFalse(any('V3WorkerPostgresTest' in c for c in plan['expected']))
+            self.assertFalse(any('WorkerResourcesPostgresTest' in c for c in plan['expected']))
+            self.assertFalse(any('WorkerPostgresTest' in c for c in plan['expected']))
         self.assertTrue(any('IdentityPrivilegesPostgresTest' in c for c in plans[1]['expected']))
         self.assertTrue(any('IdentityPublicationPostgresTest' in c for c in plans[1]['expected']))
 
     def test_link_history_fixture_is_a_hashed_external_input(self):
         targets = {
-            'com.kartaguez.pocoma.V3AdmissionFlowPostgresTest': [],
-            'com.kartaguez.pocoma.infra.postgres.write.v3.identity.IdentityRequestExecutionPostgresTest': [],
+            'com.kartaguez.pocoma.AdmissionFlowPostgresTest': [],
+            'com.kartaguez.pocoma.infra.postgres.write.identity.IdentityRequestExecutionPostgresTest': [],
         }
         self.assertIn('scripts/testing/fixtures/complete-historical-link.sql', v.external_sql_inputs(targets))
 

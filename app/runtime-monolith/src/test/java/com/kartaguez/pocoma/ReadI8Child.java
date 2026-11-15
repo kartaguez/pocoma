@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.compose.polling.materialize.v3.MaterializeSettings;
-import com.kartaguez.pocoma.infra.postgres.core.v3.*;
+import com.kartaguez.pocoma.compose.polling.materialize.MaterializeSettings;
+import com.kartaguez.pocoma.infra.postgres.core.*;
 import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 
 import static com.kartaguez.pocoma.ReadMonolithI8Fixture.*;
@@ -8,10 +8,10 @@ import static com.kartaguez.pocoma.ReadWorkerResourcesPostgresTest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.infra.postgres.write.v3.consumption.*;
-import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.polling.consumption.v3.V3ConsumptionWorker;
+import com.kartaguez.pocoma.domain.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.springframework.boot.*;
@@ -34,7 +34,7 @@ public final class ReadI8Child {
         app.setWebApplicationType(WebApplicationType.NONE);
         app.setDefaultProperties(values);
         var context = app.run();
-        var worker = context.getBean("materializeWorker", V3ConsumptionWorker.class);
+        var worker = context.getBean("materializeWorker", ConsumptionWorker.class);
         var settings = context.getBean(MaterializeSettings.class);
         long candidates = settings.partitions().values().stream().mapToInt(List::size).sum();
         await(

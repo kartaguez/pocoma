@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.contract.consumption.observation;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import java.util.UUID;
 

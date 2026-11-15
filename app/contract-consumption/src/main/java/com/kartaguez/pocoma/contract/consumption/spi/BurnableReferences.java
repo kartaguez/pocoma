@@ -3,8 +3,8 @@ import com.kartaguez.pocoma.contract.consumption.participation.*;
 import com.kartaguez.pocoma.contract.consumption.spi.*;
 import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily;
-import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 import java.util.*;
 

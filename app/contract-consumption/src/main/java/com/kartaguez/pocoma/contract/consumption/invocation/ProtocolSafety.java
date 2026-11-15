@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.contract.consumption.invocation;
 
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition.Authority;
-import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Resolution;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions.Resolution;
 import java.time.Duration;
 import java.util.*;
 

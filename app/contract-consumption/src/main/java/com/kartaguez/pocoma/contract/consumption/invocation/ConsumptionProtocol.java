@@ -1,10 +1,10 @@
 package com.kartaguez.pocoma.contract.consumption.invocation;
 
-import com.kartaguez.pocoma.domain.consumption.v3.*;
+import com.kartaguez.pocoma.domain.consumption.*;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore.Cession;
-import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Resolution;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions.Resolution;
 import java.util.*;
 
 /** Issuer-bound invocation surface. IDs are diagnostics, never execution permissions. */

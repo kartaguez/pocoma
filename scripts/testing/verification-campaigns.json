@@ -11,7 +11,7 @@
   },
   "quarantine": {
     "i5_r05": {
-      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "class": "com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest",
       "method": "i5_r05",
       "anchor": "COMMAND",
       "status": "QUALIFIED",
@@ -24,7 +24,7 @@
       "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
     },
     "i5_r12": {
-      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "class": "com.kartaguez.pocoma.runtime.command.WorkerResourcesPostgresTest",
       "method": "i5_r12",
       "anchor": "COMMAND",
       "status": "QUALIFIED",
@@ -58,19 +58,19 @@
         "IdentityRequestExecutionPostgresTest",
         "IdentityDiscoveryPostgresTest",
         "IdentityPublicationPostgresTest",
-        "V3IdentityRequestCompositionPostgresTest",
+        "IdentityRequestCompositionPostgresTest",
         "IdentityPotAuthorityPostgresTest",
-        "V3IdentityPotCommandPostgresTest"
+        "IdentityPotCommandPostgresTest"
       ],
       "INTEGRATION": [
-        "V3IdentityRequestMonolithPostgresTest",
-        "V3WorkerCompositionPostgresTest",
-        "V3PotCommandCompositionPostgresTest",
+        "IdentityRequestMonolithPostgresTest",
+        "WorkerCompositionPostgresTest",
+        "PotCommandCompositionPostgresTest",
         "AttemptTransactionsPostgresTest",
-        "V3TransactionFoundationPostgresTest",
-        "V3HistoricalIntervalPostgresTest",
-        "V3SchemaIsolationPostgresTest",
-        "V3FoundationCompositionTest"
+        "TransactionFoundationPostgresTest",
+        "HistoricalIntervalPostgresTest",
+        "SchemaIsolationPostgresTest",
+        "FoundationCompositionTest"
       ],
       "integration_extra_modules": [
         "runtime-monolith"
@@ -83,23 +83,23 @@
     "foundation": {
       "anchor": "FOUNDATION",
       "FAST": [
-        "V3FoundationCompositionTest"
+        "FoundationCompositionTest"
       ],
       "CHANGE": [
         "AttemptTransactionsPostgresTest",
-        "V3FoundationCompositionTest",
-        "V3HistoricalIntervalPostgresTest",
-        "V3SchemaIsolationPostgresTest",
-        "V3TransactionFoundationPostgresTest"
+        "FoundationCompositionTest",
+        "HistoricalIntervalPostgresTest",
+        "SchemaIsolationPostgresTest",
+        "TransactionFoundationPostgresTest"
       ],
       "INTEGRATION": []
     },
     "l5-i2-fast": {
       "anchor": "WEB",
       "FAST": [
-        "V3AdmissionCanonicalizationTest",
-        "V3AdmissionInputTest",
-        "V3IdentityAdmissionInputTest",
+        "AdmissionCanonicalizationTest",
+        "AdmissionInputTest",
+        "IdentityAdmissionInputTest",
         "PotCommandIntentTest",
         "ExecutePotCommandTest",
         "IdentityRequestContractTest"
@@ -126,7 +126,7 @@
       "FAST": [],
       "CHANGE": [],
       "INTEGRATION": [
-        "V3AdmissionPostgresTest",
+        "AdmissionPostgresTest",
         "PotCommandJsonTest"
       ],
       "integration_extra_modules": [
@@ -138,11 +138,11 @@
       "FAST": [],
       "CHANGE": [],
       "INTEGRATION": [
-        "V3AdmissionHttpTest",
-        "V3AdmissionFlowPostgresTest",
-        "V3HttpCompositionPostgresTest",
-        "V3MonolithHttpCompositionPostgresTest",
-        "V3AdmissionTransportTest"
+        "AdmissionHttpTest",
+        "AdmissionFlowPostgresTest",
+        "HttpCompositionPostgresTest",
+        "MonolithHttpCompositionPostgresTest",
+        "AdmissionTransportTest"
       ],
       "integration_extra_modules": [
         "runtime-monolith"
@@ -158,10 +158,10 @@
       ],
       "expected_invocations": 2,
       "tests": {
-        "com.kartaguez.pocoma.domain.projection.v3.PotVersionContractTest": [
+        "com.kartaguez.pocoma.domain.projection.PotVersionContractTest": [
           "compositionAndKeys"
         ],
-        "com.kartaguez.pocoma.infra.postgres.read.v3.PotVersionJsonTest": [
+        "com.kartaguez.pocoma.infra.postgres.read.PotVersionJsonTest": [
           "strictCanonicalCodec"
         ]
       },
@@ -179,7 +179,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.domain.pot.v3.PotVisibilityRulesTest": [
+        "com.kartaguez.pocoma.domain.pot.PotVisibilityRulesTest": [
           "visibleSetRules"
         ]
       },
@@ -198,13 +198,13 @@
       ],
       "expected_invocations": 3,
       "tests": {
-        "com.kartaguez.pocoma.engine.read.identity.v3.CurrentBindingV3ContractTest": [
+        "com.kartaguez.pocoma.engine.read.identity.CurrentBindingContractTest": [
           "euiStateAndMinVersion"
         ],
-        "com.kartaguez.pocoma.engine.materialize.results.v3.CommandResultV3ContractTest": [
+        "com.kartaguez.pocoma.engine.materialize.results.CommandResultContractTest": [
           "terminalContract"
         ],
-        "com.kartaguez.pocoma.engine.materialize.results.v3.IdentityRequestResultV3ContractTest": [
+        "com.kartaguez.pocoma.engine.materialize.results.IdentityRequestResultContractTest": [
           "terminalContract"
         ]
       },
@@ -223,10 +223,10 @@
       ],
       "expected_invocations": 4,
       "tests": {
-        "com.kartaguez.pocoma.infra.postgres.write.v3.PotVersionSourcePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.PotVersionSourcePostgresTest": [
           "exactHistoricalComposition"
         ],
-        "com.kartaguez.pocoma.infra.postgres.read.v3.PotVersionReadStorePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.read.PotVersionReadStorePostgresTest": [
           "historyAndReplay",
           "concurrentPublishers",
           "migrationAndPrivileges"
@@ -247,10 +247,10 @@
       ],
       "expected_invocations": 4,
       "tests": {
-        "com.kartaguez.pocoma.infra.postgres.write.v3.PotBalanceSourcePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.PotBalanceSourcePostgresTest": [
           "exactHistoricalFinance"
         ],
-        "com.kartaguez.pocoma.infra.postgres.read.v3.PotBalanceReadStorePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.read.PotBalanceReadStorePostgresTest": [
           "historyAndRationals",
           "concurrentImmutablePublication",
           "migrationAndPrivileges"
@@ -271,10 +271,10 @@
       ],
       "expected_invocations": 5,
       "tests": {
-        "com.kartaguez.pocoma.infra.postgres.write.v3.PotVisibilitySourcePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.PotVisibilitySourcePostgresTest": [
           "exactHistoricalMembership"
         ],
-        "com.kartaguez.pocoma.infra.postgres.read.v3.PotVisibilityReadStorePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.read.PotVisibilityReadStorePostgresTest": [
           "historyAndKeyset",
           "concurrentGuardAndAtomicReaders",
           "plansAndProfiles",
@@ -296,12 +296,12 @@
       ],
       "expected_invocations": 4,
       "tests": {
-        "com.kartaguez.pocoma.infra.postgres.read.v3.CurrentBindingReadStorePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.read.CurrentBindingReadStorePostgresTest": [
           "historyAndIsolation",
           "concurrentVersionsAndDivergence",
           "migrationAndPrivileges"
         ],
-        "com.kartaguez.pocoma.infra.postgres.write.v3.identity.CurrentBindingSourcePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.identity.CurrentBindingSourcePostgresTest": [
           "exactEuiHistory"
         ]
       },
@@ -320,12 +320,12 @@
       ],
       "expected_invocations": 4,
       "tests": {
-        "com.kartaguez.pocoma.infra.postgres.read.v3.TerminalResultsReadStorePostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.read.TerminalResultsReadStorePostgresTest": [
           "mappingsAndOwnership",
           "concurrentImmutableResults",
           "migrationsAndPrivileges"
         ],
-        "com.kartaguez.pocoma.infra.postgres.write.v3.identity.TerminalResultSourcesPostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.identity.TerminalResultSourcesPostgresTest": [
           "durableRequestsAndTerminals"
         ]
       },
@@ -343,7 +343,7 @@
       ],
       "expected_invocations": 10,
       "tests": {
-        "com.kartaguez.pocoma.runtime.task.v3.ReadParticipantsIntegrationPostgresTest": [
+        "com.kartaguez.pocoma.runtime.task.ReadParticipantsIntegrationPostgresTest": [
           "participantConformance",
           "independentProgression",
           "resultsBeforeDomain",
@@ -366,7 +366,7 @@
         "runtime-monolith"
       ],
       "tests": {
-        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+        "com.kartaguez.pocoma.ReadHttpContractTest": [
           "missingBearer",
           "forgedSignature",
           "wrongIssuer",
@@ -392,7 +392,7 @@
           "exactDtoAndSecretLogs",
           "mediaAndUnknownFields"
         ],
-        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+        "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest": [
           "invalidInputBeforeQuota",
           "twoReadersAndImmediateRefusal",
           "permitsAndConnectionsReleased",
@@ -404,14 +404,14 @@
           "jdbcCountsAndCosts",
           "workersProgressWithoutControlBorrow"
         ],
-        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+        "com.kartaguez.pocoma.HttpCompositionPostgresTest": [
           "webRoot",
           "legacyComponentsRejected",
           "readOnlyAuthorityAndNoWriteFallback",
           "typedPortsAndDependencies",
           "brunoFixtureProvenance"
         ],
-        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+        "com.kartaguez.pocoma.MonolithHttpCompositionPostgresTest": [
           "monolithRoot"
         ]
       },
@@ -433,7 +433,7 @@
         "runtime-worker-process"
       ],
       "tests": {
-        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+        "com.kartaguez.pocoma.ReadHttpContractTest": [
           "missingBearer",
           "forgedSignature",
           "wrongIssuer",
@@ -459,7 +459,7 @@
           "exactDtoAndSecretLogs",
           "mediaAndUnknownFields"
         ],
-        "com.kartaguez.pocoma.runtime.task.v3.V3ReadQuotaPostgresTest": [
+        "com.kartaguez.pocoma.runtime.task.ReadQuotaPostgresTest": [
           "invalidInputBeforeQuota",
           "twoReadersAndImmediateRefusal",
           "permitsAndConnectionsReleased",
@@ -471,17 +471,17 @@
           "jdbcCountsAndCosts",
           "workersProgressWithoutControlBorrow"
         ],
-        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+        "com.kartaguez.pocoma.HttpCompositionPostgresTest": [
           "webRoot",
           "legacyComponentsRejected",
           "readOnlyAuthorityAndNoWriteFallback",
           "typedPortsAndDependencies",
           "brunoFixtureProvenance"
         ],
-        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+        "com.kartaguez.pocoma.MonolithHttpCompositionPostgresTest": [
           "monolithRoot"
         ],
-        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest": [
+        "com.kartaguez.pocoma.runtime.command.IdentityPotCommandPostgresTest": [
           "l3_rollback_boundaries",
           "l3_real_authority_preserves_claim_fencing",
           "l3_registration_and_same_user_relink_collide_in_engine",
@@ -492,7 +492,7 @@
           "l3_negative_stable_and_a1_sql",
           "l3_a1_illicit_version_rejected"
         ],
-        "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest": [
+        "com.kartaguez.pocoma.runtime.command.IdentityRequestCompositionPostgresTest": [
           "l3_indirect_exposure_refused",
           "l3_delivered_jpa_rejects_prebound_holder",
           "l3_identity_discovery_checkpoint",
@@ -503,17 +503,17 @@
           "l3_runtime_identity",
           "l3_logging_override_refused"
         ],
-        "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+        "com.kartaguez.pocoma.runtime.command.PotCommandCompositionPostgresTest": [
           "l3_composition_real_authority_and_classifier"
         ],
-        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest": [
+        "com.kartaguez.pocoma.runtime.command.WorkerCompositionPostgresTest": [
           "i5_c03",
           "i5_c04"
         ],
-        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest": [
+        "com.kartaguez.pocoma.runtime.command.WorkerMetricsTest": [
           "i5_m01"
         ],
-        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest": [
+        "com.kartaguez.pocoma.runtime.command.WorkerPostgresTest": [
           "i5_w15"
         ]
       },
@@ -534,7 +534,7 @@
       "expected_invocations": 1,
       "jvm_max_heap_mib": 512,
       "tests": {
-        "com.kartaguez.pocoma.supra.web.write.v3.D4AdmissionCalibrationTest": [
+        "com.kartaguez.pocoma.supra.web.write.D4AdmissionCalibrationTest": [
           "finiteInputCorpusCpuAllocationAndHeap"
         ]
       },
@@ -557,7 +557,7 @@
         "infra-postgres-write"
       ],
       "tests": {
-        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest": [
+        "com.kartaguez.pocoma.engine.admit.command.AdmissionCanonicalizationTest": [
           "equivalentObjectsAndExactRationals",
           "orderedAndUnorderedCollections",
           "canonicalFramingCannotAlias",
@@ -567,27 +567,27 @@
           "currentAndHistoricalValidationStaySeparate",
           "keyRotationAndMissingKeyFailClosed"
         ],
-        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionInputTest": [
+        "com.kartaguez.pocoma.engine.admit.command.AdmissionInputTest": [
           "allElevenOperationsMapExactly",
           "malformedTargetsRejectedBeforeStore",
           "exactFractionsAndPublicIds",
           "clientCannotChooseRequesterOrUser",
           "validationFailureDoesNotCallStore"
         ],
-        "com.kartaguez.pocoma.engine.admit.identity.v3.V3IdentityAdmissionInputTest": [
+        "com.kartaguez.pocoma.engine.admit.identity.IdentityAdmissionInputTest": [
           "registrationHasNoTokenOrClientEui",
           "unlinkNeedsInitiatorTokenOnly",
           "linkIsNotPublic",
           "attestationsAreServerOwned"
         ],
-        "com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest": [
+        "com.kartaguez.pocoma.engine.write.pot.PotCommandIntentTest": [
           "attachmentModesAreImmutableAndScoped",
           "legacyIntentRemainsValid",
           "additionsValidateStructureAndCopy",
           "detailsValidateStructureAndCopy",
           "weightsValidateStructureAndCopy"
         ],
-        "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest": [
+        "com.kartaguez.pocoma.engine.write.pot.ExecutePotCommandTest": [
           "selfUsesProtectedWriteActor",
           "keepAndDetachUseWriteFacts",
           "u01ChangedUsesOneOrderedFinalUnit",
@@ -598,7 +598,7 @@
           "u06TerminalReplaySkipsPreparationAndAllWrites",
           "f02InvalidBindingNeverReadsOrProtectsPotAndStillFencesIdentity"
         ],
-        "com.kartaguez.pocoma.engine.write.identity.v3.IdentityRequestContractTest": [
+        "com.kartaguez.pocoma.engine.write.identity.IdentityRequestContractTest": [
           "registrationTargetsOnlyItsAuthenticatedRequesterAndOmitsToken",
           "linkAndUnlinkRequireInitiatorTokenAndAnExactTargetIncludingSelf",
           "externalUnicodeRemainsExactAndUnstorableKeysFailBeforeAnyAdapter",
@@ -610,12 +610,12 @@
           "clientIntentionCannotChooseUserAndResultCannotDiscloseTokenOrUser",
           "observationRequiresEngineReadSnapshotAndReturnsExistingRecoveryVocabulary"
         ],
-        "com.kartaguez.pocoma.infra.postgres.write.v3.PotCommandJsonTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.PotCommandJsonTest": [
           "attachmentModesRoundTripWithoutResolvedUser",
           "unknownPayloadVersionIsTechnical",
           "allThreeTargetListsRoundTripAndDurableCorruptionIsExplicitlyTechnical"
         ],
-        "com.kartaguez.pocoma.infra.postgres.write.v3.V3AdmissionPostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.AdmissionPostgresTest": [
           "firstAndReplay",
           "differentIntentConflicts",
           "scopeIsolation",
@@ -632,7 +632,7 @@
           "admissionRoleAndIndirectPrivileges",
           "restoreAndOldKeyCompatibility"
         ],
-        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+        "com.kartaguez.pocoma.AdmissionHttpTest": [
           "commandRegistrationUnlinkAccepted",
           "sameIdAnd409",
           "authenticationAndCapturedRequester",
@@ -643,7 +643,7 @@
           "noSecretOrWriteFallback",
           "linkAndInvitationNotExposed"
         ],
-        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+        "com.kartaguez.pocoma.AdmissionFlowPostgresTest": [
           "allElevenPotOperationsThroughWorker",
           "registrationAndUnlinkThroughWorker",
           "invalidBusinessIntentsAreAdmittedThenRejected",
@@ -651,21 +651,21 @@
           "resultsAndReadProgressIndependently",
           "brunoB2PublicProtocol"
         ],
-        "com.kartaguez.pocoma.V3HttpCompositionPostgresTest": [
+        "com.kartaguez.pocoma.HttpCompositionPostgresTest": [
           "webRoot",
           "legacyComponentsRejected",
           "readOnlyAuthorityAndNoWriteFallback",
           "typedPortsAndDependencies",
           "brunoFixtureProvenance"
         ],
-        "com.kartaguez.pocoma.V3MonolithHttpCompositionPostgresTest": [
+        "com.kartaguez.pocoma.MonolithHttpCompositionPostgresTest": [
           "monolithRoot"
         ],
-        "com.kartaguez.pocoma.supra.web.write.v3.V3AdmissionTransportTest": [
+        "com.kartaguez.pocoma.supra.web.write.AdmissionTransportTest": [
           "unresolvedPhysicalTerminationRetainsCapacity",
           "observedPhysicalTerminationReleasesCapacity"
         ],
-        "com.kartaguez.pocoma.V3ReadHttpContractTest": [
+        "com.kartaguez.pocoma.ReadHttpContractTest": [
           "inputByteBoundaries",
           "mediaAndUnknownFields",
           "terminalResultsOwnership"
@@ -685,7 +685,7 @@
         "compose-web-write-postgres"
       ],
       "tests": {
-        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+        "com.kartaguez.pocoma.AdmissionHttpTest": [
           "commandRegistrationUnlinkAccepted",
           "sameIdAnd409",
           "authenticationAndCapturedRequester",
@@ -696,7 +696,7 @@
           "noSecretOrWriteFallback",
           "linkAndInvitationNotExposed"
         ],
-        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest": [
+        "com.kartaguez.pocoma.engine.admit.command.AdmissionCanonicalizationTest": [
           "equivalentObjectsAndExactRationals",
           "orderedAndUnorderedCollections",
           "canonicalFramingCannotAlias",
@@ -706,7 +706,7 @@
           "currentAndHistoricalValidationStaySeparate",
           "keyRotationAndMissingKeyFailClosed"
         ],
-        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionInputTest": [
+        "com.kartaguez.pocoma.engine.admit.command.AdmissionInputTest": [
           "allElevenOperationsMapExactly",
           "malformedTargetsRejectedBeforeStore",
           "exactFractionsAndPublicIds",
@@ -723,7 +723,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.infra.postgres.write.v3.V3AdmissionPostgresTest": [
+        "com.kartaguez.pocoma.infra.postgres.write.AdmissionPostgresTest": [
           "admissionRoleAndIndirectPrivileges"
         ]
       }
@@ -735,7 +735,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+        "com.kartaguez.pocoma.AdmissionFlowPostgresTest": [
           "allElevenPotOperationsThroughWorker"
         ]
       },
@@ -752,7 +752,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerAwaitTest": [
+        "com.kartaguez.pocoma.runtime.command.WorkerAwaitTest": [
           "preservesSuccessfulObservationAndTimeout"
         ]
       },
@@ -769,7 +769,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest": [
+        "com.kartaguez.pocoma.runtime.command.WorkerPostgresTest": [
           "i5_w17"
         ]
       },
@@ -787,7 +787,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.engine.admit.command.v3.V3AdmissionCanonicalizationTest": [
+        "com.kartaguez.pocoma.engine.admit.command.AdmissionCanonicalizationTest": [
           "canonicalFramingCannotAlias"
         ]
       },
@@ -804,7 +804,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.V3AdmissionHttpTest": [
+        "com.kartaguez.pocoma.AdmissionHttpTest": [
           "mediaDuplicateUnknownAndForbiddenFields"
         ]
       },
@@ -821,7 +821,7 @@
       ],
       "expected_invocations": 1,
       "tests": {
-        "com.kartaguez.pocoma.V3AdmissionFlowPostgresTest": [
+        "com.kartaguez.pocoma.AdmissionFlowPostgresTest": [
           "voluntaryDeparturePreservesHistoryAndIdentity"
         ]
       },

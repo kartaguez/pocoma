@@ -5,7 +5,7 @@ import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.*;
 import com.kartaguez.pocoma.contract.writeadmission.*;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.v3.BindingToken;
+import com.kartaguez.pocoma.domain.identity.BindingToken;
 
 import java.util.*;
 

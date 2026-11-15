@@ -4,7 +4,7 @@ import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure.requ
 import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.*;
 
 import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.domain.pot.v3.*;
+import com.kartaguez.pocoma.domain.pot.*;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
@@ -214,7 +214,7 @@ public final class CommandAdmissionInput {
 
     private static ExpenseFinancials financials(
             Map<String, Object> p, PotId pot, ExpenseId id, int digits) {
-        var amount = new com.kartaguez.pocoma.domain.pot.v3.Amount(fraction(p, "amount", digits));
+        var amount = new com.kartaguez.pocoma.domain.pot.Amount(fraction(p, "amount", digits));
         var payer = new ShareholderId(uuid(p, "payerId"));
         var entries = new ArrayList<ExpenseFinancials.Participation>();
         var normalized = new ArrayList<Map<String, Object>>();
@@ -234,12 +234,12 @@ public final class CommandAdmissionInput {
         return ExpenseFinancials.of(pot, id, amount, payer, entries);
     }
 
-    private static com.kartaguez.pocoma.domain.pot.v3.Weight weight(
+    private static com.kartaguez.pocoma.domain.pot.Weight weight(
             Map<String, Object> m, String key, int digits) {
-        return new com.kartaguez.pocoma.domain.pot.v3.Weight(fraction(m, key, digits));
+        return new com.kartaguez.pocoma.domain.pot.Weight(fraction(m, key, digits));
     }
 
-    private static com.kartaguez.pocoma.domain.pot.v3.Fraction fraction(
+    private static com.kartaguez.pocoma.domain.pot.Fraction fraction(
             Map<String, Object> m, String key, int digits) {
         var f = object(m.get(key), "numerator", "denominator");
         String a = text(f, "numerator"), b = text(f, "denominator");
@@ -249,7 +249,7 @@ public final class CommandAdmissionInput {
                         && a.matches("-?[0-9]{1," + digits + "}")
                         && b.matches("-?[0-9]{1," + digits + "}"));
         var value =
-                new com.kartaguez.pocoma.domain.pot.v3.Fraction(
+                new com.kartaguez.pocoma.domain.pot.Fraction(
                         new BigInteger(a), new BigInteger(b));
         m.put(
                 key,

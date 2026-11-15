@@ -24,14 +24,14 @@ class HexagonalArchitectureTest {
     @Test
     void potAndIdentityDomainsOwnTheirCanonicalTypesAndPureFunctions() {
         assertCanonical("domain.pot.value.id.PotId");
-        assertCanonical("domain.pot.v3.PotFacts");
-        assertCanonical("domain.pot.v3.PotHistory");
-        assertCanonical("domain.pot.v3.PotTransitions");
-        assertCanonical("domain.pot.v3.PotBalanceCalculator");
-        assertCanonical("domain.pot.v3.PotVisibilityRules");
+        assertCanonical("domain.pot.PotFacts");
+        assertCanonical("domain.pot.PotHistory");
+        assertCanonical("domain.pot.PotTransitions");
+        assertCanonical("domain.pot.PotBalanceCalculator");
+        assertCanonical("domain.pot.PotVisibilityRules");
         assertCanonical("domain.identity.ExternalIdentity");
-        assertCanonical("domain.identity.v3.ExternalUserIdentity");
-        assertCanonical("domain.identity.v3.IdentityTransitions");
+        assertCanonical("domain.identity.ExternalUserIdentity");
+        assertCanonical("domain.identity.IdentityTransitions");
         requireDependencies(classesIn("domain.pot"), inPackages("domain.pot"));
         requireDependencies(classesIn("domain.identity"), inPackages("domain.identity"));
     }
@@ -44,7 +44,7 @@ class HexagonalArchitectureTest {
                 "domain.identity");
         requireDependencies(classesIn("port.projection"),
                 target -> valueTypes.test(target)
-                        || target.equals(BASE + "port.transaction.v3.RecoveryReadContext"));
+                        || target.equals(BASE + "port.transaction.RecoveryReadContext"));
     }
 
     @Test
@@ -62,10 +62,10 @@ class HexagonalArchitectureTest {
     @Test
     void discoveryReadsReferencesWithoutDecodingBusinessPayloads() {
         var discovery = List.of(
-                type("orchestrator.consumption.v3.DiscoveryEngine"),
-                type("infra.postgres.write.v3.consumption.JdbcCommandDiscoveryReferences"),
-                type("infra.postgres.write.v3.consumption.JdbcIdentityRequestDiscoveryReferences"),
-                type("infra.postgres.source.v3.JdbcEventDiscoveryReferences"));
+                type("orchestrator.consumption.DiscoveryEngine"),
+                type("infra.postgres.write.consumption.JdbcCommandDiscoveryReferences"),
+                type("infra.postgres.write.consumption.JdbcIdentityRequestDiscoveryReferences"),
+                type("infra.postgres.source.JdbcEventDiscoveryReferences"));
         requireDependencies(discovery, target -> !target.startsWith("com.fasterxml.jackson.")
                 && !target.startsWith(BASE + "engine.")
                 && !target.startsWith(BASE + "domain.pot.")
@@ -80,12 +80,12 @@ class HexagonalArchitectureTest {
         requireDependencies(classesIn("contract.authentication"),
                 inPackages("contract.authentication", "domain.identity"));
         var principal = BASE + "contract.authentication.AuthenticatedExternalPrincipal";
-        var controller = type("supra.web.write.v3.V3AdmissionController");
+        var controller = type("supra.web.write.AdmissionController");
         requireDependency(controller, principal);
         requireDependency(controller, BASE + "contract.writeadmission.AdmitCommand");
         requireDependency(controller, BASE + "contract.writeadmission.AdmitIdentityRequest");
-        requireDependency(type("engine.admit.command.v3.AdmitCommandV3"), principal);
-        requireDependency(type("engine.admit.identity.v3.AdmitIdentityRequestV3"), principal);
+        requireDependency(type("engine.admit.command.CommandAdmission"), principal);
+        requireDependency(type("engine.admit.identity.IdentityRequestAdmission"), principal);
 
         var allowedAdapter = inPackages("infra.security.spring", "compose.web");
         var managementHosts = Set.of(BASE + "PocomaRuntimeMonolithApplication",
@@ -116,8 +116,8 @@ class HexagonalArchitectureTest {
         var values = inPackages("engine.read.results", "contract.readquery", "domain.projection",
                 "domain.identity");
         for (String family : List.of("Command", "Identity")) {
-            var query = type("engine.read.results.v3.Get" + family + "TerminalResult");
-            var store = BASE + "port.projection.v3." + family + "TerminalResultStore";
+            var query = type("engine.read.results.Get" + family + "TerminalResult");
+            var store = BASE + "port.projection." + family + "TerminalResultStore";
             requireDependency(query, store);
             requireDependencies(List.of(query), target -> values.test(target) || target.equals(store));
         }
@@ -131,7 +131,7 @@ class HexagonalArchitectureTest {
                 && !target.startsWith(BASE + "engine.")
                 && !target.startsWith(BASE + "orchestrator.")
                 && !target.startsWith(BASE + "supra."));
-        requireDependencies(List.of(type("infra.postgres.write.v3.JdbcPotCommandStore")),
+        requireDependencies(List.of(type("infra.postgres.write.JdbcPotCommandStore")),
                 target -> !target.startsWith("jakarta.persistence.")
                         && !target.startsWith("org.hibernate.")
                         && !target.startsWith(BASE + "supra."));
@@ -142,9 +142,9 @@ class HexagonalArchitectureTest {
         var businessModels = List.of(
                 type("contract.writeadmission.PotCommand"),
                 type("contract.writeadmission.IdentityRequest"),
-                type("domain.pot.v3.PotHistory"),
-                type("domain.projection.v3.CommandTerminalResult"),
-                type("domain.projection.v3.IdentityTerminalResult"));
+                type("domain.pot.PotHistory"),
+                type("domain.projection.CommandTerminalResult"),
+                type("domain.projection.IdentityTerminalResult"));
         requireDependencies(businessModels, target -> !target.startsWith(BASE + "contract.consumption.")
                 && !target.startsWith(BASE + "domain.consumption.")
                 && !target.startsWith(BASE + "orchestrator."));
@@ -185,8 +185,8 @@ class HexagonalArchitectureTest {
             assertFalse(retiredPackages.stream().anyMatch(p -> type.getName().startsWith(BASE + p + ".")),
                     type.getName());
         }
-        type("engine.write.pot.v3.ExecutePotCommand");
-        type("engine.materialize.pot.v3.MaterializePotVersion");
+        type("engine.write.pot.ExecutePotCommand");
+        type("engine.materialize.pot.MaterializePotVersion");
     }
 
     private static List<JavaClass> classesIn(String packageName) {

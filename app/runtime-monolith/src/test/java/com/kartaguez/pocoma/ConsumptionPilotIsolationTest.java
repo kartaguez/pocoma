@@ -1,12 +1,12 @@
 package com.kartaguez.pocoma;
-import com.kartaguez.pocoma.compose.polling.process.v3.V3ConsumptionDiscoveryComposition;
-import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog;
-import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard;
+import com.kartaguez.pocoma.compose.polling.process.ConsumptionDiscoveryComposition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.kartaguez.pocoma.domain.consumption.v3.*;
-import com.kartaguez.pocoma.infra.postgres.core.v3.V3BootstrapGuard.Target;
+import com.kartaguez.pocoma.domain.consumption.*;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard.Target;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
@@ -150,8 +150,8 @@ class ConsumptionPilotIsolationTest {
                         "pilot_r");
     }
 
-    V3BootstrapGuard guard() {
-        return new V3BootstrapGuard(w, r, ConsumptionCatalog.definitions());
+    BootstrapGuard guard() {
+        return new BootstrapGuard(w, r, ConsumptionCatalog.definitions());
     }
 
     String[] args() {
@@ -177,22 +177,22 @@ class ConsumptionPilotIsolationTest {
             var app = new SpringApplication(PocomaRuntimeMonolithApplication.class);
             app.setWebApplicationType(WebApplicationType.NONE);
             try (var context = app.run()) {
-                assertTrue(context.getBeansOfType(V3BootstrapGuard.class).isEmpty());
+                assertTrue(context.getBeansOfType(BootstrapGuard.class).isEmpty());
                 assertTrue(
                         context.getBeansOfType(
-                                        com.kartaguez.pocoma.orchestrator.consumption.v3.DiscoveryEngine
+                                        com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine
                                                 .class)
                                 .isEmpty());
                 assertTrue(
-                        context.getBeansOfType(V3ConsumptionDiscoveryComposition.class).isEmpty());
+                        context.getBeansOfType(ConsumptionDiscoveryComposition.class).isEmpty());
                 assertTrue(
                         context.getBeansOfType(
-                                        com.kartaguez.pocoma.orchestrator.consumption.v3.ConsumptionEngine
+                                        com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine
                                                 .class)
                                 .isEmpty());
                 assertTrue(
                         context.getBeansOfType(
-                                        com.kartaguez.pocoma.infra.tx.spring.v3
+                                        com.kartaguez.pocoma.infra.tx.spring
                                                 .SpringAttemptTransactions.class)
                                 .isEmpty());
                 assertTrue(
@@ -201,7 +201,7 @@ class ConsumptionPilotIsolationTest {
                 assertTrue(context.getBeansOfType(org.flywaydb.core.Flyway.class).isEmpty());
                 assertTrue(
                         context.getBeansOfType(
-                                        com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand
+                                        com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand
                                                 .class)
                                 .isEmpty());
                 assertThrows(ClassNotFoundException.class, () -> Class.forName("com.kartaguez.pocoma.supra.polling.consumption.ConsumptionPollingWorker"));
@@ -236,8 +236,8 @@ class ConsumptionPilotIsolationTest {
     void monolithRefusesIncompleteReadBootstrapBeforeRefresh() {
         var env=new org.springframework.core.env.StandardEnvironment();
         env.getPropertySources().addFirst(new org.springframework.core.env.SimpleCommandLinePropertySource(args()));
-        var guard=new V3BootstrapGuard(V3BootstrapGuard.Target.from(env,"write"),V3BootstrapGuard.Target.from(env,"read"),
-            com.kartaguez.pocoma.domain.consumption.v3.ConsumptionCatalog.definitions());
+        var guard=new BootstrapGuard(BootstrapGuard.Target.from(env,"write"),BootstrapGuard.Target.from(env,"read"),
+            com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog.definitions());
         assertDoesNotThrow(guard::validate);
         read.execute("delete from partition_ownership where partition_id=0");
         var failure=assertThrows(IllegalStateException.class,guard::validate);
