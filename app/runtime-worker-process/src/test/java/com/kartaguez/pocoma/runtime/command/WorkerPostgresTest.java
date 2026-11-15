@@ -634,7 +634,11 @@ class WorkerPostgresTest {
                     worker.start();
                 }
                 worker.requestDrain();
-                await(() -> worker.snapshot().state() == WorkerView.State.STOPPED);
+                try {
+                    await(() -> worker.snapshot().state() == WorkerView.State.STOPPED);
+                } catch (AssertionError e) {
+                    throw new AssertionError("close deadline: snapshot=" + worker.snapshot(), e);
+                }
             }
             if (resources != null) {
                 try {

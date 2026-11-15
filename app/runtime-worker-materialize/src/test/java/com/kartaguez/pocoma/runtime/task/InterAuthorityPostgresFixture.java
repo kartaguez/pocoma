@@ -66,9 +66,18 @@ final class InterAuthorityPostgresFixture implements AutoCloseable {
     Runnable sourceCallback = () -> {};
 
     InterAuthorityPostgresFixture(PostgreSQLContainer pg, String scenario) throws Exception {
+        this(pg, scenario, false);
+    }
+
+    InterAuthorityPostgresFixture(
+            PostgreSQLContainer pg, String scenario, boolean currentReadBaseline)
+            throws Exception {
         this.pg = pg;
         this.scenario = scenario;
-        read = new SubobjectPostgresFixture(pg, "I2-" + scenario);
+        read =
+                currentReadBaseline
+                        ? SubobjectPostgresFixture.currentBaseline(pg, "I2-" + scenario)
+                        : new SubobjectPostgresFixture(pg, "I2-" + scenario);
         schema = "i2p_" + UUID.randomUUID().toString().replace("-", "");
         database = schema;
         role = schema + "_w";

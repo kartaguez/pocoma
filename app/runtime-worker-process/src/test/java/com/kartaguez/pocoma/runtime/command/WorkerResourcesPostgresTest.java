@@ -225,38 +225,9 @@ class WorkerResourcesPostgresTest {
         var source =
                 new RetainingSource(
                         runtime.pool(write ? "writeBusiness" : "readBusiness"), selected);
-        org.springframework.transaction.PlatformTransactionManager manager;
-        if (write) {
-            var emf = new org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean();
-            emf.setDataSource(source);
-            emf.setPersistenceUnitName("i5-fault-business");
-            emf.setManagedTypes(
-                    org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes.of());
-            emf.setJpaVendorAdapter(
-                    new org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter());
-            emf.setJpaPropertyMap(
-                    Map.of(
-                            "hibernate.hbm2ddl.auto",
-                            "none",
-                            "hibernate.boot.allow_jdbc_metadata_access",
-                            "false",
-                            "hibernate.dialect",
-                            "org.hibernate.dialect.PostgreSQLDialect"));
-            emf.afterPropertiesSet();
-            var jpa = new org.springframework.orm.jpa.JpaTransactionManager(emf.getObject());
-            jpa.setDataSource(source);
-            jpa.setNestedTransactionAllowed(false);
-            manager = jpa;
-            var old =
-                    (org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean)
-                            field(runtime.resources, "emf");
-            replace(runtime.resources, "emf", emf);
-            old.destroy();
-        } else {
-            var jdbc = new DataSourceTransactionManager(source);
-            jdbc.setNestedTransactionAllowed(false);
-            manager = jdbc;
-        }
+        var jdbc = new DataSourceTransactionManager(source);
+        jdbc.setNestedTransactionAllowed(false);
+        org.springframework.transaction.PlatformTransactionManager manager = jdbc;
         var owner = new SpringAttemptTransactions(source, manager, 60);
         for (var binding : runtime.bindings) {
             if (binding.definition().authority()
@@ -288,7 +259,10 @@ class WorkerResourcesPostgresTest {
                 replace(com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()), "participant", participant);
                 if (!write)
                     replace(
-                            com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()),
+                            field(
+                                    com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                                            binding.engine()),
+                                    "recoveryPolicy"),
                             "admissions",
                             new com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore(
                                     source,
@@ -306,7 +280,13 @@ class WorkerResourcesPostgresTest {
                                 source,
                                 binding.definition().family(),
                                 (DiscoverySettings) field(com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(binding.discovery()), "settings"));
-                replace(com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(binding.engine()), "recoverySource", Optional.of(references));
+                replace(
+                        field(
+                                com.kartaguez.pocoma.runtime.command.L2TestAccess.engine(
+                                        binding.engine()),
+                                "recoveryPolicy"),
+                        "recoverySource",
+                        references);
                 replace(
                         com.kartaguez.pocoma.runtime.command.L2TestAccess.discovery(binding.discovery()),
                         "events",

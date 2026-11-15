@@ -112,33 +112,76 @@ public final class JdbcPartitionOwnershipStore implements PartitionOwnershipStor
     @Override
     public List<PartitionLease> renew(
             ConsumptionDefinition expected, List<PartitionLease> leases, Duration duration) {
+        return renewBatch(List.of(expected), leases, duration);
+    }
+
+    @Override
+    public List<PartitionLease> renewBatch(
+            List<ConsumptionDefinition> definitions,
+            List<PartitionLease> leases,
+            Duration duration) {
         return SpringAttemptTransactions.guarded(
                 source,
                 () -> {
                     long us = LifecycleSettings.micros(duration, false);
-                    var result = new ArrayList<PartitionLease>();
-                    for (var old :
+                    if (leases.isEmpty()) return List.of();
+                    var byId = new LinkedHashMap<com.kartaguez.pocoma.domain.consumption.ConsumptionId, ConsumptionDefinition>();
+                    for (var def : definitions) byId.put(def.id(), def);
+                    var sorted =
                             leases.stream()
-                                    .sorted(Comparator.comparingInt(PartitionLease::partitionId))
-                                    .toList()) {
-                        if (!old.consumptionId().equals(expected.id()))
+                                    .sorted(
+                                            Comparator.comparing(
+                                                            (PartitionLease l) ->
+                                                                    l.consumptionId().value())
+                                                    .thenComparingInt(PartitionLease::partitionId))
+                                    .toList();
+                    UUID[] consumptionIds = new UUID[sorted.size()];
+                    Integer[] partitionIds = new Integer[sorted.size()];
+                    UUID[] ownerTokens = new UUID[sorted.size()];
+                    for (int i = 0; i < sorted.size(); i++) {
+                        var old = sorted.get(i);
+                        if (!byId.containsKey(old.consumptionId()))
                             throw new IllegalArgumentException("foreign lease");
-                        if (lock(expected, old.partitionId()).isEmpty()) continue;
-                        var time = now();
-                        var rows =
-                                jdbc.queryForList(
-                                        "update partition_ownership set"
-                                            + " owned_until=greatest(owned_until,?::timestamptz + ?"
-                                            + " * interval '1 microsecond') where consumption_id=?"
-                                            + " and partition_id=? and owner_token=? and"
-                                            + " owned_until>? returning owner_token,owned_until",
-                                        Timestamp.from(time),
-                                        us,
-                                        expected.id().value(),
-                                        old.partitionId(),
-                                        old.ownerToken(),
-                                        Timestamp.from(time));
-                        rows.forEach(r -> result.add(lease(expected, old.partitionId(), r)));
+                        consumptionIds[i] = old.consumptionId().value();
+                        partitionIds[i] = old.partitionId();
+                        ownerTokens[i] = old.ownerToken();
+                    }
+                    var rows =
+                            jdbc.queryForList(
+                                    "with target as ("
+                                        + " select c_id, p_id, tok"
+                                        + " from unnest(?::uuid[], ?::int4[], ?::uuid[]) as t(c_id, p_id, tok)"
+                                        + " order by c_id, p_id"
+                                        + "), locked as ("
+                                        + " select po.consumption_id, po.partition_id, t.tok"
+                                        + " from partition_ownership po"
+                                        + " join target t on po.consumption_id = t.c_id"
+                                        + " and po.partition_id = t.p_id"
+                                        + " order by po.consumption_id, po.partition_id"
+                                        + " for update of po skip locked"
+                                        + "), now_ts as ("
+                                        + " select clock_timestamp() as ts"
+                                        + ")"
+                                        + " update partition_ownership po"
+                                        + " set owned_until = greatest(po.owned_until,"
+                                        + " n.ts + ? * interval '1 microsecond')"
+                                        + " from locked l, now_ts n"
+                                        + " where po.consumption_id = l.consumption_id"
+                                        + " and po.partition_id = l.partition_id"
+                                        + " and po.owner_token = l.tok"
+                                        + " and po.owned_until > n.ts"
+                                        + " returning po.consumption_id, po.partition_id,"
+                                        + " po.owner_token, po.owned_until",
+                                    new org.springframework.jdbc.support.SqlArrayValue("uuid", consumptionIds),
+                                    new org.springframework.jdbc.support.SqlArrayValue("int4", partitionIds),
+                                    new org.springframework.jdbc.support.SqlArrayValue("uuid", ownerTokens),
+                                    us);
+                    var result = new ArrayList<PartitionLease>(rows.size());
+                    for (var r : rows) {
+                        var cId = new com.kartaguez.pocoma.domain.consumption.ConsumptionId((UUID) r.get("consumption_id"));
+                        var def = byId.get(cId);
+                        int partition = ((Number) r.get("partition_id")).intValue();
+                        result.add(lease(def, partition, r));
                     }
                     return List.copyOf(result);
                 });

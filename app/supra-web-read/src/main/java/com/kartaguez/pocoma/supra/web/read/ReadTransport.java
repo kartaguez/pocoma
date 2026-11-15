@@ -20,20 +20,24 @@ public final class ReadTransport extends OncePerRequestFilter {
         void record(String endpoint, int status, long durationNanos);
     }
 
-    private final Semaphore capacity = new Semaphore(HTTP_PERMITS);
+    private final Semaphore capacity;
     private final ObjectMapper mapper;
     private final Telemetry telemetry;
     private boolean admissionActive;
 
     public ReadTransport() {
-        this(false, (endpoint, status, durationNanos) -> {});
+        this(false, (endpoint, status, durationNanos) -> {}, HTTP_PERMITS);
     }
 
     public ReadTransport(boolean admissionActive) {
-        this(admissionActive, (endpoint, status, durationNanos) -> {});
+        this(admissionActive, (endpoint, status, durationNanos) -> {}, HTTP_PERMITS);
     }
 
     public ReadTransport(boolean admissionActive, Telemetry telemetry) {
+        this(admissionActive, telemetry, HTTP_PERMITS);
+    }
+
+    public ReadTransport(boolean admissionActive, Telemetry telemetry, int httpPermits) {
         this(
                 new ObjectMapper(
                                 JsonFactory.builder()
@@ -43,14 +47,21 @@ public final class ReadTransport extends OncePerRequestFilter {
                                         .build())
                         .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS),
                 admissionActive,
-                telemetry);
+                telemetry,
+                httpPermits);
     }
 
     public ReadTransport(ObjectMapper mapper) {
-        this(mapper, false, (endpoint, status, durationNanos) -> {});
+        this(mapper, false, (endpoint, status, durationNanos) -> {}, HTTP_PERMITS);
     }
 
     public ReadTransport(ObjectMapper mapper, boolean admissionActive, Telemetry telemetry) {
+        this(mapper, admissionActive, telemetry, HTTP_PERMITS);
+    }
+
+    public ReadTransport(ObjectMapper mapper, boolean admissionActive, Telemetry telemetry, int httpPermits) {
+        if (httpPermits < 1) throw new IllegalArgumentException("httpPermits must be >= 1");
+        this.capacity = new Semaphore(httpPermits);
         this.mapper = Objects.requireNonNull(mapper);
         this.admissionActive = admissionActive;
         this.telemetry = telemetry != null ? telemetry : (endpoint, status, durationNanos) -> {};
@@ -91,11 +102,7 @@ public final class ReadTransport extends OncePerRequestFilter {
         response.setHeader("Cache-Control", "no-store");
         long startNanos = System.nanoTime();
         String endpoint = classify(request.getRequestURI());
-        if (!capacity.tryAcquire()) {
-            telemetry.record(endpoint, 503, System.nanoTime() - startNanos);
-            error(response, 503);
-            return;
-        }
+        byte[] body;
         try {
             require(request.getRequestURI().length() + (request.getQueryString() == null ? 0 : 1 + request.getQueryString().length()) <= 2048);
             if (request.getHeader("Content-Encoding") != null) throw new Failure(415);
@@ -106,9 +113,20 @@ public final class ReadTransport extends OncePerRequestFilter {
             }
             // Count received bytes, including chunked input; never trust Content-Length alone.
             if (request.getContentLengthLong() > INPUT_BYTES) throw new Failure(413);
-            byte[] body = request.getInputStream().readNBytes(INPUT_BYTES + 1);
+            body = request.getInputStream().readNBytes(INPUT_BYTES + 1);
             if (body.length > INPUT_BYTES) throw new Failure(413);
             if (request.getMethod().equals("GET")) require(body.length == 0);
+        } catch (Failure failure) {
+            if (!response.isCommitted()) error(response, failure.status);
+            telemetry.record(endpoint, response.getStatus(), System.nanoTime() - startNanos);
+            return;
+        }
+        if (!capacity.tryAcquire()) {
+            telemetry.record(endpoint, 503, System.nanoTime() - startNanos);
+            error(response, 503);
+            return;
+        }
+        try {
             request.setAttribute(BODY, body);
             chain.doFilter(request, response);
         } catch (Failure failure) {

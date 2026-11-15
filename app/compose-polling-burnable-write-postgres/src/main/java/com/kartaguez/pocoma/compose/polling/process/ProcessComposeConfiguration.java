@@ -22,8 +22,6 @@ import com.kartaguez.pocoma.infra.postgres.write.*;
 import com.kartaguez.pocoma.infra.postgres.write.identity.JdbcIdentityPotActorAuthority;
 import com.kartaguez.pocoma.infra.security.spring.InvitationConfiguration;
 import com.kartaguez.pocoma.compose.polling.process.dev.FixturePotActorAuthority;
-import org.springframework.orm.jpa.*;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 /** Explicit process selection. No runtime scan, migration or unrelated authority is activated. */
 @Configuration(proxyBeanMethods=false)
@@ -127,20 +125,12 @@ public class ProcessComposeConfiguration {
         private volatile ConsumptionWorker worker;
         private volatile CapacityView capacityView;
         private boolean closed;
-        private final LocalContainerEntityManagerFactoryBean emf;
         Resources(ProcessSettings settings,Environment env,MeterRegistry registry) {
             var opened=new ArrayList<HikariDataSource>();
-            LocalContainerEntityManagerFactoryBean initialized=null;
             try {
                 writeBusiness=open(settings,settings.writeBusiness(),opened,registry);
                 writeControl=open(settings,settings.writeControl(),opened,registry);
-                emf=new LocalContainerEntityManagerFactoryBean();initialized=emf;
-                emf.setDataSource(writeBusiness);emf.setPersistenceUnitName("v3-process-write-business");
-                emf.setManagedTypes(org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes.of());
-                emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-                emf.setJpaPropertyMap(Map.of("hibernate.hbm2ddl.auto","none","hibernate.boot.allow_jdbc_metadata_access","false","hibernate.dialect","org.hibernate.dialect.PostgreSQLDialect"));emf.afterPropertiesSet();
-                var manager=new JpaTransactionManager(Objects.requireNonNull(emf.getObject()));manager.setDataSource(writeBusiness);manager.setNestedTransactionAllowed(false);
-                writeEffects=new SpringAttemptTransactions(writeBusiness,manager,60);writeTechnical=owner(writeControl,3);
+                writeEffects=owner(writeBusiness,60);writeTechnical=owner(writeControl,3);
                 var target=new BootstrapGuard.Target(writeControl,settings.writeControl().database(),settings.writeControl().schema(),settings.writeControl().username());
                 String sourceRole=env.getProperty("pocoma.v3.process.source-read-role",env.getProperty("pocoma.v3.pilot.read.username","pocoma_write_source_read"));
                 guard=BootstrapGuard.processWorker(target,sourceRole,settings.catalog(),settings.fixtureIdentity());
@@ -153,7 +143,6 @@ public class ProcessComposeConfiguration {
                     guard.validateIdentitySource(writeControl, readEffectRole);
                 }
             } catch(RuntimeException|Error failure) {
-                if(initialized!=null)try{initialized.destroy();}catch(RuntimeException cleanup){failure.addSuppressed(cleanup);}
                 for(var pool:opened)try{pool.close();}catch(RuntimeException cleanup){failure.addSuppressed(cleanup);}
                 throw failure;
             }
@@ -211,7 +200,7 @@ public class ProcessComposeConfiguration {
         }
         private synchronized void close() {
             if(closed)return;
-            emf.destroy();writeControl.close();
+            writeControl.close();
             writeBusiness.close();closed=true;
         }
         public Optional<CapacityView> capacityView(){return Optional.ofNullable(capacityView);}

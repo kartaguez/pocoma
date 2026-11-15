@@ -168,16 +168,9 @@ class DiscoveryCompositionPostgresTest {
 
     @Test
     void sharedPhysicalOwnerAndAuthorities() throws Exception {
-        var emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(f.w.source());
-        emf.setPackagesToScan("com.kartaguez.pocoma.infra.postgres.write.entity");
-        emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-        emf.setJpaPropertyMap(Map.of("hibernate.hbm2ddl.auto", "none"));
-        emf.afterPropertiesSet();
-        try {
-            var manager = new JpaTransactionManager(emf.getObject());
-            manager.setDataSource(f.w.source());
-            manager.setNestedTransactionAllowed(false);
+        var manager = new org.springframework.jdbc.datasource.DataSourceTransactionManager(f.w.source());
+        manager.setNestedTransactionAllowed(false);
+        {
             var write = new SpringAttemptTransactions(f.w.source(), manager);
             var read = jdbcOwner(f.r.source());
             f.write.execute(
@@ -421,8 +414,6 @@ class DiscoveryCompositionPostgresTest {
             trace.add(
                     "shared owner identity WRITE/READ asserted; actual Command D->I3 acquire->I2"
                             + " terminal, actual POT publication->READ K/slots");
-        } finally {
-            emf.destroy();
         }
     }
 

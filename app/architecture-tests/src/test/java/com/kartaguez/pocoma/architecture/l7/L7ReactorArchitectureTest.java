@@ -140,9 +140,26 @@ class L7ReactorArchitectureTest {
         for(var row:manifest) {
             String path=row.get("new").asText();assertTrue(seen.add(path),path);
             assertTrue(path.startsWith("infra-postgres-write/")||path.startsWith("infra-postgres-read/"),path);
-            var bytes=Files.readAllBytes(APP.resolve(path));
+            Path resolved;
+            if(path.contains("/src/main/resources/db/v3-")) {
+                assertFalse(Files.exists(APP.resolve(path)),"archived V3 migration must not remain in main resources: "+path);
+                resolved=APP.resolve("../docs/archive/v3-sql-migrations/"+path.replace("/src/main/resources/","/"));
+            } else {
+                resolved=APP.resolve(path);
+            }
+            var bytes=Files.readAllBytes(resolved);
             assertEquals(row.get("sha256").asText(),HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)),path);
         }
+        List<String> writeMainSql;
+        try(var files=Files.walk(APP.resolve("infra-postgres-write/src/main/resources"))) {
+            writeMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
+        }
+        assertEquals(List.of("infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql"),writeMainSql);
+        List<String> readMainSql;
+        try(var files=Files.walk(APP.resolve("infra-postgres-read/src/main/resources"))) {
+            readMainSql=files.filter(p->p.toString().endsWith(".sql")).map(p->APP.relativize(p).toString()).sorted().toList();
+        }
+        assertEquals(List.of("infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql"),readMainSql);
         var resources=new HashSet<String>();
         try(var files=Files.walk(APP)) {
             for(var p:files.filter(p->p.toString().contains("/src/main/resources/") && p.toString().endsWith(".sql")).toList())

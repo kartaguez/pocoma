@@ -10,13 +10,18 @@ import java.util.function.*;
 /** Shared READ admission, input capture, deadline and single-snapshot execution policy. */
 public class ReadExecution implements PotRead.Queries {
     public static final int SQL_PERMITS=2;
-    private final Semaphore quota=new Semaphore(SQL_PERMITS);
+    private final Semaphore quota;
     private final ReadTransactions owner;
     private final SnapshotRead pot;
     private final ReadLimits limits;
     private final boolean httpBounds;
     private final ReadObservation observation;
     public ReadExecution(ReadTransactions owner,SnapshotRead queries,ReadLimits limits,boolean httpBounds,ReadObservation observation) {
+        this(owner, queries, limits, httpBounds, observation, SQL_PERMITS);
+    }
+    public ReadExecution(ReadTransactions owner,SnapshotRead queries,ReadLimits limits,boolean httpBounds,ReadObservation observation,int sqlPermits) {
+        if (sqlPermits < 1) throw new IllegalArgumentException("sqlPermits must be >= 1");
+        this.quota=new Semaphore(sqlPermits);
         this.owner=Objects.requireNonNull(owner); this.pot=Objects.requireNonNull(queries);
         this.limits=Objects.requireNonNull(limits);this.httpBounds=httpBounds;this.observation=Objects.requireNonNull(observation);
         observation.quota(quota::availablePermits);

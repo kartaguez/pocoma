@@ -184,16 +184,9 @@ class PotCommandCompositionPostgresTest {
         sql.update(
                 "insert into fixture_identity values ('issuer','subject',?,'secret')",
                 user.value());
-        var factory = new LocalContainerEntityManagerFactoryBean();
-        factory.setDataSource(source);
-        factory.setPackagesToScan("com.kartaguez.pocoma.infra.postgres.write.entity");
-        factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-        factory.setJpaPropertyMap(Map.of("hibernate.hbm2ddl.auto", "none"));
-        factory.afterPropertiesSet();
-        try {
-            var manager = new JpaTransactionManager(factory.getObject());
-            manager.setDataSource(source);
-            manager.setNestedTransactionAllowed(false);
+        var manager = new org.springframework.jdbc.datasource.DataSourceTransactionManager(source);
+        manager.setNestedTransactionAllowed(false);
+        {
             var authority =
                     new PotActorAuthority() {
                         public Witness observe(PotCommand c) {
@@ -396,8 +389,6 @@ class PotCommandCompositionPostgresTest {
                                     LifecycleSettings.pilot(),
                                     capacity,
                                     8));
-        } finally {
-            factory.destroy();
         }
     }
 

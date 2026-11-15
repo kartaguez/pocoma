@@ -336,23 +336,26 @@ final class I5TemporalV2Postgres {
                                                 tx,
                                                 "uncovered physical ownership call: "
                                                         + m.getName());
+                                        boolean isRenew =
+                                                m.getName().equals("renew")
+                                                        || m.getName().equals("renewBatch");
                                         if (m.getName().equals("acquire"))
                                             tx.keys.add(
                                                     b.definition().id().value() + "/" + args[1]);
                                         else if (m.getName().equals("protectAcquisition"))
                                             tx.keys.add(key((PartitionLease) args[1]));
-                                        else if (m.getName().equals("renew"))
+                                        else if (isRenew)
                                             for (var l : (List<PartitionLease>) args[1])
                                                 tx.keys.add(key(l));
                                         if (window != null)
                                             window.ownership(
                                                     tx,
-                                                    m.getName(),
-                                                    m.getName().equals("renew")
+                                                    isRenew ? "renew" : m.getName(),
+                                                    isRenew
                                                             ? (List<PartitionLease>) args[1]
                                                             : List.of(),
                                                     index);
-                                        if (!m.getName().equals("renew"))
+                                        if (!isRenew)
                                             return invoke(store, m, args);
                                         Object call;
                                         synchronized (field(r.worker, "monitor")) {

@@ -52,6 +52,13 @@ public interface ConsumptionProtocol {
     }
     Optional<Partition> acquirePartition(int partition);
     List<Partition> renewPartitions(List<Partition> partitions);
+    default boolean supportsCrossDefinitionRenewal() {
+        return false;
+    }
+    default List<Partition> renewPartitionBatch(
+            List<ConsumptionDefinition> definitions, List<Partition> partitions) {
+        return renewPartitions(partitions);
+    }
     void renewClaim(Handle handle);
     Navigation navigate(Partition partition, ConsumptionNavigation.Walk walk, int limit);
     Acquisition acquire(Partition partition, List<UUID> keys, ConsumptionNavigation.Walk continuation);

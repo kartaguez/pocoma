@@ -289,20 +289,19 @@ public record MaterializeSettings(
         if (readMode) {
             leaseBound = Duration.ZERO;
             for (var authority : Authority.values()) {
-                int candidates = 0, bindings = 0;
+                int candidates = 0;
                 for (var entry : partitions.entrySet())
                     if (definition(entry.getKey()).authority() == authority) {
                         candidates += entry.getValue().size();
-                        bindings++;
                     }
-                // One useful renewal per call, one bounded no-progress window per binding.
-                // Independent lanes per authority. Qualification must observe each SQL deadline.
+                if (candidates == 0) continue;
+                int batches = (candidates + batch - 1) / batch;
+                // Batched renewal issues one grouped SQL query per pageSize across all bindings
+                // of the same authority.
                 var bound =
                         settings.renewalInterval()
-                                .plus(
-                                        settings.renewalBudget()
-                                                .multipliedBy((long) candidates + bindings))
-                                .plus(settings.minPoll().multipliedBy(candidates))
+                                .plus(settings.renewalBudget().multipliedBy(batches))
+                                .plus(settings.minPoll().multipliedBy(batches))
                                 .plusSeconds(4);
                 if (bound.compareTo(leaseBound) > 0) leaseBound = bound;
             }

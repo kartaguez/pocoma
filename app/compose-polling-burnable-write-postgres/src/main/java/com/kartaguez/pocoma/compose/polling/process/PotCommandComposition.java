@@ -12,7 +12,7 @@ import com.kartaguez.pocoma.infra.postgres.write.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
 
-import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.Clock;
 
@@ -24,7 +24,7 @@ public final class PotCommandComposition {
 
     public static ConsumptionEngine assemble(
             DataSource writeSource,
-            JpaTransactionManager manager,
+            PlatformTransactionManager manager,
             PotActorAuthority identityAuthority,
             Clock clock,
             BootstrapGuard guard,

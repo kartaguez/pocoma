@@ -190,11 +190,13 @@ public final class RenewalService {
             // bounded candidates, including within a binding, so it cannot jump ahead again.
             var oldest =
                     Comparator.comparingLong((ConsumptionWorker.LeaseEntry e) -> e.renewedAt);
-            var binding = due.stream().min(oldest).orElseThrow().pair.binding();
+            var sortedDue = due.stream().sorted(oldest).toList();
+            var firstBinding = sortedDue.getFirst().pair.binding();
             var batch =
-                    due.stream()
-                            .filter(e -> e.pair.binding() == binding)
-                            .sorted(oldest)
+                    (firstBinding.engine().supportsCrossDefinitionRenewal()
+                                    ? sortedDue.stream()
+                                    : sortedDue.stream()
+                                            .filter(e -> e.pair.binding().equals(firstBinding)))
                             .limit(worker.settings.pageSize())
                             .toList();
             var permit = worker.safety.beginRenewal(authority, 2, null);
@@ -213,8 +215,17 @@ public final class RenewalService {
         List<ConsumptionProtocol.Partition> result = List.of();
         int suspended = 0;
         try {
-            result = call.leases.getFirst().pair.binding().engine()
-                    .renewPartitions(call.leases.stream().map(e -> e.lease).toList());
+            var definitions =
+                    call.leases.stream()
+                            .map(e -> e.pair.binding().definition())
+                            .distinct()
+                            .toList();
+            result =
+                    List.copyOf(
+                            call.leases.getFirst().pair.binding().engine()
+                                    .renewPartitionBatch(
+                                            definitions,
+                                            call.leases.stream().map(e -> e.lease).toList()));
         } catch (RuntimeException | Error failure) {
             fault = failure;
         } finally {

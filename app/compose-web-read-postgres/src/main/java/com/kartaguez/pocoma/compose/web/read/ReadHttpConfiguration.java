@@ -82,9 +82,11 @@ public class ReadHttpConfiguration {
                                 .record(Duration.ofNanos(durationNanos));
                     }
                 };
+        int httpPermits = env.getProperty("pocoma.v3.http.read.http-permits", Integer.class, ReadTransport.HTTP_PERMITS);
         return new ReadTransport(
                 Arrays.asList(env.getActiveProfiles()).contains("v3-http-admission"),
-                telemetry);
+                telemetry,
+                httpPermits);
     }
 
     @Bean
@@ -175,8 +177,13 @@ public class ReadHttpConfiguration {
         config.setUsername(env.getRequiredProperty(p + "username"));
         config.setPassword(env.getRequiredProperty(p + "password"));
         config.setPoolName("v3-http-read");
-        config.setMaximumPoolSize(ReadFacadeComposition.Services.SQL_PERMITS);
-        config.setMinimumIdle(ReadFacadeComposition.Services.SQL_PERMITS);
+        int sqlPermits = env.getProperty(p + "sql-permits", Integer.class, ReadFacadeComposition.Services.SQL_PERMITS);
+        int maxPoolSize = env.getProperty(p + "maximum-pool-size", Integer.class, sqlPermits);
+        int minIdle = env.getProperty(p + "minimum-idle", Integer.class, maxPoolSize);
+        if (sqlPermits < 1 || maxPoolSize < sqlPermits || minIdle < 0 || minIdle > maxPoolSize)
+            throw new IllegalArgumentException("Invalid READ pool/SQL permit sizing");
+        config.setMaximumPoolSize(maxPoolSize);
+        config.setMinimumIdle(minIdle);
         config.setConnectionTimeout(1000);
         config.setReadOnly(true);
         config.addDataSourceProperty("socketTimeout", "70");
@@ -216,7 +223,9 @@ public class ReadHttpConfiguration {
     @Bean
     ReadFacadeComposition.Services httpStandaloneServices(
             HikariDataSource httpReadPool,
+            Environment env,
             Optional<MeterRegistry> meterRegistry) {
+        int sqlPermits = env.getProperty("pocoma.v3.http.read.sql-permits", Integer.class, ReadFacadeComposition.Services.SQL_PERMITS);
         var manager = new DataSourceTransactionManager(httpReadPool);
         manager.setNestedTransactionAllowed(false);
         var owner = new SpringAttemptTransactions(httpReadPool, manager, 3);
@@ -227,7 +236,8 @@ public class ReadHttpConfiguration {
                 Set.of(),
                 Optional::empty,
                 true,
-                meterRegistry.orElse(null));
+                meterRegistry.orElse(null),
+                sqlPermits);
     }
 
     public record InvitationQueries(

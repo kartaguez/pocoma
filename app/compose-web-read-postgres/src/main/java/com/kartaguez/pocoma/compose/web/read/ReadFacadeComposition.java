@@ -71,6 +71,18 @@ public final class ReadFacadeComposition {
             Supplier<Optional<WorkerView.Snapshot>> worker,
             boolean httpBounds,
             MeterRegistry registry) {
+        return create(read, owner, limits, active, worker, httpBounds, registry, Services.SQL_PERMITS);
+    }
+
+    public static Services create(
+            DataSource read,
+            SpringAttemptTransactions owner,
+            ReadLimits limits,
+            Set<String> active,
+            Supplier<Optional<WorkerView.Snapshot>> worker,
+            boolean httpBounds,
+            MeterRegistry registry,
+            int sqlPermits) {
         owner.requireSource(read);
         var binding = new JdbcCurrentBindingStore(read, owner);
         var pot =
@@ -92,7 +104,8 @@ public final class ReadFacadeComposition {
                 limits,
                 read,
                 httpBounds,
-                registry);
+                registry,
+                sqlPermits);
     }
 
     public static final class Services extends com.kartaguez.pocoma.engine.read.execution.ReadExecution {
@@ -101,7 +114,7 @@ public final class ReadFacadeComposition {
         private Services(SpringAttemptTransactions owner,ReadPot pot,ReadNavigation navigation,
                 JdbcCurrentBindingStore binding,GetCommandTerminalResult command,GetIdentityTerminalResult identity,
                 Set<String> active,Supplier<Optional<WorkerView.Snapshot>> worker,ReadLimits limits,
-                DataSource source,boolean httpBounds,MeterRegistry registry) {
+                DataSource source,boolean httpBounds,MeterRegistry registry,int sqlPermits) {
             super(new com.kartaguez.pocoma.infra.tx.spring.SpringReadTransactions(source,owner,httpBounds),
                 new com.kartaguez.pocoma.contract.readquery.SnapshotRead() {
                     private final org.springframework.jdbc.core.JdbcTemplate sql=new org.springframework.jdbc.core.JdbcTemplate(source);
@@ -120,7 +133,7 @@ public final class ReadFacadeComposition {
                     public ReadPotResult<List<InvitationRead.Place>> invitationPlaces(ExternalIdentity e,String b,String t,RecoveryReadContext c) { return invitations(i -> {throw new IllegalStateException("Decryption forbidden");}).places(e,b,t,c); }
                     public Optional<CommandTerminalResult> commandResult(UUID i,ExternalIdentity e,RecoveryReadContext c) { return command.get(i,e); }
                     public Optional<IdentityTerminalResult> identityResult(UUID i,ExternalIdentity e,RecoveryReadContext c) { return identity.get(i,e); }
-                },limits,httpBounds,new com.kartaguez.pocoma.infra.observability.micrometer.MicrometerReadObservation(registry));
+                },limits,httpBounds,new com.kartaguez.pocoma.infra.observability.micrometer.MicrometerReadObservation(registry),sqlPermits);
             this.active=Set.copyOf(active); this.worker=worker;
         }
         public Set<String> activeParticipants() {return active;}

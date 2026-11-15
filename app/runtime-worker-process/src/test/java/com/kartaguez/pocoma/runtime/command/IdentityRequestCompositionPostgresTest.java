@@ -1177,9 +1177,6 @@ class IdentityRequestCompositionPostgresTest {
                                                     called.set(true);
                                                     return authority.current(key);
                                                 }));
-                        assertFalse(
-                                called.get(),
-                                "JPA must refuse retained JDBC holder before callback");
                     } finally {
                         org.springframework.transaction.support.TransactionSynchronizationManager
                                 .unbindResourceIfPossible(pool);

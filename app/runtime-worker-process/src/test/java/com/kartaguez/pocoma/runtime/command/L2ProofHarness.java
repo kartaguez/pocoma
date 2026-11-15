@@ -197,7 +197,6 @@ final class L2ProofHarness {
 
     static final class Resources {
         final HikariDataSource writeBusiness, writeControl, readBusiness, readControl;
-        final LocalContainerEntityManagerFactoryBean emf;
         final SpringAttemptTransactions writeEffects, writeTechnical, readEffects, readTechnical;
         volatile ConsumptionWorker worker;
         private boolean closed;
@@ -208,32 +207,12 @@ final class L2ProofHarness {
 
         Resources(L2ProofSettings settings, BootstrapGuard guard, MeterRegistry registry) {
             var opened = new ArrayList<HikariDataSource>();
-            LocalContainerEntityManagerFactoryBean initialized = null;
             try {
                 writeBusiness = open(settings, settings.writeBusiness(), opened, registry);
                 writeControl = open(settings, settings.writeControl(), opened, registry);
                 readBusiness = open(settings, settings.readBusiness(), opened, registry);
                 readControl = open(settings, settings.readControl(), opened, registry);
-                emf = new LocalContainerEntityManagerFactoryBean();
-                initialized = emf;
-                emf.setDataSource(writeBusiness);
-                emf.setPersistenceUnitName("v3-write-business");
-                emf.setManagedTypes(
-                        org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes.of());
-                emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-                emf.setJpaPropertyMap(
-                        Map.of(
-                                "hibernate.hbm2ddl.auto",
-                                "none",
-                                "hibernate.boot.allow_jdbc_metadata_access",
-                                "false",
-                                "hibernate.dialect",
-                                "org.hibernate.dialect.PostgreSQLDialect"));
-                emf.afterPropertiesSet();
-                var manager = new JpaTransactionManager(Objects.requireNonNull(emf.getObject()));
-                manager.setDataSource(writeBusiness);
-                manager.setNestedTransactionAllowed(false);
-                writeEffects = new SpringAttemptTransactions(writeBusiness, manager, 60);
+                writeEffects = owner(writeBusiness, 60);
                 writeTechnical = owner(writeControl, 3);
                 readEffects = owner(readBusiness, 60);
                 readTechnical = owner(readControl, 3);
@@ -256,12 +235,6 @@ final class L2ProofHarness {
                             BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
                 }
             } catch (RuntimeException | Error failure) {
-                if (initialized != null)
-                    try {
-                        initialized.destroy();
-                    } catch (RuntimeException cleanup) {
-                        failure.addSuppressed(cleanup);
-                    }
                 for (var pool : opened)
                     try {
                         pool.close();
@@ -331,7 +304,6 @@ final class L2ProofHarness {
 
         synchronized void close() {
             if (closed) return;
-            emf.destroy();
             writeBusiness.close();
             readBusiness.close();
             writeControl.close();

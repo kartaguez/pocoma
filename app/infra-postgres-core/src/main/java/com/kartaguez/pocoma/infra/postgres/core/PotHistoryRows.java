@@ -203,18 +203,19 @@ public final class PotHistoryRows {
                                 + relation
                                 + " o where o.pot_id=c.pot_id"
                                 + " and o.object_id=c.object_id and o.revision_id<>c.revision_id"
-                                + " and int8range(o.active_from,o.active_to,'[)')"
-                                + " && int8range(c.active_from,null,'[)')) as overlapping"
+                                + " and (o.active_to is null or (o.active_to>o.active_from and o.active_to>c.active_from)))"
+                                + " as overlapping"
                                 + " from "
                                 + relation
-                                + " c left join "
+                                + " c left join lateral(select active_from,active_to from "
                                 + relation
-                                + " f on f.pot_id=c.pot_id and f.object_id=c.object_id and"
-                                + " f.local_version=1 left join "
+                                + " where pot_id=c.pot_id and object_id=c.object_id and"
+                                + " local_version=1 limit 1) f on true"
+                                + " left join lateral(select active_from,active_to from "
                                 + relation
-                                + " p on p.pot_id=c.pot_id and p.object_id=c.object_id and"
-                                + " p.local_version=c.local_version-1 left join lateral(select"
-                                + " local_version from "
+                                + " where pot_id=c.pot_id and object_id=c.object_id and"
+                                + " local_version=c.local_version-1 limit 1) p on true"
+                                + " left join lateral(select local_version from "
                                 + relation
                                 + " where pot_id=c.pot_id and object_id=c.object_id order by"
                                 + " local_version desc limit 1) l on true where c.pot_id=:pot and"

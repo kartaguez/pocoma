@@ -73,6 +73,25 @@ public abstract class AbstractConsumptionProtocol implements ConsumptionProtocol
         var leases = partitions.stream().map(this::requirePartition).toList();
         return engine.renewPartitions(leases).stream().map(l -> (Partition)new OwnedPartition(l)).toList();
     }
+    @Override
+    public boolean supportsCrossDefinitionRenewal() {
+        return true;
+    }
+    @Override
+    public List<Partition> renewPartitionBatch(
+            List<ConsumptionDefinition> definitions, List<Partition> partitions) {
+        var leases = new ArrayList<PartitionLease>(partitions.size());
+        var issuers = new HashMap<ConsumptionId, AbstractConsumptionProtocol>();
+        for (var partition : partitions) {
+            if (!(partition instanceof AbstractConsumptionProtocol.OwnedPartition p))
+                throw new IllegalArgumentException("Foreign or fabricated partition handle");
+            leases.add(p.lease);
+            issuers.put(p.lease.consumptionId(), p.issuer);
+        }
+        return engine.renewPartitionBatch(definitions, leases).stream()
+                .map(l -> (Partition) issuers.getOrDefault(l.consumptionId(), this).new OwnedPartition(l))
+                .toList();
+    }
     public void renewClaim(Handle handle) { engine.renewClaims(List.of(requireClaim(handle).claim())); }
     public Navigation navigate(Partition partition, ConsumptionNavigation.Walk walk, int limit) {
         var page=engine.navigate(requirePartition(partition),walk,limit);

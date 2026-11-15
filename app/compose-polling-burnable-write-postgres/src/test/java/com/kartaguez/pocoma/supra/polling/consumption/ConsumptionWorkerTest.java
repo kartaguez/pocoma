@@ -817,7 +817,7 @@ class ConsumptionWorkerTest {
                         f.worker.leases.values().stream()
                                 .filter(entry -> entry.renewedAt != before.get(entry))
                                 .toList();
-                assertEquals(1, changed.size());
+                assertEquals(2, changed.size());
                 visited.addAll(changed);
                 // Deterministic elapsed opportunities: a serviced lease is due again while
                 // another is older. This proves local selection, never a PostgreSQL deadline.
@@ -856,7 +856,9 @@ class ConsumptionWorkerTest {
                                     getClass().getClassLoader(),
                                     new Class[] {PartitionOwnershipStore.class},
                                     (proxy, method, args) -> {
-                                        if (method.getName().equals("renew")) return List.of();
+                                        if (method.getName().equals("renew")
+                                                || method.getName().equals("renewBatch"))
+                                            return List.of();
                                         try {
                                             return method.invoke(owner, args);
                                         } catch (InvocationTargetException error) {
@@ -866,17 +868,13 @@ class ConsumptionWorkerTest {
                 }
                 var service = new RenewalService(f.worker);
                 var visited = new HashSet<ConsumptionWorker.LeaseEntry>();
-                for (int step = 0; step < n; step++) {
-                    var before = new IdentityHashMap<ConsumptionWorker.LeaseEntry, Long>();
-                    entries.forEach(e -> before.put(e, e.renewedAt));
-                    assertTrue(service.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE));
-                    var changed =
-                            entries.stream().filter(e -> e.renewedAt != before.get(e)).toList();
-                    assertEquals(1, changed.size());
-                    assertTrue(
-                            visited.add(changed.getFirst()),
-                            "omitted contender jumped ahead twice");
-                }
+                var before = new IdentityHashMap<ConsumptionWorker.LeaseEntry, Long>();
+                entries.forEach(e -> before.put(e, e.renewedAt));
+                assertTrue(service.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE));
+                var changed =
+                        entries.stream().filter(e -> e.renewedAt != before.get(e)).toList();
+                assertEquals(n, changed.size());
+                visited.addAll(changed);
                 assertEquals(n, visited.size());
                 assertFalse(entries.getLast().usable);
                 assertEquals(0, f.worker.snapshot().renewalCalls());

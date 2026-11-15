@@ -50,8 +50,14 @@ final class SubobjectPostgresFixture implements AutoCloseable {
     static final String IMAGE =
             "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73";
     static final Path ROOT = Path.of("../..").toAbsolutePath().normalize();
-    static final String V1 = "filesystem:../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration";
-    static final String V2 = "filesystem:../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration";
+    static final String V1 =
+            "filesystem:"
+                    + ROOT.resolve(
+                            "docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration");
+    static final String V2 =
+            "filesystem:"
+                    + ROOT.resolve(
+                            "docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration");
     final PostgreSQLContainer pg;
     final String schema = "i1_" + UUID.randomUUID().toString().replace("-", "");
     final String adminRole = schema + "_a",
@@ -207,10 +213,21 @@ final class SubobjectPostgresFixture implements AutoCloseable {
     }
 
     SubobjectPostgresFixture(PostgreSQLContainer pg, String scenario) throws Exception {
-        this(pg, scenario, true);
+        this(pg, scenario, true, false);
     }
 
     SubobjectPostgresFixture(PostgreSQLContainer pg, String scenario, boolean business)
+            throws Exception {
+        this(pg, scenario, business, false);
+    }
+
+    static SubobjectPostgresFixture currentBaseline(PostgreSQLContainer pg, String scenario)
+            throws Exception {
+        return new SubobjectPostgresFixture(pg, scenario, true, true);
+    }
+
+    private SubobjectPostgresFixture(
+            PostgreSQLContainer pg, String scenario, boolean business, boolean currentBaseline)
             throws Exception {
         this.pg = pg;
         this.scenario = scenario;
@@ -223,7 +240,11 @@ final class SubobjectPostgresFixture implements AutoCloseable {
         root.execute("create schema " + schema + " authorization " + adminRole);
         admin = datasource(adminRole);
         oracle = new JdbcTemplate(admin);
-        assertEquals(business ? 2 : 1, migrate(business));
+        if (currentBaseline) {
+            assertEquals(1, migrateCurrentBaseline());
+        } else {
+            assertEquals(business ? 2 : 1, migrate(business));
+        }
         script("bootstrap-l2-routing.sql", Map.of("authority", "READ"));
         script(
                 "grant-l2-lifecycle.sql",
@@ -268,6 +289,28 @@ final class SubobjectPostgresFixture implements AutoCloseable {
 
     int migrate(boolean business) {
         return flyway(business, Map.of()).migrate().migrationsExecuted;
+    }
+
+    int migrateCurrentBaseline() {
+        return Flyway.configure()
+                .dataSource(admin)
+                .schemas(schema)
+                .defaultSchema(schema)
+                .createSchemas(false)
+                .locations("classpath:db/read/migration")
+                .placeholders(
+                        Map.of(
+                                "expectedDatabase",
+                                pg.getDatabaseName(),
+                                "expectedSchema",
+                                schema,
+                                "expectedAdmin",
+                                adminRole,
+                                "expectedRuntime",
+                                runtimeRole))
+                .load()
+                .migrate()
+                .migrationsExecuted;
     }
 
     Flyway flyway(boolean business, Map<String, String> overrides) {

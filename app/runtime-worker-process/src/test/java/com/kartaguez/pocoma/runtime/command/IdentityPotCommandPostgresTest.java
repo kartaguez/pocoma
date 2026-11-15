@@ -56,7 +56,6 @@ class IdentityPotCommandPostgresTest {
     static final class Harness implements AutoCloseable {
         final IdentityRequestCompositionPostgresTest.Fixture f;
         final org.springframework.context.ConfigurableApplicationContext context;
-        final LocalContainerEntityManagerFactoryBean factory;
         final DataSource source;
         final JdbcTemplate jdbc;
         final SpringAttemptTransactions owner;
@@ -128,14 +127,7 @@ class IdentityPotCommandPostgresTest {
                         }
                     };
             jdbc = new JdbcTemplate(source);
-            factory = new LocalContainerEntityManagerFactoryBean();
-            factory.setDataSource(source);
-            factory.setPackagesToScan("com.kartaguez.pocoma.infra.postgres.write.entity");
-            factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-            factory.setJpaPropertyMap(Map.of("hibernate.hbm2ddl.auto", "none"));
-            factory.afterPropertiesSet();
-            var manager = new JpaTransactionManager(factory.getObject());
-            manager.setDataSource(source);
+            var manager = new org.springframework.jdbc.datasource.DataSourceTransactionManager(source);
             manager.setNestedTransactionAllowed(false);
             owner = new SpringAttemptTransactions(source, manager, 15);
             real = new JdbcIdentityPotActorAuthority(source, owner);
@@ -379,7 +371,6 @@ class IdentityPotCommandPostgresTest {
         public void close() throws Exception {
             threads.shutdownNow();
             assertTrue(threads.awaitTermination(10, TimeUnit.SECONDS));
-            factory.destroy();
             f.close();
         }
     }

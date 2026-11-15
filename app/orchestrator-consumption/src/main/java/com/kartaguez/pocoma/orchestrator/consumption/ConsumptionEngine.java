@@ -39,9 +39,9 @@ import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoverySourcePolicy;
 import com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.domain.consumption.RoutingV1;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions.Failure;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions.Resolution;
@@ -68,9 +68,7 @@ public final class ConsumptionEngine {
     private final ConsumptionSlotStore slots;
     private final ConsumptionParticipant participant;
     private final AttemptTransactions sourceTransactions;
-    private final Optional<NonBurnableReferences> recoverySource;
-    private final Predicate<NonBurnableReferences.Reference> relevant;
-    private final DiscoveryAdmissionStore admissions;
+    private final RecoverySourcePolicy recoveryPolicy;
     private final AttemptTransactions controlTransactions;
     private final ConsumptionSlotStore controlSlots;
     private final SlotKeyNavigation navigation;
@@ -187,19 +185,47 @@ public final class ConsumptionEngine {
             AttemptFailureClassifier classifier,
             SlotKeyNavigation navigation,
             ConsumptionObservation observation) {
-        this.sourceTransactions = Objects.requireNonNull(sourceTransactions);
-        this.recoverySource = Objects.requireNonNull(recoverySource);
-        this.relevant = Objects.requireNonNull(relevant);
-        this.admissions = admissions;
-        if (definition.authority() == ConsumptionDefinition.Authority.READ) {
-            if (recoverySource.isEmpty() || recoverySource.get().family() != definition.family())
-                throw new IllegalArgumentException("READ requires its exact source family");
-            Objects.requireNonNull(admissions, "READ requires effects admissions");
-        } else if (sourceTransactions != effectsTransactions || recoverySource.isPresent())
-            throw new IllegalArgumentException(
-                    "WRITE requires one source/effects owner and no event lookup");
+        this(
+                definition,
+                effectsTransactions,
+                effectsSlots,
+                participant,
+                sourceTransactions,
+                RecoverySourcePolicy.forAuthority(
+                        Objects.requireNonNull(definition),
+                        Objects.requireNonNull(recoverySource),
+                        Objects.requireNonNull(relevant),
+                        admissions),
+                controlTransactions,
+                controlSlots,
+                ownership,
+                settings,
+                capacity,
+                classifier,
+                navigation,
+                observation);
+    }
+
+    public ConsumptionEngine(
+            ConsumptionDefinition definition,
+            AttemptTransactions effectsTransactions,
+            ConsumptionSlotStore effectsSlots,
+            ConsumptionParticipant participant,
+            AttemptTransactions sourceTransactions,
+            RecoverySourcePolicy recoveryPolicy,
+            AttemptTransactions controlTransactions,
+            ConsumptionSlotStore controlSlots,
+            PartitionOwnershipStore ownership,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            AttemptFailureClassifier classifier,
+            SlotKeyNavigation navigation,
+            ConsumptionObservation observation) {
         this.definition = Objects.requireNonNull(definition);
         this.transactions = Objects.requireNonNull(effectsTransactions);
+        this.sourceTransactions = Objects.requireNonNull(sourceTransactions);
+        this.recoveryPolicy = Objects.requireNonNull(recoveryPolicy);
+        this.recoveryPolicy.validate(definition, effectsTransactions, sourceTransactions);
         this.slots = Objects.requireNonNull(effectsSlots);
         this.controlTransactions = Objects.requireNonNull(controlTransactions);
         this.controlSlots = Objects.requireNonNull(controlSlots);
@@ -358,6 +384,24 @@ public final class ConsumptionEngine {
         bounded(leases);
         leases.forEach(this::checkLease);
         return technical(() -> ownership.renew(definition, leases, settings.leaseDuration()));
+    }
+
+    public List<PartitionLease> renewPartitionBatch(
+            List<ConsumptionDefinition> definitions, List<PartitionLease> leases) {
+        return measured(
+                Phase.LEASE_RENEW,
+                () -> {
+                    bounded(leases);
+                    return technical(
+                            () ->
+                                    definitions.size() == 1
+                                            ? ownership.renew(
+                                                    definitions.getFirst(),
+                                                    leases,
+                                                    settings.leaseDuration())
+                                            : ownership.renewBatch(
+                                                    definitions, leases, settings.leaseDuration()));
+                });
     }
 
     public List<GrantedClaim> renewClaims(List<ClaimedSlot> claims) {
@@ -697,58 +741,35 @@ public final class ConsumptionEngine {
             throw new IllegalArgumentException("Claim belongs to another Consumption");
         if (unresolvedRecovery) return RecoveryObservation.UNAVAILABLE;
         var reads = new Reads();
-        NonBurnableReferences.Reference reference = null;
-        boolean readingSource = definition.authority() == ConsumptionDefinition.Authority.READ;
+        boolean readingSource = true;
         boolean finalReadStarted = false;
         try {
-            if (readingSource) {
-                var found =
-                        reads.source(
-                                ctx ->
-                                        recoverySource
-                                                .orElseThrow()
-                                                .find(claim.consumableId(), ctx));
-                reads.requireValid();
-                if (found.isEmpty()
-                        || !found.get().eventId().equals(claim.consumableId())
-                        || !relevant.test(found.get())) return RecoveryObservation.INCONSISTENT;
-                reference = found.get();
-            }
+            var sourceCheck = recoveryPolicy.checkSource(definition, claim.consumableId(), reads);
+            reads.requireValid();
+            if (!sourceCheck.consistent()) return RecoveryObservation.INCONSISTENT;
             readingSource = false;
             var recovery =
                     Objects.requireNonNull(
                             participant.prepareRecovery(claim.consumableId(), reads));
             reads.expire();
             reads.requireValid();
-            var source = reference;
+            var source = sourceCheck.reference();
             finalReadStarted = true;
             return transactions.read(
                     context -> {
                         var slot =
                                 slots.observe(claim.consumptionId(), claim.consumableId(), context);
-                        long checkpoint =
-                                source == null
-                                        ? 0
-                                        : admissions.checkpoint(
-                                                definition.id(),
-                                                RoutingV1.partition(
-                                                        RoutingV1.hash(
-                                                                definition.family(),
-                                                                claim.consumableId()),
-                                                        definition.partitionCount()),
-                                                context);
                         var business = recovery.observe(context);
                         if (business == ConsumptionParticipant.EffectEvidence.UNAVAILABLE)
                             return RecoveryObservation.UNAVAILABLE;
-                        if (source != null && checkpoint < source.position())
+                        if (!recoveryPolicy.checkpointCovers(
+                                definition, claim.consumableId(), source, context))
                             return RecoveryObservation.INCONSISTENT;
                         return switch (business) {
                             case SATISFIED ->
                                     slot == SlotObservation.ABSENT
                                             ? RecoveryObservation.COMPLETED
-                                            : source != null
-                                                    ? RecoveryObservation.NOT_COMPLETED
-                                                    : RecoveryObservation.INCONSISTENT;
+                                            : recoveryPolicy.satisfiedWithPresentSlot();
                             case MISSING ->
                                     slot == SlotObservation.PRESENT
                                             ? RecoveryObservation.NOT_COMPLETED

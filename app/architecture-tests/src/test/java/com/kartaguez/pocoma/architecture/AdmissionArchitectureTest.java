@@ -114,7 +114,7 @@ class AdmissionArchitectureTest {
         String sql =
                 Files.readString(
                         Path.of(
-                                "../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-admission/migration/V7__public_admission.sql"));
+                                "../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-admission/migration/V7__public_admission.sql"));
         assertTrue(sql.contains("deferrable initially deferred"));
         assertFalse(sql.contains("grant_fingerprint"));
         assertFalse(sql.contains("Consent"));

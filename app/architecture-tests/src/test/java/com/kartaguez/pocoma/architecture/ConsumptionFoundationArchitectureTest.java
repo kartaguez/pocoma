@@ -45,11 +45,11 @@ class ConsumptionFoundationArchitectureTest {
         String write =
                 Files.readString(
                         Path.of(
-                                "../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-consumption-write/migration/V5__consumption_foundation.sql"));
+                                "../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-consumption-write/migration/V5__consumption_foundation.sql"));
         String read =
                 Files.readString(
                         Path.of(
-                                "../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration/V1__consumption_foundation.sql"));
+                                "../../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration/V1__consumption_foundation.sql"));
         String start = "do $$\nbegin\n  if to_regprocedure";
         assertEquals(
                 write.substring(write.indexOf(start), write.indexOf("-- Only the canonical"))

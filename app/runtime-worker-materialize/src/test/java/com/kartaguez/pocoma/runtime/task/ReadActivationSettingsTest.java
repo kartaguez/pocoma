@@ -145,15 +145,24 @@ class ReadActivationSettingsTest {
                     240000,
                     MaterializeSettings.from(good).lifecycle().leaseDuration().toMillis(),
                     "batch=" + batch);
-            for (String lease : List.of("30000", "180000")) {
-                var bad =
+            var insufficientLease = batch.equals("1") ? "30000" : "10000";
+            var bad =
+                    env(names)
+                            .withProperty(P + "lifecycle.batch-size", batch)
+                            .withProperty(P + "lifecycle.lease-duration-ms", insufficientLease);
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> MaterializeSettings.from(bad),
+                    "batch=" + batch + " insufficient lease=" + insufficientLease);
+            if (batch.equals("32")) {
+                var lowLease =
                         env(names)
                                 .withProperty(P + "lifecycle.batch-size", batch)
-                                .withProperty(P + "lifecycle.lease-duration-ms", lease);
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> MaterializeSettings.from(bad),
-                        "batch=" + batch + " insufficient lease=" + lease);
+                                .withProperty(P + "lifecycle.lease-duration-ms", "30000");
+                assertEquals(
+                        30000,
+                        MaterializeSettings.from(lowLease).lifecycle().leaseDuration().toMillis(),
+                        "batch=32 allows 30s lease");
             }
         }
         for (var change :
@@ -207,5 +216,40 @@ class ReadActivationSettingsTest {
         var resInvalid = env(List.of("MaterializeCommandResult", "MaterializePotVersion"));
         resInvalid.setProperty(P + "worker-name", "results-worker");
         assertThrows(IllegalArgumentException.class, () -> MaterializeSettings.from(resInvalid));
+    }
+
+    @Test
+    void dockerFiveRuntimesPropertiesRespectNewLeaseAndSemaphoreBounds() throws Exception {
+        var dir = java.nio.file.Files.exists(java.nio.file.Path.of("../../docker/v3-five-runtimes"))
+                ? java.nio.file.Path.of("../../docker/v3-five-runtimes")
+                : java.nio.file.Path.of("../docker/v3-five-runtimes");
+
+        for (String file : List.of("business-read-worker.properties", "results-worker.properties")) {
+            var props = new java.util.Properties();
+            try (var in = java.nio.file.Files.newInputStream(dir.resolve(file))) {
+                props.load(in);
+            }
+            var env = new org.springframework.mock.env.MockEnvironment();
+            env.setActiveProfiles("v3-read-worker", "postgres");
+            props.forEach((k, v) -> env.setProperty(k.toString(), v.toString()));
+            var settings = MaterializeSettings.from(env);
+            assertEquals(30000L, settings.lifecycle().leaseDuration().toMillis(), file);
+            assertEquals(60000L, settings.lifecycle().claimDuration().toMillis(), file);
+            assertEquals(32, settings.lifecycle().batchSize(), file);
+        }
+
+        var httpProps = new java.util.Properties();
+        try (var in = java.nio.file.Files.newInputStream(dir.resolve("http-read.properties"))) {
+            httpProps.load(in);
+        }
+        int httpPermits = Integer.parseInt(httpProps.getProperty("pocoma.v3.http.read.http-permits"));
+        int sqlPermits = Integer.parseInt(httpProps.getProperty("pocoma.v3.http.read.sql-permits"));
+        int maxPool = Integer.parseInt(httpProps.getProperty("pocoma.v3.http.read.maximum-pool-size"));
+        int minIdle = Integer.parseInt(httpProps.getProperty("pocoma.v3.http.read.minimum-idle"));
+        assertEquals(8, httpPermits);
+        assertEquals(8, sqlPermits);
+        assertEquals(8, maxPool);
+        assertEquals(8, minIdle);
+        assertTrue(sqlPermits >= 1 && maxPool >= sqlPermits && minIdle >= 0 && minIdle <= maxPool);
     }
 }
