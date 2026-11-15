@@ -1,0 +1,10 @@
+{
+  "rawSha256": "a782680f49b7e028d9b6d48b1d66fd602ca897d35fd87097b8e3c15aed24537d",
+  "readableSha256": "85f960913a0c3753f87791922358af20e400495776a3dfc00ba123cfbccc364b",
+  "rawBytes": 83587,
+  "readableBytes": 83263,
+  "rawArchive": "package.raw.txt.gz",
+  "readable": "package.txt",
+  "transformation": "Trailing whitespace only removed from readable log; exact original retained in lossless gzip archive",
+  "losslessRoundtrip": "PASS"
+}

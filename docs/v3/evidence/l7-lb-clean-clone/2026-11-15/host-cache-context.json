@@ -1,0 +1,7 @@
+{
+  "dependencyCaches": "Existing host Maven/wrapper caches and Docker images; no historical Pocoma JAR/instance/volume copied",
+  "freshBuild": true,
+  "mavenSettingsSha256": null,
+  "nonemptyToolchainEnvironment": [],
+  "pocomaEnvironmentNames": []
+}

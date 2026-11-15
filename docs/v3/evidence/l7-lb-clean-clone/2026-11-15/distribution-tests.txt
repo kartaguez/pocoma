@@ -1,0 +1,143 @@
+..................................................E.E......EEEE..............
+======================================================================
+ERROR: test_declarative_nine_service_distribution_and_ephemeral_grafana (scripts.local.test_grafana.GrafanaContract.test_declarative_nine_service_distribution_and_ephemeral_grafana)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 48, in test_declarative_nine_service_distribution_and_ephemeral_grafana
+    path = Path(directory);m = self.fixture(path)
+                               ~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 33, in fixture
+    ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})
+          ~~~~~~~~~~~~~~~~~^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/runtime.py", line 139, in allocate_ports
+    s.bind(('127.0.0.1', 0))
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_grafana_in_stop_and_destroy_plan_without_extra_persistent_volume (scripts.local.test_grafana.GrafanaContract.test_grafana_in_stop_and_destroy_plan_without_extra_persistent_volume)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 225, in test_grafana_in_stop_and_destroy_plan_without_extra_persistent_volume
+    path=Path(directory);m=self.fixture(path)
+                           ~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 33, in fixture
+    ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})
+          ~~~~~~~~~~~~~~~~~^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/runtime.py", line 139, in allocate_ports
+    s.bind(('127.0.0.1', 0))
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_stopped_installed_grafana_refresh_keeps_ports_and_existing_topology (scripts.local.test_grafana.GrafanaContract.test_stopped_installed_grafana_refresh_keeps_ports_and_existing_topology)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 234, in test_stopped_installed_grafana_refresh_keeps_ports_and_existing_topology
+    path=Path(directory);m=self.fixture(path)
+                           ~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 33, in fixture
+    ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})
+          ~~~~~~~~~~~~~~~~~^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/runtime.py", line 139, in allocate_ports
+    s.bind(('127.0.0.1', 0))
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_ten_distinct_loopback_ports_including_grafana (scripts.local.test_grafana.GrafanaContract.test_ten_distinct_loopback_ports_including_grafana)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 38, in test_ten_distinct_loopback_ports_including_grafana
+    ports = rt.allocate_ports()
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/runtime.py", line 139, in allocate_ports
+    s.bind(('127.0.0.1', 0))
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_upgrade_adds_only_grafana_preserves_secrets_ports_jars_and_drift_guards (scripts.local.test_grafana.GrafanaContract.test_upgrade_adds_only_grafana_preserves_secrets_ports_jars_and_drift_guards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 200, in test_upgrade_adds_only_grafana_preserves_secrets_ports_jars_and_drift_guards
+    path=Path(directory);m=self.fixture(path)
+                           ~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 33, in fixture
+    ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})
+          ~~~~~~~~~~~~~~~~~^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/runtime.py", line 139, in allocate_ports
+    s.bind(('127.0.0.1', 0))
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_upgrade_config_or_topology_drift_preserves_manifest_and_refuses_start (scripts.local.test_grafana.GrafanaContract.test_upgrade_config_or_topology_drift_preserves_manifest_and_refuses_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 252, in test_upgrade_config_or_topology_drift_preserves_manifest_and_refuses_start
+    path=Path(directory);m=self.fixture(path)
+                           ~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/test_grafana.py", line 33, in fixture
+    ports=rt.allocate_ports(), images={role: dict(digest=role) for role in rt.IMAGES})
+          ~~~~~~~~~~~~~~~~~^^
+  File "/private/tmp/pocoma-l7-clean-clone-qualification/source/scripts/local/runtime.py", line 139, in allocate_ports
+    s.bind(('127.0.0.1', 0))
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+----------------------------------------------------------------------
+Ran 77 tests in 0.114s
+
+FAILED (errors=6)
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+▶ Initializing PostgreSQL databases and roles for V3...
+  ✓ Databases, roles, and search paths verified.
+▶ Initializing schema v3_write in database pocoma_write...
+  ✓ Schema v3_write successfully provisioned and secured.
+▶ Initializing schema v3_read in database pocoma_read...
+  ✓ Schema v3_read and public maintenance authority successfully provisioned and secured.
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "DESTROY-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "PRE-MANIFEST-MISSING",
+  "instance": "orphan",
+  "evidence": null,
+  "environment": "PRESERVED"
+}
+{
+  "state": "NOT_READY",
+  "exit": 2,
+  "control": "RESET-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED",
+  "instance": "demo",
+  "evidence": null,
+  "environment": "PRESERVED"
+}

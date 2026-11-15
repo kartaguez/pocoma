@@ -1,0 +1,83 @@
+[
+  {
+    "command": [
+      "uname",
+      "-m"
+    ],
+    "exit": 0,
+    "stdout": "arm64\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "sw_vers"
+    ],
+    "exit": 0,
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "Python 3.14.7\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "node",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "v24.15.0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "npm",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "12.0.2\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "java",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "openjdk 21 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "git version 2.54.0 (Apple Git-157)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "mvn",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "Apache Maven 3.9.14 (996c630dbc656c76214ce58821dcc58be960875b)\nMaven home: /Users/julien.guezennec/.sdkman/candidates/maven/current\nJava version: 21, vendor: Eclipse Adoptium, runtime: /Users/julien.guezennec/.sdkman/candidates/java/21-tem\nDefault locale: fr_FR, platform encoding: UTF-8\nOS name: \"mac os x\", version: \"27.0\", arch: \"aarch64\", family: \"mac\"\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "df",
+      "-h",
+      "/private/tmp"
+    ],
+    "exit": 0,
+    "stdout": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   175Gi    14Gi    93%    1.3M  150M    1%   /System/Volumes/Data\n",
+    "stderr": ""
+  }
+]

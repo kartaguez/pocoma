@@ -1,0 +1,21 @@
+{
+  "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+  "branch": "feat/l7-lb-local-playground",
+  "remote": "https://github.com/kartaguez/pocoma.git",
+  "status": "",
+  "ignored": [],
+  "cloneCommand": [
+    "git",
+    "clone",
+    "--single-branch",
+    "--branch",
+    "feat/l7-lb-local-playground",
+    "https://github.com/kartaguez/pocoma.git",
+    "/private/tmp/pocoma-l7-clean-clone-qualification/source"
+  ],
+  "clone": "Real network clone, not local clone/worktree; sandbox DNS retry required elevated execution",
+  "observedAt": 1794740461.598203,
+  "gitConfig": "core.repositoryformatversion=0\ncore.filemode=true\ncore.bare=false\ncore.logallrefupdates=true\ncore.ignorecase=true\ncore.precomposeunicode=true\nremote.origin.url=https://github.com/kartaguez/pocoma.git\nremote.origin.fetch=+refs/heads/feat/l7-lb-local-playground:refs/remotes/origin/feat/l7-lb-local-playground\nbranch.feat/l7-lb-local-playground.remote=origin\nbranch.feat/l7-lb-local-playground.merge=refs/heads/feat/l7-lb-local-playground",
+  "policySha256": "320de4e402f5d8475ff07136180128cd8b0ed6cbdb40377b6983c423162b151e",
+  "quickstartSha256": "829a26d140da265d7341b10603d64682d1ffdbd635b1b384d6065c7d0ffd3a08"
+}

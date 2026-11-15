@@ -1,0 +1,27 @@
+{
+  "state": "STOPPED",
+  "exit": 0,
+  "volumes": "PRESERVED",
+  "runtimeExitCodes": {
+    "business-read-worker": 143,
+    "command-worker": 143,
+    "http-read": 143,
+    "http-write": 143,
+    "results-worker": 143
+  },
+  "forcedKill": [],
+  "slotsBeforeStop": {
+    "pocoma_write": "0",
+    "pocoma_read": "0"
+  },
+  "instance": "clean-clone",
+  "project": "pocoma-lb-clean-clone-fcc71fd2",
+  "sha": "0a3246b9bc58bb813163caf22c6a2108c6f88db9",
+  "dirty": false,
+  "urls": {
+    "write": "http://127.0.0.1:59247",
+    "read": "http://127.0.0.1:59248"
+  },
+  "issuer": "http://localhost:59249/realms/pocoma",
+  "evidence": "/private/tmp/pocoma-l7-clean-clone-qualification/source/.pocoma-local/instances/clean-clone/runs/1794740541-e8eeb717"
+}
