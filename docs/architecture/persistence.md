@@ -35,7 +35,7 @@ Aucune autre migration SQL ne réside dans les répertoires `src/main/resources/
 
 Pour fournir une distribution neuve sans historique Flyway incrémental à rejouer au démarrage, les migrations antérieures ont été isolées hors du chemin de production :
 
-- **19 migrations V3 archivées** (`11` fichiers WRITE et `8` fichiers READ consolidés en S3) : conservées pour audit et traçabilité dans [`docs/archive/v3-sql-migrations/`](../archive/v3-sql-migrations/MANIFEST.json) avec leur manifeste de contrôle `MANIFEST.json`. Voir [L7_LB_S3_SQL_Baseline_Consolidation_Report.md](../v3/L7_LB_S3_SQL_Baseline_Consolidation_Report.md).
+- **19 migrations V3 archivées** (`11` fichiers WRITE et `8` fichiers READ) : conservées pour audit et traçabilité dans [`docs/archive/v3-sql-migrations/`](../archive/v3-sql-migrations/MANIFEST.json) avec leur manifeste `MANIFEST.json`. Voir [Index des archives](../archive/README.md).
 - **45 migrations historiques V2 isolées dans les ressources de test** (non embarquées dans les JAR applicatifs de production) :
   - `app/infra-postgres-write/src/test/resources/db/migration/` : `31` fichiers SQL V2 ;
   - `app/infra-postgres-read/src/test/resources/db/read-store/migration/` : `14` fichiers SQL V2 (en complément de `app/infra-postgres-read/src/test/resources/db/primary-test-migration/V1__initialize_primary_test.sql` pour les tests).
@@ -63,4 +63,4 @@ public.pocoma_local_bootstrap(fingerprint text PRIMARY KEY)
 En complément des tables métier des schémas `v3_write` et `v3_read`, les runtimes et l'orchestrateur s'appuient notamment sur les tables techniques de suivi des baux et des workers :
 
 - `pocoma_v3_lease_local` : détention courante et échéance des baux de partitions L2 (`lease-duration-ms=30000`, renouvelés par `renewBatch`).
-- `pocoma_v3_worker_state` : état observé des workers et métadonnées de cycle de vie utilisées lors du démarrage et des vérifications de reprise ([L7_Local_Playground_Recovery_and_Evidence.md](../v3/L7_Local_Playground_Recovery_and_Evidence.md)).
+- `pocoma_v3_worker_state` : état observé des workers et métadonnées de cycle de vie utilisées lors du démarrage et des vérifications de reprise ([Reprise après panne](../operations/recovery.md)).

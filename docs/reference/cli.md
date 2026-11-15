@@ -50,5 +50,5 @@ Pour les développeurs modifiant le code Java sous `app/`, la vérification ne p
 
 Consultez impérativement la politique normative avant toute compilation ou test Maven :
 
-- [docs/testing/Reactor_Verification_Policy.md](../testing/Reactor_Verification_Policy.md)
-- [docs/v3/L7_Local_Playground_Bruno.md](../v3/L7_Local_Playground_Bruno.md)
+- [Politique de vérification Maven par slices](../testing/Reactor_Verification_Policy.md)
+- [Guide Développement local et Bruno](../guides/local-development.md)

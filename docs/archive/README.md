@@ -5,7 +5,7 @@ Cet espace centralise et indexe les documents historiques, anciennes migrations 
 ## Statut des archives
 
 > [!NOTE]
-> **Conservation sans suppression** : ces documents et artefacts de preuve ne sont pas nécessaires pour installer, démarrer ou utiliser une distribution locale de Pocoma (voir [Démarrage rapide](../getting-started/quickstart.md)). Ils sont conservés sur leurs chemins d'origine pour préserver la traçabilité d'audit et la compatibilité des tests et scripts automatisés existants.
+> **Conservation sans suppression** : ces documents et artefacts de preuve ne sont pas nécessaires pour installer, démarrer ou utiliser une distribution locale de Pocoma (voir [Premiers pas](../getting-started/first-steps.md)). Ils sont conservés pour préserver la traçabilité d'audit et la compatibilité des tests et scripts automatisés existants.
 
 ## Baselines SQL et migrations archivées
 
@@ -19,9 +19,9 @@ L'installation courante utilise uniquement les deux baselines `V1__initial_schem
 Documents historiques V2 ou plans d'étapes antérieurs conservés pour référence technique et historique :
 
 - **V2 fonctionnel, architecture et garanties** :
-  - [Functional_Model.md](../product/Functional_Model.md) *(modèle V2 `/api/v1`)*
-  - [Architecture.md](../architecture/Architecture.md) *(architecture V2 après WP6 — archivée)*
-  - [System_Guarantees.md](../guarantees/System_Guarantees.md) *(garanties V2)*
+  - [Functional_Model.md](../internal/v2/product/Functional_Model.md) *(modèle V2 `/api/v1`)*
+  - [Architecture.md](../internal/architecture/Architecture.md) *(architecture V2 après WP6 — archivée)*
+  - [System_Guarantees.md](../internal/v2/guarantees/System_Guarantees.md) *(garanties V2)*
 - **Plans V2 archivés dans `docs/archive/`** :
   - [20260828-000000-v2-plan.md](20260828-000000-v2-plan.md)
   - [20260828-234057-step-3-plus-roadmap.md](20260828-234057-step-3-plus-roadmap.md)
@@ -29,9 +29,9 @@ Documents historiques V2 ou plans d'étapes antérieurs conservés pour référe
   - [lot-7.2-read-store-boundary-plan.md](lot-7.2-read-store-boundary-plan.md)
   - [lot-7.9.2-query-version-resolution-design.md](lot-7.9.2-query-version-resolution-design.md)
   - [pipeline-event-materialization-plan.md](pipeline-event-materialization-plan.md)
-- **Études, dettes et journaux d'architecture antérieurs** : conservés dans `docs/architecture/`, `docs/debts/`, `docs/plans/` et `docs/steps/`.
+- **Études, dettes et journaux d'architecture antérieurs** : conservés dans [`docs/internal/architecture/`](../internal/architecture/), [`docs/internal/debts/`](../internal/debts/), [`docs/internal/plans/`](../internal/plans/) et [`docs/internal/steps/`](../internal/steps/).
 - **Fixtures et lancement manuel antérieurs** :
-  - [cmd-start-runtimes.md](../operations/cmd-start-runtimes.md) *(câblage manuel / dev-bench des runtimes)*
+  - [cmd-start-runtimes.md](../internal/operations/cmd-start-runtimes.md) *(câblage manuel / dev-bench des runtimes)*
   - [Functional_Local_Stack.md](../testing/Functional_Local_Stack.md) *(stack de test fonctionnel monolithique)*
 
 ## Rapports, plans et preuves de qualification L1–L7
@@ -45,7 +45,7 @@ Documents historiques V2 ou plans d'étapes antérieurs conservés pour référe
   - [Registre des réserves locales connues](../v3/L7_Local_Playground_Reservations.md)
 - **Spécifications, audits et preuves** :
   - Spécifications `SPEC-01` à `SPEC-10`, rapports d'itérations et dossiers de preuves sous `docs/v3/` et `docs/v3/evidence/`.
-  - Rapports d'audit documentaire : [Documentation_Rationalization_Audit.md](../Documentation_Rationalization_Audit.md) et [Documentation_Truth_Validation.md](../Documentation_Truth_Validation.md).
+  - Rapports d'audit documentaire : [Documentation_Rationalization_Audit.md](../internal/Documentation_Rationalization_Audit.md) et [Documentation_Truth_Validation.md](../internal/Documentation_Truth_Validation.md).
   - Preuves et scripts SQL de référence sous `docs/testing/evidence/` et `docs/operations/sql/`.
 
-Pour parcourir la liste chronologique complète des rapports L1–L7 et V2, consultez la section [Archives et historique des jalons L1-L7 et V2](../README.md#archives-et-historique-des-jalons-l1-l7-et-v2).
+Pour l'index complet des documents internes et historiques : [Documentation interne et mémoire de construction](../internal/README.md).

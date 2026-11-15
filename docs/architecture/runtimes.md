@@ -8,7 +8,7 @@ Les cinq services Java de Pocoma tournent sur `eclipse-temurin:21.0.8_9-jre` dan
 
 - **Profil Spring** : `v3-http-admission` (`docker/v3-five-runtimes/http-write.properties`)
 - **Ports internes** : HTTP `8080`, Actuator `18080`
-- **Concurrence et pool** : Tomcat `maxThreads=4`, `admission.maximum=4`, pool JDBC `minimum-idle=1`
+- **Concurrence et pool** : Tomcat `maxThreads=4`, `pocoma.v3.http.admission.capacity=4` (dimensionne à la fois le sémaphore `AdmissionTransport` et le pool Hikari `v3-http-admission` à `maximumPoolSize=4` / `minimumIdle=4`).
 - **Responsabilité** : porter la classe de configuration `AdmissionHttpConfiguration`, valider l'authentification OIDC, vérifier l'idempotence et admettre les commandes dans `pocoma_write`.
 
 ### `http-read` (`runtime-web-read`)
@@ -53,7 +53,7 @@ Les workers s'appuient sur des baux stockés en base (`pocoma_v3_lease_local`, `
 | `retry-max-failures` | `3` | Nombre maximal de tentatives avant report |
 | `retry-delay-ms` | `30000` (30 s) | Délai de réessai en cas d'échec |
 | `drain-timeout` | `90000` (90 s) | Délai accordé au drainage lors d'un arrêt gracieux |
-| Polling (`min-poll` / `max-poll` / `error-poll`) | `2` / `20` / `50` | Intervalles de scrutation en secondes configurés dans les `.properties` locaux |
+| Polling (`min-poll` / `max-poll` / `error-poll`) | `2` / `20` / `50` | Intervalles de scrutation en **millisecondes** (`Duration.ofMillis(...)`) configurés dans les `.properties` locaux |
 
 ### Fonctionnement de `renewBatch`
 
@@ -64,7 +64,7 @@ Le renouvellement groupé (`renewBatch` sur `PartitionOwnershipStore`, `JdbcPart
 - Les baux perdus sont retournés et identifiés **individuellement**, afin que le worker retire immédiatement ces partitions de son ensemble actif.
 
 > [!IMPORTANT]
-> Le TTL de bail de **30 s** (`lease-duration-ms=30000`) ne signifie pas qu'une reprise complète de bout en bout s'achève toujours en 30 s. La reprise effective combine l'expiration du bail (`30 s`), les intervalles de scrutation/acquisition des workers et, le cas échéant, `claim-duration-ms=60000` lorsqu'un slot a été réclamé. Lors d'une reprise après arrêt non gracieux, `pocoma-local` applique un budget d'observation borné à **270 s**. Voir [Exploitation des instances locales](../operations/local-instances.md) et [Référence de configuration](../reference/configuration.md).
+> Le TTL de bail de **30 s** (`lease-duration-ms=30000`) ne signifie pas qu'une reprise complète de bout en bout s'achève toujours en 30 s. La reprise effective combine l'expiration du bail (`30 s`), les intervalles de scrutation/acquisition des workers et, le cas échéant, `claim-duration-ms=60000` lorsqu'un slot a été réclamé. Lors d'une reprise après arrêt non gracieux, `pocoma-local` applique un budget d'observation borné à **270 s**. Voir [Reprise après panne](../operations/recovery.md) et [Référence de configuration](../reference/configuration.md).
 
 ## Dimensionnement des pools JDBC et mémoire
 
