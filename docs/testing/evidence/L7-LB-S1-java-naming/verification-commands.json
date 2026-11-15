@@ -1,0 +1,238 @@
+{
+  "initial_sha": "a138a368dd3386e4b9e714e45d5fefbd2abab2e6",
+  "commands": [
+    {
+      "phase": "workspace compilation 1",
+      "cwd": "/Users/julien.guezennec/Dev/projects/pocoma/app",
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize,infra-tx-spring,runtime-monolith,architecture-tests",
+        "-am",
+        "clean",
+        "test-compile"
+      ],
+      "exit_code": 1,
+      "evidence": "compile.log.gz",
+      "finding": "Split qualified reference to old command fixture package"
+    },
+    {
+      "phase": "workspace compilation 2",
+      "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "argv": [
+        "./app/mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-f",
+        "app/pom.xml",
+        "-pl",
+        "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize,infra-tx-spring,runtime-monolith,architecture-tests",
+        "-am",
+        "test-compile"
+      ],
+      "exit_code": 1,
+      "evidence": "compile-2.log.gz",
+      "finding": "Unresolved compilation stub observed in workspace bytecode"
+    },
+    {
+      "phase": "isolated clean compilation",
+      "cwd": "/private/tmp/pocoma-s1/source/app",
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-web-write,runtime-web-read,runtime-worker-process,runtime-worker-materialize,infra-tx-spring,runtime-monolith,architecture-tests",
+        "-am",
+        "clean",
+        "test-compile"
+      ],
+      "exit_code": 0,
+      "seconds": 12.754,
+      "evidence": "compile-isolated.log.gz"
+    },
+    {
+      "phase": "initial canonical gate",
+      "cwd": "/private/tmp/pocoma-s1/source",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "COMMAND,WEB,PROJECTION,FOUNDATION,ARCHITECTURE",
+        "--output",
+        "/private/tmp/pocoma-s1/gate"
+      ],
+      "exit_code": 1,
+      "counts": {
+        "tests": 691,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "seconds": 1181.534392,
+      "evidence": "initial-gate-result.json",
+      "not_run_after_module_failure": 378
+    },
+    {
+      "phase": "corrected JPA fixture bounded feedback",
+      "cwd": "/private/tmp/pocoma-s1/source/app",
+      "argv": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-postgres-write",
+        "-am",
+        "clean",
+        "test",
+        "-Dtest=PotHistoryPostgresTest#b14SharesJpaPhysicalTransactionAndRollback,CommandExecutionPostgresTest#c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders",
+        "-Dsurefire.failIfNoSpecifiedTests=false"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "seconds": 10.799,
+      "evidence": "jpa-feedback.log",
+      "canonical_slice_proof": false
+    },
+    {
+      "phase": "corrected canonical gate interrupted by Docker loss",
+      "cwd": "/private/tmp/pocoma-s1/source",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "COMMAND,WEB,PROJECTION,FOUNDATION,ARCHITECTURE",
+        "--output",
+        "/private/tmp/pocoma-s1/gate-final"
+      ],
+      "exit_code": 1,
+      "counts": {
+        "tests": 1001,
+        "failures": 0,
+        "errors": 8,
+        "skipped": 0
+      },
+      "seconds": 4056.855139,
+      "invocation_id": "aae1f3a82c9c4661a895f617ff8d6986",
+      "evidence": "corrected-gate-result.json",
+      "issues": 91,
+      "not_run_expected_identities": 75,
+      "invalid_testcase_identities": 7,
+      "invalid_xml_reports": 1,
+      "actual_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "runtime-worker-process,runtime-web-write,runtime-web-read,runtime-worker-materialize,infra-tx-spring,architecture-tests,runtime-monolith",
+        "-am",
+        "-Dpocoma.verification.id=aae1f3a82c9c4661a895f617ff8d6986",
+        "-Dpocoma.verification.reports=/private/tmp/pocoma-s1/gate-final/reports",
+        "test"
+      ]
+    },
+    {
+      "phase": "final canonical gate",
+      "cwd": "/private/tmp/pocoma-s1/source",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "INTEGRATION",
+        "COMMAND,WEB,PROJECTION,FOUNDATION,ARCHITECTURE",
+        "--output",
+        "/private/tmp/pocoma-s1/gate-restored"
+      ],
+      "status": "RUNNING",
+      "retry_basis": "Docker socket disappeared during previous gate; user explicitly restored Docker before fresh producer invocation. No source, oracle, timeout or selection change."
+    },
+    {
+      "phase": "final targeted Python controls",
+      "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/testing",
+        "-p",
+        "test_verification.py"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "evidence": "selector-tests.log"
+    },
+    {
+      "phase": "final targeted Python controls",
+      "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/testing",
+        "-p",
+        "test_read_campaigns.py"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "evidence": "read-selector-tests.log"
+    },
+    {
+      "phase": "final targeted Python controls",
+      "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/local",
+        "-p",
+        "test_bruno_qualification.py"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "evidence": "bruno-contract-tests.log"
+    },
+    {
+      "phase": "static preservation",
+      "cwd": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "argv": [
+        "python3",
+        "docs/testing/evidence/L7-LB-S1-java-naming/verify_preservation.py"
+      ],
+      "exit_code": 0,
+      "evidence": "preservation.json"
+    }
+  ]
+}

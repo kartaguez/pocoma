@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.Objects;
+
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record ExpenseHeader(PotId potId, ExpenseId expenseId, boolean deleted) {
     public ExpenseHeader {

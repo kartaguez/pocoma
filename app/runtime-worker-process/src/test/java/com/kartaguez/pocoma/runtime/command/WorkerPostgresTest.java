@@ -1,12 +1,61 @@
 package com.kartaguez.pocoma.runtime.command;
-import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
-import com.kartaguez.pocoma.compose.polling.process.ProcessComposeConfiguration;
-import com.kartaguez.pocoma.compose.polling.process.ProcessSettings;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mock.env.MockEnvironment;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
+
+import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
 import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.RequestProgress;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -16,38 +65,17 @@ import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
-import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
-import com.kartaguez.pocoma.port.transaction.*;
 import com.zaxxer.hikari.HikariDataSource;
-
-import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.*;
-import org.springframework.boot.*;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.mock.env.MockEnvironment;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.*;
-
-import java.nio.file.*;
-import java.sql.*;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
 
 /** Real roots, engines and four physical pools. READ effects are explicitly technical. */
 @Testcontainers

@@ -1,9 +1,12 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.Objects;
+import java.util.Optional;
+
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public record ShareholderDetails(PotId potId, ShareholderId shareholderId, Name name, Optional<UserId> userId) {
     public ShareholderDetails {

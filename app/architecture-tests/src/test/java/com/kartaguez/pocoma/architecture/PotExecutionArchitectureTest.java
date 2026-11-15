@@ -1,13 +1,12 @@
 package com.kartaguez.pocoma.architecture;
-import com.kartaguez.pocoma.compose.polling.process.PotCommandComposition;
-
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.tngtech.archunit.core.importer.*;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
 
 class PotExecutionArchitectureTest {
     static final String ROOT = "com.kartaguez.pocoma";

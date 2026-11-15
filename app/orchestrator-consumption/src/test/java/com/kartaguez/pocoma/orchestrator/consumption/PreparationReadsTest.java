@@ -1,4 +1,23 @@
 package com.kartaguez.pocoma.orchestrator.consumption;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.Test;
+
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -9,20 +28,13 @@ import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.port.transaction.*;
-import com.kartaguez.pocoma.port.transaction.AttemptTransactions.*;
-
-import org.junit.jupiter.api.Test;
-
-import java.util.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions.Failure;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions.Resolution;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 /** Protocol tests; physical resolution is separately qualified against PostgreSQL. */
 class PreparationReadsTest {

@@ -1,16 +1,18 @@
 package com.kartaguez.pocoma.architecture;
-import com.kartaguez.pocoma.compose.polling.process.IdentityRequestComposition;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.tngtech.archunit.core.importer.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Locale;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.*;
-import java.util.*;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
 
 /** Identity and its Pot adapter share the existing L2 owner and unique EUI protection path. */
 class IdentityAuthorityArchitectureTest {

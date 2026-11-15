@@ -1,5 +1,4 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.*;
 
 /** Server-owned internal limits; transport limits and their public values belong to L5. */
 public record ReadLimits(int expenseBatch, int navigationPage, long responseBudget) {

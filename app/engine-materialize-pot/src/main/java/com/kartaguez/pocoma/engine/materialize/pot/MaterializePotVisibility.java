@@ -1,10 +1,12 @@
 package com.kartaguez.pocoma.engine.materialize.pot;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
-import com.kartaguez.pocoma.domain.projection.PotVisibility;
 import com.kartaguez.pocoma.port.projection.PotVisibilityStore;
-import java.util.*;
 public final class MaterializePotVisibility implements ConsumptionParticipant {
     private final PotVisibilitySource source; private final PotVisibilityStore store;
     public MaterializePotVisibility(PotVisibilitySource source,PotVisibilityStore store) { this.source=Objects.requireNonNull(source); this.store=Objects.requireNonNull(store); }

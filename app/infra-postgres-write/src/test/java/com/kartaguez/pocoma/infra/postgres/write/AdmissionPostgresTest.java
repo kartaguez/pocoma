@@ -1,38 +1,62 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.write.HmacAdmissionProtection;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.sql.DataSource;
+
+import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.AbstractDataSource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
+
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionAssociation;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
 import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
 import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.engine.admit.command.*;
-import com.kartaguez.pocoma.engine.admit.identity.*;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
+import com.kartaguez.pocoma.engine.admit.command.CommandAdmission;
+import com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
-
-import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.*;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.*;
-
-import java.lang.reflect.*;
-import java.nio.file.*;
-import java.sql.*;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import javax.sql.DataSource;
 
 /**
  * Real role/physical SQL oracles. HTTP A=1 is deliberately bypassed for concurrent transactions.

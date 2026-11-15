@@ -1,16 +1,18 @@
 package com.kartaguez.pocoma.engine.admit.identity;
-import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
-import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 
 class IdentityAdmissionInputTest {
     final ExternalIdentity eui = new ExternalIdentity("issuer", "subject");

@@ -1,43 +1,67 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.IllegalTransactionStateException;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
-import com.kartaguez.pocoma.orchestrator.consumption.I2ReservedClaimFixture;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.consumption.*;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.domain.pot.value.Label;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore;
 import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.port.transaction.*;
-
-import org.junit.jupiter.api.*;
-import org.springframework.jdbc.datasource.*;
-import org.springframework.transaction.*;
-import org.springframework.transaction.support.*;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-
-import java.nio.file.*;
-import java.sql.*;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
+import com.kartaguez.pocoma.orchestrator.consumption.I2ReservedClaimFixture;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 /**
  * Direct I2 Engine proofs; no compatibility cession. Oracles use a separate physical connection.

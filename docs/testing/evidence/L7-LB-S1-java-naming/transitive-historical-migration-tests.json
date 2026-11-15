@@ -1,0 +1,47 @@
+{
+  "scope": "Historical migration tests pulled by the unfiltered canonical closure; no separate historical qualification or schema change",
+  "classes": [
+    {
+      "class": "com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.postgres.write.migration.CommandResultBackfillMigrationPostgresTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.postgres.write.migration.PrimaryMigrationsPostgresTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.postgres.write.migration.CanonicalBusinessEventTypesMigrationPostgresTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.postgres.write.migration.RecordedCommandContractionMigrationPostgresTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.postgres.write.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

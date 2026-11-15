@@ -1,30 +1,43 @@
 package com.kartaguez.pocoma.compose.web.write;
-import com.kartaguez.pocoma.infra.security.spring.HttpSecurityConfiguration;
-import com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTracker;
-import com.kartaguez.pocoma.infra.postgres.write.HmacAdmissionProtection;
-import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
-
-import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.engine.admit.command.CommandAdmission;
-import com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission;
-import com.kartaguez.pocoma.infra.postgres.write.*;
-import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.web.write.*;
-import com.zaxxer.hikari.*;
-import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
-
-import io.micrometer.core.instrument.*;
-import io.micrometer.core.instrument.Timer;
+import java.time.Clock;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.util.*;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionProtection;
+import com.kartaguez.pocoma.engine.admit.command.CommandAdmission;
+import com.kartaguez.pocoma.engine.admit.identity.IdentityRequestAdmission;
+import com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTracker;
+import com.kartaguez.pocoma.infra.postgres.write.AdmissionSqlAuthority;
+import com.kartaguez.pocoma.infra.postgres.write.AdmissionSqlTransactions;
+import com.kartaguez.pocoma.infra.postgres.write.HmacAdmissionProtection;
+import com.kartaguez.pocoma.infra.postgres.write.JdbcAdmissionStore;
+import com.kartaguez.pocoma.infra.security.spring.HttpSecurityConfiguration;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.supra.web.write.AdmissionController;
+import com.kartaguez.pocoma.supra.web.write.AdmissionTransport;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
+
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.Timer;
 
 /** Explicit HTTP-only activation. No admission allocation on COMMAND or READ-only roots. */
 @Configuration(proxyBeanMethods = false)

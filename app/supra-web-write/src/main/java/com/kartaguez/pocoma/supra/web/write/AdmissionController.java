@@ -1,20 +1,24 @@
 package com.kartaguez.pocoma.supra.web.write;
-import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
-import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure;
-import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.contract.writeadmission.*;
+import com.kartaguez.pocoma.contract.writeadmission.AdmissionObserver;
+import com.kartaguez.pocoma.contract.writeadmission.AdmitCommand;
+import com.kartaguez.pocoma.contract.writeadmission.AdmitIdentityRequest;
+import com.kartaguez.pocoma.contract.writeadmission.CommandAdmissionInput;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityAdmissionInput;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
 
-import jakarta.servlet.http.*;
-
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @org.springframework.context.annotation.Profile("v3-http-admission")
 @RestController

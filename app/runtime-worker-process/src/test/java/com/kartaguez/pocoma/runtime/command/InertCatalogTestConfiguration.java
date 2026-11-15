@@ -1,16 +1,16 @@
 package com.kartaguez.pocoma.runtime.command;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
+import java.util.List;
 
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
-import java.util.List;
-import java.util.UUID;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
 
 /** Explicit opt-in; no worker, transaction owner, seed or migration at runtime. */
 @Configuration(proxyBeanMethods = false)

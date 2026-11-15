@@ -1,12 +1,10 @@
 package com.kartaguez.pocoma.contract.consumption.spi;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-
-import java.util.*;
 
 /** Dense global publication prefix, read in one source-owned RR read-only snapshot. */
 public interface BurnableReferences {

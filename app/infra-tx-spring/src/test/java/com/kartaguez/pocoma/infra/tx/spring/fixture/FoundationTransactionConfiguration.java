@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.kartaguez.pocoma.infra.tx.spring.fixture.FoundationRunner;
-
 @Configuration
 public class FoundationTransactionConfiguration {
 

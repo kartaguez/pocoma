@@ -1,9 +1,14 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public record ExpenseFinancials(PotId potId, ExpenseId expenseId, Amount amount, ShareholderId payerId, Map<ShareholderId, Optional<Weight>> participants) {
     public ExpenseFinancials {

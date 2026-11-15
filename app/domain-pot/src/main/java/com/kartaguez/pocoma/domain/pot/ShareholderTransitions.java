@@ -1,9 +1,14 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public final class ShareholderTransitions {
     private ShareholderTransitions() {}

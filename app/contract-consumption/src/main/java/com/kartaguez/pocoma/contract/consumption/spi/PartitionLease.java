@@ -1,13 +1,9 @@
 package com.kartaguez.pocoma.contract.consumption.spi;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
-
-import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 
 /** Returned DB values, never a substitute for transactional ownership validation. */
 public record PartitionLease(

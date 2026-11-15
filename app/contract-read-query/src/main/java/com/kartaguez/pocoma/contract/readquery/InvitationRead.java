@@ -1,14 +1,9 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.*;
-
-import static com.kartaguez.pocoma.contract.readquery.ReadPotResult.*;
-import com.kartaguez.pocoma.domain.pot.*;
-import com.kartaguez.pocoma.domain.projection.*;
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 import java.time.Instant;
-import java.util.*;
-import java.util.function.*;
+import java.util.List;
+import java.util.UUID;
+
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 
 public interface InvitationRead {
     public record Link(UUID invitationId, UUID potId, Instant expiresAt, String link) {

@@ -1,22 +1,29 @@
 package com.kartaguez.pocoma.infra.postgres.core;
-import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
-import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
-import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings.RetryPolicy;
-import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
-import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
+import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Timestamp;
-import java.time.*;
-import java.util.*;
-
-import javax.sql.DataSource;
+import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
+import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings.RetryPolicy;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 /** Canonical slot SQL. No physical transaction ownership or purge entry point. */
 public final class JdbcConsumptionSlotStore implements ConsumptionSlotStore {

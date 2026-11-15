@@ -1,9 +1,6 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.Objects;
 
 public record ShareholderState(Versioned<ShareholderHeader> header, Versioned<ShareholderDetails> details, Versioned<ShareholderWeight> weight) {
     public ShareholderState {

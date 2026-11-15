@@ -1,10 +1,11 @@
 package com.kartaguez.pocoma.engine.read.identity;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+
 import com.kartaguez.pocoma.contract.readquery.BindingRead;
-import com.kartaguez.pocoma.contract.readquery.BindingRead.*;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
-import java.util.*;
-import java.util.function.Function;
 /** Inert internal own-EUI reader. Authentication is supplied by the future L5 boundary. */
 public final class GetCurrentBinding implements BindingRead {
     private final Function<ExternalIdentity,Optional<ExternalUserIdentity>> reader;

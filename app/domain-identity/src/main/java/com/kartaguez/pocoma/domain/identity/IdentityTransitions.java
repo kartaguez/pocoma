@@ -1,15 +1,15 @@
 package com.kartaguez.pocoma.domain.identity;
 
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.PocomaUserId;
-import com.kartaguez.pocoma.domain.identity.User;
-import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Changed;
-import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejected;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.INVALID_BINDING;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.TARGET_ALREADY_BOUND;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.TARGET_BOUND_TO_ANOTHER_USER;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.TARGET_NOT_BOUND;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.*;
+import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Changed;
+import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejected;
 
 /**
  * Pure decisions on a consistent authority snapshot. The caller retains protection of all keys

@@ -1,9 +1,10 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.Objects;
+import java.util.Optional;
+
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 /** A missing Header is an authoritative absence, not an omitted lookup. */
 public record ShareholderReference(PotId potId, long workingVersion, ShareholderId shareholderId,

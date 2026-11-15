@@ -1,14 +1,4 @@
 package com.kartaguez.pocoma.supra.web.read.maintenance;
-import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceStatus;
-import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceStatus;
-import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceState;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -16,6 +6,16 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceState;
+import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceStatus;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Fail-closed HTTP barrier filter for READ façade.

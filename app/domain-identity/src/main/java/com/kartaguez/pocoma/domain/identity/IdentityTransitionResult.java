@@ -1,7 +1,5 @@
 package com.kartaguez.pocoma.domain.identity;
 
-import com.kartaguez.pocoma.domain.identity.User;
-
 import java.util.Objects;
 import java.util.Optional;
 

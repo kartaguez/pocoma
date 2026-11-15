@@ -1,13 +1,13 @@
 package com.kartaguez.pocoma.contract.writeadmission;
 
-import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.*;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.nonblank;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.object;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.textsWithin;
 
-import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import java.util.Map;
+
 import com.kartaguez.pocoma.domain.identity.BindingToken;
-
-import java.util.*;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 
 public final class IdentityAdmissionInput {
     private final ExternalIdentity requester, target;

@@ -1,10 +1,5 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.*;
-
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
-import java.util.*;
-import java.util.function.Function;
 
 public interface BindingRead {
     public interface Query { Answer get(ExternalIdentity eui, long minimum); }

@@ -1,8 +1,42 @@
 package com.kartaguez.pocoma.supra.polling.consumption;
-import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.Test;
+
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
@@ -12,30 +46,22 @@ import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
 import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
 import com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.domain.consumption.RoutingV1;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
 import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.port.transaction.*;
-
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.*;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 /** Local concurrency proof only. Transactional/physical claims require the PostgreSQL suites. */
 class ConsumptionWorkerTest {

@@ -1,16 +1,37 @@
 package com.kartaguez.pocoma.runtime.command;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
 import com.kartaguez.pocoma.compose.polling.process.PotCommandComposition;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
-import com.kartaguez.pocoma.orchestrator.consumption.CommandReservedClaimFixture;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.domain.pot.Amount;
 import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
@@ -26,29 +47,15 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
-import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
 import com.kartaguez.pocoma.engine.write.pot.CalculatePotBalances;
 import com.kartaguez.pocoma.engine.write.pot.ExecutePotCommand;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
 import com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter;
 import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.jpa.*;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.SQLException;
-import java.time.*;
-import java.util.*;
+import com.kartaguez.pocoma.orchestrator.consumption.CommandReservedClaimFixture;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 
 /**
  * The actual composition factory, not a duplicated wiring fixture. No Discovery or Identity

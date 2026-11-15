@@ -1,23 +1,33 @@
 package com.kartaguez.pocoma.orchestrator.consumption;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
-import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports;
-import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
-import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
-import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.port.transaction.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.*;
-import java.util.*;
-import java.util.function.*;
+import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports;
+import com.kartaguez.pocoma.contract.consumption.spi.BurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.spi.NonBurnableReferences;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
+import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 class DiscoveryEngineTest {
     static UUID u(long n) {

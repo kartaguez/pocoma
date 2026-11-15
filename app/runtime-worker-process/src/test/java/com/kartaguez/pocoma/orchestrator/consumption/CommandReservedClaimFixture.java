@@ -1,7 +1,6 @@
 package com.kartaguez.pocoma.orchestrator.consumption;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
 
 /** I2 handoff only; new I3 tests acquire through the productive Engine. */
 public final class CommandReservedClaimFixture {

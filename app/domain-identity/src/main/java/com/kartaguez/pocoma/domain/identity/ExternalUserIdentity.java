@@ -1,8 +1,5 @@
 package com.kartaguez.pocoma.domain.identity;
 
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.PocomaUserId;
-
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;

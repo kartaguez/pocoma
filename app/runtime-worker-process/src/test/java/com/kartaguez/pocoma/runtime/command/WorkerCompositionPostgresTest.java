@@ -1,24 +1,33 @@
 package com.kartaguez.pocoma.runtime.command;
-import com.kartaguez.pocoma.compose.polling.process.dev.FixturePotActorAuthority;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
-import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
-import com.kartaguez.pocoma.runtime.consumption.dev.*;
-import com.zaxxer.hikari.HikariDataSource;
-
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.boot.*;
-import org.springframework.context.annotation.*;
-import org.testcontainers.junit.jupiter.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.context.annotation.Bean;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
+import com.kartaguez.pocoma.compose.polling.process.dev.FixturePotActorAuthority;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Testcontainers
 class WorkerCompositionPostgresTest {

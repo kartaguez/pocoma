@@ -1,14 +1,15 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import static com.kartaguez.pocoma.domain.projection.SubobjectContent.*;
-import static com.kartaguez.pocoma.domain.projection.SubobjectKind.*;
-import static com.kartaguez.pocoma.contract.readquery.ReadPotResult.*;
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult.Expense;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult.ExpenseRef;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult.Pot;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.projection.PotBalance;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-import java.util.*;
 
 public interface PotRead {
     public interface Queries {

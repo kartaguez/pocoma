@@ -1,13 +1,7 @@
 package com.kartaguez.pocoma.contract.consumption.participation;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import java.util.UUID;
 
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-
-import java.util.UUID;
 
 public interface ConsumptionParticipant {
     /** Empty when already terminal: Engine must observe rather than finalize again. */

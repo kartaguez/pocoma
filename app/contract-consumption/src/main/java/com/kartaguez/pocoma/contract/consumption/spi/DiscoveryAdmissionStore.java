@@ -1,13 +1,9 @@
 package com.kartaguez.pocoma.contract.consumption.spi;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
-import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-
 import java.util.UUID;
+
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 /** Caller owns the physical unit and protects ownership; this port never begins or commits. */
 public interface DiscoveryAdmissionStore {

@@ -1,19 +1,24 @@
 package com.kartaguez.pocoma.infra.postgres.write;
-import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Supplier;
 
-import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
-import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.*;
-import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.*;
-import java.util.function.Supplier;
-
-import javax.sql.DataSource;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
+import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 
 /** V3 WRITE only. Initial admission/discovery/acquisition are deliberately outside this writer. */
 public final class JdbcPotCommandStore implements PotCommandStore {

@@ -1,21 +1,57 @@
 package com.kartaguez.pocoma.infra.postgres.source;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.bad;
+import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.number;
+import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.uuid;
 
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.*;
-import com.kartaguez.pocoma.domain.pot.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.UUID;
+
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.support.SqlArrayValue;
+
+import com.kartaguez.pocoma.domain.pot.Amount;
+import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.PotDetails;
+import com.kartaguez.pocoma.domain.pot.PotHeader;
+import com.kartaguez.pocoma.domain.pot.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.ShareholderHeader;
+import com.kartaguez.pocoma.domain.pot.ShareholderWeight;
+import com.kartaguez.pocoma.domain.pot.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
-import com.kartaguez.pocoma.domain.projection.*;
-import com.kartaguez.pocoma.domain.projection.SubobjectContent.*;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.projection.PotVersion;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.ExpenseDetailsContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.ExpenseFinancialsContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.ExpenseHeaderContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.PotDetailsContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.PotHeaderContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.ShareholderDetailsContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.ShareholderHeaderContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent.ShareholderWeightContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectKey;
+import com.kartaguez.pocoma.domain.projection.SubobjectKind;
+import com.kartaguez.pocoma.domain.projection.SubobjectVersion;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVersionSource;
+import com.kartaguez.pocoma.infra.postgres.core.PostgresPotHistoryReader;
+import com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-import org.springframework.jdbc.support.SqlArrayValue;
-import com.kartaguez.pocoma.infra.postgres.core.*;
-import javax.sql.DataSource;
-import java.util.*;
 
 /** Lightweight composition and separately selected immutable contents; never reads READ. */
 public final class JdbcPotVersionSource implements PotVersionSource {

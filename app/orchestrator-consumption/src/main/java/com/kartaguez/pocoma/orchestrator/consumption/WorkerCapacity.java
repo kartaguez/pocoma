@@ -1,13 +1,13 @@
 package com.kartaguez.pocoma.orchestrator.consumption;
-import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
-import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView.Snapshot;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
-
-import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
-
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 
 /** One instance per Worker, shared by every Consumption and physical authority. */
 public final class WorkerCapacity implements com.kartaguez.pocoma.contract.consumption.invocation.CapacityView {

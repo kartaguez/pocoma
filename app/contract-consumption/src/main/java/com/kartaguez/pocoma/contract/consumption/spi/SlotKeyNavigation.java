@@ -1,14 +1,10 @@
 package com.kartaguez.pocoma.contract.consumption.spi;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.*;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.spi.SlotKeyNavigation;
+import java.util.UUID;
 
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.Page;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation.Walk;
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-
-import java.util.*;
 
 /** Raw MVCC key navigation. Eligibility, acquisition and durable progress are separate. */
 public interface SlotKeyNavigation {

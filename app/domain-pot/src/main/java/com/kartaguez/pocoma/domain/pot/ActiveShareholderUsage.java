@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.Objects;
+
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 /** Exhaustive over payer OR participant in every active Expense at this Pot version. */
 public record ActiveShareholderUsage(PotId potId, long workingVersion, ShareholderId shareholderId,

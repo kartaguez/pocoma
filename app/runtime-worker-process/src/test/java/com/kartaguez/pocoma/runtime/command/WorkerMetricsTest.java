@@ -1,27 +1,38 @@
 package com.kartaguez.pocoma.runtime.command;
-import com.kartaguez.pocoma.compose.polling.process.ProcessSettings;
-import com.kartaguez.pocoma.infra.observability.micrometer.MicrometerConsumptionObservation;
-import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
-import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.IMAGE;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.await;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.field;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.pendingAtPartition;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.replace;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
-import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
-
-import io.micrometer.core.instrument.*;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-
-import org.junit.jupiter.api.*;
-import org.testcontainers.junit.jupiter.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.*;
+import com.kartaguez.pocoma.compose.polling.process.ProcessSettings;
+import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.infra.observability.micrometer.MicrometerConsumptionObservation;
+import com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.Fixture;
+import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
+
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @Testcontainers
 class WorkerMetricsTest {

@@ -1,9 +1,6 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import com.kartaguez.pocoma.domain.pot.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
-
-import java.util.*;
+import java.util.Objects;
 
 /** Distinguishes omitted loading from authoritative absence before object creation. */
 public sealed interface ComponentRead<T> {

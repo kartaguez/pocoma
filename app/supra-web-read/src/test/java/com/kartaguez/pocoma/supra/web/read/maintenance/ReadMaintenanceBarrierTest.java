@@ -1,32 +1,39 @@
 package com.kartaguez.pocoma.supra.web.read.maintenance;
-import com.kartaguez.pocoma.supra.web.read.maintenance.ReadMaintenanceFilter;
-import com.kartaguez.pocoma.infra.postgres.read.maintenance.JdbcReadMaintenanceAuthority;
-import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceAuthority;
-import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceState;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.kartaguez.pocoma.infra.postgres.read.maintenance.JdbcReadMaintenanceAuthority;
+import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceAuthority;
+import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceState;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import jakarta.servlet.FilterChain;
 
 class ReadMaintenanceBarrierTest {
 

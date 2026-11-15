@@ -1,57 +1,44 @@
 package com.kartaguez.pocoma.compose.web.read;
-import com.kartaguez.pocoma.infra.security.spring.InvitationConfiguration;
-import com.kartaguez.pocoma.infra.observability.micrometer.ReadRebuildObservation;
-import com.kartaguez.pocoma.supra.web.read.maintenance.ReadMaintenanceFilter;
-import com.kartaguez.pocoma.infra.postgres.read.maintenance.JdbcReadMaintenanceStatus;
-import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceStatus;
-import com.kartaguez.pocoma.infra.security.spring.InvitationCryptography;
-import com.kartaguez.pocoma.infra.security.spring.HttpSecurityConfiguration;
-import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
-import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
-import com.kartaguez.pocoma.contract.readquery.BindingRead;
-import com.kartaguez.pocoma.contract.readquery.InvitationRead;
-import com.kartaguez.pocoma.contract.readquery.PotRead;
-import com.kartaguez.pocoma.contract.readquery.ReadLimits;
-import com.kartaguez.pocoma.contract.readquery.ReadPotResult;
-
-import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.domain.projection.PotBalance;
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.read.results.GetCommandTerminalResult;
-import com.kartaguez.pocoma.engine.read.identity.GetCurrentBinding;
-import com.kartaguez.pocoma.engine.read.pot.*;
-import com.kartaguez.pocoma.engine.read.results.GetIdentityTerminalResult;
-import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.supra.web.read.*;
-import com.zaxxer.hikari.*;
-import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
-
-import io.micrometer.core.instrument.*;
-import io.micrometer.core.instrument.Timer;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.*;
-import org.springframework.core.MethodParameter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.*;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.*;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.time.*;
-import java.util.*;
+import com.kartaguez.pocoma.contract.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.contract.readquery.CommandResultRead;
+import com.kartaguez.pocoma.contract.readquery.IdentityResultRead;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead;
+import com.kartaguez.pocoma.contract.readquery.ReadLimits;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.infra.postgres.read.maintenance.JdbcReadMaintenanceStatus;
+import com.kartaguez.pocoma.infra.security.spring.HttpSecurityConfiguration;
+import com.kartaguez.pocoma.infra.security.spring.InvitationConfiguration;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.port.projection.maintenance.ReadMaintenanceStatus;
+import com.kartaguez.pocoma.supra.web.read.InvitationController;
+import com.kartaguez.pocoma.supra.web.read.ReadController;
+import com.kartaguez.pocoma.supra.web.read.ReadTransport;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory;
+
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.Timer;
 
 /** Explicit V3 HTTP assembly. Standalone WEB owns only a two-connection READ pool. */
 @Configuration(proxyBeanMethods = false)

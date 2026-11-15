@@ -1,19 +1,23 @@
 package com.kartaguez.pocoma.architecture;
-import com.kartaguez.pocoma.PocomaMaterializeWorkerApplication;
-import com.kartaguez.pocoma.infra.postgres.source.*;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.*;
-import com.tngtech.archunit.lang.ArchRule;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.lang.ArchRule;
 
 class ConsumptionEngineArchitectureTest {
     @Test

@@ -1,16 +1,22 @@
 package com.kartaguez.pocoma.orchestrator.consumption;
-import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
 
 class WorkerCapacityTest {
     final ConsumptionId a = new ConsumptionId(new UUID(0, 1)),

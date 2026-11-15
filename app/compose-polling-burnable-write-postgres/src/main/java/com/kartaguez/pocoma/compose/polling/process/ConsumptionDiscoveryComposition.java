@@ -1,17 +1,18 @@
 package com.kartaguez.pocoma.compose.polling.process;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.observability.micrometer.StageHandoffTracker;
-import com.kartaguez.pocoma.infra.postgres.core.*;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
-import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
-import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-
 import java.util.Objects;
 
 import javax.sql.DataSource;
+
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.write.consumption.JdbcCommandDiscoveryReferences;
+import com.kartaguez.pocoma.infra.postgres.write.consumption.JdbcIdentityRequestDiscoveryReferences;
+import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
+import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
 
 /** Explicit inactive factories. No manager, connection pool, thread, bean or grant is created. */
 public final class ConsumptionDiscoveryComposition {

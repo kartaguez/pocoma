@@ -1,13 +1,10 @@
 package com.kartaguez.pocoma.contract.consumption.spi;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
-
-import java.time.Duration;
-import java.util.*;
 
 public interface PartitionOwnershipStore {
     Optional<PartitionLease> acquire(

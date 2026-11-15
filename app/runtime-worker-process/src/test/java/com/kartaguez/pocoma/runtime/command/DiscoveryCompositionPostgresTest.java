@@ -1,47 +1,61 @@
 package com.kartaguez.pocoma.runtime.command;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.MountableFile;
+
 import com.kartaguez.pocoma.compose.polling.process.ConsumptionDiscoveryComposition;
-import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
 import com.kartaguez.pocoma.compose.polling.process.ConsumptionLifecycleComposition;
 import com.kartaguez.pocoma.compose.polling.process.PotCommandComposition;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.source.*;
-import com.kartaguez.pocoma.infra.postgres.core.*;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.participation.SlotCompletion;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
-import com.kartaguez.pocoma.infra.postgres.write.*;
-import com.kartaguez.pocoma.infra.postgres.write.consumption.*;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences;
+import com.kartaguez.pocoma.infra.postgres.write.PotCommandJson;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.port.transaction.*;
-
-import org.junit.jupiter.api.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.jpa.*;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.MountableFile;
-
-import java.nio.file.*;
-import java.time.*;
-import java.util.*;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 @Testcontainers
 class DiscoveryCompositionPostgresTest {

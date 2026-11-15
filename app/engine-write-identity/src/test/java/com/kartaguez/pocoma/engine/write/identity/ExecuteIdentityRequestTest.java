@@ -1,19 +1,29 @@
 package com.kartaguez.pocoma.engine.write.identity;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
-import com.kartaguez.pocoma.domain.identity.*;
-import com.kartaguez.pocoma.domain.identity.*;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Proxy;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
+import com.kartaguez.pocoma.contract.writeadmission.IdentityRequest;
+import com.kartaguez.pocoma.domain.identity.BindingToken;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 
 class ExecuteIdentityRequestTest {
     final List<String> calls = new ArrayList<>();

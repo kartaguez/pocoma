@@ -1,12 +1,16 @@
 package com.kartaguez.pocoma.compose.polling.materialize.maintenance;
-import com.kartaguez.pocoma.compose.polling.materialize.maintenance.ReadinessOracle;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ReadinessOracleTest {
 

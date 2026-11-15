@@ -1,10 +1,20 @@
 package com.kartaguez.pocoma.engine.read.identity;
-import com.kartaguez.pocoma.contract.readquery.BindingRead;
-import com.kartaguez.pocoma.domain.identity.*;
-import com.kartaguez.pocoma.domain.identity.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.*;
+
+import com.kartaguez.pocoma.contract.readquery.BindingRead;
+import com.kartaguez.pocoma.domain.identity.BindingToken;
+import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentity;
+import com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId;
+import com.kartaguez.pocoma.domain.identity.PocomaUserId;
 class CurrentBindingContractTest {
     @Test void euiStateAndMinVersion() {
         var e1=new ExternalIdentity("issuer","one"); var e2=new ExternalIdentity("issuer","two");

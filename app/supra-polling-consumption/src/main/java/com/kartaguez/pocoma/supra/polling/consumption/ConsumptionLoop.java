@@ -1,11 +1,11 @@
 package com.kartaguez.pocoma.supra.polling.consumption;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
-
-import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
-
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionNavigation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.Outcome;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.Phase;
 
 /** C first, then p, then a raw circular key walk. No SQL, future joins or ticket authority. */
 public final class ConsumptionLoop {

@@ -1,42 +1,103 @@
 package com.kartaguez.pocoma.infra.postgres.write;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.EntityManagerHolder;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+
 import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.domain.pot.*;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.AddShareholders;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.CreateExpense;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.CreatePot;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.DeleteExpense;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.DeletePot;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.DeleteShareholder;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.Eui;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.Intent;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseDetails;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseFinancials;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderDetails;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderWeights;
+import com.kartaguez.pocoma.domain.pot.Amount;
+import com.kartaguez.pocoma.domain.pot.ComponentRead;
+import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.Fraction;
+import com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException;
+import com.kartaguez.pocoma.domain.pot.ShareholderDetails;
+import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
+import com.kartaguez.pocoma.domain.pot.TransitionResult;
+import com.kartaguez.pocoma.domain.pot.Versioned;
+import com.kartaguez.pocoma.domain.pot.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.*;
-import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
-import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.*;
-import com.kartaguez.pocoma.engine.write.pot.port.persistence.*;
-import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.*;
-import com.kartaguez.pocoma.infra.postgres.write.L1CommandStore.FailureRecorded;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotActorAuthority;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Outcome;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.PotCommandStore.Result;
+import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotHistoryPort;
+import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotRevisionPort;
 import com.kartaguez.pocoma.infra.postgres.fixture.command.CommandProbe;
+import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.Cause;
+import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.RetryPolicy;
+import com.kartaguez.pocoma.infra.postgres.write.L1CommandCompatibilityHarness.Status;
+import com.kartaguez.pocoma.infra.postgres.write.L1CommandStore.FailureRecorded;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.port.transaction.*;
-
-import org.junit.jupiter.api.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.*;
-import org.springframework.orm.jpa.*;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.support.*;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-
-import java.lang.reflect.*;
-import java.nio.file.*;
-import java.sql.*;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
-
-import javax.sql.DataSource;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 
 /**
  * Internal Command proof. Authority and initial PENDING/claim acquisition below are explicit

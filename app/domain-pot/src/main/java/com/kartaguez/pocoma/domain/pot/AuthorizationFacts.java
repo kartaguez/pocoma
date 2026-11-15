@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma.domain.pot;
 
-import java.util.*;
-import java.time.LocalDate;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
+import java.util.Objects;
+
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 /** WRITE-derived facts. The actor is resolved by the application authority, never by a client flag. */
 public record AuthorizationFacts(PotId potId, long workingVersion, UserId creatorId, UserId actorUserId, boolean activelyAttached) {

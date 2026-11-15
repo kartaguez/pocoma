@@ -1,11 +1,7 @@
 package com.kartaguez.pocoma.contract.consumption.participation;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
+import java.util.function.Function;
 
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-
-import java.util.function.Function;
 
 /**
  * Invocation-bound preparation snapshots, opened consecutively on the invoking thread. Every

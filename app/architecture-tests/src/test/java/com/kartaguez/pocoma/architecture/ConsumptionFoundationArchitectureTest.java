@@ -1,15 +1,16 @@
 package com.kartaguez.pocoma.architecture;
-import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.tngtech.archunit.core.importer.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.*;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
 
 class ConsumptionFoundationArchitectureTest {
     @Test

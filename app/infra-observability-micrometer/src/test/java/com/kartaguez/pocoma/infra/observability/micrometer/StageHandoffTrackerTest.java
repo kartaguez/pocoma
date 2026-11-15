@@ -1,16 +1,19 @@
 package com.kartaguez.pocoma.infra.observability.micrometer;
-import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
-
-import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 class StageHandoffTrackerTest {
 

@@ -1,10 +1,9 @@
 package com.kartaguez.pocoma.infra.security.spring;
 
-import com.kartaguez.pocoma.infra.security.spring.InvitationCryptography;
+import java.util.Base64;
+import java.util.HashMap;
 
 import org.springframework.core.env.Environment;
-
-import java.util.*;
 
 /** External dedicated keyring. Absent configuration never creates an ephemeral production key. */
 public final class InvitationConfiguration {

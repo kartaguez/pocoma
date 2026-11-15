@@ -1,19 +1,30 @@
 package com.kartaguez.pocoma.supra.polling.consumption;
-import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
-import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView.*;
-import com.kartaguez.pocoma.contract.consumption.observation.AttemptObservation;
-import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
-import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
-import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
-
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
-import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.*;
-import com.kartaguez.pocoma.supra.polling.consumption.wait.*;
-
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import com.kartaguez.pocoma.contract.consumption.invocation.CapacityView;
+import com.kartaguez.pocoma.contract.consumption.invocation.ConsumptionProtocol;
+import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
+import com.kartaguez.pocoma.contract.consumption.observation.AttemptObservation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation.Outcome;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.supra.polling.consumption.wait.ConsumptionWaiter;
 
 /** Local lifecycle only. Engine alone owns all reservations and durable decisions. */
 public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.consumption.invocation.WorkerView {

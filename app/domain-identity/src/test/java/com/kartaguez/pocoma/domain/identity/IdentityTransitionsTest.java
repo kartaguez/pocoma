@@ -1,17 +1,22 @@
 package com.kartaguez.pocoma.domain.identity;
 
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.PocomaUserId;
-import com.kartaguez.pocoma.domain.identity.User;
-import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Changed;
-import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejected;
-import org.junit.jupiter.api.Test;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.INVALID_BINDING;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.TARGET_ALREADY_BOUND;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.TARGET_BOUND_TO_ANOTHER_USER;
+import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.TARGET_NOT_BOUND;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejection.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Changed;
+import com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Rejected;
 
 class IdentityTransitionsTest {
     private static final ExternalIdentity E1 = new ExternalIdentity("issuer", "one");

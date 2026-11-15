@@ -1,20 +1,27 @@
 package com.kartaguez.pocoma.engine.read.pot;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import com.kartaguez.pocoma.contract.readquery.InvitationRead.Link;
+import com.kartaguez.pocoma.contract.readquery.InvitationRead.Place;
 import com.kartaguez.pocoma.contract.readquery.PotRead;
 import com.kartaguez.pocoma.contract.readquery.ReadPotResult;
-import com.kartaguez.pocoma.contract.readquery.InvitationRead;
-import com.kartaguez.pocoma.contract.readquery.InvitationRead.*;
-
-import static com.kartaguez.pocoma.contract.readquery.ReadPotResult.*;
-
-import com.kartaguez.pocoma.domain.pot.*;
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult.Available;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult.NotFound;
+import com.kartaguez.pocoma.contract.readquery.ReadPotResult.NotReady;
 import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.port.projection.*;
+import com.kartaguez.pocoma.domain.pot.Invitation;
+import com.kartaguez.pocoma.domain.pot.InvitationTokenHash;
+import com.kartaguez.pocoma.domain.projection.SubobjectContent;
+import com.kartaguez.pocoma.domain.projection.SubobjectKey;
+import com.kartaguez.pocoma.domain.projection.SubobjectKind;
+import com.kartaguez.pocoma.port.projection.PotVersionStore;
+import com.kartaguez.pocoma.port.projection.SubobjectVersionStore;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.function.*;
 
 /** Restricted Invitation queries; no authority or fallback in WRITE. */
 public final class ReadInvitation {

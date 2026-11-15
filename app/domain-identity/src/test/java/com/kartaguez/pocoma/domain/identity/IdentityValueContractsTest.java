@@ -1,9 +1,12 @@
 package com.kartaguez.pocoma.domain.identity;
 
-import com.kartaguez.pocoma.domain.identity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.identity.PocomaUserId;
-import com.kartaguez.pocoma.domain.identity.User;
-import org.junit.jupiter.api.Test;
+import static com.kartaguez.pocoma.domain.identity.ExternalUserIdentity.compareKeys;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,8 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.kartaguez.pocoma.domain.identity.ExternalUserIdentity.compareKeys;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class IdentityValueContractsTest {
     private static final ExternalUserIdentityId ID = new ExternalUserIdentityId(new UUID(0, 1));

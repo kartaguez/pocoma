@@ -1,10 +1,14 @@
 package com.kartaguez.pocoma.contract.readquery;
-import com.kartaguez.pocoma.domain.projection.*;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.Fraction;
-
-import java.time.LocalDate;
-import java.util.*;
 
 /** Public internal views deliberately exclude User IDs, authorization sets and binding tokens. */
 public sealed interface ReadPotResult<T> {

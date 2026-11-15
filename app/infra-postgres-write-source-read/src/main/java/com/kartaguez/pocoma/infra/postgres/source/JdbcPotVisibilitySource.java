@@ -1,15 +1,21 @@
 package com.kartaguez.pocoma.infra.postgres.source;
-import com.kartaguez.pocoma.infra.postgres.core.*;
-import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.*;
+import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.bad;
+import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.number;
+import static com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows.uuid;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.sql.DataSource;
+
+import com.kartaguez.pocoma.domain.pot.PotVisibilityRules;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.PotVisibility;
 import com.kartaguez.pocoma.engine.materialize.pot.PotVisibilitySource;
-import com.kartaguez.pocoma.domain.pot.PotVisibilityRules;
+import com.kartaguez.pocoma.infra.postgres.core.PotHistoryRows;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
-import com.kartaguez.pocoma.infra.postgres.core.*;
-import javax.sql.DataSource;
-import java.util.*;
 public final class JdbcPotVisibilitySource implements PotVisibilitySource {
     private final PotHistoryRows rows;
     public JdbcPotVisibilitySource(DataSource source) { rows=new PotHistoryRows(source); }

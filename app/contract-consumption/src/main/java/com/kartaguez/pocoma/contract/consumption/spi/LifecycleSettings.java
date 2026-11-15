@@ -1,8 +1,4 @@
 package com.kartaguez.pocoma.contract.consumption.spi;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-
 import java.time.Duration;
 import java.util.Objects;
 

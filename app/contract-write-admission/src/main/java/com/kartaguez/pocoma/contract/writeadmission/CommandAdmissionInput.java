@@ -1,18 +1,45 @@
 package com.kartaguez.pocoma.contract.writeadmission;
 
 import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFailure.require;
-import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.*;
-
-import com.kartaguez.pocoma.contract.writeadmission.*;
-import com.kartaguez.pocoma.domain.pot.*;
-import com.kartaguez.pocoma.domain.pot.value.*;
-import com.kartaguez.pocoma.domain.pot.value.id.*;
-import com.kartaguez.pocoma.contract.writeadmission.PotCommand;
-import com.kartaguez.pocoma.contract.writeadmission.PotCommand.*;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.list;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.nonblank;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.object;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.text;
+import static com.kartaguez.pocoma.contract.writeadmission.AdmissionFields.uuid;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.AddShareholders;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.Attachment;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.CreateExpense;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.CreateInvitation;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.CreatePot;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.DeleteExpense;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.DeletePot;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.DeleteShareholder;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.Intent;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseDetails;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateExpenseFinancials;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdatePotDetails;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderDetails;
+import com.kartaguez.pocoma.contract.writeadmission.PotCommand.UpdateShareholderWeights;
+import com.kartaguez.pocoma.domain.pot.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.InvitationTokenHash;
+import com.kartaguez.pocoma.domain.pot.ShareholderTransitions;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 /** Public V1 decoder. Parser safety limits remain applicable to historical comparisons. */
 public final class CommandAdmissionInput {

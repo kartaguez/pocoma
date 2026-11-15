@@ -1,27 +1,24 @@
 package com.kartaguez.pocoma.compose.polling.materialize;
-import com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.core.*;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
-import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
-import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
-
-import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
-import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
-import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
-import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.sql.DataSource;
+
+import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier;
+import com.kartaguez.pocoma.contract.consumption.spi.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
+import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcConsumptionSlotStore;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcDiscoveryAdmissionStore;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcPartitionOwnershipStore;
+import com.kartaguez.pocoma.infra.postgres.core.JdbcSlotKeyNavigation;
+import com.kartaguez.pocoma.infra.postgres.source.JdbcEventDiscoveryReferences;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
+import com.kartaguez.pocoma.orchestrator.consumption.WorkerCapacity;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
 
 /** Explicit construction only. Pool sizing is a prerequisite, NOT a connection reservation. */
 public final class ConsumptionLifecycleComposition {

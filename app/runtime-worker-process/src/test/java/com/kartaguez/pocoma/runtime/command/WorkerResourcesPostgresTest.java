@@ -1,46 +1,85 @@
 package com.kartaguez.pocoma.runtime.command;
-import com.kartaguez.pocoma.compose.polling.process.dev.FixturePotActorAuthority;
-import com.kartaguez.pocoma.infra.postgres.source.*;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.IMAGE;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.admitBeforeStart;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.await;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.beforePreparationScope;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.field;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.holdFourWithWrite;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.latch;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.pendingAtPartition;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.pendingAtPartitionZero;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.replace;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.retryWithoutDelay;
+import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.seedPublications;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
+
 import com.kartaguez.pocoma.contract.consumption.invocation.ProtocolSafety;
-import com.kartaguez.pocoma.contract.consumption.invocation.WorkerView;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
 import com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant;
 import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.contract.consumption.spi.ClaimedSlot;
 import com.kartaguez.pocoma.contract.consumption.spi.ConsumptionSlotStore;
-import com.kartaguez.pocoma.contract.consumption.spi.DiscoveryAdmissionStore;
+import com.kartaguez.pocoma.contract.consumption.spi.DiscoverySettings;
 import com.kartaguez.pocoma.contract.consumption.spi.LifecycleSettings;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionLease;
 import com.kartaguez.pocoma.contract.consumption.spi.PartitionOwnershipStore;
 import com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
-import com.kartaguez.pocoma.orchestrator.consumption.DiscoveryEngine;
-
-import static com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.contract.consumption.participation.PreparationReads;
 import com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions;
-import com.kartaguez.pocoma.port.transaction.*;
-import com.zaxxer.hikari.*;
-import com.zaxxer.hikari.metrics.*;
-
-import org.junit.jupiter.api.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.testcontainers.junit.jupiter.*;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
-
-import java.sql.*;
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.*;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionEngine;
+import com.kartaguez.pocoma.port.transaction.AttemptTransactions;
+import com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.Child;
+import com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.Fixture;
+import com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.ForwardingTransactions;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.metrics.IMetricsTracker;
 
 @Testcontainers
 class WorkerResourcesPostgresTest {

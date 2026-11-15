@@ -1,30 +1,41 @@
 package com.kartaguez.pocoma.runtime.command;
-import com.kartaguez.pocoma.compose.polling.process.ConsumptionDiscoveryComposition;
-import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
-import com.kartaguez.pocoma.infra.postgres.core.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
-import com.kartaguez.pocoma.domain.consumption.*;
-import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
-import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard.Target;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
-import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.testcontainers.junit.jupiter.*;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.MountableFile;
 
-import java.nio.file.*;
-import java.sql.*;
-import java.util.*;
+import com.kartaguez.pocoma.PocomaProcessWorkerApplication;
+import com.kartaguez.pocoma.compose.polling.process.ConsumptionDiscoveryComposition;
+import com.kartaguez.pocoma.domain.consumption.ConsumableFamily;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionCatalog;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionDefinition.Authority;
+import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard;
+import com.kartaguez.pocoma.infra.postgres.core.BootstrapGuard.Target;
 
 @Testcontainers
 class ConsumptionBootstrapPostgresTest {

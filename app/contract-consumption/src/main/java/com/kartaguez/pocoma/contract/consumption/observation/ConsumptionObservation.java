@@ -1,11 +1,7 @@
 package com.kartaguez.pocoma.contract.consumption.observation;
-import com.kartaguez.pocoma.contract.consumption.participation.*;
-import com.kartaguez.pocoma.contract.consumption.spi.*;
-import com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation;
+import java.time.Duration;
 
 import com.kartaguez.pocoma.domain.consumption.ConsumptionId;
-
-import java.time.Duration;
 
 /** Bounded operational facts; implementations must be nonblocking and must never perform SQL. */
 @FunctionalInterface
