@@ -2446,6 +2446,8 @@ class WorkerResourcesPostgresTest {
                             try {
                                 var client = listener.accept();
                                 var server = new java.net.Socket(host, port);
+                                client.setTcpNoDelay(true);
+                                server.setTcpNoDelay(true);
                                 sockets.add(client);
                                 sockets.add(server);
                                 var discard = new AtomicBoolean();
@@ -2477,8 +2479,12 @@ class WorkerResourcesPostgresTest {
                 AtomicBoolean retained,
                 AtomicBoolean target) {
             try {
-                var in = new java.io.DataInputStream(client.getInputStream());
-                var out = new java.io.DataOutputStream(server.getOutputStream());
+                var in =
+                        new java.io.DataInputStream(
+                                new java.io.BufferedInputStream(client.getInputStream()));
+                var out =
+                        new java.io.DataOutputStream(
+                                new java.io.BufferedOutputStream(server.getOutputStream()));
                 int n = in.readInt();
                 byte[] startup = in.readNBytes(n - 4);
                 if (n == 8 && java.nio.ByteBuffer.wrap(startup).getInt() == 80877103) {
@@ -2550,8 +2556,12 @@ class WorkerResourcesPostgresTest {
                 AtomicBoolean retained) {
             boolean commit = false;
             try {
-                var in = new java.io.DataInputStream(server.getInputStream());
-                var out = new java.io.DataOutputStream(client.getOutputStream());
+                var in =
+                        new java.io.DataInputStream(
+                                new java.io.BufferedInputStream(server.getInputStream()));
+                var out =
+                        new java.io.DataOutputStream(
+                                new java.io.BufferedOutputStream(client.getOutputStream()));
                 for (; ; ) {
                     int type = in.readUnsignedByte(), length = in.readInt();
                     byte[] body = in.readNBytes(length - 4);
