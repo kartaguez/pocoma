@@ -333,6 +333,10 @@ class AdmissionHttpTest {
             assertEquals(0, transport.availableCapacity());
             assertEquals(503, post("/commands", "owner", "overload", command("A")).statusCode());
             assertEquals(503, first.get(5, TimeUnit.SECONDS).statusCode());
+            long released = System.nanoTime() + Duration.ofSeconds(3).toNanos();
+            while ((transport.availableCapacity() != 1
+                            || pool.getHikariPoolMXBean().getActiveConnections() != 0)
+                    && System.nanoTime() < released) Thread.sleep(5);
             assertEquals(1, transport.availableCapacity());
             assertEquals(0, pool.getHikariPoolMXBean().getActiveConnections());
             gate.rollback();
