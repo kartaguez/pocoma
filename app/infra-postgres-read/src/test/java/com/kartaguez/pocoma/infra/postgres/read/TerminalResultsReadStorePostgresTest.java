@@ -17,7 +17,7 @@ class TerminalResultsReadStorePostgresTest {
     CommandTerminalResult command(UUID id,String outcome) { return new CommandTerminalResult(id,"UpdatePotDetails",e1,new UUID(1,1),outcome,outcome.equals("REJECTED")?null:7L,outcome.equals("REJECTED")?"INVALID_BINDING":null); }
     IdentityTerminalResult identity(UUID id,String op,boolean changed) { return new IdentityTerminalResult(id,op,e1,changed?"CHANGED":"REJECTED",changed?(op.equals("REGISTRATION")?e1:e2):null,changed?3L:null,changed?null:"INVALID_BINDING"); }
     @Test void mappingsAndOwnership() throws Exception {
-        var f=new ReadStoreFixture(PG,"7"); var cs=new JdbcCommandTerminalResultStore(f.source,f.tx); var is=new JdbcIdentityTerminalResultStore(f.source,f.tx);
+        var f=new ReadStoreFixture(PG); var cs=new JdbcCommandTerminalResultStore(f.source,f.tx); var is=new JdbcIdentityTerminalResultStore(f.source,f.tx);
         var cg=new GetCommandTerminalResult(cs); var ig=new GetIdentityTerminalResult(is);
         var pending=UUID.randomUUID(); assertTrue(f.tx.read(c -> cg.get(pending,e1)).isEmpty(),"A10-H absent before materialization");
         for(var outcome:List.of("CHANGED","UNCHANGED","REJECTED")) {
@@ -36,7 +36,7 @@ class TerminalResultsReadStorePostgresTest {
         f.evidence("A10-A..K internal",Map.of("command",3,"identity",6));
     }
     @Test void concurrentImmutableResults() throws Exception {
-        var f=new ReadStoreFixture(PG,"7"); var cs=new JdbcCommandTerminalResultStore(f.source,f.tx); var is=new JdbcIdentityTerminalResultStore(f.source,f.tx);
+        var f=new ReadStoreFixture(PG); var cs=new JdbcCommandTerminalResultStore(f.source,f.tx); var is=new JdbcIdentityTerminalResultStore(f.source,f.tx);
         var c=command(UUID.randomUUID(),"CHANGED"); var i=identity(UUID.randomUUID(),"LINK",true);
         try(var pool=Executors.newVirtualThreadPerTaskExecutor()) {
             var start=new CountDownLatch(1); var tasks=new ArrayList<Future<Boolean>>();
@@ -51,7 +51,7 @@ class TerminalResultsReadStorePostgresTest {
         f.evidence("A10-J immutable races full equality",List.of(c,i));
     }
     @Test void migrationsAndPrivileges() throws Exception {
-        var f=new ReadStoreFixture(PG,"6"); assertEquals(1,f.migrate("7"));
+        var f=ReadStoreFixture.historical(PG,"6"); assertEquals(1,f.migrate("7"));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_command_result','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_identity_request_result','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         var cs=new JdbcCommandTerminalResultStore(f.source,f.tx); var value=command(UUID.randomUUID(),"REJECTED"); f.write(() -> cs.insertOrVerify(value));

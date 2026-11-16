@@ -13,11 +13,18 @@ import java.nio.file.*;
 
 final class ReadStoreFixture {
     static PostgreSQLContainer container() { return new PostgreSQLContainer(DockerImageName.parse("postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73").asCompatibleSubstituteFor("postgres")); }
+    private static final String[] CURRENT_LOCATIONS = {"classpath:db/read/migration"};
+    private static final String[] HISTORICAL_LOCATIONS = {
+        "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-consumption-read/migration",
+        "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-read/db/v3-read-business/migration"
+    };
     final PostgreSQLContainer pg; final String schema,adminRole,runtimeRole;
     final DataSource admin,source; final JdbcTemplate oracle,sql; final SpringAttemptTransactions tx;
-    ReadStoreFixture(PostgreSQLContainer pg) { this(pg,"1"); }
-    ReadStoreFixture(PostgreSQLContainer pg,String target) {
-        this.pg=pg; schema="l4_"+UUID.randomUUID().toString().replace("-",""); adminRole=schema+"_a"; runtimeRole=schema+"_r";
+    private final String[] locations;
+    ReadStoreFixture(PostgreSQLContainer pg) { this(pg,"1",CURRENT_LOCATIONS); }
+    static ReadStoreFixture historical(PostgreSQLContainer pg,String target) { return new ReadStoreFixture(pg,target,HISTORICAL_LOCATIONS); }
+    private ReadStoreFixture(PostgreSQLContainer pg,String target,String[] locations) {
+        this.pg=pg; this.locations=locations; schema="l4_"+UUID.randomUUID().toString().replace("-",""); adminRole=schema+"_a"; runtimeRole=schema+"_r";
         var root=new JdbcTemplate(new DriverManagerDataSource(pg.getJdbcUrl(),pg.getUsername(),pg.getPassword()));
         root.execute("create extension if not exists pgcrypto with schema public");
         root.execute("create role "+adminRole+" login password 'fixture'"); root.execute("create role "+runtimeRole+" login password 'fixture'");
@@ -28,7 +35,7 @@ final class ReadStoreFixture {
     }
     DataSource ds(String role) { return new DriverManagerDataSource(pg.getJdbcUrl()+"&currentSchema="+schema+"&socketTimeout=20",role,"fixture"); }
     int migrate(String target) { return Flyway.configure().dataSource(admin).schemas(schema).defaultSchema(schema).createSchemas(false)
-        .locations("classpath:db/read/migration")
+        .locations(locations)
         .target(target).placeholders(Map.of("expectedDatabase",pg.getDatabaseName(),"expectedSchema",schema,"expectedAdmin",adminRole,"expectedRuntime",runtimeRole)).load().migrate().migrationsExecuted; }
     <T> T write(Supplier<T> action) { return tx.write(() -> { var result=action.get(); SpringAttemptTransactions.closePublication(source); return result; }); }
     void write(Runnable action) { write(() -> { action.run(); return null; }); }

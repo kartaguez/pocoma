@@ -88,10 +88,13 @@ class ConsumptionFoundationPostgresTest {
                 .locations(
                         l2
                                 ? new String[] {
-                                    "classpath:db/write/migration"
+                                    "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot/migration",
+                                    "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot-execution/migration",
+                                    "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-consumption-write/migration"
                                 }
                                 : new String[] {
-                                    "classpath:db/write/migration"
+                                    "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot/migration",
+                                    "filesystem:../../docs/archive/v3-sql-migrations/infra-postgres-write/db/v3-pot-execution/migration"
                                 })
                 .placeholders(values)
                 .load();

@@ -1011,7 +1011,11 @@ class AdmissionPostgresTest {
                                     SQLException.class,
                                     () ->
                                             c.createStatement()
-                                                    .execute("set constraints all immediate"));
+                                                    .execute(
+                                                            "set constraints v3_result_unit,"
+                                                                + " v3_identity_result_unit,"
+                                                                + " v3_identity_user_unit"
+                                                                + " immediate"));
                     assertEquals("23514", failure.getSQLState());
                     assertTrue(failure.getMessage().contains(entry.getValue()));
                 } finally {
@@ -1040,11 +1044,11 @@ class AdmissionPostgresTest {
     void narrowedFunctionsPreserveInheritedIntegrityPredicates() throws Exception {
         // Compare deployed bodies to the inherited source, permitting only reviewed SELECT
         // projections.
-        var resources = Path.of("src/main/resources/db");
+        var resources = Path.of("../../docs/archive/v3-sql-migrations/infra-postgres-write/db");
         var command =
                 Files.readString(
                         resources.resolve(
-                                "v3-consumption-write/migration/V5__consumption_foundation.sql"));
+                                "v3-invitation/migration/V10__invitation_history.sql"));
         var identity =
                 Files.readString(
                         resources.resolve(

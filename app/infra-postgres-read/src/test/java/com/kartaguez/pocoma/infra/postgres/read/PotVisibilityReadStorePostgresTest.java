@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 class PotVisibilityReadStorePostgresTest {
     @Container static final PostgreSQLContainer PG=ReadStoreFixture.container();
     @Test void historyAndKeyset() throws Exception {
-        var f=new ReadStoreFixture(PG,"5"); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=new UUID(2,1); var u=UUID.randomUUID(); var c=UUID.randomUUID();
+        var f=new ReadStoreFixture(PG); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=new UUID(2,1); var u=UUID.randomUUID(); var c=UUID.randomUUID();
         for(var v:List.of(new PotVisibility(p,1,Set.of(c,u)),new PotVisibility(p,2,Set.of(c)),new PotVisibility(p,3,Set.of(c,u)),new PotVisibility(p,4,Set.of()),new PotVisibility(p,2,Set.of(c))))
             f.write(() -> s.requireStored(s.apply(v)));
         assertEquals(new PotVisibility(p,4,Set.of()),f.tx.read(x -> s.read(p,x).orElseThrow()));
@@ -22,7 +22,7 @@ class PotVisibilityReadStorePostgresTest {
         f.evidence("P03-C/E/F/H/K keyset tombstones",f.oracle.queryForList("select * from read_user_pot order by pot_id,user_id"));
     }
     @Test void concurrentGuardAndAtomicReaders() throws Exception {
-        var f=new ReadStoreFixture(PG,"5"); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=UUID.randomUUID(); var a=UUID.randomUUID(); var b=UUID.randomUUID();
+        var f=new ReadStoreFixture(PG); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=UUID.randomUUID(); var a=UUID.randomUUID(); var b=UUID.randomUUID();
         try(var pool=Executors.newVirtualThreadPerTaskExecutor()) {
             var entered=new CountDownLatch(1); var release=new CountDownLatch(1);
             var first=pool.submit(() -> { f.write(() -> { s.requireStored(s.apply(new PotVisibility(p,1,Set.of(a)))); entered.countDown(); try { if(!release.await(10,TimeUnit.SECONDS)) throw new IllegalStateException("barrier"); } catch(InterruptedException e) { throw new RuntimeException(e); } }); return true; });
@@ -40,7 +40,7 @@ class PotVisibilityReadStorePostgresTest {
         f.evidence("P03-A/B/G/L/N",f.tx.read(x -> s.read(p,x)));
     }
     @Test void plansAndProfiles() throws Exception {
-        var f=new ReadStoreFixture(PG,"5"); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=UUID.randomUUID(); var a=UUID.randomUUID();
+        var f=new ReadStoreFixture(PG); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=UUID.randomUUID(); var a=UUID.randomUUID();
         f.write(() -> s.apply(new PotVisibility(p,1,Set.of(a))));
         f.oracle.update("insert into read_user_pot select md5(n::text)::uuid,?,1,false from generate_series(1,10000) n on conflict do nothing",p);
         f.oracle.execute("analyze read_user_pot");
@@ -51,7 +51,7 @@ class PotVisibilityReadStorePostgresTest {
         f.evidence("P03-I/O visible-only physical plan",plan);
     }
     @Test void migrationAndPrivileges() throws Exception {
-        var f=new ReadStoreFixture(PG,"4"); assertEquals(1,f.migrate("5")); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=UUID.randomUUID();
+        var f=ReadStoreFixture.historical(PG,"4"); assertEquals(1,f.migrate("5")); var s=new JdbcPotVisibilityStore(f.source,f.tx); var p=UUID.randomUUID();
         f.write(() -> s.requireStored(s.apply(new PotVisibility(p,1,Set.of(UUID.randomUUID())))));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_user_pot','DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));
         assertEquals(2,f.oracle.queryForObject("select count(*) from pg_indexes where schemaname=current_schema() and indexname in ('read_visible_by_pot','read_visible_by_user')",Integer.class));

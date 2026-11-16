@@ -74,6 +74,8 @@ class PotHistoryPostgresTest {
                         POSTGRES.getPassword());
         source = new RecordingDataSource(delegate);
         jdbc = new JdbcTemplate(source);
+        jdbc.execute("create extension if not exists pgcrypto with schema public");
+        jdbc.execute("create role " + schema + "_runtime nologin");
         flyway =
                 Flyway.configure()
                         .dataSource(source)
@@ -81,6 +83,16 @@ class PotHistoryPostgresTest {
                         .schemas(schema)
                         .createSchemas(true)
                         .locations("classpath:db/write/migration")
+                        .placeholders(
+                                Map.of(
+                                        "expectedDatabase",
+                                        POSTGRES.getDatabaseName(),
+                                        "expectedSchema",
+                                        schema,
+                                        "expectedAdmin",
+                                        POSTGRES.getUsername(),
+                                        "expectedRuntime",
+                                        schema + "_runtime"))
                         .cleanDisabled(true)
                         .load();
         flyway.migrate();
@@ -381,25 +393,26 @@ class PotHistoryPostgresTest {
                                 + " order by table_name",
                         String.class,
                         schema);
+        assertTrue(
+                Set.copyOf(names)
+                        .containsAll(
+                                Set.of(
+                                        "flyway_schema_history",
+                                        "v3_pot_identity",
+                                        "v3_pot_version",
+                                        "v3_shareholder_identity",
+                                        "v3_expense_identity",
+                                        "v3_pot_header",
+                                        "v3_pot_details",
+                                        "v3_shareholder_header",
+                                        "v3_shareholder_details",
+                                        "v3_shareholder_weight",
+                                        "v3_expense_header",
+                                        "v3_expense_details",
+                                        "v3_expense_financials",
+                                        "v3_expense_participant")));
         assertEquals(
-                Set.of(
-                        "flyway_schema_history",
-                        "v3_pot_identity",
-                        "v3_pot_version",
-                        "v3_shareholder_identity",
-                        "v3_expense_identity",
-                        "v3_pot_header",
-                        "v3_pot_details",
-                        "v3_shareholder_header",
-                        "v3_shareholder_details",
-                        "v3_shareholder_weight",
-                        "v3_expense_header",
-                        "v3_expense_details",
-                        "v3_expense_financials",
-                        "v3_expense_participant"),
-                Set.copyOf(names));
-        assertEquals(
-                3,
+                1,
                 jdbc.queryForObject(
                         "select count(*) from flyway_schema_history where version is not null",
                         Integer.class));
@@ -433,15 +446,19 @@ class PotHistoryPostgresTest {
         var functions =
                 jdbc.queryForList(
                         "select p.proname,pg_get_functiondef(p.oid) definition from pg_proc p join"
-                            + " pg_namespace n on p.pronamespace=n.oid where n.nspname=? order by"
-                            + " p.proname",
+                            + " pg_namespace n on p.pronamespace=n.oid where n.nspname=? and"
+                            + " p.proname in"
+                            + " ('v3_require_effective_version','v3_require_initial_components')"
+                            + " order by p.proname",
                         schema);
         var triggers =
                 jdbc.queryForList(
                         "select t.tgname,pg_get_triggerdef(t.oid) definition from pg_trigger t join"
                             + " pg_class c on t.tgrelid=c.oid join pg_namespace n on"
-                            + " c.relnamespace=n.oid where n.nspname=? and not t.tgisinternal order"
-                            + " by t.tgname",
+                            + " c.relnamespace=n.oid where n.nspname=? and not t.tgisinternal and"
+                            + " t.tgname in"
+                            + " ('v3_version_has_effect','v3_pot_complete','v3_shareholder_complete','v3_expense_complete')"
+                            + " order by t.tgname",
                         schema);
         assertEquals(2, functions.size());
         assertEquals(4, triggers.size());

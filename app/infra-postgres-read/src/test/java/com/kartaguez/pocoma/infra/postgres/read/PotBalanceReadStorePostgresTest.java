@@ -14,7 +14,7 @@ class PotBalanceReadStorePostgresTest {
     final UUID a=new UUID(1,1),b=new UUID(1,2),z=new UUID(1,3);
     PotBalance value(UUID p,long v,Fraction n) { return new PotBalance(p,v,Map.of(a,n,b,Fraction.ZERO.subtract(n),z,Fraction.ZERO)); }
     @Test void historyAndRationals() throws Exception {
-        var f=new ReadStoreFixture(PG,"4"); var s=new JdbcPotBalanceStore(f.source,f.tx); var p=UUID.randomUUID();
+        var f=new ReadStoreFixture(PG); var s=new JdbcPotBalanceStore(f.source,f.tx); var p=UUID.randomUUID();
         var n=new Fraction(BigInteger.TEN.pow(40).add(BigInteger.valueOf(7)),BigInteger.valueOf(97));
         for(long v:new long[]{3,1,2,3}) f.write(() -> { s.insertOrVerify(value(p,v,n)); s.requireStored(p,v,Optional.of(value(p,v,n))); });
         for(long v:new long[]{1,2,3}) assertEquals(value(p,v,n),f.tx.read(c -> s.read(p,v,c).orElseThrow()));
@@ -27,7 +27,7 @@ class PotBalanceReadStorePostgresTest {
         f.evidence("P02 history exact rationals zero terminal",f.tx.read(c -> s.read(p,2,c)));
     }
     @Test void concurrentImmutablePublication() throws Exception {
-        var f=new ReadStoreFixture(PG,"4"); var s=new JdbcPotBalanceStore(f.source,f.tx); var p=UUID.randomUUID(); var v=value(p,1,new Fraction(17,19));
+        var f=new ReadStoreFixture(PG); var s=new JdbcPotBalanceStore(f.source,f.tx); var p=UUID.randomUUID(); var v=value(p,1,new Fraction(17,19));
         try(var pool=Executors.newVirtualThreadPerTaskExecutor()) {
             var start=new CountDownLatch(1);
             var x=pool.submit(() -> { start.await(); f.write(() -> s.insertOrVerify(v)); return true; });
@@ -39,7 +39,7 @@ class PotBalanceReadStorePostgresTest {
         f.evidence("P02-I concurrent immutable",v.values());
     }
     @Test void migrationAndPrivileges() throws Exception {
-        var f=new ReadStoreFixture(PG,"3"); var p=UUID.randomUUID(); var pv=new JdbcPotVersionStore(f.source,f.tx);
+        var f=ReadStoreFixture.historical(PG,"3"); var p=UUID.randomUUID(); var pv=new JdbcPotVersionStore(f.source,f.tx);
         var old=new PotVersion(p,1,1,1,false,List.of(),List.of(),Set.of(a),Set.of()); f.write(() -> pv.insertAndAdvance(old));
         assertEquals(1,f.migrate("4")); assertEquals(old,f.tx.read(c -> pv.read(p,1,c).orElseThrow()));
         assertFalse(f.oracle.queryForObject("select has_table_privilege(?,'read_pot_balance','UPDATE,DELETE,TRUNCATE')",Boolean.class,f.runtimeRole));

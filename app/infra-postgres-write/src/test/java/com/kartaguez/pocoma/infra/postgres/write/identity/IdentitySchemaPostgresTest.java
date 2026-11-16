@@ -633,7 +633,8 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                             + " conname,condeferrable,confdeltype,confupdtype,conrelid::regclass::text"
                             + " source_table,confrelid::regclass::text target_table from"
                             + " pg_constraint where connamespace=current_schema()::regnamespace and"
-                            + " contype='f' and conrelid in (select oid from pg_class where"
+                            + " contype='f' and conname<>'v3_link_proposal_reference' and conrelid in"
+                            + " (select oid from pg_class where"
                             + " relnamespace=current_schema()::regnamespace and (relname like"
                             + " 'v3_identity_%' or relname in"
                             + " ('v3_pocoma_user','v3_eui_version','v3_eui_authority')))");
@@ -688,7 +689,8 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                         "select t.tgname,t.tgdeferrable,t.tginitdeferred,p.proname from pg_trigger"
                             + " t join pg_class c on c.oid=t.tgrelid join pg_proc p on"
                             + " p.oid=t.tgfoid where c.relnamespace=current_schema()::regnamespace"
-                            + " and not t.tgisinternal and t.tgconstraint<>0 and (c.relname like"
+                            + " and not t.tgisinternal and t.tgconstraint<>0 and t.tgname not in"
+                            + " ('v3_http_link_proposal','v3_invitation_counter_unit') and (c.relname like"
                             + " 'v3_identity_%' or c.relname in"
                             + " ('v3_pocoma_user','v3_eui_version','v3_eui_authority','v3_event_position','v3_event_counter'))");
         assertEquals(

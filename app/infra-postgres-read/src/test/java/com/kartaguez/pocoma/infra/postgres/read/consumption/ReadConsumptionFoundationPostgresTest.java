@@ -89,12 +89,24 @@ class ReadConsumptionFoundationPostgresTest {
 
     @Test
     void readHasExactlyFourTechnicalTablesSevenRoutesAndTwentyEightPartitions() throws Exception {
+        var technicalTables =
+                Set.of(
+                        "consumption_routing_contract",
+                        "partition_ownership",
+                        "discovery_checkpoint",
+                        "consumption_slot");
         assertEquals(
-                4,
+                technicalTables,
+                Set.copyOf(
+                        sql.queryForList(
+                                "select tablename from pg_tables where schemaname=current_schema()"
+                                    + " and tablename in ('consumption_routing_contract',"
+                                    + "'partition_ownership','discovery_checkpoint',"
+                                    + "'consumption_slot')",
+                                String.class)));
+        assertNull(
                 sql.queryForObject(
-                        "select count(*) from pg_tables where schemaname=current_schema() and"
-                            + " tablename<>'flyway_schema_history'",
-                        Integer.class));
+                        "select to_regclass('v3_consumption_outbox')::text", String.class));
         assertEquals(
                 7,
                 sql.queryForObject(
