@@ -24,6 +24,7 @@ Les spécifications fonctionnelles et techniques du programme V3 sont conservée
 ## 3. Rapports d'implémentation, lots et décisions
 
 - **Distribution locale (`L7-LB`)** :
+  - **[Acte de clôture formel `L7_LB_CLOSED`](../v3/L7_LB_Closure_Act.md)** (`main` @ `59f68956`)
   - [L7-LB S1 — Java Naming Stabilization](../v3/L7_LB_S1_Java_Naming_Stabilization_Report.md)
   - [L7-LB S3 — SQL Baseline Consolidation](../v3/L7_LB_S3_SQL_Baseline_Consolidation_Report.md)
   - [L7-LB S4 — Product Documentation](../v3/L7_LB_S4_Product_Documentation_Report.md)
@@ -31,6 +32,11 @@ Les spécifications fonctionnelles et techniques du programme V3 sont conservée
   - [L7-LB S7 — Documentation Productization](L7_LB_S7_Documentation_Productization_Report.md)
   - [L7-LB — Distribution Qualification and Guarantees](../v3/L7_LB_Distribution_Qualification_and_Guarantees.md)
   - [L7 Local Playground — Réserves historiques](../v3/L7_Local_Playground_Reservations.md) · [API BFF](../v3/L7_Local_Playground_Public_API.md) · [Bruno](../v3/L7_Local_Playground_Bruno.md) · [Observabilité](../v3/L7_Local_Playground_Observability.md) · [Keycloak Diagnostics](../v3/L7_Local_Playground_Keycloak_Diagnostics.md) · [Recovery and Evidence](../v3/L7_Local_Playground_Recovery_and_Evidence.md)
+- **Audit résiduel L7 (`L7_RESIDUAL_AUDIT_READY`)** :
+  - [Matrice résiduelle de certification L7](../v3/L7_Residual_Certification_Matrix.md)
+  - [Audit de conformité SPEC-09](../v3/L7_SPEC09_Compliance_Audit.md)
+  - [Registre des réserves actualisé](../v3/L7_Reservations_Register_Updated.md)
+  - [Plan de terminaison L7](../v3/L7_Termination_Plan.md)
 - **Lots V3 (L0–L7)** : rapports de clôture, plans et manifestes conservés sous [`docs/v3/`](../v3/).
 - **Steps et plans historiques** : [`steps/`](steps/) (`completed/` et anciens `current/`) et [`plans/`](plans/).
 
