@@ -71,7 +71,7 @@ def tools(root, command, dry_run=False, *, build_required=True):
           'Start Docker; verify its context/socket permissions, then retry. No instance was changed.')
     probe('docker', ['compose', 'version', '--short'], 'Docker Compose plugin',
           'Install/enable the docker compose plugin (not only docker-compose), then retry.')
-    starting = command in ('start', 'upgrade-grafana') or (command == 'reset' and not dry_run)
+    starting = command in ('start', 'reload', 'upgrade-grafana') or (command == 'reset' and not dry_run)
     if starting:
         probe('docker', ['compose', '-f', '-', 'config', '--quiet'], 'Compose support for the distribution configuration',
               'Update the docker compose plugin to support JSON, limits, healthchecks and tmpfs, then retry.',
@@ -272,12 +272,12 @@ def instance(path, command, runtimes, roles, users):
             reject('PRE-MANIFEST-MISSING', 'Existing instance manifest', 'manifest absent')
         return None
     m = manifest(path)
-    if command in ('start', 'upgrade-grafana', 'bruno'):
+    if command in ('start', 'reload', 'upgrade-grafana', 'bruno'):
         if not (path / 'secrets.json').is_file():
             reject('PRE-SECRETS-MISSING', 'Original secrets.json for this instance', 'secrets absent',
                    'Restore the original secrets from backup; preserve data. Secrets will not be regenerated.')
         credentials(path / 'secrets.json', roles, users)
-    if command in ('start', 'upgrade-grafana'):
+    if command in ('start', 'reload', 'upgrade-grafana'):
         expected = {'write', 'read', 'issuer', *runtimes, 'metrics'}
         if not expected.issubset(m['ports']):
             reject('PRE-CONFIG-PORTS', 'Complete endpoint ports', 'missing manifest ports')

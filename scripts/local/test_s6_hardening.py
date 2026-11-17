@@ -196,13 +196,83 @@ class S6HardeningTests(unittest.TestCase):
         self.assertEqual('QUALIFIED', result['qualificationState'])
 
     def test_s64_dry_run_rejected_on_unsupported_commands(self):
-        for cmd in ('start', 'upgrade-grafana', 'status', 'stop', 'bruno', 'login', 'gui'):
+        for cmd in ('start', 'reload', 'upgrade-grafana', 'status', 'stop', 'bruno', 'login', 'gui'):
             with patch.object(sys, 'argv', ['runtime.py', cmd, '--dry-run']), \
                     patch.object(rt, 'prepare') as prepare_mock:
                 with self.assertRaises(SystemExit) as ctx:
                     rt.main()
                 self.assertEqual(2, ctx.exception.code)
                 prepare_mock.assert_not_called()
+
+    def test_reload_allows_java_only_change_and_forces_runtime_recreate(self):
+        m = make_manifest()
+        m['build'] = dict(sha='a' * 40, jars={'web-write': 'oldhash'})
+        m['catalogue'] = dict(pocoma_write='cat1', pocoma_read='cat2')
+        m['ports'] = dict(grafana=3000)
+        m['inputs'] = 'old-inputs'
+        m['owner'] = 'owner-1'
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)
+            evidence = path / 'runs/r-reload-ok'
+            evidence.mkdir(parents=True)
+
+            def fake_run(cmd, **_kwargs):
+                if cmd[:3] == ['git', 'diff', '--name-only']:
+                    return 'app/runtime-web-write/src/main/java/Foo.java\n' if cmd[-1] == 'app' else ''
+                if cmd[:3] == ['git', 'ls-files', '--others']:
+                    return ''
+                if cmd[:2] == ['git', 'rev-parse']:
+                    return 'b' * 40
+                if cmd[:2] == ['docker', 'ps']:
+                    return ''
+                return ''
+
+            def fake_package(_path, candidate, _evidence):
+                candidate['build'] = dict(sha=candidate['sha'], jars={'web-write': 'newhash'})
+
+            with patch.object(rt, 'ownership'), \
+                    patch.object(rt, 'source_hash', return_value='new-inputs'), \
+                    patch.object(rt, 'preflight', return_value='arm64'), \
+                    patch.object(rt, 'run', side_effect=fake_run), \
+                    patch.object(rt, 'package', side_effect=fake_package), \
+                    patch.object(rt, 'start', return_value=dict(state='READY', exit=0)) as start_mock:
+                result = rt.reload_instance(path, m, evidence)
+
+            self.assertEqual('READY', result['state'])
+            start_mock.assert_called_once()
+            self.assertTrue(start_mock.call_args.kwargs.get('force_recreate_runtimes'))
+            self.assertEqual('new-inputs', m['inputs'])
+            self.assertEqual('b' * 40, m['sha'])
+            self.assertTrue((evidence / 'reload.json').exists())
+
+    def test_reload_refuses_sql_or_infra_change(self):
+        for changed_app, changed_infra in [
+            ('app/infra-postgres-read/src/main/resources/db/read/migration/V2__test.sql\n', ''),
+            ('', 'scripts/local/bootstrap.py\n'),
+        ]:
+            m = make_manifest()
+            m['build'] = dict(sha='a' * 40, jars={'web-write': 'oldhash'})
+            m['catalogue'] = dict(pocoma_write='cat1', pocoma_read='cat2')
+            m['ports'] = dict(grafana=3000)
+            m['inputs'] = 'old-inputs'
+            with tempfile.TemporaryDirectory() as folder:
+                path = Path(folder)
+                evidence = path / 'runs/r-reload-refused'
+                evidence.mkdir(parents=True)
+
+                def fake_run(cmd, **_kwargs):
+                    if cmd[:3] == ['git', 'diff', '--name-only']:
+                        return changed_app if cmd[-1] == 'app' else changed_infra
+                    if cmd[:3] == ['git', 'ls-files', '--others']:
+                        return ''
+                    return ''
+
+                with patch.object(rt, 'ownership'), \
+                        patch.object(rt, 'source_hash', return_value='new-inputs'), \
+                        patch.object(rt, 'run', side_effect=fake_run):
+                    with self.assertRaisesRegex(rt.Refusal, 'RELOAD_RESET_REQUIRED'):
+                        rt.reload_instance(path, m, evidence)
+                self.assertTrue((evidence / 'reload-refused.json').exists())
 
 
 if __name__ == '__main__':

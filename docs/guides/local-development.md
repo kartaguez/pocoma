@@ -66,11 +66,22 @@ The Maven reactor under `app/` contains **42 child modules** and one aggregator.
 
 ### Recommended Java Inner Loop
 
-1. **Fast feedback (no full stack rebuild)**: iterate using targeted Maven slice tests (or `verify.py FAST`) backed by Testcontainers PostgreSQL.
-2. **Checking runtime composition**: if your change touches Spring wiring or multiple slices, check `runtime-monolith` or the affected `runtime-*` slice.
-3. **Validating in the 9-container playground**: once your slice tests pass, test end-to-end in `./pocoma-local`. Because `./pocoma-local` hashes `app/` to prevent stale deployments (`PRE-INPUT-DRIFT`), either:
-   - Reset your dev instance: `./pocoma-local reset --instance dev-feature --confirm RESET:dev-feature && ./pocoma-local start --instance dev-feature`
-   - Or spin up a fresh instance name: `./pocoma-local start --instance dev-v2`
+1. **Fast feedback (seconds, no full stack rebuild)**: iterate using targeted Maven slice tests (or `verify.py FAST`) backed by Testcontainers PostgreSQL.
+2. **Checking runtime composition**: if your change touches Spring wiring or multiple slices, run tests in `runtime-monolith` or the affected `runtime-*` slice.
+3. **Reloading the 9-container playground without losing data (Java-only changes)**: because `./pocoma-local start` enforces `PRE-INPUT-DRIFT` to protect existing instances from silent mismatches, use `reload` when you only modified Java code (no SQL migrations, `bootstrap.py`, Keycloak, or Docker config changes):
+
+   ```bash
+   ./pocoma-local reload --instance dev-feature
+   ```
+
+   `reload` rebuilds the 5 `runtime-*` JARs, recreates only the 5 JVM runtime containers (`postgres`, `keycloak`, `prometheus`, `grafana`, and your database volumes stay intact), verifies that the PostgreSQL schema did not drift (`DB-CATALOGUE-DRIFT`), and re-qualifies the instance.
+4. **Full reset (when SQL schemas, migrations, or infra config changed)**: `reload` refuses with `RELOAD_RESET_REQUIRED` if SQL or infrastructure inputs changed. In that case, reset your dev instance or spin up a fresh one:
+
+   ```bash
+   ./pocoma-local reset --instance dev-feature --confirm RESET:dev-feature
+   # or
+   ./pocoma-local start --instance dev-v2
+   ```
 
 ### Canonical Maven Verification Slices
 

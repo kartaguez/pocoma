@@ -121,7 +121,7 @@ def locked(instance, create=False):
 
 @contextmanager
 def lifecycle_lock(command):
-    if command not in ('start', 'upgrade-grafana', 'reset', 'destroy'):
+    if command not in ('start', 'reload', 'upgrade-grafana', 'reset', 'destroy'):
         yield
         return
     with (HOME_LOCAL / 'lifecycle.lock').open('a') as lock:
@@ -761,7 +761,62 @@ def upgrade_grafana(path, m, evidence):
     return start(path, m, evidence)
 
 
-def start(path, m, evidence):
+def reload_instance(path, m, evidence):
+    """Rebuild and recreate only the 5 runtime containers when SQL/infra inputs are unchanged."""
+    ownership(m)
+    baseline = m.get('build', {}).get('sha', '')
+    if not re.fullmatch(r'[0-9a-f]{40}', baseline):
+        raise Refusal('PRE-TOOLING-BASELINE-UNPROVEN')
+    if not m.get('catalogue'):
+        raise Refusal('RELOAD_BASELINE_UNPROVEN: start this instance first')
+    if 'grafana' not in m['ports']:
+        raise Refusal('GRAFANA_UPGRADE_REQUIRED: run upgrade-grafana --instance ' + m['instance'])
+    new_inputs = source_hash()
+    if m['inputs'] == new_inputs:
+        return start(path, m, evidence)
+    forbidden_roots = [
+        'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
+        'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+        'scripts/local/keycloak.py', 'scripts/local/auth.py',
+        'scripts/local/public_api.py',
+        'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json',
+    ]
+    try:
+        changed_infra = run(['git', 'diff', '--name-only', baseline, '--', *forbidden_roots]).splitlines()
+        changed_infra += run(['git', 'ls-files', '--others', '--exclude-standard', '--', *forbidden_roots]).splitlines()
+        changed_app = run(['git', 'diff', '--name-only', baseline, '--', 'app']).splitlines()
+        changed_app += run(['git', 'ls-files', '--others', '--exclude-standard', '--', 'app']).splitlines()
+    except RuntimeError:
+        raise Refusal('PRE-INPUT-DRIFT: tooling baseline unavailable') from None
+    changed_sql = [p for p in changed_app if '/src/test/' not in p and p.lower().endswith('.sql')]
+    incompatible = sorted(set(changed_infra) | set(changed_sql))
+    if incompatible:
+        save(evidence / 'reload-refused.json', dict(baseline=baseline, changedIncompatibleInputs=incompatible))
+        raise Refusal('RELOAD_RESET_REQUIRED: SQL or infrastructure inputs changed; run reset')
+    candidate = json.loads(json.dumps(m))
+    candidate['architecture'] = preflight(path, m)
+    active = run(['docker', 'ps', '-q', '--filter', 'label=' + LABEL]).splitlines()
+    for resource in active:
+        value, = docker_json('inspect', resource)
+        if value['Config']['Labels'].get(LABEL) != m['owner']:
+            raise Refusal('PRE-OTHER-PLAYGROUND-ACTIVE: stop the other instance first')
+    candidate['inputs'] = new_inputs
+    candidate['sha'] = run(['git', 'rev-parse', 'HEAD'])
+    package(path, candidate, evidence)
+    save(evidence / 'reload.json', dict(
+        baseline=baseline,
+        previousInputs=m['inputs'],
+        inputs=candidate['inputs'],
+        sha=candidate['sha'],
+        jars=candidate['build']['jars'],
+    ))
+    m.clear()
+    m.update(candidate)
+    save(path / 'manifest.json', m)
+    return start(path, m, evidence, force_recreate_runtimes=True)
+
+
+def start(path, m, evidence, *, force_recreate_runtimes=False):
     history_file = path / 'start-history.json'
     history = read(history_file) if history_file.exists() else {}
     attempt = dict(runId=evidence.name, startedAt=time.time(), state='STARTING',
@@ -770,7 +825,7 @@ def start(path, m, evidence):
     save(history_file, history)
     save(evidence / 'start-attempt.json', attempt)
     try:
-        result = start_distribution(path, m, evidence)
+        result = start_distribution(path, m, evidence, force_recreate_runtimes=force_recreate_runtimes)
         attempt.update(state='SUCCEEDED' if result['exit'] == 0 else 'FAILED',
                        completedAt=time.time(), generationId=result['canaryProof']['generationId'])
         if result['exit'] == 0:
@@ -806,7 +861,7 @@ def start(path, m, evidence):
         save(evidence / 'start-attempt.json', attempt)
 
 
-def start_distribution(path, m, evidence):
+def start_distribution(path, m, evidence, *, force_recreate_runtimes=False):
     if m['inputs'] != source_hash():
         refresh_tooling(path, m, evidence)
     if 'grafana' not in m['ports']:
@@ -844,7 +899,11 @@ def start_distribution(path, m, evidence):
     compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     await_check(lambda: discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = identities(m['issuer'], lambda data: save(evidence / 'keycloak-auth.json', data))
-    compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', 'grafana', log=evidence / 'runtimes-up.log')
+    if force_recreate_runtimes:
+        compose(path, m, 'up', '-d', '--force-recreate', *RUNTIMES, log=evidence / 'runtimes-up.log')
+        compose(path, m, 'up', '-d', 'prometheus', 'grafana', log=evidence / 'observability-up.log')
+    else:
+        compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', 'grafana', log=evidence / 'runtimes-up.log')
     observed_catalogue = catalogue(path, m)
     if m.get('catalogue') and m['catalogue'] != observed_catalogue:
         raise Refusal('DB-CATALOGUE-DRIFT')
@@ -1214,7 +1273,7 @@ def prepare(command, instance, dry_run=False):
     safe_tree(HOME_LOCAL)
     safe_tree(path)
     m = prerequisites.instance(path, command, RUNTIMES, ROLES, LOCAL_USERS)
-    starting = command in ('start', 'upgrade-grafana') or (command == 'reset' and not dry_run)
+    starting = command in ('start', 'reload', 'upgrade-grafana') or (command == 'reset' and not dry_run)
     build_required = False
     if starting:
         prerequisites.sources(ROOT, RUNTIMES)
@@ -1237,7 +1296,7 @@ def prepare(command, instance, dry_run=False):
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(prog='pocoma-local', description=__doc__)
-    parser.add_argument('command', choices=['start', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
+    parser.add_argument('command', choices=['start', 'reload', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
@@ -1270,6 +1329,8 @@ def main():
             evidence.mkdir(parents=True)
             if args.command == 'start':
                 result = start(path, m, evidence)
+            elif args.command == 'reload':
+                result = reload_instance(path, m, evidence)
             elif args.command == 'upgrade-grafana':
                 result = upgrade_grafana(path, m, evidence)
             elif args.command == 'status':
@@ -1305,10 +1366,10 @@ def main():
             result.update(instance=instance, project=m['project'], sha=run(['git', 'rev-parse', 'HEAD']),
                           dirty=bool(run(['git', 'status', '--porcelain'])), urls=dict(zip(('write', 'read'), urls(m))),
                           issuer=m.get('issuer'), evidence=str(evidence))
-            if args.command in ('start', 'upgrade-grafana', 'status', 'gui', 'login') and m.get('issuer'):
+            if args.command in ('start', 'reload', 'upgrade-grafana', 'status', 'gui', 'login') and m.get('issuer'):
                 result.update(access(m['issuer']))
                 result['grafana'] = grafana.access(m)
-                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'upgrade-grafana', 'status') else None
+                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'reload', 'upgrade-grafana', 'status') else None
             save(evidence / 'receipt.json', result)
             if result['exit']:
                 diagnostics(path, m, evidence)

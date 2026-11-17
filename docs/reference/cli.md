@@ -7,7 +7,7 @@ The `./pocoma-local` command-line interface (implemented by [`scripts/local/entr
 ```text
 usage: pocoma-local [-h] [--instance INSTANCE] [--confirm CONFIRM] [--dry-run]
                     [--interactive] [--run RUN]
-                    {start,upgrade-grafana,status,stop,reset,destroy,bruno,login,gui}
+                    {start,reload,upgrade-grafana,status,stop,reset,destroy,bruno,login,gui}
 ```
 
 | Option | Default / Format | Scope & Behavior |
@@ -24,6 +24,7 @@ usage: pocoma-local [-h] [--instance INSTANCE] [--confirm CONFIRM] [--dry-run]
 | Subcommand | Actual Effect | Examples |
 | :--- | :--- | :--- |
 | `start` | Checks prerequisites and locks, builds if needed, initializes PostgreSQL (`pocoma_write`/`pocoma_read`), Keycloak, the 5 JVMs, Prometheus, and Grafana, then runs the `READY` check and canary. On an existing instance, verifies PostgreSQL health, performs a bounded restart of runtimes left fail-closed (`draining` or `http-write` admission capacity depleted), and re-qualifies the canary; refuses cleanly (`exit code 2`) on input drift or incompatible schema. | `./pocoma-local start --instance demo` |
+| `reload` | Java inner-loop reload: rebuilds the 5 `runtime-*` JARs and recreates only the 5 JVM runtime containers while preserving PostgreSQL, Keycloak, Prometheus, Grafana, and data volumes. Refuses (`RELOAD_RESET_REQUIRED`) if SQL migrations or infrastructure/config inputs changed, and verifies `DB-CATALOGUE-DRIFT` before re-qualifying the canary. | `./pocoma-local reload --instance dev-feature` |
 | `status` | Inspects container availability, runtime/worker state (including `draining`), exposed URLs, and the canary result (or a given `--run`). Explicitly distinguishes `operationalState` / `operational` (services, workers, dependencies) from `qualificationState` / `qualification` (`QUALIFIED`, `STALE`, `GENERATION_MISMATCH`, `UNQUALIFIED`, `MAX_AGE=300 s`). | `./pocoma-local status --instance demo`<br>`./pocoma-local status --instance demo --run <run-id>` |
 | `stop` | Cleanly stops the instance's containers while preserving PostgreSQL, Keycloak, Prometheus volumes, and local secrets. | `./pocoma-local stop --instance demo` |
 | `upgrade-grafana` | Updates Grafana configuration and dashboards for the instance without touching business data or resetting databases. | `./pocoma-local upgrade-grafana --instance demo` |
