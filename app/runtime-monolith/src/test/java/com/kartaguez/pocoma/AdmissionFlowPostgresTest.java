@@ -159,22 +159,32 @@ class AdmissionFlowPostgresTest {
         var terminal = poll("/identity/requests/" + id + "/result", subject, null);
         assertEquals("COMPLETED", terminal.get("outcome").asText());
         long targetVersion = terminal.get("targetVersion").asLong();
+        var binding = pollActiveBinding(subject, targetVersion);
+        if (subject.equals("owner")) {
+            token = binding.get("bindingToken").asText();
+        }
+        return id;
+    }
+
+    private JsonNode pollActiveBinding(String subject, long targetVersion) throws Exception {
         long end = System.nanoTime() + Duration.ofSeconds(20).toNanos();
         do {
             var response =
                     http.request("GET", "/me/binding", http.jwt(subject), null, null, Map.of());
             assertTrue(response.statusCode() == 200 || response.statusCode() == 404);
-            var binding = http.body(response);
-            if (response.statusCode() == 200
-                    && binding.get("active").asBoolean()
-                    && binding.get("euiVersion").asLong() >= targetVersion) {
-                if (subject.equals("owner")) token = binding.get("bindingToken").asText();
-                return id;
+            var binding = response.statusCode() == 200 ? http.body(response) : null;
+            if (binding != null && isActiveBindingReady(binding, targetVersion)) {
+                return binding;
             }
             Thread.sleep(50);
         } while (System.nanoTime() < end);
         fail("CurrentBinding deadline");
         return null;
+    }
+
+    private static boolean isActiveBindingReady(JsonNode binding, long targetVersion) {
+        return binding.get("active").asBoolean()
+                && binding.get("euiVersion").asLong() >= targetVersion;
     }
 
     Map<String, String> fraction(int n, int d) {
@@ -234,6 +244,17 @@ class AdmissionFlowPostgresTest {
     void allElevenPotOperationsThroughWorker() throws Exception {
         start();
         register("owner");
+        executePotAndShareholderLifecycle();
+        executeExpenseLifecycle();
+        execute("DeleteShareholder", Map.of("id", share.toString()));
+        execute("DeletePot", Map.of());
+        assertEquals(
+                11,
+                worker.write.queryForObject(
+                        "select count(distinct operation) from v3_command", Integer.class));
+    }
+
+    private void executePotAndShareholderLifecycle() throws Exception {
         execute("CreatePot", Map.of("label", "Pot"));
         execute("UpdatePotDetails", Map.of("label", "Updated"));
         execute(
@@ -267,6 +288,9 @@ class AdmissionFlowPostgresTest {
                 Map.of(
                         "targets",
                         List.of(Map.of("id", share.toString(), "weight", fraction(2, 1)))));
+    }
+
+    private void executeExpenseLifecycle() throws Exception {
         execute(
                 "CreateExpense",
                 Map.of(
@@ -297,12 +321,6 @@ class AdmissionFlowPostgresTest {
                         "participants",
                         List.of(participant(share))));
         execute("DeleteExpense", Map.of("id", expense.toString()));
-        execute("DeleteShareholder", Map.of("id", share.toString()));
-        execute("DeletePot", Map.of());
-        assertEquals(
-                11,
-                worker.write.queryForObject(
-                        "select count(distinct operation) from v3_command", Integer.class));
     }
 
     void internalLink(String target) throws Exception {
@@ -347,6 +365,13 @@ class AdmissionFlowPostgresTest {
         poll("/identity/requests/" + id + "/result", "owner", null);
     }
 
+    private record DepartureSnapshot(
+            long historicalVersion,
+            List<Map<String, Object>> identity,
+            List<Map<String, Object>> expenses,
+            List<Map<String, Object>> participants,
+            List<Map<String, Object>> otherDetails) {}
+
     /** I4: qualify the delivered public DETACH contract, including the final affiliation. */
     @Test
     void voluntaryDeparturePreservesHistoryAndIdentity() throws Exception {
@@ -380,86 +405,7 @@ class AdmissionFlowPostgresTest {
                                         fraction(1, 1)))));
         register("member");
         String memberToken = get("/me/binding", "member", null).get("bindingToken").asText();
-        // Controlled historical WRITE fixture only: ordinary SELF cannot admit an outsider.
-        var fixtureSource =
-                new DriverManagerDataSource(worker.writeUrl, PG.getUsername(), PG.getPassword());
-        var fixtureManager = new DataSourceTransactionManager(fixtureSource);
-        fixtureManager.setNestedTransactionAllowed(false);
-        var fixtureOwner = new SpringAttemptTransactions(fixtureSource, fixtureManager, 5);
-        var initialAffiliation =
-                fixtureOwner.read(
-                        context -> {
-                            var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
-                            var shareholderId =
-                                    new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(
-                                            memberShare);
-                            var history =
-                                    new com.kartaguez.pocoma.infra.postgres.write
-                                            .JdbcPotHistoryAdapter(fixtureSource);
-                            var member =
-                                    new com.kartaguez.pocoma.domain.pot.value.UserId(
-                                            worker.write.queryForObject(
-                                                    "select user_id from v3_eui_authority a join"
-                                                        + " v3_eui_version v on a.eui_id=v.eui_id"
-                                                        + " and a.current_version=v.version where"
-                                                        + " a.issuer=? and a.subject=?",
-                                                    UUID.class,
-                                                    http.issuer,
-                                                    "member"));
-                            var selected =
-                                    history.current(
-                                                    potId,
-                                                    member,
-                                                    new com.kartaguez.pocoma.engine.write.pot.port
-                                                            .persistence.PotHistoryPort
-                                                            .Selection(
-                                                            Set.of(shareholderId),
-                                                            Set.of(),
-                                                            false,
-                                                            true,
-                                                            false,
-                                                            false,
-                                                            false))
-                                            .orElseThrow();
-                            var target = selected.shareholders().get(shareholderId);
-                            var details =
-                                    ((com.kartaguez.pocoma.domain.pot.ComponentRead.Present<
-                                                            com.kartaguez.pocoma.domain.pot
-                                                                    .ShareholderDetails>)
-                                                    target.details())
-                                            .revision();
-                            var decision =
-                                    new com.kartaguez.pocoma.domain.pot
-                                                    .AttachShareholderViaInvitation(shareholderId)
-                                            .decide(selected.facts(), target.reference(), details);
-                            var changed =
-                                    (com.kartaguez.pocoma.domain.pot.TransitionResult.Changed<
-                                                    Map<
-                                                            com.kartaguez.pocoma.domain.pot.value.id
-                                                                    .ShareholderId,
-                                                            com.kartaguez.pocoma.domain.pot
-                                                                            .Versioned<
-                                                                    com.kartaguez.pocoma.domain.pot
-
-                                                                            .ShareholderDetails>>>)
-                                            decision;
-                            return changed;
-                        });
-        fixtureOwner.write(
-                () -> {
-                    var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
-                    assertTrue(
-                            new com.kartaguez.pocoma.infra.postgres.write
-                                            .JdbcPotCommandStore(fixtureSource, fixtureOwner)
-                                    .protectPot(potId, version));
-                    var revisions =
-                            new com.kartaguez.pocoma.infra.postgres.write
-                                    .JdbcPotRevisionAdapter(fixtureSource);
-                    revisions.recordVersion(potId, version, version + 1, Instant.now());
-                    revisions.reviseShareholderDetails(potId, initialAffiliation);
-                    return null;
-                });
-        version++;
+        attachMemberViaControlledWriteFixture(memberShare);
         token = creatorToken;
         execute(
                 "CreateExpense",
@@ -476,22 +422,108 @@ class AdmissionFlowPostgresTest {
                         memberShare.toString(),
                         "participants",
                         List.of(participant(share), participant(memberShare))));
-        long historicalVersion = version;
-        var identity =
-                worker.write.queryForList("select * from v3_eui_version order by eui_id,version");
-        var expenses =
+        var snapshot = captureDepartureSnapshot();
+        token = memberToken;
+        verifyMemberDeparture(memberShare, snapshot);
+        token = creatorToken;
+        verifyFinalCreatorDeparture(snapshot);
+    }
+
+    private void attachMemberViaControlledWriteFixture(UUID memberShare) {
+        // Controlled historical WRITE fixture only: ordinary SELF cannot admit an outsider.
+        var fixtureSource =
+                new DriverManagerDataSource(worker.writeUrl, PG.getUsername(), PG.getPassword());
+        var fixtureManager = new DataSourceTransactionManager(fixtureSource);
+        fixtureManager.setNestedTransactionAllowed(false);
+        var fixtureOwner = new SpringAttemptTransactions(fixtureSource, fixtureManager, 5);
+        var initialAffiliation =
+                fixtureOwner.read(context -> computeMemberAttachment(fixtureSource, memberShare));
+        fixtureOwner.write(
+                () -> {
+                    var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
+                    assertTrue(
+                            new com.kartaguez.pocoma.infra.postgres.write.JdbcPotCommandStore(
+                                            fixtureSource, fixtureOwner)
+                                    .protectPot(potId, version));
+                    var revisions =
+                            new com.kartaguez.pocoma.infra.postgres.write.JdbcPotRevisionAdapter(
+                                    fixtureSource);
+                    revisions.recordVersion(potId, version, version + 1, Instant.now());
+                    revisions.reviseShareholderDetails(potId, initialAffiliation);
+                    return null;
+                });
+        version++;
+    }
+
+    @SuppressWarnings("unchecked")
+    private com.kartaguez.pocoma.domain.pot.TransitionResult.Changed<
+                    Map<
+                            com.kartaguez.pocoma.domain.pot.value.id.ShareholderId,
+                            com.kartaguez.pocoma.domain.pot.Versioned<
+                                    com.kartaguez.pocoma.domain.pot.ShareholderDetails>>>
+            computeMemberAttachment(DriverManagerDataSource fixtureSource, UUID memberShare) {
+        var potId = new com.kartaguez.pocoma.domain.pot.value.id.PotId(pot);
+        var shareholderId =
+                new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(memberShare);
+        var history =
+                new com.kartaguez.pocoma.infra.postgres.write.JdbcPotHistoryAdapter(fixtureSource);
+        var member =
+                new com.kartaguez.pocoma.domain.pot.value.UserId(
+                        worker.write.queryForObject(
+                                "select user_id from v3_eui_authority a join v3_eui_version v"
+                                        + " on a.eui_id=v.eui_id and a.current_version=v.version"
+                                        + " where a.issuer=? and a.subject=?",
+                                UUID.class,
+                                http.issuer,
+                                "member"));
+        var selected =
+                history.current(
+                                potId,
+                                member,
+                                new com.kartaguez.pocoma.engine.write.pot.port.persistence
+                                        .PotHistoryPort.Selection(
+                                        Set.of(shareholderId),
+                                        Set.of(),
+                                        false,
+                                        true,
+                                        false,
+                                        false,
+                                        false))
+                        .orElseThrow();
+        var target = selected.shareholders().get(shareholderId);
+        var details =
+                ((com.kartaguez.pocoma.domain.pot.ComponentRead.Present<
+                                        com.kartaguez.pocoma.domain.pot.ShareholderDetails>)
+                                target.details())
+                        .revision();
+        var decision =
+                new com.kartaguez.pocoma.domain.pot.AttachShareholderViaInvitation(shareholderId)
+                        .decide(selected.facts(), target.reference(), details);
+        return (com.kartaguez.pocoma.domain.pot.TransitionResult.Changed<
+                        Map<
+                                com.kartaguez.pocoma.domain.pot.value.id.ShareholderId,
+                                com.kartaguez.pocoma.domain.pot.Versioned<
+                                        com.kartaguez.pocoma.domain.pot.ShareholderDetails>>>)
+                decision;
+    }
+
+    private DepartureSnapshot captureDepartureSnapshot() {
+        return new DepartureSnapshot(
+                version,
+                worker.write.queryForList("select * from v3_eui_version order by eui_id,version"),
                 worker.write.queryForList(
-                        "select * from v3_expense_financials order by revision_id");
-        var participants =
+                        "select * from v3_expense_financials order by revision_id"),
                 worker.write.queryForList(
                         "select * from v3_expense_participant order by"
-                                + " financial_revision_id,shareholder_id");
-        var otherDetails =
+                                + " financial_revision_id,shareholder_id"),
                 worker.write.queryForList(
                         "select * from v3_shareholder_details where object_id=? order by"
                                 + " local_version",
-                        share);
-        token = memberToken;
+                        share));
+    }
+
+    private void verifyMemberDeparture(UUID memberShare, DepartureSnapshot snapshot)
+            throws Exception {
         var departure =
                 body(
                         "UpdateShareholderDetails",
@@ -509,44 +541,7 @@ class AdmissionFlowPostgresTest {
         var result = poll("/commands/" + departed + "/result", "member", null);
         assertEquals("COMPLETED", result.get("outcome").asText());
         version = result.get("resultingPotVersion").asLong();
-        assertEquals(historicalVersion + 1, version);
-        assertEquals(departed, accepted(post("/commands", "member", "member-depart", departure)));
-        assertNull(
-                worker.write.queryForObject(
-                        "select user_id from v3_shareholder_details where object_id=? and active_to"
-                                + " is null",
-                        UUID.class,
-                        memberShare));
-        assertEquals(
-                3,
-                worker.write.queryForObject(
-                        "select count(*) from v3_shareholder_details where object_id=?",
-                        Integer.class,
-                        memberShare));
-        assertFalse(
-                worker.write.queryForObject(
-                        "select deleted from v3_shareholder_header where object_id=? and active_to"
-                                + " is null",
-                        Boolean.class,
-                        memberShare));
-        assertEquals(
-                identity,
-                worker.write.queryForList("select * from v3_eui_version order by eui_id,version"));
-        assertEquals(
-                expenses,
-                worker.write.queryForList(
-                        "select * from v3_expense_financials order by revision_id"));
-        assertEquals(
-                participants,
-                worker.write.queryForList(
-                        "select * from v3_expense_participant order by"
-                                + " financial_revision_id,shareholder_id"));
-        assertEquals(
-                otherDetails,
-                worker.write.queryForList(
-                        "select * from v3_shareholder_details where object_id=? order by"
-                                + " local_version",
-                        share));
+        assertMemberDepartureState(memberShare, departed, departure, snapshot);
         UUID denied =
                 accepted(
                         post(
@@ -557,9 +552,61 @@ class AdmissionFlowPostgresTest {
         assertEquals(
                 "REJECTED",
                 poll("/commands/" + denied + "/result", "member", null).get("outcome").asText());
+    }
 
+    private void assertMemberDepartureState(
+            UUID memberShare, UUID departed, Map<String, Object> departure, DepartureSnapshot snapshot) {
+        assertAll(
+                () -> assertEquals(snapshot.historicalVersion() + 1, version),
+                () ->
+                        assertEquals(
+                                departed,
+                                accepted(post("/commands", "member", "member-depart", departure))),
+                () ->
+                        assertNull(
+                                worker.write.queryForObject(
+                                        "select user_id from v3_shareholder_details where object_id=? and active_to is null",
+                                        UUID.class,
+                                        memberShare)),
+                () ->
+                        assertEquals(
+                                3,
+                                worker.write.queryForObject(
+                                        "select count(*) from v3_shareholder_details where object_id=?",
+                                        Integer.class,
+                                        memberShare)),
+                () ->
+                        assertFalse(
+                                worker.write.queryForObject(
+                                        "select deleted from v3_shareholder_header where object_id=? and active_to is null",
+                                        Boolean.class,
+                                        memberShare)),
+                () ->
+                        assertEquals(
+                                snapshot.identity(),
+                                worker.write.queryForList(
+                                        "select * from v3_eui_version order by eui_id,version")),
+                () ->
+                        assertEquals(
+                                snapshot.expenses(),
+                                worker.write.queryForList(
+                                        "select * from v3_expense_financials order by revision_id")),
+                () ->
+                        assertEquals(
+                                snapshot.participants(),
+                                worker.write.queryForList(
+                                        "select * from v3_expense_participant order by"
+                                                + " financial_revision_id,shareholder_id")),
+                () ->
+                        assertEquals(
+                                snapshot.otherDetails(),
+                                worker.write.queryForList(
+                                        "select * from v3_shareholder_details where object_id=? order by local_version",
+                                        share)));
+    }
+
+    private void verifyFinalCreatorDeparture(DepartureSnapshot snapshot) throws Exception {
         // The creator is now the final affiliate; departure preserves independent creator rights.
-        token = creatorToken;
         execute(
                 "UpdateShareholderDetails",
                 Map.of(
@@ -572,26 +619,31 @@ class AdmissionFlowPostgresTest {
                                         "Creator",
                                         "attachment",
                                         "DETACH"))));
-        assertEquals(
-                0,
-                worker.write.queryForObject(
-                        "select count(*) from v3_shareholder_details where active_to is null and"
-                                + " user_id is not null",
-                        Integer.class));
-        assertEquals(
-                2,
-                worker.write.queryForObject(
-                        "select count(*) from v3_shareholder_header where active_to is null and not"
-                                + " deleted",
-                        Integer.class));
+        assertAll(
+                () ->
+                        assertEquals(
+                                0,
+                                worker.write.queryForObject(
+                                        "select count(*) from v3_shareholder_details where active_to is null and user_id is not null",
+                                        Integer.class)),
+                () ->
+                        assertEquals(
+                                2,
+                                worker.write.queryForObject(
+                                        "select count(*) from v3_shareholder_header where active_to is null and not deleted",
+                                        Integer.class)));
         execute("UpdatePotDetails", Map.of("label", "Creator still authorized"));
-        assertEquals(
-                identity,
-                worker.write.queryForList("select * from v3_eui_version order by eui_id,version"));
-        assertEquals(
-                expenses,
-                worker.write.queryForList(
-                        "select * from v3_expense_financials order by revision_id"));
+        assertAll(
+                () ->
+                        assertEquals(
+                                snapshot.identity(),
+                                worker.write.queryForList(
+                                        "select * from v3_eui_version order by eui_id,version")),
+                () ->
+                        assertEquals(
+                                snapshot.expenses(),
+                                worker.write.queryForList(
+                                        "select * from v3_expense_financials order by revision_id")));
     }
 
     @Test
@@ -678,19 +730,7 @@ class AdmissionFlowPostgresTest {
         start();
         register("owner");
         execute("CreatePot", Map.of("label", "Self"));
-        var targets = new ArrayList<Object>();
-        for (int n = 0; n < 101; n++)
-            targets.add(
-                    Map.of(
-                            "id",
-                            new UUID(0, 1000 + n).toString(),
-                            "name",
-                            "Owner " + n,
-                            "attachment",
-                            "SELF",
-                            "weight",
-                            fraction(1, 1)));
-        var result = execute("AddShareholders", Map.of("targets", targets));
+        var result = execute("AddShareholders", Map.of("targets", selfAttachmentTargets(101)));
         UUID request = UUID.fromString(result.get("requestId").asText());
         UUID oldUser =
                 worker.write.queryForObject("select user_id from v3_pocoma_user", UUID.class);
@@ -708,6 +748,43 @@ class AdmissionFlowPostgresTest {
         assertTrue(durable.contains("SELF"));
         assertFalse(durable.contains(oldUser.toString()));
         String oldToken = token;
+        unlinkAndReregisterOwner();
+        assertAll(
+                () -> assertNotEquals(oldToken, token),
+                () ->
+                        assertEquals(
+                                "COMPLETED",
+                                get("/commands/" + request + "/result", "owner", null)
+                                        .get("outcome")
+                                        .asText()),
+                () ->
+                        assertEquals(
+                                101,
+                                worker.write.queryForObject(
+                                        "select count(*) from v3_shareholder_details where user_id=?",
+                                        Integer.class,
+                                        oldUser)));
+        verifyStaleBindingRejected(oldToken);
+    }
+
+    private List<Object> selfAttachmentTargets(int count) {
+        var targets = new ArrayList<Object>(count);
+        for (int n = 0; n < count; n++) {
+            targets.add(
+                    Map.of(
+                            "id",
+                            new UUID(0, 1000 + n).toString(),
+                            "name",
+                            "Owner " + n,
+                            "attachment",
+                            "SELF",
+                            "weight",
+                            fraction(1, 1)));
+        }
+        return targets;
+    }
+
+    private void unlinkAndReregisterOwner() throws Exception {
         UUID unlink =
                 accepted(
                         post(
@@ -723,16 +800,9 @@ class AdmissionFlowPostgresTest {
                                         Map.of("issuer", http.issuer, "subject", "owner"))));
         poll("/identity/requests/" + unlink + "/result", "owner", null);
         register("owner");
-        assertNotEquals(oldToken, token);
-        assertEquals(
-                "COMPLETED",
-                get("/commands/" + request + "/result", "owner", null).get("outcome").asText());
-        assertEquals(
-                101,
-                worker.write.queryForObject(
-                        "select count(*) from v3_shareholder_details where user_id=?",
-                        Integer.class,
-                        oldUser));
+    }
+
+    private void verifyStaleBindingRejected(String oldToken) throws Exception {
         var stale =
                 new LinkedHashMap<>(
                         body(
@@ -788,13 +858,7 @@ class AdmissionFlowPostgresTest {
     void brunoB2PublicProtocol() throws Exception {
         start();
         var repo = java.nio.file.Path.of("../..").toAbsolutePath().normalize();
-        var output =
-                java.nio.file.Path.of(
-                                System.getProperty("pocoma.verification.reports", "target/reports"))
-                        .toAbsolutePath()
-                        .getParent();
-        java.nio.file.Files.createDirectories(output);
-        var brunoOutput = java.nio.file.Files.createTempDirectory(output, "bruno-b2-");
+        var brunoOutput = createBrunoOutputDir();
         var inputs = brunoInputs(repo);
         java.nio.file.Files.writeString(
                 brunoOutput.resolve("inputs-before.json"),
@@ -802,170 +866,236 @@ class AdmissionFlowPostgresTest {
         var signal = brunoOutput.resolve("controlled-internal-link");
         var receipts = brunoOutput.resolve("requests.jsonl");
         try (var threads = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
-            var link =
-                    threads.submit(
-                            () -> {
-                                try {
-                                    long end =
-                                            System.nanoTime() + Duration.ofSeconds(180).toNanos();
-                                    while (!java.nio.file.Files.exists(signal)
-                                            && System.nanoTime() < end) Thread.sleep(25);
-                                    if (!java.nio.file.Files.exists(signal))
-                                        throw new IllegalStateException(
-                                                "B2 internal fixture handshake deadline");
-                                    token =
-                                            worker.write.queryForObject(
-                                                    "select v.binding_token from v3_eui_authority a"
-                                                            + " join v3_eui_version v on"
-                                                            + " v.eui_id=a.eui_id and"
-                                                            + " v.version=a.current_version where"
-                                                            + " a.issuer=? and a.subject='owner'",
-                                                    String.class,
-                                                    http.issuer);
-                                    internalLink("same");
-                                    java.nio.file.Files.writeString(
-                                            signal.resolveSibling(signal.getFileName() + ".ready"),
-                                            "controlled-L3-link-completed");
-                                    return true;
-                                } catch (Exception failure) {
-                                    throw new IllegalStateException(
-                                            "B2 controlled L3 fixture failed");
-                                }
-                            });
-            var command =
-                    List.of(
-                            repo.resolve("scripts/bruno-v3/node_modules/.bin/bru").toString(),
-                            "run",
-                            "-r",
-                            "02 Admission and Commands",
-                            "--env",
-                            "Local",
-                            "--sandbox",
-                            "developer",
-                            "--noproxy",
-                            "--reporter-json",
-                            brunoOutput.resolve("bruno.json").toString(),
-                            "--reporter-skip-all-headers",
-                            "--reporter-skip-body");
-            var process =
-                    new ProcessBuilder(command)
-                            .directory(repo.resolve("scripts/bruno-v3").toFile());
-            var env = process.environment();
-            env.put("POCOMA_I2_BASE_URL", http.baseUrl);
-            env.put("POCOMA_I2_ISSUER", http.issuer);
-            env.put("POCOMA_I2_bearerOwner", http.jwt("owner"));
-            env.put("POCOMA_I2_bearerOther", http.jwt("other"));
-            env.put("POCOMA_I2_LINK_SIGNAL", signal.toString());
-            env.put("POCOMA_I2_REQUEST_RECEIPTS", receipts.toString());
-            env.put(
-                    "POCOMA_I2_HELPER",
-                    repo.resolve("scripts/bruno-v3/lib/i2-admission.js").toString());
+            var link = threads.submit(() -> awaitAndPerformControlledLink(signal));
+            var command = brunoB2Command(repo, brunoOutput);
+            var process = brunoB2Process(repo, command, signal, receipts);
             Instant began = Instant.now();
             long monotonic = System.nanoTime();
-            var running =
-                    process.redirectErrorStream(true)
-                            .redirectOutput(brunoOutput.resolve("bruno.log").toFile())
-                            .start();
-            boolean finished = running.waitFor(180, java.util.concurrent.TimeUnit.SECONDS);
-            if (!finished) {
-                running.destroyForcibly();
-                running.waitFor();
-            }
-            int exit = running.exitValue();
-            var actual = new ArrayList<String>();
-            int requests = 0;
-            if (java.nio.file.Files.exists(receipts))
-                for (String line : java.nio.file.Files.readAllLines(receipts)) {
-                    var r = json.readTree(line);
-                    actual.add(r.get("scenario").asText());
-                    requests += r.get("requests").asInt();
-                }
-            actual.sort(String::compareTo);
+            int exit = runProcessWithTimeout(process, brunoOutput.resolve("bruno.log"));
+            var actual = readActualScenarios(receipts);
             var expected =
                     java.util.stream.IntStream.rangeClosed(201, 224)
                             .mapToObj(n -> "B" + n)
                             .toList();
-            java.nio.file.Files.writeString(
-                    brunoOutput.resolve("receipt.json"),
-                    json.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString(
-                                    Map.of(
-                                            "command",
-                                            command,
-                                            "cliVersion",
-                                            "4.3.0",
-                                            "startedAt",
-                                            began.toString(),
-                                            "finishedAt",
-                                            Instant.now().toString(),
-                                            "monotonicSeconds",
-                                            (System.nanoTime() - monotonic) / 1e9,
-                                            "exit",
-                                            exit,
-                                            "expected",
-                                            expected,
-                                            "actual",
-                                            actual,
-                                            "requests",
-                                            requests,
-                                            "provenance",
-                                            "PUBLIC_ADMISSION_I2; internal Link fixture remains L3"
-                                                    + " only")));
+            writeBrunoReceipt(
+                    new BrunoReceipt(
+                            brunoOutput, command, began, monotonic, exit, expected, actual));
             if (exit != 0 || !actual.equals(expected)) {
                 link.cancel(true);
                 fail("B2 failed or incomplete; inspect retained reports");
             }
             assertTrue(link.get(5, java.util.concurrent.TimeUnit.SECONDS));
             assertEquals(inputs, brunoInputs(repo), "B2 executable inputs remained byte-identical");
-            long
-                    commands =
-                            worker.write.queryForObject(
-                                    "select count(*) from v3_command", Long.class),
-                    identities =
-                            worker.write.queryForObject(
-                                    "select count(*) from v3_identity_request", Long.class),
-                    associations =
-                            worker.write.queryForObject(
-                                    "select count(*) from v3_admission_association", Long.class);
-            assertEquals(
-                    commands + identities - 1,
-                    associations,
-                    "one controlled internal Link has no public association");
-            assertEquals(
-                    0,
+            verifyBrunoSqlAssociations(brunoOutput);
+            verifyNoLeakedSecrets(brunoOutput, process.environment());
+        }
+    }
+
+    private static java.nio.file.Path createBrunoOutputDir() throws Exception {
+        var output =
+                java.nio.file.Path.of(
+                                System.getProperty("pocoma.verification.reports", "target/reports"))
+                        .toAbsolutePath()
+                        .getParent();
+        java.nio.file.Files.createDirectories(output);
+        return java.nio.file.Files.createTempDirectory(output, "bruno-b2-");
+    }
+
+    private boolean awaitAndPerformControlledLink(java.nio.file.Path signal) {
+        try {
+            long end = System.nanoTime() + Duration.ofSeconds(180).toNanos();
+            while (!java.nio.file.Files.exists(signal) && System.nanoTime() < end) {
+                Thread.sleep(25);
+            }
+            if (!java.nio.file.Files.exists(signal)) {
+                throw new IllegalStateException("B2 internal fixture handshake deadline");
+            }
+            token =
                     worker.write.queryForObject(
-                            "select count(*) from v3_admission_association a left join v3_command c"
+                            "select v.binding_token from v3_eui_authority a join v3_eui_version v"
+                                    + " on v.eui_id=a.eui_id and v.version=a.current_version where"
+                                    + " a.issuer=? and a.subject='owner'",
+                            String.class,
+                            http.issuer);
+            internalLink("same");
+            java.nio.file.Files.writeString(
+                    signal.resolveSibling(signal.getFileName() + ".ready"),
+                    "controlled-L3-link-completed");
+            return true;
+        } catch (Exception failure) {
+            throw new IllegalStateException("B2 controlled L3 fixture failed");
+        }
+    }
+
+    private static List<String> brunoB2Command(
+            java.nio.file.Path repo, java.nio.file.Path brunoOutput) {
+        return List.of(
+                repo.resolve("scripts/bruno-v3/node_modules/.bin/bru").toString(),
+                "run",
+                "-r",
+                "02 Admission and Commands",
+                "--env",
+                "Local",
+                "--sandbox",
+                "developer",
+                "--noproxy",
+                "--reporter-json",
+                brunoOutput.resolve("bruno.json").toString(),
+                "--reporter-skip-all-headers",
+                "--reporter-skip-body");
+    }
+
+    private ProcessBuilder brunoB2Process(
+            java.nio.file.Path repo,
+            List<String> command,
+            java.nio.file.Path signal,
+            java.nio.file.Path receipts)
+            throws Exception {
+        var process =
+                new ProcessBuilder(command).directory(repo.resolve("scripts/bruno-v3").toFile());
+        var env = process.environment();
+        env.put("POCOMA_I2_BASE_URL", http.baseUrl);
+        env.put("POCOMA_I2_ISSUER", http.issuer);
+        env.put("POCOMA_I2_bearerOwner", http.jwt("owner"));
+        env.put("POCOMA_I2_bearerOther", http.jwt("other"));
+        env.put("POCOMA_I2_LINK_SIGNAL", signal.toString());
+        env.put("POCOMA_I2_REQUEST_RECEIPTS", receipts.toString());
+        env.put(
+                "POCOMA_I2_HELPER",
+                repo.resolve("scripts/bruno-v3/lib/i2-admission.js").toString());
+        return process;
+    }
+
+    private static int runProcessWithTimeout(ProcessBuilder process, java.nio.file.Path logFile)
+            throws Exception {
+        var running = process.redirectErrorStream(true).redirectOutput(logFile.toFile()).start();
+        boolean finished = running.waitFor(180, java.util.concurrent.TimeUnit.SECONDS);
+        if (!finished) {
+            running.destroyForcibly();
+            running.waitFor();
+        }
+        return running.exitValue();
+    }
+
+    private record ScenarioRun(List<String> actual, int requests) {}
+
+    private ScenarioRun readScenarioRun(java.nio.file.Path receipts) throws Exception {
+        var actual = new ArrayList<String>();
+        int requests = 0;
+        if (java.nio.file.Files.exists(receipts)) {
+            for (String line : java.nio.file.Files.readAllLines(receipts)) {
+                var r = json.readTree(line);
+                actual.add(r.get("scenario").asText());
+                requests += r.get("requests").asInt();
+            }
+        }
+        actual.sort(String::compareTo);
+        return new ScenarioRun(actual, requests);
+    }
+
+    private List<String> readActualScenarios(java.nio.file.Path receipts) throws Exception {
+        return readScenarioRun(receipts).actual();
+    }
+
+    private record BrunoReceipt(
+            java.nio.file.Path output,
+            List<String> command,
+            Instant began,
+            long monotonic,
+            int exit,
+            List<String> expected,
+            List<String> actual) {}
+
+    private void writeBrunoReceipt(BrunoReceipt receipt) throws Exception {
+        int requests = readScenarioRun(receipt.output().resolve("requests.jsonl")).requests();
+        java.nio.file.Files.writeString(
+                receipt.output().resolve("receipt.json"),
+                json.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(
+                                Map.of(
+                                        "command",
+                                        receipt.command(),
+                                        "cliVersion",
+                                        "4.3.0",
+                                        "startedAt",
+                                        receipt.began().toString(),
+                                        "finishedAt",
+                                        Instant.now().toString(),
+                                        "monotonicSeconds",
+                                        (System.nanoTime() - receipt.monotonic()) / 1e9,
+                                        "exit",
+                                        receipt.exit(),
+                                        "expected",
+                                        receipt.expected(),
+                                        "actual",
+                                        receipt.actual(),
+                                        "requests",
+                                        requests,
+                                        "provenance",
+                                        "PUBLIC_ADMISSION_I2; internal Link fixture remains L3"
+                                                + " only")));
+    }
+
+    private void verifyBrunoSqlAssociations(java.nio.file.Path brunoOutput) throws Exception {
+        long commands =
+                worker.write.queryForObject("select count(*) from v3_command", Long.class);
+        long identities =
+                worker.write.queryForObject(
+                        "select count(*) from v3_identity_request", Long.class);
+        long associations =
+                worker.write.queryForObject(
+                        "select count(*) from v3_admission_association", Long.class);
+        assertEquals(
+                commands + identities - 1,
+                associations,
+                "one controlled internal Link has no public association");
+        assertEquals(
+                0,
+                worker.write.queryForObject(
+                        "select count(*) from v3_admission_association a left join v3_command c"
                                 + " on a.command_id=c.request_id left join v3_identity_request i on"
                                 + " a.identity_request_id=i.request_id where c.request_id is null"
                                 + " and i.request_id is null",
-                            Integer.class));
-            java.nio.file.Files.writeString(
-                    brunoOutput.resolve("sql-observer.json"),
-                    json.writeValueAsString(
-                            Map.of(
-                                    "commands",
-                                    commands,
-                                    "identityRequests",
-                                    identities,
-                                    "associations",
-                                    associations,
-                                    "controlledInternalLink",
-                                    1,
-                                    "orphans",
-                                    0)));
-            for (var file :
-                    java.nio.file.Files.list(brunoOutput)
-                            .filter(java.nio.file.Files::isRegularFile)
-                            .toList()) {
-                String content = java.nio.file.Files.readString(file);
-                for (String secret :
-                        List.of(
-                                env.get("POCOMA_I2_bearerOwner"),
-                                env.get("POCOMA_I2_bearerOther"),
-                                token))
-                    assertFalse(content.contains(secret), "B2 export contains sensitive material");
+                        Integer.class));
+        java.nio.file.Files.writeString(
+                brunoOutput.resolve("sql-observer.json"),
+                json.writeValueAsString(
+                        Map.of(
+                                "commands",
+                                commands,
+                                "identityRequests",
+                                identities,
+                                "associations",
+                                associations,
+                                "controlledInternalLink",
+                                1,
+                                "orphans",
+                                0)));
+    }
+
+    private void verifyNoLeakedSecrets(
+            java.nio.file.Path brunoOutput, Map<String, String> env) throws Exception {
+        List<String> secrets =
+                List.of(
+                        env.get("POCOMA_I2_bearerOwner"),
+                        env.get("POCOMA_I2_bearerOther"),
+                        token);
+        for (var file :
+                java.nio.file.Files.list(brunoOutput)
+                        .filter(java.nio.file.Files::isRegularFile)
+                        .toList()) {
+            String content = java.nio.file.Files.readString(file);
+            for (String secret : secrets) {
+                assertFalse(content.contains(secret), "B2 export contains sensitive material");
             }
         }
+    }
+
+    private static boolean isBrunoInputFile(java.nio.file.Path path) {
+        String value = path.toString();
+        boolean isAllowedExt =
+                value.endsWith(".bru") || value.endsWith(".js") || value.endsWith(".json");
+        return !value.contains("node_modules") && isAllowedExt;
     }
 
     static Map<String, String> brunoInputs(java.nio.file.Path repo) throws Exception {
@@ -974,19 +1104,15 @@ class AdmissionFlowPostgresTest {
         try (var paths = java.nio.file.Files.walk(root)) {
             for (var p :
                     paths.filter(java.nio.file.Files::isRegularFile)
-                            .filter(p -> !p.toString().contains("node_modules"))
-                            .filter(
-                                    p ->
-                                            p.toString().endsWith(".bru")
-                                                    || p.toString().endsWith(".js")
-                                                    || p.toString().endsWith(".json"))
-                            .toList())
+                            .filter(AdmissionFlowPostgresTest::isBrunoInputFile)
+                            .toList()) {
                 hashes.put(
                         repo.relativize(p).toString(),
                         HexFormat.of()
                                 .formatHex(
                                         java.security.MessageDigest.getInstance("SHA-256")
                                                 .digest(java.nio.file.Files.readAllBytes(p))));
+            }
         }
         return hashes;
     }

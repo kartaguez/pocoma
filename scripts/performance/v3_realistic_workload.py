@@ -215,147 +215,96 @@ class RealisticWorkloadScheduler:
 
             return command
 
+    def _choose_rare_operation(self, pot: PotState) -> Optional[str]:
+        has_weight = any(not s.weight_updated for s in pot.shareholders)
+        has_attach = any(not s.attached for s in pot.shareholders)
+        if not (has_weight or has_attach):
+            return None
+        w_cnt = self.emitted_counts["UpdateShareholderWeights"]
+        a_cnt = self.emitted_counts["UpdateShareholderDetails"]
+        if (w_cnt <= a_cnt and has_weight) or not has_attach:
+            return "UpdateShareholderWeights"
+        return "UpdateShareholderDetails"
+
     def _select_operation_for_pot(self, pot: PotState) -> str:
         """Chooses an operation family adhering to 88/10/2 target distribution and pot eligibility."""
-        total_emitted = sum(self.emitted_counts.values())
-        curr_create_ratio = (self.emitted_counts["CreateExpense"] / total_emitted) if total_emitted > 0 else 1.0
-        curr_correct_ratio = (self.emitted_counts["UpdateExpenseFinancials"] / total_emitted) if total_emitted > 0 else 0.0
-        curr_rare_ratio = ((self.emitted_counts["UpdateShareholderWeights"] + self.emitted_counts["UpdateShareholderDetails"]) / total_emitted) if total_emitted > 0 else 0.0
-
-        # Check eligibility on this Pot
-        has_correctable_expense = any(not e.corrected for e in pot.applied_expenses)
-        has_weight_updatable_sh = any(not s.weight_updated for s in pot.shareholders)
-        has_attachable_sh = any(not s.attached for s in pot.shareholders)
-
-        # Decide operation family:
-        # Check rare ops (2%)
-        rare_needed = (curr_rare_ratio < self.config.rare_ratio) or (self.rng.random() < self.config.rare_ratio)
-        if rare_needed and (has_weight_updatable_sh or has_attachable_sh):
-            weight_count = self.emitted_counts["UpdateShareholderWeights"]
-            attach_count = self.emitted_counts["UpdateShareholderDetails"]
-            if weight_count <= attach_count and has_weight_updatable_sh:
-                return "UpdateShareholderWeights"
-            elif has_attachable_sh:
-                return "UpdateShareholderDetails"
-            elif has_weight_updatable_sh:
-                return "UpdateShareholderWeights"
-
-        # Check correction (10%)
-        correct_needed = (curr_correct_ratio < self.config.correction_ratio) or (self.rng.random() < self.config.correction_ratio)
-        if correct_needed and has_correctable_expense:
+        total = sum(self.emitted_counts.values())
+        curr_correct = (self.emitted_counts["UpdateExpenseFinancials"] / total) if total > 0 else 0.0
+        rare_sum = self.emitted_counts["UpdateShareholderWeights"] + self.emitted_counts["UpdateShareholderDetails"]
+        curr_rare = (rare_sum / total) if total > 0 else 0.0
+        if (curr_rare < self.config.rare_ratio) or (self.rng.random() < self.config.rare_ratio):
+            rare_op = self._choose_rare_operation(pot)
+            if rare_op:
+                return rare_op
+        has_correctable = any(not e.corrected for e in pot.applied_expenses)
+        if ((curr_correct < self.config.correction_ratio) or (self.rng.random() < self.config.correction_ratio)) and has_correctable:
             return "UpdateExpenseFinancials"
-
-        # Default / majority is CreateExpense (88%)
         return "CreateExpense"
+
+    def _build_create_expense(self, pot: PotState) -> Dict[str, Any]:
+        payer = self.rng.choice(pot.shareholders) if pot.shareholders else None
+        payer_id = payer.id if payer else str(uuid.UUID(int=self.rng.getrandbits(128)))
+        known_ids = {e.id for p in self.pots for e in p.applied_expenses}
+        exp_id = str(uuid.UUID(int=self.rng.getrandbits(128)))
+        while exp_id in known_ids:
+            exp_id = str(uuid.UUID(int=self.rng.getrandbits(128)))
+        label = f"Exp-{pot.pot_id[:6]}-{len(pot.applied_expenses) + 1}"
+        amount_num = self.rng.randint(5, 500)
+        exp_info = ExpenseInfo(
+            id=exp_id, label=label, date="2026-11-08", amount_num=amount_num, amount_den=1,
+            payer_id=payer_id, participants=[s.id for s in pot.shareholders], corrected=False,
+        )
+        return {
+            "operation": "CreateExpense", "potId": pot.pot_id, "observedVersion": pot.confirmed_version,
+            "payload": {
+                "id": exp_id, "label": label, "date": "2026-11-08",
+                "amount": {"numerator": str(amount_num), "denominator": "1"}, "payerId": payer_id,
+                "participants": [{"id": s.id, "weight": None} for s in pot.shareholders],
+            },
+            "_meta": {"type": "CreateExpense", "expense": exp_info.to_dict()},
+        }
+
+    def _build_update_expense(self, pot: PotState) -> Dict[str, Any]:
+        eligible = [e for e in pot.applied_expenses if not e.corrected]
+        if not eligible:
+            return self._build_create_expense(pot)
+        target_exp = self.rng.choice(eligible)
+        participants = [{"id": s.id, "weight": None} for s in pot.shareholders]
+        if len(participants) > 1:
+            participants[1]["weight"] = {"numerator": "2", "denominator": "1"}
+        return {
+            "operation": "UpdateExpenseFinancials", "potId": pot.pot_id, "observedVersion": pot.confirmed_version,
+            "payload": {
+                "id": target_exp.id,
+                "amount": {"numerator": str(target_exp.amount_num + self.rng.randint(10, 100)), "denominator": "1"},
+                "payerId": target_exp.payer_id, "participants": participants,
+            },
+            "_meta": {"type": "UpdateExpenseFinancials", "expenseId": target_exp.id},
+        }
+
+    def _build_update_shareholder(self, pot: PotState, op: str) -> Dict[str, Any]:
+        if op == "UpdateShareholderWeights":
+            eligible = [s for s in pot.shareholders if not s.weight_updated]
+            target_fn = lambda s: {"id": s.id, "weight": {"numerator": "2", "denominator": "1"}}
+        else:
+            eligible = [s for s in pot.shareholders if not s.attached]
+            target_fn = lambda s: {"id": s.id, "name": s.name, "attachment": "SELF"}
+        if not eligible:
+            return self._build_create_expense(pot)
+        target_sh = self.rng.choice(eligible)
+        return {
+            "operation": op, "potId": pot.pot_id, "observedVersion": pot.confirmed_version,
+            "payload": {"targets": [target_fn(target_sh)]},
+            "_meta": {"type": op, "shareholderId": target_sh.id},
+        }
 
     def _build_command(self, pot: PotState, op: str) -> Dict[str, Any]:
         """Constructs a strictly contract-valid V3 command payload."""
-        observed_version = pot.confirmed_version
-        payer = self.rng.choice(pot.shareholders) if pot.shareholders else None
-        payer_id = payer.id if payer else str(uuid.UUID(int=self.rng.getrandbits(128)))
-
-        if op == "CreateExpense":
-            # Generate deterministic UUID from PRNG
-            exp_id = str(uuid.UUID(int=self.rng.getrandbits(128)))
-            # If this expense ID happens to already exist in known pot expenses, advance PRNG
-            known_ids = {e.id for p in self.pots for e in p.applied_expenses}
-            while exp_id in known_ids:
-                exp_id = str(uuid.UUID(int=self.rng.getrandbits(128)))
-            label = f"Exp-{pot.pot_id[:6]}-{len(pot.applied_expenses) + 1}"
-            amount_num = self.rng.randint(5, 500)
-            participants = [{"id": s.id, "weight": None} for s in pot.shareholders]
-            payload = {
-                "id": exp_id,
-                "label": label,
-                "date": "2026-11-08",
-                "amount": {"numerator": str(amount_num), "denominator": "1"},
-                "payerId": payer_id,
-                "participants": participants,
-            }
-            # Temporarily stash expense metadata for commit
-            exp_info = ExpenseInfo(
-                id=exp_id, label=label, date="2026-11-08",
-                amount_num=amount_num, amount_den=1, payer_id=payer_id,
-                participants=[s.id for s in pot.shareholders], corrected=False
-            )
-            command_envelope = {
-                "operation": "CreateExpense",
-                "potId": pot.pot_id,
-                "observedVersion": observed_version,
-                "payload": payload,
-                "_meta": {"type": "CreateExpense", "expense": exp_info.to_dict()},
-            }
-            return command_envelope
-
-        elif op == "UpdateExpenseFinancials":
-            eligible = [e for e in pot.applied_expenses if not e.corrected]
-            if not eligible:
-                return self._build_command(pot, "CreateExpense")
-            target_exp = self.rng.choice(eligible)
-            new_amount = target_exp.amount_num + self.rng.randint(10, 100)
-            participants = [{"id": s.id, "weight": None} for s in pot.shareholders]
-            # Optionally vary one participant's weight
-            if len(participants) > 1:
-                participants[1]["weight"] = {"numerator": "2", "denominator": "1"}
-
-            payload = {
-                "id": target_exp.id,
-                "amount": {"numerator": str(new_amount), "denominator": "1"},
-                "payerId": target_exp.payer_id,
-                "participants": participants,
-            }
-            return {
-                "operation": "UpdateExpenseFinancials",
-                "potId": pot.pot_id,
-                "observedVersion": observed_version,
-                "payload": payload,
-                "_meta": {"type": "UpdateExpenseFinancials", "expenseId": target_exp.id},
-            }
-
-        elif op == "UpdateShareholderWeights":
-            eligible = [s for s in pot.shareholders if not s.weight_updated]
-            if not eligible:
-                return self._build_command(pot, "CreateExpense")
-            target_sh = self.rng.choice(eligible)
-            payload = {
-                "targets": [
-                    {
-                        "id": target_sh.id,
-                        "weight": {"numerator": "2", "denominator": "1"}
-                    }
-                ]
-            }
-            return {
-                "operation": "UpdateShareholderWeights",
-                "potId": pot.pot_id,
-                "observedVersion": observed_version,
-                "payload": payload,
-                "_meta": {"type": "UpdateShareholderWeights", "shareholderId": target_sh.id},
-            }
-
-        elif op == "UpdateShareholderDetails":
-            eligible = [s for s in pot.shareholders if not s.attached]
-            if not eligible:
-                return self._build_command(pot, "CreateExpense")
-            target_sh = self.rng.choice(eligible)
-            payload = {
-                "targets": [
-                    {
-                        "id": target_sh.id,
-                        "name": target_sh.name,
-                        "attachment": "SELF"
-                    }
-                ]
-            }
-            return {
-                "operation": "UpdateShareholderDetails",
-                "potId": pot.pot_id,
-                "observedVersion": observed_version,
-                "payload": payload,
-                "_meta": {"type": "UpdateShareholderDetails", "shareholderId": target_sh.id},
-            }
-
-        return self._build_command(pot, "CreateExpense")
+        if op == "UpdateExpenseFinancials":
+            return self._build_update_expense(pot)
+        if op in ("UpdateShareholderWeights", "UpdateShareholderDetails"):
+            return self._build_update_shareholder(pot, op)
+        return self._build_create_expense(pot)
 
     def record_admission(self, command_id: str, pot_id: str, operation: str, status: int, meta: Optional[Dict] = None):
         """Records HTTP admission outcome and links commandId to in-flight Pot."""
@@ -379,6 +328,26 @@ class RealisticWorkloadScheduler:
                 if operation in self.rejected_counts:
                     self.rejected_counts[operation] += 1
 
+    @staticmethod
+    def _apply_terminal_meta(pot: PotState, meta: Optional[Dict[str, Any]]):
+        if not meta:
+            return
+        mtype = meta.get("type")
+        if mtype == "CreateExpense" and "expense" in meta:
+            exp_data = meta["expense"]
+            pot.applied_expenses.append(ExpenseInfo.from_dict(exp_data) if isinstance(exp_data, dict) else exp_data)
+        elif mtype == "UpdateExpenseFinancials" and "expenseId" in meta:
+            for exp in pot.applied_expenses:
+                if exp.id == meta["expenseId"]:
+                    exp.corrected = True
+                    break
+        elif mtype in ("UpdateShareholderWeights", "UpdateShareholderDetails") and "shareholderId" in meta:
+            attr = "weight_updated" if mtype == "UpdateShareholderWeights" else "attached"
+            for sh in pot.shareholders:
+                if sh.id == meta["shareholderId"]:
+                    setattr(sh, attr, True)
+                    break
+
     def on_command_terminal(self, command_id: str, pot_id: str, resulting_version: Optional[int], outcome: str):
         """Advances Pot version and frees in-flight lock upon terminal notification."""
         with self._lock:
@@ -386,56 +355,16 @@ class RealisticWorkloadScheduler:
             if pot_idx is None:
                 return
             pot = self.pots[pot_idx]
-
             meta = self._emitted_command_metadata.pop(command_id, None)
             op = pot.in_flight_operation or (meta.get("type") if meta else None) or "CreateExpense"
-
-            # Release in-flight lock regardless of outcome
-            pot.in_flight = False
-            pot.in_flight_command_id = None
-            pot.in_flight_operation = None
-
+            pot.in_flight, pot.in_flight_command_id, pot.in_flight_operation = False, None, None
+            pot.confirmed_version = resulting_version if (resulting_version and resulting_version > pot.confirmed_version) else (pot.confirmed_version + 1)
             if outcome in ("CHANGED", "COMPLETED"):
-                if resulting_version and resulting_version > pot.confirmed_version:
-                    pot.confirmed_version = resulting_version
-                else:
-                    pot.confirmed_version += 1
-
                 if op in self.applied_counts:
                     self.applied_counts[op] += 1
-
-                # Apply in-memory state mutations
-                if meta:
-                    mtype = meta.get("type")
-                    if mtype == "CreateExpense" and "expense" in meta:
-                        exp_data = meta["expense"]
-                        if isinstance(exp_data, dict):
-                            pot.applied_expenses.append(ExpenseInfo.from_dict(exp_data))
-                        elif isinstance(exp_data, ExpenseInfo):
-                            pot.applied_expenses.append(exp_data)
-                    elif mtype == "UpdateExpenseFinancials" and "expenseId" in meta:
-                        for exp in pot.applied_expenses:
-                            if exp.id == meta["expenseId"]:
-                                exp.corrected = True
-                                break
-                    elif mtype == "UpdateShareholderWeights" and "shareholderId" in meta:
-                        for sh in pot.shareholders:
-                            if sh.id == meta["shareholderId"]:
-                                sh.weight_updated = True
-                                break
-                    elif mtype == "UpdateShareholderDetails" and "shareholderId" in meta:
-                        for sh in pot.shareholders:
-                            if sh.id == meta["shareholderId"]:
-                                sh.attached = True
-                                break
-            else:
-                # Terminal REJECTED or failed
-                if op in self.rejected_counts:
-                    self.rejected_counts[op] += 1
-                if resulting_version and resulting_version > pot.confirmed_version:
-                    pot.confirmed_version = resulting_version
-                else:
-                    pot.confirmed_version += 1
+                self._apply_terminal_meta(pot, meta)
+            elif op in self.rejected_counts:
+                self.rejected_counts[op] += 1
 
     def get_mix_report(self) -> Dict[str, Any]:
         """Produces exhaustive statistical mix report required by mandate Section 6."""
@@ -566,98 +495,124 @@ def load_fixtures_manifest(manifest_path: Path) -> Tuple[Optional[Dict[str, Any]
         return None, []
 
 
+def _run_write_query(sql: str) -> List[str]:
+    cmd = [
+        "docker", "exec", "-i", "-e", f"PGPASSWORD={os.environ.get('POSTGRES_PASSWORD', 'pocoma-local-only')}",
+        os.environ.get("POSTGRES_CONTAINER", "pocoma-functional-postgres-1"),
+        "psql", "-U", os.environ.get("POSTGRES_USER", "pocoma"), "-d", os.environ.get("WRITE_DB", "pocoma_write"), "-tAc", sql,
+    ]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        if res.returncode == 0:
+            return [line.strip() for line in res.stdout.strip().split("\n") if line.strip()]
+    except Exception:
+        pass
+    return []
+
+
+def _sync_shareholder_flag(pot_map: Dict[str, PotState], sql: str, attr: str):
+    for line in _run_write_query(sql):
+        parts = line.split("|")
+        if len(parts) == 2 and parts[0] in pot_map:
+            for sh in pot_map[parts[0]].shareholders:
+                if sh.id == parts[1]:
+                    setattr(sh, attr, True)
+
+
+def _sync_expenses(pot_map: Dict[str, PotState], pot_ids_str: str):
+    sql_exp = (
+        "SELECT ef.pot_id, ef.object_id, MAX(ef.local_version), ef.payer_id, ef.numerator, ef.denominator "
+        f"FROM v3_write.v3_expense_financials ef WHERE ef.pot_id IN ({pot_ids_str}) "
+        "GROUP BY ef.pot_id, ef.object_id, ef.payer_id, ef.numerator, ef.denominator;"
+    )
+    exp_by_pot: Dict[str, List[ExpenseInfo]] = {pid: [] for pid in pot_map}
+    for line in _run_write_query(sql_exp):
+        parts = line.split("|")
+        if len(parts) < 6 or parts[0] not in pot_map:
+            continue
+        try:
+            max_lv, num, den = int(parts[2]), int(parts[4]), int(parts[5])
+        except ValueError:
+            continue
+        exp_by_pot[parts[0]].append(ExpenseInfo(
+            id=parts[1], label=f"synced-{parts[1][:8]}", date="2026-11-08",
+            amount_num=num, amount_den=den, payer_id=parts[3],
+            participants=[s.id for s in pot_map[parts[0]].shareholders], corrected=(max_lv > 1),
+        ))
+    for pid, exp_list in exp_by_pot.items():
+        if exp_list:
+            pot_map[pid].applied_expenses = exp_list
+
+
 def sync_pot_states_from_db(pots: List[PotState]):
     """Synchronizes confirmed versions, applied expenses, and shareholder statuses from database."""
     if not pots:
         return
     pot_map = {p.pot_id: p for p in pots}
     pot_ids_str = ",".join(f"'{p.pot_id}'" for p in pots)
+    for line in _run_write_query(f"SELECT pot_id, MAX(version) FROM v3_write.v3_pot_version WHERE pot_id IN ({pot_ids_str}) GROUP BY pot_id;"):
+        parts = line.split("|")
+        if len(parts) == 2 and parts[0] in pot_map and parts[1].isdigit():
+            pot_map[parts[0]].confirmed_version = int(parts[1])
+    _sync_expenses(pot_map, pot_ids_str)
+    _sync_shareholder_flag(pot_map, f"SELECT pot_id, object_id FROM v3_write.v3_shareholder_details WHERE pot_id IN ({pot_ids_str}) AND user_id IS NOT NULL;", "attached")
+    _sync_shareholder_flag(pot_map, f"SELECT pot_id, object_id FROM v3_write.v3_shareholder_weight WHERE pot_id IN ({pot_ids_str}) GROUP BY pot_id, object_id HAVING COUNT(*) > 1;", "weight_updated")
 
-    postgres_container = os.environ.get("POSTGRES_CONTAINER", "pocoma-functional-postgres-1")
-    postgres_user = os.environ.get("POSTGRES_USER", "pocoma")
-    postgres_password = os.environ.get("POSTGRES_PASSWORD", "pocoma-local-only")
-    write_db = os.environ.get("WRITE_DB", "pocoma_write")
 
-    def run_query(sql: str) -> List[str]:
-        cmd = [
-            "docker", "exec", "-i", "-e", f"PGPASSWORD={postgres_password}",
-            postgres_container, "psql", "-U", postgres_user, "-d", write_db, "-tAc", sql
-        ]
+def _submit_fixture_cmd(base_url: str, token: str, body: Dict[str, Any], idem_key: str) -> str:
+    data_bytes = json.dumps(body).encode("utf-8")
+    for attempt in range(20):
         try:
-            res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            if res.returncode == 0:
-                return [line.strip() for line in res.stdout.strip().split("\n") if line.strip()]
-        except Exception:
-            pass
-        return []
-
-    # 1. Sync max version
-    sql_ver = f"SELECT pot_id, MAX(version) FROM v3_write.v3_pot_version WHERE pot_id IN ({pot_ids_str}) GROUP BY pot_id;"
-    for line in run_query(sql_ver):
-        parts = line.split("|")
-        if len(parts) == 2 and parts[0] in pot_map:
-            try:
-                pot_map[parts[0]].confirmed_version = int(parts[1])
-            except ValueError:
-                pass
-
-    # 2. Sync expenses
-    sql_exp = f"""
-    SELECT ef.pot_id, ef.object_id, MAX(ef.local_version), ef.payer_id, ef.numerator, ef.denominator
-    FROM v3_write.v3_expense_financials ef
-    WHERE ef.pot_id IN ({pot_ids_str})
-    GROUP BY ef.pot_id, ef.object_id, ef.payer_id, ef.numerator, ef.denominator;
-    """
-    exp_by_pot: Dict[str, List[ExpenseInfo]] = {p.pot_id: [] for p in pots}
-    for line in run_query(sql_exp):
-        parts = line.split("|")
-        if len(parts) >= 6 and parts[0] in pot_map:
-            pid = parts[0]
-            eid = parts[1]
-            try:
-                max_lv = int(parts[2])
-                payer = parts[3]
-                num = int(parts[4])
-                den = int(parts[5])
-            except ValueError:
-                continue
-            exp_info = ExpenseInfo(
-                id=eid,
-                label=f"synced-{eid[:8]}",
-                date="2026-11-08",
-                amount_num=num,
-                amount_den=den,
-                payer_id=payer,
-                participants=[s.id for s in pot_map[pid].shareholders],
-                corrected=(max_lv > 1)
+            req = urllib.request.Request(
+                f"{base_url}/api/v3/commands", data=data_bytes,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json", "Idempotency-Key": idem_key},
             )
-            exp_by_pot[pid].append(exp_info)
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                if resp.status == 202:
+                    return json.loads(resp.read().decode())["requestId"]
+        except urllib.error.HTTPError as e:
+            if e.code == 503 and attempt < 19:
+                time.sleep(0.04 * (1 + attempt))
+                continue
+            raise
+    raise RuntimeError(f"Exceeded admission retries for {idem_key}")
 
-    for pid, exp_list in exp_by_pot.items():
-        if exp_list:
-            pot_map[pid].applied_expenses = exp_list
 
-    # 3. Sync shareholder attachments
-    sql_sh = f"SELECT pot_id, object_id FROM v3_write.v3_shareholder_details WHERE pot_id IN ({pot_ids_str}) AND user_id IS NOT NULL;"
-    for line in run_query(sql_sh):
-        parts = line.split("|")
-        if len(parts) == 2 and parts[0] in pot_map:
-            pid = parts[0]
-            sid = parts[1]
-            for s in pot_map[pid].shareholders:
-                if s.id == sid:
-                    s.attached = True
+def _poll_fixture_result(base_url: str, token: str, cid: str) -> Dict[str, Any]:
+    deadline = time.time() + 25.0
+    while time.time() < deadline:
+        try:
+            req = urllib.request.Request(f"{base_url}/api/v3/commands/{cid}/result", headers={"Authorization": f"Bearer {token}"})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                if resp.status == 200:
+                    data = json.loads(resp.read().decode())
+                    if data.get("outcome") in ("COMPLETED", "CHANGED"):
+                        return data
+        except urllib.error.HTTPError as e:
+            if e.code not in (404, 503):
+                raise
+        time.sleep(0.04)
+    return {}
 
-    # 4. Sync shareholder weights
-    sql_wt = f"SELECT pot_id, object_id FROM v3_write.v3_shareholder_weight WHERE pot_id IN ({pot_ids_str}) GROUP BY pot_id, object_id HAVING COUNT(*) > 1;"
-    for line in run_query(sql_wt):
-        parts = line.split("|")
-        if len(parts) == 2 and parts[0] in pot_map:
-            pid = parts[0]
-            sid = parts[1]
-            for s in pot_map[pid].shareholders:
-                if s.id == sid:
-                    s.weight_updated = True
+
+def _prepare_single_pot(pot: PotState, base_url: str, token: str, binding_token: str) -> PotState:
+    cid1 = _submit_fixture_cmd(base_url, token, {
+        "operation": "CreatePot", "potId": pot.pot_id, "observedVersion": 0,
+        "bindingToken": binding_token, "payload": {"label": pot.label},
+    }, f"prep-create-{pot.pot_id}")
+    _poll_fixture_result(base_url, token, cid1)
+    targets = [
+        {"id": s.id, "name": s.name, "attachment": "SELF" if s.attached else "FREE",
+         "weight": {"numerator": str(s.weight_num), "denominator": str(s.weight_den)}}
+        for s in pot.shareholders
+    ]
+    cid2 = _submit_fixture_cmd(base_url, token, {
+        "operation": "AddShareholders", "potId": pot.pot_id, "observedVersion": 1,
+        "bindingToken": binding_token, "payload": {"targets": targets},
+    }, f"prep-addsh-{pot.pot_id}")
+    d2 = _poll_fixture_result(base_url, token, cid2)
+    pot.confirmed_version = d2.get("resultingPotVersion", 2)
+    return pot
 
 
 def prepare_live_fixtures(token: str, binding_token: str, config: WorkloadConfig,
@@ -673,120 +628,16 @@ def prepare_live_fixtures(token: str, binding_token: str, config: WorkloadConfig
             return loaded_pots[:config.pot_pool_size]
 
     from concurrent.futures import ThreadPoolExecutor, as_completed
-
     pots = generate_deterministic_fixtures(config)
     print(f"  ▶ Preparing {len(pots)} live Pots in parallel (workers={max_workers})...")
     start_t = time.time()
-
-    def submit_and_wait(pot: PotState):
-        def submit_with_retry(data_bytes: bytes, idem_key: str, max_retries: int = 20) -> str:
-            for attempt in range(max_retries):
-                try:
-                    req = urllib.request.Request(
-                        f"{base_url}/api/v3/commands", data=data_bytes,
-                        headers={
-                            "Authorization": f"Bearer {token}",
-                            "Content-Type": "application/json",
-                            "Idempotency-Key": idem_key
-                        }
-                    )
-                    with urllib.request.urlopen(req, timeout=10) as resp:
-                        if resp.status == 202:
-                            r = json.loads(resp.read().decode())
-                            return r["requestId"]
-                except urllib.error.HTTPError as e:
-                    if e.code == 503 and attempt < max_retries - 1:
-                        time.sleep(0.04 * (1 + attempt))
-                        continue
-                    raise
-            raise RuntimeError(f"Exceeded admission retries for {idem_key}")
-
-        # 1. CreatePot
-        body1 = json.dumps({
-            "operation": "CreatePot",
-            "potId": pot.pot_id,
-            "observedVersion": 0,
-            "bindingToken": binding_token,
-            "payload": {"label": pot.label}
-        }).encode("utf-8")
-        cid1 = submit_with_retry(body1, f"prep-create-{pot.pot_id}")
-
-        # Poll result 1
-        t_poll_start = time.time()
-        while time.time() - t_poll_start < 25.0:
-            try:
-                with urllib.request.urlopen(
-                    urllib.request.Request(f"{base_url}/api/v3/commands/{cid1}/result", headers={"Authorization": f"Bearer {token}"}),
-                    timeout=5
-                ) as resp:
-                    if resp.status == 200:
-                        d1 = json.loads(resp.read().decode())
-                        if d1.get("outcome") in ("COMPLETED", "CHANGED"):
-                            break
-            except urllib.error.HTTPError as e:
-                if e.code in (404, 503):
-                    time.sleep(0.04)
-                    continue
-                raise
-            time.sleep(0.04)
-
-        # 2. AddShareholders (1 SELF, 4 FREE)
-        targets = []
-        for s in pot.shareholders:
-            targets.append({
-                "id": s.id,
-                "name": s.name,
-                "attachment": "SELF" if s.attached else "FREE",
-                "weight": {"numerator": str(s.weight_num), "denominator": str(s.weight_den)}
-            })
-
-        body2 = json.dumps({
-            "operation": "AddShareholders",
-            "potId": pot.pot_id,
-            "observedVersion": 1,
-            "bindingToken": binding_token,
-            "payload": {"targets": targets}
-        }).encode("utf-8")
-        cid2 = submit_with_retry(body2, f"prep-addsh-{pot.pot_id}")
-
-        # Poll result 2
-        t_poll_start = time.time()
-        while time.time() - t_poll_start < 25.0:
-            try:
-                with urllib.request.urlopen(
-                    urllib.request.Request(f"{base_url}/api/v3/commands/{cid2}/result", headers={"Authorization": f"Bearer {token}"}),
-                    timeout=5
-                ) as resp:
-                    if resp.status == 200:
-                        d2 = json.loads(resp.read().decode())
-                        if d2.get("outcome") in ("COMPLETED", "CHANGED"):
-                            pot.confirmed_version = d2.get("resultingPotVersion", 2)
-                            break
-            except urllib.error.HTTPError as e:
-                if e.code in (404, 503):
-                    time.sleep(0.04)
-                    continue
-                raise
-            time.sleep(0.04)
-
-        return pot
-
-    prepared_pots = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(submit_and_wait, p): p for p in pots}
-        for f in as_completed(futures):
-            prepared_pots.append(f.result())
-
-    # Sort back by original index
+        prepared_pots = [f.result() for f in as_completed(executor.submit(_prepare_single_pot, p, base_url, token, binding_token) for p in pots)]
     pot_map = {p.pot_id: p for p in prepared_pots}
     ordered_pots = [pot_map[p.pot_id] for p in pots]
-
     elapsed = time.time() - start_t
     print(f"  ✓ Prepared {len(ordered_pots)} live Pots in {elapsed:.2f}s ({len(ordered_pots)/elapsed:.1f} pots/s)")
-
     if manifest_path:
         save_fixtures_manifest(manifest_path, config, ordered_pots)
-        print(f"  ✓ Saved fixtures manifest to {manifest_path}")
-
     sync_pot_states_from_db(ordered_pots)
     return ordered_pots

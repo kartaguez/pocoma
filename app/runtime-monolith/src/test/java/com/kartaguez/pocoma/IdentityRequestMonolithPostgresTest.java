@@ -128,24 +128,29 @@ class IdentityRequestMonolithPostgresTest {
                     new JdbcTemplate(
                             new DriverManagerDataSource(
                                     readUrl, pg.getUsername(), pg.getPassword()));
-            for (String role : List.of(writeRole, readRole, reactRole, injectorRole))
+            for (String role : List.of(writeRole, readRole, reactRole, injectorRole)) {
                 write.execute("create role " + role + " login password 'i5-fixture'");
+            }
+            migrateAndGrantSchemas(pg);
+            configureWorkerProperties(pg);
+            trace.add(
+                    "initial expected: nine business contracts plus two technical READ probes; no"
+                            + " slots/K/effects; fresh "
+                            + schema);
+        }
+
+        private void migrateAndGrantSchemas(PostgreSQLContainer pg) throws Exception {
             for (boolean w : List.of(true, false)) {
-                String url = w ? writeUrl : readUrl,
-                        db = w ? pg.getDatabaseName() : "i5_read",
-                        role = w ? writeRole : readRole;
+                String url = w ? writeUrl : readUrl;
+                String db = w ? pg.getDatabaseName() : "i5_read";
+                String role = w ? writeRole : readRole;
+                String location =
+                        w ? "classpath:db/write/migration" : "classpath:db/read/migration";
                 Flyway.configure()
                         .dataSource(url, pg.getUsername(), pg.getPassword())
                         .schemas(schema)
                         .defaultSchema(schema)
-                        .locations(
-                                w
-                                        ? new String[] {
-                                            "classpath:db/write/migration"
-                                        }
-                                        : new String[] {
-                                            "classpath:db/read/migration"
-                                        })
+                        .locations(location)
                         .placeholders(
                                 Map.of(
                                         "expectedDatabase",
@@ -158,15 +163,22 @@ class IdentityRequestMonolithPostgresTest {
                                         role))
                         .load()
                         .migrate();
-                if (w) script("configure-l3-identity-logging.sql", true);
+                if (w) {
+                    script("configure-l3-identity-logging.sql", true);
+                }
                 for (String script :
                         List.of(
                                 "bootstrap-l2-routing.sql",
                                 "grant-l2-lifecycle.sql",
                                 "grant-l2-discovery.sql",
                                 "bootstrap-l2-worker-dev.sql",
-                                "grant-l2-worker-dev.sql")) script(script, w);
+                                "grant-l2-worker-dev.sql")) {
+                    script(script, w);
+                }
             }
+        }
+
+        private void configureWorkerProperties(PostgreSQLContainer pg) {
             String prefix = "pocoma.v3.worker.";
             properties.put(prefix + "enabled", "true");
             properties.put(prefix + "environment", "DEV");
@@ -220,10 +232,6 @@ class IdentityRequestMonolithPostgresTest {
                     properties.put(p + "password", "i5-fixture");
                 }
             }
-            trace.add(
-                    "initial expected: nine business contracts plus two technical READ probes; no"
-                            + " slots/K/effects; fresh "
-                            + schema);
         }
 
         void script(String name, boolean w) throws Exception {
@@ -569,87 +577,97 @@ class IdentityRequestMonolithPostgresTest {
                             1,
                             new PotCommand.UpdatePotDetails(new Label("updated")));
             f.verifyCommand(update, "CHANGED", null);
-            var link = f.admit("LINK", "a", "b", a);
-            f.verify(link);
-            var b = f.ownToken("b");
-            assertEquals(user, f.user("b"));
-            var foreign =
-                    f.admitCommand(
-                            "b",
-                            a.value(),
-                            pot,
-                            2,
-                            new PotCommand.UpdatePotDetails(new Label("forbidden")));
-            f.verifyCommand(foreign, "REJECTED", "INVALID_BINDING");
-            var unlink = f.admit("UNLINK", "a", "b", a);
-            f.verify(unlink);
-            f.verify(f.admit("LINK", "a", "b", a));
-            var fresh = f.ownToken("b");
-            assertTrue(!b.equals(fresh));
-            var stale =
-                    f.admitCommand(
-                            "b",
-                            b.value(),
-                            pot,
-                            2,
-                            new PotCommand.UpdatePotDetails(new Label("old")));
-            f.verifyCommand(stale, "REJECTED", "INVALID_BINDING");
-            var current =
-                    f.admitCommand(
-                            "b",
-                            fresh.value(),
-                            pot,
-                            2,
-                            new PotCommand.UpdatePotDetails(new Label("third")));
-            f.verifyCommand(current, "CHANGED", null);
-            var stranger = f.admit("REGISTRATION", "other", "other", null);
-            f.verify(stranger);
-            var unauthorized =
-                    f.admitCommand(
-                            "other",
-                            f.ownToken("other").value(),
-                            pot,
-                            3,
-                            new PotCommand.UpdatePotDetails(new Label("not allowed")));
-            f.verifyCommand(unauthorized, "REJECTED", "FORBIDDEN");
-            f.verify(f.admit("UNLINK", "a", "b", a));
-            f.verify(f.admit("UNLINK", "a", "a", a));
-            assertEquals(
-                    1,
-                    f.write.queryForObject(
-                            "select count(*) from v3_pocoma_user where user_id=?",
-                            Integer.class,
-                            user));
-            f.verify(f.admit("REGISTRATION", "a", "a", null));
-            assertNotEquals(user, f.user("a"));
-            var abandoned =
-                    f.admitCommand(
-                            "a",
-                            f.ownToken("a").value(),
-                            pot,
-                            3,
-                            new PotCommand.UpdatePotDetails(new Label("abandoned creator")));
-            f.verifyCommand(abandoned, "REJECTED", "FORBIDDEN");
-            f.drain(ctx);
-            var before =
-                    f.write.queryForMap(
-                            "select (select count(*) from v3_pot_version) versions,(select count(*)"
+            verifyRelinkAndStrangerRejection(f, a, pot, user);
+            verifyReregistrationAndRestart(f, ctx, pot, user);
+        }
+    }
+
+    private static void verifyRelinkAndStrangerRejection(
+            Fixture f, BindingToken a, PotId pot, UUID user) throws Exception {
+        var link = f.admit("LINK", "a", "b", a);
+        f.verify(link);
+        var b = f.ownToken("b");
+        assertEquals(user, f.user("b"));
+        var foreign =
+                f.admitCommand(
+                        "b",
+                        a.value(),
+                        pot,
+                        2,
+                        new PotCommand.UpdatePotDetails(new Label("forbidden")));
+        f.verifyCommand(foreign, "REJECTED", "INVALID_BINDING");
+        var unlink = f.admit("UNLINK", "a", "b", a);
+        f.verify(unlink);
+        f.verify(f.admit("LINK", "a", "b", a));
+        var fresh = f.ownToken("b");
+        assertNotEquals(b, fresh);
+        var stale =
+                f.admitCommand(
+                        "b",
+                        b.value(),
+                        pot,
+                        2,
+                        new PotCommand.UpdatePotDetails(new Label("old")));
+        f.verifyCommand(stale, "REJECTED", "INVALID_BINDING");
+        var current =
+                f.admitCommand(
+                        "b",
+                        fresh.value(),
+                        pot,
+                        2,
+                        new PotCommand.UpdatePotDetails(new Label("third")));
+        f.verifyCommand(current, "CHANGED", null);
+        var stranger = f.admit("REGISTRATION", "other", "other", null);
+        f.verify(stranger);
+        var unauthorized =
+                f.admitCommand(
+                        "other",
+                        f.ownToken("other").value(),
+                        pot,
+                        3,
+                        new PotCommand.UpdatePotDetails(new Label("not allowed")));
+        f.verifyCommand(unauthorized, "REJECTED", "FORBIDDEN");
+        f.verify(f.admit("UNLINK", "a", "b", a));
+        f.verify(f.admit("UNLINK", "a", "a", a));
+    }
+
+    private static void verifyReregistrationAndRestart(
+            Fixture f, ConfigurableApplicationContext ctx, PotId pot, UUID user) throws Exception {
+        assertEquals(
+                1,
+                f.write.queryForObject(
+                        "select count(*) from v3_pocoma_user where user_id=?",
+                        Integer.class,
+                        user));
+        f.verify(f.admit("REGISTRATION", "a", "a", null));
+        assertNotEquals(user, f.user("a"));
+        var abandoned =
+                f.admitCommand(
+                        "a",
+                        f.ownToken("a").value(),
+                        pot,
+                        3,
+                        new PotCommand.UpdatePotDetails(new Label("abandoned creator")));
+        f.verifyCommand(abandoned, "REJECTED", "FORBIDDEN");
+        f.drain(ctx);
+        var before =
+                f.write.queryForMap(
+                        "select (select count(*) from v3_pot_version) versions,(select count(*)"
                                 + " from v3_command_completion_event) completions");
-            var restarted = f.start();
-            f.drain(restarted);
-            assertEquals(
-                    before,
-                    f.write.queryForMap(
-                            "select (select count(*) from v3_pot_version) versions,(select count(*)"
+        var restarted = f.start();
+        f.drain(restarted);
+        assertEquals(
+                before,
+                f.write.queryForMap(
+                        "select (select count(*) from v3_pot_version) versions,(select count(*)"
                                 + " from v3_command_completion_event) completions"));
-            assertEquals(3, ((Number) before.get("versions")).intValue());
-            f.trace.add(
-                    "I4 real Registration -> CreatePot -> UpdatePot; re-Link old/foreign token"
+        assertEquals(3, ((Number) before.get("versions")).intValue());
+        f.trace.add(
+                "I4 real Registration -> CreatePot -> UpdatePot; re-Link old/foreign token"
                         + " rejected; last Unlink retains abandoned User; restart no duplicate"
                         + " effect; creator="
-                            + user);
-            f.evidence("l3_i4_registration_command_relink_restart");
-        }
+                        + user);
+        f.evidence("l3_i4_registration_command_relink_restart");
     }
 
     @Test
@@ -796,40 +814,7 @@ class IdentityRequestMonolithPostgresTest {
                     new JdbcTemplate(
                             new DriverManagerDataSource(f.writeUrl, f.readRole, "i5-fixture"));
             for (String scope : List.of("column", "table", "read-principal")) {
-                f.write.execute(
-                        "grant select"
-                                + (!scope.equals("table") ? "(binding_token)" : "")
-                                + " on v3_eui_version to "
-                                + (scope.equals("read-principal") ? f.readRole : "public"));
-                // Real PostgreSQL counterexample: a READ principal can select a WRITE token
-                // column through PUBLIC. No token value is returned by this aggregate.
-                assertEquals(
-                        0,
-                        wrongRealm.queryForObject(
-                                "select count(binding_token) from v3_eui_version", Integer.class));
-                var refusedGrant =
-                        assertThrows(
-                                AssertionError.class,
-                                () -> f.script("grant-l2-discovery.sql", true));
-                assertTrue(
-                        refusedGrant
-                                .getMessage()
-                                .contains(
-                                        scope.equals("read-principal")
-                                                ? "READ principal has Identity WRITE authority"
-                                                        + " privileges"
-                                                : "PUBLIC privileges expose Identity authority"));
-                refused(f, Map.of());
-                f.write.execute(
-                        "revoke select"
-                                + (!scope.equals("table") ? "(binding_token)" : "")
-                                + " on v3_eui_version from "
-                                + (scope.equals("read-principal") ? f.readRole : "public"));
-                f.trace.add(
-                        "PUBLIC "
-                                + scope
-                                + " SELECT exposed WRITE to READ principal; root refused before"
-                                + " loop");
+                verifyPublicSelectScopeRefused(f, wrongRealm, scope);
             }
             f.write.execute("revoke usage on schema " + f.schema + " from " + f.readRole);
             f.write.execute("create table i5_fixture_identity(x int)");
@@ -845,6 +830,32 @@ class IdentityRequestMonolithPostgresTest {
                     f.write.queryForObject("select count(*) from consumption_slot", Integer.class));
             f.evidence("l3_preflight_negative");
         }
+    }
+
+    private static void verifyPublicSelectScopeRefused(
+            Fixture f, JdbcTemplate wrongRealm, String scope) throws Exception {
+        String columnClause = scope.equals("table") ? "" : "(binding_token)";
+        String grantee = scope.equals("read-principal") ? f.readRole : "public";
+        f.write.execute("grant select" + columnClause + " on v3_eui_version to " + grantee);
+        // Real PostgreSQL counterexample: a READ principal can select a WRITE token
+        // column through PUBLIC. No token value is returned by this aggregate.
+        assertEquals(
+                0,
+                wrongRealm.queryForObject(
+                        "select count(binding_token) from v3_eui_version", Integer.class));
+        var refusedGrant =
+                assertThrows(AssertionError.class, () -> f.script("grant-l2-discovery.sql", true));
+        String expectedMessage =
+                scope.equals("read-principal")
+                        ? "READ principal has Identity WRITE authority privileges"
+                        : "PUBLIC privileges expose Identity authority";
+        assertTrue(refusedGrant.getMessage().contains(expectedMessage));
+        refused(f, Map.of());
+        f.write.execute("revoke select" + columnClause + " on v3_eui_version from " + grantee);
+        f.trace.add(
+                "PUBLIC "
+                        + scope
+                        + " SELECT exposed WRITE to READ principal; root refused before loop");
     }
 
     @Test
@@ -866,97 +877,7 @@ class IdentityRequestMonolithPostgresTest {
                 // Include owner/invoker, materialization, PUBLIC and external/dynamic SQL.
                 for (String mode :
                         List.of("history", "admission", "materialized", "invoker", "definer")) {
-                    boolean function = mode.equals("definer");
-                    String object = aux + ".exposed";
-                    String data =
-                            mode.equals("admission")
-                                    ? "select binding_token from "
-                                            + f.schema
-                                            + ".v3_identity_request where binding_token is not null"
-                                    : "select binding_token from " + f.schema + ".v3_eui_version";
-                    f.write.execute(
-                            function
-                                    ? "create function "
-                                            + object
-                                            + "() returns setof text language plpgsql security"
-                                            + " definer as $$ begin return query execute '"
-                                            + data
-                                            + "'; end $$"
-                                    : "create "
-                                            + (mode.equals("materialized") ? "materialized " : "")
-                                            + "view "
-                                            + object
-                                            + (mode.equals("invoker")
-                                                    ? " with (security_invoker=true)"
-                                                    : "")
-                                            + " as "
-                                            + data);
-                    if (!function)
-                        f.write.execute(
-                                "grant select on "
-                                        + object
-                                        + " to "
-                                        + (mode.equals("materialized") ? "public" : f.readRole));
-                    String query =
-                            function
-                                    ? "select count(*) from " + object + "()"
-                                    : "select count(binding_token) from " + object;
-                    if (mode.equals("invoker")) {
-                        assertThrows(
-                                org.springframework.dao.DataAccessException.class,
-                                () -> reader.queryForObject(query, Integer.class));
-                    } else
-                        assertTrue(
-                                reader.queryForObject(query, Integer.class) > 0,
-                                "nonempty indirect leak witness");
-                    if (!function) {
-                        assertEquals(
-                                PG.getUsername(),
-                                f.write.queryForObject(
-                                        "select r.rolname from pg_class c join pg_roles r on"
-                                                + " r.oid=c.relowner where c.oid=?::regclass",
-                                        String.class,
-                                        object));
-                        assertEquals(
-                                mode.equals("invoker"),
-                                f.write.queryForObject(
-                                        "select"
-                                            + " coalesce('security_invoker=true'=any(reloptions),false)"
-                                            + " from pg_class where oid=?::regclass",
-                                        Boolean.class,
-                                        object));
-                    }
-                    var grant =
-                            assertThrows(
-                                    AssertionError.class,
-                                    () -> f.script("grant-l2-discovery.sql", true));
-                    assertTrue(grant.getMessage().contains("Identity indirect exposure"));
-                    refused(f, Map.of());
-                    // Refusal does not repair SQL permissions. Explicit administrative remediation.
-                    if (function) {
-                        f.write.execute("revoke execute on function " + object + "() from public");
-                        assertThrows(
-                                org.springframework.dao.DataAccessException.class,
-                                () -> reader.queryForObject(query, Integer.class));
-                        f.write.execute("drop function " + object + "()");
-                    } else {
-                        f.write.execute(
-                                "revoke select on " + object + " from " + f.readRole + ",public");
-                        assertThrows(
-                                org.springframework.dao.DataAccessException.class,
-                                () -> reader.queryForObject(query, Integer.class));
-                        f.write.execute(
-                                "drop "
-                                        + (mode.equals("materialized") ? "materialized " : "")
-                                        + "view "
-                                        + object);
-                    }
-                    f.script("grant-l2-discovery.sql", true);
-                    f.trace.add(
-                            mode
-                                    + ": nonempty witness (invoker denied), grants/root refused;"
-                                    + " explicit revoke gives SQLSTATE permission refusal; object"
-                                    + " removed");
+                    verifyIndirectExposureMode(f, reader, aux, mode);
                 }
             } finally {
                 f.write.execute("drop schema " + aux + " cascade");
@@ -966,6 +887,113 @@ class IdentityRequestMonolithPostgresTest {
             f.drain(legitimate);
             f.evidence("l3_indirect_exposure_refused");
         }
+    }
+
+    private static void verifyIndirectExposureMode(
+            Fixture f, JdbcTemplate reader, String aux, String mode) throws Exception {
+        boolean function = mode.equals("definer");
+        String object = aux + ".exposed";
+        createExposedObject(f, object, mode, function);
+        String query =
+                function
+                        ? "select count(*) from " + object + "()"
+                        : "select count(binding_token) from " + object;
+        assertExposedQueryBehavior(f, reader, object, query, mode, function);
+        var grant =
+                assertThrows(
+                        AssertionError.class, () -> f.script("grant-l2-discovery.sql", true));
+        assertTrue(grant.getMessage().contains("Identity indirect exposure"));
+        refused(f, Map.of());
+        // Refusal does not repair SQL permissions. Explicit administrative remediation.
+        remediateExposedObject(f, reader, object, query, mode, function);
+        f.script("grant-l2-discovery.sql", true);
+        f.trace.add(
+                mode
+                        + ": nonempty witness (invoker denied), grants/root refused;"
+                        + " explicit revoke gives SQLSTATE permission refusal; object removed");
+    }
+
+    private static void createExposedObject(
+            Fixture f, String object, String mode, boolean function) {
+        String data =
+                mode.equals("admission")
+                        ? "select binding_token from "
+                                + f.schema
+                                + ".v3_identity_request where binding_token is not null"
+                        : "select binding_token from " + f.schema + ".v3_eui_version";
+        if (function) {
+            f.write.execute(
+                    "create function "
+                            + object
+                            + "() returns setof text language plpgsql security definer as $$"
+                            + " begin return query execute '"
+                            + data
+                            + "'; end $$");
+            return;
+        }
+        String viewKind = mode.equals("materialized") ? "materialized view " : "view ";
+        String options = mode.equals("invoker") ? " with (security_invoker=true)" : "";
+        f.write.execute("create " + viewKind + object + options + " as " + data);
+        String grantee = mode.equals("materialized") ? "public" : f.readRole;
+        f.write.execute("grant select on " + object + " to " + grantee);
+    }
+
+    private static void assertExposedQueryBehavior(
+            Fixture f,
+            JdbcTemplate reader,
+            String object,
+            String query,
+            String mode,
+            boolean function) {
+        if (mode.equals("invoker")) {
+            assertThrows(
+                    org.springframework.dao.DataAccessException.class,
+                    () -> reader.queryForObject(query, Integer.class));
+        } else {
+            assertTrue(
+                    reader.queryForObject(query, Integer.class) > 0,
+                    "nonempty indirect leak witness");
+        }
+        if (function) {
+            return;
+        }
+        assertEquals(
+                PG.getUsername(),
+                f.write.queryForObject(
+                        "select r.rolname from pg_class c join pg_roles r on r.oid=c.relowner"
+                                + " where c.oid=?::regclass",
+                        String.class,
+                        object));
+        assertEquals(
+                mode.equals("invoker"),
+                f.write.queryForObject(
+                        "select coalesce('security_invoker=true'=any(reloptions),false)"
+                                + " from pg_class where oid=?::regclass",
+                        Boolean.class,
+                        object));
+    }
+
+    private static void remediateExposedObject(
+            Fixture f,
+            JdbcTemplate reader,
+            String object,
+            String query,
+            String mode,
+            boolean function) {
+        if (function) {
+            f.write.execute("revoke execute on function " + object + "() from public");
+            assertThrows(
+                    org.springframework.dao.DataAccessException.class,
+                    () -> reader.queryForObject(query, Integer.class));
+            f.write.execute("drop function " + object + "()");
+            return;
+        }
+        f.write.execute("revoke select on " + object + " from " + f.readRole + ",public");
+        assertThrows(
+                org.springframework.dao.DataAccessException.class,
+                () -> reader.queryForObject(query, Integer.class));
+        String viewKind = mode.equals("materialized") ? "materialized view " : "view ";
+        f.write.execute("drop " + viewKind + object);
     }
 
     @Test
@@ -985,104 +1013,7 @@ class IdentityRequestMonolithPostgresTest {
                     UUID.randomUUID());
             var holders = new ArrayList<Object>();
             for (boolean rollback : List.of(false, true)) {
-                try {
-                    owner.write(
-                            () -> {
-                                authority.lockInCanonicalOrder(List.of(key));
-                                holders.add(
-                                        org.springframework.transaction.support
-                                                .TransactionSynchronizationManager.getResource(
-                                                pool));
-                                try (var c =
-                                        DriverManager.getConnection(
-                                                f.writeUrl, PG.getUsername(), PG.getPassword())) {
-                                    c.setAutoCommit(false);
-                                    try (var s = c.createStatement()) {
-                                        var denied =
-                                                assertThrows(
-                                                        SQLException.class,
-                                                        () ->
-                                                                s.executeQuery(
-                                                                        "select eui_id from"
-                                                                            + " v3_eui_authority"
-                                                                            + " where"
-                                                                            + " issuer='prebound'"
-                                                                            + " and subject='anchor'"
-                                                                            + " for update"
-                                                                            + " nowait"));
-                                        assertEquals("55P03", denied.getSQLState());
-                                    } finally {
-                                        c.rollback();
-                                    }
-                                } catch (SQLException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                if (rollback)
-                                    throw new IllegalStateException("intentional rollback");
-                                return null;
-                            });
-                    assertFalse(rollback);
-                } catch (AttemptTransactions.Failure failed) {
-                    assertTrue(rollback);
-                    assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, failed.resolution());
-                }
-                assertThrows(
-                        AttemptTransactions.Failure.class,
-                        () -> owner.write(() -> authority.current(key)));
-                var id =
-                        new com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId(
-                                f.write.queryForObject(
-                                        "select eui_id from v3_eui_authority where"
-                                            + " issuer='prebound' and subject='anchor'",
-                                        UUID.class));
-                var change =
-                        new com.kartaguez.pocoma.domain.identity.IdentityTransitionResult
-                                .Changed(
-                                Optional.empty(),
-                                new com.kartaguez.pocoma.domain.identity
-                                        .ExternalUserIdentity(
-                                        id,
-                                        key,
-                                        1,
-                                        new com.kartaguez.pocoma.domain.identity.PocomaUserId(
-                                                UUID.randomUUID()),
-                                        new BindingToken("prebound-negative-fixture")));
-                var unprotected =
-                        assertThrows(
-                                AttemptTransactions.Failure.class,
-                                () ->
-                                        owner.write(
-                                                () -> {
-                                                    authority.apply(change, UUID.randomUUID());
-                                                    return null;
-                                                }));
-                assertEquals(
-                        "EUI was not protected by this attempt",
-                        unprotected.getCause().getMessage());
-
-                try (var c = pool.getConnection()) {
-                    org.springframework.transaction.support.TransactionSynchronizationManager
-                            .bindResource(
-                                    pool,
-                                    new org.springframework.jdbc.datasource.ConnectionHolder(c));
-                    var called = new AtomicBoolean();
-                    try {
-                        assertThrows(
-                                AttemptTransactions.Failure.class,
-                                () ->
-                                        owner.write(
-                                                () -> {
-                                                    called.set(true);
-                                                    return authority.current(key);
-                                                }));
-                        assertFalse(
-                                called.get(),
-                                "JPA must refuse retained JDBC holder before callback");
-                    } finally {
-                        org.springframework.transaction.support.TransactionSynchronizationManager
-                                .unbindResourceIfPossible(pool);
-                    }
-                }
+                verifyPreboundHolderCycle(f, owner, pool, authority, key, rollback, holders);
             }
             assertNotSame(holders.get(0), holders.get(1));
             f.trace.add(
@@ -1091,6 +1022,122 @@ class IdentityRequestMonolithPostgresTest {
                             + " callback");
             f.drain(context);
             f.evidence("l3_delivered_jpa_rejects_prebound_holder");
+        }
+    }
+
+    private static void verifyPreboundHolderCycle(
+            Fixture f,
+            SpringAttemptTransactions owner,
+            javax.sql.DataSource pool,
+            JdbcIdentityAuthority authority,
+            ExternalIdentity key,
+            boolean rollback,
+            List<Object> holders)
+            throws Exception {
+        try {
+            owner.write(
+                    () -> {
+                        authority.lockInCanonicalOrder(List.of(key));
+                        holders.add(
+                                org.springframework.transaction.support
+                                        .TransactionSynchronizationManager.getResource(pool));
+                        assertAuthorityRowLockedNowait(f.writeUrl);
+                        if (rollback) {
+                            throw new IllegalStateException("intentional rollback");
+                        }
+                        return null;
+                    });
+            assertFalse(rollback);
+        } catch (AttemptTransactions.Failure failed) {
+            assertTrue(rollback);
+            assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, failed.resolution());
+        }
+        assertThrows(
+                AttemptTransactions.Failure.class,
+                () -> owner.write(() -> authority.current(key)));
+        assertUnprotectedApplyRefused(f, owner, authority, key);
+        assertPreboundJdbcHolderRefused(owner, pool, authority, key);
+    }
+
+    private static void assertAuthorityRowLockedNowait(String writeUrl) {
+        try (var c = DriverManager.getConnection(writeUrl, PG.getUsername(), PG.getPassword())) {
+            c.setAutoCommit(false);
+            try (var s = c.createStatement()) {
+                var denied =
+                        assertThrows(
+                                SQLException.class,
+                                () ->
+                                        s.executeQuery(
+                                                "select eui_id from v3_eui_authority where"
+                                                        + " issuer='prebound' and subject='anchor'"
+                                                        + " for update nowait"));
+                assertEquals("55P03", denied.getSQLState());
+            } finally {
+                c.rollback();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void assertUnprotectedApplyRefused(
+            Fixture f,
+            SpringAttemptTransactions owner,
+            JdbcIdentityAuthority authority,
+            ExternalIdentity key) {
+        var id =
+                new com.kartaguez.pocoma.domain.identity.ExternalUserIdentityId(
+                        f.write.queryForObject(
+                                "select eui_id from v3_eui_authority where issuer='prebound' and"
+                                        + " subject='anchor'",
+                                UUID.class));
+        var change =
+                new com.kartaguez.pocoma.domain.identity.IdentityTransitionResult.Changed(
+                        Optional.empty(),
+                        new com.kartaguez.pocoma.domain.identity.ExternalUserIdentity(
+                                id,
+                                key,
+                                1,
+                                new com.kartaguez.pocoma.domain.identity.PocomaUserId(
+                                        UUID.randomUUID()),
+                                new BindingToken("prebound-negative-fixture")));
+        var unprotected =
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () ->
+                                owner.write(
+                                        () -> {
+                                            authority.apply(change, UUID.randomUUID());
+                                            return null;
+                                        }));
+        assertEquals("EUI was not protected by this attempt", unprotected.getCause().getMessage());
+    }
+
+    private static void assertPreboundJdbcHolderRefused(
+            SpringAttemptTransactions owner,
+            javax.sql.DataSource pool,
+            JdbcIdentityAuthority authority,
+            ExternalIdentity key)
+            throws Exception {
+        try (var c = pool.getConnection()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.bindResource(
+                    pool, new org.springframework.jdbc.datasource.ConnectionHolder(c));
+            var called = new AtomicBoolean();
+            try {
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () ->
+                                owner.write(
+                                        () -> {
+                                            called.set(true);
+                                            return authority.current(key);
+                                        }));
+                assertFalse(
+                        called.get(), "JPA must refuse retained JDBC holder before callback");
+            } finally {
+                org.springframework.transaction.support.TransactionSynchronizationManager
+                        .unbindResourceIfPossible(pool);
+            }
         }
     }
 

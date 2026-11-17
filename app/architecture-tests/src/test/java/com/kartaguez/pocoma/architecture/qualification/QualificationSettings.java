@@ -105,31 +105,44 @@ public record QualificationSettings(
         boolean profile =
                 Arrays.stream(env.getActiveProfiles())
                         .anyMatch(p -> p.equals(PROFILE) || p.equals(READ_PROFILE));
-        boolean any =
-                profile
-                        || env.containsProperty(PREFIX + "enabled")
-                        || env.containsProperty(PREFIX + "fixture-identity")
-                        || env.containsProperty(PREFIX + "technical-probes")
-                        || env.containsProperty(PREFIX + "identity-authority")
-                        || env.containsProperty(PREFIX + "identity-request")
-                        || env.containsProperty(PREFIX + "read-participants");
-        if (!any) return false;
+        if (!profile && !hasQualificationProperty(env)) return false;
+        validateRequestedEnvironment(env, profile);
+        return true;
+    }
+
+    private static boolean hasQualificationProperty(Environment env) {
+        return List.of(
+                        "enabled",
+                        "fixture-identity",
+                        "technical-probes",
+                        "identity-authority",
+                        "identity-request",
+                        "read-participants")
+                .stream()
+                .anyMatch(k -> env.containsProperty(PREFIX + k));
+    }
+
+    private static boolean isAllowedProfileCombination(Environment env, boolean profile) {
+        if (!profile) return false;
+        if (env.getActiveProfiles().length == 1) return true;
         var profiles = Set.copyOf(Arrays.asList(env.getActiveProfiles()));
-        boolean readHttp =
-                profiles.equals(Set.of(READ_PROFILE, "v3-http-read"))
-                        || profiles.equals(
-                                Set.of(
-                                        READ_PROFILE,
-                                        "v3-http-read",
-                                        "v3-http-admission"));
-        if (!profile
-                || (env.getActiveProfiles().length != 1 && !readHttp)
-                || !flag(env, "enabled")
-                || !"DEV".equals(env.getRequiredProperty(PREFIX + "environment"))
-                || env.getRequiredProperty(PREFIX + "dev-targets").isBlank())
+        if (profiles.equals(Set.of(READ_PROFILE, "v3-http-read"))) return true;
+        return profiles.equals(Set.of(READ_PROFILE, "v3-http-read", "v3-http-admission"));
+    }
+
+    private static void validateRequestedEnvironment(Environment env, boolean profile) {
+        if (!isAllowedProfileCombination(env, profile)) {
             throw new IllegalStateException(
                     "I5 requires explicit profile, DEV authorization and targets");
-        return true;
+        }
+        if (!flag(env, "enabled") || !"DEV".equals(env.getRequiredProperty(PREFIX + "environment"))) {
+            throw new IllegalStateException(
+                    "I5 requires explicit profile, DEV authorization and targets");
+        }
+        if (env.getRequiredProperty(PREFIX + "dev-targets").isBlank()) {
+            throw new IllegalStateException(
+                    "I5 requires explicit profile, DEV authorization and targets");
+        }
     }
 
     private static boolean flag(Environment env, String key) {
@@ -145,6 +158,13 @@ public record QualificationSettings(
         return n;
     }
 
+    private record AuthoritySelection(
+            String mode,
+            boolean identity,
+            boolean command,
+            List<String> reads,
+            Set<String> expected) {}
+
     public static QualificationSettings from(Environment env) {
         if (!requested(env)) throw new IllegalStateException("I5 not authorized");
         boolean readMode = Arrays.asList(env.getActiveProfiles()).contains(READ_PROFILE);
@@ -155,7 +175,47 @@ public record QualificationSettings(
             throw new IllegalArgumentException("invalid worker name");
         int mw = positive(env, "worker-limit");
         boolean fixture = flag(env, "fixture-identity"), probes = flag(env, "technical-probes");
-        var expected = new LinkedHashSet<String>();
+        var sel = resolveAuthoritySelection(env, readMode, fixture, probes);
+        validateWorkerRole(name, sel, readMode);
+        var limits = parseConsumptionLimits(env, sel.expected());
+        var partitions = parsePartitions(env, sel.expected());
+        var allowed = parseAllowedTargets(env);
+        Pool wb = pool(env, "write-business", true, mw),
+                wc = pool(env, "write-control", false, mw),
+                rb = pool(env, "read-business", true, mw),
+                rc = pool(env, "read-control", false, mw);
+        validatePoolPairs(wb, wc, rb, rc);
+        int batch = env.getProperty(PREFIX + "lifecycle.batch-size", Integer.class, 32);
+        if (batch < 1 || batch > 32)
+            throw new IllegalArgumentException("pilot batch must be 1..32");
+        var life = buildLifecycle(env, readMode, batch);
+        var settings = buildWorkerSettings(env, batch, life);
+        validateLeaseBudget(readMode, partitions, new LeaseBounds(mw, settings, life));
+        if (settings.drainDeadline().compareTo(Duration.ofSeconds(90)) > 0)
+            throw new IllegalArgumentException("dev drain must precede external shutdown deadline");
+        return new QualificationSettings(
+                name,
+                mw,
+                fixture,
+                sel.mode(),
+                sel.identity(),
+                sel.command(),
+                probes,
+                readMode,
+                sel.reads(),
+                limits,
+                partitions,
+                wb,
+                wc,
+                rb,
+                rc,
+                allowed,
+                settings,
+                life);
+    }
+
+    private static AuthoritySelection resolveAuthoritySelection(
+            Environment env, boolean readMode, boolean fixture, boolean probes) {
         String mode = env.getRequiredProperty(PREFIX + "identity-authority");
         if (!Set.of("fixture", "real").contains(mode))
             throw new IllegalArgumentException("explicit Identity authority mode required");
@@ -163,79 +223,133 @@ public record QualificationSettings(
                 env.containsProperty(PREFIX + "identity-request") && flag(env, "identity-request");
         boolean command =
                 env.containsProperty(PREFIX + "command-enabled") && flag(env, "command-enabled");
-        if (identity && !mode.equals("real") || mode.equals("real") && fixture)
+        validateAuthorityCombination(mode, identity, command, fixture);
+        var reads = readMode ? parseReadParticipants(env, fixture, probes, mode) : List.<String>of();
+        var sel = new AuthoritySelection(mode, identity, command, reads, Set.of());
+        var expected = buildExpectedConsumptions(sel, probes, readMode);
+        return new AuthoritySelection(mode, identity, command, reads, expected);
+    }
+
+    private static void validateAuthorityCombination(
+            String mode, boolean identity, boolean command, boolean fixture) {
+        boolean isReal = mode.equals("real");
+        if ((identity && !isReal) || (isReal && fixture))
             throw new IllegalArgumentException(
                     "Real Identity forbids fixtures; IdentityRequest requires real authority");
         if (command && mode.equals("fixture") && !fixture)
             throw new IllegalArgumentException(
                     "Fixture Command requires explicit fixture authority");
-        var reads = new ArrayList<String>();
-        if (readMode) {
-            if (fixture || probes || !mode.equals("real"))
-                throw new IllegalArgumentException(
-                        "READ business profile requires real Identity and forbids probes/fixtures");
-            String selection = env.getRequiredProperty(PREFIX + "read-participants");
-            if (!selection.isEmpty())
-                for (String selected : selection.split(",", -1)) {
-                    if (!READ_NAMES.contains(selected) || reads.contains(selected))
-                        throw new IllegalArgumentException(
-                                "unknown or duplicate READ participant: " + selected);
-                    reads.add(selected);
-                }
-            expected.addAll(reads);
-        }
-        if (identity) expected.add("IdentityRequest");
-        if (command) expected.add("Command");
+    }
+
+    private static Set<String> buildExpectedConsumptions(
+            AuthoritySelection sel, boolean probes, boolean readMode) {
+        var expected = new LinkedHashSet<String>(sel.reads());
+        if (sel.identity()) expected.add("IdentityRequest");
+        if (sel.command()) expected.add("Command");
         if (probes) expected.addAll(List.of("I5ReadPotProbe", "I5ReadCompletionProbe"));
         if (expected.isEmpty() && !readMode)
             throw new IllegalArgumentException("at least one implemented pair required");
-        if (name.equals("command-worker") || name.equals("pocoma-command-worker")) {
-            if (readMode || !reads.isEmpty())
-                throw new IllegalArgumentException("Command worker cannot activate read participants");
-            if (!command || !identity)
+        return expected;
+    }
+
+    private static List<String> parseReadParticipants(
+            Environment env, boolean fixture, boolean probes, String mode) {
+        if (fixture || probes || !mode.equals("real"))
+            throw new IllegalArgumentException(
+                    "READ business profile requires real Identity and forbids probes/fixtures");
+        var reads = new ArrayList<String>();
+        String selection = env.getRequiredProperty(PREFIX + "read-participants");
+        if (selection.isEmpty()) return reads;
+        for (String selected : selection.split(",", -1)) {
+            if (!READ_NAMES.contains(selected) || reads.contains(selected))
                 throw new IllegalArgumentException(
-                        "Command worker must activate Command and IdentityRequest");
-        } else if (name.equals("results-worker") || name.equals("pocoma-results-worker")) {
-            if (!readMode || command || identity)
-                throw new IllegalArgumentException("Results worker cannot activate write participants");
-            var resultTypes = Set.of("MaterializeCommandResult", "MaterializeIdentityRequestResult");
-            if (!resultTypes.containsAll(reads) || !reads.containsAll(resultTypes))
-                throw new IllegalArgumentException(
-                        "Results worker must activate exclusively MaterializeCommandResult and MaterializeIdentityRequestResult");
-        } else if (name.equals("business-read-worker") || name.equals("pocoma-business-read-worker")) {
-            if (!readMode || command || identity)
-                throw new IllegalArgumentException(
-                        "Business read worker cannot activate write participants");
-            if (reads.contains("MaterializeCommandResult")
-                    || reads.contains("MaterializeIdentityRequestResult"))
-                throw new IllegalArgumentException(
-                        "Business READ worker cannot activate result projections");
+                        "unknown or duplicate READ participant: " + selected);
+            reads.add(selected);
         }
+        return reads;
+    }
+
+    private static void validateWorkerRole(
+            String name, AuthoritySelection sel, boolean readMode) {
+        switch (name) {
+            case "command-worker", "pocoma-command-worker" ->
+                    validateCommandWorker(sel, readMode);
+            case "results-worker", "pocoma-results-worker" ->
+                    validateResultsWorker(sel, readMode);
+            case "business-read-worker", "pocoma-business-read-worker" ->
+                    validateBusinessReadWorker(sel, readMode);
+            default -> {}
+        }
+    }
+
+    private static void validateCommandWorker(AuthoritySelection sel, boolean readMode) {
+        if (readMode || !sel.reads().isEmpty())
+            throw new IllegalArgumentException("Command worker cannot activate read participants");
+        if (!sel.command() || !sel.identity())
+            throw new IllegalArgumentException(
+                    "Command worker must activate Command and IdentityRequest");
+    }
+
+    private static void validateResultsWorker(AuthoritySelection sel, boolean readMode) {
+        if (!readMode || sel.command() || sel.identity())
+            throw new IllegalArgumentException("Results worker cannot activate write participants");
+        var resultTypes = Set.of("MaterializeCommandResult", "MaterializeIdentityRequestResult");
+        if (!Set.copyOf(sel.reads()).equals(resultTypes))
+            throw new IllegalArgumentException(
+                    "Results worker must activate exclusively MaterializeCommandResult and MaterializeIdentityRequestResult");
+    }
+
+    private static void validateBusinessReadWorker(AuthoritySelection sel, boolean readMode) {
+        if (!readMode || sel.command() || sel.identity())
+            throw new IllegalArgumentException(
+                    "Business read worker cannot activate write participants");
+        if (sel.reads().contains("MaterializeCommandResult")
+                || sel.reads().contains("MaterializeIdentityRequestResult"))
+            throw new IllegalArgumentException(
+                    "Business READ worker cannot activate result projections");
+    }
+
+    private static Map<String, Integer> parseConsumptionLimits(
+            Environment env, Set<String> expected) {
         var limits = new LinkedHashMap<String, Integer>();
         for (var entry : entries(env.getRequiredProperty(PREFIX + "consumption-limits"), ",")) {
             var pair = entry.split("=", -1);
-            if (pair.length != 2
-                    || !expected.contains(pair[0])
-                    || limits.put(pair[0], Integer.valueOf(pair[1])) != null
-                    || Integer.parseInt(pair[1]) < 1)
+            if (pair.length != 2 || !expected.contains(pair[0]))
+                throw new IllegalArgumentException("invalid Consumption limits");
+            int val = Integer.parseInt(pair[1]);
+            if (val < 1 || limits.put(pair[0], val) != null)
                 throw new IllegalArgumentException("invalid Consumption limits");
         }
         if (!limits.keySet().equals(expected))
             throw new IllegalArgumentException("incomplete enabled Consumption limits");
+        return limits;
+    }
+
+    private static List<Integer> parsePartitionIds(String raw) {
+        var values = Arrays.stream(raw.split("\\|", -1)).map(Integer::valueOf).toList();
+        if (values.isEmpty() || values.stream().anyMatch(p -> p < 0 || p >= 4))
+            throw new IllegalArgumentException("invalid partitions");
+        if (new HashSet<>(values).size() != values.size())
+            throw new IllegalArgumentException("invalid partitions");
+        return values;
+    }
+
+    private static Map<String, List<Integer>> parsePartitions(
+            Environment env, Set<String> expected) {
         var partitions = new LinkedHashMap<String, List<Integer>>();
         for (var entry : entries(env.getRequiredProperty(PREFIX + "partitions"), ";")) {
             var pair = entry.split("=", -1);
             if (pair.length != 2 || !expected.contains(pair[0]))
                 throw new IllegalArgumentException("invalid candidate definition");
-            var values = Arrays.stream(pair[1].split("\\|", -1)).map(Integer::valueOf).toList();
-            if (values.isEmpty()
-                    || new HashSet<>(values).size() != values.size()
-                    || values.stream().anyMatch(p -> p < 0 || p >= 4)
-                    || partitions.put(pair[0], values) != null)
+            if (partitions.put(pair[0], parsePartitionIds(pair[1])) != null)
                 throw new IllegalArgumentException("invalid partitions");
         }
         if (!partitions.keySet().equals(expected))
             throw new IllegalArgumentException("incomplete partition configuration");
+        return partitions;
+    }
+
+    private static List<DevTarget> parseAllowedTargets(Environment env) {
         var allowed = new ArrayList<DevTarget>();
         for (var tuple : env.getRequiredProperty(PREFIX + "dev-targets").split(";")) {
             var v = tuple.split(",", -1);
@@ -253,102 +367,98 @@ public record QualificationSettings(
         }
         if (allowed.size() != 2 || new HashSet<>(allowed).size() != 2)
             throw new IllegalArgumentException("two exact dev targets required");
-        Pool wb = pool(env, "write-business", true, mw),
-                wc = pool(env, "write-control", false, mw),
-                rb = pool(env, "read-business", true, mw),
-                rc = pool(env, "read-control", false, mw);
-        if (!sameAuthority(wb, wc)
-                || !sameAuthority(rb, rc)
-                || (wb.database().equals(rb.database())
-                        && endpoint(wb).getAuthority().equals(endpoint(rb).getAuthority())))
+        return allowed;
+    }
+
+    private static void validatePoolPairs(Pool wb, Pool wc, Pool rb, Pool rc) {
+        if (!sameAuthority(wb, wc) || !sameAuthority(rb, rc))
             throw new IllegalArgumentException(
                     "Business/Control targets must match; WRITE/READ must differ");
-        int batch = env.getProperty(PREFIX + "lifecycle.batch-size", Integer.class, 32);
-        if (batch < 1 || batch > 32)
-            throw new IllegalArgumentException("pilot batch must be 1..32");
-        var life =
-                new LifecycleSettings(
-                        batch,
-                        (readMode
-                                ? Duration.ofMillis(
-                                        Long.parseLong(
-                                                env.getRequiredProperty(
-                                                        PREFIX + "lifecycle.lease-duration-ms")))
-                                : duration(env, "lifecycle.lease-duration-ms", 30000)),
-                        duration(env, "lifecycle.claim-duration-ms", 60000),
-                        duration(env, "lifecycle.renewal-interval-ms", 10000),
-                        Duration.ofMillis(500),
-                        Duration.ofSeconds(2),
-                        new LifecycleSettings.RetryPolicy(
-                                env.getProperty(
-                                        PREFIX + "lifecycle.retry-max-failures", Integer.class, 3),
-                                duration(env, "lifecycle.retry-delay-ms", 30000)));
-        var settings =
-                new ConsumptionWorker.Settings(
-                        batch,
-                        env.getProperty(PREFIX + "quantum", Integer.class, 1),
-                        duration(env, "min-poll", 10),
-                        duration(env, "max-poll", 1000),
-                        duration(env, "error-poll", 1000),
-                        Duration.ofSeconds(1),
-                        life.renewalInterval(),
-                        Duration.ofSeconds(5),
-                        duration(env, "drain-timeout", 90000));
+        if (wb.database().equals(rb.database())
+                && endpoint(wb).getAuthority().equals(endpoint(rb).getAuthority()))
+            throw new IllegalArgumentException(
+                    "Business/Control targets must match; WRITE/READ must differ");
+    }
+
+    private static LifecycleSettings buildLifecycle(Environment env, boolean readMode, int batch) {
+        Duration lease =
+                readMode
+                        ? Duration.ofMillis(
+                                Long.parseLong(
+                                        env.getRequiredProperty(
+                                                PREFIX + "lifecycle.lease-duration-ms")))
+                        : duration(env, "lifecycle.lease-duration-ms", 30000);
+        return new LifecycleSettings(
+                batch,
+                lease,
+                duration(env, "lifecycle.claim-duration-ms", 60000),
+                duration(env, "lifecycle.renewal-interval-ms", 10000),
+                Duration.ofMillis(500),
+                Duration.ofSeconds(2),
+                new LifecycleSettings.RetryPolicy(
+                        env.getProperty(PREFIX + "lifecycle.retry-max-failures", Integer.class, 3),
+                        duration(env, "lifecycle.retry-delay-ms", 30000)));
+    }
+
+    private static ConsumptionWorker.Settings buildWorkerSettings(
+            Environment env, int batch, LifecycleSettings life) {
+        return new ConsumptionWorker.Settings(
+                batch,
+                env.getProperty(PREFIX + "quantum", Integer.class, 1),
+                duration(env, "min-poll", 10),
+                duration(env, "max-poll", 1000),
+                duration(env, "error-poll", 1000),
+                Duration.ofSeconds(1),
+                life.renewalInterval(),
+                Duration.ofSeconds(5),
+                duration(env, "drain-timeout", 90000));
+    }
+
+    private record LeaseBounds(int mw, ConsumptionWorker.Settings settings, LifecycleSettings life) {}
+
+    private static void validateLeaseBudget(
+            boolean readMode, Map<String, List<Integer>> partitions, LeaseBounds bounds) {
         // Necessary nominal-batch check, not physical certification. Partial batches can
         // require more calls: qualification must count every candidate, include polling,
         // and observe all PostgreSQL deadlines with the measured whole-path envelope.
+        int batch = bounds.settings().pageSize();
         int leaseLots =
                 partitions.values().stream().mapToInt(p -> (p.size() + batch - 1) / batch).sum();
-        Duration leaseBound = settings.renewalInterval().plusSeconds(5L * leaseLots + 3);
-        if (readMode) {
-            leaseBound = Duration.ZERO;
-            for (var authority : Authority.values()) {
-                int candidates = 0, bindings = 0;
-                for (var entry : partitions.entrySet())
-                    if (definition(entry.getKey()).authority() == authority) {
-                        candidates += entry.getValue().size();
-                        bindings++;
-                    }
-                // One useful renewal per call, one bounded no-progress window per binding.
-                // Independent lanes per authority. Qualification must observe each SQL deadline.
-                var bound =
-                        settings.renewalInterval()
-                                .plus(
-                                        settings.renewalBudget()
-                                                .multipliedBy((long) candidates + bindings))
-                                .plus(settings.minPoll().multipliedBy(candidates))
-                                .plusSeconds(4);
-                if (bound.compareTo(leaseBound) > 0) leaseBound = bound;
-            }
-        }
-        if (leaseBound.compareTo(life.leaseDuration()) >= 0
-                || settings.renewalInterval()
-                                .plusSeconds(5L * mw + 3)
-                                .compareTo(life.claimDuration())
+        Duration leaseBound =
+                readMode
+                        ? readModeLeaseBound(partitions, bounds.settings())
+                        : bounds.settings().renewalInterval().plusSeconds(5L * leaseLots + 3);
+        if (leaseBound.compareTo(bounds.life().leaseDuration()) >= 0
+                || bounds.settings()
+                                .renewalInterval()
+                                .plusSeconds(5L * bounds.mw() + 3)
+                                .compareTo(bounds.life().claimDuration())
                         >= 0)
             throw new IllegalArgumentException(
                     "renewal budget exceeds pilot margins; explicit requalification required");
-        if (settings.drainDeadline().compareTo(Duration.ofSeconds(90)) > 0)
-            throw new IllegalArgumentException("dev drain must precede external shutdown deadline");
-        return new QualificationSettings(
-                name,
-                mw,
-                fixture,
-                mode,
-                identity,
-                command,
-                probes,
-                readMode,
-                reads,
-                limits,
-                partitions,
-                wb,
-                wc,
-                rb,
-                rc,
-                allowed,
-                settings,
-                life);
+    }
+
+    private static Duration readModeLeaseBound(
+            Map<String, List<Integer>> partitions, ConsumptionWorker.Settings settings) {
+        Duration leaseBound = Duration.ZERO;
+        for (var authority : Authority.values()) {
+            int candidates = 0, bindings = 0;
+            for (var entry : partitions.entrySet()) {
+                if (definition(entry.getKey()).authority() == authority) {
+                    candidates += entry.getValue().size();
+                    bindings++;
+                }
+            }
+            // One useful renewal per call, one bounded no-progress window per binding.
+            // Independent lanes per authority. Qualification must observe each SQL deadline.
+            var bound =
+                    settings.renewalInterval()
+                            .plus(settings.renewalBudget().multipliedBy((long) candidates + bindings))
+                            .plus(settings.minPoll().multipliedBy(candidates))
+                            .plusSeconds(4);
+            if (bound.compareTo(leaseBound) > 0) leaseBound = bound;
+        }
+        return leaseBound;
     }
 
     private static String[] entries(String value, String separator) {
@@ -380,24 +490,36 @@ public record QualificationSettings(
                         max,
                         minIdle,
                         business);
-        if (!pool.username().equals(role)
-                || pool.maximum() > defaultMax
-                || pool.maximum() < defaultMax
-                || pool.minimumIdle() != pool.maximum())
-            throw new IllegalArgumentException("unqualified pool sizing or runtime principal");
-        var uri = endpoint(pool);
-        if (uri.getHost() == null
-                || uri.getPort() < 1
-                || !uri.getPath().equals("/" + db)
-                || uri.getUserInfo() != null
-                || !("currentSchema=" + schema).equals(uri.getQuery())
-                || uri.getFragment() != null
-                || !db.matches("[a-z][a-z0-9_]*")
-                || !schema.matches("[a-z][a-z0-9_]*")
-                || schema.equals("public")
-                || !role.matches("[a-z][a-z0-9_]*"))
-            throw new IllegalArgumentException("explicit single TCP target and schema required");
+        validatePoolSizing(pool, role, defaultMax);
+        validatePoolUri(pool, db, schema, role);
         return pool;
+    }
+
+    private static void validatePoolSizing(Pool pool, String role, int defaultMax) {
+        if (!pool.username().equals(role)
+                || pool.maximum() != defaultMax
+                || pool.minimumIdle() != pool.maximum()) {
+            throw new IllegalArgumentException("unqualified pool sizing or runtime principal");
+        }
+    }
+
+    private static void validatePoolUri(Pool pool, String db, String schema, String role) {
+        var uri = endpoint(pool);
+        boolean validUri =
+                uri.getHost() != null
+                        && uri.getPort() >= 1
+                        && uri.getPath().equals("/" + db)
+                        && uri.getUserInfo() == null
+                        && ("currentSchema=" + schema).equals(uri.getQuery())
+                        && uri.getFragment() == null;
+        boolean validNames =
+                db.matches("[a-z][a-z0-9_]*")
+                        && schema.matches("[a-z][a-z0-9_]*")
+                        && !schema.equals("public")
+                        && role.matches("[a-z][a-z0-9_]*");
+        if (!validUri || !validNames) {
+            throw new IllegalArgumentException("explicit single TCP target and schema required");
+        }
     }
 
     private static URI endpoint(Pool pool) {
@@ -432,10 +554,7 @@ public record QualificationSettings(
                                 rows.getString(3),
                                 rows.getString(4),
                                 rows.getInt(5));
-                if (!allowedTargets.contains(actual)
-                        || !actual.database().equals(pool.database())
-                        || !actual.schema().equals(pool.schema())
-                        || !actual.role().equals(pool.username()))
+                if (!allowedTargets.contains(actual) || !matchesPoolTarget(actual, pool))
                     throw new IllegalStateException(
                             "physical authority outside explicit dev allowlist");
             } finally {
@@ -444,6 +563,12 @@ public record QualificationSettings(
         } catch (SQLException e) {
             throw new IllegalStateException("I5 target validation failed", e);
         }
+    }
+
+    private static boolean matchesPoolTarget(DevTarget actual, Pool pool) {
+        return actual.database().equals(pool.database())
+                && actual.schema().equals(pool.schema())
+                && actual.role().equals(pool.username());
     }
 
     public Map<ConsumptionId, Integer> capacityLimits() {

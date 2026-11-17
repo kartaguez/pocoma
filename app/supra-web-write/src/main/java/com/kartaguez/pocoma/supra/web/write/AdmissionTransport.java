@@ -118,22 +118,7 @@ public final class AdmissionTransport extends OncePerRequestFilter {
             return;
         }
         try {
-            AdmissionFailure.require(r.getMethod().equals("POST")
-                    && r.getQueryString() == null && r.getRequestURI().length() <= 2048);
-            if (r.getHeader("Content-Encoding") != null) throw new AdmissionFailure(415);
-            String media = r.getContentType();
-            if (media == null
-                    || !media.toLowerCase(Locale.ROOT)
-                            .matches("application/json(?:\\s*;\\s*charset=utf-8)?"))
-                throw new AdmissionFailure(415);
-            int max =
-                    r.getRequestURI().equals("/api/v3/commands")
-                            ? limits.commandBytes()
-                            : limits.identityBytes();
-            if (r.getContentLengthLong() > max) throw new AdmissionFailure(413);
-            byte[] body = r.getInputStream().readNBytes(max + 1);
-            if (body.length > max) throw new AdmissionFailure(413);
-            r.setAttribute(BODY, body);
+            r.setAttribute(BODY, readBoundedBody(r));
             chain.doFilter(r, response);
         } catch (AdmissionFailure failure) {
             if (!response.isCommitted()) error(response, failure.status());
@@ -143,6 +128,28 @@ public final class AdmissionTransport extends OncePerRequestFilter {
             r.removeAttribute(UNRESOLVED);
             telemetry.record(endpoint, response.getStatus(), System.nanoTime() - startNanos);
         }
+    }
+
+    private byte[] readBoundedBody(HttpServletRequest r) throws IOException {
+        AdmissionFailure.require(
+                r.getMethod().equals("POST")
+                        && r.getQueryString() == null
+                        && r.getRequestURI().length() <= 2048);
+        if (r.getHeader("Content-Encoding") != null) throw new AdmissionFailure(415);
+        String media = r.getContentType();
+        if (media == null
+                || !media.toLowerCase(Locale.ROOT)
+                        .matches("application/json(?:\\s*;\\s*charset=utf-8)?")) {
+            throw new AdmissionFailure(415);
+        }
+        int max =
+                r.getRequestURI().equals("/api/v3/commands")
+                        ? limits.commandBytes()
+                        : limits.identityBytes();
+        if (r.getContentLengthLong() > max) throw new AdmissionFailure(413);
+        byte[] body = r.getInputStream().readNBytes(max + 1);
+        if (body.length > max) throw new AdmissionFailure(413);
+        return body;
     }
 
     public static void error(HttpServletResponse response, int status) throws IOException {

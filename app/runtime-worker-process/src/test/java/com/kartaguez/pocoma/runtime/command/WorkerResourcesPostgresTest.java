@@ -2091,6 +2091,11 @@ class WorkerResourcesPostgresTest {
             var entry = entryConstructor.newInstance(pair, partition);
 
             var renewalCalls = (Collection<Object>) field(runtime.worker, "renewalCalls");
+            var specClass =
+                    Class.forName(
+                            "com.kartaguez.pocoma.supra.polling.consumption.RenewalService$CallSpec");
+            var specConstructor = specClass.getDeclaredConstructors()[0];
+            specConstructor.setAccessible(true);
             var callClass =
                     Class.forName(
                             "com.kartaguez.pocoma.supra.polling.consumption.RenewalService$Call");
@@ -2102,8 +2107,9 @@ class WorkerResourcesPostgresTest {
             var ownership = (PartitionOwnershipStore) field(engine, "ownership");
             Callable<List<PartitionLease>> renew = () -> {
                 var permit = safety.beginRenewal(def.authority(), 2, null).orElseThrow();
-                var call = callConstructor.newInstance(
-                        def.authority(), 2, null, List.of(entry), System.nanoTime(), permit);
+                var spec = specConstructor.newInstance(
+                        def.authority(), 2, System.nanoTime(), permit);
+                var call = callConstructor.newInstance(spec, null, List.of(entry));
                 renewalCalls.add(call);
                 try {
                     var renewed = controlTx.write(

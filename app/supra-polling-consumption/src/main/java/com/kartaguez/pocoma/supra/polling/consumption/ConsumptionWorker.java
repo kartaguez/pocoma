@@ -278,15 +278,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         this.closeResources = Objects.requireNonNull(closeResources);
         this.attemptHook = Objects.requireNonNull(attemptHook);
         this.executor = Objects.requireNonNull(executor);
-        if (bindings.isEmpty()
-                || bindings.stream().map(b -> b.definition().id()).distinct().count()
-                        != bindings.size()
-                || !limits.keySet()
-                        .equals(
-                                new HashSet<>(
-                                        bindings.stream().map(b -> b.definition().id()).toList()))
-                || limits.values().stream().anyMatch(n -> n < 1))
-            throw new IllegalArgumentException("invalid worker catalog");
+        validateCatalog(this.bindings, this.limits);
         this.startup =
                 new CountDownLatch(
                         3
@@ -301,6 +293,19 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         this.renewals = new RenewalService(this);
     }
 
+    private static void validateCatalog(
+            List<Binding> bindings, Map<ConsumptionId, Integer> limits) {
+        if (bindings.isEmpty()) throw new IllegalArgumentException("invalid worker catalog");
+        var ids = bindings.stream().map(b -> b.definition().id()).toList();
+        var uniqueIds = new HashSet<>(ids);
+        if (uniqueIds.size() != bindings.size() || !limits.keySet().equals(uniqueIds)) {
+            throw new IllegalArgumentException("invalid worker catalog");
+        }
+        if (limits.values().stream().anyMatch(n -> n < 1)) {
+            throw new IllegalArgumentException("invalid worker catalog");
+        }
+    }
+
     static ThreadFactory namedFactory(String prefix) {
         return Thread.ofPlatform().name(prefix + "-", 0).daemon(false).factory();
     }
@@ -311,30 +316,7 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
             startCalled = true;
         }
         try {
-            executor.prestartAllCoreThreads();
-            var d =
-                    namedFactory("v3-discovery")
-                            .newThread(() -> loop(discovery::runOnePass, discoveryWait, true));
-            var c =
-                    namedFactory("v3-consumption")
-                            .newThread(() -> loop(consumption::runOnePass, consumptionWait, false));
-            loopThreads.add(d);
-            loopThreads.add(c);
-            renewals.start();
-            d.start();
-            c.start();
-            namedFactory("v3-maintenance")
-                    .newThread(
-                            () -> {
-                                try {
-                                    awaitActivation();
-                                    maintain();
-                                } catch (InterruptedException failure) {
-                                    requestDrain();
-                                    Thread.currentThread().interrupt();
-                                }
-                            })
-                    .start();
+            launchWorkerThreads();
             if (!startup.await(30, TimeUnit.SECONDS)) requestDrain();
             synchronized (monitor) {
                 initialized = true;
@@ -349,6 +331,32 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         } finally {
             activated.countDown();
             signal();
+        }
+    }
+
+    private void launchWorkerThreads() {
+        executor.prestartAllCoreThreads();
+        var d =
+                namedFactory("v3-discovery")
+                        .newThread(() -> loop(discovery::runOnePass, discoveryWait, true));
+        var c =
+                namedFactory("v3-consumption")
+                        .newThread(() -> loop(consumption::runOnePass, consumptionWait, false));
+        loopThreads.add(d);
+        loopThreads.add(c);
+        renewals.start();
+        d.start();
+        c.start();
+        namedFactory("v3-maintenance").newThread(this::runMaintenanceThread).start();
+    }
+
+    private void runMaintenanceThread() {
+        try {
+            awaitActivation();
+            maintain();
+        } catch (InterruptedException failure) {
+            requestDrain();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -426,26 +434,28 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     }
 
     void suspend(Binding binding, ConsumptionProtocol.Partition lease) {
-        boolean changed = false;
+        boolean changed = markLeaseSuspended(binding, lease);
+        if (!changed) return;
+        renewals.signal();
+        event(
+                binding,
+                ConsumptionObservation.Phase.LEASE_SUSPEND,
+                Outcome.CONFIRMED,
+                1,
+                Duration.ZERO);
+    }
+
+    private boolean markLeaseSuspended(Binding binding, ConsumptionProtocol.Partition lease) {
         synchronized (monitor) {
             var current = leases.get(new Pair(binding, lease.partitionId()));
-            if (current != null && current.usable && current.lease.equals(lease)) {
-                current.usable = false;
-                current.renewedAt =
-                        System.nanoTime()
-                                - settings.renewalInterval().toNanos()
-                                + settings.minPoll().toNanos();
-                changed = true;
-            }
-        }
-        if (changed) {
-            renewals.signal();
-            event(
-                    binding,
-                    ConsumptionObservation.Phase.LEASE_SUSPEND,
-                    Outcome.CONFIRMED,
-                    1,
-                    Duration.ZERO);
+            if (current == null || !current.usable) return false;
+            if (!current.lease.equals(lease)) return false;
+            current.usable = false;
+            current.renewedAt =
+                    System.nanoTime()
+                            - settings.renewalInterval().toNanos()
+                            + settings.minPoll().toNanos();
+            return true;
         }
     }
 
@@ -457,38 +467,51 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         int transferred = 0;
         try {
             for (var handle : handles) {
-                prune();
-                var envelope = new Envelope(binding, handle);
-                boolean cleanup;
-                synchronized (monitor) {
-                    envelopes.add(envelope); // L2, including late acquisition after L5.
-                    transferred++;
-                    cleanup = state != State.RUNNING && markAbandoned(envelope);
-                }
-                if (cleanup) cleanup(envelope);
-                submit(envelope);
+                dispatchSingleHandle(binding, handle);
+                transferred++;
             }
         } finally {
             // Keep ownership of every returned handle even when local envelope preparation fails.
-            for (int i = transferred; i < handles.size(); i++) {
-                // No further envelope allocation is needed to clean an untransferred suffix.
-                // L1 still owns this bounded list; the unique loop caller owns each cleanup.
-                synchronized (monitor) {
-                    cleanups++;
-                }
-                boolean done = false;
-                try {
-                    binding.engine().abandon(handles.get(i));
-                    done = true;
-                } catch (RuntimeException | Error failure) {
-                    requestDrain();
-                } finally {
-                    synchronized (monitor) {
-                        if (done) cleanups--;
-                    }
-                }
-            }
+            abandonUntransferredSuffix(binding, handles, transferred);
             prune();
+        }
+    }
+
+    private void dispatchSingleHandle(Binding binding, ConsumptionProtocol.Handle handle) {
+        prune();
+        var envelope = new Envelope(binding, handle);
+        boolean cleanup;
+        synchronized (monitor) {
+            envelopes.add(envelope); // L2, including late acquisition after L5.
+            cleanup = state != State.RUNNING && markAbandoned(envelope);
+        }
+        if (cleanup) cleanup(envelope);
+        submit(envelope);
+    }
+
+    private void abandonUntransferredSuffix(
+            Binding binding, List<ConsumptionProtocol.Handle> handles, int transferred) {
+        for (int i = transferred; i < handles.size(); i++) {
+            // No further envelope allocation is needed to clean an untransferred suffix.
+            // L1 still owns this bounded list; the unique loop caller owns each cleanup.
+            abandonSingleHandle(binding, handles.get(i));
+        }
+    }
+
+    private void abandonSingleHandle(Binding binding, ConsumptionProtocol.Handle handle) {
+        synchronized (monitor) {
+            cleanups++;
+        }
+        boolean done = false;
+        try {
+            binding.engine().abandon(handle);
+            done = true;
+        } catch (RuntimeException | Error failure) {
+            requestDrain();
+        } finally {
+            synchronized (monitor) {
+                if (done) cleanups--;
+            }
         }
     }
 
@@ -574,17 +597,8 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     }
 
     public void requestDrain(Runnable stopped) {
-        List<Envelope> cleanup = new ArrayList<>();
-        boolean alreadyStopped;
-        synchronized (monitor) {
-            alreadyStopped = state == State.STOPPED;
-            if (!alreadyStopped && stopped != null) stoppedCallbacks.add(stopped);
-            if (state == State.STARTING || state == State.RUNNING) {
-                state = State.DRAINING;
-                drainingSince = System.nanoTime(); // L5 closes every future L4.
-                for (var envelope : envelopes) if (markAbandoned(envelope)) cleanup.add(envelope);
-            }
-        }
+        var cleanup = new ArrayList<Envelope>();
+        boolean alreadyStopped = initiateDrainState(stopped, cleanup);
         if (alreadyStopped) {
             if (stopped != null) stopped.run();
             return;
@@ -593,6 +607,21 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         executor.shutdown();
         signal(); // No SQL wait before making shutdown effective.
         cleanup.forEach(this::cleanup); // L6, sole winners, outside monitor.
+    }
+
+    private boolean initiateDrainState(Runnable stopped, List<Envelope> cleanup) {
+        synchronized (monitor) {
+            if (state == State.STOPPED) return true;
+            if (stopped != null) stoppedCallbacks.add(stopped);
+            if (state == State.STARTING || state == State.RUNNING) {
+                state = State.DRAINING;
+                drainingSince = System.nanoTime(); // L5 closes every future L4.
+                for (var envelope : envelopes) {
+                    if (markAbandoned(envelope)) cleanup.add(envelope);
+                }
+            }
+            return false;
+        }
     }
 
     void prune() {
@@ -673,60 +702,57 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         return attemptHook;
     }
 
+    private final class LoopSchedule {
+        private final int tour;
+        private final Duration stepPoll;
+        private Duration backoff = settings.minPoll();
+        private int remaining;
+        private boolean tourProgressed;
+
+        LoopSchedule() {
+            this.tour =
+                    bindings.size()
+                            * bindings.stream()
+                                    .mapToInt(b -> b.partitions().size())
+                                    .max()
+                                    .orElseThrow();
+            this.stepPoll = settings.minPoll().dividedBy(tour);
+            this.remaining = tour;
+        }
+
+        Duration nextDelay(boolean progressed) {
+            Duration delay = stepPoll;
+            if (progressed) {
+                delay = Duration.ZERO;
+                backoff = settings.minPoll();
+                tourProgressed = true;
+            }
+            if (--remaining == 0) {
+                remaining = tour;
+                if (tourProgressed) {
+                    tourProgressed = false;
+                } else {
+                    delay = backoff;
+                    Duration doubled = backoff.multipliedBy(2);
+                    backoff =
+                            doubled.compareTo(settings.maxPoll()) > 0
+                                    ? settings.maxPoll()
+                                    : doubled;
+                }
+            }
+            return delay;
+        }
+    }
+
     private void loop(
             java.util.function.BooleanSupplier pass,
             ConsumptionWaiter waiter,
             boolean isDiscovery) {
-        Duration backoff = settings.minPoll();
-        int tour =
-                bindings.size()
-                        * bindings.stream()
-                                .mapToInt(b -> b.partitions().size())
-                                .max()
-                                .orElseThrow();
-        Duration stepPoll = settings.minPoll().dividedBy(tour);
-        int remaining = tour;
-        boolean tourProgressed = false;
+        var schedule = new LoopSchedule();
         try {
             awaitActivation();
             while (running()) {
-                Duration delay = stepPoll;
-                long cycleBegan = System.nanoTime();
-                boolean returned = false;
-                try {
-                    boolean progressed = pass.getAsBoolean();
-                    returned = true;
-                    if (progressed) {
-                        delay = Duration.ZERO;
-                        backoff = settings.minPoll();
-                        tourProgressed = true;
-                    }
-                    if (--remaining == 0) {
-                        remaining = tour;
-                        if (tourProgressed) {
-                            tourProgressed = false;
-                        } else {
-                            delay = backoff;
-                            backoff =
-                                    backoff.multipliedBy(2).compareTo(settings.maxPoll()) > 0
-                                            ? settings.maxPoll()
-                                            : backoff.multipliedBy(2);
-                        }
-                    }
-                } catch (RuntimeException fault) {
-                    boolean ready =
-                            isDiscovery ? discovery.hasReadyBinding() : consumption.hasReadyBinding();
-                    delay = ready ? stepPoll : settings.errorPoll();
-                } finally {
-                    event(
-                            bindings.getFirst(),
-                            isDiscovery
-                                    ? ConsumptionObservation.Phase.DISCOVERY_CYCLE
-                                    : ConsumptionObservation.Phase.CONSUMPTION_CYCLE,
-                            returned ? Outcome.CONFIRMED : Outcome.UNKNOWN,
-                            1,
-                            Duration.ofNanos(System.nanoTime() - cycleBegan));
-                }
+                Duration delay = runLoopIteration(pass, schedule, isDiscovery);
                 waiter.await(delay);
             }
         } catch (InterruptedException | Error failure) {
@@ -741,6 +767,30 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
         }
     }
 
+    private Duration runLoopIteration(
+            java.util.function.BooleanSupplier pass, LoopSchedule schedule, boolean isDiscovery) {
+        long cycleBegan = System.nanoTime();
+        boolean returned = false;
+        try {
+            boolean progressed = pass.getAsBoolean();
+            returned = true;
+            return schedule.nextDelay(progressed);
+        } catch (RuntimeException fault) {
+            boolean ready =
+                    isDiscovery ? discovery.hasReadyBinding() : consumption.hasReadyBinding();
+            return ready ? schedule.stepPoll : settings.errorPoll();
+        } finally {
+            event(
+                    bindings.getFirst(),
+                    isDiscovery
+                            ? ConsumptionObservation.Phase.DISCOVERY_CYCLE
+                            : ConsumptionObservation.Phase.CONSUMPTION_CYCLE,
+                    returned ? Outcome.CONFIRMED : Outcome.UNKNOWN,
+                    1,
+                    Duration.ofNanos(System.nanoTime() - cycleBegan));
+        }
+    }
+
     boolean recoveryUncertain() {
         return bindings.stream().anyMatch(b -> b.engine().hasUnresolvedRecovery());
     }
@@ -748,71 +798,84 @@ public final class ConsumptionWorker implements com.kartaguez.pocoma.contract.co
     private void maintain() {
         try {
             while (true) {
-                renewals.settleOnce();
-                prune();
-                renewals.checkDeadlines();
-                boolean ready, newlyExceeded = false;
-                int used = capacity.snapshot().worker();
-                boolean unresolvedRecovery = recoveryUncertain();
-                if (unresolvedRecovery) requestDrain();
-                synchronized (monitor) {
-                    if (state == State.DRAINING
-                            && !deadlineExceeded
-                            && System.nanoTime() - drainingSince
-                                    >= settings.drainDeadline().toNanos()) {
-                        deadlineExceeded = true;
-                        newlyExceeded = true;
-                    }
-                    ready =
-                            state == State.DRAINING
-                                    && initialized
-                                    && discoveryExited
-                                    && consumptionExited
-                                    && operations == 0
-                                    && submissions == 0
-                                    && cleanups == 0
-                                    && envelopes.isEmpty()
-                                    && used == 0
-                                    && renewalCalls.isEmpty() && safety.renewalsQuiescent()
-                                    && !unresolvedRecovery
-                                    && executor.isTerminated();
-                    if (ready) renewalsAllowed = false;
-                }
-                if (newlyExceeded)
-                    event(
-                            bindings.getFirst(),
-                            ConsumptionObservation.Phase.DRAIN,
-                            Outcome.UNKNOWN,
-                            1,
-                            Duration.ofNanos(System.nanoTime() - drainingSince));
-                if (ready) {
-                    renewals.stopAndJoin();
-                    for (var t : loopThreads) t.join();
-                    closeResources.run();
-                    List<Runnable> callbacks;
-                    synchronized (monitor) {
-                        state = State.STOPPED;
-                        callbacks = List.copyOf(stoppedCallbacks);
-                        stoppedCallbacks.clear();
-                    }
-                    event(
-                            bindings.getFirst(),
-                            ConsumptionObservation.Phase.DRAIN,
-                            Outcome.COMMITTED,
-                            1,
-                            Duration.ofNanos(System.nanoTime() - drainingSince));
-                    for (var callback : callbacks) {
-                        try {
-                            callback.run();
-                        } catch (RuntimeException | Error ignored) {
-                        }
-                    }
-                    return;
-                }
+                if (runMaintenanceStep()) return;
                 maintenanceWait.await(settings.settleInterval());
             }
         } catch (InterruptedException | RuntimeException | Error failure) {
             requestDrain(); // Unsuccessful maintenance cannot announce STOPPED or release capacity.
+        }
+    }
+
+    private boolean runMaintenanceStep() throws InterruptedException {
+        renewals.settleOnce();
+        prune();
+        renewals.checkDeadlines();
+        int used = capacity.snapshot().worker();
+        boolean unresolvedRecovery = recoveryUncertain();
+        if (unresolvedRecovery) requestDrain();
+        boolean ready;
+        boolean newlyExceeded;
+        synchronized (monitor) {
+            newlyExceeded = checkDrainDeadlineExceeded();
+            ready = isDrainReady(used, unresolvedRecovery);
+            if (ready) renewalsAllowed = false;
+        }
+        if (newlyExceeded) {
+            event(
+                    bindings.getFirst(),
+                    ConsumptionObservation.Phase.DRAIN,
+                    Outcome.UNKNOWN,
+                    1,
+                    Duration.ofNanos(System.nanoTime() - drainingSince));
+        }
+        if (!ready) return false;
+        completeDrain();
+        return true;
+    }
+
+    private boolean checkDrainDeadlineExceeded() {
+        if (state != State.DRAINING || deadlineExceeded) return false;
+        if (System.nanoTime() - drainingSince < settings.drainDeadline().toNanos()) return false;
+        deadlineExceeded = true;
+        return true;
+    }
+
+    private boolean isDrainReady(int used, boolean unresolvedRecovery) {
+        if (!isDrainLifecycleReady()) return false;
+        if (!hasNoInflightWork(used, unresolvedRecovery)) return false;
+        return renewalCalls.isEmpty() && safety.renewalsQuiescent() && executor.isTerminated();
+    }
+
+    private boolean isDrainLifecycleReady() {
+        return state == State.DRAINING && initialized && discoveryExited && consumptionExited;
+    }
+
+    private boolean hasNoInflightWork(int used, boolean unresolvedRecovery) {
+        if (unresolvedRecovery || used != 0) return false;
+        return operations == 0 && submissions == 0 && cleanups == 0 && envelopes.isEmpty();
+    }
+
+    private void completeDrain() throws InterruptedException {
+        renewals.stopAndJoin();
+        for (var t : loopThreads) t.join();
+        closeResources.run();
+        List<Runnable> callbacks;
+        synchronized (monitor) {
+            state = State.STOPPED;
+            callbacks = List.copyOf(stoppedCallbacks);
+            stoppedCallbacks.clear();
+        }
+        event(
+                bindings.getFirst(),
+                ConsumptionObservation.Phase.DRAIN,
+                Outcome.COMMITTED,
+                1,
+                Duration.ofNanos(System.nanoTime() - drainingSince));
+        for (var callback : callbacks) {
+            try {
+                callback.run();
+            } catch (RuntimeException | Error ignored) {
+            }
         }
     }
 }

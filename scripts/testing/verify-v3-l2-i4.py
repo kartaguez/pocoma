@@ -37,19 +37,20 @@ def require_methods(cases, required):
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def _check_requirement(app, requirement, started):
+    path = app / requirement["path"]
+    if not path.is_file() or path.stat().st_mtime < started - 1:
+        return ["Missing/stale physical evidence: " + str(path)]
+    content = path.read_text()
+    return ["Missing subvariant " + needle + " in " + str(path)
+            for needle in requirement["contains"] if needle not in content]
+
+
 def require_physical(app, requirements, groups, started):
     problems = []
     for requirement in requirements:
-        if requirement["group"] not in groups:
-            continue
-        path = app / requirement["path"]
-        if not path.is_file() or path.stat().st_mtime < started - 1:
-            problems.append("Missing/stale physical evidence: " + str(path))
-        else:
-            content = path.read_text()
-            for needle in requirement["contains"]:
-                if needle not in content:
-                    problems.append("Missing subvariant " + needle + " in " + str(path))
+        if requirement["group"] in groups:
+            problems.extend(_check_requirement(app, requirement, started))
     return problems
 
 def input_hashes(root=ROOT):
@@ -115,20 +116,7 @@ def measurement_summary(destination):
                         "meaning": "PG clocks bracket actual acquisition and confirmed commit; includes observer/JDBC instrumentation overhead; no universal bound"}
     return result
 
-def run_gate(gate, destination):
-    destination.mkdir(parents=True, exist_ok=False)
-    sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    dirty = subprocess.check_output(["git", "status", "--porcelain", "--", "app", "scripts", "docs/testing/evidence/L2-I4/Performance-inputs.json"], cwd=ROOT, text=True)
-    if dirty:
-        raise RuntimeError("Freeze app/scripts in a commit before a certification gate: " + dirty)
-    manifest = json.loads(MANIFEST.read_text())
-    inputs = input_hashes()
-    modes = subprocess.check_output(["git","ls-files","-s","--","app","scripts","docs/testing/evidence/L2-I4/Performance-inputs.json"],cwd=ROOT,text=True).splitlines()
-    started = time.time()
-    command = ["./mvnw", "-pl", ANCHORS[gate], "-am", "test"]
-    logfile = destination / "maven.log"
-    with logfile.open("w") as output:
-        exit_code = subprocess.run(command, cwd=ROOT / "app", stdout=output, stderr=subprocess.STDOUT).returncode
+def _collect_surefire_xml(destination, started):
     cases, files = [], []
     for xml in sorted((ROOT / "app").glob("*/target/surefire-reports/TEST-*.xml")):
         if xml.stat().st_mtime < started - 1:
@@ -138,10 +126,16 @@ def run_gate(gate, destination):
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(xml, target)
         files.append({"path": str(target.relative_to(destination)), "sha256": digest(target)})
+    return cases, files
+
+
+def _collect_physical_evidence(destination, started):
+    files = []
+    evidence_dirs = ("v3-i4-evidence", "v3-i3-evidence", "v3-i2-evidence", "v3-pot-evidence", "v3-foundation-evidence", "v3-consumption-evidence")
     for module in (ROOT / "app").iterdir():
         if not module.is_dir():
             continue
-        for directory in ("v3-i4-evidence", "v3-i3-evidence", "v3-i2-evidence", "v3-pot-evidence", "v3-foundation-evidence", "v3-consumption-evidence"):
+        for directory in evidence_dirs:
             folder = module / "target" / directory
             if not folder.is_dir():
                 continue
@@ -151,32 +145,63 @@ def run_gate(gate, destination):
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(source, target)
                     files.append({"path": str(target.relative_to(destination)), "sha256": digest(target)})
-    groups = manifest["gate_groups"][gate]
+    return files
+
+
+def _built_modules(logfile):
+    built_artifacts = set(re.findall(r"^\[INFO\] (pocoma-[\w-]+) \.+ (?:SUCCESS|FAILURE)", logfile.read_text(), re.M))
+    modules = set()
+    for pom in (ROOT / "app").glob("*/pom.xml"):
+        artifact = POM.parse(pom).getroot().find("{http://maven.apache.org/POM/4.0.0}artifactId")
+        if artifact is not None and artifact.text in built_artifacts:
+            modules.add(pom.parent.name)
+    return modules
+
+
+def _required_methods(manifest, groups):
     required = {}
     for group in groups:
         for classname, methods in manifest["required_groups"][group].items():
             required.setdefault(classname, []).extend(methods)
+    return required
+
+
+def run_gate(gate, destination):
+    destination.mkdir(parents=True, exist_ok=False)
+    sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    dirty = subprocess.check_output(["git", "status", "--porcelain", "--", "app", "scripts", "docs/testing/evidence/L2-I4/Performance-inputs.json"], cwd=ROOT, text=True)
+    if dirty:
+        raise RuntimeError("Freeze app/scripts in a commit before a certification gate: " + dirty)
+    manifest = json.loads(MANIFEST.read_text())
+    inputs = input_hashes()
+    modes = subprocess.check_output(["git", "ls-files", "-s", "--", "app", "scripts", "docs/testing/evidence/L2-I4/Performance-inputs.json"], cwd=ROOT, text=True).splitlines()
+    started = time.time()
+    command = ["./mvnw", "-pl", ANCHORS[gate], "-am", "test"]
+    logfile = destination / "maven.log"
+    with logfile.open("w") as output:
+        exit_code = subprocess.run(command, cwd=ROOT / "app", stdout=output, stderr=subprocess.STDOUT).returncode
+    cases, files = _collect_surefire_xml(destination, started)
+    files.extend(_collect_physical_evidence(destination, started))
+    groups = manifest["gate_groups"][gate]
+    required = _required_methods(manifest, groups)
     problems = require_methods(cases, required)
     problems.extend(require_physical(ROOT / "app", manifest["physical_requirements"], groups, started))
     problems.extend(require_sources(ROOT, inputs))
-    built_artifacts = set(re.findall(r"^\[INFO\] (pocoma-[\w-]+) \.+ (?:SUCCESS|FAILURE)", logfile.read_text(), re.M))
-    modules = set()
-    for pom in (ROOT/"app").glob("*/pom.xml"):
-        artifact = POM.parse(pom).getroot().find("{http://maven.apache.org/POM/4.0.0}artifactId")
-        if artifact is not None and artifact.text in built_artifacts:
-            modules.add(pom.parent.name)
-    changed = subprocess.check_output(["git","diff","--name-only","489259dbad757e3256572f8ce2041a187adeb38d","HEAD","--","app"],cwd=ROOT,text=True).splitlines()
-    if ANCHORS[gate] not in modules: problems.append("Cannot establish compiled gate closure")
+    modules = _built_modules(logfile)
+    changed = subprocess.check_output(["git", "diff", "--name-only", "489259dbad757e3256572f8ce2041a187adeb38d", "HEAD", "--", "app"], cwd=ROOT, text=True).splitlines()
+    if ANCHORS[gate] not in modules:
+        problems.append("Cannot establish compiled gate closure")
     compiled_problems, binaries = require_compiled(ROOT, changed, modules)
     problems.extend(compiled_problems)
 
     dirty_after = subprocess.check_output(["git", "status", "--porcelain", "--", "app", "scripts", "docs/testing/evidence/L2-I4/Performance-inputs.json"], cwd=ROOT, text=True)
-    if dirty_after: problems.append("Code changed during gate: "+dirty_after)
+    if dirty_after:
+        problems.append("Code changed during gate: " + dirty_after)
     failures = [c for c in cases if c["state"] == "FAIL"]
     skips = [c for c in cases if c["state"] == "SKIP"]
     for case in skips:
         if not (case["class"].endswith(".TerminalSequencingPostgresTest") and case["method"] == "zExploratoryContentionSeparateFromCorrectness"):
-            problems.append("Unexpected skip: "+str(case))
+            problems.append("Unexpected skip: " + str(case))
     result = {"measurement_summary": measurement_summary(destination), "manifest_sha256": digest(MANIFEST), "input_sha256": inputs, "git_input_modes": modes, "compiled_sha256": binaries, "gate": gate, "sha": sha, "command": command, "cwd": "app/", "started_epoch": started,
               "elapsed_seconds": round(time.time() - started, 3), "exit_code": exit_code,
               "tests": len(cases), "failures_or_errors": len(failures), "skips": skips,

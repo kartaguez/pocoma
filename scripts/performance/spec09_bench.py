@@ -151,19 +151,23 @@ def summarize(rows, planned, duration):
                             for key in ("admissionMs", "completeLowerMs", "completeUpperMs", "balanceUpperMs")}}
 
 
+def _validate_authority_progress(authority, old, new):
+    if authority == "read" and any(d["maintenance"]["state"] != "READY" for d in (old, new)):
+        raise ValueError("READ maintenance is not READY")
+    key = lambda r: (r["consumption_id"], r["partition_id"])
+    a = {key(r): r["position"] for r in old["checkpoints"]}
+    b = {key(r): r["position"] for r in new["checkpoints"]}
+    if a.keys() != b.keys() or any(b[k] < v for k, v in a.items()):
+        raise AssertionError("checkpoint identity or monotonicity differs")
+    if new["slots"]:
+        raise ValueError("unfinished slots remain after E1 drainage")
+    if new["transactions"]["deadlocks"] != old["transactions"]["deadlocks"]:
+        raise AssertionError("new PostgreSQL deadlock")
+
+
 def validate_progress(before, after):
     for authority in ("write", "read"):
-        old, new = before["databases"][authority], after["databases"][authority]
-        if authority == "read" and any(d["maintenance"]["state"] != "READY" for d in (old, new)):
-            raise ValueError("READ maintenance is not READY")
-        key = lambda r: (r["consumption_id"], r["partition_id"])
-        a, b = {key(r): r["position"] for r in old["checkpoints"]}, {key(r): r["position"] for r in new["checkpoints"]}
-        if a.keys() != b.keys() or any(b[k] < v for k, v in a.items()):
-            raise AssertionError("checkpoint identity or monotonicity differs")
-        if new["slots"]:
-            raise ValueError("unfinished slots remain after E1 drainage")
-        if new["transactions"]["deadlocks"] != old["transactions"]["deadlocks"]:
-            raise AssertionError("new PostgreSQL deadlock")
+        _validate_authority_progress(authority, before["databases"][authority], after["databases"][authority])
     write = after["databases"]["write"]
     if write["pendingSources"]:
         raise ValueError("unfinished Command sources remain")

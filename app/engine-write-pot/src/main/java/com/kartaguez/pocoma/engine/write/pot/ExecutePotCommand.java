@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 
 /** Command participant: business preparation, revalidation, effects and publication. */
 public final class ExecutePotCommand implements ConsumptionParticipant {
+    private record ProposalContext(
+            PotCommand command, PotActorAuthority.Witness actor, long workingVersion) {}
+
     private record Proposal(
             PotCommand command,
             PotActorAuthority.Witness actor,
@@ -105,38 +108,50 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
 
     private void finalizeProposal(
             Proposal prepared, SlotCompletion completion, Consumer<Proposal> actual) {
-        var command = prepared.command();
-        var durable = store.load(command.requestId());
-        if (durable.terminal().isPresent() || !durable.command().equals(command))
-            throw new InconsistentPotFactsException("Request changed after preparation");
-        if (!authority.protect(command, prepared.actor())) throw new Collision();
-        if (prepared.actor().actor().isPresent()
-                && !store.protectPot(command.potId(), prepared.workingVersion()))
-            throw new Collision();
-        if (prepared.result().outcome() != Outcome.REJECTED) {
-            Instant expiry =
-                    command.intent() instanceof CreateInvitation i
-                            ? i.expiresAt()
-                            : command.intent()
-                                            instanceof PotCommand.AttachShareholderViaInvitation i
-                                    ? requireInvitations()
-                                            .find(i.tokenHash())
-                                            .orElseThrow()
-                                            .expiresAt()
-                                    : null;
-            if (expiry != null && !requireInvitations().unexpired(expiry))
-                prepared =
-                        rejected(
-                                command,
-                                prepared.actor(),
-                                prepared.workingVersion(),
-                                "INVALID_INVITATION");
-        }
+        protectRequestAndPot(prepared);
+        prepared = enforceInvitationExpiry(prepared);
         actual.accept(prepared);
         prepared.apply().run();
-        store.finishTerminal(command, prepared.result());
+        store.finishTerminal(prepared.command(), prepared.result());
         completion.complete();
-        store.publish(command, prepared.result(), prepared.components());
+        store.publish(prepared.command(), prepared.result(), prepared.components());
+    }
+
+    private void protectRequestAndPot(Proposal prepared) {
+        var command = prepared.command();
+        var durable = store.load(command.requestId());
+        if (durable.terminal().isPresent()) {
+            throw new InconsistentPotFactsException("Request changed after preparation");
+        }
+        if (!durable.command().equals(command)) {
+            throw new InconsistentPotFactsException("Request changed after preparation");
+        }
+        if (!authority.protect(command, prepared.actor())) throw new Collision();
+        if (prepared.actor().actor().isPresent()
+                && !store.protectPot(command.potId(), prepared.workingVersion())) {
+            throw new Collision();
+        }
+    }
+
+    private Proposal enforceInvitationExpiry(Proposal prepared) {
+        if (prepared.result().outcome() == Outcome.REJECTED) return prepared;
+        Instant expiry = invitationExpiry(prepared.command());
+        if (expiry != null && !requireInvitations().unexpired(expiry)) {
+            return rejected(
+                    prepared.command(),
+                    prepared.actor(),
+                    prepared.workingVersion(),
+                    "INVALID_INVITATION");
+        }
+        return prepared;
+    }
+
+    private Instant invitationExpiry(PotCommand command) {
+        if (command.intent() instanceof CreateInvitation i) return i.expiresAt();
+        if (command.intent() instanceof PotCommand.AttachShareholderViaInvitation i) {
+            return requireInvitations().find(i.tokenHash()).orElseThrow().expiresAt();
+        }
+        return null;
     }
 
     private Proposal prepare(Stored stored) {
@@ -146,269 +161,312 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         if (actor.actor().isEmpty()) return rejected(c, actor, 0, "INVALID_BINDING");
         var selected = history.current(c.potId(), actor.actor().get(), selection(c.intent()));
         long version = selected.map(p -> p.facts().workingVersion()).orElse(0L);
+        var ctx = new ProposalContext(c, actor, version);
         if (c.intent() instanceof CreatePot intent) {
-            return decision(
-                    c,
-                    actor,
-                    version,
-                    PotTransitions.create(
-                            c.potId(), intent.label(), actor.actor().get(), selected.isPresent()),
-                    p -> revisions.createPot(p, clock.instant()),
-                    p ->
-                            List.of(
-                                    component("POT_HEADER", c.potId(), p.header()),
-                                    component("POT_DETAILS", c.potId(), p.details())));
+            return prepareCreatePot(ctx, intent, selected.isPresent());
         }
         if (selected.isEmpty()) return rejected(c, actor, 0, "NOT_FOUND");
         if (c.intent() instanceof CreateInvitation i) {
-            var facts = selected.get().facts();
-            if (facts.header().value().deleted()) return rejected(c, actor, version, "DELETED");
-            if (!facts.authorization().creator()) return rejected(c, actor, version, "FORBIDDEN");
-            var invitation = requireInvitations().prepare(c, i);
-            return new Proposal(
-                    c,
-                    actor,
-                    version,
-                    new Result(Outcome.INVITATION_CREATED, null, null),
-                    () -> requireInvitations().insert(invitation),
-                    List.of());
+            return prepareCreateInvitation(ctx, selected.get().facts(), i);
         }
         if (c.intent() instanceof PotCommand.AttachShareholderViaInvitation i) {
-            var invitation = requireInvitations().find(i.tokenHash());
-            if (invitation.isEmpty() || !invitation.get().potId().equals(c.potId().value()))
-                return rejected(c, actor, version, "INVALID_INVITATION");
-            var p = selected.get();
-            var target = p.shareholders().get(i.shareholderId());
-            Versioned<ShareholderDetails> details =
-                    target.details() instanceof ComponentRead.Present<ShareholderDetails> d
-                            ? d.revision()
-                            : null;
-            return decision(
-                    c,
-                    actor,
-                    version,
-                    new com.kartaguez.pocoma.domain.pot.AttachShareholderViaInvitation(
-                                    i.shareholderId())
-                            .decide(p.facts(), target.reference(), details),
-                    r -> revisions.reviseShareholderDetails(c.potId(), r),
-                    values ->
-                            values.entrySet().stream()
-                                    .map(
-                                            e ->
-                                                    component(
-                                                            "SHAREHOLDER_DETAILS",
-                                                            e.getKey(),
-                                                            e.getValue()))
-                                    .toList());
+            return prepareAttachViaInvitation(ctx, selected.get(), i);
         }
-        return decide(c, actor, selected.get());
+        return decide(ctx, selected.get());
     }
 
-    private Proposal decide(PotCommand c, PotActorAuthority.Witness actor, SelectedPot p) {
-        var facts = p.facts();
-        long observed = c.observedVersion();
-        long version = facts.workingVersion();
+    private Proposal prepareCreatePot(
+            ProposalContext ctx, CreatePot intent, boolean alreadyPresent) {
+        var c = ctx.command();
+        return decision(
+                ctx,
+                PotTransitions.create(
+                        c.potId(), intent.label(), ctx.actor().actor().get(), alreadyPresent),
+                p -> revisions.createPot(p, clock.instant()),
+                p ->
+                        List.of(
+                                component("POT_HEADER", c.potId(), p.header()),
+                                component("POT_DETAILS", c.potId(), p.details())));
+    }
+
+    private Proposal prepareCreateInvitation(
+            ProposalContext ctx, PotFacts facts, CreateInvitation intent) {
+        if (facts.header().value().deleted()) {
+            return rejected(ctx.command(), ctx.actor(), ctx.workingVersion(), "DELETED");
+        }
+        if (!facts.authorization().creator()) {
+            return rejected(ctx.command(), ctx.actor(), ctx.workingVersion(), "FORBIDDEN");
+        }
+        var invitation = requireInvitations().prepare(ctx.command(), intent);
+        return new Proposal(
+                ctx.command(),
+                ctx.actor(),
+                ctx.workingVersion(),
+                new Result(Outcome.INVITATION_CREATED, null, null),
+                () -> requireInvitations().insert(invitation),
+                List.of());
+    }
+
+    private Proposal prepareAttachViaInvitation(
+            ProposalContext ctx, SelectedPot p, PotCommand.AttachShareholderViaInvitation intent) {
+        var c = ctx.command();
+        var invitation = requireInvitations().find(intent.tokenHash());
+        if (invitation.isEmpty() || !invitation.get().potId().equals(c.potId().value())) {
+            return rejected(c, ctx.actor(), ctx.workingVersion(), "INVALID_INVITATION");
+        }
+        var target = p.shareholders().get(intent.shareholderId());
+        Versioned<ShareholderDetails> details =
+                target.details() instanceof ComponentRead.Present<ShareholderDetails> d
+                        ? d.revision()
+                        : null;
+        return decision(
+                ctx,
+                new com.kartaguez.pocoma.domain.pot.AttachShareholderViaInvitation(
+                                intent.shareholderId())
+                        .decide(p.facts(), target.reference(), details),
+                r -> revisions.reviseShareholderDetails(c.potId(), r),
+                values -> componentList("SHAREHOLDER_DETAILS", values));
+    }
+
+    private static final Set<Class<?>> EXPENSE_INTENTS =
+            Set.of(
+                    CreateExpense.class,
+                    UpdateExpenseDetails.class,
+                    UpdateExpenseFinancials.class,
+                    DeleteExpense.class);
+
+    private Proposal decide(ProposalContext ctx, SelectedPot p) {
+        var c = ctx.command();
         var refs =
                 p.shareholders().entrySet().stream()
                         .collect(
                                 Collectors.toUnmodifiableMap(
                                         Map.Entry::getKey, e -> e.getValue().reference()));
+        if (EXPENSE_INTENTS.contains(c.intent().getClass())) {
+            return decideExpense(ctx, p, refs);
+        }
+        return decidePotOrShareholder(ctx, p, refs);
+    }
+
+    private Proposal decidePotOrShareholder(
+            ProposalContext ctx, SelectedPot p, Map<ShareholderId, ShareholderReference> refs) {
+        var c = ctx.command();
         return switch (c.intent()) {
-            case CreateInvitation i ->
-                    throw new IllegalStateException("Invitation dispatch required");
-            case PotCommand.AttachShareholderViaInvitation i ->
-                    throw new IllegalStateException("Invitation dispatch required");
-            case CreatePot ignored ->
-                    throw new IllegalStateException("Creation handled separately");
             case UpdatePotDetails i ->
                     decision(
-                            c,
-                            actor,
-                            version,
+                            ctx,
                             PotTransitions.updateDetails(
-                                    facts, observed, present(p.details()), i.label()),
+                                    p.facts(), c.observedVersion(), present(p.details()), i.label()),
                             r -> revisions.revisePotDetails(c.potId(), r),
                             v -> List.of(component("POT_DETAILS", c.potId(), v)));
             case DeletePot i ->
                     decision(
-                            c,
-                            actor,
-                            version,
-                            PotTransitions.delete(facts, observed),
+                            ctx,
+                            PotTransitions.delete(p.facts(), c.observedVersion()),
                             r -> revisions.revisePotHeader(c.potId(), r),
                             v -> List.of(component("POT_HEADER", c.potId(), v)));
-            case AddShareholders i ->
-                    decision(
-                            c,
-                            actor,
-                            version,
-                            ShareholderTransitions.create(
-                                    facts,
-                                    observed,
-                                    creationTargets(c, i, actor.actor().orElseThrow()),
-                                    refs),
-                            r -> revisions.createShareholders(c.potId(), r),
-                            states ->
-                                    states.stream()
-                                            .flatMap(
-                                                    s ->
-                                                            java.util.stream.Stream.of(
-                                                                    component(
-                                                                            "SHAREHOLDER_HEADER",
-                                                                            s.header()
-                                                                                    .value()
-                                                                                    .shareholderId(),
-                                                                            s.header()),
-                                                                    component(
-                                                                            "SHAREHOLDER_DETAILS",
-                                                                            s.details()
-                                                                                    .value()
-                                                                                    .shareholderId(),
-                                                                            s.details()),
-                                                                    component(
-                                                                            "SHAREHOLDER_WEIGHT",
-                                                                            s.weight()
-                                                                                    .value()
-                                                                                    .shareholderId(),
-                                                                            s.weight())))
-                                            .toList());
-            case UpdateShareholderDetails i ->
-                    decision(
-                            c,
-                            actor,
-                            version,
-                            ShareholderTransitions.updateDetails(
-                                    facts,
-                                    observed,
-                                    detailTargets(c, i, actor.actor().orElseThrow(), p),
-                                    refs,
-                                    shareholderDetails(p)),
-                            r -> revisions.reviseShareholderDetails(c.potId(), r),
-                            values ->
-                                    values.entrySet().stream()
-                                            .map(
-                                                    e ->
-                                                            component(
-                                                                    "SHAREHOLDER_DETAILS",
-                                                                    e.getKey(),
-                                                                    e.getValue()))
-                                            .toList());
-            case UpdateShareholderWeights i ->
-                    decision(
-                            c,
-                            actor,
-                            version,
-                            ShareholderTransitions.updateWeights(
-                                    facts, observed, i.targets(), refs, shareholderWeights(p)),
-                            r -> revisions.reviseShareholderWeights(c.potId(), r),
-                            values ->
-                                    values.entrySet().stream()
-                                            .map(
-                                                    e ->
-                                                            component(
-                                                                    "SHAREHOLDER_WEIGHT",
-                                                                    e.getKey(),
-                                                                    e.getValue()))
-                                            .toList());
-            case DeleteShareholder i ->
-                    refs.get(i.id()).header().isEmpty()
-                            ? rejected(c, actor, version, "NOT_FOUND")
-                            : decision(
-                                    c,
-                                    actor,
-                                    version,
-                                    ShareholderTransitions.delete(
-                                            facts,
-                                            observed,
-                                            refs.get(i.id()),
-                                            history.activeUsage(c.potId(), version, i.id())),
-                                    r -> revisions.reviseShareholderHeader(c.potId(), r),
-                                    v -> List.of(component("SHAREHOLDER_HEADER", i.id(), v)));
-            case CreateExpense i ->
-                    decision(
-                            c,
-                            actor,
-                            version,
-                            ExpenseTransitions.create(
-                                    facts,
-                                    observed,
-                                    i.details(),
-                                    i.financials(),
-                                    p.expenses().get(i.details().expenseId()).header()
-                                            instanceof ComponentRead.Present<?>,
-                                    refs),
-                            r -> revisions.createExpense(c.potId(), r),
-                            s ->
-                                    List.of(
-                                            component(
-                                                    "EXPENSE_HEADER",
-                                                    i.details().expenseId(),
-                                                    s.header()),
-                                            component(
-                                                    "EXPENSE_DETAILS",
-                                                    i.details().expenseId(),
-                                                    s.details()),
-                                            component(
-                                                    "EXPENSE_FINANCIALS",
-                                                    i.details().expenseId(),
-                                                    s.financials())));
-            case UpdateExpenseDetails i ->
-                    expenseMissing(p, i.id())
-                            ? rejected(c, actor, version, "NOT_FOUND")
-                            : decision(
-                                    c,
-                                    actor,
-                                    version,
-                                    ExpenseTransitions.updateDetails(
-                                            facts,
-                                            observed,
-                                            present(p.expenses().get(i.id()).header()),
-                                            present(p.expenses().get(i.id()).details()),
-                                            i.label(),
-                                            i.date()),
-                                    r -> revisions.reviseExpenseDetails(c.potId(), r),
-                                    v -> List.of(component("EXPENSE_DETAILS", i.id(), v)));
-            case UpdateExpenseFinancials i ->
-                    expenseMissing(p, i.financials().expenseId())
-                            ? rejected(c, actor, version, "NOT_FOUND")
-                            : decision(
-                                    c,
-                                    actor,
-                                    version,
-                                    ExpenseTransitions.updateFinancials(
-                                            facts,
-                                            observed,
-                                            present(
-                                                    p.expenses()
-                                                            .get(i.financials().expenseId())
-                                                            .header()),
-                                            present(
-                                                    p.expenses()
-                                                            .get(i.financials().expenseId())
-                                                            .financials()),
-                                            i.financials(),
-                                            refs),
-                                    r -> revisions.reviseExpenseFinancials(c.potId(), r),
-                                    v ->
-                                            List.of(
-                                                    component(
-                                                            "EXPENSE_FINANCIALS",
-                                                            i.financials().expenseId(),
-                                                            v)));
-            case DeleteExpense i ->
-                    expenseMissing(p, i.id())
-                            ? rejected(c, actor, version, "NOT_FOUND")
-                            : decision(
-                                    c,
-                                    actor,
-                                    version,
-                                    ExpenseTransitions.delete(
-                                            facts,
-                                            observed,
-                                            expenseState(p.expenses().get(i.id()))),
-                                    r -> revisions.reviseExpenseHeader(c.potId(), r),
-                                    v -> List.of(component("EXPENSE_HEADER", i.id(), v)));
+            case AddShareholders i -> decideAddShareholders(ctx, p, i, refs);
+            case UpdateShareholderDetails i -> decideUpdateShareholderDetails(ctx, p, i, refs);
+            case UpdateShareholderWeights i -> decideUpdateShareholderWeights(ctx, p, i, refs);
+            case DeleteShareholder i -> decideDeleteShareholder(ctx, p, i, refs);
+            default -> throw new IllegalStateException("Unexpected intent dispatch");
         };
+    }
+
+    private Proposal decideExpense(
+            ProposalContext ctx, SelectedPot p, Map<ShareholderId, ShareholderReference> refs) {
+        return switch (ctx.command().intent()) {
+            case CreateExpense i -> decideCreateExpense(ctx, p, i, refs);
+            case UpdateExpenseDetails i -> decideUpdateExpenseDetails(ctx, p, i);
+            case UpdateExpenseFinancials i -> decideUpdateExpenseFinancials(ctx, p, i, refs);
+            case DeleteExpense i -> decideDeleteExpense(ctx, p, i);
+            default -> throw new IllegalStateException("Unexpected expense intent");
+        };
+    }
+
+    private Proposal decideAddShareholders(
+            ProposalContext ctx,
+            SelectedPot p,
+            AddShareholders i,
+            Map<ShareholderId, ShareholderReference> refs) {
+        var c = ctx.command();
+        return decision(
+                ctx,
+                ShareholderTransitions.create(
+                        p.facts(),
+                        c.observedVersion(),
+                        creationTargets(c, i, ctx.actor().actor().orElseThrow()),
+                        refs),
+                r -> revisions.createShareholders(c.potId(), r),
+                ExecutePotCommand::shareholderCreatedComponents);
+    }
+
+    private static List<Component> shareholderCreatedComponents(List<ShareholderState> states) {
+        return states.stream()
+                .flatMap(
+                        s ->
+                                java.util.stream.Stream.of(
+                                        component(
+                                                "SHAREHOLDER_HEADER",
+                                                s.header().value().shareholderId(),
+                                                s.header()),
+                                        component(
+                                                "SHAREHOLDER_DETAILS",
+                                                s.details().value().shareholderId(),
+                                                s.details()),
+                                        component(
+                                                "SHAREHOLDER_WEIGHT",
+                                                s.weight().value().shareholderId(),
+                                                s.weight())))
+                .toList();
+    }
+
+    private Proposal decideUpdateShareholderDetails(
+            ProposalContext ctx,
+            SelectedPot p,
+            UpdateShareholderDetails i,
+            Map<ShareholderId, ShareholderReference> refs) {
+        var c = ctx.command();
+        return decision(
+                ctx,
+                ShareholderTransitions.updateDetails(
+                        p.facts(),
+                        c.observedVersion(),
+                        detailTargets(c, i, ctx.actor().actor().orElseThrow(), p),
+                        refs,
+                        extractShareholderComponents(p, SelectedShareholder::details)),
+                r -> revisions.reviseShareholderDetails(c.potId(), r),
+                values -> componentList("SHAREHOLDER_DETAILS", values));
+    }
+
+    private Proposal decideUpdateShareholderWeights(
+            ProposalContext ctx,
+            SelectedPot p,
+            UpdateShareholderWeights i,
+            Map<ShareholderId, ShareholderReference> refs) {
+        var c = ctx.command();
+        return decision(
+                ctx,
+                ShareholderTransitions.updateWeights(
+                        p.facts(),
+                        c.observedVersion(),
+                        i.targets(),
+                        refs,
+                        extractShareholderComponents(p, SelectedShareholder::weight)),
+                r -> revisions.reviseShareholderWeights(c.potId(), r),
+                values -> componentList("SHAREHOLDER_WEIGHT", values));
+    }
+
+    private Proposal decideDeleteShareholder(
+            ProposalContext ctx,
+            SelectedPot p,
+            DeleteShareholder i,
+            Map<ShareholderId, ShareholderReference> refs) {
+        var c = ctx.command();
+        if (refs.get(i.id()).header().isEmpty()) {
+            return rejected(c, ctx.actor(), ctx.workingVersion(), "NOT_FOUND");
+        }
+        return decision(
+                ctx,
+                ShareholderTransitions.delete(
+                        p.facts(),
+                        c.observedVersion(),
+                        refs.get(i.id()),
+                        history.activeUsage(c.potId(), ctx.workingVersion(), i.id())),
+                r -> revisions.reviseShareholderHeader(c.potId(), r),
+                v -> List.of(component("SHAREHOLDER_HEADER", i.id(), v)));
+    }
+
+    private Proposal decideCreateExpense(
+            ProposalContext ctx,
+            SelectedPot p,
+            CreateExpense i,
+            Map<ShareholderId, ShareholderReference> refs) {
+        var c = ctx.command();
+        boolean exists =
+                p.expenses().get(i.details().expenseId()).header() instanceof ComponentRead.Present<?>;
+        return decision(
+                ctx,
+                ExpenseTransitions.create(
+                        p.facts(),
+                        c.observedVersion(),
+                        i.details(),
+                        i.financials(),
+                        exists,
+                        refs),
+                r -> revisions.createExpense(c.potId(), r),
+                s ->
+                        List.of(
+                                component("EXPENSE_HEADER", i.details().expenseId(), s.header()),
+                                component("EXPENSE_DETAILS", i.details().expenseId(), s.details()),
+                                component(
+                                        "EXPENSE_FINANCIALS",
+                                        i.details().expenseId(),
+                                        s.financials())));
+    }
+
+    private Proposal decideUpdateExpenseDetails(
+            ProposalContext ctx, SelectedPot p, UpdateExpenseDetails i) {
+        if (expenseMissing(p, i.id())) {
+            return rejected(ctx.command(), ctx.actor(), ctx.workingVersion(), "NOT_FOUND");
+        }
+        var c = ctx.command();
+        var expense = p.expenses().get(i.id());
+        return decision(
+                ctx,
+                ExpenseTransitions.updateDetails(
+                        p.facts(),
+                        c.observedVersion(),
+                        present(expense.header()),
+                        present(expense.details()),
+                        i.label(),
+                        i.date()),
+                r -> revisions.reviseExpenseDetails(c.potId(), r),
+                v -> List.of(component("EXPENSE_DETAILS", i.id(), v)));
+    }
+
+    private Proposal decideUpdateExpenseFinancials(
+            ProposalContext ctx,
+            SelectedPot p,
+            UpdateExpenseFinancials i,
+            Map<ShareholderId, ShareholderReference> refs) {
+        var expenseId = i.financials().expenseId();
+        if (expenseMissing(p, expenseId)) {
+            return rejected(ctx.command(), ctx.actor(), ctx.workingVersion(), "NOT_FOUND");
+        }
+        var c = ctx.command();
+        var expense = p.expenses().get(expenseId);
+        return decision(
+                ctx,
+                ExpenseTransitions.updateFinancials(
+                        p.facts(),
+                        c.observedVersion(),
+                        present(expense.header()),
+                        present(expense.financials()),
+                        i.financials(),
+                        refs),
+                r -> revisions.reviseExpenseFinancials(c.potId(), r),
+                v -> List.of(component("EXPENSE_FINANCIALS", expenseId, v)));
+    }
+
+    private Proposal decideDeleteExpense(ProposalContext ctx, SelectedPot p, DeleteExpense i) {
+        if (expenseMissing(p, i.id())) {
+            return rejected(ctx.command(), ctx.actor(), ctx.workingVersion(), "NOT_FOUND");
+        }
+        var c = ctx.command();
+        return decision(
+                ctx,
+                ExpenseTransitions.delete(
+                        p.facts(), c.observedVersion(), expenseState(p.expenses().get(i.id()))),
+                r -> revisions.reviseExpenseHeader(c.potId(), r),
+                v -> List.of(component("EXPENSE_HEADER", i.id(), v)));
+    }
+
+    private static List<Component> componentList(
+            String kind, Map<? extends EntityId, ? extends Versioned<?>> values) {
+        return values.entrySet().stream()
+                .map(e -> component(kind, e.getKey(), e.getValue()))
+                .toList();
     }
 
     private static List<ShareholderTransitions.Creation> creationTargets(
@@ -457,15 +515,17 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
     }
 
     private <T> Proposal decision(
-            PotCommand c,
-            PotActorAuthority.Witness actor,
-            long version,
+            ProposalContext ctx,
             TransitionResult<T> result,
             Consumer<TransitionResult.Changed<T>> apply,
             Function<T, List<Component>> components) {
-        if (result instanceof TransitionResult.Rejected<T> rejected)
+        var c = ctx.command();
+        var actor = ctx.actor();
+        long version = ctx.workingVersion();
+        if (result instanceof TransitionResult.Rejected<T> rejected) {
             return rejected(c, actor, version, rejected.reason().name());
-        if (result instanceof TransitionResult.Unchanged<T> unchanged)
+        }
+        if (result instanceof TransitionResult.Unchanged<T> unchanged) {
             return new Proposal(
                     c,
                     actor,
@@ -473,6 +533,7 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
                     new Result(Outcome.UNCHANGED, unchanged.currentPotVersion(), null),
                     () -> {},
                     List.of());
+        }
         var changed = (TransitionResult.Changed<T>) result;
         return new Proposal(
                 c,
@@ -513,68 +574,61 @@ public final class ExecutePotCommand implements ConsumptionParticipant {
         return new ExpenseState(present(e.header()), present(e.details()), present(e.financials()));
     }
 
-    private static Map<ShareholderId, Versioned<ShareholderDetails>> shareholderDetails(
-            SelectedPot p) {
-        var result = new HashMap<ShareholderId, Versioned<ShareholderDetails>>();
+    private static <T> Map<ShareholderId, Versioned<T>> extractShareholderComponents(
+            SelectedPot p, Function<SelectedShareholder, ComponentRead<T>> selector) {
+        var result = new HashMap<ShareholderId, Versioned<T>>();
         p.shareholders()
                 .forEach(
                         (id, s) -> {
-                            if (s.details() instanceof ComponentRead.Present<ShareholderDetails> v)
+                            if (selector.apply(s) instanceof ComponentRead.Present<T> v) {
                                 result.put(id, v.revision());
-                        });
-        return Map.copyOf(result);
-    }
-
-    private static Map<ShareholderId, Versioned<ShareholderWeight>> shareholderWeights(
-            SelectedPot p) {
-        var result = new HashMap<ShareholderId, Versioned<ShareholderWeight>>();
-        p.shareholders()
-                .forEach(
-                        (id, s) -> {
-                            if (s.weight() instanceof ComponentRead.Present<ShareholderWeight> v)
-                                result.put(id, v.revision());
+                            }
                         });
         return Map.copyOf(result);
     }
 
     private static Selection selection(Intent intent) {
-        Set<ShareholderId> shareholders =
-                switch (intent) {
-                    case PotCommand.AttachShareholderViaInvitation i -> Set.of(i.shareholderId());
-                    case AddShareholders i ->
-                            i.targets().stream()
-                                    .map(ShareholderTransitions.Creation::id)
-                                    .collect(Collectors.toSet());
-                    case UpdateShareholderDetails i ->
-                            i.targets().stream()
-                                    .map(ShareholderTransitions.DetailsIntent::id)
-                                    .collect(Collectors.toSet());
-                    case UpdateShareholderWeights i ->
-                            i.targets().stream()
-                                    .map(ShareholderTransitions.WeightIntent::id)
-                                    .collect(Collectors.toSet());
-                    case DeleteShareholder i -> Set.of(i.id());
-                    case CreateExpense i -> referenceIds(i.financials());
-                    case UpdateExpenseFinancials i -> referenceIds(i.financials());
-                    default -> Set.of();
-                };
-        Set<ExpenseId> expenses =
-                switch (intent) {
-                    case CreateExpense i -> Set.of(i.details().expenseId());
-                    case UpdateExpenseDetails i -> Set.of(i.id());
-                    case UpdateExpenseFinancials i -> Set.of(i.financials().expenseId());
-                    case DeleteExpense i -> Set.of(i.id());
-                    default -> Set.of();
-                };
         return new Selection(
-                shareholders,
-                expenses,
+                selectedShareholders(intent),
+                selectedExpenses(intent),
                 intent instanceof UpdatePotDetails || intent instanceof CreatePot,
                 intent instanceof UpdateShareholderDetails
                         || intent instanceof PotCommand.AttachShareholderViaInvitation,
                 intent instanceof UpdateShareholderWeights,
                 intent instanceof UpdateExpenseDetails || intent instanceof DeleteExpense,
                 intent instanceof UpdateExpenseFinancials || intent instanceof DeleteExpense);
+    }
+
+    private static Set<ShareholderId> selectedShareholders(Intent intent) {
+        return switch (intent) {
+            case PotCommand.AttachShareholderViaInvitation i -> Set.of(i.shareholderId());
+            case AddShareholders i ->
+                    i.targets().stream()
+                            .map(ShareholderTransitions.Creation::id)
+                            .collect(Collectors.toSet());
+            case UpdateShareholderDetails i ->
+                    i.targets().stream()
+                            .map(ShareholderTransitions.DetailsIntent::id)
+                            .collect(Collectors.toSet());
+            case UpdateShareholderWeights i ->
+                    i.targets().stream()
+                            .map(ShareholderTransitions.WeightIntent::id)
+                            .collect(Collectors.toSet());
+            case DeleteShareholder i -> Set.of(i.id());
+            case CreateExpense i -> referenceIds(i.financials());
+            case UpdateExpenseFinancials i -> referenceIds(i.financials());
+            default -> Set.of();
+        };
+    }
+
+    private static Set<ExpenseId> selectedExpenses(Intent intent) {
+        return switch (intent) {
+            case CreateExpense i -> Set.of(i.details().expenseId());
+            case UpdateExpenseDetails i -> Set.of(i.id());
+            case UpdateExpenseFinancials i -> Set.of(i.financials().expenseId());
+            case DeleteExpense i -> Set.of(i.id());
+            default -> Set.of();
+        };
     }
 
     private InvitationStore requireInvitations() {

@@ -90,8 +90,28 @@ public final class AdmissionSqlAuthority {
                     "v3_request_position",
                             Set.of("family", "position", "request_id"));
 
+    private static final Map<String, String> EXPECTED_LOGGING =
+            Map.of(
+                    "log_statement", "none",
+                    "log_duration", "off",
+                    "log_min_duration_statement", "-1",
+                    "log_min_duration_sample", "-1",
+                    "log_transaction_sample_rate", "0",
+                    "log_parameter_max_length", "0",
+                    "log_parameter_max_length_on_error", "0",
+                    "log_min_error_statement", "panic",
+                    "log_error_verbosity", "terse",
+                    "log_min_messages", "warning");
+
     public static void verify(DataSource source, String database, String schema, String role) {
         var sql = new JdbcTemplate(source);
+        verifyPrincipalAndSchema(sql, database, schema, role);
+        verifyLoggingPolicy(sql);
+        verifyEffectivePrivileges(sql, schema);
+    }
+
+    private static void verifyPrincipalAndSchema(
+            JdbcTemplate sql, String database, String schema, String role) {
         var who =
                 sql.queryForMap(
                         "select current_database() db,current_schema() schema,current_user role");
@@ -127,35 +147,19 @@ public final class AdmissionSqlAuthority {
                                     + " has_function_privilege(current_user,p.oid,'EXECUTE')",
                                 Long.class)
                         == 0);
-        var logging =
-                Map.of(
-                        "log_statement",
-                        "none",
-                        "log_duration",
-                        "off",
-                        "log_min_duration_statement",
-                        "-1",
-                        "log_min_duration_sample",
-                        "-1",
-                        "log_transaction_sample_rate",
-                        "0",
-                        "log_parameter_max_length",
-                        "0",
-                        "log_parameter_max_length_on_error",
-                        "0",
-                        "log_min_error_statement",
-                        "panic",
-                        "log_error_verbosity",
-                        "terse",
-                        "log_min_messages",
-                        "warning");
+    }
+
+    private static void verifyLoggingPolicy(JdbcTemplate sql) {
         var observed = new HashMap<String, String>();
         sql.queryForList(
                         "select name,setting from pg_settings where name in"
                             + " ('log_statement','log_duration','log_min_duration_statement','log_min_duration_sample','log_transaction_sample_rate','log_parameter_max_length','log_parameter_max_length_on_error','log_min_error_statement','log_error_verbosity','log_min_messages')")
                 .forEach(
                         row -> observed.put((String) row.get("name"), (String) row.get("setting")));
-        require(logging.equals(observed));
+        require(EXPECTED_LOGGING.equals(observed));
+    }
+
+    private static void verifyEffectivePrivileges(JdbcTemplate sql, String schema) {
         var present = new HashSet<String>();
         // PostgreSQL computes effective privileges in one inventory query; no per-column round
         // trips.
@@ -176,25 +180,29 @@ where n.nspname not like 'pg_%' and n.nspname<>'information_schema'
   and c.relkind in ('r','p','v','m','f','S')
 """);
         for (var r : rows) {
-            String table = (String) r.get("relname"), column = (String) r.get("attname");
-            boolean local = schema.equals(r.get("nspname"));
-            require(
-                    !Boolean.TRUE.equals(r.get("owned"))
-                            && !Boolean.TRUE.equals(r.get("forbidden"))
-                            && !Boolean.TRUE.equals(r.get("can_reference")));
-            if (local) present.add(table);
-            boolean select = local && SELECT.getOrDefault(table, Set.of()).contains(column);
-            boolean insert = local && INSERT.getOrDefault(table, Set.of()).contains(column);
-            boolean update =
-                    local
-                            && table.equals("v3_request_counter")
-                            && column.equals("position");
-            require(
-                    Boolean.TRUE.equals(r.get("can_select")) == select
-                            && Boolean.TRUE.equals(r.get("can_insert")) == insert
-                            && Boolean.TRUE.equals(r.get("can_update")) == update);
+            verifyColumnPrivilegeRow(r, schema, present);
         }
         require(present.containsAll(SELECT.keySet()) && present.containsAll(INSERT.keySet()));
+    }
+
+    private static void verifyColumnPrivilegeRow(
+            Map<String, Object> r, String schema, Set<String> present) {
+        String table = (String) r.get("relname");
+        String column = (String) r.get("attname");
+        boolean local = schema.equals(r.get("nspname"));
+        require(
+                !Boolean.TRUE.equals(r.get("owned"))
+                        && !Boolean.TRUE.equals(r.get("forbidden"))
+                        && !Boolean.TRUE.equals(r.get("can_reference")));
+        if (local) present.add(table);
+        boolean select = local && SELECT.getOrDefault(table, Set.of()).contains(column);
+        boolean insert = local && INSERT.getOrDefault(table, Set.of()).contains(column);
+        boolean update =
+                local && table.equals("v3_request_counter") && column.equals("position");
+        require(
+                Boolean.TRUE.equals(r.get("can_select")) == select
+                        && Boolean.TRUE.equals(r.get("can_insert")) == insert
+                        && Boolean.TRUE.equals(r.get("can_update")) == update);
     }
 
     private static void require(boolean value) {

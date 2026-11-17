@@ -134,43 +134,35 @@ class OidcTokenManager:
         with urllib.request.urlopen(req, timeout=15) as resp:
             return json.load(resp)
 
+    def _acquire_token_payload(self, now: float, force_renew: bool) -> Dict[str, Any]:
+        can_refresh = bool(self._refresh_token) and (now < self._refresh_expires_at or force_renew)
+        if can_refresh:
+            try:
+                data = self._refresh_login()
+                self.renewal_count += 1
+                return data
+            except Exception:
+                self.renewal_failures += 1
+        try:
+            data = self._initial_login()
+            if self._access_token is not None:
+                self.renewal_count += 1
+            return data
+        except Exception as e:
+            self.renewal_failures += 1
+            raise RuntimeError(f"Failed to obtain OIDC token from Keycloak: {e}") from e
+
     def get_token(self, force_renew: bool = False) -> str:
         """Returns a guaranteed valid access token, proactively refreshing if nearing expiry."""
         with self._lock:
             now = time.time()
-            needs_refresh = (
-                self._access_token is None
-                or force_renew
-                or (now + self.renewal_margin_sec >= self._expires_at)
-            )
-
-            if not needs_refresh:
+            expiring = now + self.renewal_margin_sec >= self._expires_at
+            if self._access_token is not None and not force_renew and not expiring:
                 return self._access_token
 
             start_t = time.time()
-            data = None
-
-            # Attempt refresh if valid refresh_token exists
-            if self._refresh_token and (now < self._refresh_expires_at or force_renew):
-                try:
-                    data = self._refresh_login()
-                    self.renewal_count += 1
-                except Exception as e:
-                    self.renewal_failures += 1
-                    data = None
-
-            # Fall back to initial login flow if refresh failed or not available
-            if data is None:
-                try:
-                    data = self._initial_login()
-                    if self._access_token is not None:
-                        self.renewal_count += 1
-                except Exception as e:
-                    self.renewal_failures += 1
-                    raise RuntimeError(f"Failed to obtain OIDC token from Keycloak: {e}") from e
-
-            dur_ms = (time.time() - start_t) * 1000.0
-            self.total_auth_duration_ms += dur_ms
+            data = self._acquire_token_payload(now, force_renew)
+            self.total_auth_duration_ms += (time.time() - start_t) * 1000.0
 
             self._access_token = data["access_token"]
             self._refresh_token = data.get("refresh_token", self._refresh_token)
@@ -189,6 +181,38 @@ class OidcTokenManager:
                 "totalAuthDurationMs": round(self.total_auth_duration_ms, 2),
                 "tokenRemainingSeconds": max(0.0, round(self._expires_at - time.time(), 1)),
             }
+
+
+def _send_json_response(handler: http.server.BaseHTTPRequestHandler, status: int, payload: Dict[str, Any]) -> None:
+    body = json.dumps(payload).encode("utf-8")
+    handler.send_response(status)
+    handler.send_header("Content-Type", "application/json")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.end_headers()
+    handler.wfile.write(body)
+
+
+def _handle_token_get(handler: http.server.BaseHTTPRequestHandler, token_mgr: OidcTokenManager, sched: Any) -> None:
+    try:
+        if handler.path == "/token":
+            _send_json_response(handler, 200, {"token": token_mgr.get_token(), "expiresIn": 300})
+        elif handler.path == "/next-command":
+            if not sched:
+                handler.send_response(503)
+                handler.end_headers()
+                return
+            cmd = sched.next_command()
+            payload = {"available": False} if cmd is None else {"available": True, "command": cmd}
+            _send_json_response(handler, 200, payload)
+        elif handler.path == "/mix-report":
+            _send_json_response(handler, 200, sched.get_mix_report() if sched else {})
+        elif handler.path == "/telemetry":
+            _send_json_response(handler, 200, token_mgr.get_telemetry())
+        else:
+            handler.send_response(404)
+            handler.end_headers()
+    except Exception as e:
+        _send_json_response(handler, 500, {"error": str(e)})
 
 
 class TokenHttpServer:
@@ -212,74 +236,7 @@ class TokenHttpServer:
                 pass  # Quiet logging
 
             def do_GET(self):
-                if self.path == "/token":
-                    try:
-                        token = token_mgr.get_token()
-                        body = json.dumps({"token": token, "expiresIn": 300}).encode("utf-8")
-                        self.send_response(200)
-                        self.send_header("Content-Type", "application/json")
-                        self.send_header("Content-Length", str(len(body)))
-                        self.end_headers()
-                        self.wfile.write(body)
-                    except Exception as e:
-                        err = json.dumps({"error": str(e)}).encode("utf-8")
-                        self.send_response(500)
-                        self.send_header("Content-Type", "application/json")
-                        self.send_header("Content-Length", str(len(err)))
-                        self.end_headers()
-                        self.wfile.write(err)
-                elif self.path == "/next-command":
-                    try:
-                        if not sched:
-                            self.send_response(503)
-                            self.end_headers()
-                            return
-                        cmd = sched.next_command()
-                        if cmd is None:
-                            body = json.dumps({"available": False}).encode("utf-8")
-                        else:
-                            body = json.dumps({"available": True, "command": cmd}).encode("utf-8")
-                        self.send_response(200)
-                        self.send_header("Content-Type", "application/json")
-                        self.send_header("Content-Length", str(len(body)))
-                        self.end_headers()
-                        self.wfile.write(body)
-                    except Exception as e:
-                        err = json.dumps({"error": str(e)}).encode("utf-8")
-                        self.send_response(500)
-                        self.send_header("Content-Type", "application/json")
-                        self.send_header("Content-Length", str(len(err)))
-                        self.end_headers()
-                        self.wfile.write(err)
-                elif self.path == "/mix-report":
-                    try:
-                        if not sched:
-                            rep = {}
-                        else:
-                            rep = sched.get_mix_report()
-                        body = json.dumps(rep).encode("utf-8")
-                        self.send_response(200)
-                        self.send_header("Content-Type", "application/json")
-                        self.send_header("Content-Length", str(len(body)))
-                        self.end_headers()
-                        self.wfile.write(body)
-                    except Exception as e:
-                        err = json.dumps({"error": str(e)}).encode("utf-8")
-                        self.send_response(500)
-                        self.send_header("Content-Type", "application/json")
-                        self.send_header("Content-Length", str(len(err)))
-                        self.end_headers()
-                        self.wfile.write(err)
-                elif self.path == "/telemetry":
-                    tele = json.dumps(token_mgr.get_telemetry()).encode("utf-8")
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/json")
-                    self.send_header("Content-Length", str(len(tele)))
-                    self.end_headers()
-                    self.wfile.write(tele)
-                else:
-                    self.send_response(404)
-                    self.end_headers()
+                _handle_token_get(self, token_mgr, sched)
 
         # Allow port reuse
         socketserver.TCPServer.allow_reuse_address = True

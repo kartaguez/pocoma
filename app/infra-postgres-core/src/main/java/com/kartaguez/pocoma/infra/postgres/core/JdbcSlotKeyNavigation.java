@@ -25,6 +25,13 @@ public final class JdbcSlotKeyNavigation implements SlotKeyNavigation {
         this.settings = Objects.requireNonNull(settings);
     }
 
+    private static final String BASE_SELECT =
+            "select consumable_id from consumption_slot where consumption_id=? and"
+                    + " partition_id=? and state <> 'QUARANTINED'";
+
+    private record PageScope(
+            ConsumptionId consumption, int partition, UUID upper, int limit) {}
+
     @Override
     public Page readPage(
             ConsumptionId consumption,
@@ -35,8 +42,24 @@ public final class JdbcSlotKeyNavigation implements SlotKeyNavigation {
         SpringAttemptTransactions.requireRead(source, context);
         Objects.requireNonNull(consumption);
         Objects.requireNonNull(walk);
-        if (partition < 0 || partition >= 4 || limit < 1 || limit > settings.batchSize())
+        validateBounds(partition, limit);
+        applySessionTimeouts();
+        var upper = resolveUpperBound(consumption, partition, walk);
+        if (upper.isEmpty()) return new Page(upper, List.of());
+        var scope = new PageScope(consumption, partition, upper.get(), limit);
+        return new Page(upper, fetchKeys(scope, walk));
+    }
+
+    private void validateBounds(int partition, int limit) {
+        if (partition < 0 || partition >= 4) {
             throw new IllegalArgumentException("invalid bounded slot page");
+        }
+        if (limit < 1 || limit > settings.batchSize()) {
+            throw new IllegalArgumentException("invalid bounded slot page");
+        }
+    }
+
+    private void applySessionTimeouts() {
         jdbc.queryForList(
                 "select set_config('lock_timeout',?,true),"
                         + " set_config('statement_timeout',?,true),"
@@ -44,43 +67,39 @@ public final class JdbcSlotKeyNavigation implements SlotKeyNavigation {
                 settings.lockTimeout().toMillis() + "ms",
                 settings.statementTimeout().toMillis() + "ms",
                 (settings.statementTimeout().toMillis() + 1000) + "ms");
-        String prefix =
-                "select consumable_id from consumption_slot where consumption_id=? and"
-                        + " partition_id=? and state <> 'QUARANTINED'";
-        var upper = walk.upperInclusive();
-        if (upper.isEmpty())
-            upper =
-                    jdbc
-                            .query(
-                                    prefix + " order by consumable_id desc limit 1",
-                                    (rs, n) -> rs.getObject(1, UUID.class),
-                                    consumption.value(),
-                                    partition)
-                            .stream()
-                            .findFirst();
-        if (upper.isEmpty()) return new Page(upper, List.of());
-        List<UUID> keys;
-        if (walk.afterExclusive().isEmpty())
-            keys =
-                    jdbc.query(
-                            prefix + " and consumable_id<=? order by consumable_id limit ?",
-                            (rs, n) -> rs.getObject(1, UUID.class),
-                            consumption.value(),
-                            partition,
-                            upper.get(),
-                            limit);
-        else
-            keys =
-                    jdbc.query(
-                            prefix
-                                    + " and consumable_id>? and consumable_id<=? order by"
-                                    + " consumable_id limit ?",
-                            (rs, n) -> rs.getObject(1, UUID.class),
-                            consumption.value(),
-                            partition,
-                            walk.afterExclusive().get(),
-                            upper.get(),
-                            limit);
-        return new Page(upper, keys);
+    }
+
+    private Optional<UUID> resolveUpperBound(
+            ConsumptionId consumption, int partition, Walk walk) {
+        if (walk.upperInclusive().isPresent()) return walk.upperInclusive();
+        return jdbc.query(
+                        BASE_SELECT + " order by consumable_id desc limit 1",
+                        (rs, n) -> rs.getObject(1, UUID.class),
+                        consumption.value(),
+                        partition)
+                .stream()
+                .findFirst();
+    }
+
+    private List<UUID> fetchKeys(PageScope scope, Walk walk) {
+        if (walk.afterExclusive().isEmpty()) {
+            return jdbc.query(
+                    BASE_SELECT + " and consumable_id<=? order by consumable_id limit ?",
+                    (rs, n) -> rs.getObject(1, UUID.class),
+                    scope.consumption().value(),
+                    scope.partition(),
+                    scope.upper(),
+                    scope.limit());
+        }
+        return jdbc.query(
+                BASE_SELECT
+                        + " and consumable_id>? and consumable_id<=? order by"
+                        + " consumable_id limit ?",
+                (rs, n) -> rs.getObject(1, UUID.class),
+                scope.consumption().value(),
+                scope.partition(),
+                walk.afterExclusive().get(),
+                scope.upper(),
+                scope.limit());
     }
 }

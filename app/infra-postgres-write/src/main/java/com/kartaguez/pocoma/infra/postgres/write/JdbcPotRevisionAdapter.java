@@ -16,6 +16,11 @@ import javax.sql.DataSource;
 
 /** Caller owns version arbitration, request provenance and commit (L1-C). */
 public final class JdbcPotRevisionAdapter implements PotRevisionPort {
+    private record RevisionTarget(
+            String table, PotId pot, UUID id, Versioned<?> revision) {}
+
+    private record RevisionColumns(String columns, Object... values) {}
+
     private final PotHistoryRows rows;
 
     public JdbcPotRevisionAdapter(DataSource dataSource) {
@@ -31,10 +36,9 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     Objects.requireNonNull(recordedAt);
                     var state = proposal.changes();
                     var pot = state.header().value().potId();
-                    if (proposal.expectedPotVersion() != 0
-                            || proposal.candidatePotVersion() != 1
-                            || state.header().value().deleted())
+                    if (!isValidInitialPotProposal(proposal, state)) {
                         throw bad("Invalid initial Pot proposal");
+                    }
                     initial(state.header(), 1);
                     initial(state.details(), 1);
                     rows.jdbc.update("insert into v3_pot_identity(pot_id) values (?)", pot.value());
@@ -47,6 +51,14 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                 });
     }
 
+    private static boolean isValidInitialPotProposal(
+            TransitionResult.Changed<PotState> proposal, PotState state) {
+        if (proposal.expectedPotVersion() != 0 || proposal.candidatePotVersion() != 1) {
+            return false;
+        }
+        return !state.header().value().deleted();
+    }
+
     @Override
     public void recordVersion(PotId pot, long expected, long candidate, Instant recordedAt) {
         SpringAttemptTransactions.revision(
@@ -54,21 +66,27 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                 () -> {
                     rows.requireTransaction(false);
                     Objects.requireNonNull(recordedAt);
-                    if (expected < 1 || Math.incrementExact(expected) != candidate)
+                    if (expected < 1 || Math.incrementExact(expected) != candidate) {
                         throw bad("Invalid version step");
-                    var latest = rows.version(pot, null);
-                    if (latest == null || number(latest, "version") != expected)
-                        throw bad("Unexpected current Pot version");
-                    var header =
-                            rows.openComponent("pot_header", pot, expected, Map.of(pot.value(), 1L))
-                                    .get(pot.value());
-                    if ((boolean) header.get("deleted")) throw bad("Terminal Pot cannot advance");
+                    }
+                    verifyOpenPotVersion(pot, expected);
                     rows.jdbc.update(
                             "insert into v3_pot_version(pot_id,version,recorded_at) values (?,?,?)",
                             pot.value(),
                             candidate,
                             Timestamp.from(recordedAt));
                 });
+    }
+
+    private void verifyOpenPotVersion(PotId pot, long expected) {
+        var latest = rows.version(pot, null);
+        if (latest == null || number(latest, "version") != expected) {
+            throw bad("Unexpected current Pot version");
+        }
+        var header =
+                rows.openComponent("pot_header", pot, expected, Map.of(pot.value(), 1L))
+                        .get(pot.value());
+        if ((boolean) header.get("deleted")) throw bad("Terminal Pot cannot advance");
     }
 
     private void proposal(PotId pot, TransitionResult.Changed<?> proposal) {
@@ -152,119 +170,86 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    var old = check("pot_details", pot, pot.value(), next, proposal);
-                    if (!uuid(old, "creator_id").equals(next.value().creatorId().value()))
+                    var target = new RevisionTarget("pot_details", pot, pot.value(), next);
+                    var old = check(target, proposal);
+                    if (!uuid(old, "creator_id").equals(next.value().creatorId().value())) {
                         throw bad("Creator must remain immutable");
-                    close("pot_details", pot, pot.value(), next, old);
+                    }
+                    close(target, old);
                     insertPotDetails(next);
                 });
     }
 
+    private record HeaderDescriptor<T>(
+            String table,
+            java.util.function.Function<Versioned<T>, PotId> potOf,
+            java.util.function.Function<Versioned<T>, UUID> idOf,
+            java.util.function.Predicate<Versioned<T>> isDeleted,
+            java.util.function.Consumer<Versioned<T>> inserter) {}
+
+    private record BatchDescriptor<T>(
+            String table,
+            java.util.function.Function<T, PotId> potOf,
+            java.util.function.Function<T, ShareholderId> idOf,
+            String mixedKeyMessage,
+            java.util.function.Consumer<Versioned<T>> inserter) {}
+
     @Override
     public void revisePotHeader(
             PotId pot, TransitionResult.Changed<Versioned<PotHeader>> proposal) {
-        SpringAttemptTransactions.revision(
-                rows.dataSource,
-                () -> {
-                    proposal(pot, proposal);
-                    var next = proposal.changes();
-                    samePot(pot, next.value().potId());
-                    var old =
-                            deletion(
-                                    "pot_header",
-                                    pot,
-                                    pot.value(),
-                                    next,
-                                    next.value().deleted(),
-                                    proposal);
-                    close("pot_header", pot, pot.value(), next, old);
-                    insertPotHeader(next);
-                });
+        reviseDeletedHeader(
+                pot,
+                proposal,
+                new HeaderDescriptor<>(
+                        "pot_header",
+                        next -> next.value().potId(),
+                        next -> next.value().potId().value(),
+                        next -> next.value().deleted(),
+                        this::insertPotHeader));
     }
 
     @Override
     public void reviseShareholderDetails(
             PotId pot,
             TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>> proposal) {
-        SpringAttemptTransactions.revision(
-                rows.dataSource,
-                () -> {
-                    proposal(pot, proposal);
-                    for (var entry : proposal.changes().entrySet()) {
-                        var next = entry.getValue();
-                        samePot(pot, next.value().potId());
-                        if (!entry.getKey().equals(next.value().shareholderId()))
-                            throw bad("Mixed details key");
-                    }
-                    var targets = new LinkedHashMap<UUID, Versioned<?>>();
-                    proposal.changes().forEach((id, next) -> targets.put(id.value(), next));
-                    var old = checkAll("shareholder_details", pot, targets, proposal);
-                    for (var entry : proposal.changes().entrySet()) {
-                        close(
-                                "shareholder_details",
-                                pot,
-                                entry.getKey().value(),
-                                entry.getValue(),
-                                old.get(entry.getKey().value()));
-                        insertShareholderDetails(entry.getValue());
-                    }
-                });
+        reviseShareholderBatch(
+                pot,
+                proposal,
+                new BatchDescriptor<>(
+                        "shareholder_details",
+                        ShareholderDetails::potId,
+                        ShareholderDetails::shareholderId,
+                        "Mixed details key",
+                        this::insertShareholderDetails));
     }
 
     @Override
     public void reviseShareholderWeights(
             PotId pot,
             TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderWeight>>> proposal) {
-        SpringAttemptTransactions.revision(
-                rows.dataSource,
-                () -> {
-                    proposal(pot, proposal);
-                    for (var entry : proposal.changes().entrySet()) {
-                        var next = entry.getValue();
-                        samePot(pot, next.value().potId());
-                        if (!entry.getKey().equals(next.value().shareholderId()))
-                            throw bad("Mixed weight key");
-                    }
-                    var targets = new LinkedHashMap<UUID, Versioned<?>>();
-                    proposal.changes().forEach((id, next) -> targets.put(id.value(), next));
-                    var old = checkAll("shareholder_weight", pot, targets, proposal);
-                    for (var entry : proposal.changes().entrySet()) {
-                        close(
-                                "shareholder_weight",
-                                pot,
-                                entry.getKey().value(),
-                                entry.getValue(),
-                                old.get(entry.getKey().value()));
-                        insertShareholderWeight(entry.getValue());
-                    }
-                });
+        reviseShareholderBatch(
+                pot,
+                proposal,
+                new BatchDescriptor<>(
+                        "shareholder_weight",
+                        ShareholderWeight::potId,
+                        ShareholderWeight::shareholderId,
+                        "Mixed weight key",
+                        this::insertShareholderWeight));
     }
 
     @Override
     public void reviseShareholderHeader(
             PotId pot, TransitionResult.Changed<Versioned<ShareholderHeader>> proposal) {
-        SpringAttemptTransactions.revision(
-                rows.dataSource,
-                () -> {
-                    proposal(pot, proposal);
-                    var next = proposal.changes();
-                    samePot(pot, next.value().potId());
-                    var old =
-                            deletion(
-                                    "shareholder_header",
-                                    pot,
-                                    next.value().shareholderId().value(),
-                                    next,
-                                    next.value().deleted(),
-                                    proposal);
-                    close(
-                            "shareholder_header",
-                            pot,
-                            next.value().shareholderId().value(),
-                            next,
-                            old);
-                    insertShareholderHeader(next);
-                });
+        reviseDeletedHeader(
+                pot,
+                proposal,
+                new HeaderDescriptor<>(
+                        "shareholder_header",
+                        next -> next.value().potId(),
+                        next -> next.value().shareholderId().value(),
+                        next -> next.value().deleted(),
+                        this::insertShareholderHeader));
     }
 
     @Override
@@ -276,14 +261,11 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    var old =
-                            check(
-                                    "expense_details",
-                                    pot,
-                                    next.value().expenseId().value(),
-                                    next,
-                                    proposal);
-                    close("expense_details", pot, next.value().expenseId().value(), next, old);
+                    var target =
+                            new RevisionTarget(
+                                    "expense_details", pot, next.value().expenseId().value(), next);
+                    var old = check(target, proposal);
+                    close(target, old);
                     insertExpenseDetails(next);
                 });
     }
@@ -297,15 +279,15 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    var old =
-                            check(
+                    var target =
+                            new RevisionTarget(
                                     "expense_financials",
                                     pot,
                                     next.value().expenseId().value(),
-                                    next,
-                                    proposal);
+                                    next);
+                    var old = check(target, proposal);
                     financialReferences(pot, next.value(), proposal);
-                    close("expense_financials", pot, next.value().expenseId().value(), next, old);
+                    close(target, old);
                     insertExpenseFinancials(next);
                 });
     }
@@ -313,32 +295,67 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void reviseExpenseHeader(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseHeader>> proposal) {
+        reviseDeletedHeader(
+                pot,
+                proposal,
+                new HeaderDescriptor<>(
+                        "expense_header",
+                        next -> next.value().potId(),
+                        next -> next.value().expenseId().value(),
+                        next -> next.value().deleted(),
+                        this::insertExpenseHeader));
+    }
+
+    private <T> void reviseDeletedHeader(
+            PotId pot,
+            TransitionResult.Changed<Versioned<T>> proposal,
+            HeaderDescriptor<T> desc) {
         SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
                     var next = proposal.changes();
-                    samePot(pot, next.value().potId());
-                    var old =
-                            deletion(
-                                    "expense_header",
-                                    pot,
-                                    next.value().expenseId().value(),
-                                    next,
-                                    next.value().deleted(),
-                                    proposal);
-                    close("expense_header", pot, next.value().expenseId().value(), next, old);
-                    insertExpenseHeader(next);
+                    samePot(pot, desc.potOf().apply(next));
+                    var target =
+                            new RevisionTarget(desc.table(), pot, desc.idOf().apply(next), next);
+                    var old = deletion(target, desc.isDeleted().test(next), proposal);
+                    close(target, old);
+                    desc.inserter().accept(next);
+                });
+    }
+
+    private <T> void reviseShareholderBatch(
+            PotId pot,
+            TransitionResult.Changed<Map<ShareholderId, Versioned<T>>> proposal,
+            BatchDescriptor<T> desc) {
+        SpringAttemptTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var targets = new LinkedHashMap<UUID, Versioned<?>>();
+                    for (var entry : proposal.changes().entrySet()) {
+                        var next = entry.getValue();
+                        samePot(pot, desc.potOf().apply(next.value()));
+                        if (!entry.getKey().equals(desc.idOf().apply(next.value()))) {
+                            throw bad(desc.mixedKeyMessage());
+                        }
+                        targets.put(entry.getKey().value(), next);
+                    }
+                    var old = checkAll(desc.table(), pot, targets, proposal);
+                    for (var entry : proposal.changes().entrySet()) {
+                        var id = entry.getKey().value();
+                        close(
+                                new RevisionTarget(desc.table(), pot, id, entry.getValue()),
+                                old.get(id));
+                        desc.inserter().accept(entry.getValue());
+                    }
                 });
     }
 
     private Map<String, Object> check(
-            String table,
-            PotId pot,
-            UUID id,
-            Versioned<?> next,
-            TransitionResult.Changed<?> proposal) {
-        return checkAll(table, pot, Map.of(id, next), proposal).get(id);
+            RevisionTarget target, TransitionResult.Changed<?> proposal) {
+        return checkAll(target.table(), target.pot(), Map.of(target.id(), target.revision()), proposal)
+                .get(target.id());
     }
 
     private Map<UUID, Map<String, Object>> checkAll(
@@ -347,54 +364,57 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
             Map<UUID, Versioned<?>> next,
             TransitionResult.Changed<?> proposal) {
         if (next.isEmpty()) throw bad("Empty revision batch");
-        var births =
-                table.startsWith("pot_")
-                        ? Map.of(pot.value(), 1L)
-                        : rows.identities(
-                                table.startsWith("shareholder_") ? "shareholder" : "expense",
-                                pot,
-                                next.keySet());
+        var births = resolveBirths(table, pot, next.keySet());
         if (!births.keySet().equals(next.keySet())) throw bad("Missing revision identity");
         var old = rows.openComponent(table, pot, proposal.expectedPotVersion(), births);
+        verifyNextVersions(old, next, proposal.candidatePotVersion());
+        return old;
+    }
+
+    private Map<UUID, Long> resolveBirths(String table, PotId pot, Set<UUID> ids) {
+        if (table.startsWith("pot_")) return Map.of(pot.value(), 1L);
+        String kind = table.startsWith("shareholder_") ? "shareholder" : "expense";
+        return rows.identities(kind, pot, ids);
+    }
+
+    private static void verifyNextVersions(
+            Map<UUID, Map<String, Object>> old,
+            Map<UUID, Versioned<?>> next,
+            long candidatePotVersion) {
         next.forEach(
                 (id, revision) -> {
-                    if (revision.activeFrom() != proposal.candidatePotVersion()
+                    if (revision.activeFrom() != candidatePotVersion
                             || Math.incrementExact(number(old.get(id), "local_version"))
-                                    != revision.localVersion())
+                                    != revision.localVersion()) {
                         throw bad("Unexpected local revision or applicability start");
+                    }
                 });
-        return old;
     }
 
     private Map<String, Object> deletion(
-            String table,
-            PotId pot,
-            UUID id,
-            Versioned<?> next,
-            boolean deleted,
-            TransitionResult.Changed<?> proposal) {
-        var old = check(table, pot, id, next, proposal);
-        if (!deleted || (boolean) old.get("deleted"))
+            RevisionTarget target, boolean deleted, TransitionResult.Changed<?> proposal) {
+        var old = check(target, proposal);
+        if (!deleted || (boolean) old.get("deleted")) {
             throw bad("Header deletion must be effective");
+        }
         return old;
     }
 
-    private void close(
-            String table, PotId pot, UUID id, Versioned<?> next, Map<String, Object> old) {
+    private void close(RevisionTarget target, Map<String, Object> old) {
         int count =
                 rows.jdbc.update(
                         "update v3_"
-                                + table
+                                + target.table()
                                 + " set active_to=? where pot_id=? and object_id=? and"
                                 + " revision_id=? and local_version=? and active_from=? and"
                                 + " active_to is null and active_from<?",
-                        next.activeFrom(),
-                        pot.value(),
-                        id,
+                        target.revision().activeFrom(),
+                        target.pot().value(),
+                        target.id(),
                         number(old, "revision_id"),
-                        Math.decrementExact(next.localVersion()),
+                        Math.decrementExact(target.revision().localVersion()),
                         number(old, "active_from"),
-                        next.activeFrom());
+                        target.revision().activeFrom());
         if (count != 1) throw bad("Revision close conflict");
     }
 
@@ -421,23 +441,21 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         if (!expected.equals(actual)) throw bad("Mixed Pot proposal");
     }
 
-    private void insert(
-            String table,
-            PotId pot,
-            UUID id,
-            Versioned<?> revision,
-            String columns,
-            Object... values) {
+    private void insert(RevisionTarget target, RevisionColumns cols) {
         var args =
                 new ArrayList<Object>(
-                        List.of(pot.value(), id, revision.localVersion(), revision.activeFrom()));
-        args.addAll(Arrays.asList(values));
+                        List.of(
+                                target.pot().value(),
+                                target.id(),
+                                target.revision().localVersion(),
+                                target.revision().activeFrom()));
+        args.addAll(Arrays.asList(cols.values()));
         String placeholders = String.join(",", Collections.nCopies(args.size(), "?"));
         rows.jdbc.update(
                 "insert into v3_"
-                        + table
+                        + target.table()
                         + "(pot_id,object_id,local_version,active_from,"
-                        + columns
+                        + cols.columns()
                         + ") values ("
                         + placeholders
                         + ")",
@@ -446,90 +464,75 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
 
     private void insertPotHeader(Versioned<PotHeader> revision) {
         var v = revision.value();
-        insert("pot_header", v.potId(), v.potId().value(), revision, "deleted", v.deleted());
+        insert(
+                new RevisionTarget("pot_header", v.potId(), v.potId().value(), revision),
+                new RevisionColumns("deleted", v.deleted()));
     }
 
     private void insertPotDetails(Versioned<PotDetails> revision) {
         var v = revision.value();
         insert(
-                "pot_details",
-                v.potId(),
-                v.potId().value(),
-                revision,
-                "label,creator_id",
-                v.label().value(),
-                v.creatorId().value());
+                new RevisionTarget("pot_details", v.potId(), v.potId().value(), revision),
+                new RevisionColumns("label,creator_id", v.label().value(), v.creatorId().value()));
     }
 
     private void insertShareholderHeader(Versioned<ShareholderHeader> revision) {
         var v = revision.value();
         insert(
-                "shareholder_header",
-                v.potId(),
-                v.shareholderId().value(),
-                revision,
-                "deleted",
-                v.deleted());
+                new RevisionTarget(
+                        "shareholder_header", v.potId(), v.shareholderId().value(), revision),
+                new RevisionColumns("deleted", v.deleted()));
     }
 
     private void insertShareholderDetails(Versioned<ShareholderDetails> revision) {
         var v = revision.value();
         insert(
-                "shareholder_details",
-                v.potId(),
-                v.shareholderId().value(),
-                revision,
-                "name,user_id",
-                v.name().value(),
-                v.userId().map(id -> id.value()).orElse(null));
+                new RevisionTarget(
+                        "shareholder_details", v.potId(), v.shareholderId().value(), revision),
+                new RevisionColumns(
+                        "name,user_id",
+                        v.name().value(),
+                        v.userId().map(id -> id.value()).orElse(null)));
     }
 
     private void insertShareholderWeight(Versioned<ShareholderWeight> revision) {
         var v = revision.value();
         insert(
-                "shareholder_weight",
-                v.potId(),
-                v.shareholderId().value(),
-                revision,
-                "numerator,denominator",
-                v.defaultWeight().value().numerator().toString(),
-                v.defaultWeight().value().denominator().toString());
+                new RevisionTarget(
+                        "shareholder_weight", v.potId(), v.shareholderId().value(), revision),
+                new RevisionColumns(
+                        "numerator,denominator",
+                        v.defaultWeight().value().numerator().toString(),
+                        v.defaultWeight().value().denominator().toString()));
     }
 
     private void insertExpenseHeader(Versioned<ExpenseHeader> revision) {
         var v = revision.value();
         insert(
-                "expense_header",
-                v.potId(),
-                v.expenseId().value(),
-                revision,
-                "deleted",
-                v.deleted());
+                new RevisionTarget("expense_header", v.potId(), v.expenseId().value(), revision),
+                new RevisionColumns("deleted", v.deleted()));
     }
 
     private void insertExpenseDetails(Versioned<ExpenseDetails> revision) {
         var v = revision.value();
         insert(
-                "expense_details",
-                v.potId(),
-                v.expenseId().value(),
-                revision,
-                "label,expense_date",
-                v.label().value(),
-                java.sql.Date.valueOf(v.date()));
+                new RevisionTarget("expense_details", v.potId(), v.expenseId().value(), revision),
+                new RevisionColumns(
+                        "label,expense_date",
+                        v.label().value(),
+                        java.sql.Date.valueOf(v.date())));
     }
 
     private void insertExpenseFinancials(Versioned<ExpenseFinancials> revision) {
         var v = revision.value();
         insert(
-                "expense_financials",
-                v.potId(),
-                v.expenseId().value(),
-                revision,
-                "numerator,denominator,payer_id",
-                v.amount().value().numerator().toString(),
-                v.amount().value().denominator().toString(),
-                v.payerId().value());
+                new RevisionTarget(
+                        "expense_financials", v.potId(), v.expenseId().value(), revision),
+                new RevisionColumns(
+                        "numerator,denominator,payer_id",
+                        v.amount().value().numerator().toString(),
+                        v.amount().value().denominator().toString(),
+                        v.payerId().value()));
         var key =
                 rows.jdbc.queryForObject(
                         "select revision_id from v3_expense_financials where pot_id=? and"

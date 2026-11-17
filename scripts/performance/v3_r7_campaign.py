@@ -89,27 +89,32 @@ def get_pg_stats() -> Dict[str, Any]:
     return stats
 
 
+def _parse_docker_stat_line(line: str) -> Optional[Tuple[str, Dict[str, Any]]]:
+    parts = line.split("|")
+    if len(parts) != 3:
+        return None
+    name = parts[0]
+    cpu_str = parts[1].replace("%", "").strip()
+    mem_str = parts[2].split("/")[0].strip()
+    try:
+        return name, {"cpu_percent": float(cpu_str), "mem_str": mem_str}
+    except ValueError:
+        return name, {"cpu_str": parts[1], "mem_str": parts[2]}
+
+
 def get_docker_stats() -> Dict[str, Any]:
     res = subprocess.run(
         ["docker", "stats", "--no-stream", "--format", "{{.Name}}|{{.CPUPerc}}|{{.MemUsage}}",
          CONTAINER_NAME, POSTGRES_CONTAINER],
         capture_output=True, text=True
     )
+    if res.returncode != 0:
+        return {}
     stats = {}
-    if res.returncode == 0:
-        for line in res.stdout.strip().splitlines():
-            parts = line.split("|")
-            if len(parts) == 3:
-                name = parts[0]
-                cpu_str = parts[1].replace("%", "").strip()
-                mem_str = parts[2].split("/")[0].strip()
-                try:
-                    stats[name] = {
-                        "cpu_percent": float(cpu_str),
-                        "mem_str": mem_str
-                    }
-                except ValueError:
-                    stats[name] = {"cpu_str": parts[1], "mem_str": parts[2]}
+    for line in res.stdout.strip().splitlines():
+        parsed = _parse_docker_stat_line(line)
+        if parsed:
+            stats[parsed[0]] = parsed[1]
     return stats
 
 
@@ -217,94 +222,86 @@ def measure_idle_cost(config_name: str, duration_sec: int = 20) -> Dict[str, Any
     return idle_data
 
 
+def _has_all_leases(metrics: Dict[str, float]) -> Tuple[bool, float, float]:
+    w_leases = metrics.get('pocoma_v3_lease_local{authority="write"}', 0)
+    r_leases = metrics.get('pocoma_v3_lease_local{authority="read"}', 0)
+    return w_leases == 8.0 and r_leases == 24.0, w_leases, r_leases
+
+
+def _is_config_already_active(src_cfg: Path) -> bool:
+    if not ACTIVE_CONFIG.exists():
+        return False
+    with open(src_cfg, "r") as f1, open(ACTIVE_CONFIG, "r") as f2:
+        lines1 = [l.strip() for l in f1 if l.strip() and not l.startswith("#")]
+        lines2 = [l.strip() for l in f2 if l.strip() and not l.startswith("#")]
+    if lines1 != lines2:
+        return False
+    ok, _, _ = _has_all_leases(get_prom_metrics())
+    return ok
+
+
+def _await_lease_expiration() -> None:
+    rem = check_max_remaining_lease()
+    print(f"  ▶ Awaiting natural expiration of partition leases in PostgreSQL (remaining: {rem:.1f}s)...")
+    while rem > 0:
+        time.sleep(min(rem + 1.0, 5.0))
+        rem = check_max_remaining_lease()
+        if rem > 0:
+            print(f"    ... {rem:.1f}s remaining before clean lease takeover ...")
+    print("  ✓ All partition leases have naturally expired (clock_timestamp >= owned_until).")
+
+
+def _await_actuator_health() -> bool:
+    print("  ▶ Waiting for Spring Boot Actuator health...")
+    for _ in range(60):
+        try:
+            res = urllib.request.urlopen("http://127.0.0.1:18081/actuator/health", timeout=2)
+            if res.status == 200 and json.loads(res.read().decode()).get("status") == "UP":
+                print("  ✓ Actuator health is UP.")
+                return True
+        except Exception:
+            pass
+        time.sleep(1)
+    print("ERROR: Actuator health did not reach UP within 60s", file=sys.stderr)
+    return False
+
+
+def _await_all_leases() -> bool:
+    print("  ▶ Verifying effective acquisition of all 32 partition leases...")
+    w_leases = r_leases = 0.0
+    for _ in range(60):
+        ok, w_leases, r_leases = _has_all_leases(get_prom_metrics())
+        if ok:
+            print(f"  ✓ All 32 leases acquired: write={w_leases:.0f}/8, read={r_leases:.0f}/24.")
+            return True
+        time.sleep(1)
+    print(f"ERROR: Partitions not acquired within 60s (w={w_leases}, r={r_leases})", file=sys.stderr)
+    return False
+
+
 def switch_and_stabilize_config(config_name: str) -> bool:
     src_cfg = CONFIGS_DIR / f"config-{config_name}.properties"
     if not src_cfg.exists():
         print(f"ERROR: Configuration file not found: {src_cfg}", file=sys.stderr)
         return False
 
-    # Check if currently active properties match the target (ignoring header comments)
-    needs_restart = True
-    if ACTIVE_CONFIG.exists():
-        with open(src_cfg, "r") as f1, open(ACTIVE_CONFIG, "r") as f2:
-            lines1 = [l.strip() for l in f1 if l.strip() and not l.startswith("#")]
-            lines2 = [l.strip() for l in f2 if l.strip() and not l.startswith("#")]
-            if lines1 == lines2:
-                # Check if container is running and healthy
-                p = get_prom_metrics()
-                w_leases = p.get('pocoma_v3_lease_local{authority="write"}', 0)
-                r_leases = p.get('pocoma_v3_lease_local{authority="read"}', 0)
-                if w_leases == 8.0 and r_leases == 24.0:
-                    print(f"  ✓ Container is ALREADY active with Configuration {config_name} (32/32 leases acquired). No restart needed.")
-                    needs_restart = False
-
-    if needs_restart:
+    if _is_config_already_active(src_cfg):
+        print(f"  ✓ Container is ALREADY active with Configuration {config_name} (32/32 leases acquired). No restart needed.")
+    else:
         print(f"\n================================================================================")
         print(f" Switching Monolith to Configuration [{config_name}]")
         print(f"================================================================================")
-
-        # 1. Copy config
         shutil.copyfile(src_cfg, ACTIVE_CONFIG)
         print(f"  ✓ Deployed config-{config_name}.properties to {ACTIVE_CONFIG.name}")
-
-        # 2. Stop container gracefully
         print(f"  ▶ Stopping container {CONTAINER_NAME} gracefully (drain)...")
         subprocess.run(["docker", "stop", "-t", "30", CONTAINER_NAME], check=True)
-        print(f"  ✓ Container stopped.")
-
-        # 3. Wait for natural lease expiration in PostgreSQL
-        rem = check_max_remaining_lease()
-        print(f"  ▶ Awaiting natural expiration of partition leases in PostgreSQL (remaining: {rem:.1f}s)...")
-        while rem > 0:
-            sleep_step = min(rem + 1.0, 5.0)
-            time.sleep(sleep_step)
-            rem = check_max_remaining_lease()
-            if rem > 0:
-                print(f"    ... {rem:.1f}s remaining before clean lease takeover ...")
-        print("  ✓ All partition leases have naturally expired (clock_timestamp >= owned_until).")
-
-        # 4. Start container
+        print("  ✓ Container stopped.")
+        _await_lease_expiration()
         print(f"  ▶ Starting container {CONTAINER_NAME}...")
         subprocess.run(["docker", "start", CONTAINER_NAME], check=True)
-
-        # 5. Poll actuator health
-        print("  ▶ Waiting for Spring Boot Actuator health...")
-        health_up = False
-        for _ in range(60):
-            try:
-                res = urllib.request.urlopen("http://127.0.0.1:18081/actuator/health", timeout=2)
-                if res.status == 200:
-                    data = json.loads(res.read().decode())
-                    if data.get("status") == "UP":
-                        health_up = True
-                        break
-            except Exception:
-                pass
-            time.sleep(1)
-
-        if not health_up:
-            print("ERROR: Actuator health did not reach UP within 60s", file=sys.stderr)
-            return False
-        print("  ✓ Actuator health is UP.")
-
-        # 6. Poll until all 32 partitions are acquired
-        print("  ▶ Verifying effective acquisition of all 32 partition leases...")
-        leases_ready = False
-        for _ in range(60):
-            pm = get_prom_metrics()
-            w_leases = pm.get('pocoma_v3_lease_local{authority="write"}', 0)
-            r_leases = pm.get('pocoma_v3_lease_local{authority="read"}', 0)
-            if w_leases == 8.0 and r_leases == 24.0:
-                leases_ready = True
-                print(f"  ✓ All 32 leases acquired: write={w_leases:.0f}/8, read={r_leases:.0f}/24.")
-                break
-            time.sleep(1)
-
-        if not leases_ready:
-            print(f"ERROR: Partitions not acquired within 60s (w={w_leases}, r={r_leases})", file=sys.stderr)
+        if not _await_actuator_health() or not _await_all_leases():
             return False
 
-    # 7. Run preflight
     print("  ▶ Executing preflight verification gate...")
     pf = subprocess.run([sys.executable, str(PREFLIGHT_SCRIPT)], capture_output=True, text=True)
     if pf.returncode != 0:

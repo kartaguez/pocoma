@@ -19,6 +19,20 @@ PATTERNS = {
 }
 
 
+def _scan_file(path, compiled, inputs):
+    data = path.read_bytes()
+    relative = str(path.relative_to(ROOT))
+    digest = hashlib.sha256(data).hexdigest()
+    inputs[relative] = digest
+    kind = "application-test" if "test" in path.parts else ("production" if "main" in path.parts else "tool-or-sql")
+    matches = []
+    for number, line in enumerate(data.decode().splitlines(), 1):
+        for category, pattern in compiled.items():
+            if pattern.search(line):
+                matches.append([category, relative, number, digest, kind, line.strip()[:240]])
+    return matches
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True, help="new directory")
@@ -26,18 +40,11 @@ def main():
     args.output.mkdir(parents=True)
     compiled = {k: re.compile(v) for k, v in PATTERNS.items()}
     paths = sorted(p for base in ("app", "scripts/operations", "scripts/performance", "scripts/v3")
-                   for p in (ROOT/base).rglob("*") if p.suffix in (".java", ".py", ".sql")
+                   for p in (ROOT / base).rglob("*") if p.suffix in (".java", ".py", ".sql")
                    and "target" not in p.parts and "__pycache__" not in p.parts)
     inputs, rows = {}, []
     for path in paths:
-        data = path.read_bytes()
-        relative = str(path.relative_to(ROOT))
-        inputs[relative] = hashlib.sha256(data).hexdigest()
-        kind = "application-test" if "test" in path.parts else "production" if "main" in path.parts else "tool-or-sql"
-        for number, line in enumerate(data.decode().splitlines(), 1):
-            for category, pattern in compiled.items():
-                if pattern.search(line):
-                    rows.append([category, relative, number, inputs[relative], kind, line.strip()[:240]])
+        rows.extend(_scan_file(path, compiled, inputs))
     with (args.output/"writer-candidates.csv").open("x") as stream:
         writer = csv.writer(stream)
         writer.writerow(["category", "path", "line", "sha256", "kind", "text"])

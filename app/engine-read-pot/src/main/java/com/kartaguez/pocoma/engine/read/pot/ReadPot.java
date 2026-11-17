@@ -71,7 +71,42 @@ public final class ReadPot {
         if (state.isEmpty()) return new NotFound<>();
         var p = state.get();
         if (version < minimum) return new NotReady<>();
-        // Only main-view dependencies; Expense details are loaded exclusively by the batch query.
+        var keys = collectMainViewKeys(pot, p);
+        var values = objects.readAll(keys, c);
+        var balance = balances.read(pot, version, c);
+        if (!values.keySet().containsAll(keys) || balance.isEmpty()) return new NotReady<>();
+        verifyMainViewHeaderAndBalance(pot, version, p, values.get(keys.get(0)), balance.get());
+        var details = (PotDetailsContent) values.get(keys.get(1)).content();
+        var shareholders = buildShareholderViews(pot, p, values);
+        verifyBalanceKeys(balance.get(), p);
+        var view =
+                new Pot(
+                        pot,
+                        details.value().label().value(),
+                        p.headerVersion(),
+                        p.detailsVersion(),
+                        shareholders,
+                        balance.get().values(),
+                        p.expenses().stream().map(ReadPot::ref).toList());
+        return fits(view) ? new Available<>(view, version) : new Unavailable<>();
+    }
+
+    private static void verifyMainViewHeaderAndBalance(
+            UUID pot,
+            long version,
+            PotVersion p,
+            SubobjectVersion headerObj,
+            PotBalance balance) {
+        if (!balance.potId().equals(pot) || balance.version() != version) {
+            throw new IllegalStateException("foreign Balance");
+        }
+        var header = (PotHeaderContent) headerObj.content();
+        if (header.value().deleted() != p.deleted()) {
+            throw new IllegalStateException("inconsistent Pot header");
+        }
+    }
+
+    private static List<SubobjectKey> collectMainViewKeys(UUID pot, PotVersion p) {
         var keys = new ArrayList<SubobjectKey>();
         keys.add(key(pot, POT_HEADER, pot, p.headerVersion()));
         keys.add(key(pot, POT_DETAILS, pot, p.detailsVersion()));
@@ -80,15 +115,11 @@ public final class ReadPot {
             keys.add(key(pot, SHAREHOLDER_DETAILS, s.id(), s.detailsVersion()));
             keys.add(key(pot, SHAREHOLDER_WEIGHT, s.id(), s.weightVersion()));
         }
-        var values = objects.readAll(keys, c);
-        var balance = balances.read(pot, version, c);
-        if (!values.keySet().containsAll(keys) || balance.isEmpty()) return new NotReady<>();
-        if (!balance.get().potId().equals(pot) || balance.get().version() != version)
-            throw new IllegalStateException("foreign Balance");
-        var header = (PotHeaderContent) values.get(keys.get(0)).content();
-        if (header.value().deleted() != p.deleted())
-            throw new IllegalStateException("inconsistent Pot header");
-        var details = (PotDetailsContent) values.get(keys.get(1)).content();
+        return keys;
+    }
+
+    private static List<Shareholder> buildShareholderViews(
+            UUID pot, PotVersion p, Map<SubobjectKey, SubobjectVersion> values) {
         var shareholders = new ArrayList<Shareholder>();
         for (var s : p.shareholders()) {
             var h =
@@ -103,8 +134,9 @@ public final class ReadPot {
                     (ShareholderWeightContent)
                             values.get(key(pot, SHAREHOLDER_WEIGHT, s.id(), s.weightVersion()))
                                     .content();
-            if (h.value().deleted() != s.deleted() || d.value().userId().isEmpty() != s.isFree())
+            if (h.value().deleted() != s.deleted() || d.value().userId().isEmpty() != s.isFree()) {
                 throw new IllegalStateException("inconsistent Shareholder");
+            }
             shareholders.add(
                     new Shareholder(
                             s.id(),
@@ -116,20 +148,15 @@ public final class ReadPot {
                             d.value().name().value(),
                             w.value().defaultWeight().value()));
         }
+        return shareholders;
+    }
+
+    private static void verifyBalanceKeys(PotBalance balance, PotVersion state) {
         var expected = new HashSet<UUID>();
-        p.shareholders().stream().forEach(s -> expected.add(s.id()));
-        if (!balance.get().values().keySet().equals(expected))
+        state.shareholders().forEach(s -> expected.add(s.id()));
+        if (!balance.values().keySet().equals(expected)) {
             throw new IllegalStateException("incomplete Balance vector");
-        var view =
-                new Pot(
-                        pot,
-                        details.value().label().value(),
-                        p.headerVersion(),
-                        p.detailsVersion(),
-                        shareholders,
-                        balance.get().values(),
-                        p.expenses().stream().map(ReadPot::ref).toList());
-        return fits(view) ? new Available<>(view, version) : new Unavailable<>();
+        }
     }
 
     public ReadPotResult<PotBalance> balance(
@@ -141,10 +168,7 @@ public final class ReadPot {
         if (state.isEmpty()) return new NotFound<>();
         var value = balances.read(pot, version, c);
         if (value.isEmpty()) return new NotReady<>();
-        var expected = new HashSet<UUID>();
-        state.get().shareholders().forEach(s -> expected.add(s.id()));
-        if (!value.get().values().keySet().equals(expected))
-            throw new IllegalStateException("incomplete Balance vector");
+        verifyBalanceKeys(value.get(), state.get());
         return fits(value.get()) ? new Available<>(value.get(), version) : new Unavailable<>();
     }
 
@@ -155,76 +179,79 @@ public final class ReadPot {
             long version,
             List<ExpenseRef> requested,
             RecoveryReadContext c) {
-        if (!input(eui, token, pot)
-                || version < 1
-                || !limits.validBatch(requested))
+        if (!input(eui, token, pot) || version < 1 || !limits.validBatch(requested)) {
             return new InvalidInput<>();
+        }
         requested = List.copyOf(requested);
-        var user = user(eui, token, c);
-        if (user.isEmpty()) return new NotFound<>();
-        var state = authorized(pot, version, user.get(), c);
+        var state = loadAuthorizedVersion(eui, token, pot, version, c);
         if (state.isEmpty()) return new NotFound<>();
         var manifest = new HashSet<>(state.get().expenses().stream().map(ReadPot::ref).toList());
         if (!manifest.containsAll(requested)) return new NotFound<>();
+        var keys = collectExpenseKeys(pot, requested);
+        var values = objects.readAll(keys, c);
+        if (!values.keySet().containsAll(keys)) return new NotReady<>();
+        var view = requested.stream().map(e -> buildExpenseView(pot, e, values)).toList();
+        return fits(view) ? new Available<>(view, version) : new Unavailable<>();
+    }
+
+    private Optional<PotVersion> loadAuthorizedVersion(
+            ExternalIdentity eui, String token, UUID pot, long version, RecoveryReadContext c) {
+        var user = user(eui, token, c);
+        if (user.isEmpty()) return Optional.empty();
+        return authorized(pot, version, user.get(), c);
+    }
+
+    private static List<SubobjectKey> collectExpenseKeys(UUID pot, List<ExpenseRef> requested) {
         var keys = new ArrayList<SubobjectKey>();
         for (var e : requested) {
             keys.add(key(pot, EXPENSE_HEADER, e.id(), e.headerVersion()));
             keys.add(key(pot, EXPENSE_DETAILS, e.id(), e.detailsVersion()));
             keys.add(key(pot, EXPENSE_FINANCIALS, e.id(), e.financialsVersion()));
         }
-        var values = objects.readAll(keys, c);
-        if (!values.keySet().containsAll(keys)) return new NotReady<>();
-        var result = new ArrayList<Expense>();
-        for (var e : requested) {
-            var h =
-                    (ExpenseHeaderContent)
-                            values.get(key(pot, EXPENSE_HEADER, e.id(), e.headerVersion()))
-                                    .content();
-            var d =
-                    ((ExpenseDetailsContent)
-                                    values.get(
-                                                    key(
-                                                            pot,
-                                                            EXPENSE_DETAILS,
-                                                            e.id(),
-                                                            e.detailsVersion()))
-                                            .content())
-                            .value();
-            var f =
-                    ((ExpenseFinancialsContent)
-                                    values.get(
-                                                    key(
-                                                            pot,
-                                                            EXPENSE_FINANCIALS,
-                                                            e.id(),
-                                                            e.financialsVersion()))
-                                            .content())
-                            .value();
-            if (h.value().deleted() != e.deleted())
-                throw new IllegalStateException("inconsistent Expense");
-            var participants =
-                    f.participants().entrySet().stream()
-                            .sorted(
-                                    (a, b) ->
-                                            SubobjectKey.compareUuid(
-                                                    a.getKey().value(), b.getKey().value()))
-                            .map(
-                                    v ->
-                                            new Participation(
-                                                    v.getKey().value(),
-                                                    v.getValue().map(w -> w.value())))
-                            .toList();
-            result.add(
-                    new Expense(
-                            e,
-                            d.label().value(),
-                            d.date(),
-                            f.amount().value(),
-                            f.payerId().value(),
-                            participants));
+        return keys;
+    }
+
+    private static Expense buildExpenseView(
+            UUID pot, ExpenseRef e, Map<SubobjectKey, SubobjectVersion> values) {
+        var h =
+                (ExpenseHeaderContent)
+                        values.get(key(pot, EXPENSE_HEADER, e.id(), e.headerVersion())).content();
+        var d =
+                ((ExpenseDetailsContent)
+                                values.get(key(pot, EXPENSE_DETAILS, e.id(), e.detailsVersion()))
+                                        .content())
+                        .value();
+        var f =
+                ((ExpenseFinancialsContent)
+                                values.get(
+                                                key(
+                                                        pot,
+                                                        EXPENSE_FINANCIALS,
+                                                        e.id(),
+                                                        e.financialsVersion()))
+                                        .content())
+                        .value();
+        if (h.value().deleted() != e.deleted()) {
+            throw new IllegalStateException("inconsistent Expense");
         }
-        var view = List.copyOf(result);
-        return fits(view) ? new Available<>(view, version) : new Unavailable<>();
+        var participants =
+                f.participants().entrySet().stream()
+                        .sorted(
+                                (a, b) ->
+                                        SubobjectKey.compareUuid(
+                                                a.getKey().value(), b.getKey().value()))
+                        .map(
+                                v ->
+                                        new Participation(
+                                                v.getKey().value(), v.getValue().map(w -> w.value())))
+                        .toList();
+        return new Expense(
+                e,
+                d.label().value(),
+                d.date(),
+                f.amount().value(),
+                f.payerId().value(),
+                participants);
     }
 
     Optional<UUID> user(ExternalIdentity eui, String token, RecoveryReadContext c) {
@@ -262,20 +289,7 @@ public final class ReadPot {
     private boolean fits(Object value) {
         var budget = new Budget(limits.responseBudget());
         if (value instanceof Pot p) {
-            budget.take(256);
-            budget.text(p.label());
-            for (var shareholder : p.shareholders()) {
-                budget.take(256);
-                budget.text(shareholder.name());
-                budget.fraction(shareholder.defaultWeight());
-            }
-            p.balances()
-                    .forEach(
-                            (id, f) -> {
-                                budget.take(80);
-                                budget.fraction(f);
-                            });
-            budget.take(256L * p.expenses().size());
+            budgetPot(budget, p);
         } else if (value instanceof PotBalance b) {
             budget.take(128);
             b.values()
@@ -296,6 +310,23 @@ public final class ReadPot {
                 }
             }
         return budget.available;
+    }
+
+    private static void budgetPot(Budget budget, Pot p) {
+        budget.take(256);
+        budget.text(p.label());
+        for (var shareholder : p.shareholders()) {
+            budget.take(256);
+            budget.text(shareholder.name());
+            budget.fraction(shareholder.defaultWeight());
+        }
+        p.balances()
+                .forEach(
+                        (id, f) -> {
+                            budget.take(80);
+                            budget.fraction(f);
+                        });
+        budget.take(256L * p.expenses().size());
     }
 
     private static final class Budget {

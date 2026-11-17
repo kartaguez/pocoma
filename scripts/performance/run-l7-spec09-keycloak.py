@@ -4,6 +4,7 @@
 import argparse
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 import hashlib
 import importlib.util
 import json
@@ -38,7 +39,7 @@ def private_file(path):
     return json.loads(path.read_text())
 
 
-def prepare(template, subjects, realm_name, password=secrets.token_urlsafe):
+def _validate_prepare_inputs(template, subjects, realm_name):
     if not re.fullmatch(r"pocoma-spec09-[a-f0-9-]{8,36}", realm_name):
         raise ValueError("require a fresh, dedicated pocoma-spec09 realm name")
     ids = [str(uuid.UUID(value)) for value in subjects]
@@ -46,9 +47,15 @@ def prepare(template, subjects, realm_name, password=secrets.token_urlsafe):
         raise ValueError("Keycloak fixture needs at least 780 distinct EUI subjects")
     realm = json.loads(json.dumps(template))
     client, = realm["clients"]
-    if (not client["standardFlowEnabled"] or client["directAccessGrantsEnabled"]
-            or client["attributes"].get("pkce.code.challenge.method") != "S256"):
+    if not client["standardFlowEnabled"] or client["directAccessGrantsEnabled"]:
         raise ValueError("Keycloak fixture requires the existing authorization code and PKCE client")
+    if client["attributes"].get("pkce.code.challenge.method") != "S256":
+        raise ValueError("Keycloak fixture requires the existing authorization code and PKCE client")
+    return realm, ids
+
+
+def prepare(template, subjects, realm_name, password=secrets.token_urlsafe):
+    realm, ids = _validate_prepare_inputs(template, subjects, realm_name)
     realm.update(realm=realm_name, users=[], accessTokenLifespan=7_200)
     accounts = []
     for i, subject in enumerate(ids):
@@ -65,9 +72,12 @@ def prepare(template, subjects, realm_name, password=secrets.token_urlsafe):
 
 def validate_issuer(value):
     issuer = urllib.parse.urlsplit(value)
-    if (issuer.scheme not in ("http", "https") or not issuer.hostname or issuer.username or issuer.password
-            or issuer.query or issuer.fragment
-            or not re.fullmatch(r"/realms/pocoma-spec09-[a-f0-9-]{8,36}", issuer.path)):
+    if issuer.scheme not in ("http", "https") or not issuer.hostname:
+        raise ValueError("require an isolated HTTP(S) Keycloak pocoma-spec09 realm issuer")
+    for part in (issuer.username, issuer.password, issuer.query, issuer.fragment):
+        if part:
+            raise ValueError("require an isolated HTTP(S) Keycloak pocoma-spec09 realm issuer")
+    if not re.fullmatch(r"/realms/pocoma-spec09-[a-f0-9-]{8,36}", issuer.path):
         raise ValueError("require an isolated HTTP(S) Keycloak pocoma-spec09 realm issuer")
     return value
 
@@ -84,68 +94,145 @@ def login(auth, account, clock=time.monotonic_ns):
     return token, {"authorizeMs": (authorized - begin)/1e6, "exchangeMs": (exchanged - authorized)/1e6}
 
 
-def require_result(identity, read, token, request, version):
-    path = f"/identity/requests/{request}/result"
-    deadline = time.monotonic()+identity.POLL_DEADLINE_SECONDS
+@dataclass(frozen=True)
+class ResultExpectation:
+    read: str
+    token: str
+    request: str
+    version: int
+
+
+def require_result(identity, exp):
+    path = f"/identity/requests/{exp.request}/result"
+    deadline = time.monotonic() + identity.POLL_DEADLINE_SECONDS
     while time.monotonic() < deadline:
-        status, body, maintenance, _ = identity.http_call(read, token, path)
+        status, body, maintenance, _ = identity.http_call(exp.read, exp.token, path)
         if status == 200:
-            return isinstance(body, dict) and body.get("outcome") == "COMPLETED" and body.get("targetVersion") == version
+            return isinstance(body, dict) and body.get("outcome") == "COMPLETED" and body.get("targetVersion") == exp.version
         if maintenance or status not in (404, 503):
             return False
         time.sleep(identity.POLL_SECONDS)
     return False
 
 
-def unlink(identity, write, read, token, binding, issuer, subject, key):
+@dataclass(frozen=True)
+class UnlinkRequest:
+    targets: object
+    token: str
+    binding: str
+    issuer: str
+    subject: str
+    key: str
+
+
+def _is_inactive_eui2(status, body):
+    if status != 200 or not isinstance(body, dict):
+        return False
+    return body.get("active") is False and body.get("euiVersion") == 2
+
+
+def _call_http(identity, base, token, path, **kwargs):
+    if hasattr(identity, "HttpOptions") and hasattr(identity, "TargetUrls"):
+        return identity.http_call(base, token, path, identity.HttpOptions(**kwargs))
+    return identity.http_call(base, token, path, **kwargs)
+
+
+def _verify_old_binding_denied(identity, req, request_id, timings):
+    sent, ack, observed, limit = timings
+    after, _, _, denied = _call_http(
+        identity, req.targets.read, req.token, "/me/pots?limit=1", binding=req.binding
+    )
+    if after == 404 and denied <= limit:
+        return {
+            "outcome": "UNLINK_OBSERVED", "requestId": request_id,
+            "bindingInactiveMs": (observed - ack) / 1e6,
+            "lowerMs": (denied - ack) / 1e6, "upperMs": (denied - sent) / 1e6,
+        }
+    return {
+        "outcome": "OLD_BINDING_ACCEPTED" if after == 200 else "OLD_BINDING_NOT_PROVEN_DENIED",
+        "httpStatus": after, "requestId": request_id,
+    }
+
+
+def unlink(identity, *args):
+    if len(args) == 1 and isinstance(args[0], UnlinkRequest):
+        req = args[0]
+    else:
+        write, read, token, binding, issuer, subject, key = args
+        req = UnlinkRequest(type("Targets", (), {"write": write, "read": read})(), token, binding, issuer, subject, key)
     sent = time.monotonic_ns()
-    status, body, _, ack = identity.http_call(write, token, "/identity/requests", key=key, body={
-        "operation": "Unlink", "bindingToken": binding, "target": {"issuer": issuer, "subject": subject},
-    })
+    status, body, _, ack = _call_http(
+        identity,
+        req.targets.write,
+        req.token,
+        "/identity/requests",
+        body={"operation": "Unlink", "bindingToken": req.binding, "target": {"issuer": req.issuer, "subject": req.subject}},
+        key=req.key,
+    )
     if status != 202:
         return {"outcome": "UNLINK_ADMISSION_NOT_CONFIRMED", "admissionStatus": status}
     request = str(uuid.UUID(body["requestId"]))
     limit = ack + int(identity.POLL_DEADLINE_SECONDS * 1e9)
     while time.monotonic_ns() < limit:
-        status, body, maintenance, observed = identity.http_call(read, token, "/me/binding")
-        if status == 200 and isinstance(body, dict) and body.get("active") is False and body.get("euiVersion") == 2:
-            after, _, _, denied = identity.http_call(read, token, "/me/pots?limit=1", binding=binding)
-            if after == 404 and denied <= limit:
-                return {"outcome": "UNLINK_OBSERVED", "requestId": request,
-                        "bindingInactiveMs": (observed-ack)/1e6,
-                        "lowerMs": (denied-ack)/1e6, "upperMs": (denied-sent)/1e6}
-            return {"outcome": "OLD_BINDING_ACCEPTED" if after == 200 else "OLD_BINDING_NOT_PROVEN_DENIED",
-                    "httpStatus": after, "requestId": request}
+        status, body, maintenance, observed = identity.http_call(req.targets.read, req.token, "/me/binding")
+        if _is_inactive_eui2(status, body):
+            return _verify_old_binding_denied(identity, req, request, (sent, ack, observed, limit))
         if status not in (200, 404, 503) or maintenance:
             break
         time.sleep(identity.POLL_SECONDS)
     return {"outcome": "UNLINK_NOT_OBSERVED", "requestId": request}
 
 
-def observe(auth, identity, account, write, read, run_id):
+@dataclass(frozen=True)
+class ObserveContext:
+    auth: object
+    identity: object
+    targets: object
+    run_id: uuid.UUID
+
+
+def _verify_active_binding(identity, read, token):
+    status, binding, _, _ = identity.http_call(read, token, "/me/binding")
+    if status != 200 or not isinstance(binding, dict):
+        return None, "BINDING_NOT_AVAILABLE_FOR_UNLINK"
+    if not binding.get("bindingToken"):
+        return None, "BINDING_NOT_AVAILABLE_FOR_UNLINK"
+    wrong_status = identity.http_call(
+        read, token, "/me/pots?limit=1", identity.HttpOptions(binding="invalid-test-binding")
+    )[0]
+    if wrong_status != 404:
+        outcome = "WRONG_BINDING_ACCEPTED" if wrong_status == 200 else "WRONG_BINDING_NOT_PROVEN_DENIED"
+        return None, (outcome, wrong_status)
+    return binding["bindingToken"], None
+
+
+def observe(ctx, account):
     facts = {}
     try:
-        token, facts["oidc"] = login(auth, account)
-        if identity.http_call(read, token, "/me/binding")[0] != 404:
+        token, facts["oidc"] = login(ctx.auth, account)
+        if ctx.identity.http_call(ctx.targets.read, token, "/me/binding")[0] != 404:
             return {**facts, "outcome": "EUI_NOT_FRESH"}
         subject = account["subject"]
-        facts["registration"] = identity.observe_one(write, read, token, str(uuid.uuid5(run_id, "register:"+subject)))
+        facts["registration"] = ctx.identity.observe_one(
+            ctx.targets, token, str(uuid.uuid5(ctx.run_id, "register:" + subject))
+        )
         if facts["registration"]["outcome"] != "AUTHORIZED":
             return {**facts, "outcome": "REGISTRATION_NOT_AUTHORIZED"}
-        status, binding, _, _ = identity.http_call(read, token, "/me/binding")
-        if status != 200 or not isinstance(binding, dict) or not binding.get("bindingToken"):
-            return {**facts, "outcome": "BINDING_NOT_AVAILABLE_FOR_UNLINK"}
-        wrong_status = identity.http_call(read, token, "/me/pots?limit=1", binding="invalid-test-binding")[0]
-        if wrong_status != 404:
-            return {**facts, "outcome": "WRONG_BINDING_ACCEPTED" if wrong_status == 200 else "WRONG_BINDING_NOT_PROVEN_DENIED",
-                    "httpStatus": wrong_status}
-        facts["unlink"] = unlink(identity, write, read, token, binding["bindingToken"],
-                                 auth.ISSUER, subject, str(uuid.uuid5(run_id, "unlink:"+subject)))
+        binding_token, binding_err = _verify_active_binding(ctx.identity, ctx.targets.read, token)
+        if binding_err is not None:
+            if isinstance(binding_err, tuple):
+                return {**facts, "outcome": binding_err[0], "httpStatus": binding_err[1]}
+            return {**facts, "outcome": binding_err}
+        req = UnlinkRequest(
+            ctx.targets, token, binding_token, ctx.auth.ISSUER, subject,
+            str(uuid.uuid5(ctx.run_id, "unlink:" + subject)),
+        )
+        facts["unlink"] = unlink(ctx.identity, req)
         if facts["unlink"]["outcome"] != "UNLINK_OBSERVED":
             return {**facts, "outcome": facts["unlink"]["outcome"]}
-        if not require_result(identity, read, token, facts["registration"]["requestId"], 1):
+        if not require_result(ctx.identity, ResultExpectation(ctx.targets.read, token, facts["registration"]["requestId"], 1)):
             return {**facts, "outcome": "REGISTRATION_RESULT_MISSING"}
-        if not require_result(identity, read, token, facts["unlink"]["requestId"], 2):
+        if not require_result(ctx.identity, ResultExpectation(ctx.targets.read, token, facts["unlink"]["requestId"], 2)):
             return {**facts, "outcome": "UNLINK_RESULT_MISSING"}
         return {**facts, "outcome": "OBSERVED"}
     except (RuntimeError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
@@ -191,24 +278,24 @@ def reconcile(identity, write_service, read_service, rows):
     expected = {"pairs": len(rows), "euis": len(rows)}
     return {"write":write, "read":read, "complete":write==read==expected}
 
-def sample(identity, auth, accounts, write, read, run_id, rows):
+def sample(ctx, accounts, rows):
     begin = time.monotonic()
     pending = []
 
     def start(account, at):
-        lag = (time.monotonic()-at)*1000
+        lag = (time.monotonic() - at) * 1000
         if lag > LAG_LIMIT_MS:
             return {"outcome": "DROPPED_OFFER", "offerLagMs": lag}
-        return {**observe(auth, identity, account, write, read, run_id), "offerLagMs": lag}
+        return {**observe(ctx, account), "offerLagMs": lag}
 
     with ThreadPoolExecutor(max_workers=OBSERVERS) as pool:
         for i, account in enumerate(accounts):
-            at = begin+i/RATE
-            time.sleep(max(0, at-time.monotonic()))
+            at = begin + i / RATE
+            time.sleep(max(0, at - time.monotonic()))
             if sum(not task.done() for _, task in pending) >= OBSERVERS:
                 rows[i] = {"outcome": "DROPPED_OFFER"}
                 continue
-            pending.append((i,pool.submit(start, account, at)))
+            pending.append((i, pool.submit(start, account, at)))
         for i, task in pending:
             rows[i] = task.result()
 
@@ -225,7 +312,7 @@ def summarize(identity, rows):
     return {"outcomes": dict(counts), "observed": len(observed), "offered": len(rows), "ms": quantiles}
 
 
-def main():
+def _build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("prepare", "execute", "issue-tokens"))
     parser.add_argument("--subjects", type=Path)
@@ -241,64 +328,80 @@ def main():
     parser.add_argument("--read-service")
     parser.add_argument("--run-id", required=True, type=uuid.UUID)
     parser.add_argument("--isolated-target", action="store_true")
-    args = parser.parse_args()
+    return parser
+
+
+def _run_prepare(args, identity, receipt):
+    if not all((args.subjects, args.realm, args.realm_file)):
+        raise ValueError("prepare requires subjects, a fresh realm name and realm output")
+    destinations = (args.realm_file, args.accounts, args.report)
+    if len({p.resolve() for p in destinations}) != 3 or any(p.exists() for p in destinations):
+        raise ValueError("all output files must be new and distinct")
+    template = json.loads((ROOT / "docker/keycloak/pocoma-realm.json").read_text())
+    realm, accounts = prepare(template, json.loads(args.subjects.read_text()), args.realm)
+    with identity.reserve(args.realm_file) as file:
+        identity.dump(file, realm)
+    with identity.reserve(args.accounts) as file:
+        identity.dump(file, accounts)
+    receipt.update(status="FIXTURE_PREPARED", accounts=len(accounts), pkce="S256", realm=args.realm)
+    with identity.reserve(args.report) as file:
+        identity.dump(file, receipt)
+
+
+def _run_issue_tokens(args, identity, auth, accounts):
+    if not args.tokens or args.tokens.exists():
+        raise ValueError("issue-tokens requires a fresh destination")
+    tokens = {}
+    for account in accounts:
+        tokens[account["subject"]], _ = login(auth, account)
+    with identity.reserve(args.tokens) as token_file:
+        identity.dump(token_file, tokens)
+    return {"status": "TOKENS_ISSUED", "subjects": len(tokens)}
+
+
+def _run_execute(args, ctx, accounts, receipt):
+    if not all((args.write_url, args.read_url, args.write_service, args.read_service)):
+        raise ValueError("execute requires two HTTP origins and read-only SQL services")
+    if ctx.targets.write == ctx.targets.read or args.write_service == args.read_service:
+        raise ValueError("WRITE and READ origins and services must be distinct")
+    rows = [{"outcome": "NOT_ATTEMPTED"} for _ in range(WARMUP + SAMPLE)]
+    sample(ctx, accounts[:len(rows)], rows)
+    receipt.update(rows=rows, warmup=summarize(ctx.identity, rows[:WARMUP]),
+                   sample=summarize(ctx.identity, rows[WARMUP:]))
+    if any(row["outcome"] in {"OLD_BINDING_ACCEPTED", "WRONG_BINDING_ACCEPTED"} for row in rows):
+        receipt["status"] = "FAIL"
+    elif all(row["outcome"] == "OBSERVED" for row in rows):
+        receipt["sql"] = reconcile(ctx.identity, args.write_service, args.read_service, rows)
+        if receipt["sql"]["complete"]:
+            receipt["status"] = "OBSERVED"
+
+
+def main():
+    args = _build_parser().parse_args()
     identity = load_script(Path(__file__).with_name("run-l7-spec09-registration.py"), "identity")
     receipt = {"status": "INCONCLUSIVE", "mode": args.mode, "runId": str(args.run_id),
                "startedAt": identity.utc_now(), "runnerSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
     if args.mode == "prepare":
-        if not all((args.subjects, args.realm, args.realm_file)):
-            raise ValueError("prepare requires subjects, a fresh realm name and realm output")
-        destinations = (args.realm_file, args.accounts, args.report)
-        if len({p.resolve() for p in destinations}) != 3 or any(p.exists() for p in destinations):
-            raise ValueError("all output files must be new and distinct")
-        template = json.loads((ROOT/"docker/keycloak/pocoma-realm.json").read_text())
-        realm, accounts = prepare(template, json.loads(args.subjects.read_text()), args.realm)
-        with identity.reserve(args.realm_file) as file:
-            identity.dump(file, realm)
-        with identity.reserve(args.accounts) as file:
-            identity.dump(file, accounts)
-        receipt.update(status="FIXTURE_PREPARED", accounts=len(accounts), pkce="S256", realm=args.realm)
-        with identity.reserve(args.report) as file:
-            identity.dump(file, receipt)
+        _run_prepare(args, identity, receipt)
         return 0
     if not (args.isolated_target and args.issuer):
         raise ValueError("network execution requires an isolated test deployment and issuer")
     accounts = private_file(args.accounts)
-    if len(accounts) < WARMUP+SAMPLE or len({a["subject"] for a in accounts}) != len(accounts):
+    if len(accounts) < WARMUP + SAMPLE or len({a["subject"] for a in accounts}) != len(accounts):
         raise ValueError("incomplete or duplicate fixture accounts")
-    auth = load_script(ROOT/"scripts/functional-auth-proof.py", "auth")
+    auth = load_script(ROOT / "scripts/functional-auth-proof.py", "auth")
     auth.ISSUER = validate_issuer(args.issuer)
     with identity.reserve(args.report) as file:
         try:
             if args.mode == "issue-tokens":
-                if not args.tokens or args.tokens.exists():
-                    raise ValueError("issue-tokens requires a fresh destination")
-                tokens = {}
-                for account in accounts:
-                    tokens[account["subject"]], _ = login(auth, account)
-                with identity.reserve(args.tokens) as token_file:
-                    identity.dump(token_file, tokens)
-                receipt.update(status="TOKENS_ISSUED", subjects=len(tokens))
+                receipt.update(_run_issue_tokens(args, identity, auth, accounts))
             else:
-                if not all((args.write_url, args.read_url, args.write_service, args.read_service)):
-                    raise ValueError("execute requires two HTTP origins and read-only SQL services")
-                write, read = identity.origin(args.write_url), identity.origin(args.read_url)
-                if write == read or args.write_service == args.read_service:
-                    raise ValueError("WRITE and READ origins and services must be distinct")
-                rows = [{"outcome":"NOT_ATTEMPTED"} for _ in range(WARMUP+SAMPLE)]
-                sample(identity, auth, accounts[:len(rows)], write, read, args.run_id, rows)
-                receipt.update(rows=rows, warmup=summarize(identity,rows[:WARMUP]),
-                               sample=summarize(identity,rows[WARMUP:]))
-                if any(row["outcome"] in {"OLD_BINDING_ACCEPTED", "WRONG_BINDING_ACCEPTED"} for row in rows):
-                    receipt["status"] = "FAIL"
-                elif all(row["outcome"]=="OBSERVED" for row in rows):
-                    receipt["sql"] = reconcile(identity,args.write_service,args.read_service,rows)
-                    if receipt["sql"]["complete"]:
-                        receipt["status"] = "OBSERVED"
+                targets = identity.TargetUrls(identity.origin(args.write_url), identity.origin(args.read_url))
+                _run_execute(args, ObserveContext(auth, identity, targets, args.run_id), accounts, receipt)
         finally:
             receipt["finishedAt"] = identity.utc_now()
             identity.dump(file, receipt)
-    return 0 if receipt["status"] in ("OBSERVED","TOKENS_ISSUED") else 1 if receipt["status"]=="FAIL" else 2
+    return 0 if receipt["status"] in ("OBSERVED", "TOKENS_ISSUED") else 1 if receipt["status"] == "FAIL" else 2
 
 
 if __name__ == "__main__":

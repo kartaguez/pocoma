@@ -61,40 +61,72 @@ public class AdmissionHttpConfiguration {
         @Override
         public void postProcessBeanFactory(
                 org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
-            if (env.getProperty("spring.flyway.enabled", Boolean.class, true)
-                    || env.getProperty("spring.jpa.open-in-view", Boolean.class, true)
-                    || env.getProperty("management.health.db.enabled", Boolean.class, true))
-                throw new IllegalStateException("V3 HTTP requires migrations, OSIV and DB health disabled");
+            requireDisabledProperties();
             var profiles = Set.of(env.getActiveProfiles());
-            boolean workerSelected = profiles.contains("v3-consumption-worker-dev")
-                    || profiles.contains("v3-read-worker");
-            if (!workerSelected && Arrays.stream(factory.getBeanDefinitionNames())
-                    .map(n -> factory.getType(n, false))
-                    .filter(Objects::nonNull)
-                    .anyMatch(
-                            t ->
-                                    t.getName().contains("WorkerCapacity")
-                                            || t.getName().contains("ConsumptionWorker"))) {
-                throw new IllegalStateException(
-                        "Workers and partition ownership forbidden on HTTP WRITE runtime");
-            }
-            if (!Arrays.asList(env.getActiveProfiles()).contains("v3-http-read")) {
-                for (String name : factory.getBeanDefinitionNames()) {
-                    Class<?> type = factory.getType(name, false);
-                    if (type == null) continue;
-                    String val = type.getName();
-                    if (val.startsWith("com.kartaguez.pocoma.supra.web.read.ReadController")
-                            || val.startsWith("com.kartaguez.pocoma.supra.web.read.InvitationController")
-                            || name.equals("httpReadPool")) {
-                        throw new IllegalStateException(
-                                "READ component forbidden on HTTP WRITE runtime: " + val);
-                    }
-                }
+            rejectWorkerBeans(factory, profiles);
+            if (!profiles.contains("v3-http-read")) {
+                rejectReadBeans(factory);
             }
             limits(env);
             protection(env);
-            for (String key : List.of("url", "username", "password", "database", "schema"))
+            for (String key : List.of("url", "username", "password", "database", "schema")) {
                 env.getRequiredProperty(PREFIX + key);
+            }
+            requireDistinctAdmissionRole();
+        }
+
+        private void requireDisabledProperties() {
+            for (String key :
+                    List.of(
+                            "spring.flyway.enabled",
+                            "spring.jpa.open-in-view",
+                            "management.health.db.enabled")) {
+                if (env.getProperty(key, Boolean.class, true)) {
+                    throw new IllegalStateException(
+                            "V3 HTTP requires migrations, OSIV and DB health disabled");
+                }
+            }
+        }
+
+        private static void rejectWorkerBeans(
+                org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory,
+                Set<String> profiles) {
+            if (profiles.contains("v3-consumption-worker-dev")
+                    || profiles.contains("v3-read-worker")) {
+                return;
+            }
+            for (String name : factory.getBeanDefinitionNames()) {
+                Class<?> type = factory.getType(name, false);
+                if (type == null) continue;
+                String className = type.getName();
+                if (className.contains("WorkerCapacity")
+                        || className.contains("ConsumptionWorker")) {
+                    throw new IllegalStateException(
+                            "Workers and partition ownership forbidden on HTTP WRITE runtime");
+                }
+            }
+        }
+
+        private static void rejectReadBeans(
+                org.springframework.beans.factory.config.ConfigurableListableBeanFactory factory) {
+            for (String name : factory.getBeanDefinitionNames()) {
+                Class<?> type = factory.getType(name, false);
+                if (type == null) continue;
+                String val = type.getName();
+                if (isReadBean(name, val)) {
+                    throw new IllegalStateException(
+                            "READ component forbidden on HTTP WRITE runtime: " + val);
+                }
+            }
+        }
+
+        private static boolean isReadBean(String name, String val) {
+            if (name.equals("httpReadPool")) return true;
+            if (val.startsWith("com.kartaguez.pocoma.supra.web.read.ReadController")) return true;
+            return val.startsWith("com.kartaguez.pocoma.supra.web.read.InvitationController");
+        }
+
+        private void requireDistinctAdmissionRole() {
             String role = env.getRequiredProperty(PREFIX + "username");
             for (String key :
                     List.of(
@@ -103,9 +135,11 @@ public class AdmissionHttpConfiguration {
                             "pocoma.v3.process.write-business.username",
                             "pocoma.v3.process.write-control.username",
                             "pocoma.v3.http.read.username",
-                            "pocoma.v3.http.read.maintenance.username"))
-                if (role.equals(env.getProperty(key)))
+                            "pocoma.v3.http.read.maintenance.username")) {
+                if (role.equals(env.getProperty(key))) {
                     throw new IllegalStateException("Admission SQL role must be distinct");
+                }
+            }
         }
     }
 

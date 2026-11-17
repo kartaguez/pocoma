@@ -12,6 +12,7 @@ Outputs consolidated RAW JSON artifacts and human-readable summaries.
 """
 
 import argparse
+from dataclasses import dataclass
 import json
 import math
 import os
@@ -73,24 +74,31 @@ def fetch_actuator_prometheus_text(actuator_url: str = ACTUATOR_URL) -> str:
         return ""
 
 
+def _parse_prometheus_line(line: str) -> Optional[Tuple[str, Dict[str, str], float]]:
+    if not line or line.startswith("#"):
+        return None
+    m = re.match(r"^([a-zA-Z_:][a-zA-Z0-9_:]*)(?:\{([^}]*)\})?\s+(.+)$", line)
+    if not m:
+        return None
+    name, raw_tags, val_str = m.groups()
+    try:
+        val = float(val_str)
+    except ValueError:
+        return None
+    tags = {}
+    if raw_tags:
+        for part in re.finditer(r"([a-zA-Z_0-9]+)=\"([^\"]*)\"", raw_tags):
+            tags[part.group(1)] = part.group(2)
+    return name, tags, val
+
+
 def parse_prometheus_text(text: str) -> Dict[str, List[Tuple[Dict[str, str], float]]]:
     metrics: Dict[str, List[Tuple[Dict[str, str], float]]] = {}
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
+    for raw_line in text.splitlines():
+        parsed = _parse_prometheus_line(raw_line.strip())
+        if parsed is None:
             continue
-        m = re.match(r"^([a-zA-Z_:][a-zA-Z0-9_:]*)(?:\{([^}]*)\})?\s+(.+)$", line)
-        if not m:
-            continue
-        name, raw_tags, val_str = m.groups()
-        try:
-            val = float(val_str)
-        except ValueError:
-            continue
-        tags = {}
-        if raw_tags:
-            for part in re.finditer(r"([a-zA-Z_0-9]+)=\"([^\"]*)\"", raw_tags):
-                tags[part.group(1)] = part.group(2)
+        name, tags, val = parsed
         metrics.setdefault(name, []).append((tags, val))
     return metrics
 
@@ -102,37 +110,33 @@ def match_tags(series_tags: Dict[str, str], required_tags: Dict[str, str]) -> bo
     return True
 
 
-def extract_histogram(metrics: Dict[str, Any], base_name: str,
-                      tags_filter: Dict[str, str]) -> Dict[str, Any]:
-    bucket_series = metrics.get(f"{base_name}_bucket", [])
-    count_series = metrics.get(f"{base_name}_count", [])
-    sum_series = metrics.get(f"{base_name}_sum", [])
-    max_series = metrics.get(f"{base_name}_max", [])
+def _sum_matching(series: List[Tuple[Dict[str, str], float]], tags_filter: Dict[str, str]) -> float:
+    return sum(val for tags, val in series if match_tags(tags, tags_filter))
 
-    total_count = 0.0
-    for tags, val in count_series:
-        if match_tags(tags, tags_filter):
-            total_count += val
 
-    total_sum = 0.0
-    for tags, val in sum_series:
-        if match_tags(tags, tags_filter):
-            total_sum += val
+def _max_matching(series: List[Tuple[Dict[str, str], float]], tags_filter: Dict[str, str]) -> float:
+    matches = [val for tags, val in series if match_tags(tags, tags_filter)]
+    return max(matches) if matches else 0.0
 
-    max_val = 0.0
-    for tags, val in max_series:
-        if match_tags(tags, tags_filter):
-            max_val = max(max_val, val)
 
+def _collect_buckets(bucket_series: List[Tuple[Dict[str, str], float]], tags_filter: Dict[str, str]) -> List[Tuple[float, float]]:
     buckets_map: Dict[float, float] = {}
     for tags, count in bucket_series:
         if match_tags(tags, tags_filter) and "le" in tags:
             le_str = tags["le"]
             le_val = float("inf") if le_str == "+Inf" else float(le_str)
             buckets_map[le_val] = buckets_map.get(le_val, 0.0) + count
+    return sorted(buckets_map.items(), key=lambda b: b[0])
 
-    buckets = sorted(buckets_map.items(), key=lambda b: b[0])
-    return {"count": total_count, "sum": total_sum, "max": max_val, "buckets": buckets}
+
+def extract_histogram(metrics: Dict[str, Any], base_name: str,
+                      tags_filter: Dict[str, str]) -> Dict[str, Any]:
+    return {
+        "count": _sum_matching(metrics.get(f"{base_name}_count", []), tags_filter),
+        "sum": _sum_matching(metrics.get(f"{base_name}_sum", []), tags_filter),
+        "max": _max_matching(metrics.get(f"{base_name}_max", []), tags_filter),
+        "buckets": _collect_buckets(metrics.get(f"{base_name}_bucket", []), tags_filter),
+    }
 
 
 def compute_quantile(hist: Dict[str, Any], q: float) -> Optional[float]:
@@ -175,103 +179,97 @@ def diff_histograms(post: Dict[str, Any], pre: Optional[Dict[str, Any]]) -> Dict
     return {"count": d_count, "sum": d_sum, "max": d_max, "buckets": diff_buckets}
 
 
+def _clean_rounded(value: Optional[float], unit_multiplier: float = 1.0) -> Optional[float]:
+    if value is None:
+        return None
+    scaled = value * unit_multiplier
+    if math.isinf(scaled) or math.isnan(scaled):
+        return None
+    return round(scaled, 2)
+
+
 def summarize_histogram(hist: Dict[str, Any], unit_multiplier: float = 1000.0) -> Dict[str, Any]:
     count = hist.get("count", 0.0)
     total_sum = hist.get("sum", 0.0)
-    avg = (total_sum / count * unit_multiplier) if count > 0 else 0.0
-    p50 = compute_quantile(hist, 0.50)
-    p95 = compute_quantile(hist, 0.95)
-    p99 = compute_quantile(hist, 0.99)
-    max_val = hist.get("max", 0.0) * unit_multiplier
+    avg = (total_sum / count) if count > 0 else 0.0
     return {
         "count": int(count),
-        "avg": round(avg, 2) if not (math.isinf(avg) or math.isnan(avg)) else None,
-        "p50": round(p50 * unit_multiplier, 2) if p50 is not None and not (math.isinf(p50) or math.isnan(p50)) else None,
-        "p95": round(p95 * unit_multiplier, 2) if p95 is not None and not (math.isinf(p95) or math.isnan(p95)) else None,
-        "p99": round(p99 * unit_multiplier, 2) if p99 is not None and not (math.isinf(p99) or math.isnan(p99)) else None,
-        "max": round(max_val, 2) if not (math.isinf(max_val) or math.isnan(max_val)) else None,
+        "avg": _clean_rounded(avg, unit_multiplier),
+        "p50": _clean_rounded(compute_quantile(hist, 0.50), unit_multiplier),
+        "p95": _clean_rounded(compute_quantile(hist, 0.95), unit_multiplier),
+        "p99": _clean_rounded(compute_quantile(hist, 0.99), unit_multiplier),
+        "max": _clean_rounded(hist.get("max", 0.0), unit_multiplier),
     }
+
+
+def _extract_k6_trend(metrics: Dict[str, Any], name: str) -> Dict[str, Optional[float]]:
+    v = metrics.get(name, {}).get("values", {})
+    p50_raw = v.get("p(50)") if v.get("p(50)") is not None else v.get("med")
+    return {
+        "count": v.get("count", 0),
+        "p50": round(p50_raw, 2) if p50_raw is not None else None,
+        "p90": round(v["p(90)"], 2) if v.get("p(90)") is not None else None,
+        "p95": round(v["p(95)"], 2) if v.get("p(95)") is not None else None,
+        "p99": round(v["p(99)"], 2) if v.get("p(99)") is not None else None,
+        "avg": round(v["avg"], 2) if v.get("avg") is not None else None,
+        "min": round(v["min"], 2) if v.get("min") is not None else None,
+        "max": round(v["max"], 2) if v.get("max") is not None else None,
+    }
+
+
+def _extract_k6_counter(metrics: Dict[str, Any], name: str) -> int:
+    return int(metrics.get(name, {}).get("values", {}).get("count", 0))
 
 
 def collect_k6_summary(summary_path: Path) -> Dict[str, Any]:
     if not summary_path.exists():
         return {"available": False, "error": f"Summary file not found: {summary_path}"}
-
     try:
         with open(summary_path, "r", encoding="utf-8") as f:
-            raw = json.load(f)
+            metrics = json.load(f).get("metrics", {})
     except Exception as e:
         return {"available": False, "error": f"Failed to parse k6 summary: {e}"}
 
-    metrics = raw.get("metrics", {})
-
-    def extract_trend(name: str) -> Dict[str, Optional[float]]:
-        m = metrics.get(name, {})
-        v = m.get("values", {})
-        return {
-            "count": v.get("count", 0),
-            "p50": round(v.get("p(50)"), 2) if v.get("p(50)") is not None else (round(v.get("med"), 2) if v.get("med") is not None else None),
-            "p90": round(v.get("p(90)"), 2) if v.get("p(90)") is not None else None,
-            "p95": round(v.get("p(95)"), 2) if v.get("p(95)") is not None else None,
-            "p99": round(v.get("p(99)"), 2) if v.get("p(99)") is not None else None,
-            "avg": round(v.get("avg"), 2) if v.get("avg") is not None else None,
-            "min": round(v.get("min"), 2) if v.get("min") is not None else None,
-            "max": round(v.get("max"), 2) if v.get("max") is not None else None,
-        }
-
-    def extract_counter(name: str) -> int:
-        m = metrics.get(name, {})
-        v = m.get("values", {})
-        return int(v.get("count", 0))
-
-    offered = extract_counter("v3_admissions_offered")
-    attempted = extract_counter("v3_admissions_attempted")
-    accepted = extract_counter("v3_admissions_accepted")
-    first_success = extract_counter("v3_admissions_first_attempt_success")
-    retried_success = extract_counter("v3_admissions_retried_success")
-    cap_rejected = extract_counter("v3_admissions_capacity_rejected")
-    retries_total = extract_counter("v3_admission_retries_total")
-
-    first_rate = (first_success / offered * 100.0) if offered > 0 else 100.0
-    final_rate = (accepted / offered * 100.0) if offered > 0 else 100.0
-    avg_retries = (retries_total / offered) if offered > 0 else 0.0
-
+    offered = _extract_k6_counter(metrics, "v3_admissions_offered")
+    accepted = _extract_k6_counter(metrics, "v3_admissions_accepted")
+    first_success = _extract_k6_counter(metrics, "v3_admissions_first_attempt_success")
+    retries_total = _extract_k6_counter(metrics, "v3_admission_retries_total")
     return {
         "available": True,
         "admissionsOffered": offered,
-        "admissionsAttempted": attempted,
+        "admissionsAttempted": _extract_k6_counter(metrics, "v3_admissions_attempted"),
         "admissionsAccepted": accepted,
         "firstAttemptSuccess": first_success,
-        "retriedSuccess": retried_success,
-        "capacityRejected": cap_rejected,
-        "firstAttemptSuccessRate": round(first_rate, 2),
-        "finalSuccessRate": round(final_rate, 2),
+        "retriedSuccess": _extract_k6_counter(metrics, "v3_admissions_retried_success"),
+        "capacityRejected": _extract_k6_counter(metrics, "v3_admissions_capacity_rejected"),
+        "firstAttemptSuccessRate": round((first_success / offered * 100.0) if offered > 0 else 100.0, 2),
+        "finalSuccessRate": round((accepted / offered * 100.0) if offered > 0 else 100.0, 2),
         "admissionRetriesTotal": retries_total,
-        "avgRetriesPerCommand": round(avg_retries, 3),
-        "commandsApplied": extract_counter("v3_commands_applied"),
-        "terminalResults": extract_counter("v3_terminal_results_count"),
-        "commandsRejected": extract_counter("v3_commands_rejected"),
-        "admissionErrors": extract_counter("v3_admission_errors"),
-        "oracleFailures": extract_counter("v3_oracle_failures"),
-        "censoredTimeouts": extract_counter("v3_censored_timeouts"),
-        "droppedIterations": extract_counter("dropped_iterations"),
-        "writeCapacity503": extract_counter("v3_write_capacity_503"),
-        "readCapacity503": extract_counter("v3_read_capacity_503"),
-        "readMaintenance503": extract_counter("v3_read_maintenance_503"),
-        "probeRequests": extract_counter("v3_probe_requests"),
-        "readQueriesTotal": extract_counter("v3_read_queries_total"),
-        "readQueries200": extract_counter("v3_read_queries_200"),
-        "readQueriesErrors": extract_counter("v3_read_queries_errors"),
+        "avgRetriesPerCommand": round((retries_total / offered) if offered > 0 else 0.0, 3),
+        "commandsApplied": _extract_k6_counter(metrics, "v3_commands_applied"),
+        "terminalResults": _extract_k6_counter(metrics, "v3_terminal_results_count"),
+        "commandsRejected": _extract_k6_counter(metrics, "v3_commands_rejected"),
+        "admissionErrors": _extract_k6_counter(metrics, "v3_admission_errors"),
+        "oracleFailures": _extract_k6_counter(metrics, "v3_oracle_failures"),
+        "censoredTimeouts": _extract_k6_counter(metrics, "v3_censored_timeouts"),
+        "droppedIterations": _extract_k6_counter(metrics, "dropped_iterations"),
+        "writeCapacity503": _extract_k6_counter(metrics, "v3_write_capacity_503"),
+        "readCapacity503": _extract_k6_counter(metrics, "v3_read_capacity_503"),
+        "readMaintenance503": _extract_k6_counter(metrics, "v3_read_maintenance_503"),
+        "probeRequests": _extract_k6_counter(metrics, "v3_probe_requests"),
+        "readQueriesTotal": _extract_k6_counter(metrics, "v3_read_queries_total"),
+        "readQueries200": _extract_k6_counter(metrics, "v3_read_queries_200"),
+        "readQueriesErrors": _extract_k6_counter(metrics, "v3_read_queries_errors"),
         "latencies": {
-            "admissionFirstTry": extract_trend("v3_admission_duration"),
-            "admissionWithRetries": extract_trend("v3_admission_duration_with_retries"),
-            "commandResult": extract_trend("v3_command_result_duration"),
-            "balanceAvailable": extract_trend("v3_balance_available_duration"),
-            "potReadAvailable": extract_trend("v3_pot_read_available_duration"),
-            "readPropagationLag": extract_trend("v3_read_propagation_lag"),
-            "e2eTotal": extract_trend("v3_e2e_total_duration"),
-            "retriesPerCommand": extract_trend("v3_admission_retries_per_command"),
-            "readQueryHttp": extract_trend("v3_read_query_http_duration"),
+            "admissionFirstTry": _extract_k6_trend(metrics, "v3_admission_duration"),
+            "admissionWithRetries": _extract_k6_trend(metrics, "v3_admission_duration_with_retries"),
+            "commandResult": _extract_k6_trend(metrics, "v3_command_result_duration"),
+            "balanceAvailable": _extract_k6_trend(metrics, "v3_balance_available_duration"),
+            "potReadAvailable": _extract_k6_trend(metrics, "v3_pot_read_available_duration"),
+            "readPropagationLag": _extract_k6_trend(metrics, "v3_read_propagation_lag"),
+            "e2eTotal": _extract_k6_trend(metrics, "v3_e2e_total_duration"),
+            "retriesPerCommand": _extract_k6_trend(metrics, "v3_admission_retries_per_command"),
+            "readQueryHttp": _extract_k6_trend(metrics, "v3_read_query_http_duration"),
         },
     }
 
@@ -359,60 +357,187 @@ def collect_postgres_telemetry() -> Dict[str, Any]:
         return {"error": str(e)}
 
 
-def generate_consolidated_report(scenario_name: str, k6_summary_file: Path,
-                                 prom_url: str = "http://127.0.0.1:9090",
-                                 actuator_url: str = ACTUATOR_URL,
-                                 pre_snapshot_file: Optional[Path] = None,
-                                 run_id: Optional[str] = None,
-                                 decoupled_file: Optional[Path] = None,
-                                 evidence_dir: Optional[Path] = None) -> Dict[str, Any]:
-    rid = run_id or f"run-{int(time.time())}"
+@dataclass(frozen=True)
+class ReportOptions:
+    prom_url: str = "http://127.0.0.1:9090"
+    actuator_url: str = ACTUATOR_URL
+    pre_snapshot_file: Optional[Path] = None
+    run_id: Optional[str] = None
+    decoupled_file: Optional[Path] = None
+    evidence_dir: Optional[Path] = None
+
+
+def _load_pre_metrics(pre_snapshot_file: Optional[Path]) -> Optional[Dict[str, Any]]:
+    if not pre_snapshot_file or not pre_snapshot_file.exists():
+        return None
+    try:
+        return parse_prometheus_text(pre_snapshot_file.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _load_decoupled_data(decoupled_file: Optional[Path]) -> Optional[Dict[str, Any]]:
+    if not decoupled_file or not Path(decoupled_file).exists():
+        return None
+    try:
+        with open(decoupled_file, "r", encoding="utf-8") as df:
+            return json.load(df)
+    except Exception as e:
+        print(f"Warning: could not read decoupled metrics file: {e}", file=sys.stderr)
+        return None
+
+
+def generate_consolidated_report(
+    scenario_name: str,
+    k6_summary_file: Path,
+    options: Optional[ReportOptions] = None,
+) -> Dict[str, Any]:
+    opts = options or ReportOptions()
+    rid = opts.run_id or f"run-{int(time.time())}"
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
-    # Fetch post actuator metrics
-    post_text = fetch_actuator_prometheus_text(actuator_url)
-    post_metrics = parse_prometheus_text(post_text)
-
-    pre_metrics = None
-    if pre_snapshot_file and pre_snapshot_file.exists():
-        try:
-            with open(pre_snapshot_file, "r", encoding="utf-8") as f:
-                pre_text = f.read()
-            pre_metrics = parse_prometheus_text(pre_text)
-        except Exception:
-            pass
-
-    k6_data = collect_k6_summary(k6_summary_file)
-    engine_data = collect_engine_telemetry(prom_url, post_metrics, pre_metrics)
-    system_data = collect_system_telemetry(prom_url)
-    postgres_data = collect_postgres_telemetry()
-
-    decoupled_data = None
-    if decoupled_file and Path(decoupled_file).exists():
-        try:
-            with open(decoupled_file, "r", encoding="utf-8") as df:
-                decoupled_data = json.load(df)
-        except Exception as e:
-            print(f"Warning: could not read decoupled metrics file: {e}", file=sys.stderr)
+    post_metrics = parse_prometheus_text(fetch_actuator_prometheus_text(opts.actuator_url))
+    pre_metrics = _load_pre_metrics(opts.pre_snapshot_file)
 
     report = {
         "runId": rid,
         "scenario": scenario_name,
         "timestamp": timestamp,
-        "k6ClientMetrics": k6_data,
-        "decoupledMetrics": decoupled_data,
-        "engineTelemetry": engine_data,
-        "systemTelemetry": system_data,
-        "postgresTelemetry": postgres_data,
+        "k6ClientMetrics": collect_k6_summary(k6_summary_file),
+        "decoupledMetrics": _load_decoupled_data(opts.decoupled_file),
+        "engineTelemetry": collect_engine_telemetry(opts.prom_url, post_metrics, pre_metrics),
+        "systemTelemetry": collect_system_telemetry(opts.prom_url),
+        "postgresTelemetry": collect_postgres_telemetry(),
     }
 
-    target_dir = Path(evidence_dir) if evidence_dir else (k6_summary_file.parent if k6_summary_file else EVIDENCE_DIR)
+    target_dir = Path(opts.evidence_dir) if opts.evidence_dir else (k6_summary_file.parent if k6_summary_file else EVIDENCE_DIR)
     target_dir.mkdir(parents=True, exist_ok=True)
     out_file = target_dir / f"{rid}_report.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, allow_nan=False)
-
     return report
+
+
+def _fmt_ms(val: Optional[float]) -> str:
+    return f"{val:.2f}" if val is not None else "N/A"
+
+
+def _print_k6_section(k6_res: Dict[str, Any]) -> None:
+    if not k6_res.get("available"):
+        print("  k6 Summary Data:        NOT AVAILABLE")
+        return
+    offered = k6_res.get("admissionsOffered", 0)
+    admitted = k6_res.get("admissionsAccepted", 0)
+    first_try = k6_res.get("firstAttemptSuccess", 0)
+    retried = k6_res.get("retriedSuccess", 0)
+    cap_rej = k6_res.get("capacityRejected", 0)
+    print(f"  Admissions Offered:     {offered}")
+    print(f"  Admissions Admitted:    {admitted} (1st_try: {first_try}, retried: {retried}, cap_rejected: {cap_rej})")
+    print(f"  First-Attempt Rate:     {k6_res.get('firstAttemptSuccessRate')}%")
+    print(f"  Final Success Rate:     {k6_res.get('finalSuccessRate')}%")
+    print(f"  Total Retries:          {k6_res.get('admissionRetriesTotal', 0)} (avg: {k6_res.get('avgRetriesPerCommand', 0)}/cmd)")
+    print(f"  Commands Applied:       {k6_res.get('commandsApplied')}")
+    print(f"  Commands Rejected:      {k6_res.get('commandsRejected')} (CAS / business)")
+    print(f"  Oracle Failures:        {k6_res.get('oracleFailures')}")
+    print(f"  Admission Errors (4xx): {k6_res.get('admissionErrors')}")
+    print(f"  Write 503 (capacity):   {k6_res.get('writeCapacity503', 0)}")
+    print(f"  Read 503 (capacity):    {k6_res.get('readCapacity503', 0)}")
+    print(f"  Read 503 (maintenance): {k6_res.get('readMaintenance503', 0)}")
+    print(f"  Dropped Iterations:     {k6_res.get('droppedIterations')}")
+    print("\n  --- Client-Side Latencies (ms) ---")
+    lat = k6_res.get("latencies", {})
+    for k in ("admissionFirstTry", "admissionWithRetries", "commandResult", "balanceAvailable",
+              "potReadAvailable", "readPropagationLag", "e2eTotal", "readQueryHttp"):
+        t = lat.get(k, {})
+        if t.get("count", 0) > 0:
+            print(f"    {k:<26} n={t.get('count', 0):>4} | p50={_fmt_ms(t.get('p50')):>7} | p95={_fmt_ms(t.get('p95')):>7} | p99={_fmt_ms(t.get('p99')):>7} | avg={_fmt_ms(t.get('avg')):>7}")
+
+
+def _print_mix_report(mix: Optional[Dict[str, Any]]) -> None:
+    if not mix:
+        return
+    print("\n  --- Statistical Mix Breakdown (Demanded vs Actual) ---")
+    for fam_info in mix.get("families", []):
+        fname = fam_info.get("family")
+        tgt = fam_info.get("demandedRatio", 0.0) * 100.0
+        app_pct = fam_info.get("appliedRatio", 0.0) * 100.0
+        n_app = fam_info.get("appliedCount", 0)
+        n_emit = fam_info.get("emittedCount", 0)
+        dev_pct = fam_info.get("relativeDeviationPercent", 0.0)
+        print(f"    {fname:<28} Target: {tgt:>5.1f}% | Applied: {app_pct:>5.1f}% (n={n_app}, emitted={n_emit}, dev={dev_pct:+.1f}%)")
+    rem = mix.get("remainingEligibleEntities", {})
+    if rem:
+        print(f"    Uncorrected Expenses: {rem.get('uncorrectedExpenses')} | Updatable Weights: {rem.get('updatableShareholderWeights')} | Unattached SH: {rem.get('unattachedShareholders')}")
+    print(f"    Pot Starvation Count: {mix.get('potStarvationCount', 0)}")
+
+
+def _print_op_latencies(op_lat: Optional[Dict[str, Any]]) -> None:
+    if not op_lat:
+        return
+    print("\n  --- Per-Operation End-to-End Latency Breakdown ---")
+    for op_name, op_val in op_lat.items():
+        e2e = op_val.get("latencies", {}).get("e2eTotal", {})
+        if e2e.get("count", 0) > 0:
+            print(f"    {op_name:<28} n={e2e['count']:>4} | p50={e2e['p50']:>7} | p95={e2e['p95']:>7} | p99={e2e['p99']:>7} | mean={e2e['mean']:>7}")
+
+
+def _print_decoupled_mix(dm: Dict[str, Any]) -> None:
+    _print_mix_report(dm.get("mixReport"))
+    _print_op_latencies(dm.get("latenciesByOperation"))
+
+
+def _print_decoupled_section(dm: Optional[Dict[str, Any]]) -> None:
+    if not dm:
+        return
+    print("\n  === Decoupled Metrology & Correlation Results ===")
+    print(f"  Generator Status:       {dm.get('generatorStatus')} ({dm.get('generatorRateRatio')}%)")
+    print(f"  Demanded Rate:          {dm['ratesPerSecond'].get('demanded')} cmd/s")
+    print(f"  Emitted Rate:           {dm['ratesPerSecond'].get('emitted')} cmd/s ({dm['counts'].get('emitted')} commands in {dm.get('injectionActualSeconds')}s)")
+    print(f"  Admission Rate:         {dm['ratesPerSecond'].get('admitted')} cmd/s ({dm['counts'].get('admitted')} admitted)")
+    print(f"  Applied Rate:           {dm['ratesPerSecond'].get('applied')} cmd/s ({dm['counts'].get('applied')} applied)")
+    print(f"  READ Rate:              {dm['ratesPerSecond'].get('readMaterialized')} cmd/s ({dm['counts'].get('readMaterialized')} materialized)")
+    print(f"  Complete E2E:           {dm['counts'].get('completeE2E')} / {dm['counts'].get('admitted')} (Coverage: {dm['coverage'].get('percentage')}%)")
+    print(f"  Conservation Emitted:   {dm['conservations'].get('emittedEquation')}")
+    print(f"  Conservation Admitted:  {dm['conservations'].get('admittedEquation')}")
+    drain = dm.get("drainage", {})
+    bl = drain.get("finalDbBacklog")
+    if isinstance(bl, dict):
+        print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Upstream Pending: {bl.get('upstreamPending')}, Slot Buffer: {bl.get('slotBufferTotal')})")
+    else:
+        print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Final DB Backlog: {bl})")
+    sql_rec = dm.get("sqlReconciliation")
+    if sql_rec:
+        print("\n  --- SQL Server-Side Reconciliation ---")
+        print(f"  Server Admitted Count:  {sql_rec.get('serverTotalAdmitted')}")
+        print(f"  Server Terminal Verif:  {sql_rec.get('serverTerminalVerified')} (Applied: {sql_rec.get('serverApplied')}, CAS: {sql_rec.get('serverCasRejected')}, Failed: {sql_rec.get('serverFailed')})")
+        print(f"  Server Pending (DB):    {sql_rec.get('serverPending')}")
+        print(f"  Server Read Material:   {sql_rec.get('readMaterializedVerified')}")
+        print(f"  Reconciliation Exact:   {sql_rec.get('reconciliationExact')}")
+    print("\n  --- Exact Decoupled Latencies (ms) ---")
+    for lk, lv in dm.get("latencies", {}).items():
+        if lv.get("count", 0) > 0:
+            print(f"    {lk:<26} n={lv['count']:>4} | p50={lv['p50']:>7} | p95={lv['p95']:>7} | p99={lv['p99']:>7} | mean={lv['mean']:>7}")
+    _print_decoupled_mix(dm)
+
+
+def _print_system_and_stages(report: Dict[str, Any]) -> None:
+    print("\n  --- Engine Internal Stage Latencies (ms) ---")
+    for s_name, s_val in report["engineTelemetry"].get("stages", {}).items():
+        if s_val.get("count", 0) > 0:
+            print(f"    {s_name:<26} n={s_val['count']:>4} | p50={s_val['p50']:>7} | p95={s_val['p95']:>7} | p99={s_val['p99']:>7} | avg={s_val['avg']:>7}")
+    sys_t = report["systemTelemetry"]
+    heap_mb = (sys_t.get("jvmHeapUsedBytes") or 0) / (1024 * 1024)
+    pg_t = report["postgresTelemetry"]
+    print("\n  --- System & Infrastructure ---")
+    print(f"  JVM Heap Used:          {heap_mb:.1f} MB")
+    print(f"  Process CPU Usage:      {((sys_t.get('processCpuUsage') or 0) * 100):.1f}%")
+    print(f"  System CPU Usage:       {((sys_t.get('systemCpuUsage') or 0) * 100):.1f}%")
+    print(f"  JVM Live Threads:       {sys_t.get('jvmLiveThreads')}")
+    print(f"  Hikari Active Conns:    {sys_t.get('hikariActiveConnections')}")
+    print(f"  PostgreSQL Active Sess: {pg_t.get('activeSessions')} / {pg_t.get('totalSessions')}")
+    print(f"  Pending Command Queue:  {report['engineTelemetry'].get('physicalPendingCommand')}")
+    print(f"  Pending Read Backlog:   {report['engineTelemetry'].get('physicalPendingPotVersion')}")
+    print("================================================================================")
 
 
 def main():
@@ -427,21 +552,17 @@ def main():
     parser.add_argument("--run-id", help="Unique benchmark run identifier")
     parser.add_argument("--decoupled-file", help="Path to decoupled JSON metrics file")
     parser.add_argument("--evidence-dir", help="Target evidence directory for reports")
-
     args = parser.parse_args()
 
     if args.take_snapshot:
         dest = Path(args.take_snapshot)
         dest.parent.mkdir(parents=True, exist_ok=True)
         raw = fetch_actuator_prometheus_text(args.actuator_url)
-        with open(dest, "w", encoding="utf-8") as f:
-            f.write(raw)
+        dest.write_text(raw, encoding="utf-8")
         print(f"Snapshot written to {dest} ({len(raw)} bytes)")
         sys.exit(0)
 
-    report = generate_consolidated_report(
-        scenario_name=args.scenario,
-        k6_summary_file=Path(args.summary_file),
+    options = ReportOptions(
         prom_url=args.prometheus_url,
         actuator_url=args.actuator_url,
         pre_snapshot_file=Path(args.pre_snapshot) if args.pre_snapshot else None,
@@ -449,124 +570,15 @@ def main():
         decoupled_file=Path(args.decoupled_file) if args.decoupled_file else None,
         evidence_dir=Path(args.evidence_dir) if args.evidence_dir else None,
     )
-
-    k6_res = report["k6ClientMetrics"]
-    lat = k6_res.get("latencies", {})
-    stages = report["engineTelemetry"].get("stages", {})
-
+    report = generate_consolidated_report(args.scenario, Path(args.summary_file), options)
     print("================================================================================")
     print(f" Pocoma V3 — Consolidated Deep Metrology Report [Run: {report['runId']}]")
     print("================================================================================")
     print(f"  Scenario:               {report['scenario']}")
     print(f"  Timestamp:              {report['timestamp']}")
-    if k6_res.get("available"):
-        offered = k6_res.get('admissionsOffered', 0)
-        admitted = k6_res.get('admissionsAccepted', 0)
-        first_try = k6_res.get('firstAttemptSuccess', 0)
-        retried = k6_res.get('retriedSuccess', 0)
-        cap_rej = k6_res.get('capacityRejected', 0)
-        print(f"  Admissions Offered:     {offered}")
-        print(f"  Admissions Admitted:    {admitted} (1st_try: {first_try}, retried: {retried}, cap_rejected: {cap_rej})")
-        print(f"  First-Attempt Rate:     {k6_res.get('firstAttemptSuccessRate')}%")
-        print(f"  Final Success Rate:     {k6_res.get('finalSuccessRate')}%")
-        print(f"  Total Retries:          {k6_res.get('admissionRetriesTotal', 0)} (avg: {k6_res.get('avgRetriesPerCommand', 0)}/cmd)")
-        print(f"  Commands Applied:       {k6_res.get('commandsApplied')}")
-        print(f"  Commands Rejected:      {k6_res.get('commandsRejected')} (CAS / business)")
-        print(f"  Oracle Failures:        {k6_res.get('oracleFailures')}")
-        print(f"  Admission Errors (4xx): {k6_res.get('admissionErrors')}")
-        print(f"  Write 503 (capacity):   {k6_res.get('writeCapacity503', 0)}")
-        print(f"  Read 503 (capacity):    {k6_res.get('readCapacity503', 0)}")
-        print(f"  Read 503 (maintenance): {k6_res.get('readMaintenance503', 0)}")
-        print(f"  Dropped Iterations:     {k6_res.get('droppedIterations')}")
-
-        print("\n  --- Client-Side Latencies (ms) ---")
-        for k in ["admissionFirstTry", "admissionWithRetries", "commandResult", "balanceAvailable",
-                  "potReadAvailable", "readPropagationLag", "e2eTotal", "readQueryHttp"]:
-            t = lat.get(k, {})
-            if t.get("count", 0) > 0:
-                p50 = f"{t.get('p50'):.2f}" if t.get('p50') is not None else "N/A"
-                p95 = f"{t.get('p95'):.2f}" if t.get('p95') is not None else "N/A"
-                p99 = f"{t.get('p99'):.2f}" if t.get('p99') is not None else "N/A"
-                avg = f"{t.get('avg'):.2f}" if t.get('avg') is not None else "N/A"
-                print(f"    {k:<26} n={t.get('count', 0):>4} | p50={p50:>7} | p95={p95:>7} | p99={p99:>7} | avg={avg:>7}")
-    else:
-        print("  k6 Summary Data:        NOT AVAILABLE")
-
-    dm = report.get("decoupledMetrics")
-    if dm:
-        print("\n  === Decoupled Metrology & Correlation Results ===")
-        print(f"  Generator Status:       {dm.get('generatorStatus')} ({dm.get('generatorRateRatio')}%)")
-        print(f"  Demanded Rate:          {dm['ratesPerSecond'].get('demanded')} cmd/s")
-        print(f"  Emitted Rate:           {dm['ratesPerSecond'].get('emitted')} cmd/s ({dm['counts'].get('emitted')} commands in {dm.get('injectionActualSeconds')}s)")
-        print(f"  Admission Rate:         {dm['ratesPerSecond'].get('admitted')} cmd/s ({dm['counts'].get('admitted')} admitted)")
-        print(f"  Applied Rate:           {dm['ratesPerSecond'].get('applied')} cmd/s ({dm['counts'].get('applied')} applied)")
-        print(f"  READ Rate:              {dm['ratesPerSecond'].get('readMaterialized')} cmd/s ({dm['counts'].get('readMaterialized')} materialized)")
-        print(f"  Complete E2E:           {dm['counts'].get('completeE2E')} / {dm['counts'].get('admitted')} (Coverage: {dm['coverage'].get('percentage')}%)")
-        print(f"  Conservation Emitted:   {dm['conservations'].get('emittedEquation')}")
-        print(f"  Conservation Admitted:  {dm['conservations'].get('admittedEquation')}")
-        drain = dm.get("drainage", {})
-        bl = drain.get("finalDbBacklog")
-        if isinstance(bl, dict):
-            print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Upstream Pending: {bl.get('upstreamPending')}, Slot Buffer: {bl.get('slotBufferTotal')})")
-        else:
-            print(f"  Drainage Duration:      {drain.get('drainDurationSec')}s (Final DB Backlog: {bl})")
-
-        sql_rec = dm.get("sqlReconciliation")
-        if sql_rec:
-            print("\n  --- SQL Server-Side Reconciliation ---")
-            print(f"  Server Admitted Count:  {sql_rec.get('serverTotalAdmitted')}")
-            print(f"  Server Terminal Verif:  {sql_rec.get('serverTerminalVerified')} (Applied: {sql_rec.get('serverApplied')}, CAS: {sql_rec.get('serverCasRejected')}, Failed: {sql_rec.get('serverFailed')})")
-            print(f"  Server Pending (DB):    {sql_rec.get('serverPending')}")
-            print(f"  Server Read Material:   {sql_rec.get('readMaterializedVerified')}")
-            print(f"  Reconciliation Exact:   {sql_rec.get('reconciliationExact')}")
-        print("\n  --- Exact Decoupled Latencies (ms) ---")
-        for lk, lv in dm.get("latencies", {}).items():
-            if lv.get("count", 0) > 0:
-                print(f"    {lk:<26} n={lv['count']:>4} | p50={lv['p50']:>7} | p95={lv['p95']:>7} | p99={lv['p99']:>7} | mean={lv['mean']:>7}")
-
-        mix = dm.get("mixReport")
-        if mix:
-            print("\n  --- Statistical Mix Breakdown (Demanded vs Actual) ---")
-            families = mix.get("families", [])
-            for fam_info in families:
-                fname = fam_info.get("family")
-                tgt = fam_info.get("demandedRatio", 0.0) * 100.0
-                app_pct = fam_info.get("appliedRatio", 0.0) * 100.0
-                n_app = fam_info.get("appliedCount", 0)
-                n_emit = fam_info.get("emittedCount", 0)
-                dev_pct = fam_info.get("relativeDeviationPercent", 0.0)
-                print(f"    {fname:<28} Target: {tgt:>5.1f}% | Applied: {app_pct:>5.1f}% (n={n_app}, emitted={n_emit}, dev={dev_pct:+.1f}%)")
-            rem = mix.get("remainingEligibleEntities", {})
-            if rem:
-                print(f"    Uncorrected Expenses: {rem.get('uncorrectedExpenses')} | Updatable Weights: {rem.get('updatableShareholderWeights')} | Unattached SH: {rem.get('unattachedShareholders')}")
-            print(f"    Pot Starvation Count: {mix.get('potStarvationCount', 0)}")
-
-        op_lat = dm.get("latenciesByOperation")
-        if op_lat:
-            print("\n  --- Per-Operation End-to-End Latency Breakdown ---")
-            for op_name, op_val in op_lat.items():
-                e2e = op_val.get("latencies", {}).get("e2eTotal", {})
-                if e2e.get("count", 0) > 0:
-                    print(f"    {op_name:<28} n={e2e['count']:>4} | p50={e2e['p50']:>7} | p95={e2e['p95']:>7} | p99={e2e['p99']:>7} | mean={e2e['mean']:>7}")
-
-    print("\n  --- Engine Internal Stage Latencies (ms) ---")
-    for s_name, s_val in stages.items():
-        if s_val.get("count", 0) > 0:
-            print(f"    {s_name:<26} n={s_val['count']:>4} | p50={s_val['p50']:>7} | p95={s_val['p95']:>7} | p99={s_val['p99']:>7} | avg={s_val['avg']:>7}")
-
-    sys_t = report["systemTelemetry"]
-    heap_mb = (sys_t.get("jvmHeapUsedBytes") or 0) / (1024 * 1024)
-    pg_t = report["postgresTelemetry"]
-    print("\n  --- System & Infrastructure ---")
-    print(f"  JVM Heap Used:          {heap_mb:.1f} MB")
-    print(f"  Process CPU Usage:      {((sys_t.get('processCpuUsage') or 0)*100):.1f}%")
-    print(f"  System CPU Usage:       {((sys_t.get('systemCpuUsage') or 0)*100):.1f}%")
-    print(f"  JVM Live Threads:       {sys_t.get('jvmLiveThreads')}")
-    print(f"  Hikari Active Conns:    {sys_t.get('hikariActiveConnections')}")
-    print(f"  PostgreSQL Active Sess: {pg_t.get('activeSessions')} / {pg_t.get('totalSessions')}")
-    print(f"  Pending Command Queue:  {report['engineTelemetry'].get('physicalPendingCommand')}")
-    print(f"  Pending Read Backlog:   {report['engineTelemetry'].get('physicalPendingPotVersion')}")
-    print("================================================================================")
+    _print_k6_section(report["k6ClientMetrics"])
+    _print_decoupled_section(report.get("decoupledMetrics"))
+    _print_system_and_stages(report)
 
 
 if __name__ == "__main__":

@@ -96,19 +96,24 @@ public final class PotCommandComposition {
         while (!queue.isEmpty()) {
             var next = queue.removeFirst();
             if (!seen.add(next)) continue;
-            if (next instanceof ExecutePotCommand.Collision) return FailureKind.COLLISION;
-            if (next instanceof org.postgresql.util.PSQLException sql
-                    && "40001".equals(sql.getSQLState())
-                    && sql.getServerErrorMessage() != null
-                    && "v3_invitation_final_expiry"
-                            .equals(sql.getServerErrorMessage().getConstraint()))
-                return FailureKind.COLLISION;
-            if (next instanceof com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException)
-                return FailureKind.INCONSISTENT_FACTS;
+            var specific = classifyCauseNode(next);
+            if (specific != null) return specific;
             if (next.getCause() != null) queue.add(next.getCause());
             java.util.Collections.addAll(queue, next.getSuppressed());
         }
         return common;
+    }
+
+    private static FailureKind classifyCauseNode(Throwable next) {
+        if (next instanceof ExecutePotCommand.Collision) return FailureKind.COLLISION;
+        if (next instanceof com.kartaguez.pocoma.domain.pot.InconsistentPotFactsException) {
+            return FailureKind.INCONSISTENT_FACTS;
+        }
+        if (!(next instanceof org.postgresql.util.PSQLException sql)) return null;
+        if (!"40001".equals(sql.getSQLState()) || sql.getServerErrorMessage() == null) return null;
+        return "v3_invitation_final_expiry".equals(sql.getServerErrorMessage().getConstraint())
+                ? FailureKind.COLLISION
+                : null;
     }
 
     public static ConsumptionEngine assemble(

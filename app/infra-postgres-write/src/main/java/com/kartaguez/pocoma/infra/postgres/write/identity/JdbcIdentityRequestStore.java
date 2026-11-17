@@ -76,130 +76,108 @@ public final class JdbcIdentityRequestStore implements IdentityRequestStore {
 select c.*,r.outcome,r.target_eui_id,r.target_version,r.rejection
 from v3_identity_request c left join v3_identity_request_result r using(request_id) where c.request_id=?
 """,
-                                                    (r, n) -> {
-                                                        var requester =
-                                                                new ExternalIdentity(
-                                                                        r.getString(
-                                                                                "requester_issuer"),
-                                                                        r.getString(
-                                                                                "requester_subject"));
-                                                        var target =
-                                                                new ExternalIdentity(
-                                                                        r.getString(
-                                                                                "target_issuer"),
-                                                                        r.getString(
-                                                                                "target_subject"));
-                                                        var token = r.getString("binding_token");
-                                                        var request =
-                                                                new IdentityRequest(
-                                                                        id,
-                                                                        requester,
-                                                                        IdentityRequestJson
-                                                                                .operation(
-                                                                                        r.getString(
-                                                                                                "operation"),
-                                                                                        target),
-                                                                        token == null
-                                                                                ? null
-                                                                                : new BindingToken(
-                                                                                        token),
-                                                                        r.getTimestamp("created_at")
-                                                                                .toInstant(),
-                                                                        IdentityRequestJson.decode(
-                                                                                r.getString(
-                                                                                        "admission_context")));
-                                                        String outcome = r.getString("outcome");
-                                                        var result =
-                                                                outcome == null
-                                                                        ? Optional.<Result>empty()
-                                                                        : Optional.of(
-                                                                                new Result(
-                                                                                        Outcome
-                                                                                                .valueOf(
-                                                                                                        outcome),
-                                                                                        r.getObject(
-                                                                                                                "target_eui_id")
-                                                                                                        == null
-                                                                                                ? null
-                                                                                                : new ExternalUserIdentityId(
-                                                                                                        r
-                                                                                                                .getObject(
-                                                                                                                        "target_eui_id",
-                                                                                                                        UUID.class)),
-                                                                                        (Long)
-                                                                                                r
-                                                                                                        .getObject(
-                                                                                                                "target_version"),
-                                                                                        r.getString(
-                                                                                                                "rejection")
-                                                                                                        == null
-                                                                                                ? null
-                                                                                                : IdentityTransitionResult
-                                                                                                        .Rejection
-                                                                                                        .valueOf(
-                                                                                                                r
-                                                                                                                        .getString(
-                                                                                                                                "rejection"))));
-                                                        return new Stored(
-                                                                request,
-                                                                Status.valueOf(
-                                                                        r.getString("status")),
-                                                                result);
-                                                    },
+                                                    (r, n) -> mapStoredRow(r, id),
                                                     id)
                                             .stream()
                                             .findFirst());
                 });
     }
 
+    private static Stored mapStoredRow(java.sql.ResultSet r, UUID id)
+            throws java.sql.SQLException {
+        var requester =
+                new ExternalIdentity(
+                        r.getString("requester_issuer"), r.getString("requester_subject"));
+        var target =
+                new ExternalIdentity(r.getString("target_issuer"), r.getString("target_subject"));
+        var token = r.getString("binding_token");
+        var request =
+                new IdentityRequest(
+                        id,
+                        requester,
+                        IdentityRequestJson.operation(r.getString("operation"), target),
+                        token == null ? null : new BindingToken(token),
+                        r.getTimestamp("created_at").toInstant(),
+                        IdentityRequestJson.decode(r.getString("admission_context")));
+        return new Stored(request, Status.valueOf(r.getString("status")), mapOptionalResult(r));
+    }
+
+    private static Optional<Result> mapOptionalResult(java.sql.ResultSet r)
+            throws java.sql.SQLException {
+        String outcome = r.getString("outcome");
+        if (outcome == null) return Optional.empty();
+        var targetEuiId =
+                r.getObject("target_eui_id") == null
+                        ? null
+                        : new ExternalUserIdentityId(r.getObject("target_eui_id", UUID.class));
+        var rejection =
+                r.getString("rejection") == null
+                        ? null
+                        : IdentityTransitionResult.Rejection.valueOf(r.getString("rejection"));
+        return Optional.of(
+                new Result(
+                        Outcome.valueOf(outcome),
+                        targetEuiId,
+                        (Long) r.getObject("target_version"),
+                        rejection));
+    }
+
     @Override
     public Stored insertPending(IdentityRequest request) {
         return write(
                 () -> {
-                    if (request.admission().origin() != IdentityRequest.Origin.CONTROLLED_INTERNAL
-                            || request.operation() instanceof IdentityRequest.Link)
-                        throw new IllegalArgumentException("Controlled Identity operation refused");
-                    if (request.createdAt().getNano() % 1000 != 0)
-                        throw new IllegalArgumentException(
-                                "PostgreSQL microsecond precision required");
-                    int inserted =
-                            jdbc.update(
-                                    """
+                    validatePendingRequest(request);
+                    int inserted = insertPendingRow(request);
+                    var stored = load(request.requestId()).orElseThrow();
+                    if (!stored.request().equals(request)) {
+                        throw new IllegalStateException(
+                                "Identity request ID has another intention");
+                    }
+                    if (inserted == 1) recordRequestPosition(request.requestId());
+                    return stored;
+                });
+    }
+
+    private static void validatePendingRequest(IdentityRequest request) {
+        if (request.admission().origin() != IdentityRequest.Origin.CONTROLLED_INTERNAL
+                || request.operation() instanceof IdentityRequest.Link) {
+            throw new IllegalArgumentException("Controlled Identity operation refused");
+        }
+        if (request.createdAt().getNano() % 1000 != 0) {
+            throw new IllegalArgumentException("PostgreSQL microsecond precision required");
+        }
+    }
+
+    private int insertPendingRow(IdentityRequest request) {
+        return jdbc.update(
+                """
 insert into v3_identity_request(request_id,requester_issuer,requester_subject,operation,binding_token,
     target_issuer,target_subject,admission_context,created_at)
 values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
 """,
-                                    request.requestId(),
-                                    request.requesterEui().issuer(),
-                                    request.requesterEui().subject(),
-                                    IdentityRequestJson.operation(request),
-                                    request.bindingToken() == null
-                                            ? null
-                                            : request.bindingToken().value(),
-                                    request.target().issuer(),
-                                    request.target().subject(),
-                                    IdentityRequestJson.encode(request.admission()),
-                                    Timestamp.from(request.createdAt()));
-                    var stored = load(request.requestId()).orElseThrow();
-                    if (!stored.request().equals(request))
-                        throw new IllegalStateException(
-                                "Identity request ID has another intention");
-                    if (inserted == 1) {
-                        Long pos =
-                                jdbc.queryForObject(
-                                        "update v3_request_counter set position=position+1 where"
-                                                + " family='IDENTITY_REQUEST' returning position",
-                                        Long.class);
-                        if (pos == null)
-                            throw new IllegalStateException("Missing IDENTITY_REQUEST counter");
-                        jdbc.update(
-                                "insert into v3_request_position(family,position,request_id) values"
-                                        + " ('IDENTITY_REQUEST',?,?)",
-                                pos,
-                                request.requestId());
-                    }
-                    return stored;
-                });
+                request.requestId(),
+                request.requesterEui().issuer(),
+                request.requesterEui().subject(),
+                IdentityRequestJson.operation(request),
+                request.bindingToken() == null ? null : request.bindingToken().value(),
+                request.target().issuer(),
+                request.target().subject(),
+                IdentityRequestJson.encode(request.admission()),
+                Timestamp.from(request.createdAt()));
+    }
+
+    private void recordRequestPosition(UUID requestId) {
+        Long pos =
+                jdbc.queryForObject(
+                        "update v3_request_counter set position=position+1 where"
+                                + " family='IDENTITY_REQUEST' returning position",
+                        Long.class);
+        if (pos == null) throw new IllegalStateException("Missing IDENTITY_REQUEST counter");
+        jdbc.update(
+                "insert into v3_request_position(family,position,request_id) values"
+                        + " ('IDENTITY_REQUEST',?,?)",
+                pos,
+                requestId);
     }
 
     @Override
@@ -233,9 +211,10 @@ values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
                 () -> {
                     var durable = load(request.requestId()).orElseThrow();
                     if (!durable.request().equals(request)
-                            || !durable.terminal().equals(Optional.of(Result.from(transition))))
+                            || !durable.terminal().equals(Optional.of(Result.from(transition)))) {
                         throw new IllegalStateException(
                                 "Identity completion differs from actual result");
+                    }
                     var versions =
                             jdbc.queryForList(
                                     "select"
@@ -248,36 +227,54 @@ values (?,?,?,?,?,?,?,?::jsonb,?) on conflict(request_id) do nothing
                                             + " v3_pocoma_user where created_request_id=?",
                                     request.requestId());
                     if (transition instanceof IdentityTransitionResult.Changed changed) {
-                        var state = changed.identity();
-                        if (versions.size() != 1)
-                            throw new IllegalStateException("Identity effect cardinality mismatch");
-                        var v = versions.getFirst();
-                        if (!Boolean.TRUE.equals(v.get("owned"))
-                                || !state.id().value().equals(v.get("eui_id"))
-                                || !Objects.equals(state.version(), v.get("version"))
-                                || !Objects.equals(
-                                        state.userId() == null ? null : state.userId().value(),
-                                        v.get("user_id"))
-                                || !Objects.equals(
-                                        state.bindingToken() == null
-                                                ? null
-                                                : state.bindingToken().value(),
-                                        v.get("binding_token")))
-                            throw new IllegalStateException("Identity effect provenance mismatch");
-                        if (changed.createdUser().isPresent()
-                                ? users.size() != 1
-                                        || !Boolean.TRUE.equals(users.getFirst().get("owned"))
-                                        || !changed.createdUser()
-                                                .get()
-                                                .id()
-                                                .value()
-                                                .equals(users.getFirst().get("user_id"))
-                                : !users.isEmpty())
-                            throw new IllegalStateException("Identity User provenance mismatch");
-                    } else if (!versions.isEmpty() || !users.isEmpty())
+                        verifyChangedEffects(changed, versions, users);
+                    } else if (!versions.isEmpty() || !users.isEmpty()) {
                         throw new IllegalStateException("Identity rejection has effects");
+                    }
                     return null;
                 });
+    }
+
+    private static void verifyChangedEffects(
+            IdentityTransitionResult.Changed changed,
+            List<Map<String, Object>> versions,
+            List<Map<String, Object>> users) {
+        if (versions.size() != 1) {
+            throw new IllegalStateException("Identity effect cardinality mismatch");
+        }
+        if (!matchesVersionRow(changed.identity(), versions.getFirst())) {
+            throw new IllegalStateException("Identity effect provenance mismatch");
+        }
+        verifyCreatedUserProvenance(changed.createdUser(), users);
+    }
+
+    private static boolean matchesVersionRow(
+            ExternalUserIdentity state, Map<String, Object> v) {
+        if (!Boolean.TRUE.equals(v.get("owned"))) return false;
+        if (!state.id().value().equals(v.get("eui_id"))) return false;
+        if (!Objects.equals(state.version(), v.get("version"))) return false;
+        UUID expectedUserId = state.userId() == null ? null : state.userId().value();
+        String expectedToken = state.bindingToken() == null ? null : state.bindingToken().value();
+        return Objects.equals(expectedUserId, v.get("user_id"))
+                && Objects.equals(expectedToken, v.get("binding_token"));
+    }
+
+    private static void verifyCreatedUserProvenance(
+            Optional<User> createdUser, List<Map<String, Object>> users) {
+        if (createdUser.isEmpty()) {
+            if (!users.isEmpty()) {
+                throw new IllegalStateException("Identity User provenance mismatch");
+            }
+            return;
+        }
+        if (users.size() != 1 || !matchesCreatedUser(createdUser.get(), users.getFirst())) {
+            throw new IllegalStateException("Identity User provenance mismatch");
+        }
+    }
+
+    private static boolean matchesCreatedUser(User created, Map<String, Object> row) {
+        return Boolean.TRUE.equals(row.get("owned"))
+                && created.id().value().equals(row.get("user_id"));
     }
 
     @Override

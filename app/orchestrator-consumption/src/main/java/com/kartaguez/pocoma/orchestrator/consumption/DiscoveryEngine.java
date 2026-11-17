@@ -1,10 +1,13 @@
 package com.kartaguez.pocoma.orchestrator.consumption;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToLongFunction;
 
 import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.EventProgress;
 import com.kartaguez.pocoma.contract.consumption.invocation.DiscoveryReports.RequestProgress;
@@ -156,183 +159,251 @@ public final class DiscoveryEngine {
                 == partition;
     }
 
-    private void validate(NonBurnableReferences.Window window, long k) {
-        if (window.afterExclusive() != k
-                || window.highInclusive() - k > settings.windowSize()
-                || window.highInclusive() - k != window.references().size())
-            throw new IllegalStateException("inconsistent dense global window");
-        long position = k;
-        var ids = new HashSet<UUID>();
-        for (var reference : window.references()) {
-            if (reference.position() != ++position || !ids.add(reference.eventId()))
-                throw new IllegalStateException("hole or duplicate in global window");
+    private record WindowBounds(long afterExclusive, long highInclusive, int size, long expectedStart) {
+        boolean isInconsistent(int maxWindowSize) {
+            if (afterExclusive != expectedStart) return true;
+            long span = highInclusive - expectedStart;
+            return span > maxWindowSize || span != size;
         }
     }
 
-    private void validate(BurnableReferences.Window window, long k) {
-        if (window.afterExclusive() != k
-                || window.highInclusive() - k > settings.windowSize()
-                || window.highInclusive() - k != window.references().size())
+    private <T> void validateWindow(
+            WindowBounds bounds,
+            List<T> references,
+            ToLongFunction<T> positionOf,
+            Function<T, UUID> idOf) {
+        if (bounds.isInconsistent(settings.windowSize())) {
             throw new IllegalStateException("inconsistent dense global window");
-        long position = k;
+        }
+        long position = bounds.expectedStart();
         var ids = new HashSet<UUID>();
-        for (var reference : window.references()) {
-            if (reference.position() != ++position || !ids.add(reference.requestId()))
+        for (var reference : references) {
+            if (positionOf.applyAsLong(reference) != ++position || !ids.add(idOf.apply(reference))) {
                 throw new IllegalStateException("hole or duplicate in global window");
+            }
         }
     }
+
+    private record RequestBatch(
+            PartitionLease current, long expectedCheckpoint, int initialBudget) {}
+
+    private record DiscoveryHandler<R>(
+            java.util.function.BiFunction<Status, OptionalLong, R> earlyResult,
+            Function<PartitionLease, R> onReady) {}
 
     public EventProgress discoverEvents(PartitionLease lease) {
         if (events == null) throw new IllegalStateException("not an event Discovery");
         lease(lease);
-        long k =
-                effects.read(
-                        read -> admissions.checkpoint(definition.id(), lease.partitionId(), read));
-        if (k < 0) throw new IllegalStateException("negative checkpoint");
+        long k = readCheckpoint(lease);
         var window = sourceReads.read(read -> events.window(k, settings.windowSize(), read));
-        validate(window, k);
+        validateWindow(
+                new WindowBounds(
+                        window.afterExclusive(),
+                        window.highInclusive(),
+                        window.references().size(),
+                        k),
+                window.references(),
+                NonBurnableReferences.Reference::position,
+                NonBurnableReferences.Reference::eventId);
         // Decide stable exclusions outside the effects transaction; no mutable source reads there.
         var eligible =
                 window.references().stream()
                         .map(r -> relevant.test(r) && local(r.eventId(), lease.partitionId()))
                         .toList();
-        return effects.write(
-                () -> {
-                    var protectedLease = protect(lease);
-                    if (protectedLease.isEmpty())
-                        return new EventProgress(
-                                Status.BUSY_OR_NOT_OWNER, OptionalLong.empty(), 0, 0);
-                    var current = protectedLease.orElseThrow();
-                    long actual = admissions.currentCheckpoint(current);
-                    if (actual != k) {
-                        fence(current);
-                        return new EventProgress(
-                                Status.STALE_CHECKPOINT, OptionalLong.of(actual), 0, 0);
-                    }
-                    int remaining = budget(current), inserted = 0, examined = 0;
-                    if (window.references().isEmpty())
-                        return new EventProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0);
-                    long covered = k;
-                    boolean capacity = false;
-                    for (int i = 0; i < window.references().size(); i++) {
-                        var ref = window.references().get(i);
-                        examined++;
-                        if (eligible.get(i)) {
-                            if (admissions.contains(
-                                    definition, current.partitionId(), ref.eventId()))
-                                throw new IllegalStateException(
-                                        "non-burnable slot above checkpoint");
-                            fence(current);
-                            if (remaining == 0) {
-                                capacity = true;
-                                break;
-                            }
-                            admissions.insertInitial(
-                                    definition, current.partitionId(), ref.eventId());
-                            remaining--;
-                            inserted++;
-                        }
-                        covered = ref.position();
-                    }
-                    fence(current);
-                    if (covered > k) admissions.advanceCheckpoint(current, k, covered);
-                    fence(current); // CAS/trigger/unique waits can also outlive the lease.
-                    return new EventProgress(
-                            capacity ? Status.CAPACITY : Status.COMMITTED,
-                            OptionalLong.of(covered),
-                            examined,
-                            inserted);
-                }); // No result escapes if physical resolution fails, even COMMITTED with lost
-        // callback.
+        var handler =
+                new DiscoveryHandler<EventProgress>(
+                        (status, pos) -> new EventProgress(status, pos, 0, 0),
+                        current -> admitEventBatch(current, k, window.references(), eligible));
+        return effects.write(() -> executeDiscovery(lease, k, handler));
+    }
+
+    private EventProgress admitEventBatch(
+            PartitionLease current,
+            long k,
+            List<NonBurnableReferences.Reference> references,
+            List<Boolean> eligible) {
+        int remaining = budget(current);
+        if (references.isEmpty()) {
+            return new EventProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0);
+        }
+        return admitEventWindow(new RequestBatch(current, k, remaining), references, eligible);
+    }
+
+    private long readCheckpoint(PartitionLease lease) {
+        long k =
+                effects.read(
+                        read -> admissions.checkpoint(definition.id(), lease.partitionId(), read));
+        if (k < 0) throw new IllegalStateException("negative checkpoint");
+        return k;
+    }
+
+    private <R> R executeDiscovery(
+            PartitionLease lease, long k, DiscoveryHandler<R> handler) {
+        var protectedLease = protect(lease);
+        if (protectedLease.isEmpty()) {
+            return handler.earlyResult().apply(Status.BUSY_OR_NOT_OWNER, OptionalLong.empty());
+        }
+        var current = protectedLease.orElseThrow();
+        long actual = admissions.currentCheckpoint(current);
+        if (actual != k) {
+            fence(current);
+            return handler.earlyResult().apply(Status.STALE_CHECKPOINT, OptionalLong.of(actual));
+        }
+        return handler.onReady().apply(current);
+    }
+
+    private EventProgress admitEventWindow(
+            RequestBatch batch,
+            List<NonBurnableReferences.Reference> references,
+            List<Boolean> eligible) {
+        int remaining = batch.initialBudget();
+        int inserted = 0;
+        int examined = 0;
+        long covered = batch.expectedCheckpoint();
+        boolean capacity = false;
+        for (int i = 0; i < references.size(); i++) {
+            var ref = references.get(i);
+            examined++;
+            if (eligible.get(i)) {
+                if (!tryAdmitEvent(batch.current(), ref, remaining)) {
+                    capacity = true;
+                    break;
+                }
+                remaining--;
+                inserted++;
+            }
+            covered = ref.position();
+        }
+        advanceCheckpointFenced(batch.current(), batch.expectedCheckpoint(), covered);
+        return new EventProgress(
+                capacity ? Status.CAPACITY : Status.COMMITTED,
+                OptionalLong.of(covered),
+                examined,
+                inserted);
+    }
+
+    private boolean tryAdmitEvent(
+            PartitionLease current, NonBurnableReferences.Reference ref, int remaining) {
+        if (admissions.contains(definition, current.partitionId(), ref.eventId())) {
+            throw new IllegalStateException("non-burnable slot above checkpoint");
+        }
+        fence(current);
+        if (remaining == 0) return false;
+        admissions.insertInitial(definition, current.partitionId(), ref.eventId());
+        return true;
+    }
+
+    private void advanceCheckpointFenced(PartitionLease current, long expected, long covered) {
+        fence(current);
+        if (covered > expected) admissions.advanceCheckpoint(current, expected, covered);
+        fence(current); // CAS/trigger/unique waits can also outlive the lease.
     }
 
     public RequestProgress discoverRequests(PartitionLease lease) {
         if (requests == null) throw new IllegalStateException("not a request Discovery");
         lease(lease);
-        long k =
-                effects.read(
-                        read -> admissions.checkpoint(definition.id(), lease.partitionId(), read));
-        if (k < 0) throw new IllegalStateException("negative checkpoint");
+        long k = readCheckpoint(lease);
         var window = sourceReads.read(read -> requests.window(k, settings.windowSize(), read));
-        validate(window, k);
+        validateWindow(
+                new WindowBounds(
+                        window.afterExclusive(),
+                        window.highInclusive(),
+                        window.references().size(),
+                        k),
+                window.references(),
+                BurnableReferences.Reference::position,
+                BurnableReferences.Reference::requestId);
         var eligible =
                 window.references().stream()
                         .map(r -> local(r.requestId(), lease.partitionId()))
                         .toList();
-        return effects.write(
-                () -> {
-                    var protectedLease = protect(lease);
-                    if (protectedLease.isEmpty())
-                        return new RequestProgress(
-                                Status.BUSY_OR_NOT_OWNER, OptionalLong.empty(), 0, 0, 0);
-                    var current = protectedLease.orElseThrow();
-                    long actual = admissions.currentCheckpoint(current);
-                    if (actual != k) {
-                        fence(current);
-                        return new RequestProgress(
-                                Status.STALE_CHECKPOINT, OptionalLong.of(actual), 0, 0, 0);
-                    }
-                    int remaining = budget(current);
-                    if (remaining == 0) {
-                        fence(current);
-                        return new RequestProgress(
-                                Status.CAPACITY, OptionalLong.of(actual), 0, 0, 0);
-                    }
-                    if (window.references().isEmpty())
-                        return new RequestProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0, 0);
-                    int examined = 0, advanced = 0, inserted = 0;
-                    long covered = k;
-                    boolean capacity = false;
-                    for (int i = 0; i < window.references().size(); i++) {
-                        var ref = window.references().get(i);
-                        var id = ref.requestId();
-                        examined++;
-                        if (eligible.get(i)) {
-                            if (requests.tryProtectPending(id)) {
-                                long discoveredNanos = System.nanoTime();
-                                listener.onCandidateDiscovered(
-                                        definition, current.partitionId(), id, discoveredNanos);
-                                // A separate statement/snapshot AFTER source lock. No row lock on
-                                // existing slot.
-                                boolean exists =
-                                        admissions.contains(definition, current.partitionId(), id);
-                                fence(current);
-                                if (!exists) {
-                                    if (remaining == 0) {
-                                        capacity = true;
-                                        break;
-                                    }
-                                    admissions.insertInitial(definition, current.partitionId(), id);
-                                    long admittedNanos = System.nanoTime();
-                                    listener.onSlotAdmitted(
-                                            definition, current.partitionId(), id, admittedNanos);
-                                    remaining--;
-                                    inserted++;
-                                }
-                            } else {
-                                boolean settled =
-                                        requests.isTerminal(id)
-                                                || admissions.contains(
-                                                        definition, current.partitionId(), id)
-                                                || requests.isTerminal(id);
-                                fence(current);
-                                if (!settled) {
-                                    break;
-                                }
-                            }
-                        }
-                        covered = ref.position();
-                        advanced++;
-                    }
-                    fence(current);
-                    if (covered > k) admissions.advanceCheckpoint(current, k, covered);
-                    fence(current);
-                    return new RequestProgress(
-                            capacity ? Status.CAPACITY : Status.COMMITTED,
-                            OptionalLong.of(covered),
-                            examined,
-                            advanced,
-                            inserted);
-                });
+        var handler =
+                new DiscoveryHandler<RequestProgress>(
+                        (status, pos) -> new RequestProgress(status, pos, 0, 0, 0),
+                        current -> admitRequestBatch(current, k, window.references(), eligible));
+        return effects.write(() -> executeDiscovery(lease, k, handler));
+    }
+
+    private RequestProgress admitRequestBatch(
+            PartitionLease current,
+            long k,
+            List<BurnableReferences.Reference> references,
+            List<Boolean> eligible) {
+        int remaining = budget(current);
+        if (remaining == 0) {
+            fence(current);
+            return new RequestProgress(Status.CAPACITY, OptionalLong.of(k), 0, 0, 0);
+        }
+        if (references.isEmpty()) {
+            return new RequestProgress(Status.COMMITTED, OptionalLong.of(k), 0, 0, 0);
+        }
+        return admitRequestWindow(new RequestBatch(current, k, remaining), references, eligible);
+    }
+
+    private enum RequestStep {
+        SKIPPED,
+        INSERTED,
+        CAPACITY_REACHED,
+        UNSETTLED
+    }
+
+    private RequestProgress admitRequestWindow(
+            RequestBatch batch,
+            List<BurnableReferences.Reference> references,
+            List<Boolean> eligible) {
+        int remaining = batch.initialBudget();
+        int examined = 0;
+        int advanced = 0;
+        int inserted = 0;
+        long covered = batch.expectedCheckpoint();
+        boolean capacity = false;
+        for (int i = 0; i < references.size(); i++) {
+            var ref = references.get(i);
+            examined++;
+            if (eligible.get(i)) {
+                var step = processEligibleRequest(batch.current(), ref.requestId(), remaining);
+                if (step == RequestStep.CAPACITY_REACHED) {
+                    capacity = true;
+                    break;
+                }
+                if (step == RequestStep.UNSETTLED) break;
+                if (step == RequestStep.INSERTED) {
+                    remaining--;
+                    inserted++;
+                }
+            }
+            covered = ref.position();
+            advanced++;
+        }
+        advanceCheckpointFenced(batch.current(), batch.expectedCheckpoint(), covered);
+        return new RequestProgress(
+                capacity ? Status.CAPACITY : Status.COMMITTED,
+                OptionalLong.of(covered),
+                examined,
+                advanced,
+                inserted);
+    }
+
+    private RequestStep processEligibleRequest(PartitionLease current, UUID id, int remaining) {
+        if (!requests.tryProtectPending(id)) {
+            boolean settled = isRequestSettled(current, id);
+            fence(current);
+            return settled ? RequestStep.SKIPPED : RequestStep.UNSETTLED;
+        }
+        listener.onCandidateDiscovered(definition, current.partitionId(), id, System.nanoTime());
+        // A separate statement/snapshot AFTER source lock. No row lock on existing slot.
+        boolean exists = admissions.contains(definition, current.partitionId(), id);
+        fence(current);
+        if (exists) return RequestStep.SKIPPED;
+        if (remaining == 0) return RequestStep.CAPACITY_REACHED;
+        admissions.insertInitial(definition, current.partitionId(), id);
+        listener.onSlotAdmitted(definition, current.partitionId(), id, System.nanoTime());
+        return RequestStep.INSERTED;
+    }
+
+    private boolean isRequestSettled(PartitionLease current, UUID id) {
+        if (requests.isTerminal(id)) return true;
+        if (admissions.contains(definition, current.partitionId(), id)) return true;
+        return requests.isTerminal(id);
     }
 }

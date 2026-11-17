@@ -42,6 +42,50 @@ def inputs():
     return result
 
 
+def _inspect_classpath_property(value, jars, classpaths):
+    for entry in value.split(os.pathsep):
+        dependency = Path(entry)
+        if dependency.suffix == '.jar' and dependency.is_file():
+            jars[entry] = L1.digest(dependency.read_bytes())
+        elif entry:
+            resolved = dependency.resolve()
+            valid_target = '/target/' in str(resolved) and str(resolved).endswith(('/classes', '/test-classes'))
+            if not resolved.is_relative_to(ROOT / 'app') or not valid_target:
+                raise RuntimeError('Uninventoried classpath: ' + entry)
+            classpaths.add(entry)
+
+
+def _collect_reports_and_classpaths(output):
+    reports, jars, classpaths = [], {}, set()
+    for path in (ROOT / 'app').glob('*/target/surefire-reports/TEST-*.xml'):
+        content = path.read_bytes()
+        relative = path.relative_to(ROOT)
+        destination = output / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(content)
+        reports.append((str(relative), content, path.stat().st_mtime_ns))
+        for prop in ET.fromstring(content).findall('./properties/property'):
+            if prop.get('name') in ('java.class.path', 'surefire.test.class.path'):
+                _inspect_classpath_property(prop.get('value', ''), jars, classpaths)
+    return reports, jars, classpaths
+
+
+def _verify_indexed_plans(performance):
+    for profile in performance['profiles']:
+        if profile['depth'] < 1000:
+            continue
+        checks = [q for q in profile['plans'] if q['sql'].startswith('select c.*') and 'v3_pot_details c' in q['sql']]
+        if len(checks) != 1:
+            return False
+        for query in checks:
+            plan = query['plan'][0]['Plan']
+            blocks = plan.get('Shared Hit Blocks', 0) + plan.get('Shared Read Blocks', 0)
+            encoded = json.dumps(plan)
+            if plan['Actual Rows'] != 1 or blocks > 32 or 'v3_pot_details_open' not in encoded or 'v3_pot_details_interval' not in encoded:
+                return False
+    return True
+
+
 def run(gate):
     expected_manifest = json.loads((ROOT / 'docs/v3/L1_F2_Proof_Manifest.json').read_text())
     definition = expected_manifest['gates'][gate]
@@ -71,26 +115,7 @@ def run(gate):
     if after != before or L1.git('rev-parse', 'HEAD').decode().strip() != sha:
         raise RuntimeError('Inputs/HEAD changed during gate')
     (output / 'inputs-after.json').write_text(json.dumps(after, indent=2))
-    reports, jars, classpaths = [], {}, set()
-    for path in (ROOT / 'app').glob('*/target/surefire-reports/TEST-*.xml'):
-        content = path.read_bytes()
-        relative = path.relative_to(ROOT)
-        destination = output / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(content)
-        reports.append((str(relative), content, path.stat().st_mtime_ns))
-        for prop in ET.fromstring(content).findall('./properties/property'):
-            if prop.get('name') not in ('java.class.path', 'surefire.test.class.path'):
-                continue
-            for entry in prop.get('value', '').split(os.pathsep):
-                dependency = Path(entry)
-                if dependency.suffix == '.jar' and dependency.is_file():
-                    jars[entry] = L1.digest(dependency.read_bytes())
-                elif entry:
-                    resolved = dependency.resolve()
-                    if not resolved.is_relative_to(ROOT / 'app') or '/target/' not in str(resolved) or not str(resolved).endswith(('/classes', '/test-classes')):
-                        raise RuntimeError('Uninventoried classpath: ' + entry)
-                    classpaths.add(entry)
+    reports, jars, classpaths = _collect_reports_and_classpaths(output)
     external_after = L1.external_inputs()
     external_verdict = L1.verify_external(external, external_after, jars)
     for name, value in [('external-after', external_after), ('external-verdict', external_verdict), ('dependencies', jars), ('classpaths', sorted(classpaths))]:
@@ -108,20 +133,11 @@ def run(gate):
     performance = json.loads((output / 'app/infra-persistence-primary-jpa/target/v3-pot-evidence/F2-write-performance.json').read_text())
     bounded = all(sample['java_rows'] == expected_manifest['proofs']['expected_java_rows_per_equivalent_mutation']
                   for profile in performance['profiles'] for sample in profile['samples'])
-    indexed = True
-    for profile in performance['profiles']:
-        if profile['depth'] < 1000:
-            continue
-        checks = [q for q in profile['plans'] if q['sql'].startswith('select c.*') and 'v3_pot_details c' in q['sql']]
-        indexed &= len(checks) == 1
-        for query in checks:
-            plan = query['plan'][0]['Plan']
-            indexed &= plan['Actual Rows'] == 1 and plan.get('Shared Hit Blocks', 0) + plan.get('Shared Read Blocks', 0) <= 32
-            encoded = json.dumps(plan)
-            indexed &= 'v3_pot_details_open' in encoded and 'v3_pot_details_interval' in encoded
+    indexed = _verify_indexed_plans(performance)
     summary['bounded_java_history_transfer'] = 'PASS' if bounded else 'FAIL'
     summary['indexed_local_write_plans'] = 'PASS' if indexed else 'FAIL'
-    summary['mandatory_verdict'] = 'PASS' if execution.returncode == 0 and not expected - actual and bounded and indexed else 'FAIL'
+    passed = execution.returncode == 0 and not (expected - actual) and bounded and indexed
+    summary['mandatory_verdict'] = 'PASS' if passed else 'FAIL'
     (output / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps({key: summary[key] for key in ('gate', 'tested_sha', 'counts', 'verdict', 'mandatory_count', 'mandatory_verdict', 'missing_mandatory')}), flush=True)
     print(output, flush=True)

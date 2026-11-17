@@ -32,12 +32,17 @@ public final class WorkerCapacity implements com.kartaguez.pocoma.contract.consu
             Map<ConsumptionId, Integer> consumptionLimits,
             ConsumptionObservation observation) {
         this.observation = Objects.requireNonNull(observation);
-        if (workerLimit < 1
-                || consumptionLimits.isEmpty()
-                || consumptionLimits.values().stream().anyMatch(n -> n == null || n < 1))
+        if (!hasValidLimits(workerLimit, consumptionLimits)) {
             throw new IllegalArgumentException("positive Worker and Consumption limits required");
+        }
         this.workerLimit = workerLimit;
         this.limits = Map.copyOf(consumptionLimits);
+    }
+
+    private static boolean hasValidLimits(
+            int workerLimit, Map<ConsumptionId, Integer> consumptionLimits) {
+        if (workerLimit < 1 || consumptionLimits.isEmpty()) return false;
+        return consumptionLimits.values().stream().noneMatch(n -> n == null || n < 1);
     }
 
     public int workerLimit() {

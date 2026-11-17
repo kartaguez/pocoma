@@ -17,16 +17,33 @@ public final class JdbcPotBalanceStore implements PotBalanceStore {
     private String encode(PotBalance b) {
         var a=JSON.createArrayNode(); b.values().forEach((id,f) -> a.addObject().put("id",id.toString()).put("n",f.numerator().toString()).put("d",f.denominator().toString())); return a.toString();
     }
-    private PotBalance decode(UUID p,long v,String payload) {
+    private PotBalance decode(UUID p, long v, String payload) {
         try {
-            var array=JSON.readTree(payload); if(!array.isArray()) throw new IllegalArgumentException();
-            var values=new LinkedHashMap<UUID,Fraction>();
-            for(var n:array) {
-                if(!n.isObject() || n.size()!=3 || !n.path("id").isTextual() || !n.path("n").isTextual() || !n.path("d").isTextual()) throw new IllegalArgumentException();
-                if(values.put(UUID.fromString(n.get("id").textValue()),new Fraction(new BigInteger(n.get("n").textValue()),new BigInteger(n.get("d").textValue())))!=null) throw new IllegalArgumentException();
+            var array = JSON.readTree(payload);
+            if (!array.isArray()) throw new IllegalArgumentException();
+            var values = new LinkedHashMap<UUID, Fraction>();
+            for (var n : array) {
+                parseBalanceEntry(n, values);
             }
-            var b=new PotBalance(p,v,values); if(!array.equals(JSON.readTree(encode(b)))) throw new IllegalArgumentException(); return b;
-        } catch(java.io.IOException | RuntimeException invalid) { throw new IllegalStateException("Corrupt PotBalance"); }
+            var b = new PotBalance(p, v, values);
+            if (!array.equals(JSON.readTree(encode(b)))) throw new IllegalArgumentException();
+            return b;
+        } catch (java.io.IOException | RuntimeException invalid) {
+            throw new IllegalStateException("Corrupt PotBalance");
+        }
+    }
+
+    private static void parseBalanceEntry(JsonNode n, Map<UUID, Fraction> values) {
+        if (!n.isObject() || n.size() != 3) throw new IllegalArgumentException();
+        for (String field : List.of("id", "n", "d")) {
+            if (!n.path(field).isTextual()) throw new IllegalArgumentException();
+        }
+        var id = UUID.fromString(n.get("id").textValue());
+        var fraction =
+                new Fraction(
+                        new BigInteger(n.get("n").textValue()),
+                        new BigInteger(n.get("d").textValue()));
+        if (values.put(id, fraction) != null) throw new IllegalArgumentException();
     }
     private Optional<PotBalance> load(UUID p,long v) { return db.sql.query("select payload::text from read_pot_balance where pot_id=? and pot_version=?",(r,n) -> decode(p,v,r.getString(1)),p,v).stream().findFirst(); }
     public Optional<PotBalance> read(UUID p,long v,RecoveryReadContext c) { return db.read(c,() -> load(p,v)); }

@@ -124,38 +124,38 @@ public final class JdbcDiscoveryAdmissionStore implements DiscoveryAdmissionStor
         SpringAttemptTransactions.guarded(
                 source,
                 () -> {
-                    if (expected < 0 || next <= expected)
+                    if (expected < 0 || next <= expected) {
                         throw new IllegalArgumentException("checkpoint must advance");
-                    int count;
-                    var present =
-                            jdbc.queryForList(
-                                    "select position from discovery_checkpoint where"
-                                            + " consumption_id=? and partition_id=?",
-                                    Long.class,
-                                    lease.consumptionId().value(),
-                                    lease.partitionId());
-                    if (present.isEmpty()) {
-                        if (expected != 0)
-                            throw new IllegalStateException("missing expected checkpoint");
-                        count =
-                                jdbc.update(
-                                        "insert into"
-                                            + " discovery_checkpoint(consumption_id,partition_id,position)"
-                                            + " values (?,?,?)",
-                                        lease.consumptionId().value(),
-                                        lease.partitionId(),
-                                        next);
-                    } else
-                        count =
-                                jdbc.update(
-                                        "update discovery_checkpoint set position=? where"
-                                            + " consumption_id=? and partition_id=? and position=?",
-                                        next,
-                                        lease.consumptionId().value(),
-                                        lease.partitionId(),
-                                        expected);
+                    }
+                    int count = updateOrInsertCheckpoint(lease, expected, next);
                     if (count != 1) throw new IllegalStateException("checkpoint CAS failed");
                     return null;
                 });
+    }
+
+    private int updateOrInsertCheckpoint(PartitionLease lease, long expected, long next) {
+        var present =
+                jdbc.queryForList(
+                        "select position from discovery_checkpoint where"
+                                + " consumption_id=? and partition_id=?",
+                        Long.class,
+                        lease.consumptionId().value(),
+                        lease.partitionId());
+        if (present.isEmpty()) {
+            if (expected != 0) throw new IllegalStateException("missing expected checkpoint");
+            return jdbc.update(
+                    "insert into discovery_checkpoint(consumption_id,partition_id,position)"
+                            + " values (?,?,?)",
+                    lease.consumptionId().value(),
+                    lease.partitionId(),
+                    next);
+        }
+        return jdbc.update(
+                "update discovery_checkpoint set position=? where"
+                        + " consumption_id=? and partition_id=? and position=?",
+                next,
+                lease.consumptionId().value(),
+                lease.partitionId(),
+                expected);
     }
 }

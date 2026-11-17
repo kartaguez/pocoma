@@ -69,22 +69,38 @@ class SubobjectAtomicityPostgresTest {
             }
         };
     }
-    void rolledBack(SubobjectPostgresFixture f,UUID id,ConsumptionProtocol.Attempt attempt,int prior) {
-        assertEquals(ConsumptionProtocol.Status.ROLLED_BACK,attempt.status(),()->String.valueOf(attempt));
-        assertEquals(AttemptTransactions.Resolution.ROLLED_BACK,attempt.resolution());
-        assertEquals(prior,f.count()); assertEquals(1,f.slotCount(id));
-        assertEquals(
-                f.acquiredRows.get(id),
-                f.oracle.queryForMap("select * from consumption_slot where consumable_id=?", id));
-        assertEquals(
-                0, f.oracle.queryForObject("select count(*) from fixture_witness", Integer.class));
-        assertEquals(
-                0,
-                f.oracle.queryForObject(
-                        "select attempt_count from consumption_slot where consumable_id=?",
-                        Integer.class,
-                        id));
-        f.trace.add("ROLLED_BACK="+attempt+" snapshot="+f.snapshot(id));
+    void rolledBack(
+            SubobjectPostgresFixture f, UUID id, ConsumptionProtocol.Attempt attempt, int prior) {
+        assertAll(
+                () ->
+                        assertEquals(
+                                ConsumptionProtocol.Status.ROLLED_BACK,
+                                attempt.status(),
+                                () -> String.valueOf(attempt)),
+                () ->
+                        assertEquals(
+                                AttemptTransactions.Resolution.ROLLED_BACK, attempt.resolution()),
+                () -> assertEquals(prior, f.count()),
+                () -> assertEquals(1, f.slotCount(id)),
+                () ->
+                        assertEquals(
+                                f.acquiredRows.get(id),
+                                f.oracle.queryForMap(
+                                        "select * from consumption_slot where consumable_id=?", id)),
+                () ->
+                        assertEquals(
+                                0,
+                                f.oracle.queryForObject(
+                                        "select count(*) from fixture_witness", Integer.class)),
+                () ->
+                        assertEquals(
+                                0,
+                                f.oracle.queryForObject(
+                                        "select attempt_count from consumption_slot where"
+                                                + " consumable_id=?",
+                                        Integer.class,
+                                        id)));
+        f.trace.add("ROLLED_BACK=" + attempt + " snapshot=" + f.snapshot(id));
     }
     @Test void effectsAndSlotSameUnit() throws Exception {
         try(var f=new SubobjectPostgresFixture(PG,"effectsAndSlotSameUnit")) {
@@ -172,61 +188,77 @@ class SubobjectAtomicityPostgresTest {
             }
         }
     }
-    @Test void rollbackAfterFirstChunkAndBeforeCommit() throws Exception {
-        for(boolean firstChunk:List.of(true,false)) {
-            try (var f =
-                    new SubobjectPostgresFixture(
-                            PG, firstChunk ? "rollbackFirstChunk" : "rollbackBeforeCommit")) {
-                f.installWitnesses();var id=f.seed(f.batch(UUID.randomUUID(),600));var count=new AtomicInteger();
-                if (firstChunk)
-                    f.source.after =
-                            statement -> {
-                                if (statement.startsWith("insert into read_subobject_version")
-                                        && count.incrementAndGet() == 1) {
-                                    assertEquals(
-                                            256,
-                                            f.sql.queryForObject(
-                                                    "select count(*) from read_subobject_version",
-                                                    Integer.class));
-                                    f.witness(f.source, "fault after first 256 physical inserts");
-                                    fault("first chunk");
-                                }
-                            };
-                var engine =
-                        f.engine(
-                                f.participant(
-                                        (point, key, c) -> {
-                                            if (!firstChunk && point == Point.AFTER_CLOSE)
-                                                TransactionSynchronizationManager
-                                                        .registerSynchronization(
-                                                                new TransactionSynchronization() {
-                                                                    public void beforeCommit(
-                                                                            boolean readOnly) {
-                                                                        f.witness(
-                                                                                f.source,
-                                                                                "before physical"
-                                                                                    + " commit");
-                                                                        fault("before commit");
-                                                                    }
-                                                                });
-                                        }));
-                var result=engine.execute(f.acquire(engine,id));
-                if(firstChunk) {
-                    rolledBack(f, id, result, 0);
-                    assertEquals(1, count.get());
-                    assertEquals("I1 injected first chunk", result.cause().getMessage());
-                } else {
-                    // Existing L2 conservatively retains UNKNOWN for a callback in Spring's commit phase.
-                    assertEquals(AttemptTransactions.Resolution.UNKNOWN,result.resolution());
-                    assertEquals(ConsumptionProtocol.Status.RECOVERY_PENDING,result.status());
-                    assertEquals(RecoveryObservation.NOT_COMPLETED,result.observation());
-                    assertEquals("I1 injected before commit",result.cause().getMessage());
-                    assertEquals(Map.of("effects",0L,"slots",1L,"witnesses",0L),f.snapshot(id));
-                    assertEquals(1, f.capacity.snapshot().worker());
-                    f.trace.add("before-commit UNKNOWN retained=" + result);
-                }
-            }
+    @Test
+    void rollbackAfterFirstChunkAndBeforeCommit() throws Exception {
+        for (boolean firstChunk : List.of(true, false)) {
+            verifyRollbackPhase(firstChunk);
         }
+    }
+
+    private void verifyRollbackPhase(boolean firstChunk) throws Exception {
+        try (var f =
+                new SubobjectPostgresFixture(
+                        PG, firstChunk ? "rollbackFirstChunk" : "rollbackBeforeCommit")) {
+            f.installWitnesses();
+            var id = f.seed(f.batch(UUID.randomUUID(), 600));
+            var count = new AtomicInteger();
+            if (firstChunk) {
+                f.source.after =
+                        statement -> {
+                            if (statement.startsWith("insert into read_subobject_version")
+                                    && count.incrementAndGet() == 1) {
+                                assertEquals(
+                                        256,
+                                        f.sql.queryForObject(
+                                                "select count(*) from read_subobject_version",
+                                                Integer.class));
+                                f.witness(f.source, "fault after first 256 physical inserts");
+                                fault("first chunk");
+                            }
+                        };
+            }
+            var engine =
+                    f.engine(
+                            f.participant(
+                                    (point, key, c) -> {
+                                        if (!firstChunk && point == Point.AFTER_CLOSE) {
+                                            registerBeforeCommitFault(f);
+                                        }
+                                    }));
+            var result = engine.execute(f.acquire(engine, id));
+            if (firstChunk) {
+                rolledBack(f, id, result, 0);
+                assertEquals(1, count.get());
+                assertEquals("I1 injected first chunk", result.cause().getMessage());
+                return;
+            }
+            // Existing L2 conservatively retains UNKNOWN for a callback in Spring's commit phase.
+            assertAll(
+                    () -> assertEquals(AttemptTransactions.Resolution.UNKNOWN, result.resolution()),
+                    () ->
+                            assertEquals(
+                                    ConsumptionProtocol.Status.RECOVERY_PENDING, result.status()),
+                    () ->
+                            assertEquals(
+                                    RecoveryObservation.NOT_COMPLETED, result.observation()),
+                    () -> assertEquals("I1 injected before commit", result.cause().getMessage()),
+                    () ->
+                            assertEquals(
+                                    Map.of("effects", 0L, "slots", 1L, "witnesses", 0L),
+                                    f.snapshot(id)),
+                    () -> assertEquals(1, f.capacity.snapshot().worker()));
+            f.trace.add("before-commit UNKNOWN retained=" + result);
+        }
+    }
+
+    private static void registerBeforeCommitFault(SubobjectPostgresFixture f) {
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    public void beforeCommit(boolean readOnly) {
+                        f.witness(f.source, "before physical commit");
+                        fault("before commit");
+                    }
+                });
     }
     @Test void faultBetweenReadinessAndDelete() throws Exception {
         try(var f=new SubobjectPostgresFixture(PG,"afterReadinessBeforeDelete")) {
@@ -286,79 +318,111 @@ class SubobjectAtomicityPostgresTest {
             }
         }
     }
-    @Test void caughtFailurePoisons() throws Exception {
-        for(String type:List.of("divergence","duplicate","null","sql")) {
-            try(var f=new SubobjectPostgresFixture(PG,"caught-"+type)) {
-                var original=header(UUID.randomUUID(),1,false);f.insert(List.of(original));f.installWitnesses();
-                if(type.equals("sql")) {
-                    f.oracle.execute(
-                            "create function fixture_fail() returns trigger language plpgsql as $$"
-                                    + " begin raise exception 'fixture SQL rejection' using"
-                                    + " errcode='23514';end $$");
-                    f.oracle.execute(
-                            "create trigger fixture_fail before insert on read_subobject_version"
-                                    + " for each row execute function fixture_fail()");
-                }
-                var values=eight(UUID.randomUUID());var id=f.seed(values);var caught=new AtomicBoolean();var writerFailure=new AtomicReference<RuntimeException>();
-                var engine =
-                        f.engine(
-                                custom(
-                                        f,
-                                        c -> {
-                                            if (!type.equals("sql"))
-                                                f.store.insertOrVerifyAll(values);
-                                            try {
-                                                switch (type) {
-                                                    case "divergence" ->
-                                                            f.store.insertOrVerifyAll(
-                                                                    List.of(
-                                                                            header(
-                                                                                    original.key()
-                                                                                            .potId(),
-                                                                                    1,
-                                                                                    true)));
-                                                    case "duplicate" ->
-                                                            f.store.insertOrVerifyAll(
-                                                                    List.of(
-                                                                            values.getFirst(),
-                                                                            values.getFirst()));
-                                                    case "null" -> f.store.insertOrVerifyAll(null);
-                                                    case "sql" -> f.store.insertOrVerifyAll(values);
-                                                }
-                                            } catch (RuntimeException intercepted) {
-                                                caught.set(true);
-                                                writerFailure.set(intercepted);
-                                                f.trace.add(
-                                                        "caught writer=" + intercepted.getClass());
-                                            }
-                                            try {
-                                                c.complete();
-                                            } catch (RuntimeException intercepted) {
-                                            }
-                                            try {
-                                                SpringAttemptTransactions.closePublication(
-                                                        f.source);
-                                            } catch (RuntimeException intercepted) {
-                                            }
-                                        },
-                                        () -> f.store.requireStored(values)));
-                rolledBack(f,id,engine.execute(f.acquire(engine,id)),1);assertTrue(caught.get());
-                switch(type) {
-                    case "divergence" ->
-                            assertInstanceOf(SubobjectConflictException.class, writerFailure.get());
-                    case "duplicate" ->
-                            assertInstanceOf(IllegalArgumentException.class, writerFailure.get());
-                    case "null"->assertInstanceOf(NullPointerException.class,writerFailure.get());
-                    case "sql" ->
-                            assertEquals(
-                                    "23514",
-                                    SubobjectMigrationPostgresTest.state(writerFailure.get()));
-                }
-                assertEquals(original,f.read(List.of(original)).get(original.key()));
-            }
+    @Test
+    void caughtFailurePoisons() throws Exception {
+        for (String type : List.of("divergence", "duplicate", "null", "sql")) {
+            verifyCaughtFailurePoisonsCase(type);
         }
     }
-    @Test void publicationClosure() throws Exception {
+
+    private void verifyCaughtFailurePoisonsCase(String type) throws Exception {
+        try (var f = new SubobjectPostgresFixture(PG, "caught-" + type)) {
+            var original = header(UUID.randomUUID(), 1, false);
+            f.insert(List.of(original));
+            f.installWitnesses();
+            if (type.equals("sql")) {
+                installSqlRejectionTrigger(f);
+            }
+            var values = eight(UUID.randomUUID());
+            var id = f.seed(values);
+            var caught = new AtomicBoolean();
+            var writerFailure = new AtomicReference<RuntimeException>();
+            var engine =
+                    f.engine(
+                            custom(
+                                    f,
+                                    c ->
+                                            runCaughtFailureAction(
+                                                    new CaughtFailureRun(
+                                                            f,
+                                                            type,
+                                                            original,
+                                                            values,
+                                                            caught,
+                                                            writerFailure),
+                                                    c),
+                                    () -> f.store.requireStored(values)));
+            rolledBack(f, id, engine.execute(f.acquire(engine, id)), 1);
+            assertTrue(caught.get());
+            assertCaughtFailureType(type, writerFailure.get());
+            assertEquals(original, f.read(List.of(original)).get(original.key()));
+        }
+    }
+
+    private static void installSqlRejectionTrigger(SubobjectPostgresFixture f) {
+        f.oracle.execute(
+                "create function fixture_fail() returns trigger language plpgsql as $$"
+                        + " begin raise exception 'fixture SQL rejection' using errcode='23514';end $$");
+        f.oracle.execute(
+                "create trigger fixture_fail before insert on read_subobject_version"
+                        + " for each row execute function fixture_fail()");
+    }
+
+    private record CaughtFailureRun(
+            SubobjectPostgresFixture f,
+            String type,
+            SubobjectVersion original,
+            List<SubobjectVersion> values,
+            AtomicBoolean caught,
+            AtomicReference<RuntimeException> writerFailure) {}
+
+    private static void runCaughtFailureAction(CaughtFailureRun run, SlotCompletion completion) {
+        if (!run.type().equals("sql")) {
+            run.f().store.insertOrVerifyAll(run.values());
+        }
+        try {
+            switch (run.type()) {
+                case "divergence" ->
+                        run.f()
+                                .store
+                                .insertOrVerifyAll(
+                                        List.of(header(run.original().key().potId(), 1, true)));
+                case "duplicate" ->
+                        run.f()
+                                .store
+                                .insertOrVerifyAll(
+                                        List.of(run.values().getFirst(), run.values().getFirst()));
+                case "null" -> run.f().store.insertOrVerifyAll(null);
+                case "sql" -> run.f().store.insertOrVerifyAll(run.values());
+            }
+        } catch (RuntimeException intercepted) {
+            run.caught().set(true);
+            run.writerFailure().set(intercepted);
+            run.f().trace.add("caught writer=" + intercepted.getClass());
+        }
+        ignoreRuntime(() -> completion.complete());
+        ignoreRuntime(() -> SpringAttemptTransactions.closePublication(run.f().source));
+    }
+
+    private static void assertCaughtFailureType(String type, RuntimeException failure) {
+        switch (type) {
+            case "divergence" -> assertInstanceOf(SubobjectConflictException.class, failure);
+            case "duplicate" -> assertInstanceOf(IllegalArgumentException.class, failure);
+            case "null" -> assertInstanceOf(NullPointerException.class, failure);
+            case "sql" ->
+                    assertEquals("23514", SubobjectMigrationPostgresTest.state(failure));
+        }
+    }
+
+    private static void ignoreRuntime(Runnable action) {
+        try {
+            action.run();
+        } catch (RuntimeException ignored) {
+        }
+    }
+
+    @Test
+    void publicationClosure() throws Exception {
         for (String variant :
                 List.of(
                         "early",
@@ -367,71 +431,101 @@ class SubobjectAtomicityPostgresTest {
                         "doubleComplete",
                         "missingComplete",
                         "foreignThread")) {
-            try(var f=new SubobjectPostgresFixture(PG,"publication-"+variant)) {
-                f.installWitnesses();var values=eight(UUID.randomUUID());var id=f.seed(values);var inserted=new AtomicBoolean();var ready=new AtomicBoolean();
-                var engine =
-                        f.engine(
-                                custom(
-                                        f,
-                                        c -> {
-                                            f.store.insertOrVerifyAll(values);
-                                            inserted.set(true);
-                                            if (variant.equals("early"))
-                                                SpringAttemptTransactions.closePublication(
-                                                        f.source);
-                                            if (variant.equals("foreignThread")) {
-                                                try {
-                                                    get(
-                                                            f.threads.submit(
-                                                                    () -> {
-                                                                        c.complete();
-                                                                        return null;
-                                                                    }));
-                                                } catch (Exception intercepted) {
-                                                    f.trace.add(
-                                                            "foreign completion refused="
-                                                                    + intercepted.getClass());
-                                                }
-                                            } else if (!variant.equals("missingComplete")) {
-                                                try {
-                                                    c.complete();
-                                                } catch (RuntimeException intercepted) {
-                                                }
-                                            }
-                                            if (variant.equals("doubleComplete"))
-                                                try {
-                                                    c.complete();
-                                                } catch (RuntimeException intercepted) {
-                                                }
-                                            if (!variant.equals("early")
-                                                    && !variant.equals("missing"))
-                                                try {
-                                                    SpringAttemptTransactions.closePublication(
-                                                            f.source);
-                                                } catch (RuntimeException intercepted) {
-                                                }
-                                            if (variant.equals("lateWriter"))
-                                                try {
-                                                    f.store.insertOrVerifyAll(List.of());
-                                                } catch (RuntimeException intercepted) {
-                                                }
-                                        },
-                                        () -> {
-                                            f.store.requireStored(values);
-                                            ready.set(true);
-                                        }));
-                rolledBack(f,id,engine.execute(f.acquire(engine,id)),0);
-                assertTrue(inserted.get());
-                assertEquals(
-                        Set.of("missing", "lateWriter", "doubleComplete").contains(variant),
-                        ready.get());
-            }
+            verifyPublicationClosureVariant(variant);
         }
-        try(var f=new SubobjectPostgresFixture(PG,"expiredCompletion")) {
-            f.installWitnesses();var id=f.seed(eight(UUID.randomUUID()));var captured=new AtomicReference<SlotCompletion>();
-            var engine=f.engine(f.participant((point,key,c)->{if(point==Point.AFTER_DELETE)captured.set(c);}));
-            assertEquals(ConsumptionProtocol.Status.COMMITTED,engine.execute(f.acquire(engine,id)).status());
-            assertThrows(IllegalStateException.class,()->captured.get().complete());assertEquals(8,f.count());assertEquals(0,f.slotCount(id));
+        try (var f = new SubobjectPostgresFixture(PG, "expiredCompletion")) {
+            f.installWitnesses();
+            var id = f.seed(eight(UUID.randomUUID()));
+            var captured = new AtomicReference<SlotCompletion>();
+            var engine =
+                    f.engine(
+                            f.participant(
+                                    (point, key, c) -> {
+                                        if (point == Point.AFTER_DELETE) {
+                                            captured.set(c);
+                                        }
+                                    }));
+            assertEquals(
+                    ConsumptionProtocol.Status.COMMITTED,
+                    engine.execute(f.acquire(engine, id)).status());
+            assertAll(
+                    () ->
+                            assertThrows(
+                                    IllegalStateException.class, () -> captured.get().complete()),
+                    () -> assertEquals(8, f.count()),
+                    () -> assertEquals(0, f.slotCount(id)));
+        }
+    }
+
+    private void verifyPublicationClosureVariant(String variant) throws Exception {
+        try (var f = new SubobjectPostgresFixture(PG, "publication-" + variant)) {
+            f.installWitnesses();
+            var values = eight(UUID.randomUUID());
+            var id = f.seed(values);
+            var inserted = new AtomicBoolean();
+            var ready = new AtomicBoolean();
+            var engine =
+                    f.engine(
+                            custom(
+                                    f,
+                                    c ->
+                                            runPublicationVariant(
+                                                    new PublicationVariantRun(
+                                                            f, variant, values, inserted),
+                                                    c),
+                                    () -> {
+                                        f.store.requireStored(values);
+                                        ready.set(true);
+                                    }));
+            rolledBack(f, id, engine.execute(f.acquire(engine, id)), 0);
+            assertTrue(inserted.get());
+            assertEquals(
+                    Set.of("missing", "lateWriter", "doubleComplete").contains(variant),
+                    ready.get());
+        }
+    }
+
+    private record PublicationVariantRun(
+            SubobjectPostgresFixture f,
+            String variant,
+            List<SubobjectVersion> values,
+            AtomicBoolean inserted) {}
+
+    private void runPublicationVariant(PublicationVariantRun run, SlotCompletion completion) {
+        var f = run.f();
+        var variant = run.variant();
+        f.store.insertOrVerifyAll(run.values());
+        run.inserted().set(true);
+        if (variant.equals("early")) {
+            SpringAttemptTransactions.closePublication(f.source);
+        }
+        if (variant.equals("foreignThread")) {
+            completeOnForeignThread(f, completion);
+        } else if (!variant.equals("missingComplete")) {
+            ignoreRuntime(() -> completion.complete());
+        }
+        if (variant.equals("doubleComplete")) {
+            ignoreRuntime(() -> completion.complete());
+        }
+        if (!variant.equals("early") && !variant.equals("missing")) {
+            ignoreRuntime(() -> SpringAttemptTransactions.closePublication(f.source));
+        }
+        if (variant.equals("lateWriter")) {
+            ignoreRuntime(() -> f.store.insertOrVerifyAll(List.of()));
+        }
+    }
+
+    private void completeOnForeignThread(
+            SubobjectPostgresFixture f, SlotCompletion completion) {
+        try {
+            get(
+                    f.threads.submit(
+                            () -> {
+                                completion.complete();
+                                return null;
+                            }));
+        } catch (Exception intercepted) {
+            f.trace.add("foreign completion refused=" + intercepted.getClass());
         }
     }
     @Test void deferredCommitRejection() throws Exception {
@@ -616,81 +710,123 @@ class SubobjectAtomicityPostgresTest {
             }
         }
     }
-    @Test void lostCommitAck() throws Exception {
-        for(var fault:List.of(CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,CommitAcknowledgementProxy.Fault.AFTER_COMMIT))
-            for(boolean unavailable:List.of(false,true)) {
-                try(var f=new SubobjectPostgresFixture(PG,"ack-"+fault+"-unavailable-"+unavailable);
-                    var proxy=new CommitAcknowledgementProxy(PG.getHost(),PG.getMappedPort(5432))) {
-                    f.installWitnesses();var values=eight(UUID.randomUUID());var id=f.seed(values);
-                    var ds =
-                            new DriverManagerDataSource(
-                                    "jdbc:postgresql://127.0.0.1:"
-                                            + proxy.localPort()
-                                            + "/"
-                                            + PG.getDatabaseName()
-                                            + "?sslmode=disable&gssEncMode=disable&preferQueryMode=simple&socketTimeout=5&currentSchema="
-                                            + f.schema,
-                                    f.runtimeRole,
-                                    "i1-fixture");
-                    var tx=owner(ds);var storage=new JdbcSubobjectVersionStore(ds,tx);var witness=new AtomicReference<Map<String,Object>>();
-                    var participant =
-                            f.participant(
-                                    ds,
-                                    storage,
-                                    (point, key, c) -> {
-                                        if (point == Point.AFTER_CLOSE) {
-                                            witness.set(f.witness(ds, "armed " + fault));
-                                            proxy.arm(fault);
-                                        }
-                                    },
-                                    unavailable);
-                    var engine =
-                            new ConsumptionEngine(
-                                    f.definition,
-                                    tx,
-                                    new JdbcConsumptionSlotStore(ds),
-                                    participant,
-                                    f.tx,
-                                    Optional.of(f.references()),
-                                    r -> true,
-                                    new JdbcDiscoveryAdmissionStore(ds, discoverySettings()),
-                                    tx,
-                                    new JdbcConsumptionSlotStore(ds),
-                                    new JdbcPartitionOwnershipStore(ds),
-                                    f.settings,
-                                    f.capacity,
-                                    failure -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
-                                    null,
-                                    ConsumptionObservation.noop());
-                    var attempt=engine.execute(f.acquire(engine,id));
-                    assertEquals(1,proxy.interceptedCount());assertEquals(fault==CommitAcknowledgementProxy.Fault.AFTER_COMMIT ? 1 : 0,proxy.committedReplyCount());
-                    assertEquals(AttemptTransactions.Resolution.UNKNOWN,attempt.resolution());assertNull(attempt.cession());assertNull(attempt.cessionResolution());
-                    assertEquals(1,f.capacity.snapshot().worker());
-                    boolean committed=fault==CommitAcknowledgementProxy.Fault.AFTER_COMMIT;
-                    assertEquals(unavailable ? RecoveryObservation.UNAVAILABLE : committed ? RecoveryObservation.COMPLETED : RecoveryObservation.NOT_COMPLETED,attempt.observation());
-                    assertEquals(committed && !unavailable ? ConsumptionProtocol.Status.COMMITTED : ConsumptionProtocol.Status.RECOVERY_PENDING,attempt.status());
-                    assertEquals(committed ? 8 : 0,f.count());assertEquals(committed ? 0 : 1,f.slotCount(id));
-                    if (committed) f.assertWitnesses(witness.get(), 8, 1);
-                    else
-                        assertEquals(
-                                0,
-                                f.oracle.queryForObject(
-                                        "select count(*) from fixture_witness", Integer.class));
-                    f.trace.add(
-                            "wire fault="
-                                    + fault
-                                    + " intercepted="
-                                    + proxy.interceptedCount()
-                                    + " server COMMIT replies="
-                                    + proxy.committedReplyCount()
-                                    + " attempt="
-                                    + attempt
-                                    + " capacity="
-                                    + f.capacity.snapshot()
-                                    + " snapshot="
-                                    + f.snapshot(id));
-                }
+    @Test
+    void lostCommitAck() throws Exception {
+        for (var fault :
+                List.of(
+                        CommitAcknowledgementProxy.Fault.BEFORE_COMMIT,
+                        CommitAcknowledgementProxy.Fault.AFTER_COMMIT)) {
+            for (boolean unavailable : List.of(false, true)) {
+                verifyLostCommitAckCase(fault, unavailable);
             }
+        }
+    }
+
+    private void verifyLostCommitAckCase(
+            CommitAcknowledgementProxy.Fault fault, boolean unavailable) throws Exception {
+        try (var f =
+                        new SubobjectPostgresFixture(
+                                PG, "ack-" + fault + "-unavailable-" + unavailable);
+                var proxy = new CommitAcknowledgementProxy(PG.getHost(), PG.getMappedPort(5432))) {
+            f.installWitnesses();
+            var values = eight(UUID.randomUUID());
+            var id = f.seed(values);
+            var ds =
+                    new DriverManagerDataSource(
+                            "jdbc:postgresql://127.0.0.1:"
+                                    + proxy.localPort()
+                                    + "/"
+                                    + PG.getDatabaseName()
+                                    + "?sslmode=disable&gssEncMode=disable&preferQueryMode=simple&socketTimeout=5&currentSchema="
+                                    + f.schema,
+                            f.runtimeRole,
+                            "i1-fixture");
+            var tx = owner(ds);
+            var storage = new JdbcSubobjectVersionStore(ds, tx);
+            var witness = new AtomicReference<Map<String, Object>>();
+            var participant =
+                    f.participant(
+                            ds,
+                            storage,
+                            (point, key, c) -> {
+                                if (point == Point.AFTER_CLOSE) {
+                                    witness.set(f.witness(ds, "armed " + fault));
+                                    proxy.arm(fault);
+                                }
+                            },
+                            unavailable);
+            var engine =
+                    new ConsumptionEngine(
+                            f.definition,
+                            tx,
+                            new JdbcConsumptionSlotStore(ds),
+                            participant,
+                            f.tx,
+                            Optional.of(f.references()),
+                            r -> true,
+                            new JdbcDiscoveryAdmissionStore(ds, discoverySettings()),
+                            tx,
+                            new JdbcConsumptionSlotStore(ds),
+                            new JdbcPartitionOwnershipStore(ds),
+                            f.settings,
+                            f.capacity,
+                            failure -> AttemptFailureClassifier.FailureKind.NON_COUNTABLE,
+                            null,
+                            ConsumptionObservation.noop());
+            var attempt = engine.execute(f.acquire(engine, id));
+            assertLostCommitAckOutcome(f, proxy, id, fault, unavailable, witness.get(), attempt);
+        }
+    }
+
+    private static void assertLostCommitAckOutcome(
+            SubobjectPostgresFixture f,
+            CommitAcknowledgementProxy proxy,
+            UUID id,
+            CommitAcknowledgementProxy.Fault fault,
+            boolean unavailable,
+            Map<String, Object> witness,
+            ConsumptionProtocol.Attempt attempt) {
+        boolean committed = fault == CommitAcknowledgementProxy.Fault.AFTER_COMMIT;
+        var expectedObservation =
+                unavailable
+                        ? RecoveryObservation.UNAVAILABLE
+                        : committed
+                                ? RecoveryObservation.COMPLETED
+                                : RecoveryObservation.NOT_COMPLETED;
+        var expectedStatus =
+                committed && !unavailable
+                        ? ConsumptionProtocol.Status.COMMITTED
+                        : ConsumptionProtocol.Status.RECOVERY_PENDING;
+        assertAll(
+                () -> assertEquals(1, proxy.interceptedCount()),
+                () -> assertEquals(committed ? 1 : 0, proxy.committedReplyCount()),
+                () -> assertEquals(AttemptTransactions.Resolution.UNKNOWN, attempt.resolution()),
+                () -> assertNull(attempt.cession()),
+                () -> assertNull(attempt.cessionResolution()),
+                () -> assertEquals(1, f.capacity.snapshot().worker()),
+                () -> assertEquals(expectedObservation, attempt.observation()),
+                () -> assertEquals(expectedStatus, attempt.status()),
+                () -> assertEquals(committed ? 8 : 0, f.count()),
+                () -> assertEquals(committed ? 0 : 1, f.slotCount(id)));
+        if (committed) {
+            f.assertWitnesses(witness, 8, 1);
+        } else {
+            assertEquals(
+                    0, f.oracle.queryForObject("select count(*) from fixture_witness", Integer.class));
+        }
+        f.trace.add(
+                "wire fault="
+                        + fault
+                        + " intercepted="
+                        + proxy.interceptedCount()
+                        + " server COMMIT replies="
+                        + proxy.committedReplyCount()
+                        + " attempt="
+                        + attempt
+                        + " capacity="
+                        + f.capacity.snapshot()
+                        + " snapshot="
+                        + f.snapshot(id));
     }
 
     private static com.kartaguez.pocoma.contract.consumption.participation.ConsumptionParticipant.EffectEvidence

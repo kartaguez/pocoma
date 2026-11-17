@@ -71,18 +71,7 @@ def get_current_versions():
     return pots
 
 
-def advance_one_expense(token, binding_token, pot_id, current_v, sh_ids):
-    exp_body = json.dumps({
-        "operation": "CreateExpense", "potId": pot_id, "observedVersion": current_v,
-        "bindingToken": binding_token,
-        "payload": {
-            "id": str(uuid.uuid4()), "label": f"adv-{current_v}", "date": "2026-11-08",
-            "amount": {"numerator": "100", "denominator": "1"},
-            "payerId": sh_ids[0], "participants": [{"id": sid, "weight": None} for sid in sh_ids]
-        }
-    }).encode()
-
-    req_id = None
+def _admit_expense_command(token, pot_id, current_v, exp_body):
     for attempt in range(25):
         try:
             req_cmd = urllib.request.Request(
@@ -95,87 +84,108 @@ def advance_one_expense(token, binding_token, pot_id, current_v, sh_ids):
             )
             with urllib.request.urlopen(req_cmd, timeout=10) as resp:
                 if resp.status == 202:
-                    req_id = json.loads(resp.read().decode())["requestId"]
-                    break
+                    return json.loads(resp.read().decode())["requestId"]
         except urllib.error.HTTPError as e:
             if e.code in (503, 409) and attempt < 24:
                 time.sleep(0.02 * (1 + attempt))
                 continue
             raise
+    raise RuntimeError("Failed to admit command")
 
-    if not req_id:
-        raise RuntimeError("Failed to admit command")
 
+def _poll_expense_once(token, req_id):
+    try:
+        req_res = urllib.request.Request(
+            f"{BASE_URL}/api/v3/commands/{req_id}/result",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        with urllib.request.urlopen(req_res, timeout=5) as resp:
+            if resp.status != 200:
+                return None
+            d = json.loads(resp.read().decode())
+            if d.get("outcome") in ("COMPLETED", "CHANGED"):
+                return d["resultingPotVersion"]
+            if d.get("rejection"):
+                raise RuntimeError(f"Command rejected: {d}")
+    except urllib.error.HTTPError:
+        return None
+    return None
+
+
+def _await_expense_result(token, req_id):
     t0 = time.time()
     while time.time() - t0 < 30.0:
-        try:
-            req_res = urllib.request.Request(
-                f"{BASE_URL}/api/v3/commands/{req_id}/result",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            with urllib.request.urlopen(req_res, timeout=5) as resp:
-                if resp.status == 200:
-                    d = json.loads(resp.read().decode())
-                    if d.get("outcome") in ("COMPLETED", "CHANGED"):
-                        return d["resultingPotVersion"]
-                    elif d.get("rejection"):
-                        raise RuntimeError(f"Command rejected: {d}")
-        except urllib.error.HTTPError as e:
-            if e.code != 404:
-                pass
+        version = _poll_expense_once(token, req_id)
+        if version is not None:
+            return version
         time.sleep(0.01)
     raise TimeoutError(f"Timeout on result {req_id}")
 
 
+def advance_one_expense(auth, pot_id, current_v, sh_ids):
+    token, binding_token = auth
+    exp_body = json.dumps({
+        "operation": "CreateExpense", "potId": pot_id, "observedVersion": current_v,
+        "bindingToken": binding_token,
+        "payload": {
+            "id": str(uuid.uuid4()), "label": f"adv-{current_v}", "date": "2026-11-08",
+            "amount": {"numerator": "100", "denominator": "1"},
+            "payerId": sh_ids[0], "participants": [{"id": sid, "weight": None} for sid in sh_ids]
+        }
+    }).encode()
+    req_id = _admit_expense_command(token, pot_id, current_v, exp_body)
+    return _await_expense_result(token, req_id)
+
+
+def _load_shareholders(pots):
+    sh_map = {}
+    for p in pots:
+        pid = p["potId"]
+        sh_sql = f"SELECT object_id FROM v3_write.v3_shareholder_identity WHERE pot_id = '{pid}' ORDER BY object_id;"
+        sh_map[pid] = [s.strip() for s in run_psql(sh_sql).split("\n") if s.strip()]
+    return sh_map
+
+
+def _advance_pending_pots(token_mgr, binding_token, sh_map):
+    while True:
+        pots = get_current_versions()
+        needed = [p for p in pots if p["version"] < TARGET_VERSION]
+        if not needed:
+            print(f"\nAll {len(pots)} pots have reached >= v{TARGET_VERSION}!")
+            return
+        print(f"\n--- Advance Cycle: {len(needed)} pots still < v{TARGET_VERSION} ---")
+        for p in needed:
+            pid = p["potId"]
+            current_v = p["version"]
+            token = token_mgr.get_token()
+            try:
+                new_v = advance_one_expense((token, binding_token), pid, current_v, sh_map[pid])
+                print(f"  {pid[:8]}: v{current_v} -> v{new_v}")
+            except Exception as e:
+                print(f"  {pid[:8]}: error advancing from v{current_v}: {e}")
+                time.sleep(0.5)
+
+
 def main():
     token_mgr = OidcTokenManager()
-    token, binding_token = get_token_and_binding(token_mgr)
+    _, binding_token = get_token_and_binding(token_mgr)
 
     pots = get_current_versions()
     print(f"Found {len(pots)} pots with 20 shareholders:")
     for p in pots:
         print(f"  {p['potId'][:8]}: v={p['version']}")
 
-    # Pre-fetch shareholders for all pots
-    sh_map = {}
-    for p in pots:
-        pid = p["potId"]
-        sh_sql = f"SELECT object_id FROM v3_write.v3_shareholder_identity WHERE pot_id = '{pid}' ORDER BY object_id;"
-        sh_map[pid] = [s.strip() for s in run_psql(sh_sql).split("\n") if s.strip()]
-
-    # Main advance loop: loop through pots that need advancement until all >= TARGET_VERSION
-    while True:
-        pots = get_current_versions()
-        needed = [p for p in pots if p["version"] < TARGET_VERSION]
-        if not needed:
-            print(f"\nAll {len(pots)} pots have reached >= v{TARGET_VERSION}!")
-            break
-
-        print(f"\n--- Advance Cycle: {len(needed)} pots still < v{TARGET_VERSION} ---")
-        for p in needed:
-            pid = p["potId"]
-            current_v = p["version"]
-            # Refresh token if needed
-            token = token_mgr.get_token()
-            try:
-                new_v = advance_one_expense(token, binding_token, pid, current_v, sh_map[pid])
-                print(f"  {pid[:8]}: v{current_v} -> v{new_v}")
-            except Exception as e:
-                print(f"  {pid[:8]}: error advancing from v{current_v}: {e}")
-                time.sleep(0.5)
+    sh_map = _load_shareholders(pots)
+    _advance_pending_pots(token_mgr, binding_token, sh_map)
 
     # All qualified! Write fixture manifest
     final_pots = get_current_versions()
     qualified = [p for p in final_pots if p["version"] >= TARGET_VERSION]
 
-    manifest_pots = []
-    for p in qualified:
-        pid = p["potId"]
-        manifest_pots.append({
-            "potId": pid,
-            "shareholders": sh_map[pid],
-            "version": p["version"]
-        })
+    manifest_pots = [
+        {"potId": p["potId"], "shareholders": sh_map[p["potId"]], "version": p["version"]}
+        for p in qualified
+    ]
 
     MANIFEST_DIR.mkdir(parents=True, exist_ok=True)
     manifest_file = MANIFEST_DIR / "fixtures_manifest.json"

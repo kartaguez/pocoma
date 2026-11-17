@@ -24,10 +24,8 @@ public final class ReadNavigation {
 
     public ReadPotResult<List<UUID>> visible(
             ExternalIdentity eui, String token, UUID after, int limit, RecoveryReadContext c) {
-        if (eui == null
-                || token == null
-                || token.isBlank()
-                || !limits.validPage(limit)) return new InvalidInput<>();
+        if (eui == null || token == null) return new InvalidInput<>();
+        if (token.isBlank() || !limits.validPage(limit)) return new InvalidInput<>();
         var user = pot.user(eui, token, c);
         if (user.isEmpty()) return new NotFound<>();
         var values = visibility.visiblePots(user.get(), after, limit, c);

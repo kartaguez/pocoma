@@ -114,60 +114,81 @@ public final class MicrometerConsumptionObservation implements ConsumptionObserv
     }
 
     public void bind(WorkerView worker) {
-        for (var state : WorkerView.State.values())
+        bindWorkerStates(worker);
+        for (var authority : ConsumptionDefinition.Authority.values()) {
+            bindAuthorityMetrics(worker, authority);
+        }
+    }
+
+    private void bindWorkerStates(WorkerView worker) {
+        for (var state : WorkerView.State.values()) {
             Gauge.builder(
                             "pocoma.v3.worker.state",
                             worker,
                             w -> w.snapshot().state() == state ? 1 : 0)
                     .tag("state", state.name().toLowerCase(Locale.ROOT))
                     .tags(scope)
-                .register(registry);
-        for (var authority : ConsumptionDefinition.Authority.values()) {
-            String a = authority.name().toLowerCase(Locale.ROOT);
-            Gauge.builder(
-                            "pocoma.v3.lease.local",
-                            worker,
-                            w -> w.localLeases().getOrDefault(authority, 0L))
-                    .tag("authority", a)
-                    .tags(scope)
-                .register(registry);
-            registry.counter(
-                    "pocoma.v3.takeover.observed",
-                    scope.and("authority", a)); // No transition inferred from acquisition.
-            for (String kind : List.of("lease", "claim"))
-                DistributionSummary.builder("pocoma.v3.renewal.margin")
-                        .baseUnit("seconds")
-                        .tags("authority", a, "kind", kind)
-                        .tags(scope)
-                .register(registry);
-            // No runtime margin samples: these ports do not return a coherent DB clock. The SQL
-            // certification observer measures them independently, never from the JVM wall clock.
-            for (int lane = 0; lane < 3; lane++)
-                for (boolean unknown : List.of(false, true)) {
-                    int selected = lane;
-                    Gauge.builder(
-                                    "pocoma.v3.renewal.inflight",
-                                    worker,
-                                    w ->
-                                            w.renewalSnapshot().stream()
-                                                    .filter(
-                                                            c ->
-                                                                    c.authority() == authority
-                                                                            && c.lane() == selected
-                                                                            && c.unknown()
-                                                                                    == unknown)
-                                                    .count())
-                            .tags(
-                                    "authority",
-                                    a,
-                                    "lane",
-                                    Integer.toString(lane),
-                                    "kind",
-                                    unknown ? "unknown" : "active")
-                            .tags(scope)
-                .register(registry);
-                }
+                    .register(registry);
         }
+    }
+
+    private void bindAuthorityMetrics(
+            WorkerView worker, ConsumptionDefinition.Authority authority) {
+        String authorityTag = authority.name().toLowerCase(Locale.ROOT);
+        Gauge.builder(
+                        "pocoma.v3.lease.local",
+                        worker,
+                        w -> w.localLeases().getOrDefault(authority, 0L))
+                .tag("authority", authorityTag)
+                .tags(scope)
+                .register(registry);
+        registry.counter(
+                "pocoma.v3.takeover.observed",
+                scope.and("authority", authorityTag)); // No transition inferred from acquisition.
+        for (String kind : List.of("lease", "claim")) {
+            DistributionSummary.builder("pocoma.v3.renewal.margin")
+                    .baseUnit("seconds")
+                    .tags("authority", authorityTag, "kind", kind)
+                    .tags(scope)
+                    .register(registry);
+        }
+        // No runtime margin samples: these ports do not return a coherent DB clock. The SQL
+        // certification observer measures them independently, never from the JVM wall clock.
+        for (int lane = 0; lane < 3; lane++) {
+            bindInflightRenewalLane(worker, authority, authorityTag, lane);
+        }
+    }
+
+    private void bindInflightRenewalLane(
+            WorkerView worker,
+            ConsumptionDefinition.Authority authority,
+            String authorityTag,
+            int lane) {
+        for (boolean unknown : List.of(false, true)) {
+            Gauge.builder(
+                            "pocoma.v3.renewal.inflight",
+                            worker,
+                            w -> countInflightRenewals(w, authority, lane, unknown))
+                    .tags(
+                            "authority",
+                            authorityTag,
+                            "lane",
+                            Integer.toString(lane),
+                            "kind",
+                            unknown ? "unknown" : "active")
+                    .tags(scope)
+                    .register(registry);
+        }
+    }
+
+    private static long countInflightRenewals(
+            WorkerView worker,
+            ConsumptionDefinition.Authority authority,
+            int lane,
+            boolean unknown) {
+        return worker.renewalSnapshot().stream()
+                .filter(c -> c.authority() == authority && c.lane() == lane && c.unknown() == unknown)
+                .count();
     }
 
     private void count(String metric, long amount, Tags tags) {

@@ -91,50 +91,66 @@ public class HttpSecurityConfiguration {
         var conversion = MappedJwtClaimSetConverter.withDefaults(Map.of());
         decoder.setClaimSetConverter(
                 raw -> {
-                    // The default converter synthesizes iat from exp. V3 requires attested claims.
-                    if (!(raw.get("iss") instanceof String issuer)
-                            || issuer.isBlank()
-                            || !(raw.get("sub") instanceof String subject)
-                            || subject.isBlank()
-                            || raw.get("iat") == null
-                            || raw.get("exp") == null
-                            || !(raw.get("auth_time") instanceof Number auth))
-                        throw new BadJwtException("Incomplete authenticated claims");
-                    try {
-                        if (new java.math.BigDecimal(auth.toString()).longValueExact() < 0)
-                            throw new ArithmeticException("negative auth_time");
-                    } catch (ArithmeticException invalid) {
-                        throw new BadJwtException("Invalid authenticated claims");
-                    }
+                    requireAttestedClaims(raw);
                     return conversion.convert(raw);
                 });
+        String expectedAudience = env.getRequiredProperty("pocoma.v3.http.audience");
         OAuth2TokenValidator<Jwt> claims =
-                jwt -> {
-                    boolean valid =
-                            jwt.getSubject() != null
-                                    && !jwt.getSubject().isBlank()
-                                    && jwt.getAudience() != null
-                                    && jwt.getAudience()
-                                            .contains(
-                                                    env.getRequiredProperty(
-                                                            "pocoma.v3.http.audience"))
-                                    && jwt.getIssuedAt() != null
-                                    && jwt.getExpiresAt() != null;
-                    try {
-                        principal(jwt);
-                    } catch (RuntimeException invalid) {
-                        valid = false;
-                    }
-                    return valid
-                            ? OAuth2TokenValidatorResult.success()
-                            : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
-                };
+                jwt -> validateJwtClaims(jwt, expectedAudience);
         decoder.setJwtValidator(
                 new DelegatingOAuth2TokenValidator<>(
                         new JwtTimestampValidator(Duration.ZERO),
                         new JwtIssuerValidator(env.getRequiredProperty("pocoma.v3.http.issuer")),
                         claims));
         return decoder;
+    }
+
+    private static void requireAttestedClaims(Map<String, Object> raw) {
+        // The default converter synthesizes iat from exp. V3 requires attested claims.
+        requireNonBlankClaim(raw, "iss");
+        requireNonBlankClaim(raw, "sub");
+        if (raw.get("iat") == null || raw.get("exp") == null) {
+            throw new BadJwtException("Incomplete authenticated claims");
+        }
+        requireValidAuthTime(raw.get("auth_time"));
+    }
+
+    private static void requireNonBlankClaim(Map<String, Object> raw, String name) {
+        if (!(raw.get(name) instanceof String val) || val.isBlank()) {
+            throw new BadJwtException("Incomplete authenticated claims");
+        }
+    }
+
+    private static void requireValidAuthTime(Object authClaim) {
+        if (!(authClaim instanceof Number auth)) {
+            throw new BadJwtException("Incomplete authenticated claims");
+        }
+        try {
+            if (new java.math.BigDecimal(auth.toString()).longValueExact() < 0) {
+                throw new ArithmeticException("negative auth_time");
+            }
+        } catch (ArithmeticException invalid) {
+            throw new BadJwtException("Invalid authenticated claims");
+        }
+    }
+
+    private static OAuth2TokenValidatorResult validateJwtClaims(
+            Jwt jwt, String expectedAudience) {
+        if (jwt.getSubject() == null || jwt.getSubject().isBlank()) {
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
+        }
+        if (jwt.getAudience() == null || !jwt.getAudience().contains(expectedAudience)) {
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
+        }
+        if (jwt.getIssuedAt() == null || jwt.getExpiresAt() == null) {
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
+        }
+        try {
+            principal(jwt);
+            return OAuth2TokenValidatorResult.success();
+        } catch (RuntimeException invalid) {
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token"));
+        }
     }
 
     @Bean
@@ -199,20 +215,14 @@ public class HttpSecurityConfiguration {
     }
 
     public static AuthenticatedExternalPrincipal principal(Jwt jwt) {
-        Object claim = jwt.getClaim("auth_time");
-        Instant auth =
-                claim instanceof Instant i
-                        ? i
-                        : claim instanceof Number n ? Instant.ofEpochSecond(n.longValue()) : null;
-        if (jwt.getIssuer() == null
-                || jwt.getSubject() == null
-                || jwt.getSubject().isBlank()
-                || auth == null
-                || jwt.getIssuedAt() == null
-                || jwt.getExpiresAt() == null
-                || auth.isAfter(jwt.getIssuedAt())
-                || !jwt.getIssuedAt().isBefore(jwt.getExpiresAt()))
+        Instant auth = extractAuthTime(jwt);
+        if (jwt.getIssuer() == null || auth == null) {
             throw new IllegalArgumentException("incomplete authenticated claims");
+        }
+        if (jwt.getSubject() == null || jwt.getSubject().isBlank()) {
+            throw new IllegalArgumentException("incomplete authenticated claims");
+        }
+        requireValidTemporalBounds(jwt, auth);
         return new AuthenticatedExternalPrincipal(
                 jwt.getIssuer().toString(),
                 jwt.getSubject(),
@@ -220,5 +230,21 @@ public class HttpSecurityConfiguration {
                 jwt.getIssuedAt(),
                 jwt.getExpiresAt(),
                 Set.of());
+    }
+
+    private static void requireValidTemporalBounds(Jwt jwt, Instant auth) {
+        if (jwt.getIssuedAt() == null || jwt.getExpiresAt() == null) {
+            throw new IllegalArgumentException("incomplete authenticated claims");
+        }
+        if (auth.isAfter(jwt.getIssuedAt()) || !jwt.getIssuedAt().isBefore(jwt.getExpiresAt())) {
+            throw new IllegalArgumentException("incomplete authenticated claims");
+        }
+    }
+
+    private static Instant extractAuthTime(Jwt jwt) {
+        Object claim = jwt.getClaim("auth_time");
+        if (claim instanceof Instant i) return i;
+        if (claim instanceof Number n) return Instant.ofEpochSecond(n.longValue());
+        return null;
     }
 }

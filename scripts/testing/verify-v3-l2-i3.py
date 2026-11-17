@@ -35,20 +35,54 @@ def require_methods(cases, required):
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def _check_requirement(app, requirement, started):
+    path = app / requirement["path"]
+    if not path.is_file() or path.stat().st_mtime < started - 1:
+        return ["Missing/stale physical evidence: " + str(path)]
+    content = path.read_text()
+    return ["Missing subvariant " + needle + " in " + str(path)
+            for needle in requirement["contains"] if needle not in content]
+
+
 def require_physical(app, requirements, groups, started):
     problems = []
     for requirement in requirements:
-        if requirement["group"] not in groups:
-            continue
-        path = app / requirement["path"]
-        if not path.is_file() or path.stat().st_mtime < started - 1:
-            problems.append("Missing/stale physical evidence: " + str(path))
-        else:
-            content = path.read_text()
-            for needle in requirement["contains"]:
-                if needle not in content:
-                    problems.append("Missing subvariant " + needle + " in " + str(path))
+        if requirement["group"] in groups:
+            problems.extend(_check_requirement(app, requirement, started))
     return problems
+
+
+def _collect_surefire_xml(destination, started):
+    cases, files = [], []
+    for xml in sorted((ROOT / "app").glob("*/target/surefire-reports/TEST-*.xml")):
+        if xml.stat().st_mtime < started - 1:
+            continue
+        cases.extend(qualified_cases(xml))
+        target = destination / "xml" / xml.parent.parent.parent.name / xml.name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(xml, target)
+        files.append({"path": str(target.relative_to(destination)), "sha256": digest(target)})
+    return cases, files
+
+
+def _collect_physical_evidence(destination, started):
+    files = []
+    evidence_dirs = ("v3-i3-evidence", "v3-i2-evidence", "v3-pot-evidence", "v3-foundation-evidence", "v3-consumption-evidence")
+    for module in (ROOT / "app").iterdir():
+        if not module.is_dir():
+            continue
+        for directory in evidence_dirs:
+            folder = module / "target" / directory
+            if not folder.is_dir():
+                continue
+            for source in folder.rglob("*"):
+                if source.is_file() and source.stat().st_mtime >= started - 1:
+                    target = destination / "physical" / module.name / directory / source.relative_to(folder)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, target)
+                    files.append({"path": str(target.relative_to(destination)), "sha256": digest(target)})
+    return files
+
 
 def run_gate(gate, destination):
     destination.mkdir(parents=True, exist_ok=False)
@@ -62,28 +96,8 @@ def run_gate(gate, destination):
     logfile = destination / "maven.log"
     with logfile.open("w") as output:
         exit_code = subprocess.run(command, cwd=ROOT / "app", stdout=output, stderr=subprocess.STDOUT).returncode
-    cases, files = [], []
-    for xml in sorted((ROOT / "app").glob("*/target/surefire-reports/TEST-*.xml")):
-        if xml.stat().st_mtime < started - 1:
-            continue
-        cases.extend(qualified_cases(xml))
-        target = destination / "xml" / xml.parent.parent.parent.name / xml.name
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(xml, target)
-        files.append({"path": str(target.relative_to(destination)), "sha256": digest(target)})
-    for module in (ROOT / "app").iterdir():
-        if not module.is_dir():
-            continue
-        for directory in ("v3-i3-evidence", "v3-i2-evidence", "v3-pot-evidence", "v3-foundation-evidence", "v3-consumption-evidence"):
-            folder = module / "target" / directory
-            if not folder.is_dir():
-                continue
-            for source in folder.rglob("*"):
-                if source.is_file() and source.stat().st_mtime >= started - 1:
-                    target = destination / "physical" / module.name / directory / source.relative_to(folder)
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(source, target)
-                    files.append({"path": str(target.relative_to(destination)), "sha256": digest(target)})
+    cases, files = _collect_surefire_xml(destination, started)
+    files.extend(_collect_physical_evidence(destination, started))
     groups = manifest["gate_groups"][gate]
     required = {}
     for group in groups:

@@ -25,6 +25,17 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _validate_fixture(entry, seen):
+    pot = str(uuid.UUID(entry["potId"]))
+    version, expenses = entry["version"], entry["expenses"]
+    members = tuple(str(uuid.UUID(value)) for value in entry["shareholders"])
+    valid_meta = type(version) is int and version >= 1 and type(expenses) is int and expenses == 200
+    valid_members = len(members) == 20 and len(set(members)) == 20
+    if pot in seen or not valid_meta or not valid_members:
+        raise ValueError(f"invalid or duplicate medium Pot fixture: {pot}")
+    return pot, version, members
+
+
 def parse_fixtures(raw):
     data = json.loads(raw)
     if not isinstance(data, list) or len(data) != POPULATION:
@@ -32,14 +43,9 @@ def parse_fixtures(raw):
     fixtures = []
     seen = set()
     for entry in data:
-        pot = str(uuid.UUID(entry["potId"]))
-        version, expenses = entry["version"], entry["expenses"]
-        members = tuple(str(uuid.UUID(value)) for value in entry["shareholders"])
-        if (pot in seen or type(version) is not int or version < 1 or type(expenses) is not int or expenses != 200
-                or len(members) != 20 or len(set(members)) != 20):
-            raise ValueError(f"invalid or duplicate medium Pot fixture: {pot}")
-        seen.add(pot)
-        fixtures.append((pot, version, members))
+        fixture = _validate_fixture(entry, seen)
+        seen.add(fixture[0])
+        fixtures.append(fixture)
     return fixtures
 
 
@@ -67,13 +73,15 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def write_endpoint(value):
     uri = urllib.parse.urlsplit(value)
-    if (uri.scheme not in ("http", "https") or not uri.hostname or uri.username or uri.password
-            or uri.path not in ("", "/") or uri.query or uri.fragment):
+    valid_origin = uri.scheme in ("http", "https") and bool(uri.hostname) and not (uri.username or uri.password)
+    valid_path = uri.path in ("", "/") and not (uri.query or uri.fragment)
+    if not valid_origin or not valid_path:
         raise ValueError("provide a dedicated WRITE origin without credentials, path or query")
     return urllib.parse.urlunsplit((uri.scheme, uri.netloc, "/api/v3/commands", "", ""))
 
 
-def submit_one(endpoint, run_id, fixture, token, binding):
+def submit_one(endpoint, run_id, fixture, auth):
+    token, binding = auth
     key, body = command(run_id, fixture, binding)
     req = urllib.request.Request(
         endpoint, data=json.dumps(body, separators=(",", ":")).encode(),
@@ -97,6 +105,13 @@ def submit_one(endpoint, run_id, fixture, token, binding):
     return receipt
 
 
+def _accepted_request_id(entry, seen):
+    request = entry.get("requestId")
+    if entry.get("httpStatus") != 202 or not request or request in seen:
+        return None
+    return request
+
+
 def collect(fixtures, concurrency, submit, observed):
     seen = set()
     with ThreadPoolExecutor(max_workers=concurrency) as pool:
@@ -106,8 +121,8 @@ def collect(fixtures, concurrency, submit, observed):
             batch = list(pool.map(submit, fixtures[offset:offset + concurrency]))
             observed.extend(batch)
             for entry in batch:
-                request = entry.get("requestId")
-                if entry.get("httpStatus") != 202 or not request or request in seen:
+                request = _accepted_request_id(entry, seen)
+                if request is None:
                     return None
                 seen.add(request)
     return sorted(seen)
@@ -123,7 +138,7 @@ def dump(stream, data):
     stream.write("\n")
 
 
-def main():
+def _parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixtures", required=True, type=Path)
     parser.add_argument("--report", required=True, type=Path)
@@ -133,7 +148,46 @@ def main():
     parser.add_argument("--run-id", type=uuid.UUID)
     parser.add_argument("--concurrency", type=int, default=4)
     parser.add_argument("--requests", type=Path)
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def _validate_execution_args(args):
+    if not all((args.isolated_and_workers_stopped, args.write_url, args.run_id, args.requests)):
+        raise ValueError("admission requires explicit isolated target, stopped Workers, WRITE origin, run ID and inventory path")
+    same_path = args.report.resolve() == args.requests.resolve()
+    if same_path or args.requests.exists() or not args.requests.parent.is_dir():
+        raise ValueError("use a separate, new inventory file in an existing evidence directory")
+    endpoint = write_endpoint(args.write_url)
+    token, binding = os.environ.get("POCOMA_TOKEN"), os.environ.get("POCOMA_BINDING_TOKEN")
+    if not token or not binding:
+        raise ValueError("set POCOMA_TOKEN and POCOMA_BINDING_TOKEN in the environment")
+    return endpoint, (token, binding)
+
+
+def _execute_stock(args, fixtures, receipt):
+    endpoint, auth = _validate_execution_args(args)
+    observed = []
+    started = time.monotonic()
+    receipt.update(status="INCOMPLETE", writeEndpoint=endpoint, runId=str(args.run_id))
+    with reserve(args.report) as out:
+        try:
+            identifiers = collect(
+                fixtures, args.concurrency,
+                lambda fixture: submit_one(endpoint, args.run_id, fixture, auth),
+                observed,
+            )
+            if identifiers is not None and len(identifiers) == POPULATION:
+                with reserve(args.requests) as inventory:
+                    dump(inventory, identifiers)
+                receipt.update(status="ADMITTED",
+                               inventorySha256=hashlib.sha256(args.requests.read_bytes()).hexdigest())
+        finally:
+            receipt.update(finishedAt=utc_now(), seconds=time.monotonic() - started, admissions=observed)
+            dump(out, receipt)
+
+
+def main():
+    args = _parse_args()
     raw = args.fixtures.read_bytes()
     fixtures = parse_fixtures(raw)
     receipt = {
@@ -148,33 +202,7 @@ def main():
         with reserve(args.report) as out:
             dump(out, receipt)
         return 0
-    if not all((args.isolated_and_workers_stopped, args.write_url, args.run_id, args.requests)):
-        raise ValueError("admission requires explicit isolated target, stopped Workers, WRITE origin, run ID and inventory path")
-    if (args.report.resolve() == args.requests.resolve()
-            or args.requests.exists() or not args.requests.parent.is_dir()):
-        raise ValueError("use a separate, new inventory file in an existing evidence directory")
-    endpoint = write_endpoint(args.write_url)
-    token, binding = os.environ.get("POCOMA_TOKEN"), os.environ.get("POCOMA_BINDING_TOKEN")
-    if not token or not binding:
-        raise ValueError("set POCOMA_TOKEN and POCOMA_BINDING_TOKEN in the environment")
-    observed = []
-    started = time.monotonic()
-    receipt.update(status="INCOMPLETE", writeEndpoint=endpoint, runId=str(args.run_id))
-    with reserve(args.report) as out:
-        try:
-            identifiers = collect(
-                fixtures, args.concurrency,
-                lambda fixture: submit_one(endpoint, args.run_id, fixture, token, binding),
-                observed,
-            )
-            if identifiers is not None and len(identifiers) == POPULATION:
-                with reserve(args.requests) as inventory:
-                    dump(inventory, identifiers)
-                receipt.update(status="ADMITTED",
-                               inventorySha256=hashlib.sha256(args.requests.read_bytes()).hexdigest())
-        finally:
-            receipt.update(finishedAt=utc_now(), seconds=time.monotonic()-started, admissions=observed)
-            dump(out, receipt)
+    _execute_stock(args, fixtures, receipt)
     return 0 if receipt["status"] == "ADMITTED" else 1
 
 

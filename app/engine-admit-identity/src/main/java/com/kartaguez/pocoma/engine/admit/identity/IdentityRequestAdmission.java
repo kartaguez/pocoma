@@ -44,9 +44,7 @@ public final class IdentityRequestAdmission implements com.kartaguez.pocoma.cont
             AuthenticatedExternalPrincipal principal,
             String clientKey,
             IdentityAdmissionInput input) {
-        if (principal == null || !clock.instant().isBefore(principal.expiresAt()))
-            throw new AdmissionFailure(401);
-        AdmissionFailure.require(principal.identity().equals(input.requester()));
+        validatePrincipal(principal, input);
         byte[] scope =
                 protection.scope(
                         principal.issuer(),
@@ -56,48 +54,7 @@ public final class IdentityRequestAdmission implements com.kartaguez.pocoma.cont
                         input.operation(),
                         clientKey);
         try {
-            var found = transactions.read(context -> store.find(scope));
-            if (found.isPresent()) return replay(found.get(), input);
-            input.validateCurrent(textBytes);
-            byte[] digest = protection.intent(protection.currentId(), 1, input.canonical(1));
-            var association =
-                    new AdmissionAssociation(
-                            UUID.randomUUID(),
-                            "IDENTITY",
-                            input.operation(),
-                            1,
-                            protection.lookupId(),
-                            protection.currentId(),
-                            scope,
-                            digest,
-                            clock.instant());
-            return transactions.write(
-                    () -> {
-                        if (!store.reserve(association))
-                            return replay(
-                                    store.find(scope).orElseThrow(() -> new AdmissionFailure(503)),
-                                    input);
-                        var provenance =
-                                new IdentityRequest.AdmissionContext(
-                                        "pocoma-v3-http",
-                                        "1",
-                                        input.requester(),
-                                        input.target(),
-                                        HexFormat.of().formatHex(digest),
-                                        association.requestId().toString(),
-                                        association.createdAt(),
-                                        Map.of(),
-                                        IdentityRequest.Origin.AUTHENTICATED_HTTP);
-                        store.insert(
-                                new IdentityRequest(
-                                        association.requestId(),
-                                        input.requester(),
-                                        input.intention(),
-                                        input.token(),
-                                        association.createdAt(),
-                                        provenance));
-                        return association.requestId();
-                    });
+            return executeAdmission(scope, input);
         } catch (AdmissionFailure failure) {
             throw failure;
         } catch (AttemptTransactions.Failure failure) {
@@ -107,6 +64,72 @@ public final class IdentityRequestAdmission implements com.kartaguez.pocoma.cont
         } catch (RuntimeException failure) {
             throw new AdmissionFailure(503);
         }
+    }
+
+    private UUID executeAdmission(byte[] scope, IdentityAdmissionInput input) {
+        var found = transactions.read(context -> store.find(scope));
+        if (found.isPresent()) return replay(found.get(), input);
+        input.validateCurrent(textBytes);
+        byte[] digest = protection.intent(protection.currentId(), 1, input.canonical(1));
+        var association = newAssociation(scope, input, digest);
+        return transactions.write(() -> reserveAndInsert(scope, association, input, digest));
+    }
+
+    private void validatePrincipal(
+            AuthenticatedExternalPrincipal principal, IdentityAdmissionInput input) {
+        if (principal == null || !clock.instant().isBefore(principal.expiresAt())) {
+            throw new AdmissionFailure(401);
+        }
+        AdmissionFailure.require(principal.identity().equals(input.requester()));
+    }
+
+    private AdmissionAssociation newAssociation(
+            byte[] scope, IdentityAdmissionInput input, byte[] digest) {
+        return new AdmissionAssociation(
+                UUID.randomUUID(),
+                "IDENTITY",
+                input.operation(),
+                1,
+                protection.lookupId(),
+                protection.currentId(),
+                scope,
+                digest,
+                clock.instant());
+    }
+
+    private UUID reserveAndInsert(
+            byte[] scope,
+            AdmissionAssociation association,
+            IdentityAdmissionInput input,
+            byte[] digest) {
+        if (!store.reserve(association)) {
+            return replay(
+                    store.find(scope).orElseThrow(() -> new AdmissionFailure(503)), input);
+        }
+        store.insert(buildIdentityRequest(association, input, digest));
+        return association.requestId();
+    }
+
+    private static IdentityRequest buildIdentityRequest(
+            AdmissionAssociation association, IdentityAdmissionInput input, byte[] digest) {
+        var provenance =
+                new IdentityRequest.AdmissionContext(
+                        "pocoma-v3-http",
+                        "1",
+                        input.requester(),
+                        input.target(),
+                        HexFormat.of().formatHex(digest),
+                        association.requestId().toString(),
+                        association.createdAt(),
+                        Map.of(),
+                        IdentityRequest.Origin.AUTHENTICATED_HTTP);
+        return new IdentityRequest(
+                association.requestId(),
+                input.requester(),
+                input.intention(),
+                input.token(),
+                association.createdAt(),
+                provenance);
     }
 
     private UUID replay(AdmissionAssociation association, IdentityAdmissionInput input) {

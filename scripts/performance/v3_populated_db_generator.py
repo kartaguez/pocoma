@@ -436,16 +436,17 @@ def verify_sql_integrity() -> Dict[str, Any]:
     );
     """
     audit = json.loads(run_psql(audit_sql))
-    if not (
-        audit["command_counter_matches_positions"]
-        and audit["command_dense_prefix"]
-        and audit["unpositioned_commands"] == 0
-        and audit["identity_counter_matches_positions"]
-        and audit["identity_dense_prefix"]
-        and audit["unpositioned_identity_requests"] == 0
-        and audit["command_checkpoints_aligned"]
-        and audit["identity_checkpoints_aligned"]
-    ):
+    expected = {
+        "command_counter_matches_positions": True,
+        "command_dense_prefix": True,
+        "unpositioned_commands": 0,
+        "identity_counter_matches_positions": True,
+        "identity_dense_prefix": True,
+        "unpositioned_identity_requests": 0,
+        "command_checkpoints_aligned": True,
+        "identity_checkpoints_aligned": True,
+    }
+    if any(audit[key] != value for key, value in expected.items()):
         raise RuntimeError(f"SQL integrity audit failed: {json.dumps(audit, indent=2)}")
     return audit
 
@@ -454,8 +455,16 @@ def retire_all_quarantines() -> None:
     raise RuntimeError("Historical operation retired by L7.3: incomplete slots must be preserved; use a new disposable fixture")
 
 
-def wait_workers_healthy(timeout_sec: float = 45.0) -> None:
+def _probe_worker_health(url: str) -> bool:
     import urllib.request
+    try:
+        with urllib.request.urlopen(url, timeout=2) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
+def wait_workers_healthy(timeout_sec: float = 45.0) -> None:
     endpoints = {
         RUNTIME_PREFIX + name: f"http://127.0.0.1:{port + MANAGEMENT_PORT_OFFSET}/actuator/health"
         for name, port in WORKER_PORTS.items()
@@ -464,18 +473,19 @@ def wait_workers_healthy(timeout_sec: float = 45.0) -> None:
     ready = set()
     while time.time() - t0 < timeout_sec and len(ready) < len(endpoints):
         for name, url in endpoints.items():
-            if name in ready:
-                continue
-            try:
-                with urllib.request.urlopen(url, timeout=2) as resp:
-                    if resp.status == 200:
-                        ready.add(name)
-            except Exception:
-                pass
+            if name not in ready and _probe_worker_health(url):
+                ready.add(name)
         if len(ready) < len(endpoints):
             time.sleep(0.5)
     if len(ready) < len(endpoints):
         raise RuntimeError(f"Workers failed to become healthy: {set(endpoints.keys()) - ready}")
+
+
+def _needs_quarantine_retirement(target: Dict[str, int], initial: Dict[str, Any]) -> bool:
+    zero_quarantines = target["quarantined_commands"] == 0 and target["quarantined_identity"] == 0
+    excess_cmd = initial["commands_quarantined_slots"] > target["quarantined_commands"]
+    excess_id = initial["identity_quarantined_slots"] > target["quarantined_identity"]
+    return zero_quarantines or excess_cmd or excess_id
 
 
 def apply_profile(profile_name: str) -> Dict[str, Any]:
@@ -488,11 +498,7 @@ def apply_profile(profile_name: str) -> Dict[str, Any]:
     subprocess.run(["docker", "stop", *workers], capture_output=True, text=True, check=True)
     try:
         initial = current_counts()
-        if (
-            (target["quarantined_commands"] == 0 and target["quarantined_identity"] == 0)
-            or initial["commands_quarantined_slots"] > target["quarantined_commands"]
-            or initial["identity_quarantined_slots"] > target["quarantined_identity"]
-        ):
+        if _needs_quarantine_retirement(target, initial):
             retire_all_quarantines()
         before = current_counts()
 

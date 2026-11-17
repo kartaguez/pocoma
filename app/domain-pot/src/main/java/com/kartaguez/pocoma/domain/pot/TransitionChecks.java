@@ -19,8 +19,12 @@ final class TransitionChecks {
             throw new InconsistentPotFactsException("Revision outside working Pot/version");
     }
     static void reference(PotFacts pot, ShareholderId id, ShareholderReference fact) {
-        if (fact == null || !id.equals(fact.shareholderId()) || !pot.potId().equals(fact.potId()) || pot.workingVersion() != fact.workingVersion())
+        if (fact == null || !id.equals(fact.shareholderId())) {
             throw new InconsistentPotFactsException("Missing or mixed reference fact");
+        }
+        if (!pot.potId().equals(fact.potId()) || pot.workingVersion() != fact.workingVersion()) {
+            throw new InconsistentPotFactsException("Missing or mixed reference fact");
+        }
     }
     static TransitionResult.Rejection activeReference(ShareholderReference fact, long observed) {
         if (fact.header().isEmpty()) return TransitionResult.Rejection.NOT_FOUND;

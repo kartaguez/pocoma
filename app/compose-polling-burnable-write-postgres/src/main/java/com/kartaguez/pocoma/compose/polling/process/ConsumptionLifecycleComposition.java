@@ -57,19 +57,9 @@ public final class ConsumptionLifecycleComposition {
         Objects.requireNonNull(guard).validateLifecyclePrivileges(privileges);
         guard.validateLifecycleSource(source, definition.authority(), privileges);
         if (privileges == BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY) {
-            if (!(transactions
-                    instanceof
-                    com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions owner))
-                throw new IllegalArgumentException("explicit shared physical owner required");
-            owner.requireSource(source);
+            requireSharedOwner(transactions, source);
         }
-        if (source instanceof com.zaxxer.hikari.HikariDataSource pool
-                && maximumConnections != pool.getMaximumPoolSize())
-            throw new IllegalArgumentException(
-                    "declared capacity differs from the actual Hikari pool");
-        if (maximumConnections < capacity.workerLimit() + 4)
-            throw new IllegalArgumentException(
-                    "M_W + control + two claim renewals + lease access required");
+        verifyPoolCapacity(source, maximumConnections, capacity.workerLimit());
         return new ConsumptionEngine(
                 definition,
                 transactions,
@@ -79,6 +69,27 @@ public final class ConsumptionLifecycleComposition {
                 settings,
                 capacity,
                 classifier);
+    }
+
+    private static void requireSharedOwner(AttemptTransactions transactions, DataSource source) {
+        if (!(transactions
+                instanceof com.kartaguez.pocoma.infra.tx.spring.SpringAttemptTransactions owner)) {
+            throw new IllegalArgumentException("explicit shared physical owner required");
+        }
+        owner.requireSource(source);
+    }
+
+    private static void verifyPoolCapacity(
+            DataSource source, int maximumConnections, int workerLimit) {
+        if (source instanceof com.zaxxer.hikari.HikariDataSource pool
+                && maximumConnections != pool.getMaximumPoolSize()) {
+            throw new IllegalArgumentException(
+                    "declared capacity differs from the actual Hikari pool");
+        }
+        if (maximumConnections < workerLimit + 4) {
+            throw new IllegalArgumentException(
+                    "M_W + control + two claim renewals + lease access required");
+        }
     }
 
     /** Four-pool runtime: effects and control units are consecutive, never nested. */
@@ -94,10 +105,13 @@ public final class ConsumptionLifecycleComposition {
             WorkerCapacity capacity,
             AttemptFailureClassifier classifier,
             com.kartaguez.pocoma.contract.consumption.observation.ConsumptionObservation observation) {
-        if (business == control
-                || business.getMaximumPoolSize() < capacity.workerLimit() + 2
-                || control.getMaximumPoolSize() < capacity.workerLimit() + 6)
+        if (business == control) {
             throw new IllegalArgumentException("distinct Business/Control reserves required");
+        }
+        if (business.getMaximumPoolSize() < capacity.workerLimit() + 2
+                || control.getMaximumPoolSize() < capacity.workerLimit() + 6) {
+            throw new IllegalArgumentException("distinct Business/Control reserves required");
+        }
         effects.requireSource(business);
         technical.requireSource(control);
         var profile = BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY;

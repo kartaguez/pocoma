@@ -32,52 +32,7 @@ public final class WorkerDevelopmentTools {
         try {
             if (args.length < 2)
                 throw new IllegalArgumentException("operation and configuration required");
-            var properties = new Properties();
-            try (var in = Files.newInputStream(Path.of(args[1]))) {
-                properties.load(in);
-            }
-            var env = new StandardEnvironment();
-            env.getPropertySources()
-                    .addFirst(new PropertiesPropertySource("explicit-dev-file", properties));
-            env.setActiveProfiles(QualificationSettings.PROFILE);
-            var settings = QualificationSettings.from(env);
-            switch (args[0]) {
-                case "prepare" -> prepare(settings);
-                case "validate" -> validate(settings);
-                case "inspect" -> inspect(settings);
-                case "inject-identity" -> {
-                    if (args.length != 3)
-                        throw new IllegalArgumentException("protected intention file required");
-                    injectIdentity(settings, Path.of(args[2]));
-                }
-                case "verify-identity" -> {
-                    if (args.length != 4 && args.length != 5)
-                        throw new IllegalArgumentException("request UUID/wait required");
-                    verifyIdentity(
-                            settings,
-                            UUID.fromString(args[2]),
-                            Integer.parseInt(args[3]),
-                            args.length == 5 ? args[4] : null);
-                }
-                case "identity-token" -> {
-                    if (args.length != 4)
-                        throw new IllegalArgumentException(
-                                "protected own-key/output files required");
-                    identityToken(settings, Path.of(args[2]), Path.of(args[3]));
-                }
-                case "inject-command" -> {
-                    if (args.length != 3)
-                        throw new IllegalArgumentException("request UUID required");
-                    inject(settings, UUID.fromString(args[2]));
-                }
-                case "verify" -> {
-                    if (args.length != 4)
-                        throw new IllegalArgumentException(
-                                "request UUID and wait seconds required");
-                    verify(settings, UUID.fromString(args[2]), Integer.parseInt(args[3]));
-                }
-                default -> throw new IllegalArgumentException("unknown DEV operation");
-            }
+            dispatchOperation(args, loadSettings(Path.of(args[1])));
         } catch (Exception failure) {
             // Never print SQL/connection parameters or causes that may contain credentials/tokens.
             System.err.println(
@@ -87,6 +42,72 @@ public final class WorkerDevelopmentTools {
                             + failure.getClass().getSimpleName());
             System.exit(2);
         }
+    }
+
+    private static QualificationSettings loadSettings(Path configPath) throws Exception {
+        var properties = new Properties();
+        try (var in = Files.newInputStream(configPath)) {
+            properties.load(in);
+        }
+        var env = new StandardEnvironment();
+        env.getPropertySources()
+                .addFirst(new PropertiesPropertySource("explicit-dev-file", properties));
+        env.setActiveProfiles(QualificationSettings.PROFILE);
+        return QualificationSettings.from(env);
+    }
+
+    @FunctionalInterface
+    private interface DevCommand {
+        void run(String[] args, QualificationSettings settings) throws Exception;
+    }
+
+    private static final Map<String, DevCommand> COMMANDS =
+            Map.of(
+                    "prepare", (args, settings) -> prepare(settings),
+                    "validate", (args, settings) -> validate(settings),
+                    "inspect", (args, settings) -> inspect(settings),
+                    "inject-identity",
+                            (args, settings) -> {
+                                requireArgCount(args, 3, "protected intention file required");
+                                injectIdentity(settings, Path.of(args[2]));
+                            },
+                    "verify-identity", WorkerDevelopmentTools::runVerifyIdentity,
+                    "identity-token",
+                            (args, settings) -> {
+                                requireArgCount(args, 4, "protected own-key/output files required");
+                                identityToken(settings, Path.of(args[2]), Path.of(args[3]));
+                            },
+                    "inject-command",
+                            (args, settings) -> {
+                                requireArgCount(args, 3, "request UUID required");
+                                inject(settings, UUID.fromString(args[2]));
+                            },
+                    "verify",
+                            (args, settings) -> {
+                                requireArgCount(args, 4, "request UUID and wait seconds required");
+                                verify(settings, UUID.fromString(args[2]), Integer.parseInt(args[3]));
+                            });
+
+    private static void runVerifyIdentity(String[] args, QualificationSettings settings)
+            throws Exception {
+        if (args.length != 4 && args.length != 5)
+            throw new IllegalArgumentException("request UUID/wait required");
+        verifyIdentity(
+                settings,
+                UUID.fromString(args[2]),
+                Integer.parseInt(args[3]),
+                args.length == 5 ? args[4] : null);
+    }
+
+    private static void dispatchOperation(String[] args, QualificationSettings settings)
+            throws Exception {
+        DevCommand command = COMMANDS.get(args[0]);
+        if (command == null) throw new IllegalArgumentException("unknown DEV operation");
+        command.run(args, settings);
+    }
+
+    private static void requireArgCount(String[] args, int expected, String message) {
+        if (args.length != expected) throw new IllegalArgumentException(message);
     }
 
     static String required(String name) {
@@ -112,12 +133,34 @@ public final class WorkerDevelopmentTools {
     static void prepare(QualificationSettings settings) throws Exception {
         String url = required("POCOMA_I5_ADMIN_URL"),
                 user = identifier(required("POCOMA_I5_ADMIN_USER"));
+        verifyAdminTargets(settings, url);
+        var roles = collectPrepareRoles(settings, user);
+        try (var c = DriverManager.getConnection(url, user, required("POCOMA_I5_ADMIN_PASSWORD"))) {
+            verifyAdminConnection(c, settings, user);
+            // Refuse all preexisting identities before the first mutation. No DROP or IF NOT
+            // EXISTS.
+            ensureAbsent(c, "select exists(select 1 from pg_roles where rolname=?)", roles.keySet(), "role already exists");
+            var dbs = List.of(settings.writeBusiness().database(), settings.readBusiness().database());
+            ensureAbsent(c, "select exists(select 1 from pg_database where datname=?)", dbs, "database already exists");
+            createRoles(c, roles);
+            createDatabases(c, dbs, user);
+        }
+        runFlywayMigrations(settings, user);
+        System.out.println(
+                "I5_DEV_MIGRATIONS_READY administrative routing/grant scripts still required");
+    }
+
+    private static void verifyAdminTargets(QualificationSettings settings, String url) {
         var adminEndpoint = java.net.URI.create(url.substring(5));
         for (var target : settings.allowedTargets())
             if (!target.host().equals(adminEndpoint.getHost())
                     || target.port() != adminEndpoint.getPort())
                 throw new IllegalArgumentException(
                         "CLI preparation requires one explicitly authorized PostgreSQL server");
+    }
+
+    private static Map<String, String> collectPrepareRoles(
+            QualificationSettings settings, String user) {
         String react = identifier(required("POCOMA_I5_REACTIVATION_ROLE")),
                 injector = identifier(required("POCOMA_I5_INJECTOR_ROLE"));
         var roles = new LinkedHashMap<String, String>();
@@ -130,73 +173,69 @@ public final class WorkerDevelopmentTools {
         roles.put(injector, required("POCOMA_I5_INJECTOR_PASSWORD"));
         if (roles.size() != 4 || roles.containsKey(user))
             throw new IllegalArgumentException("four distinct non-admin roles required");
-        try (var c = DriverManager.getConnection(url, user, required("POCOMA_I5_ADMIN_PASSWORD"))) {
-            try (var q = c.createStatement();
-                    var row =
-                            q.executeQuery(
-                                    "select"
-                                        + " current_user,inet_server_addr()::text,inet_server_port(),current_setting('standard_conforming_strings')")) {
-                row.next();
-                if (!user.equals(row.getString(1)) || !"on".equals(row.getString(4)))
-                    throw new IllegalStateException("administrative target refused");
-                for (var target : settings.allowedTargets())
-                    if (!row.getString(2).equals(target.serverAddress())
-                            || row.getInt(3) != target.serverPort())
-                        throw new IllegalStateException("admin server outside allowlist");
-            }
-            // Refuse all preexisting identities before the first mutation. No DROP or IF NOT
-            // EXISTS.
-            for (String role : roles.keySet())
-                try (var q =
-                        c.prepareStatement(
-                                "select exists(select 1 from pg_roles where rolname=?)")) {
-                    q.setString(1, role);
-                    try (var row = q.executeQuery()) {
-                        row.next();
-                        if (row.getBoolean(1))
-                            throw new IllegalStateException("role already exists");
-                    }
-                }
-            for (String db :
-                    List.of(
-                            settings.writeBusiness().database(),
-                            settings.readBusiness().database()))
-                try (var q =
-                        c.prepareStatement(
-                                "select exists(select 1 from pg_database where datname=?)")) {
-                    q.setString(1, db);
-                    try (var row = q.executeQuery()) {
-                        row.next();
-                        if (row.getBoolean(1))
-                            throw new IllegalStateException("database already exists");
-                    }
-                }
-            for (var role : roles.entrySet()) {
-                String ddl;
-                try (var q =
-                        c.prepareStatement(
-                                "select format('create role %I login password %L',?,?)")) {
-                    q.setString(1, role.getKey());
-                    q.setString(2, role.getValue());
-                    try (var row = q.executeQuery()) {
-                        row.next();
-                        ddl = row.getString(1);
-                    }
-                }
-                try (var q = c.createStatement()) {
-                    q.execute(ddl);
-                }
-            }
-            for (String db :
-                    List.of(
-                            settings.writeBusiness().database(),
-                            settings.readBusiness().database())) {
-                identifier(db);
-                try (var q = c.createStatement()) {
-                    q.execute("create database \"" + db + "\" owner \"" + user + "\"");
+        return roles;
+    }
+
+    private static void verifyAdminConnection(
+            Connection c, QualificationSettings settings, String user) throws SQLException {
+        try (var q = c.createStatement();
+                var row =
+                        q.executeQuery(
+                                "select"
+                                    + " current_user,inet_server_addr()::text,inet_server_port(),current_setting('standard_conforming_strings')")) {
+            row.next();
+            if (!user.equals(row.getString(1)) || !"on".equals(row.getString(4)))
+                throw new IllegalStateException("administrative target refused");
+            for (var target : settings.allowedTargets())
+                if (!row.getString(2).equals(target.serverAddress())
+                        || row.getInt(3) != target.serverPort())
+                    throw new IllegalStateException("admin server outside allowlist");
+        }
+    }
+
+    private static void ensureAbsent(
+            Connection c, String sql, Collection<String> names, String errorMessage)
+            throws SQLException {
+        for (String name : names) {
+            try (var q = c.prepareStatement(sql)) {
+                q.setString(1, name);
+                try (var row = q.executeQuery()) {
+                    row.next();
+                    if (row.getBoolean(1)) throw new IllegalStateException(errorMessage);
                 }
             }
         }
+    }
+
+    private static void createRoles(Connection c, Map<String, String> roles) throws SQLException {
+        for (var role : roles.entrySet()) {
+            String ddl;
+            try (var q =
+                    c.prepareStatement("select format('create role %I login password %L',?,?)")) {
+                q.setString(1, role.getKey());
+                q.setString(2, role.getValue());
+                try (var row = q.executeQuery()) {
+                    row.next();
+                    ddl = row.getString(1);
+                }
+            }
+            try (var q = c.createStatement()) {
+                q.execute(ddl);
+            }
+        }
+    }
+
+    private static void createDatabases(Connection c, List<String> dbs, String user)
+            throws SQLException {
+        for (String db : dbs) {
+            identifier(db);
+            try (var q = c.createStatement()) {
+                q.execute("create database \"" + db + "\" owner \"" + user + "\"");
+            }
+        }
+    }
+
+    private static void runFlywayMigrations(QualificationSettings settings, String user) {
         for (var target : List.of(settings.writeBusiness(), settings.readBusiness())) {
             var source = admin(target);
             new JdbcTemplate(source).execute("create extension pgcrypto with schema public");
@@ -207,9 +246,7 @@ public final class WorkerDevelopmentTools {
                     .defaultSchema(target.schema())
                     .locations(
                             write
-                                    ? new String[] {
-                                        "classpath:db/write/migration"
-                                    }
+                                    ? new String[] {"classpath:db/write/migration"}
                                     : new String[] {"classpath:db/read/migration"})
                     .placeholders(
                             Map.of(
@@ -224,8 +261,6 @@ public final class WorkerDevelopmentTools {
                     .load()
                     .migrate();
         }
-        System.out.println(
-                "I5_DEV_MIGRATIONS_READY administrative routing/grant scripts still required");
     }
 
     static void validate(QualificationSettings settings) {
@@ -367,9 +402,9 @@ public final class WorkerDevelopmentTools {
     }
 
     static void realIdentity(QualificationSettings settings) {
-        if (!settings.identityRequest()
-                || !settings.identityAuthority().equals("real")
-                || settings.fixtureIdentity())
+        if (!settings.identityRequest())
+            throw new IllegalStateException("explicit real IdentityRequest required");
+        if (!settings.identityAuthority().equals("real") || settings.fixtureIdentity())
             throw new IllegalStateException("explicit real IdentityRequest required");
     }
 
@@ -489,29 +524,41 @@ public final class WorkerDevelopmentTools {
                                     + " v3_identity_request_result where request_id=?",
                             id);
             if (rows.size() == 1) {
-                if (expected != null && !expected.equals(rows.getFirst().get("outcome")))
+                var row = rows.getFirst();
+                if (expected != null && !expected.equals(row.get("outcome")))
                     throw new IllegalStateException("Unexpected Identity outcome");
-                var source = admin(settings.writeControl());
-                var tx = new SpringAttemptTransactions(source, manager(source), 5);
-                var observation = new JdbcIdentityRequestObservation(source);
-                if (tx.read(ctx -> observation.observe(id, ctx))
-                                != com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation
-                                        .COMPLETED
-                        || sql.queryForObject(
-                                        "select count(*) from consumption_slot where"
-                                            + " consumption_id='2999e75c-272d-5afe-a966-c9364ef021fe'"
-                                            + " and consumable_id=?",
-                                        Integer.class,
-                                        id)
-                                != 0)
-                    throw new IllegalStateException("Identity terminal evidence inconsistent");
-                System.out.println(
-                        "L3_DEV_IDENTITY_VERIFIED request=" + id + " result=" + rows.getFirst());
+                verifyIdentityResult(settings, sql, id, row);
                 return;
             }
             Thread.sleep(100);
         }
         throw new IllegalStateException("Identity observation incomplete");
+    }
+
+    private static void verifyIdentityResult(
+            QualificationSettings settings,
+            JdbcTemplate sql,
+            UUID id,
+            Map<String, Object> row) {
+        var source = admin(settings.writeControl());
+        var tx = new SpringAttemptTransactions(source, manager(source), 5);
+        var observation = new JdbcIdentityRequestObservation(source);
+        boolean completed =
+                tx.read(ctx -> observation.observe(id, ctx))
+                        == com.kartaguez.pocoma.contract.consumption.spi.RecoveryObservation
+                                .COMPLETED;
+        Integer remainingSlots =
+                sql.queryForObject(
+                        "select count(*) from consumption_slot where"
+                                + " consumption_id='2999e75c-272d-5afe-a966-c9364ef021fe'"
+                                + " and consumable_id=?",
+                        Integer.class,
+                        id);
+        if (!completed)
+            throw new IllegalStateException("Identity terminal evidence inconsistent");
+        if (remainingSlots == null || remainingSlots != 0)
+            throw new IllegalStateException("Identity terminal evidence inconsistent");
+        System.out.println("L3_DEV_IDENTITY_VERIFIED request=" + id + " result=" + row);
     }
 
     static void verify(QualificationSettings settings, UUID request, int seconds)
@@ -527,71 +574,102 @@ public final class WorkerDevelopmentTools {
                             "select status from v3_command where request_id=?",
                             String.class,
                             request);
-            if (status.size() == 1 && status.getFirst().equals("TERMINAL")) {
-                var events =
-                        write.queryForList(
-                                "select event_id from v3_pot_event where request_id=? union all"
-                                        + " select event_id from v3_command_completion_event where"
-                                        + " subject_id=?",
-                                UUID.class,
-                                request,
-                                request);
-                if (events.size() != 2)
-                    throw new IllegalStateException("expected real CreatePot publications missing");
-                if (write.queryForObject(
-                                        "select count(*) from v3_command_result where request_id=?"
-                                            + " and outcome='CHANGED' and resulting_pot_version=1",
-                                        Integer.class,
-                                        request)
-                                != 1
-                        || write.queryForObject(
-                                        "select count(*) from consumption_slot where"
-                                            + " consumable_id=? and"
-                                            + " consumption_id='98f7268d-d340-581c-b83d-010926223e14'",
-                                        Integer.class,
-                                        request)
-                                != 0)
-                    throw new IllegalStateException("inconsistent Command completion");
-                if (write.queryForObject(
-                                        "select count(*) from v3_pot_version v join v3_command c"
-                                            + " using(pot_id) where c.request_id=? and v.version=1",
-                                        Integer.class,
-                                        request)
-                                != 1
-                        || write.queryForObject(
-                                        "select count(*) from v3_event_position where event_id in"
-                                                + " (?,?)",
-                                        Integer.class,
-                                        events.get(0),
-                                        events.get(1))
-                                != 2)
-                    throw new IllegalStateException("real version or dense publications missing");
-                if (!settings.technicalProbes()
-                        || read.queryForObject(
-                                                "select count(*) from i5_read_probe_effect where"
-                                                        + " consumable_id in (?,?) and"
-                                                        + " value='technical'",
-                                                Integer.class,
-                                                events.get(0),
-                                                events.get(1))
-                                        == 2
-                                && read.queryForObject(
-                                                "select count(*) from consumption_slot where"
-                                                        + " consumable_id in (?,?)",
-                                                Integer.class,
-                                                events.get(0),
-                                                events.get(1))
-                                        == 0) {
-                    System.out.println(
-                            "I5_DEV_VERIFIED real CreatePot V1, terminal result, canonical slot"
-                                    + " absent, dense publications; READ probes="
-                                    + settings.technicalProbes()
-                                    + " (technical only)");
-                    return;
-                }
+            if (isTerminalCommandVerified(status, settings, write, read, request)) {
+                System.out.println(
+                        "I5_DEV_VERIFIED real CreatePot V1, terminal result, canonical slot"
+                                + " absent, dense publications; READ probes="
+                                + settings.technicalProbes()
+                                + " (technical only)");
+                return;
             }
             Thread.sleep(100);
         }
         throw new IllegalStateException("bounded observation incomplete; not a business PASS");
+    }
+
+    private static boolean isTerminalCommandVerified(
+            List<String> status,
+            QualificationSettings settings,
+            JdbcTemplate write,
+            JdbcTemplate read,
+            UUID request) {
+        if (status.size() != 1 || !status.getFirst().equals("TERMINAL")) return false;
+        return verifyTerminalCommand(settings, write, read, request);
+    }
+
+    private static boolean verifyTerminalCommand(
+            QualificationSettings settings,
+            JdbcTemplate write,
+            JdbcTemplate read,
+            UUID request) {
+        var events =
+                write.queryForList(
+                        "select event_id from v3_pot_event where request_id=? union all"
+                                + " select event_id from v3_command_completion_event where"
+                                + " subject_id=?",
+                        UUID.class,
+                        request,
+                        request);
+        if (events.size() != 2)
+            throw new IllegalStateException("expected real CreatePot publications missing");
+        verifyCommandWriteState(write, request, events);
+        return !settings.technicalProbes() || verifyTechnicalProbes(read, events);
+    }
+
+    private static void requireCount(
+            JdbcTemplate jdbc, String sql, int expected, String error, Object... args) {
+        Integer count = jdbc.queryForObject(sql, Integer.class, args);
+        if (count == null || count != expected) throw new IllegalStateException(error);
+    }
+
+    private static void verifyCommandWriteState(
+            JdbcTemplate write, UUID request, List<UUID> events) {
+        requireCount(
+                write,
+                "select count(*) from v3_command_result where request_id=?"
+                        + " and outcome='CHANGED' and resulting_pot_version=1",
+                1,
+                "inconsistent Command completion",
+                request);
+        requireCount(
+                write,
+                "select count(*) from consumption_slot where"
+                        + " consumable_id=? and"
+                        + " consumption_id='98f7268d-d340-581c-b83d-010926223e14'",
+                0,
+                "inconsistent Command completion",
+                request);
+        requireCount(
+                write,
+                "select count(*) from v3_pot_version v join v3_command c"
+                        + " using(pot_id) where c.request_id=? and v.version=1",
+                1,
+                "real version or dense publications missing",
+                request);
+        requireCount(
+                write,
+                "select count(*) from v3_event_position where event_id in (?,?)",
+                2,
+                "real version or dense publications missing",
+                events.get(0),
+                events.get(1));
+    }
+
+    private static boolean verifyTechnicalProbes(JdbcTemplate read, List<UUID> events) {
+        Integer probeEffects =
+                read.queryForObject(
+                        "select count(*) from i5_read_probe_effect where"
+                                + " consumable_id in (?,?) and value='technical'",
+                        Integer.class,
+                        events.get(0),
+                        events.get(1));
+        Integer remainingReadSlots =
+                read.queryForObject(
+                        "select count(*) from consumption_slot where consumable_id in (?,?)",
+                        Integer.class,
+                        events.get(0),
+                        events.get(1));
+        return probeEffects != null && probeEffects == 2
+                && remainingReadSlots != null && remainingReadSlots == 0;
     }
 }

@@ -141,27 +141,24 @@ def applied(row):
             and all(row[key] for key in ("pot_position", "result_position", "result_hash", "components")))
 
 
-def observe(args, request_ids):
-    fingerprint = hashlib.sha256("\n".join(request_ids).encode()).hexdigest()
-    if args.mode == "reconcile":
-        before = json.loads(args.before.read_text())
-        if before.get("status") != "INITIAL_STOCK_VERIFIED" or before.get("requestSha256") != fingerprint:
-            raise ValueError("Initial stock receipt does not match this population")
-    rows = snapshot(args.write_service, "v3_write", write_statement(request_ids))
-    operations = {row["operation"] for row in rows}
-    pots = {row["pot_id"] for row in rows}
-    common = {"requestSha256": fingerprint, "expected": POPULATION, "rows": len(rows),
-              "distinctPots": len(pots), "operations": sorted(x for x in operations if x)}
-    if args.mode == "capture":
-        pending = sum(row["status"] == "PENDING" and row["request_position"] is not None
-                      and row["outcome"] is None
-                      and row["pot_event"] is None and row["result_event"] is None
-                      and not row["slot_present"] for row in rows)
-        verified = (pending == POPULATION and len(pots) == POPULATION and None not in pots
-                    and operations == {"CreateExpense"})
-        return {**common, "status": "INITIAL_STOCK_VERIFIED" if verified else "INCOMPLETE_STOCK",
-                "pendingWithoutDerivedWork": pending}, verified
+def _is_pending_stock_row(row):
+    no_events = row["pot_event"] is None and row["result_event"] is None
+    return (row["status"] == "PENDING" and row["request_position"] is not None
+            and row["outcome"] is None and no_events and not row["slot_present"])
 
+
+def _observe_capture(rows, pots, operations, common):
+    pending = sum(_is_pending_stock_row(row) for row in rows)
+    verified = (pending == POPULATION and len(pots) == POPULATION and None not in pots
+                and operations == {"CreateExpense"})
+    return {**common, "status": "INITIAL_STOCK_VERIFIED" if verified else "INCOMPLETE_STOCK",
+            "pendingWithoutDerivedWork": pending}, verified
+
+
+def _observe_reconcile(args, rows, fingerprint, common):
+    before = json.loads(args.before.read_text())
+    if before.get("status") != "INITIAL_STOCK_VERIFIED" or before.get("requestSha256") != fingerprint:
+        raise ValueError("Initial stock receipt does not match this population")
     changed = [row for row in rows if applied(row)]
     observations = snapshot(args.read_service, "v3_read", read_statement(changed))
     incomplete = [
@@ -175,6 +172,27 @@ def observe(args, request_ids):
             "nonApplied": [row["request_id"] for row in rows if not applied(row)]}, verified
 
 
+def observe(args, request_ids):
+    fingerprint = hashlib.sha256("\n".join(request_ids).encode()).hexdigest()
+    rows = snapshot(args.write_service, "v3_write", write_statement(request_ids))
+    operations = {row["operation"] for row in rows}
+    pots = {row["pot_id"] for row in rows}
+    common = {"requestSha256": fingerprint, "expected": POPULATION, "rows": len(rows),
+              "distinctPots": len(pots), "operations": sorted(x for x in operations if x)}
+    if args.mode == "capture":
+        return _observe_capture(rows, pots, operations, common)
+    return _observe_reconcile(args, rows, fingerprint, common)
+
+
+def _validate_cli_args(parser, args):
+    if args.mode == "reconcile":
+        distinct_services = args.read_service and args.read_service != args.write_service
+        if not args.before or not distinct_services:
+            parser.error("reconcile requires an initial receipt and distinct WRITE and READ services")
+    if args.output.exists():
+        parser.error("Use a new output path for each snapshot")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("capture", "reconcile"))
@@ -184,11 +202,7 @@ def main():
     parser.add_argument("--before", type=Path, help="Successful capture receipt")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if args.mode == "reconcile" and (not args.before or not args.read_service
-                                      or args.read_service == args.write_service):
-        parser.error("reconcile requires an initial receipt and distinct WRITE and READ services")
-    if args.output.exists():
-        parser.error("Use a new output path for each snapshot")
+    _validate_cli_args(parser, args)
     started = time.monotonic()
     observation, verified = observe(args, population(args.requests))
     observation.update(observedAtUtc=datetime.now(timezone.utc).isoformat(),

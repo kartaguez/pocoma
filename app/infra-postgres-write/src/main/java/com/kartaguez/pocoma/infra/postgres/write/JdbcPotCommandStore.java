@@ -174,49 +174,76 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                 () -> {
                     var durable = load(command.requestId());
                     if (!durable.command().equals(command)
-                            || !durable.terminal().equals(Optional.of(result)))
+                            || !durable.terminal().equals(Optional.of(result))) {
                         throw new InconsistentPotFactsException(
                                 "Completion requires the exact terminal result");
-                    if (result.outcome() == Outcome.INVITATION_CREATED) {
-                        if (!(command.intent() instanceof PotCommand.CreateInvitation)
-                                || !changed.isEmpty()
-                                || jdbc.queryForObject(
-                                                "select count(*) from v3_invitation where"
-                                                    + " creation_request_id=? and pot_id=? and"
-                                                    + " creator_issuer=? and creator_subject=? and"
-                                                    + " writer_xid=pg_current_xact_id()",
-                                                Integer.class,
-                                                command.requestId(),
-                                                command.potId().value(),
-                                                command.requester().issuer(),
-                                                command.requester().subject())
-                                        != 1)
-                            throw new InconsistentPotFactsException(
-                                    "Invitation completion requires exact owned effect");
-                    } else if (result.outcome() == Outcome.CHANGED) {
-                        var actual =
-                                changedComponents(command.potId(), result.resultingPotVersion());
-                        if (changed.isEmpty()
-                                || changed.size() != new HashSet<>(changed).size()
-                                || !new HashSet<>(actual).equals(new HashSet<>(changed)))
-                            throw new InconsistentPotFactsException(
-                                    "Publication differs from exact persisted proposal");
-                    } else if (!changed.isEmpty())
-                        throw new InconsistentPotFactsException(
-                                "No-effect publication has changes");
-                    if (result.outcome() != Outcome.CHANGED
-                            && Boolean.TRUE.equals(
-                                    jdbc.queryForObject(
-                                            "select coalesce((select"
-                                                + " writer_xid=pg_current_xact_id() from"
-                                                + " v3_pot_version where pot_id=? order by version"
-                                                + " desc limit 1),false)",
-                                            Boolean.class,
-                                            command.potId().value())))
-                        throw new InconsistentPotFactsException(
-                                "No-effect completion has a candidate in this attempt");
+                    }
+                    verifyOutcomeEffects(command, result, changed);
+                    if (result.outcome() != Outcome.CHANGED) verifyNoCandidateInAttempt(command);
                     return null;
                 });
+    }
+
+    private void verifyOutcomeEffects(PotCommand command, Result result, List<Component> changed) {
+        if (result.outcome() == Outcome.INVITATION_CREATED) {
+            verifyInvitationCompletion(command, changed);
+            return;
+        }
+        if (result.outcome() == Outcome.CHANGED) {
+            verifyChangedCompletion(command, result, changed);
+            return;
+        }
+        if (!changed.isEmpty()) {
+            throw new InconsistentPotFactsException("No-effect publication has changes");
+        }
+    }
+
+    private void verifyInvitationCompletion(PotCommand command, List<Component> changed) {
+        if (!(command.intent() instanceof PotCommand.CreateInvitation) || !changed.isEmpty()) {
+            throw new InconsistentPotFactsException(
+                    "Invitation completion requires exact owned effect");
+        }
+        Integer count =
+                jdbc.queryForObject(
+                        "select count(*) from v3_invitation where creation_request_id=? and"
+                                + " pot_id=? and creator_issuer=? and creator_subject=? and"
+                                + " writer_xid=pg_current_xact_id()",
+                        Integer.class,
+                        command.requestId(),
+                        command.potId().value(),
+                        command.requester().issuer(),
+                        command.requester().subject());
+        if (count == null || count != 1) {
+            throw new InconsistentPotFactsException(
+                    "Invitation completion requires exact owned effect");
+        }
+    }
+
+    private void verifyChangedCompletion(
+            PotCommand command, Result result, List<Component> changed) {
+        var actual = changedComponents(command.potId(), result.resultingPotVersion());
+        if (changed.isEmpty() || changed.size() != new HashSet<>(changed).size()) {
+            throw new InconsistentPotFactsException(
+                    "Publication differs from exact persisted proposal");
+        }
+        if (!new HashSet<>(actual).equals(new HashSet<>(changed))) {
+            throw new InconsistentPotFactsException(
+                    "Publication differs from exact persisted proposal");
+        }
+    }
+
+    private void verifyNoCandidateInAttempt(PotCommand command) {
+        Boolean hasCandidate =
+                jdbc.queryForObject(
+                        "select coalesce((select writer_xid=pg_current_xact_id() from"
+                                + " v3_pot_version where pot_id=? order by version desc limit"
+                                + " 1),false)",
+                        Boolean.class,
+                        command.potId().value());
+        if (Boolean.TRUE.equals(hasCandidate)) {
+            throw new InconsistentPotFactsException(
+                    "No-effect completion has a candidate in this attempt");
+        }
     }
 
     @Override

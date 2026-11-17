@@ -25,8 +25,8 @@ public final class HmacAdmissionProtection implements AdmissionProtection {
             String lookupId, byte[] lookup, String currentId, Map<String, byte[]> comparisons) {
         this.lookupId = Objects.requireNonNull(lookupId);
         this.currentId = Objects.requireNonNull(currentId);
-        if (lookup == null || lookup.length < 32 || lookupId.isBlank() || currentId.isBlank())
-            throw new AdmissionFailure(503);
+        if (lookup == null || lookup.length < 32) throw new AdmissionFailure(503);
+        if (lookupId.isBlank() || currentId.isBlank()) throw new AdmissionFailure(503);
         this.lookup = lookup.clone();
         var copy = new HashMap<String, byte[]>();
         comparisons.forEach(

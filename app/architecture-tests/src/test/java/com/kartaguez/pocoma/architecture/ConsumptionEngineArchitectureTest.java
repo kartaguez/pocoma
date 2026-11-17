@@ -85,21 +85,28 @@ class ConsumptionEngineArchitectureTest {
                 });
     }
 
-    static ArchRule pureEngine() {
+    private static ArchRule purePackages(String... extras) {
+        var packages =
+                new java.util.ArrayList<>(
+                        List.of(
+                                "org.springframework..",
+                                "jakarta.persistence..",
+                                "java.sql..",
+                                "javax.sql..",
+                                ROOT + ".infra..",
+                                ROOT + ".runtime..",
+                                ROOT + ".domain.pot..",
+                                ROOT + ".domain.identity..",
+                                ROOT + ".engine.write.."));
+        packages.addAll(List.of(extras));
         return noClasses()
                 .should()
                 .dependOnClassesThat()
-                .resideInAnyPackage(
-                        "org.springframework..",
-                        "jakarta.persistence..",
-                        "java.sql..",
-                        "javax.sql..",
-                        ROOT + ".infra..",
-                        ROOT + ".runtime..",
-                        ROOT + ".domain.pot..",
-                        ROOT + ".domain.identity..",
-                        ROOT + ".domain.identity..",
-                        ROOT + ".engine.write..");
+                .resideInAnyPackage(packages.toArray(String[]::new));
+    }
+
+    static ArchRule pureEngine() {
+        return purePackages();
     }
 
     static ArchRule noOwnerInParticipant() {
@@ -116,22 +123,9 @@ class ConsumptionEngineArchitectureTest {
     }
 
     static ArchRule purePollWorker() {
-        return noClasses()
-                .should()
-                .dependOnClassesThat()
-                .resideInAnyPackage(
-                        "java.sql..",
-                        "javax.sql..",
-                        "org.springframework..",
-                        "jakarta.persistence..",
-                        ROOT + ".infra..",
-                        ROOT + ".runtime..",
-                        ROOT + ".port.transaction.AttemptTransactions",
-                        ROOT + ".orchestrator.consumption.WorkerCapacity$Ticket",
-                        ROOT + ".domain.pot..",
-                        ROOT + ".domain.identity..",
-                        ROOT + ".domain.identity..",
-                        ROOT + ".engine.write..");
+        return purePackages(
+                ROOT + ".port.transaction.AttemptTransactions",
+                ROOT + ".orchestrator.consumption.WorkerCapacity$Ticket");
     }
 
     @Test
@@ -340,28 +334,28 @@ class ConsumptionEngineArchitectureTest {
                 1, PROD.stream().filter(c -> c.getSimpleName().equals("WorkerCapacity")).count());
     }
 
+    private static final java.util.Set<String> DISCOVERY_PREFIXES =
+            java.util.Set.of(
+                    ROOT + ".orchestrator.consumption.DiscoveryEngine",
+                    ROOT + ".contract.consumption.spi.NonBurnableReferences",
+                    ROOT + ".contract.consumption.spi.BurnableReferences",
+                    ROOT + ".contract.consumption.spi.DiscoveryAdmissionStore");
+
+    private static final java.util.Set<String> FORBIDDEN_DISCOVERY_CALLS =
+            java.util.Set.of(
+                    "getConnection",
+                    "rollback",
+                    "createEntityManager",
+                    "bindResource",
+                    "registerSynchronization",
+                    "scheduleAtFixedRate");
+
     @Test
     void discoveryPortsAndWritersRemainBounded() {
         var discovery =
                 select(
                         PROD,
-                        c ->
-                                c.getName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".orchestrator.consumption.DiscoveryEngine")
-                                        || c.getName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".contract.consumption.spi.NonBurnableReferences")
-                                        || c.getName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".contract.consumption.spi.BurnableReferences")
-                                        || c.getName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".contract.consumption.spi.DiscoveryAdmissionStore"));
+                        c -> DISCOVERY_PREFIXES.stream().anyMatch(c.getName()::startsWith));
         pureEngine().check(discovery);
         assertTrue(discovery.stream().anyMatch(c -> c.getSimpleName().equals("DiscoveryEngine")));
         var writers =
@@ -378,45 +372,7 @@ class ConsumptionEngineArchitectureTest {
         noHiddenTransactionOwner().check(writers);
         var rawCommit = noClasses().should().callMethod(java.sql.Connection.class, "commit");
         rawCommit.check(writers);
-        for (var writer : writers) {
-            assertFalse(
-                    writer.getMethodCallsFromSelf().stream()
-                            .anyMatch(
-                                    call ->
-                                            java.util.Set.of(
-                                                            "getConnection",
-                                                            "rollback",
-                                                            "createEntityManager",
-                                                            "bindResource",
-                                                            "registerSynchronization",
-                                                            "scheduleAtFixedRate")
-                                                    .contains(call.getTarget().getName())),
-                    writer.getName());
-        }
-        var admission =
-                writers.stream()
-                        .filter(c -> c.getSimpleName().equals("JdbcDiscoveryAdmissionStore"))
-                        .findFirst()
-                        .orElseThrow();
-        for (String method :
-                java.util.Set.of(
-                        "currentCheckpoint",
-                        "liveSlots",
-                        "contains",
-                        "insertInitial",
-                        "advanceCheckpoint"))
-            assertTrue(
-                    admission.getMethods().stream()
-                            .filter(m -> m.getName().equals(method))
-                            .anyMatch(
-                                    m ->
-                                            m.getMethodCallsFromSelf().stream()
-                                                    .anyMatch(
-                                                            call ->
-                                                                    call.getTarget()
-                                                                            .getName()
-                                                                            .equals("guarded"))),
-                    method);
+        verifyDiscoveryWriters(writers);
         var negative =
                 new ClassFileImporter()
                         .importClasses(BadRawDiscoveryWriter.class, BadSqlEngine.class);
@@ -431,6 +387,36 @@ class ConsumptionEngineArchitectureTest {
                 pureEngine()
                         .evaluate(select(negative, c -> c.getSimpleName().equals("BadSqlEngine")))
                         .hasViolation());
+    }
+
+    private static void verifyDiscoveryWriters(com.tngtech.archunit.core.domain.JavaClasses writers) {
+        for (var writer : writers) {
+            assertFalse(
+                    writer.getMethodCallsFromSelf().stream()
+                            .anyMatch(call -> FORBIDDEN_DISCOVERY_CALLS.contains(call.getTarget().getName())),
+                    writer.getName());
+        }
+        var admission =
+                writers.stream()
+                        .filter(c -> c.getSimpleName().equals("JdbcDiscoveryAdmissionStore"))
+                        .findFirst()
+                        .orElseThrow();
+        for (String method :
+                java.util.Set.of(
+                        "currentCheckpoint",
+                        "liveSlots",
+                        "contains",
+                        "insertInitial",
+                        "advanceCheckpoint")) {
+            assertTrue(
+                    admission.getMethods().stream()
+                            .filter(m -> m.getName().equals(method))
+                            .anyMatch(
+                                    m ->
+                                            m.getMethodCallsFromSelf().stream()
+                                                    .anyMatch(call -> call.getTarget().getName().equals("guarded"))),
+                    method);
+        }
     }
 
     static class BadRawDiscoveryWriter {
@@ -480,14 +466,8 @@ class ConsumptionEngineArchitectureTest {
                 select(
                         PROD,
                         c ->
-                                c.getName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".engine.write.pot.ExecutePotCommand")
-                                        || c.getName()
-                                                .startsWith(
-                                                        ROOT
-                                                                + ".engine.write.identity.ExecuteIdentityRequest"));
+                                c.getName().startsWith(ROOT + ".engine.write.pot.ExecutePotCommand")
+                                        || c.getName().startsWith(ROOT + ".engine.write.identity.ExecuteIdentityRequest"));
         var guardRule =
                 noClasses()
                         .should()
@@ -499,6 +479,10 @@ class ConsumptionEngineArchitectureTest {
                 guardRule
                         .evaluate(new ClassFileImporter().importClasses(BadParticipantGuard.class))
                         .hasViolation());
+        verifyPreparationReadContracts();
+    }
+
+    private static void verifyPreparationReadContracts() throws ClassNotFoundException {
         var reads = Class.forName(ROOT + ".contract.consumption.participation.PreparationReads");
         assertEquals(
                 Set.of("source", "effects"),

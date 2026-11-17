@@ -46,38 +46,19 @@ class InvitationHttpTest extends InvitationFixture {
         }
         var ra = f.poll("/commands/" + a + "/result", "guest", null);
         var rb = f.poll("/commands/" + b + "/result", "second", null);
-        int wins = 0;
-        for (int i = 0; i < 2; i++) {
-            var result = i == 0 ? ra : rb;
-            UUID request = i == 0 ? a : b;
-            String actor = i == 0 ? "guest" : "second";
-            UUID target = i == 0 ? f.share : other;
-            boolean won = "COMPLETED".equals(result.get("outcome").asText());
-            if (won) {
-                wins++;
-                UUID actualUser = f.worker.write.queryForObject(
-                        "select user_id from v3_shareholder_details where object_id=? and active_to is null",
-                        UUID.class, target);
-                UUID actorUser = f.worker.write.queryForObject(
-                        "select v.user_id from v3_eui_authority a join v3_eui_version v on a.eui_id=v.eui_id"
-                                + " and a.current_version=v.version where a.issuer=? and a.subject=?",
-                        UUID.class, f.http.issuer, actor);
-                assertEquals(actorUser, actualUser, "Invitation attaches only its authenticated actor");
-            } else {
-                assertEquals("REJECTED", result.get("outcome").asText());
-                assertEquals("INVALID_ATTACHMENT", result.get("rejection").asText());
-            }
-            assertEquals(won ? 1 : 0, f.worker.write.queryForObject(
-                    "select count(*) from v3_pot_event where request_id=?", Integer.class, request));
-        }
-        assertEquals(distinctPlaces ? 2 : 1, wins);
-        assertEquals(eventsBefore + wins, f.worker.write.queryForObject(
-                "select count(*) from v3_pot_event where pot_id=?", Long.class, f.pot));
-        assertEquals(wins, f.worker.write.queryForObject(
-                "select count(*) from v3_shareholder_details where pot_id=? and active_to is null and user_id is not null",
-                Integer.class, f.pot));
-        assertEquals(identityBefore, f.worker.write.queryForList(
-                "select * from v3_eui_version order by eui_id,version"));
+        int wins = verifyAcceptanceOutcomes(
+                List.of(
+                        new AcceptanceAttempt(ra, a, "guest", f.share),
+                        new AcceptanceAttempt(rb, b, "second", other)));
+        assertAll(
+                () -> assertEquals(distinctPlaces ? 2 : 1, wins),
+                () -> assertEquals(eventsBefore + wins, f.worker.write.queryForObject(
+                        "select count(*) from v3_pot_event where pot_id=?", Long.class, f.pot)),
+                () -> assertEquals(wins, f.worker.write.queryForObject(
+                        "select count(*) from v3_shareholder_details where pot_id=? and active_to is null and user_id is not null",
+                        Integer.class, f.pot)),
+                () -> assertEquals(identityBefore, f.worker.write.queryForList(
+                        "select * from v3_eui_version order by eui_id,version")));
         long version = f.worker.write.queryForObject(
                 "select current_version from v3_pot_identity where pot_id=?", Long.class, f.pot);
         UUID forbidden = f.accepted(f.post("/commands", "outsider", "ordinary-rights",
@@ -88,6 +69,40 @@ class InvitationHttpTest extends InvitationFixture {
                 .get("rejection").asText());
         assertEquals(version, f.worker.write.queryForObject(
                 "select current_version from v3_pot_identity where pot_id=?", Long.class, f.pot));
+    }
+
+    private record AcceptanceAttempt(
+            com.fasterxml.jackson.databind.JsonNode result, UUID request, String actor, UUID target) {}
+
+    private int verifyAcceptanceOutcomes(List<AcceptanceAttempt> attempts) {
+        int wins = 0;
+        for (var entry : attempts) {
+            if (verifySingleAcceptance(entry.result(), entry.request(), entry.actor(), entry.target())) {
+                wins++;
+            }
+        }
+        return wins;
+    }
+
+    private boolean verifySingleAcceptance(
+            com.fasterxml.jackson.databind.JsonNode result, UUID request, String actor, UUID target) {
+        boolean won = "COMPLETED".equals(result.get("outcome").asText());
+        if (won) {
+            UUID actualUser = f.worker.write.queryForObject(
+                    "select user_id from v3_shareholder_details where object_id=? and active_to is null",
+                    UUID.class, target);
+            UUID actorUser = f.worker.write.queryForObject(
+                    "select v.user_id from v3_eui_authority a join v3_eui_version v on a.eui_id=v.eui_id"
+                            + " and a.current_version=v.version where a.issuer=? and a.subject=?",
+                    UUID.class, f.http.issuer, actor);
+            assertEquals(actorUser, actualUser, "Invitation attaches only its authenticated actor");
+        } else {
+            assertEquals("REJECTED", result.get("outcome").asText());
+            assertEquals("INVALID_ATTACHMENT", result.get("rejection").asText());
+        }
+        assertEquals(won ? 1 : 0, f.worker.write.queryForObject(
+                "select count(*) from v3_pot_event where request_id=?", Integer.class, request));
+        return won;
     }
 
     @Test
@@ -129,6 +144,11 @@ class InvitationHttpTest extends InvitationFixture {
             awaitTwoFinalWriteWaiters();
             gate.commit();
         }
+        verifyConcurrentUnlinkOutcome(guest, secret, unlink, attachment);
+    }
+
+    private void verifyConcurrentUnlinkOutcome(
+            String guest, String secret, UUID unlink, UUID attachment) throws Exception {
         assertEquals(
                 "COMPLETED",
                 f.poll("/identity/requests/" + unlink + "/result", "guest", null)
@@ -137,32 +157,33 @@ class InvitationHttpTest extends InvitationFixture {
         var result = f.poll("/commands/" + attachment + "/result", "guest", null);
         boolean attached = result.get("outcome").asText().equals("COMPLETED");
         if (!attached) assertEquals("INVALID_BINDING", result.get("rejection").asText());
-        assertEquals(
-                attached ? 1 : 0,
-                f.worker.write.queryForObject(
-                        "select count(*) from v3_shareholder_details where object_id=? and"
-                            + " active_to is null and user_id is not null",
-                        Integer.class,
-                        f.share));
-        assertEquals(
-                attached ? 1 : 0,
-                f.worker.write.queryForObject(
-                        "select count(*) from v3_pot_event where request_id=?",
-                        Integer.class,
-                        attachment));
-        assertNull(
-                f.worker.write.queryForObject(
-                        "select v.user_id from v3_eui_authority a join v3_eui_version v on"
-                            + " a.eui_id=v.eui_id and a.current_version=v.version where a.issuer=?"
-                            + " and a.subject=?",
-                        UUID.class,
-                        f.http.issuer,
-                        "guest"));
-        assertEquals(
-                "INVALID_BINDING",
-                attach("guest", guest, secret, new UUID(4, 2), "after-concurrent-unlink")
-                        .get("rejection")
-                        .asText());
+        assertAll(
+                () -> assertEquals(
+                        attached ? 1 : 0,
+                        f.worker.write.queryForObject(
+                                "select count(*) from v3_shareholder_details where object_id=? and"
+                                        + " active_to is null and user_id is not null",
+                                Integer.class,
+                                f.share)),
+                () -> assertEquals(
+                        attached ? 1 : 0,
+                        f.worker.write.queryForObject(
+                                "select count(*) from v3_pot_event where request_id=?",
+                                Integer.class,
+                                attachment)),
+                () -> assertNull(
+                        f.worker.write.queryForObject(
+                                "select v.user_id from v3_eui_authority a join v3_eui_version v on"
+                                        + " a.eui_id=v.eui_id and a.current_version=v.version where a.issuer=?"
+                                        + " and a.subject=?",
+                                UUID.class,
+                                f.http.issuer,
+                                "guest")),
+                () -> assertEquals(
+                        "INVALID_BINDING",
+                        attach("guest", guest, secret, new UUID(4, 2), "after-concurrent-unlink")
+                                .get("rejection")
+                                .asText()));
     }
 
     @Test
@@ -218,68 +239,49 @@ class InvitationHttpTest extends InvitationFixture {
         String guest = binding("guest");
         UUID id = create(Instant.parse("2030-01-01T00:00:00Z"));
         String secret = invitationToken(id);
-        var foreign =
-                f.http.request(
-                        "GET",
-                        "/invitations/by-creation-request/" + id,
-                        f.http.jwt("guest"),
-                        null,
-                        null,
-                        Map.of());
-        var absent =
-                f.http.request(
-                        "GET",
-                        "/invitations/by-creation-request/" + UUID.randomUUID(),
-                        f.http.jwt("guest"),
-                        null,
-                        null,
-                        Map.of());
-        assertEquals(404, foreign.statusCode());
-        assertEquals(404, absent.statusCode());
-        assertEquals(f.http.body(absent).get("code"), f.http.body(foreign).get("code"));
-        assertEquals("no-store", foreign.headers().firstValue("Cache-Control").orElseThrow());
-        assertFalse(
-                new String(foreign.body(), java.nio.charset.StandardCharsets.UTF_8)
-                        .contains(secret));
+        verifyConfidentialLinkMasking(id, secret);
+        verifyRestrictedPlacesAndAttach(guest, secret);
+        verifyOwnerRetainsLinkAfterUnlink(id, secret);
+    }
+
+    private void verifyConfidentialLinkMasking(UUID id, String secret) throws Exception {
+        var foreign = f.http.request("GET", "/invitations/by-creation-request/" + id, f.http.jwt("guest"), null, null, Map.of());
+        var absent = f.http.request("GET", "/invitations/by-creation-request/" + UUID.randomUUID(), f.http.jwt("guest"), null, null, Map.of());
+        assertAll(
+                () -> assertEquals(404, foreign.statusCode()),
+                () -> assertEquals(404, absent.statusCode()),
+                () -> assertEquals(f.http.body(absent).get("code"), f.http.body(foreign).get("code")),
+                () -> assertEquals("no-store", foreign.headers().firstValue("Cache-Control").orElseThrow()),
+                () -> assertFalse(new String(foreign.body(), java.nio.charset.StandardCharsets.UTF_8).contains(secret)));
+    }
+
+    private void verifyRestrictedPlacesAndAttach(String guest, String secret) throws Exception {
         var available = places("guest", guest, secret);
         assertEquals(200, available.statusCode());
         var body = f.http.body(available);
-        assertEquals(Set.of("shareholders"), fieldNames(body));
-        assertEquals(2, body.get("shareholders").size());
+        assertAll(
+                () -> assertEquals(Set.of("shareholders"), fieldNames(body)),
+                () -> assertEquals(2, body.get("shareholders").size()));
         for (var s : body.get("shareholders"))
             assertEquals(Set.of("shareholderId", "name"), fieldNames(s));
-        assertEquals(404, places("guest", guest, secret + "x").statusCode());
-        assertEquals(404, places("guest", "foreign-binding", secret).statusCode());
-        assertEquals(
-                404,
-                f.http.request("GET", "/pots/" + f.pot, f.http.jwt("guest"), guest, null, Map.of())
-                        .statusCode());
-        assertEquals(
-                404,
-                f.http.request(
-                                "GET",
-                                "/pots/" + f.pot + "/versions/2/balance",
-                                f.http.jwt("guest"),
-                                guest,
-                                null,
-                                Map.of())
-                        .statusCode());
+        assertAll(
+                () -> assertEquals(404, places("guest", guest, secret + "x").statusCode()),
+                () -> assertEquals(404, places("guest", "foreign-binding", secret).statusCode()),
+                () -> assertEquals(404, f.http.request("GET", "/pots/" + f.pot, f.http.jwt("guest"), guest, null, Map.of()).statusCode()),
+                () -> assertEquals(404, f.http.request("GET", "/pots/" + f.pot + "/versions/2/balance", f.http.jwt("guest"), guest, null, Map.of()).statusCode()));
         var attached = attach("guest", guest, secret, f.share, "attachment");
         assertEquals("COMPLETED", attached.get("outcome").asText());
         long version = attached.get("resultingPotVersion").asLong();
         ReadMonolithI8Fixture.await(
-                () ->
-                        f.worker.read.queryForObject(
-                                "select coalesce(max(pot_version),0)>=? from read_current_pot where"
-                                        + " pot_id=?",
-                                Boolean.class,
-                                version,
-                                f.pot));
-        assertEquals(404, places("guest", guest, secret).statusCode());
-        assertEquals(
-                200,
-                f.http.request("GET", "/pots/" + f.pot, f.http.jwt("guest"), guest, null, Map.of())
-                        .statusCode());
+                () -> f.worker.read.queryForObject(
+                        "select coalesce(max(pot_version),0)>=? from read_current_pot where pot_id=?",
+                        Boolean.class, version, f.pot));
+        assertAll(
+                () -> assertEquals(404, places("guest", guest, secret).statusCode()),
+                () -> assertEquals(200, f.http.request("GET", "/pots/" + f.pot, f.http.jwt("guest"), guest, null, Map.of()).statusCode()));
+    }
+
+    private void verifyOwnerRetainsLinkAfterUnlink(UUID id, String secret) throws Exception {
         // Creator ownership is EUI-based and survives a public Unlink and new Binding occurrence.
         UUID unlink =
                 f.accepted(
@@ -328,26 +330,8 @@ class InvitationHttpTest extends InvitationFixture {
                         "participants",
                         List.of(f.participant(f.share))));
         long history = f.version;
-        UUID otherPot = UUID.randomUUID(), otherShare = UUID.randomUUID();
-        actorCommand("guest", guest, otherPot, 0, "CreatePot", Map.of("label", "Other Pot"));
-        actorCommand(
-                "guest",
-                guest,
-                otherPot,
-                1,
-                "AddShareholders",
-                Map.of(
-                        "targets",
-                        List.of(
-                                Map.of(
-                                        "id",
-                                        otherShare.toString(),
-                                        "name",
-                                        "Guest",
-                                        "attachment",
-                                        "SELF",
-                                        "weight",
-                                        f.fraction(1, 1)))));
+        UUID otherPot = UUID.randomUUID();
+        seedOtherPotForGuest(guest, otherPot);
         var identity =
                 f.worker.write.queryForList("select * from v3_eui_version order by eui_id,version");
         var expense =
@@ -359,49 +343,64 @@ class InvitationHttpTest extends InvitationFixture {
                         otherPot);
         var departed =
                 actorCommand(
+                        new ActorCommand(
+                                "guest",
+                                guest,
+                                f.pot,
+                                history,
+                                "UpdateShareholderDetails",
+                                Map.of(
+                                        "targets",
+                                        List.of(
+                                                Map.of(
+                                                        "id",
+                                                        f.share.toString(),
+                                                        "name",
+                                                        "Free",
+                                                        "attachment",
+                                                        "DETACH")))));
+        long after = departed.get("resultingPotVersion").asLong();
+        assertAll(
+                () -> assertEquals(history + 1, after),
+                () -> assertEquals(0, f.worker.write.queryForObject(
+                        "select count(*) from v3_shareholder_details where pot_id=? and active_to is null and user_id is not null",
+                        Integer.class, f.pot)),
+                () -> assertFalse(f.worker.write.queryForObject(
+                        "select deleted from v3_shareholder_header where object_id=? and active_to is null",
+                        Boolean.class, f.share)),
+                () -> assertEquals(identity, f.worker.write.queryForList("select * from v3_eui_version order by eui_id,version")),
+                () -> assertEquals(expense, f.worker.write.queryForList("select * from v3_expense_financials order by revision_id")),
+                () -> assertEquals(other, f.worker.write.queryForList(
+                        "select * from v3_shareholder_details where pot_id=? order by revision_id", otherPot)));
+        verifyPostDepartureReads(guest, history, after, otherPot);
+    }
+
+    private void seedOtherPotForGuest(String guest, UUID otherPot) throws Exception {
+        UUID otherShare = UUID.randomUUID();
+        actorCommand(new ActorCommand("guest", guest, otherPot, 0, "CreatePot", Map.of("label", "Other Pot")));
+        actorCommand(
+                new ActorCommand(
                         "guest",
                         guest,
-                        f.pot,
-                        history,
-                        "UpdateShareholderDetails",
+                        otherPot,
+                        1,
+                        "AddShareholders",
                         Map.of(
                                 "targets",
                                 List.of(
                                         Map.of(
                                                 "id",
-                                                f.share.toString(),
+                                                otherShare.toString(),
                                                 "name",
-                                                "Free",
+                                                "Guest",
                                                 "attachment",
-                                                "DETACH"))));
-        long after = departed.get("resultingPotVersion").asLong();
-        assertEquals(history + 1, after);
-        assertEquals(
-                0,
-                f.worker.write.queryForObject(
-                        "select count(*) from v3_shareholder_details where pot_id=? and active_to"
-                                + " is null and user_id is not null",
-                        Integer.class,
-                        f.pot));
-        assertFalse(
-                f.worker.write.queryForObject(
-                        "select deleted from v3_shareholder_header where object_id=? and active_to"
-                                + " is null",
-                        Boolean.class,
-                        f.share));
-        assertEquals(
-                identity,
-                f.worker.write.queryForList(
-                        "select * from v3_eui_version order by eui_id,version"));
-        assertEquals(
-                expense,
-                f.worker.write.queryForList(
-                        "select * from v3_expense_financials order by revision_id"));
-        assertEquals(
-                other,
-                f.worker.write.queryForList(
-                        "select * from v3_shareholder_details where pot_id=? order by revision_id",
-                        otherPot));
+                                                "SELF",
+                                                "weight",
+                                                f.fraction(1, 1))))));
+    }
+
+    private void verifyPostDepartureReads(String guest, long history, long after, UUID otherPot)
+            throws Exception {
         ReadMonolithI8Fixture.await(
                 () ->
                         f.worker.read.queryForObject(
@@ -410,63 +409,35 @@ class InvitationHttpTest extends InvitationFixture {
                                 Boolean.class,
                                 after,
                                 f.pot));
-        assertEquals(
-                404,
-                f.http.request("GET", "/pots/" + f.pot, f.http.jwt("guest"), guest, null, Map.of())
-                        .statusCode());
-        assertEquals(
-                200,
-                f.http.request(
-                                "GET",
-                                "/pots/" + f.pot + "/versions/" + history,
-                                f.http.jwt("guest"),
-                                guest,
-                                null,
-                                Map.of())
-                        .statusCode());
-        assertEquals(
-                200,
-                f.http.request(
-                                "GET",
-                                "/pots/" + f.pot,
-                                f.http.jwt("owner"),
-                                f.token,
-                                null,
-                                Map.of())
-                        .statusCode());
-        assertEquals(
-                200,
-                f.http.request(
-                                "GET",
-                                "/pots/" + otherPot,
-                                f.http.jwt("guest"),
-                                guest,
-                                null,
-                                Map.of())
-                        .statusCode());
+        assertAll(
+                () -> assertEquals(404, f.http.request("GET", "/pots/" + f.pot, f.http.jwt("guest"), guest, null, Map.of()).statusCode()),
+                () -> assertEquals(200, f.http.request("GET", "/pots/" + f.pot + "/versions/" + history, f.http.jwt("guest"), guest, null, Map.of()).statusCode()),
+                () -> assertEquals(200, f.http.request("GET", "/pots/" + f.pot, f.http.jwt("owner"), f.token, null, Map.of()).statusCode()),
+                () -> assertEquals(200, f.http.request("GET", "/pots/" + otherPot, f.http.jwt("guest"), guest, null, Map.of()).statusCode()));
     }
 
-    com.fasterxml.jackson.databind.JsonNode actorCommand(
-            String actor, String binding, UUID pot, long observed, String op, Object payload)
-            throws Exception {
+    private record ActorCommand(
+            String actor, String binding, UUID pot, long observed, String op, Object payload) {}
+
+    com.fasterxml.jackson.databind.JsonNode actorCommand(ActorCommand cmd) throws Exception {
         UUID id =
                 f.accepted(
                         f.post(
                                 "/commands",
-                                actor,
+                                cmd.actor(),
                                 UUID.randomUUID().toString(),
                                 Map.of(
                                         "operation",
-                                        op,
+                                        cmd.op(),
                                         "potId",
-                                        pot.toString(),
+                                        cmd.pot().toString(),
                                         "observedVersion",
-                                        observed,
+                                        cmd.observed(),
                                         "bindingToken",
-                                        binding,
+                                        cmd.binding(),
                                         "payload",
-                                        payload)));
-        var result = f.poll("/commands/" + id + "/result", actor, null);
+                                        cmd.payload())));
+        var result = f.poll("/commands/" + id + "/result", cmd.actor(), null);
         assertEquals("COMPLETED", result.get("outcome").asText());
         return result;
     }
@@ -527,6 +498,15 @@ class InvitationHttpTest extends InvitationFixture {
         }
         assertTrue(finished, "B4 external process deadline");
         assertEquals(0, running.exitValue(), "B4 failed: inspect sanitized Bruno output");
+        verifyB4ReceiptsAndConfidentiality(repo, output, inputs, List.of(owner, guest, second));
+    }
+
+    private void verifyB4ReceiptsAndConfidentiality(
+            java.nio.file.Path repo,
+            java.nio.file.Path output,
+            Object inputs,
+            List<String> bearers)
+            throws Exception {
         var scenarios = new ArrayList<String>();
         int requests = 0;
         for (String line : java.nio.file.Files.readAllLines(output.resolve("requests.jsonl"))) {
@@ -535,56 +515,36 @@ class InvitationHttpTest extends InvitationFixture {
             scenarios.add(receipt.get("scenario").asText());
             requests += receipt.get("requests").size();
         }
-        assertEquals(List.of("B401", "B402", "B403", "B404"), scenarios);
-        assertEquals(
-                3,
-                f.worker.write.queryForObject("select count(*) from v3_invitation", Integer.class));
-        assertEquals(
-                1,
-                f.worker.write.queryForObject(
-                        "select count(*) from v3_command_result where"
-                                + " rejection='INVALID_INVITATION'",
-                        Integer.class));
-        String diagnostics =
-                java.nio.file.Files.readString(output.resolve("bruno.log")) + PG.getLogs();
-        for (String bearer : List.of(owner, guest, second))
+        assertAll(
+                () -> assertEquals(List.of("B401", "B402", "B403", "B404"), scenarios),
+                () -> assertEquals(3, f.worker.write.queryForObject("select count(*) from v3_invitation", Integer.class)),
+                () -> assertEquals(1, f.worker.write.queryForObject("select count(*) from v3_command_result where rejection='INVALID_INVITATION'", Integer.class)));
+        String diagnostics = java.nio.file.Files.readString(output.resolve("bruno.log")) + PG.getLogs();
+        for (String bearer : bearers)
             assertFalse(diagnostics.contains(bearer), "Bearer leaked in observed logs");
-        var crypto =
-                com.kartaguez.pocoma.infra.security.spring.InvitationConfiguration.keys(
-                        f.http.context.getEnvironment());
-        var ds = f.worker.write.getDataSource();
-        var read = InvitationReadPostgresTest.owner(ds);
-        for (UUID event :
-                f.worker.write.queryForList(
-                        "select event_id from v3_invitation_event", UUID.class)) {
-            var invitation =
-                    read.read(
-                            c ->
-                                    new com.kartaguez.pocoma.infra.postgres.source.JdbcInvitationSource(ds)
-                                            .load(event, c));
-            String secret = crypto.decrypt(invitation).substring("pocoma://invitation/".length());
-            assertFalse(diagnostics.contains(secret), "Invitation leaked in observed logs");
-        }
-        assertEquals(
-                inputs,
-                AdmissionFlowPostgresTest.brunoInputs(repo),
-                "Bruno inputs changed during execution");
+        verifyNoDecryptedInvitationLeaks(diagnostics);
+        assertEquals(inputs, AdmissionFlowPostgresTest.brunoInputs(repo), "Bruno inputs changed during execution");
         java.nio.file.Files.writeString(
                 output.resolve("receipt.json"),
                 f.json.writerWithDefaultPrettyPrinter()
                         .writeValueAsString(
                                 Map.of(
-                                        "scenarios",
-                                        scenarios,
-                                        "helperRequests",
-                                        requests,
-                                        "primaryRequests",
-                                        4,
-                                        "authentication",
-                                        "three locally signed JWT sessions, real Resource Server"
-                                                + " and JWK HTTP boundary",
-                                        "externalIdpCertified",
-                                        false)));
+                                        "scenarios", scenarios,
+                                        "helperRequests", requests,
+                                        "primaryRequests", 4,
+                                        "authentication", "three locally signed JWT sessions, real Resource Server and JWK HTTP boundary",
+                                        "externalIdpCertified", false)));
+    }
+
+    private void verifyNoDecryptedInvitationLeaks(String diagnostics) throws Exception {
+        var crypto = com.kartaguez.pocoma.infra.security.spring.InvitationConfiguration.keys(f.http.context.getEnvironment());
+        var ds = f.worker.write.getDataSource();
+        var read = InvitationReadPostgresTest.owner(ds);
+        for (UUID event : f.worker.write.queryForList("select event_id from v3_invitation_event", UUID.class)) {
+            var invitation = read.read(c -> new com.kartaguez.pocoma.infra.postgres.source.JdbcInvitationSource(ds).load(event, c));
+            String secret = crypto.decrypt(invitation).substring("pocoma://invitation/".length());
+            assertFalse(diagnostics.contains(secret), "Invitation leaked in observed logs");
+        }
     }
 
     static Set<String> fieldNames(com.fasterxml.jackson.databind.JsonNode n) {

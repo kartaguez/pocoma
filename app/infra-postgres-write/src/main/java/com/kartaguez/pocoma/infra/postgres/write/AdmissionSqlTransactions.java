@@ -78,10 +78,8 @@ public final class AdmissionSqlTransactions implements AttemptTransactions {
 
     @Override
     public <T> T read(Function<RecoveryReadContext, T> action, Guard guard) {
-        int[] pid = {0};
-        return observe(
-                pid,
-                () ->
+        return runCaptured(
+                pid ->
                         delegate.read(
                                 c -> {
                                     capture(pid);
@@ -92,16 +90,19 @@ public final class AdmissionSqlTransactions implements AttemptTransactions {
 
     @Override
     public <T> T write(Supplier<T> action, Guard guard) {
-        int[] pid = {0};
-        return observe(
-                pid,
-                () ->
+        return runCaptured(
+                pid ->
                         delegate.write(
                                 () -> {
                                     capture(pid);
                                     return action.get();
                                 },
                                 guard));
+    }
+
+    private <T> T runCaptured(Function<int[], T> execution) {
+        int[] pid = {0};
+        return observe(pid, () -> execution.apply(pid));
     }
 
     @Override

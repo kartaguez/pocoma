@@ -18,6 +18,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -283,28 +286,70 @@ final class ReadHttpFixture implements AutoCloseable {
         com.kartaguez.pocoma.compose.web.read.ReadHttpConfiguration.class})
     static class DualHttpComposeRoot {}
 
-    void start(Class<?>... roots) {
-        if(properties.containsKey("pocoma.v3.http.admission.url")) {
-            roots=Arrays.stream(roots).map(root -> root==PocomaWebReadApplication.class?DualHttpComposeRoot.class:root).toArray(Class<?>[]::new);
-        }
-        var app = new SpringApplication(roots); app.setAdditionalProfiles(
-                properties.containsKey("pocoma.v3.http.admission.url")
-                        ? new String[] {ReadHttpConfiguration.PROFILE, "v3-http-admission"}
-                        : new String[] {ReadHttpConfiguration.PROFILE}); app.setDefaultProperties(properties);
-        app.addInitializers(ctx -> ctx.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("i1-isolated-fixture", properties)));
-        context = app.run(); baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
-        // Both physical connections must finish lazy JDBC initialization before zero-SQL oracles.
+    private void warmUpPhysicalPool() {
         var before = sqlStats();
-        try (var one = pool().getConnection(); var two = pool().getConnection()) {
-            for (var connection : List.of(one, two)) try (var statement = connection.createStatement(); var result = statement.executeQuery("select 1")) {
-                if (!result.next() || result.getInt(1) != 1) throw new IllegalStateException("READ fixture initialization failed");
-            }
-        } catch (java.sql.SQLException failed) { throw new IllegalStateException("READ fixture pool initialization failed", failed); }
-        if (pool().getHikariPoolMXBean().getTotalConnections() != 2 || pool().getHikariPoolMXBean().getActiveConnections() != 0)
+        verifyPoolConnections();
+        if (pool().getHikariPoolMXBean().getTotalConnections() != 2
+                || pool().getHikariPoolMXBean().getActiveConnections() != 0) {
             throw new IllegalStateException("READ fixture pool not initialized");
-        try { evidence("HTTP-pool-initialization-" + schema, Map.of("before", before, "after", sqlStats(), "physicalConnectionsInitialized", 2)); }
-        catch (IOException failed) { throw new IllegalStateException("READ fixture initialization evidence failed", failed); }
+        }
+        recordPoolEvidence(before);
+    }
 
+    private void verifyPoolConnections() {
+        try (var one = pool().getConnection(); var two = pool().getConnection()) {
+            for (var connection : List.of(one, two)) {
+                verifySelectOne(connection);
+            }
+        } catch (java.sql.SQLException failed) {
+            throw new IllegalStateException("READ fixture pool initialization failed", failed);
+        }
+    }
+
+    private static void verifySelectOne(java.sql.Connection connection) throws java.sql.SQLException {
+        try (var statement = connection.createStatement();
+                var result = statement.executeQuery("select 1")) {
+            if (!result.next() || result.getInt(1) != 1) {
+                throw new IllegalStateException("READ fixture initialization failed");
+            }
+        }
+    }
+
+    private void recordPoolEvidence(List<Map<String, Object>> before) {
+        try {
+            evidence(
+                    "HTTP-pool-initialization-" + schema,
+                    Map.of("before", before, "after", sqlStats(), "physicalConnectionsInitialized", 2));
+        } catch (IOException failed) {
+            throw new IllegalStateException("READ fixture initialization evidence failed", failed);
+        }
+    }
+
+    void start(Class<?>... roots) {
+        boolean dual = properties.containsKey("pocoma.v3.http.admission.url");
+        if (dual) {
+            roots =
+                    Arrays.stream(roots)
+                            .map(r -> r == PocomaWebReadApplication.class ? DualHttpComposeRoot.class : r)
+                            .toArray(Class<?>[]::new);
+        }
+        var app = new SpringApplication(roots);
+        app.setAdditionalProfiles(
+                dual
+                        ? new String[] {ReadHttpConfiguration.PROFILE, "v3-http-admission"}
+                        : new String[] {ReadHttpConfiguration.PROFILE});
+        app.setDefaultProperties(properties);
+        app.addInitializers(
+                ctx ->
+                        ctx.getEnvironment()
+                                .getPropertySources()
+                                .addFirst(
+                                        new org.springframework.core.env.MapPropertySource(
+                                                "i1-isolated-fixture", properties)));
+        context = app.run();
+        baseUrl = "http://127.0.0.1:" + ((WebServerApplicationContext) context).getWebServer().getPort();
+        // Both physical connections must finish lazy JDBC initialization before zero-SQL oracles.
+        warmUpPhysicalPool();
     }
     ExternalIdentity eui(String subject) { return new ExternalIdentity(issuer, subject); }
     void binding(String subject, long version, UUID user, String token) {
@@ -338,38 +383,93 @@ final class ReadHttpFixture implements AutoCloseable {
     void seed(UUID pot, long version, int expenseCount, int shareholders, Set<UUID> allowed, boolean deleted, boolean withBalance, boolean expenseDetails, String label) {
         seedProfile(pot, version, expenseCount, shareholders, allowed, deleted, withBalance, expenseDetails, label, 0, false);
     }
-    void seedProfile(UUID pot, long version, int expenseCount, int shareholders, Set<UUID> allowed, boolean deleted, boolean withBalance, boolean expenseDetails, String label, int digits, boolean expenseRationals) {
-        Fraction rational = digits == 0 ? new Fraction(2, 3) : new Fraction(java.math.BigInteger.TEN.pow(digits-1).add(java.math.BigInteger.ONE), java.math.BigInteger.TEN.pow(digits-1).add(java.math.BigInteger.valueOf(3)));
+    private record SeedContext(UUID pot, long version, Fraction rational, boolean expenseDetails, boolean expenseRationals) {}
 
-        var shares = new ArrayList<PotVersion.Shareholder>(); var refs = new ArrayList<PotVersion.Expense>(); var parts = new LinkedHashMap<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.Weight>>();
-        var values = new ArrayList<SubobjectVersion>(); var vector = new LinkedHashMap<UUID, Fraction>();
-        add(values, pot, POT_HEADER, pot, version, new PotHeaderContent(new PotHeader(new PotId(pot), deleted)));
-        add(values, pot, POT_DETAILS, pot, version, new PotDetailsContent(new PotDetails(new PotId(pot), new Label(label), new UserId(OWNER))));
-        for (int n = 0; n < shareholders; n++) {
-            UUID s = id(201 + n); shares.add(new PotVersion.Shareholder(s, version, version, version, false, true));
-            add(values, pot, SHAREHOLDER_HEADER, s, version, new ShareholderHeaderContent(new ShareholderHeader(new PotId(pot), new ShareholderId(s), false)));
-            add(values, pot, SHAREHOLDER_DETAILS, s, version, new ShareholderDetailsContent(new ShareholderDetails(new PotId(pot), new ShareholderId(s), new Name("share-" + n), Optional.empty())));
-            add(values, pot, SHAREHOLDER_WEIGHT, s, version, new ShareholderWeightContent(new ShareholderWeight(new PotId(pot), new ShareholderId(s), new com.kartaguez.pocoma.domain.pot.Weight(rational))));
-            parts.put(new ShareholderId(s), expenseRationals ? Optional.of(new com.kartaguez.pocoma.domain.pot.Weight(rational)) : Optional.empty()); vector.put(s, n == 0 ? new Fraction(1, 3) : n == 1 ? new Fraction(-1, 3) : Fraction.ZERO);
+    private record SeedAccumulator(
+            List<PotVersion.Shareholder> shares,
+            List<PotVersion.Expense> refs,
+            Map<ShareholderId, Optional<com.kartaguez.pocoma.domain.pot.Weight>> parts,
+            List<SubobjectVersion> values,
+            Map<UUID, Fraction> vector) {
+        SeedAccumulator() {
+            this(new ArrayList<>(), new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>(), new LinkedHashMap<>());
         }
-        for (int n = 0; n < expenseCount; n++) {
-            UUID e = id(1000 + n); refs.add(new PotVersion.Expense(e, version, version, version, false));
-            add(values, pot, EXPENSE_HEADER, e, version, new ExpenseHeaderContent(new ExpenseHeader(new PotId(pot), new ExpenseId(e), false)));
-            if (expenseDetails) add(values, pot, EXPENSE_DETAILS, e, version, new ExpenseDetailsContent(new ExpenseDetails(new PotId(pot), new ExpenseId(e), new Label("dépense\\\"-" + n), LocalDate.of(2026, 11, 3))));
-            add(values, pot, EXPENSE_FINANCIALS, e, version, new ExpenseFinancialsContent(new ExpenseFinancials(new PotId(pot), new ExpenseId(e), new com.kartaguez.pocoma.domain.pot.Amount(expenseRationals ? rational : new Fraction(1, 3)), new ShareholderId(S1), parts)));
-        }
-        injector.write(() -> { objects.insertOrVerifyAll(values); pots.insertAndAdvance(new PotVersion(pot, version, version, version, deleted, shares, refs, allowed, Set.of()));
-            if (withBalance && !deleted) balances.insertOrVerify(new PotBalance(pot, version, vector)); return null; });
     }
-    void seed(UUID pot, long version, int count, Set<UUID> allowed, boolean deleted, boolean balance, boolean details, String label) { seed(pot, version, count, 2, allowed, deleted, balance, details, label); }
-    static void add(List<SubobjectVersion> values, UUID pot, SubobjectKind kind, UUID object, long version, SubobjectContent content) { values.add(new SubobjectVersion(new SubobjectKey(pot, kind, object, version), content)); }
-    void results() {
-        for (boolean rejected : List.of(false, true)) {
-            admin.update("insert into read_command_result values (?,'CreatePot',?,?,?, ?,?,?)", id(rejected ? 402 : 401), issuer, "owner", POT, rejected ? "REJECTED" : "CHANGED", rejected ? null : 2L, rejected ? "INVALID_BINDING" : null);
-            admin.update(
-                    "insert into read_identity_request_result values (?,'REGISTRATION',?,?,?,"
-                            + " ?,?,?,?)", id(rejected ? 404 : 403), issuer, "owner", rejected ? "REJECTED" : "CHANGED", rejected ? null : issuer, rejected ? null : "owner", rejected ? null : 1L, rejected ? "INVALID_BINDING" : null);
+
+    void seedProfile(UUID pot, long version, int expenseCount, int shareholders, Set<UUID> allowed, boolean deleted, boolean withBalance, boolean expenseDetails, String label, int digits, boolean expenseRationals) {
+        var ctx = new SeedContext(pot, version, rationalForDigits(digits), expenseDetails, expenseRationals);
+        var acc = new SeedAccumulator();
+        addSubobject(acc.values(), new SubobjectKey(pot, POT_HEADER, pot, version), new PotHeaderContent(new PotHeader(new PotId(pot), deleted)));
+        addSubobject(acc.values(), new SubobjectKey(pot, POT_DETAILS, pot, version), new PotDetailsContent(new PotDetails(new PotId(pot), new Label(label), new UserId(OWNER))));
+        populateShareholders(ctx, shareholders, acc);
+        populateExpenses(ctx, expenseCount, acc);
+        injector.write(() -> {
+            objects.insertOrVerifyAll(acc.values());
+            pots.insertAndAdvance(new PotVersion(pot, version, version, version, deleted, acc.shares(), acc.refs(), allowed, Set.of()));
+            if (withBalance && !deleted) {
+                balances.insertOrVerify(new PotBalance(pot, version, acc.vector()));
+            }
+            return null;
+        });
+    }
+
+    private static Fraction rationalForDigits(int digits) {
+        if (digits == 0) {
+            return new Fraction(2, 3);
         }
+        var base = java.math.BigInteger.TEN.pow(digits - 1);
+        return new Fraction(base.add(java.math.BigInteger.ONE), base.add(java.math.BigInteger.valueOf(3)));
+    }
+
+    private static void populateShareholders(SeedContext ctx, int shareholders, SeedAccumulator acc) {
+        var weight = new com.kartaguez.pocoma.domain.pot.Weight(ctx.rational());
+        for (int n = 0; n < shareholders; n++) {
+            UUID s = id(201 + n);
+            acc.shares().add(new PotVersion.Shareholder(s, ctx.version(), ctx.version(), ctx.version(), false, true));
+            addSubobject(acc.values(), new SubobjectKey(ctx.pot(), SHAREHOLDER_HEADER, s, ctx.version()), new ShareholderHeaderContent(new ShareholderHeader(new PotId(ctx.pot()), new ShareholderId(s), false)));
+            addSubobject(acc.values(), new SubobjectKey(ctx.pot(), SHAREHOLDER_DETAILS, s, ctx.version()), new ShareholderDetailsContent(new ShareholderDetails(new PotId(ctx.pot()), new ShareholderId(s), new Name("share-" + n), Optional.empty())));
+            addSubobject(acc.values(), new SubobjectKey(ctx.pot(), SHAREHOLDER_WEIGHT, s, ctx.version()), new ShareholderWeightContent(new ShareholderWeight(new PotId(ctx.pot()), new ShareholderId(s), weight)));
+            acc.parts().put(new ShareholderId(s), ctx.expenseRationals() ? Optional.of(weight) : Optional.empty());
+            acc.vector().put(s, initialBalanceFraction(n));
+        }
+    }
+
+    private static Fraction initialBalanceFraction(int index) {
+        if (index == 0) {
+            return new Fraction(1, 3);
+        }
+        return index == 1 ? new Fraction(-1, 3) : Fraction.ZERO;
+    }
+
+    private static void populateExpenses(SeedContext ctx, int expenseCount, SeedAccumulator acc) {
+        var amount = new com.kartaguez.pocoma.domain.pot.Amount(ctx.expenseRationals() ? ctx.rational() : new Fraction(1, 3));
+        for (int n = 0; n < expenseCount; n++) {
+            UUID e = id(1000 + n);
+            acc.refs().add(new PotVersion.Expense(e, ctx.version(), ctx.version(), ctx.version(), false));
+            addSubobject(acc.values(), new SubobjectKey(ctx.pot(), EXPENSE_HEADER, e, ctx.version()), new ExpenseHeaderContent(new ExpenseHeader(new PotId(ctx.pot()), new ExpenseId(e), false)));
+            if (ctx.expenseDetails()) {
+                addSubobject(acc.values(), new SubobjectKey(ctx.pot(), EXPENSE_DETAILS, e, ctx.version()), new ExpenseDetailsContent(new ExpenseDetails(new PotId(ctx.pot()), new ExpenseId(e), new Label("dépense\\\"-" + n), LocalDate.of(2026, 11, 3))));
+            }
+            addSubobject(acc.values(), new SubobjectKey(ctx.pot(), EXPENSE_FINANCIALS, e, ctx.version()), new ExpenseFinancialsContent(new ExpenseFinancials(new PotId(ctx.pot()), new ExpenseId(e), amount, new ShareholderId(S1), acc.parts())));
+        }
+    }
+
+    void seed(UUID pot, long version, int count, Set<UUID> allowed, boolean deleted, boolean balance, boolean details, String label) { seed(pot, version, count, 2, allowed, deleted, balance, details, label); }
+    static void addSubobject(List<SubobjectVersion> values, SubobjectKey key, SubobjectContent content) { values.add(new SubobjectVersion(key, content)); }
+    void results() {
+        insertResultPair(false, null, 2L, 1L);
+        insertResultPair(true, "INVALID_BINDING", null, null);
+    }
+
+    private void insertResultPair(boolean rejected, String reason, Long potSeq, Long idSeq) {
+        String outcome = rejected ? "REJECTED" : "CHANGED";
+        admin.update(
+                "insert into read_command_result values (?,'CreatePot',?,?,?, ?,?,?)",
+                id(rejected ? 402 : 401), issuer, "owner", POT, outcome, potSeq, reason);
+        admin.update(
+                "insert into read_identity_request_result values (?,'REGISTRATION',?,?,?, ?,?,?,?)",
+                id(rejected ? 404 : 403), issuer, "owner", outcome,
+                rejected ? null : issuer, rejected ? null : "owner", idSeq, reason);
     }
     void navigation(int count) { for (int n = 1; n <= count; n++) admin.update("insert into read_user_pot values (?,?,1,true)", OWNER, id(10000 + n)); }
     void corpus() {
@@ -394,66 +494,170 @@ final class ReadHttpFixture implements AutoCloseable {
         Path dir = Path.of(destination); Files.createDirectories(dir);
         Files.writeString(dir.resolve(name + ".json"), json.writerWithDefaultPrettyPrinter().writeValueAsString(observation) + "\n");
     }
+    private static Future<Boolean> startPublisher(
+            ExecutorService executor, ReadHttpFixture fixture, Path signal, boolean expensesOnly) {
+        if (expensesOnly) {
+            return CompletableFuture.completedFuture(true);
+        }
+        return executor.submit(
+                () -> {
+                    try {
+                        long end = System.nanoTime() + Duration.ofSeconds(120).toNanos();
+                        while (!Files.exists(signal) && System.nanoTime() < end) {
+                            Thread.sleep(10);
+                        }
+                        if (!Files.exists(signal)) {
+                            throw new IllegalStateException("B30 publication handshake not observed");
+                        }
+                        fixture.admin.update(
+                                "insert into read_command_result values (?,'CreatePot',?,?,?,'CHANGED',2,null)",
+                                id(405), fixture.issuer, "owner", POT);
+                        fixture.admin.update(
+                                "insert into read_identity_request_result values (?,'REGISTRATION',?,?,'CHANGED',?,?,1,null)",
+                                id(406), fixture.issuer, "owner", fixture.issuer, "owner");
+                        return true;
+                    } catch (Exception failed) {
+                        throw new IllegalStateException("B30 fixture publication failed", failed);
+                    }
+                });
+    }
+
+    private static void populateBrunoEnvironment(
+            Map<String, String> environment, ReadHttpFixture fixture, Path signal, Path output)
+            throws Exception {
+        environment.put("POCOMA_I1_BASE_URL", fixture.baseUrl);
+        environment.put("POCOMA_I1_PUBLISH_SIGNAL", signal.toString());
+        environment.put("POCOMA_I1_REQUEST_RECEIPTS", output.resolve("requests.jsonl").toString());
+        for (var item : Map.of("Owner", "owner", "Other", "other", "SameUser", "same", "Inactive", "inactive", "Absent", "absent").entrySet()) {
+            environment.put("POCOMA_I1_bearer" + item.getKey(), fixture.jwt(item.getValue()));
+        }
+        var now = Instant.now();
+        environment.put(
+                "POCOMA_I1_bearerForged",
+                fixture.jwt(
+                        "owner", fixture.issuer, "pocoma-i1", now.minusSeconds(1),
+                        now.plusSeconds(600), now.minusSeconds(2),
+                        new RSAKeyGenerator(2048).generate(), JWSAlgorithm.RS256));
+        environment.put("POCOMA_I1_bindingOwner", TOKEN);
+        environment.put("POCOMA_I1_bindingOther", OTHER_TOKEN);
+    }
+
+    private static void verifyExportConfidentiality(Path output, Map<String, String> environment)
+            throws IOException {
+        List<String> secrets =
+                environment.entrySet().stream()
+                        .filter(
+                                e ->
+                                        e.getKey().startsWith("POCOMA_I1_bearer")
+                                                || e.getKey().startsWith("POCOMA_I1_binding"))
+                        .map(Map.Entry::getValue)
+                        .toList();
+        for (Path artifact : Files.list(output).filter(Files::isRegularFile).toList()) {
+            String text = Files.readString(artifact);
+            if (secrets.stream().anyMatch(text::contains)) {
+                throw new IllegalStateException("B1 export confidentiality violation");
+            }
+        }
+    }
+
+    private static List<String> readExecutedScenarios(Path requestReceipts, ObjectMapper json)
+            throws IOException {
+        var actualScenarios = new ArrayList<String>();
+        if (!Files.isRegularFile(requestReceipts)) {
+            return actualScenarios;
+        }
+        for (String line : Files.readAllLines(requestReceipts)) {
+            actualScenarios.add(json.readTree(line).get("scenario").asText());
+        }
+        actualScenarios.sort(String::compareTo);
+        return actualScenarios;
+    }
+
     /** Separate B1 lifecycle, launched after T1 by the shared campaign owner. */
     public static void main(String[] args) throws Exception {
-        Path repo = Path.of(args[0]).toAbsolutePath(), output = Path.of(args[1]).toAbsolutePath(); Files.createDirectories(output);
+        Path repo = Path.of(args[0]).toAbsolutePath(), output = Path.of(args[1]).toAbsolutePath();
+        Files.createDirectories(output);
         long started = System.nanoTime();
         try (var pg = container()) {
             pg.start();
             try (var fixture = new ReadHttpFixture(pg)) {
-                fixture.corpus(); fixture.start(PocomaWebReadApplication.class);
-                Path signal = Files.createTempDirectory("pocoma-i1-publisher-").resolve("publish");
-                boolean expensesOnly = "true".equals(System.getenv("POCOMA_I1_BRUNO_EXPENSES_ONLY"));
-                String folder = expensesOnly ? "01 Identity and READ/03 Expense Batches" : "01 Identity and READ";
-                var expectedScenarios = java.util.stream.IntStream.rangeClosed(expensesOnly ? 15 : 1, expensesOnly ? 20 : 32).mapToObj(n -> "B%02d".formatted(n)).toList();
-                try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-                    Future<Boolean> publisher = expensesOnly ? CompletableFuture.completedFuture(true) : executor.submit(() -> {
-                        try {
-                            long end = System.nanoTime() + Duration.ofSeconds(120).toNanos();
-                            while (!Files.exists(signal) && System.nanoTime() < end) Thread.sleep(10);
-                            if (!Files.exists(signal)) throw new IllegalStateException(
-                                                                "B30 publication handshake not"
-                                                                        + " observed");
-                            fixture.admin.update(
-                                                            "insert into read_command_result values"
-                                                                + " (?,'CreatePot',?,?,?,'CHANGED',2,null)", id(405), fixture.issuer, "owner", POT);
-                            fixture.admin.update(
-                                                            "insert into"
-                                                                + " read_identity_request_result"
-                                                                + " values"
-                                                                + " (?,'REGISTRATION',?,?,'CHANGED',?,?,1,null)", id(406), fixture.issuer, "owner", fixture.issuer, "owner");
-                            return true;
-                        } catch (Exception failed) { throw new IllegalStateException("B30 fixture publication failed", failed); }
-                    });
-                    var command = List.of(repo.resolve("scripts/bruno-v3/node_modules/.bin/bru").toString(), "run", "-r", folder, "--env", "Local", "--sandbox", "developer", "--noproxy", "--reporter-json", output.resolve("bruno.json").toString(), "--reporter-skip-all-headers", "--reporter-skip-body");
-                    var process = new ProcessBuilder(command).directory(repo.resolve("scripts/bruno-v3").toFile());
-                    var environment = process.environment(); environment.put("POCOMA_I1_BASE_URL", fixture.baseUrl); environment.put("POCOMA_I1_PUBLISH_SIGNAL", signal.toString()); environment.put("POCOMA_I1_REQUEST_RECEIPTS", output.resolve("requests.jsonl").toString());
-                    for (var item : Map.of("Owner", "owner", "Other", "other", "SameUser", "same", "Inactive", "inactive", "Absent", "absent").entrySet()) environment.put("POCOMA_I1_bearer" + item.getKey(), fixture.jwt(item.getValue()));
-                    var now = Instant.now(); environment.put("POCOMA_I1_bearerForged", fixture.jwt("owner", fixture.issuer, "pocoma-i1", now.minusSeconds(1), now.plusSeconds(600), now.minusSeconds(2), new RSAKeyGenerator(2048).generate(), JWSAlgorithm.RS256));
-                    environment.put("POCOMA_I1_bindingOwner", TOKEN); environment.put("POCOMA_I1_bindingOther", OTHER_TOKEN);
-                    long cliStarted = System.nanoTime(); int code = process.redirectErrorStream(true).redirectOutput(output.resolve("bruno.log").toFile()).start().waitFor();
-                    Path requestReceipts = output.resolve("requests.jsonl");
-                    long scenarioCount = Files.isRegularFile(requestReceipts) ? Files.readAllLines(requestReceipts).size() : 0;
-                    var actualScenarios = new ArrayList<String>();
-                    if (Files.isRegularFile(requestReceipts)) for (String line : Files.readAllLines(requestReceipts)) actualScenarios.add(fixture.json.readTree(line).get("scenario").asText());
-                    actualScenarios.sort(String::compareTo);
-                    boolean coverage = actualScenarios.equals(expectedScenarios);
-                    boolean publication;
-                    if (code != 0 || !coverage) { publisher.cancel(true); publication = false; } else publication = publisher.get(125, TimeUnit.SECONDS);
-                    var receipt = new LinkedHashMap<String,Object>();
-                    receipt.put("provenance", "READ_FIXTURE — NO PUBLIC ADMISSION PROOF"); receipt.put("cliVersion", "4.3.0"); receipt.put("cliSeconds", (System.nanoTime()-cliStarted)/1e9); receipt.put("exitCode", code); receipt.put("fixturePublisherCompleted", publication); receipt.put("expectedScenarios",expectedScenarios); receipt.put("executedScenarioReceipts",scenarioCount); receipt.put("coverageComplete",coverage); receipt.put("command",command); receipt.put("fixtureSecondsBeforeCli",(cliStarted-started)/1e9);
-                    Files.writeString(output.resolve("receipt.json"), fixture.json.writerWithDefaultPrettyPrinter().writeValueAsString(receipt));
-                    // Reporters exclude bodies/headers. Scan actual generated reports for process
-                    // secrets.
-                    for (Path artifact : Files.list(output).filter(Files::isRegularFile).toList()) {
-                        String text = Files.readString(artifact);
-                        for (String secret : environment.entrySet().stream().filter(e -> e.getKey().startsWith("POCOMA_I1_bearer") || e.getKey().startsWith("POCOMA_I1_binding")).map(Map.Entry::getValue).toList())
-                            if (text.contains(secret)) throw new IllegalStateException("B1 export confidentiality violation");
-                    }
-                    if (code != 0 || !coverage) throw new IllegalStateException("Bruno B1 failed or incomplete; preserve reports");
-                } finally { Files.deleteIfExists(signal); Files.deleteIfExists(signal.getParent()); }
+                fixture.corpus();
+                fixture.start(PocomaWebReadApplication.class);
+                runBrunoFixture(repo, output, fixture, started);
             }
         }
+    }
+
+    private static void runBrunoFixture(Path repo, Path output, ReadHttpFixture fixture, long started) throws Exception {
+        Path signal = Files.createTempDirectory("pocoma-i1-publisher-").resolve("publish");
+        boolean expensesOnly = "true".equals(System.getenv("POCOMA_I1_BRUNO_EXPENSES_ONLY"));
+        String folder = expensesOnly ? "01 Identity and READ/03 Expense Batches" : "01 Identity and READ";
+        var expectedScenarios = java.util.stream.IntStream.rangeClosed(expensesOnly ? 15 : 1, expensesOnly ? 20 : 32)
+                .mapToObj("B%02d"::formatted)
+                .toList();
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Future<Boolean> publisher = startPublisher(executor, fixture, signal, expensesOnly);
+            var command = brunoCommand(repo, folder, output);
+            var process = new ProcessBuilder(command).directory(repo.resolve("scripts/bruno-v3").toFile());
+            populateBrunoEnvironment(process.environment(), fixture, signal, output);
+            long cliStarted = System.nanoTime();
+            int code = process.redirectErrorStream(true).redirectOutput(output.resolve("bruno.log").toFile()).start().waitFor();
+            Path requestReceipts = output.resolve("requests.jsonl");
+            boolean coverage = readExecutedScenarios(requestReceipts, fixture.json).equals(expectedScenarios);
+            boolean publication = awaitPublisher(publisher, code, coverage);
+            writeFixtureReceipt(new ReceiptData(output, fixture, started, cliStarted, code, publication, coverage, expectedScenarios, requestReceipts, command));
+            verifyExportConfidentiality(output, process.environment());
+            if (code != 0 || !coverage) {
+                throw new IllegalStateException("Bruno B1 failed or incomplete; preserve reports");
+            }
+        } finally {
+            Files.deleteIfExists(signal);
+            Files.deleteIfExists(signal.getParent());
+        }
+    }
+
+    private static List<String> brunoCommand(Path repo, String folder, Path output) {
+        return List.of(
+                repo.resolve("scripts/bruno-v3/node_modules/.bin/bru").toString(),
+                "run", "-r", folder, "--env", "Local", "--sandbox", "developer",
+                "--noproxy", "--reporter-json", output.resolve("bruno.json").toString(),
+                "--reporter-skip-all-headers", "--reporter-skip-body");
+    }
+
+    private static boolean awaitPublisher(Future<Boolean> publisher, int code, boolean coverage) throws Exception {
+        if (code != 0 || !coverage) {
+            publisher.cancel(true);
+            return false;
+        }
+        return publisher.get(125, TimeUnit.SECONDS);
+    }
+
+    private record ReceiptData(
+            Path output,
+            ReadHttpFixture fixture,
+            long started,
+            long cliStarted,
+            int code,
+            boolean publication,
+            boolean coverage,
+            List<String> expectedScenarios,
+            Path requestReceipts,
+            List<String> command) {}
+
+    private static void writeFixtureReceipt(ReceiptData data) throws IOException {
+        long scenarioCount = Files.isRegularFile(data.requestReceipts()) ? Files.readAllLines(data.requestReceipts()).size() : 0;
+        var receipt = new LinkedHashMap<String, Object>();
+        receipt.put("provenance", "READ_FIXTURE — NO PUBLIC ADMISSION PROOF");
+        receipt.put("cliVersion", "4.3.0");
+        receipt.put("cliSeconds", (System.nanoTime() - data.cliStarted()) / 1e9);
+        receipt.put("exitCode", data.code());
+        receipt.put("fixturePublisherCompleted", data.publication());
+        receipt.put("expectedScenarios", data.expectedScenarios());
+        receipt.put("executedScenarioReceipts", scenarioCount);
+        receipt.put("coverageComplete", data.coverage());
+        receipt.put("command", data.command());
+        receipt.put("fixtureSecondsBeforeCli", (data.cliStarted() - data.started()) / 1e9);
+        Files.writeString(data.output().resolve("receipt.json"), data.fixture().json.writerWithDefaultPrettyPrinter().writeValueAsString(receipt));
     }
     @Override public void close() {
         if (context != null) context.close(); jwks.stop(0);

@@ -35,11 +35,12 @@ public record LifecycleSettings(
 
     public static long micros(Duration duration, boolean zeroAllowed) {
         Objects.requireNonNull(duration);
-        if (duration.isNegative()
-                || (!zeroAllowed && duration.isZero())
-                || duration.getNano() % 1000 != 0)
-            throw new IllegalArgumentException(
-                    "exact nonnegative PostgreSQL microseconds required");
+        if (duration.isNegative() || duration.getNano() % 1000 != 0) {
+            throw new IllegalArgumentException("exact nonnegative PostgreSQL microseconds required");
+        }
+        if (!zeroAllowed && duration.isZero()) {
+            throw new IllegalArgumentException("exact nonnegative PostgreSQL microseconds required");
+        }
         try {
             long value =
                     Math.addExact(

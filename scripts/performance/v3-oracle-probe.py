@@ -90,6 +90,92 @@ def _journey_module():
     return mod
 
 
+def _poll_command_result(j, token, request_id, t0, timeout_s, interval_s):
+    while time.monotonic() - t0 < timeout_s:
+        rs, _, rb = j.http_req("GET", f"{BASE_URL}/api/v3/commands/{request_id}/result", token=token)
+        if rs == 200:
+            return json.loads(rb.decode())
+        time.sleep(interval_s)
+    return None
+
+
+def _await_non_delete_materialization(pot, new_version, t0, timeout_s, interval_s):
+    while time.monotonic() - t0 < timeout_s:
+        if balance_exists(pot, new_version):
+            return (time.monotonic() - t0) * 1000
+        time.sleep(interval_s)
+    return None
+
+
+def _verify_delete_step(j, token, binding, pot, versions, t0, timing):
+    version, new_version = versions
+    timeout_s, interval_s = timing
+    row = None
+    while time.monotonic() - t0 < timeout_s:
+        row = current_pot_state(pot)
+        if row and row["currentVersion"] == new_version and row["deleted"]:
+            break
+        time.sleep(interval_s)
+    http_status, _, _ = j.http_req("GET", f"{BASE_URL}/api/v3/pots/{pot}", token=token,
+                                   headers={"X-Pocoma-Binding-Token": binding})
+    verdict = validate_deletepot_internal(row, new_version, http_status)
+    step_failures = []
+    if not verdict["ok"]:
+        step_failures.extend(f"DeletePot: {e}" for e in verdict["errors"])
+    if http_status != 404:
+        step_failures.append(f"DeletePot: HTTP {http_status} after deletion (expected 404 by contract)")
+    balance_terminal = balance_exists(pot, new_version)
+    balance_previous = balance_exists(pot, version)
+    if balance_terminal:
+        step_failures.append("DeletePot: Balance(P,D) present although intentionally absent")
+    if not balance_previous:
+        step_failures.append(f"DeletePot: Balance(P,{version}) missing for active version V<D")
+    return {
+        "deleteInternalUpperBoundMs": round((time.monotonic() - t0) * 1000, 1) if verdict["ok"] else None,
+        "httpStatusAfterDelete": http_status,
+        "balanceAtTerminalPresent": balance_terminal,
+        "balanceAtPreviousPresent": balance_previous,
+    }, step_failures
+
+
+def _is_applied_result(result, version):
+    if not result or result.get("outcome") not in ("CHANGED", "COMPLETED"):
+        return False
+    resulting = result.get("resultingPotVersion")
+    return isinstance(resulting, int) and resulting > version
+
+
+def _execute_probe_step(j, token, binding, pot, version, step, timing):
+    op, payload = step
+    timeout_s, interval_s = timing
+    cmd = {"operation": op, "potId": pot, "observedVersion": version, "bindingToken": binding, "payload": payload}
+    st, _, body = j.http_req("POST", f"{BASE_URL}/api/v3/commands", token=token, body=cmd,
+                             headers={"Idempotency-Key": f"probe-{op}-{pot}"})
+    t0 = time.monotonic()
+    rec = {"operation": op, "observedVersion": version, "admissionStatus": st}
+    if st != 202:
+        return rec, version, [f"{op}: admission refused HTTP {st}"], True
+    request_id = json.loads(body.decode())["requestId"]
+    result = _poll_command_result(j, token, request_id, t0, timeout_s, interval_s)
+    rec["terminalMs"] = round((time.monotonic() - t0) * 1000, 1) if result else None
+    if not _is_applied_result(result, version):
+        rec["result"] = result
+        return rec, version, [f"{op}: no applied new version ({result})"], True
+    new_version = result["resultingPotVersion"]
+    rec["resultingPotVersion"] = new_version
+    step_failures = []
+    if op != "DeletePot":
+        observed = _await_non_delete_materialization(pot, new_version, t0, timeout_s, interval_s)
+        rec["balanceSqlUpperBoundMs"] = round(observed, 1) if observed else None
+        if observed is None:
+            step_failures.append(f"{op}: Balance(P,{new_version}) not materialized within {timeout_s}s")
+    else:
+        details, delete_failures = _verify_delete_step(j, token, binding, pot, (version, new_version), t0, timing)
+        rec.update(details)
+        step_failures.extend(delete_failures)
+    return rec, new_version, step_failures, False
+
+
 def run_journey(timeout_s=10.0, interval_s=0.025):
     j = _journey_module()
     token = j.get_token("bruno", "bruno-local-only")
@@ -108,67 +194,13 @@ def run_journey(timeout_s=10.0, interval_s=0.025):
         ("DeletePot", {}),
     ]
     version, records, failures = 0, [], []
-    for op, payload in steps:
-        cmd = {"operation": op, "potId": pot, "observedVersion": version, "bindingToken": binding, "payload": payload}
-        st, _, body = j.http_req("POST", f"{BASE_URL}/api/v3/commands", token=token, body=cmd,
-                                 headers={"Idempotency-Key": f"probe-{op}-{pot}"})
-        t0 = time.monotonic()
-        rec = {"operation": op, "observedVersion": version, "admissionStatus": st}
-        if st != 202:
-            failures.append(f"{op}: admission refused HTTP {st}")
-            records.append(rec)
-            break
-        request_id = json.loads(body.decode())["requestId"]
-        result = None
-        while time.monotonic() - t0 < timeout_s:
-            rs, _, rb = j.http_req("GET", f"{BASE_URL}/api/v3/commands/{request_id}/result", token=token)
-            if rs == 200:
-                result = json.loads(rb.decode())
-                break
-            time.sleep(interval_s)
-        rec["terminalMs"] = round((time.monotonic() - t0) * 1000, 1) if result else None
-        if not result or result.get("outcome") not in ("CHANGED", "COMPLETED") or \
-                not isinstance(result.get("resultingPotVersion"), int) or result["resultingPotVersion"] <= version:
-            failures.append(f"{op}: no applied new version ({result})")
-            rec["result"] = result
-            records.append(rec)
-            break
-        new_version = result["resultingPotVersion"]
-        rec["resultingPotVersion"] = new_version
-        if op != "DeletePot":
-            observed = None
-            while time.monotonic() - t0 < timeout_s:
-                if balance_exists(pot, new_version):
-                    observed = (time.monotonic() - t0) * 1000
-                    break
-                time.sleep(interval_s)
-            rec["balanceSqlUpperBoundMs"] = round(observed, 1) if observed else None
-            if observed is None:
-                failures.append(f"{op}: Balance(P,{new_version}) not materialized within {timeout_s}s")
-        else:
-            row = None
-            while time.monotonic() - t0 < timeout_s:
-                row = current_pot_state(pot)
-                if row and row["currentVersion"] == new_version and row["deleted"]:
-                    break
-                time.sleep(interval_s)
-            http_status, _, _ = j.http_req("GET", f"{BASE_URL}/api/v3/pots/{pot}", token=token,
-                                           headers={"X-Pocoma-Binding-Token": binding})
-            verdict = validate_deletepot_internal(row, new_version, http_status)
-            rec["deleteInternalUpperBoundMs"] = round((time.monotonic() - t0) * 1000, 1) if verdict["ok"] else None
-            rec["httpStatusAfterDelete"] = http_status
-            rec["balanceAtTerminalPresent"] = balance_exists(pot, new_version)
-            rec["balanceAtPreviousPresent"] = balance_exists(pot, version)
-            if not verdict["ok"]:
-                failures.extend(f"DeletePot: {e}" for e in verdict["errors"])
-            if http_status != 404:
-                failures.append(f"DeletePot: HTTP {http_status} after deletion (expected 404 by contract)")
-            if rec["balanceAtTerminalPresent"]:
-                failures.append("DeletePot: Balance(P,D) present although intentionally absent")
-            if not rec["balanceAtPreviousPresent"]:
-                failures.append(f"DeletePot: Balance(P,{version}) missing for active version V<D")
-        version = new_version
+    for step in steps:
+        rec, version, step_failures, aborted = _execute_probe_step(
+            j, token, binding, pot, version, step, (timeout_s, interval_s))
         records.append(rec)
+        failures.extend(step_failures)
+        if aborted:
+            break
     return {"potId": pot, "steps": records, "failures": failures, "ok": not failures,
             "bias": "SQL probe via docker exec; upper bounds only, not SLO samples"}
 

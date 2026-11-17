@@ -66,64 +66,73 @@ public class ReadExecution implements PotRead.Queries {
             }
         }
 
+        private <T> ReadPotResult<T> invalidInput(String operation) {
+            record(operation, "invalid_input", 0L);
+            return new InvalidInput<>();
+        }
+
+        private static boolean isNonBlank(String value) {
+            return value != null && !value.isBlank();
+        }
+
+        private static boolean hasValidPotRequest(
+                ExternalIdentity eui, String token, UUID id) {
+            return eui != null && isNonBlank(token) && id != null;
+        }
+
         public ReadPotResult<Pot> current(
                 ExternalIdentity eui, String token, UUID id, long minimum) {
-            if (eui == null || token == null || token.isBlank() || id == null || minimum < 0) {
-                record("current", "invalid_input", 0L);
-                return new InvalidInput<>();
+            if (!hasValidPotRequest(eui, token, id) || minimum < 0) {
+                return invalidInput("current");
             }
             return query("current", c -> pot.current(eui, token, id, minimum, c));
         }
 
         public ReadPotResult<Pot> at(ExternalIdentity eui, String token, UUID id, long version) {
-            if (eui == null || token == null || token.isBlank() || id == null || version < 1) {
-                record("at", "invalid_input", 0L);
-                return new InvalidInput<>();
+            if (!hasValidPotRequest(eui, token, id) || version < 1) {
+                return invalidInput("at");
             }
             return query("at", c -> pot.at(eui, token, id, version, c));
         }
 
         public ReadPotResult<PotBalance> balance(
                 ExternalIdentity eui, String token, UUID id, long version) {
-            if (eui == null || token == null || token.isBlank() || id == null || version < 1) {
-                record("balance", "invalid_input", 0L);
-                return new InvalidInput<>();
+            if (!hasValidPotRequest(eui, token, id) || version < 1) {
+                return invalidInput("balance");
             }
             return query("balance", c -> pot.balance(eui, token, id, version, c));
         }
 
         public ReadPotResult<List<Expense>> expenses(
                 ExternalIdentity eui, String token, UUID id, long version, List<ExpenseRef> refs) {
-            if (eui == null
-                    || token == null
-                    || token.isBlank()
-                    || id == null
-                    || version < 1
-                    || refs == null
-                    || refs.isEmpty()
-                    || refs.size() > limits.expenseBatch()) {
-                record("expenses", "invalid_input", 0L);
-                return new InvalidInput<>();
+            if (!hasValidPotRequest(eui, token, id) || version < 1) {
+                return invalidInput("expenses");
+            }
+            if (refs == null || refs.isEmpty()) {
+                return invalidInput("expenses");
+            }
+            if (refs.size() > limits.expenseBatch()) {
+                return invalidInput("expenses");
             }
             final List<ExpenseRef> captured;
             try {
                 captured = List.copyOf(refs);
             } catch (NullPointerException | ConcurrentModificationException malformedCapture) {
-                record("expenses", "invalid_input", 0L);
-                return new InvalidInput<>();
+                return invalidInput("expenses");
             }
             if (!limits.validBatch(captured)) {
-                record("expenses", "invalid_input", 0L);
-                return new InvalidInput<>();
+                return invalidInput("expenses");
             }
             return query("expenses", c -> pot.expenses(eui, token, id, version, captured, c));
         }
 
         public ReadPotResult<List<UUID>> visible(
                 ExternalIdentity eui, String token, UUID after, int limit) {
-            if (eui == null || token == null || token.isBlank() || !limits.validPage(limit)) {
-                record("visible", "invalid_input", 0L);
-                return new InvalidInput<>();
+            if (eui == null || !isNonBlank(token)) {
+                return invalidInput("visible");
+            }
+            if (!limits.validPage(limit)) {
+                return invalidInput("visible");
             }
             return query("visible", c -> pot.visible(eui, token, after, limit, c));
         }
@@ -131,8 +140,7 @@ public class ReadExecution implements PotRead.Queries {
         public ReadPotResult<BindingRead.Answer> binding(
                 ExternalIdentity eui, long minimum) {
             if (eui == null || minimum < 0) {
-                record("binding", "invalid_input", 0L);
-                return new InvalidInput<>();
+                return invalidInput("binding");
             }
             return query(
                     "binding",
@@ -148,21 +156,18 @@ public class ReadExecution implements PotRead.Queries {
                 UUID request,
                 Function<com.kartaguez.pocoma.domain.pot.Invitation, String> decrypt) {
             if (eui == null || request == null) {
-                record("invitation_link", "invalid_input", 0L);
-                return new InvalidInput<>();
+                return invalidInput("invitation_link");
             }
             return query("invitation_link", c -> pot.invitationLink(eui, request, decrypt, c));
         }
 
         public ReadPotResult<List<InvitationRead.Place>> invitationPlaces(
                 ExternalIdentity eui, String binding, String token) {
-            if (eui == null
-                    || binding == null
-                    || binding.isBlank()
-                    || token == null
-                    || token.isBlank()) {
-                record("invitation_places", "invalid_input", 0L);
-                return new InvalidInput<>();
+            if (eui == null) {
+                return invalidInput("invitation_places");
+            }
+            if (!isNonBlank(binding) || !isNonBlank(token)) {
+                return invalidInput("invitation_places");
             }
             return query(
                     "invitation_places",

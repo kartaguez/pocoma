@@ -85,69 +85,65 @@ class ConsumptionFailureClassificationTest {
                                 : FailureKind.NON_COUNTABLE);
     }
 
+    private ConsumptionSlotStore fakeSlots() {
+        return (ConsumptionSlotStore)
+                java.lang.reflect.Proxy.newProxyInstance(
+                        getClass().getClassLoader(),
+                        new Class<?>[] {ConsumptionSlotStore.class},
+                        (p, m, args) ->
+                                switch (m.getName()) {
+                                    case "cede" -> {
+                                        cessions.incrementAndGet();
+                                        yield Optional.empty();
+                                    }
+                                    case "inspectResolved" ->
+                                            ((List<ClaimedSlot>) args[0])
+                                                    .stream()
+                                                            .map(
+                                                                    c ->
+                                                                            new ConsumptionSlotStore
+                                                                                    .ClaimInspection(
+                                                                                    c,
+                                                                                    inspection
+                                                                                            .get()))
+                                                            .toList();
+                                    case "observe" ->
+                                            observation.get() == RecoveryObservation.COMPLETED
+                                                    ? ConsumptionSlotStore.SlotObservation.ABSENT
+                                                    : ConsumptionSlotStore.SlotObservation.PRESENT;
+                                    default -> throw new AssertionError(m.getName());
+                                });
+    }
+
+    private ConsumptionParticipant fakeParticipant(Runnable callback) {
+        return new ConsumptionParticipant() {
+            public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
+                return reads.source(
+                        preparationContext -> {
+                            prepares.incrementAndGet();
+                            callback.run();
+                            throw new Failure(resolution.get(), cause.get());
+                        });
+            }
+
+            public Recovery prepareRecovery(UUID id, PreparationReads reads) {
+                return c -> evidence(observation.get());
+            }
+        };
+    }
+
     ConsumptionEngine engine(Runnable callback, AttemptFailureClassifier classifier) {
-        var slots =
-                (ConsumptionSlotStore)
-                        java.lang.reflect.Proxy.newProxyInstance(
-                                getClass().getClassLoader(),
-                                new Class<?>[] {ConsumptionSlotStore.class},
-                                (p, m, args) ->
-                                        switch (m.getName()) {
-                                            case "cede" -> {
-                                                cessions.incrementAndGet();
-                                                yield Optional.empty();
-                                            }
-                                            case "inspectResolved" ->
-                                                    ((List<ClaimedSlot>) args[0])
-                                                            .stream()
-                                                                    .map(
-                                                                            c ->
-                                                                                    new ConsumptionSlotStore
-                                                                                            .ClaimInspection(
-                                                                                            c,
-                                                                                            inspection
-                                                                                                    .get()))
-                                                                    .toList();
-                                            case "observe" ->
-                                                    observation.get()
-                                                                    == RecoveryObservation.COMPLETED
-                                                            ? ConsumptionSlotStore.SlotObservation
-                                                                    .ABSENT
-                                                            : ConsumptionSlotStore.SlotObservation
-                                                                    .PRESENT;
-                                            default -> throw new AssertionError(m.getName());
-                                        });
         var ownership =
                 (PartitionOwnershipStore)
                         java.lang.reflect.Proxy.newProxyInstance(
                                 getClass().getClassLoader(),
                                 new Class<?>[] {PartitionOwnershipStore.class},
                                 (p, m, args) -> null);
-        var participant =
-                new ConsumptionParticipant() {
-                    public Optional<Prepared> prepare(UUID id, PreparationReads reads) {
-                        return reads.source(
-                                preparationContext -> {
-                                    prepares.incrementAndGet();
-                                    callback.run();
-                                    throw new Failure(resolution.get(), cause.get());
-                                });
-                    }
-
-                    public Recovery prepareRecovery(UUID id, PreparationReads reads) {
-                        return c -> evidence(observeInSnapshot(id, c, reads));
-                    }
-
-                    private RecoveryObservation observeInSnapshot(
-                            UUID id, RecoveryReadContext c, PreparationReads reads) {
-                        return observation.get();
-                    }
-                };
         return new ConsumptionEngine(
                 definition,
                 tx,
-                slots,
-                participant,
+                fakeSlots(),
+                fakeParticipant(callback),
                 ownership,
                 LifecycleSettings.pilot(),
                 capacity,
@@ -161,71 +157,91 @@ class ConsumptionFailureClassificationTest {
                 capacity.reserve(definition.id(), 1).getFirst());
     }
 
+    private static void awaitUninterruptibly(CountDownLatch latch) {
+        boolean done = false;
+        while (!done) {
+            try {
+                latch.await();
+                done = true;
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    private void assertEngineCapacityState(
+            ConsumptionEngine engine, int expectedCessions, int expectedWorkerCapacity, int expectedSettled) {
+        assertEquals(expectedCessions, cessions.get());
+        assertEquals(expectedWorkerCapacity, capacity.snapshot().worker());
+        assertEquals(expectedSettled, engine.settlePending());
+    }
+
+    private static void throwSelectedRecoveryFault(int kind) {
+        if (kind == 2) {
+            throw new IllegalStateException("raw unqualified exit");
+        }
+        throw new Failure(
+                kind == 0 ? Resolution.UNKNOWN : Resolution.ROLLED_BACK,
+                new IllegalStateException("recovery transport"));
+    }
+
+    private static AttemptTransactions faultingTransactions(
+            AttemptTransactions delegate, String targetMethod, int kind, AtomicInteger calls) {
+        var armed = new AtomicBoolean(true);
+        return (AttemptTransactions)
+                java.lang.reflect.Proxy.newProxyInstance(
+                        ConsumptionFailureClassificationTest.class.getClassLoader(),
+                        new Class[] {AttemptTransactions.class},
+                        (proxy, method, args) -> {
+                            if (method.getName().equals(targetMethod)) {
+                                calls.incrementAndGet();
+                                if (armed.compareAndSet(true, false)) {
+                                    throwSelectedRecoveryFault(kind);
+                                }
+                            }
+                            try {
+                                return method.invoke(delegate, args);
+                            } catch (java.lang.reflect.InvocationTargetException failure) {
+                                throw failure.getCause();
+                            }
+                        });
+    }
+
+    private static void verifyUnresolvedRecoveryCase(boolean control, int kind) throws Exception {
+        var fixture = new ConsumptionFailureClassificationTest();
+        fixture.resolution.set(Resolution.COMMITTED);
+        var engine = fixture.engine(() -> {});
+        var handle = fixture.handle(engine);
+        assertEquals(Resolution.UNKNOWN, engine.execute(handle).resolution());
+        fixture.inspection.set(ConsumptionSlotStore.Inspection.ABSENT);
+        fixture.observation.set(RecoveryObservation.COMPLETED);
+        var calls = new AtomicInteger();
+        var owner = faultingTransactions(fixture.tx, control ? "write" : "read", kind, calls);
+        var field = ConsumptionEngine.class.getDeclaredField(control ? "controlTransactions" : "transactions");
+        field.setAccessible(true);
+        field.set(engine, owner);
+        assertEquals(0, engine.settlePending());
+        assertEquals(1, fixture.capacity.snapshot().worker());
+        assertEquals(kind != 1, engine.hasUnresolvedRecovery());
+        if (kind == 1) {
+            assertEquals(1, engine.settlePending());
+            assertEquals(0, fixture.capacity.snapshot().worker());
+            assertEquals(2, calls.get());
+        } else {
+            for (int n = 0; n < 3; n++) {
+                assertEquals(0, engine.settlePending());
+            }
+            assertEquals(1, calls.get(), "the physically uncertain recovery lane cannot be reused");
+            assertEquals(1, fixture.capacity.snapshot().worker());
+        }
+        assertEquals(0, fixture.cessions.get());
+        assertThrows(IllegalArgumentException.class, () -> engine.execute(handle));
+    }
+
     @Test
     void unresolvedRecoveryCannotBeRetriedOrSettled() throws Exception {
         for (boolean control : List.of(true, false)) {
             for (int kind = 0; kind < 3; kind++) {
-                var fixture = new ConsumptionFailureClassificationTest();
-                fixture.resolution.set(Resolution.COMMITTED);
-                var engine = fixture.engine(() -> {});
-                var handle = fixture.handle(engine);
-                assertEquals(Resolution.UNKNOWN, engine.execute(handle).resolution());
-                fixture.inspection.set(ConsumptionSlotStore.Inspection.ABSENT);
-                fixture.observation.set(RecoveryObservation.COMPLETED);
-                var armed = new AtomicBoolean(true);
-                var calls = new AtomicInteger();
-                int selected = kind;
-                var owner =
-                        (AttemptTransactions)
-                                java.lang.reflect.Proxy.newProxyInstance(
-                                        getClass().getClassLoader(),
-                                        new Class[] {AttemptTransactions.class},
-                                        (proxy, method, args) -> {
-                                            if (method.getName()
-                                                    .equals(control ? "write" : "read")) {
-                                                calls.incrementAndGet();
-                                                if (armed.compareAndSet(true, false)) {
-                                                    if (selected == 2)
-                                                        throw new IllegalStateException(
-                                                                "raw unqualified exit");
-                                                    throw new Failure(
-                                                            selected == 0
-                                                                    ? Resolution.UNKNOWN
-                                                                    : Resolution.ROLLED_BACK,
-                                                            new IllegalStateException(
-                                                                    "recovery transport"));
-                                                }
-                                            }
-                                            try {
-                                                return method.invoke(fixture.tx, args);
-                                            } catch (
-                                                    java.lang.reflect.InvocationTargetException
-                                                            failure) {
-                                                throw failure.getCause();
-                                            }
-                                        });
-                var field =
-                        ConsumptionEngine.class.getDeclaredField(
-                                control ? "controlTransactions" : "transactions");
-                field.setAccessible(true);
-                field.set(engine, owner);
-                assertEquals(0, engine.settlePending());
-                assertEquals(1, fixture.capacity.snapshot().worker());
-                assertEquals(kind != 1, engine.hasUnresolvedRecovery());
-                if (kind == 1) {
-                    assertEquals(1, engine.settlePending());
-                    assertEquals(0, fixture.capacity.snapshot().worker());
-                    assertEquals(2, calls.get());
-                } else {
-                    for (int n = 0; n < 3; n++) assertEquals(0, engine.settlePending());
-                    assertEquals(
-                            1,
-                            calls.get(),
-                            "the physically uncertain recovery lane cannot be reused");
-                    assertEquals(1, fixture.capacity.snapshot().worker());
-                }
-                assertEquals(0, fixture.cessions.get());
-                assertThrows(IllegalArgumentException.class, () -> engine.execute(handle));
+                verifyUnresolvedRecoveryCase(control, kind);
             }
         }
     }
@@ -241,9 +257,7 @@ class ConsumptionFailureClassificationTest {
                         });
         var h = handle(e);
         assertSame(fault, assertThrows(IllegalStateException.class, () -> e.execute(h)));
-        assertEquals(0, cessions.get());
-        assertEquals(0, capacity.snapshot().worker());
-        assertEquals(0, e.settlePending());
+        assertEngineCapacityState(e, 0, 0, 0);
         assertThrows(IllegalArgumentException.class, () -> e.execute(h));
         e.abandon(handle(e));
         assertEquals(0, capacity.snapshot().worker());
@@ -253,9 +267,7 @@ class ConsumptionFailureClassificationTest {
     void nullClassificationAfterConfirmedRollbackReturnsCapacity() {
         var e = engine(() -> {}, c -> null);
         assertThrows(NullPointerException.class, () -> e.execute(handle(e)));
-        assertEquals(0, cessions.get());
-        assertEquals(0, capacity.snapshot().worker());
-        assertEquals(0, e.settlePending());
+        assertEngineCapacityState(e, 0, 0, 0);
     }
 
     @Test
@@ -270,9 +282,7 @@ class ConsumptionFailureClassificationTest {
         resolution.set(Resolution.UNKNOWN);
         cause.set(new NullPointerException());
         e.execute(handle(e));
-        assertEquals(1, cessions.get());
-        assertEquals(1, capacity.snapshot().worker());
-        assertEquals(0, e.settlePending());
+        assertEngineCapacityState(e, 1, 1, 0);
         assertEquals(
                 1,
                 capacity.snapshot().worker(),
@@ -300,9 +310,7 @@ class ConsumptionFailureClassificationTest {
                         });
         var h = handle(e);
         assertThrows(AssertionError.class, () -> e.execute(h));
-        assertEquals(0, e.settlePending());
-        assertEquals(1, capacity.snapshot().worker());
-        assertEquals(0, cessions.get());
+        assertEngineCapacityState(e, 0, 1, 0);
         assertThrows(IllegalArgumentException.class, () -> e.execute(h));
     }
 
@@ -335,13 +343,7 @@ class ConsumptionFailureClassificationTest {
                 engine(
                         () -> {
                             entered.countDown();
-                            boolean done = false;
-                            while (!done)
-                                try {
-                                    finish.await();
-                                    done = true;
-                                } catch (InterruptedException ignored) {
-                                }
+                            awaitUninterruptibly(finish);
                         });
         var h = handle(e);
         // The fake SQL ports cannot grant a claim: a full ticket budget must return before them.
@@ -364,18 +366,15 @@ class ConsumptionFailureClassificationTest {
                             });
             assertTrue(entered.await(5, TimeUnit.SECONDS));
             f.cancel(true);
-            assertEquals(0, e.settlePending());
-            assertEquals(1, capacity.snapshot().worker());
+            assertEngineCapacityState(e, 0, 1, 0);
             assertThrows(IllegalArgumentException.class, () -> e.execute(h));
             finish.countDown();
             assertTrue(exited.await(5, TimeUnit.SECONDS));
         } finally {
             finish.countDown();
         }
-        assertEquals(0, e.settlePending());
         assertEquals(1, prepares.get());
-        assertEquals(1, capacity.snapshot().worker());
-        assertEquals(0, e.settlePending());
+        assertEngineCapacityState(e, 0, 1, 0);
     }
 
     @Test

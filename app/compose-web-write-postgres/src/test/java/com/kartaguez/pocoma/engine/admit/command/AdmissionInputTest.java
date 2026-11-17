@@ -52,58 +52,60 @@ class AdmissionInputTest {
                         payload));
     }
 
+    private static final Map<String, Map<String, Object>> OPERATION_PAYLOADS =
+            Map.ofEntries(
+                    Map.entry("CreatePot", Map.of("label", "Café")),
+                    Map.entry("UpdatePotDetails", Map.of("label", "Café")),
+                    Map.entry("DeletePot", Map.of()),
+                    Map.entry(
+                            "AddShareholders",
+                            Map.of(
+                                    "targets",
+                                    List.of(
+                                            Map.of(
+                                                    "id", SID,
+                                                    "name", "A",
+                                                    "attachment", "SELF",
+                                                    "weight", fraction("2", "4"))))),
+                    Map.entry(
+                            "UpdateShareholderDetails",
+                            Map.of(
+                                    "targets",
+                                    List.of(
+                                            Map.of("id", SID, "name", "A", "attachment", "KEEP")))),
+                    Map.entry(
+                            "UpdateShareholderWeights",
+                            Map.of(
+                                    "targets",
+                                    List.of(Map.of("id", SID, "weight", fraction("1", "2"))))),
+                    Map.entry("DeleteShareholder", Map.of("id", SID)),
+                    Map.entry(
+                            "CreateExpense",
+                            Map.of(
+                                    "id", EID,
+                                    "label", "E",
+                                    "date", "2026-11-04",
+                                    "amount", fraction("10", "3"),
+                                    "payerId", SID,
+                                    "participants", List.of(participant(SID)))),
+                    Map.entry(
+                            "UpdateExpenseDetails",
+                            Map.of("id", EID, "label", "E", "date", "2026-11-04")),
+                    Map.entry(
+                            "UpdateExpenseFinancials",
+                            Map.of(
+                                    "id", EID,
+                                    "amount", fraction("10", "3"),
+                                    "payerId", SID,
+                                    "participants", List.of(participant(SID)))),
+                    Map.entry("DeleteExpense", Map.of("id", EID)));
+
     static Map<String, Object> payload(String op) {
-        return switch (op) {
-            case "CreatePot", "UpdatePotDetails" -> Map.of("label", "Café");
-            case "DeletePot" -> Map.of();
-            case "AddShareholders" ->
-                    Map.of(
-                            "targets",
-                            List.of(
-                                    Map.of(
-                                            "id",
-                                            SID,
-                                            "name",
-                                            "A",
-                                            "attachment",
-                                            "SELF",
-                                            "weight",
-                                            fraction("2", "4"))));
-            case "UpdateShareholderDetails" ->
-                    Map.of(
-                            "targets",
-                            List.of(Map.of("id", SID, "name", "A", "attachment", "KEEP")));
-            case "UpdateShareholderWeights" ->
-                    Map.of("targets", List.of(Map.of("id", SID, "weight", fraction("1", "2"))));
-            case "DeleteShareholder" -> Map.of("id", SID);
-            case "CreateExpense" ->
-                    Map.of(
-                            "id",
-                            EID,
-                            "label",
-                            "E",
-                            "date",
-                            "2026-11-04",
-                            "amount",
-                            fraction("10", "3"),
-                            "payerId",
-                            SID,
-                            "participants",
-                            List.of(participant(SID)));
-            case "UpdateExpenseDetails" -> Map.of("id", EID, "label", "E", "date", "2026-11-04");
-            case "UpdateExpenseFinancials" ->
-                    Map.of(
-                            "id",
-                            EID,
-                            "amount",
-                            fraction("10", "3"),
-                            "payerId",
-                            SID,
-                            "participants",
-                            List.of(participant(SID)));
-            case "DeleteExpense" -> Map.of("id", EID);
-            default -> throw new AssertionError();
-        };
+        Map<String, Object> result = OPERATION_PAYLOADS.get(op);
+        if (result == null) {
+            throw new AssertionError();
+        }
+        return result;
     }
 
     static Map<String, Object> participant(String id) {

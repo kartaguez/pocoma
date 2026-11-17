@@ -42,27 +42,18 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
 
     @Override
     public boolean tryAcquireMaintenance(String operatorId, UUID operationId) {
-        Objects.requireNonNull(operatorId, "operatorId cannot be null");
-        Objects.requireNonNull(operationId, "operationId cannot be null");
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'MAINTENANCE', phase = 'DRAINING', operator_id = ?, operation_id = ?, "
-                + "started_at = clock_timestamp(), updated_at = clock_timestamp(), error_detail = NULL "
-                + "WHERE id = 1 AND state = 'READY' AND phase = 'IDLE'";
-        int rows = jdbc.update(sql, operatorId, operationId);
-        return rows == 1;
+        return acquireMaintenanceWhere(
+                operatorId, operationId, "state = 'READY' AND phase = 'IDLE'");
     }
 
     @Override
     public boolean updatePhase(ReadMaintenanceState.Phase phase, UUID operationId) {
         Objects.requireNonNull(phase, "phase cannot be null");
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET phase = ?, updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING')"
-                + (operationId != null ? " AND operation_id = ?" : "");
-        int rows = operationId != null
-                ? jdbc.update(sql, phase.name(), operationId)
-                : jdbc.update(sql, phase.name());
-        return rows == 1;
+        String baseSql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET phase = ?, updated_at = clock_timestamp() "
+                        + "WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING')";
+        return updateWithOptionalOperation(baseSql, operationId, phase.name());
     }
 
     @Override
@@ -74,76 +65,81 @@ public final class JdbcReadMaintenanceAuthority implements ReadMaintenanceAuthor
         } catch (Exception ex) {
             throw new IllegalArgumentException("Failed to serialize targetPrefix to JSON", ex);
         }
-
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'REBUILDING', phase = 'REPLAYING', target_prefix = ?::jsonb, "
-                + "updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state = 'MAINTENANCE'"
-                + (operationId != null ? " AND operation_id = ?" : "");
-        int rows = operationId != null
-                ? jdbc.update(sql, json, operationId)
-                : jdbc.update(sql, json);
-        return rows == 1;
+        String baseSql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET state = 'REBUILDING', phase = 'REPLAYING',"
+                        + " target_prefix = ?::jsonb, updated_at = clock_timestamp() "
+                        + "WHERE id = 1 AND state = 'MAINTENANCE'";
+        return updateWithOptionalOperation(baseSql, operationId, json);
     }
 
     @Override
     public boolean markConverged(UUID operationId) {
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET phase = 'CONVERGED', updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state = 'REBUILDING'"
-                + (operationId != null ? " AND operation_id = ?" : "");
-        int rows = operationId != null
-                ? jdbc.update(sql, operationId)
-                : jdbc.update(sql);
-        return rows == 1;
+        String baseSql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET phase = 'CONVERGED', updated_at = clock_timestamp() "
+                        + "WHERE id = 1 AND state = 'REBUILDING'";
+        return updateWithOptionalOperation(baseSql, operationId);
     }
 
     @Override
     public boolean markReady(UUID operationId) {
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'READY', phase = 'IDLE', operator_id = NULL, operation_id = NULL, "
-                + "updated_at = clock_timestamp(), error_detail = NULL "
-                + "WHERE id = 1 AND state IN ('REBUILDING', 'MAINTENANCE')"
-                + (operationId != null ? " AND operation_id = ?" : "");
-        int rows = operationId != null
-                ? jdbc.update(sql, operationId)
-                : jdbc.update(sql);
-        return rows == 1;
+        String baseSql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET state = 'READY', phase = 'IDLE', operator_id = NULL,"
+                        + " operation_id = NULL, updated_at = clock_timestamp(), error_detail ="
+                        + " NULL WHERE id = 1 AND state IN ('REBUILDING', 'MAINTENANCE')";
+        return updateWithOptionalOperation(baseSql, operationId);
     }
 
     @Override
     public boolean markFailed(String errorDetail, UUID operationId) {
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'FAILED', updated_at = clock_timestamp(), error_detail = ? "
-                + "WHERE id = 1"
-                + (operationId != null ? " AND operation_id = ?" : "");
-        int rows = operationId != null
-                ? jdbc.update(sql, errorDetail, operationId)
-                : jdbc.update(sql, errorDetail);
-        return rows == 1;
+        String baseSql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET state = 'FAILED', updated_at = clock_timestamp(), error_detail = ? "
+                        + "WHERE id = 1";
+        return updateWithOptionalOperation(baseSql, operationId, errorDetail);
     }
 
     @Override
     public boolean resetFailed(String operatorId) {
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'READY', phase = 'IDLE', operator_id = NULL, operation_id = NULL, "
-                + "target_prefix = NULL, started_at = NULL, error_detail = NULL, "
-                + "updated_at = clock_timestamp() "
-                + "WHERE id = 1 AND state = 'FAILED'";
-        int rows = jdbc.update(sql);
-        return rows == 1;
+        String sql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET state = 'READY', phase = 'IDLE', operator_id = NULL,"
+                        + " operation_id = NULL, target_prefix = NULL, started_at = NULL,"
+                        + " error_detail = NULL, updated_at = clock_timestamp() "
+                        + "WHERE id = 1 AND state = 'FAILED'";
+        return jdbc.update(sql) == 1;
     }
 
     @Override
     public boolean tryAcquireRecovery(String operatorId, UUID operationId) {
+        return acquireMaintenanceWhere(
+                operatorId, operationId, "state IN ('MAINTENANCE', 'REBUILDING', 'FAILED')");
+    }
+
+    private boolean acquireMaintenanceWhere(
+            String operatorId, UUID operationId, String statePredicate) {
         Objects.requireNonNull(operatorId, "operatorId cannot be null");
         Objects.requireNonNull(operationId, "operationId cannot be null");
-        String sql = "UPDATE public.read_maintenance_state "
-                + "SET state = 'MAINTENANCE', phase = 'DRAINING', operator_id = ?, operation_id = ?, "
-                + "started_at = clock_timestamp(), updated_at = clock_timestamp(), error_detail = NULL "
-                + "WHERE id = 1 AND state IN ('MAINTENANCE', 'REBUILDING', 'FAILED')";
-        int rows = jdbc.update(sql, operatorId, operationId);
-        return rows == 1;
+        String sql =
+                "UPDATE public.read_maintenance_state "
+                        + "SET state = 'MAINTENANCE', phase = 'DRAINING', operator_id = ?,"
+                        + " operation_id = ?, started_at = clock_timestamp(), updated_at ="
+                        + " clock_timestamp(), error_detail = NULL "
+                        + "WHERE id = 1 AND "
+                        + statePredicate;
+        return jdbc.update(sql, operatorId, operationId) == 1;
+    }
+
+    private boolean updateWithOptionalOperation(
+            String baseSql, UUID operationId, Object... baseArgs) {
+        if (operationId == null) {
+            return jdbc.update(baseSql, baseArgs) == 1;
+        }
+        Object[] args = Arrays.copyOf(baseArgs, baseArgs.length + 1);
+        args[baseArgs.length] = operationId;
+        return jdbc.update(baseSql + " AND operation_id = ?", args) == 1;
     }
 
     public void ensureInitialized() {

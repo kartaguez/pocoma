@@ -97,17 +97,23 @@ class HexagonalArchitectureTest {
         }
     }
 
+    private static final List<String> FORBIDDEN_HTTP_SUPRA_PREFIXES =
+            List.of(
+                    BASE + "engine.",
+                    BASE + "infra.",
+                    BASE + "orchestrator.",
+                    "org.springframework.jdbc.",
+                    "org.springframework.transaction.",
+                    "jakarta.persistence.",
+                    "javax.sql.",
+                    "java.sql.");
+
     @Test
     void httpSupraDoesNotOwnPersistenceOrBusinessExecution() {
         for (String scope : List.of("supra.web.write", "supra.web.read")) {
-            requireDependencies(classesIn(scope), target -> !target.startsWith(BASE + "engine.")
-                    && !target.startsWith(BASE + "infra.")
-                    && !target.startsWith(BASE + "orchestrator.")
-                    && !target.startsWith("org.springframework.jdbc.")
-                    && !target.startsWith("org.springframework.transaction.")
-                    && !target.startsWith("jakarta.persistence.")
-                    && !target.startsWith("javax.sql.")
-                    && !target.startsWith("java.sql."));
+            requireDependencies(
+                    classesIn(scope),
+                    target -> FORBIDDEN_HTTP_SUPRA_PREFIXES.stream().noneMatch(target::startsWith));
         }
     }
 

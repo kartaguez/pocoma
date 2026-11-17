@@ -25,23 +25,74 @@ public final class WriteSourceReadPrivileges {
             } finally {c.rollback();}
         } catch(SQLException failure) {throw new IllegalStateException("WRITE source SELECT authority refused");}
     }
+    private record RoleCte(String sql) {}
+
     /** Process can inspect a role's rights without opening READ or possessing source credentials. */
-    public static void inspectRole(Statement s,String role) throws SQLException {
-        if(role==null || !role.matches("[a-z][a-z0-9_]*"))throw new IllegalArgumentException("Explicit source role required");
-        String roles="with roles as (select oid,rolsuper,rolcreaterole,rolcreatedb,rolreplication,rolbypassrls from pg_roles where rolname='"+role+"' or pg_has_role('"+role+"',oid,'MEMBER')) ";
-        check(s,roles+"select exists(select 1 from roles where rolsuper or rolcreaterole or rolcreatedb or rolreplication or rolbypassrls) or exists(select 1 from roles r where has_database_privilege(r.oid,current_database(),'CREATE,TEMP')) or exists(select 1 from roles r cross join pg_namespace n where n.nspname not like 'pg_%' and n.nspname<>'information_schema' and has_schema_privilege(r.oid,n.oid,'CREATE'))","privileged role or inherited DDL");
-        String sourceSchema;
-        try(var row=s.executeQuery("select current_schema()")){row.next();sourceSchema=row.getString(1);}
-        try(var rows=s.executeQuery(roles+"select n.nspname,c.relname,c.relkind,bool_or(has_table_privilege(r.oid,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') or has_any_column_privilege(r.oid,c.oid,'INSERT,UPDATE,REFERENCES') or pg_has_role(r.oid,c.relowner,'MEMBER')) as mutates,bool_or(has_table_privilege(r.oid,c.oid,'SELECT') or has_any_column_privilege(r.oid,c.oid,'SELECT')) as reads from pg_class c join pg_namespace n on n.oid=c.relnamespace cross join roles r where c.relkind in ('r','p','v','m','f') and n.nspname not like 'pg_%' and n.nspname<>'information_schema' group by n.nspname,c.relname,c.relkind")) {
-            while(rows.next()) {
-                require(!rows.getBoolean("mutates"),"source can mutate a relation");
-                if(rows.getBoolean("reads"))require(sourceSchema.equals(rows.getString(1)) && TABLES.contains(rows.getString(2)) && Set.of("r","p").contains(rows.getString(3)),"unlisted read or view authority");
+    public static void inspectRole(Statement s, String role) throws SQLException {
+        if (role == null || !role.matches("[a-z][a-z0-9_]*")) {
+            throw new IllegalArgumentException("Explicit source role required");
+        }
+        var roles =
+                new RoleCte(
+                        "with roles as (select oid,rolsuper,rolcreaterole,rolcreatedb,rolreplication,rolbypassrls"
+                                + " from pg_roles where rolname='"
+                                + role
+                                + "' or pg_has_role('"
+                                + role
+                                + "',oid,'MEMBER')) ");
+        check(
+                s,
+                roles.sql()
+                        + "select exists(select 1 from roles where rolsuper or rolcreaterole or rolcreatedb or rolreplication or rolbypassrls) or exists(select 1 from roles r where has_database_privilege(r.oid,current_database(),'CREATE,TEMP')) or exists(select 1 from roles r cross join pg_namespace n where n.nspname not like 'pg_%' and n.nspname<>'information_schema' and has_schema_privilege(r.oid,n.oid,'CREATE'))",
+                "privileged role or inherited DDL");
+        String sourceSchema = queryCurrentSchema(s);
+        inspectRelations(s, roles, sourceSchema);
+        inspectSelectedColumns(s, roles);
+        check(
+                s,
+                roles.sql()
+                        + "select exists(select 1 from roles r cross join pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='S' and n.nspname not like 'pg_%' and (has_sequence_privilege(r.oid,c.oid,'SELECT,USAGE,UPDATE') or pg_has_role(r.oid,c.relowner,'MEMBER'))) or exists(select 1 from roles r cross join pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname not like 'pg_%' and n.nspname<>'information_schema' and p.prosecdef and has_function_privilege(r.oid,p.oid,'EXECUTE'))",
+                "sequence or SECURITY DEFINER authority");
+    }
+
+    private static String queryCurrentSchema(Statement s) throws SQLException {
+        try (var row = s.executeQuery("select current_schema()")) {
+            row.next();
+            return row.getString(1);
+        }
+    }
+
+    private static void inspectRelations(Statement s, RoleCte roles, String sourceSchema)
+            throws SQLException {
+        String sql =
+                roles.sql()
+                        + "select n.nspname,c.relname,c.relkind,bool_or(has_table_privilege(r.oid,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') or has_any_column_privilege(r.oid,c.oid,'INSERT,UPDATE,REFERENCES') or pg_has_role(r.oid,c.relowner,'MEMBER')) as mutates,bool_or(has_table_privilege(r.oid,c.oid,'SELECT') or has_any_column_privilege(r.oid,c.oid,'SELECT')) as reads from pg_class c join pg_namespace n on n.oid=c.relnamespace cross join roles r where c.relkind in ('r','p','v','m','f') and n.nspname not like 'pg_%' and n.nspname<>'information_schema' group by n.nspname,c.relname,c.relkind";
+        try (var rows = s.executeQuery(sql)) {
+            while (rows.next()) {
+                require(!rows.getBoolean("mutates"), "source can mutate a relation");
+                if (rows.getBoolean("reads")) {
+                    require(isAllowedReadRelation(sourceSchema, rows), "unlisted read or view authority");
+                }
             }
         }
-        try(var rows=s.executeQuery(roles+"select c.relname,a.attname from pg_class c join pg_namespace n on n.oid=c.relnamespace join pg_attribute a on a.attrelid=c.oid where n.nspname=current_schema() and c.relname in ('v3_command','v3_identity_request','v3_eui_authority','v3_eui_version') and a.attnum>0 and not a.attisdropped and exists(select 1 from roles r where has_column_privilege(r.oid,c.oid,a.attnum,'SELECT'))")) {
-            while(rows.next())require(COLUMNS.get(rows.getString(1)).contains(rows.getString(2)),"unlisted source column");
+    }
+
+    private static boolean isAllowedReadRelation(String sourceSchema, ResultSet rows)
+            throws SQLException {
+        if (!sourceSchema.equals(rows.getString(1))) return false;
+        if (!TABLES.contains(rows.getString(2))) return false;
+        return Set.of("r", "p").contains(rows.getString(3));
+    }
+
+    private static void inspectSelectedColumns(Statement s, RoleCte roles) throws SQLException {
+        String sql =
+                roles.sql()
+                        + "select c.relname,a.attname from pg_class c join pg_namespace n on n.oid=c.relnamespace join pg_attribute a on a.attrelid=c.oid where n.nspname=current_schema() and c.relname in ('v3_command','v3_identity_request','v3_eui_authority','v3_eui_version') and a.attnum>0 and not a.attisdropped and exists(select 1 from roles r where has_column_privilege(r.oid,c.oid,a.attnum,'SELECT'))";
+        try (var rows = s.executeQuery(sql)) {
+            while (rows.next()) {
+                require(COLUMNS.get(rows.getString(1)).contains(rows.getString(2)), "unlisted source column");
+            }
         }
-        check(s,roles+"select exists(select 1 from roles r cross join pg_class c join pg_namespace n on n.oid=c.relnamespace where c.relkind='S' and n.nspname not like 'pg_%' and (has_sequence_privilege(r.oid,c.oid,'SELECT,USAGE,UPDATE') or pg_has_role(r.oid,c.relowner,'MEMBER'))) or exists(select 1 from roles r cross join pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname not like 'pg_%' and n.nspname<>'information_schema' and p.prosecdef and has_function_privilege(r.oid,p.oid,'EXECUTE'))","sequence or SECURITY DEFINER authority");
     }
     private static void check(Statement s,String sql,String reason)throws SQLException {
         try(var row=s.executeQuery(sql)){row.next();require(!row.getBoolean(1),reason);}

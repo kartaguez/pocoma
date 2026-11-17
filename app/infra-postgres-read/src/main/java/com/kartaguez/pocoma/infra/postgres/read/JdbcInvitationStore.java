@@ -79,12 +79,17 @@ public final class JdbcInvitationStore implements InvitationStore {
                             i.tokenHash(),
                             i.protectedLink());
                     var actual = byRequest(i.creationRequestId()).orElseThrow();
-                    if (!actual.invitationId().equals(i.invitationId())
-                            || actual.version() < i.version()
-                            || actual.version() == i.version() && !actual.equals(i))
+                    if (!matchesExpected(actual, i)) {
                         throw new IllegalStateException("Divergent Invitation projection");
+                    }
                     return null;
                 });
+    }
+
+    private static boolean matchesExpected(Invitation actual, Invitation expected) {
+        if (!actual.invitationId().equals(expected.invitationId())) return false;
+        if (actual.version() > expected.version()) return true;
+        return actual.version() == expected.version() && actual.equals(expected);
     }
 
     public void closePublication() {

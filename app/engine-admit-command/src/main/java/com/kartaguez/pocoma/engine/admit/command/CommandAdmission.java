@@ -42,12 +42,7 @@ public final class CommandAdmission implements com.kartaguez.pocoma.contract.wri
             AuthenticatedExternalPrincipal principal,
             String clientKey,
             CommandAdmissionInput input) {
-        if (principal == null || !clock.instant().isBefore(principal.expiresAt()))
-            throw new AdmissionFailure(401);
-        var requester = input.command(new UUID(0, 0)).requester();
-        AdmissionFailure.require(
-                principal.issuer().equals(requester.issuer())
-                        && principal.subject().equals(requester.subject()));
+        validatePrincipal(principal, input);
         byte[] scope =
                 protection.scope(
                         principal.issuer(),
@@ -57,30 +52,7 @@ public final class CommandAdmission implements com.kartaguez.pocoma.contract.wri
                         input.operation(),
                         clientKey);
         try {
-            var found = transactions.read(context -> store.find(scope));
-            if (found.isPresent()) return replay(found.get(), input);
-            input.validateCurrent(textBytes);
-            byte[] digest = protection.intent(protection.currentId(), 1, input.canonical(1));
-            var association =
-                    new AdmissionAssociation(
-                            UUID.randomUUID(),
-                            "COMMAND",
-                            input.operation(),
-                            1,
-                            protection.lookupId(),
-                            protection.currentId(),
-                            scope,
-                            digest,
-                            clock.instant());
-            return transactions.write(
-                    () -> {
-                        if (!store.reserve(association))
-                            return replay(
-                                    store.find(scope).orElseThrow(() -> new AdmissionFailure(503)),
-                                    input);
-                        store.insert(input.command(association.requestId()));
-                        return association.requestId();
-                    });
+            return executeAdmission(scope, input);
         } catch (AdmissionFailure failure) {
             throw failure;
         } catch (AttemptTransactions.Failure failure) {
@@ -90,6 +62,49 @@ public final class CommandAdmission implements com.kartaguez.pocoma.contract.wri
         } catch (RuntimeException failure) {
             throw new AdmissionFailure(503);
         }
+    }
+
+    private UUID executeAdmission(byte[] scope, CommandAdmissionInput input) {
+        var found = transactions.read(context -> store.find(scope));
+        if (found.isPresent()) return replay(found.get(), input);
+        input.validateCurrent(textBytes);
+        var association = newAssociation(scope, input);
+        return transactions.write(() -> reserveAndInsert(scope, association, input));
+    }
+
+    private void validatePrincipal(
+            AuthenticatedExternalPrincipal principal, CommandAdmissionInput input) {
+        if (principal == null || !clock.instant().isBefore(principal.expiresAt())) {
+            throw new AdmissionFailure(401);
+        }
+        var requester = input.command(new UUID(0, 0)).requester();
+        AdmissionFailure.require(
+                principal.issuer().equals(requester.issuer())
+                        && principal.subject().equals(requester.subject()));
+    }
+
+    private AdmissionAssociation newAssociation(byte[] scope, CommandAdmissionInput input) {
+        byte[] digest = protection.intent(protection.currentId(), 1, input.canonical(1));
+        return new AdmissionAssociation(
+                UUID.randomUUID(),
+                "COMMAND",
+                input.operation(),
+                1,
+                protection.lookupId(),
+                protection.currentId(),
+                scope,
+                digest,
+                clock.instant());
+    }
+
+    private UUID reserveAndInsert(
+            byte[] scope, AdmissionAssociation association, CommandAdmissionInput input) {
+        if (!store.reserve(association)) {
+            return replay(
+                    store.find(scope).orElseThrow(() -> new AdmissionFailure(503)), input);
+        }
+        store.insert(input.command(association.requestId()));
+        return association.requestId();
     }
 
     private UUID replay(AdmissionAssociation association, CommandAdmissionInput input) {

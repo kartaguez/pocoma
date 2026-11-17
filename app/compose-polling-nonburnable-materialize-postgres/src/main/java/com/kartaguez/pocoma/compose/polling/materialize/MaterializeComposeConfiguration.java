@@ -121,6 +121,19 @@ public class MaterializeComposeConfiguration {
                 MaterializeSettings.Pool spec,
                 List<HikariDataSource> opened,
                 MeterRegistry registry) {
+            var pool = new HikariDataSource(buildHikariConfig(settings, spec));
+            if (registry != null) {
+                pool.setMetricsTrackerFactory(
+                        new com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory(
+                                registry));
+            }
+            opened.add(pool);
+            awaitPoolReserve(pool, spec.minimumIdle());
+            return pool;
+        }
+
+        private static HikariConfig buildHikariConfig(
+                MaterializeSettings settings, MaterializeSettings.Pool spec) {
             var config = new HikariConfig();
             config.setPoolName(settings.workerName() + "-" + spec.name());
             config.setJdbcUrl(spec.url());
@@ -141,14 +154,12 @@ public class MaterializeComposeConfiguration {
                             ? "-c statement_timeout=60000 -c transaction_timeout=65000"
                             : "-c lock_timeout=500 -c statement_timeout=2000 -c"
                                     + " transaction_timeout=3000");
-            var pool = new HikariDataSource(config);
-            if (registry != null) {
-                pool.setMetricsTrackerFactory(
-                        new com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory(registry));
-            }
-            opened.add(pool);
+            return config;
+        }
+
+        private static void awaitPoolReserve(HikariDataSource pool, int minimumIdle) {
             long deadline = System.nanoTime() + Duration.ofSeconds(10).toNanos();
-            while (pool.getHikariPoolMXBean().getIdleConnections() < spec.minimumIdle()
+            while (pool.getHikariPoolMXBean().getIdleConnections() < minimumIdle
                     && System.nanoTime() < deadline) {
                 try {
                     Thread.sleep(10);
@@ -157,13 +168,20 @@ public class MaterializeComposeConfiguration {
                     throw new IllegalStateException("pool initialization interrupted");
                 }
             }
-            if (pool.getHikariPoolMXBean().getIdleConnections() < spec.minimumIdle())
+            if (pool.getHikariPoolMXBean().getIdleConnections() < minimumIdle) {
                 throw new IllegalStateException("physical pool reserve not established");
-            return pool;
+            }
         }
 
         public synchronized void closeIfSafe() {
-            if(worker==null || worker.snapshot().state()==WorkerView.State.STARTING || worker.snapshot().state()==WorkerView.State.STOPPED)close();
+            if (worker == null) {
+                close();
+                return;
+            }
+            var state = worker.snapshot().state();
+            if (state == WorkerView.State.STARTING || state == WorkerView.State.STOPPED) {
+                close();
+            }
         }
         private synchronized void close() {
             if(closed)return;

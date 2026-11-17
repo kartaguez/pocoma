@@ -51,6 +51,56 @@ def java_operation(args, operation: str, *extra: str) -> None:
                     str(args.config.resolve()), *extra], check=True, cwd=ROOT)
 
 
+def _build_psql_command(endpoint, database, admin, parameters, script):
+    container = os.environ.get("POCOMA_I5_PSQL_CONTAINER")
+    if not container:
+        if not shutil.which("psql"):
+            raise ValueError("psql required, or explicit POCOMA_I5_PSQL_CONTAINER for the same disposable server")
+        command = ["psql", "-X", "--dbname", endpoint, "--username", admin, "-v", "ON_ERROR_STOP=1"]
+        for key, value in parameters.items():
+            command.extend(("-v", key + "=" + value))
+        command.extend(("-f", str(ROOT / "scripts/v3" / script)))
+        return command, None
+    # Explicit disposable Docker target only; verify its published TCP endpoint.
+    parsed = urlsplit(endpoint)
+    info = json.loads(subprocess.check_output(["docker", "inspect", container], text=True))[0]
+    ports = info["NetworkSettings"]["Ports"].get("5432/tcp") or []
+    if parsed.hostname not in ("localhost", "127.0.0.1") or not any(int(p["HostPort"]) == parsed.port for p in ports):
+        raise ValueError("psql container differs from the explicit JDBC target")
+    command = ["docker", "exec", "-i", "-e", "PGPASSWORD", "-e", "PGOPTIONS", container, "psql",
+               "-X", "--host", "127.0.0.1", "--port", "5432", "--dbname", database, "--username", admin,
+               "-v", "ON_ERROR_STOP=1"]
+    for key, value in parameters.items():
+        command.extend(("-v", key + "=" + value))
+    return command, (ROOT / "scripts/v3" / script).read_bytes()
+
+
+def _prepare_authority(values, authority, admin):
+    prefix = f"pocoma.v3.pilot.{authority}."
+    jdbc = values[f"pocoma.v3.worker.{authority}-control.url"]
+    endpoint = jdbc.removeprefix("jdbc:").split("?", 1)[0]
+    env = dict(os.environ, PGPASSWORD=os.environ["POCOMA_I5_ADMIN_PASSWORD"], PGOPTIONS="-c search_path=" + values[prefix + "schema"])
+    parameters = {
+        "expected_database": values[prefix + "database"], "expected_schema": values[prefix + "schema"],
+        "expected_admin": admin, "authority": authority.upper(), "runtime_role": values[prefix + "username"],
+        "reactivation_role": os.environ["POCOMA_I5_REACTIVATION_ROLE"], "injector_role": os.environ["POCOMA_I5_INJECTOR_ROLE"],
+        "environment": "DEV", "fixture_identity": values["pocoma.v3.worker.fixture-identity"],
+        "technical_probes": values["pocoma.v3.worker.technical-probes"],
+        "identity_authority": values.get("pocoma.v3.worker.identity-authority", "fixture"),
+        "identity_read_role": values["pocoma.v3.pilot.read.username"],
+    }
+    stages = ["bootstrap-l2-routing.sql", "grant-l2-lifecycle.sql", "grant-l2-discovery.sql", "bootstrap-l2-worker-dev.sql", "grant-l2-worker-dev.sql"]
+    if parameters["identity_authority"] == "real" and authority == "write":
+        stages.insert(0, "configure-l3-identity-logging.sql")
+    for script in stages:
+        command, stdin = _build_psql_command(endpoint, values[prefix + "database"], admin, parameters, script)
+        # Administrative SQL stdout may contain fixture values: it is not an operational log.
+        run = subprocess.run(command, env=env, input=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if run.returncode:
+            raise RuntimeError(f"administrative stage refused: {authority}/{script}; no automatic cleanup/reset")
+        print(f"I5_DEV_STAGE {authority}/{script} completed")
+
+
 def prepare(args) -> None:
     values = properties(args.config)
     if values.get("pocoma.v3.worker.environment") != "DEV":
@@ -58,47 +108,7 @@ def prepare(args) -> None:
     java_operation(args, "prepare")
     admin = os.environ["POCOMA_I5_ADMIN_USER"]
     for authority in ("write", "read"):
-        prefix = f"pocoma.v3.pilot.{authority}."
-        jdbc = values[f"pocoma.v3.worker.{authority}-control.url"]
-        endpoint = jdbc.removeprefix("jdbc:").split("?", 1)[0]
-        env = dict(os.environ, PGPASSWORD=os.environ["POCOMA_I5_ADMIN_PASSWORD"], PGOPTIONS="-c search_path=" + values[prefix + "schema"])
-        parameters = {
-            "expected_database": values[prefix + "database"], "expected_schema": values[prefix + "schema"],
-            "expected_admin": admin, "authority": authority.upper(), "runtime_role": values[prefix + "username"],
-            "reactivation_role": os.environ["POCOMA_I5_REACTIVATION_ROLE"], "injector_role": os.environ["POCOMA_I5_INJECTOR_ROLE"],
-            "environment": "DEV", "fixture_identity": values["pocoma.v3.worker.fixture-identity"],
-            "technical_probes": values["pocoma.v3.worker.technical-probes"],
-            "identity_authority": values.get("pocoma.v3.worker.identity-authority", "fixture"),
-            "identity_read_role": values["pocoma.v3.pilot.read.username"],
-        }
-        stages = ["bootstrap-l2-routing.sql", "grant-l2-lifecycle.sql", "grant-l2-discovery.sql", "bootstrap-l2-worker-dev.sql", "grant-l2-worker-dev.sql"]
-        if parameters["identity_authority"] == "real" and authority == "write":
-            stages.insert(0, "configure-l3-identity-logging.sql")
-        for script in stages:
-            command = ["psql", "-X", "--dbname", endpoint, "--username", admin, "-v", "ON_ERROR_STOP=1"]
-            for key, value in parameters.items():
-                command.extend(("-v", key + "=" + value))
-            command.extend(("-f", str(ROOT / "scripts/v3" / script)))
-            container = os.environ.get("POCOMA_I5_PSQL_CONTAINER")
-            stdin = None
-            if container:
-                # Explicit disposable Docker target only; verify its published TCP endpoint.
-                parsed = urlsplit(endpoint)
-                info = json.loads(subprocess.check_output(["docker", "inspect", container], text=True))[0]
-                ports = info["NetworkSettings"]["Ports"].get("5432/tcp") or []
-                if parsed.hostname not in ("localhost", "127.0.0.1") or not any(int(p["HostPort"]) == parsed.port for p in ports):
-                    raise ValueError("psql container differs from the explicit JDBC target")
-                command = ["docker", "exec", "-i", "-e", "PGPASSWORD", "-e", "PGOPTIONS", container, "psql", "-X", "--host", "127.0.0.1", "--port", "5432", "--dbname", values[prefix + "database"], "--username", admin, "-v", "ON_ERROR_STOP=1"]
-                for key, value in parameters.items():
-                    command.extend(("-v", key + "=" + value))
-                stdin = (ROOT / "scripts/v3" / script).read_bytes()
-            elif not shutil.which("psql"):
-                raise ValueError("psql required, or explicit POCOMA_I5_PSQL_CONTAINER for the same disposable server")
-            # Administrative SQL stdout may contain fixture values: it is not an operational log.
-            run = subprocess.run(command, env=env, input=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if run.returncode:
-                raise RuntimeError(f"administrative stage refused: {authority}/{script}; no automatic cleanup/reset")
-            print(f"I5_DEV_STAGE {authority}/{script} completed")
+        _prepare_authority(values, authority, admin)
     java_operation(args, "validate")
     receipt = {"kind": "DEV preparation only, not certification", "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "classpath_manifest_sha256": hashlib.sha256(args.qualification_classpath.read_bytes()).hexdigest()}
     path = args.config.with_suffix(".prepared.json")
@@ -152,26 +162,36 @@ def process_identity(pid: int) -> str | None:
     return result.stdout.strip() or None
 
 
-def stop(args) -> int:
+def _verify_worker_identity(args):
     if args.pid < 2 or args.pid == os.getpid():
         raise ValueError("explicit Worker PID required")
     identity = process_identity(args.pid)
-    if not identity or "java" not in identity or str(args.jar.resolve()) not in identity or "v3-consumption-worker-dev" not in identity or str(args.config.resolve()) not in identity:
+    required_parts = ("java", str(args.jar.resolve()), "v3-consumption-worker-dev", str(args.config.resolve()))
+    if not identity or not all(part in identity for part in required_parts):
         raise ValueError("PID does not identify this configured Worker jar")
+    return identity
+
+
+def _observed_clean_stop(log_file, offset, pid) -> bool:
+    if not log_file or not log_file.exists():
+        return False
+    with log_file.open("rb") as log:
+        log.seek(offset)
+        return f"I5_WORKER_STOPPED pid={pid}".encode() in log.read()
+
+
+def stop(args) -> int:
+    identity = _verify_worker_identity(args)
     offset = args.log_file.stat().st_size if args.log_file and args.log_file.exists() else 0
     if process_identity(args.pid) != identity:
         raise ValueError("PID identity changed")
     os.kill(args.pid, signal.SIGTERM)
     deadline = time.monotonic() + 105  # Before the configured Spring phase timeout of 120s.
     while time.monotonic() < deadline:
-        current = process_identity(args.pid)
-        if current != identity:
-            if args.log_file and args.log_file.exists():
-                with args.log_file.open("rb") as log:
-                    log.seek(offset)
-                    if f"I5_WORKER_STOPPED pid={args.pid}".encode() in log.read():
-                        print("I5_DEV_STOPPED clean Worker callback observed after physical drain")
-                        return 0
+        if process_identity(args.pid) != identity:
+            if _observed_clean_stop(args.log_file, offset, args.pid):
+                print("I5_DEV_STOPPED clean Worker callback observed after physical drain")
+                return 0
             print("I5_DEV_STOP_INCONCLUSIVE process exited; clean drain not observed")
             return 3
         time.sleep(0.25)
@@ -181,6 +201,33 @@ def stop(args) -> int:
         return 2
     print("I5_DEV_STOP_INCONCLUSIVE identity changed at deadline")
     return 3
+
+
+def _dispatch_operation(parser, args) -> int:
+    if args.operation == "prepare":
+        prepare(args)
+    elif args.operation == "stop":
+        if args.pid is None:
+            parser.error("stop requires --pid")
+        return stop(args)
+    elif args.operation == "demo-identity":
+        demo_identity(args)
+    elif args.operation == "inject-identity":
+        if args.intention_file is None:
+            parser.error("protected --intention-file required")
+        java_operation(args, args.operation, str(args.intention_file.resolve()))
+    elif args.operation == "identity-token":
+        if args.own_key_file is None or args.token_output is None:
+            parser.error("private key/output files required")
+        java_operation(args, args.operation, str(args.own_key_file.resolve()), str(args.token_output.resolve()))
+    elif args.operation in ("inject-command", "verify", "verify-identity"):
+        if args.request_id is None:
+            parser.error("request UUID required")
+        extra = [args.request_id] + ([str(args.await_seconds)] if args.operation in ("verify", "verify-identity") else [])
+        java_operation(args, args.operation, *extra)
+    else:
+        java_operation(args, args.operation)
+    return 0
 
 
 def main() -> int:
@@ -198,28 +245,7 @@ def main() -> int:
     parser.add_argument("--pid", type=int)
     parser.add_argument("--log-file", type=Path)
     args = parser.parse_args()
-    if args.operation == "prepare":
-        prepare(args)
-    elif args.operation == "stop":
-        if args.pid is None:
-            parser.error("stop requires --pid")
-        return stop(args)
-    elif args.operation == "demo-identity":
-        demo_identity(args)
-    elif args.operation == "inject-identity":
-        if args.intention_file is None: parser.error("protected --intention-file required")
-        java_operation(args, args.operation, str(args.intention_file.resolve()))
-    elif args.operation == "identity-token":
-        if args.own_key_file is None or args.token_output is None: parser.error("private key/output files required")
-        java_operation(args, args.operation, str(args.own_key_file.resolve()), str(args.token_output.resolve()))
-    elif args.operation in ("inject-command", "verify", "verify-identity"):
-        if args.request_id is None:
-            parser.error("request UUID required")
-        extra = [args.request_id] + ([str(args.await_seconds)] if args.operation in ("verify", "verify-identity") else [])
-        java_operation(args, args.operation, *extra)
-    else:
-        java_operation(args, args.operation)
-    return 0
+    return _dispatch_operation(parser, args)
 
 
 if __name__ == "__main__":
