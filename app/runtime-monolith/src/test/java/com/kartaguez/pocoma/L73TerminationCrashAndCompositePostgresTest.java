@@ -555,7 +555,10 @@ class L73TerminationCrashAndCompositePostgresTest {
                                         potId,
                                         0L,
                                         new PotCommand.CreateInvitation(
-                                                Instant.now().plus(Duration.ofDays(7))));
+                                                Instant.now()
+                                                        .truncatedTo(
+                                                                java.time.temporal.ChronoUnit.MICROS)
+                                                        .plus(Duration.ofDays(7))));
                         admitCommand(f.write, cmd);
                         var failOnce = new AtomicBoolean(false);
                         var eFail =
