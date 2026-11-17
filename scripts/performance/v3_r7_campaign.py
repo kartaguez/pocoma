@@ -116,7 +116,7 @@ def get_docker_stats() -> Dict[str, Any]:
 def check_max_remaining_lease() -> float:
     sql_write = "SELECT COALESCE(MAX(EXTRACT(EPOCH FROM (owned_until - clock_timestamp()))), 0) FROM v3_write.partition_ownership;"
     sql_read = "SELECT COALESCE(MAX(EXTRACT(EPOCH FROM (owned_until - clock_timestamp()))), 0) FROM v3_read.partition_ownership;"
-    
+
     res_w = subprocess.run(
         ["docker", "exec", POSTGRES_CONTAINER, "psql", "-U", "pocoma", "-d", "pocoma_write", "-t", "-c", sql_write],
         capture_output=True, text=True
@@ -134,56 +134,56 @@ def measure_idle_cost(config_name: str, duration_sec: int = 20) -> Dict[str, Any
     print(f"\n================================================================================")
     print(f" Measuring Charge à Vide (Idle Cost) — Config {config_name} ({duration_sec}s window)")
     print(f"================================================================================")
-    
+
     # Pre-sampling snapshot
     p0 = get_prom_metrics()
     pg0 = get_pg_stats()
     ds0 = get_docker_stats()
     t0 = time.time()
-    
+
     print(f"  Sampling idle background activity for {duration_sec}s...")
     time.sleep(duration_sec)
-    
+
     # Post-sampling snapshot
     p1 = get_prom_metrics()
     pg1 = get_pg_stats()
     ds1 = get_docker_stats()
     t1 = time.time()
     dt = max(0.001, t1 - t0)
-    
+
     # Cycles
     disc0 = p0.get('pocoma_v3_worker_cycles_total{loop="discovery",outcome="confirmed"}', 0)
     disc1 = p1.get('pocoma_v3_worker_cycles_total{loop="discovery",outcome="confirmed"}', 0)
     cons0 = p0.get('pocoma_v3_worker_cycles_total{loop="consumption",outcome="confirmed"}', 0)
     cons1 = p1.get('pocoma_v3_worker_cycles_total{loop="consumption",outcome="confirmed"}', 0)
-    
+
     disc_rate = (disc1 - disc0) / dt
     cons_rate = (cons1 - cons0) / dt
     total_cycles_rate = disc_rate + cons_rate
     # In idle, all cycles are zero-progress cycles
     zero_progress_rate = total_cycles_rate
-    
+
     # Hikari acquire count (surrogate for JDBC transactions/queries)
     hik_acquire0 = sum(v for k, v in p0.items() if k.startswith("hikaricp_connections_acquire_seconds_count"))
     hik_acquire1 = sum(v for k, v in p1.items() if k.startswith("hikaricp_connections_acquire_seconds_count"))
     hik_acquire_rate = (hik_acquire1 - hik_acquire0) / dt
-    
+
     # Active connections
     active_conns = sum(v for k, v in p1.items() if k.startswith("hikaricp_connections_active"))
-    
+
     # PostgreSQL commits and tuples
     pg_commits0 = sum(db["xact_commit"] for db in pg0.values())
     pg_commits1 = sum(db["xact_commit"] for db in pg1.values())
     pg_commit_rate = (pg_commits1 - pg_commits0) / dt
-    
+
     pg_tup0 = sum(db["tup_returned"] for db in pg0.values())
     pg_tup1 = sum(db["tup_returned"] for db in pg1.values())
     pg_tup_rate = (pg_tup1 - pg_tup0) / dt
-    
+
     # CPU
     monolith_cpu = ds1.get(CONTAINER_NAME, {}).get("cpu_percent", 0.0)
     pg_cpu = ds1.get(POSTGRES_CONTAINER, {}).get("cpu_percent", 0.0)
-    
+
     idle_data = {
         "config": config_name,
         "duration_seconds": dt,
@@ -199,7 +199,7 @@ def measure_idle_cost(config_name: str, duration_sec: int = 20) -> Dict[str, Any
         "postgres_cpu_percent": pg_cpu,
         "timestamp": time.time(),
     }
-    
+
     print(f"  ✓ Discovery Cycles/sec:    {idle_data['discovery_cycles_per_sec']}")
     print(f"  ✓ Consumption Cycles/sec:  {idle_data['consumption_cycles_per_sec']}")
     print(f"  ✓ Total Worker Cycles/sec: {idle_data['total_cycles_per_sec']}")
@@ -208,12 +208,12 @@ def measure_idle_cost(config_name: str, duration_sec: int = 20) -> Dict[str, Any
     print(f"  ✓ Postgres Commits/sec:    {idle_data['postgres_xact_commit_per_sec']}")
     print(f"  ✓ Monolith CPU:            {idle_data['monolith_cpu_percent']}%")
     print(f"  ✓ Postgres CPU:            {idle_data['postgres_cpu_percent']}%")
-    
+
     out_file = EVIDENCE_DIR_R7 / f"idle_metrics_config_{config_name}.json"
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(idle_data, f, indent=2)
     print(f"  ✓ Idle metrics preserved in {out_file.name}")
-    
+
     return idle_data
 
 
@@ -242,16 +242,16 @@ def switch_and_stabilize_config(config_name: str) -> bool:
         print(f"\n================================================================================")
         print(f" Switching Monolith to Configuration [{config_name}]")
         print(f"================================================================================")
-        
+
         # 1. Copy config
         shutil.copyfile(src_cfg, ACTIVE_CONFIG)
         print(f"  ✓ Deployed config-{config_name}.properties to {ACTIVE_CONFIG.name}")
-        
+
         # 2. Stop container gracefully
         print(f"  ▶ Stopping container {CONTAINER_NAME} gracefully (drain)...")
         subprocess.run(["docker", "stop", "-t", "30", CONTAINER_NAME], check=True)
         print(f"  ✓ Container stopped.")
-        
+
         # 3. Wait for natural lease expiration in PostgreSQL
         rem = check_max_remaining_lease()
         print(f"  ▶ Awaiting natural expiration of partition leases in PostgreSQL (remaining: {rem:.1f}s)...")
@@ -262,11 +262,11 @@ def switch_and_stabilize_config(config_name: str) -> bool:
             if rem > 0:
                 print(f"    ... {rem:.1f}s remaining before clean lease takeover ...")
         print("  ✓ All partition leases have naturally expired (clock_timestamp >= owned_until).")
-        
+
         # 4. Start container
         print(f"  ▶ Starting container {CONTAINER_NAME}...")
         subprocess.run(["docker", "start", CONTAINER_NAME], check=True)
-        
+
         # 5. Poll actuator health
         print("  ▶ Waiting for Spring Boot Actuator health...")
         health_up = False
@@ -281,12 +281,12 @@ def switch_and_stabilize_config(config_name: str) -> bool:
             except Exception:
                 pass
             time.sleep(1)
-            
+
         if not health_up:
             print("ERROR: Actuator health did not reach UP within 60s", file=sys.stderr)
             return False
         print("  ✓ Actuator health is UP.")
-        
+
         # 6. Poll until all 32 partitions are acquired
         print("  ▶ Verifying effective acquisition of all 32 partition leases...")
         leases_ready = False
@@ -299,7 +299,7 @@ def switch_and_stabilize_config(config_name: str) -> bool:
                 print(f"  ✓ All 32 leases acquired: write={w_leases:.0f}/8, read={r_leases:.0f}/24.")
                 break
             time.sleep(1)
-            
+
         if not leases_ready:
             print(f"ERROR: Partitions not acquired within 60s (w={w_leases}, r={r_leases})", file=sys.stderr)
             return False
@@ -338,44 +338,44 @@ def execute_campaign(configs: list, skip_medium: bool = False):
     print(" Pocoma V3 — L6/I3-R7 Causal Performance Optimization Campaign Starting")
     print(f" Target Configurations: {configs}")
     print("================================================================================")
-    
+
     results = {}
-    
+
     for cfg in configs:
         print(f"\n================================================================================")
         print(f" BEGINNING EVALUATION OF CONFIGURATION [{cfg}]")
         print(f"================================================================================")
-        
+
         ok = switch_and_stabilize_config(cfg)
         if not ok:
             print(f"FATAL: Could not stabilize Configuration {cfg}. Aborting.", file=sys.stderr)
             sys.exit(1)
-            
+
         # 1. Idle Cost (Charge à vide)
         idle_data = measure_idle_cost(cfg, duration_sec=20)
-        
+
         # 2. Scenario S1 (1 cmd/s, 60s)
         s1_ok = run_scenario("r7-s1-1", cfg, f"run-r7-{cfg}-s1-1")
         if not s1_ok:
             print(f"WARNING: S1 failed for Config {cfg}")
-            
+
         # 3. Scenario S2 (5 cmd/s, 60s)
         s2_ok = run_scenario("r7-s2-5", cfg, f"run-r7-{cfg}-s2-5")
         if not s2_ok:
             print(f"WARNING: S2 failed for Config {cfg}")
-            
+
         # 4. Scenario S3 (10 cmd/s, 90s)
         s3_ok = run_scenario("r7-s3-10", cfg, f"run-r7-{cfg}-s3-10")
         if not s3_ok:
             print(f"WARNING: S3 failed for Config {cfg}")
-            
+
         # 5. Medium Pots (SPEC-09 comparison) — Configs A and E
         med_ok = True
         if cfg in ("A", "E") and not skip_medium:
             med_ok = run_scenario("r7-medium", cfg, f"run-r7-{cfg}-medium")
             if not med_ok:
                 print(f"WARNING: Medium scenario failed for Config {cfg}")
-                
+
         results[cfg] = {
             "idle": idle_data,
             "s1_ok": s1_ok,
@@ -383,7 +383,7 @@ def execute_campaign(configs: list, skip_medium: bool = False):
             "s3_ok": s3_ok,
             "med_ok": med_ok
         }
-        
+
     print("\n================================================================================")
     print(" Pocoma V3 — L6/I3-R7 All Target Configurations Evaluated Successfully")
     print("================================================================================")
@@ -395,7 +395,7 @@ def main():
                         help="List of configurations to evaluate (default: E, A, B, C, D)")
     parser.add_argument("--skip-medium", action="store_true", help="Skip medium pot SPEC-09 verification")
     args = parser.parse_args()
-    
+
     execute_campaign(args.configs, skip_medium=args.skip_medium)
 
 

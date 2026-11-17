@@ -1,0 +1,6 @@
+# Historical evidence logs, patches, and archived v3 specs/reports are immutable
+# artifacts whose raw formatting (trailing spaces, patch context, EOF newlines)
+# must be preserved without tripping git diff --check.
+docs/internal/debts/** -whitespace
+docs/testing/evidence/** -whitespace
+docs/v3/** -whitespace

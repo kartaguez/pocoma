@@ -164,7 +164,7 @@ def run_benchmark(scenario: str, duration: str = "10s", rate: Optional[int] = No
     if p.returncode != 0:
         print(f"[!] Warning: benchmark exited with code {p.returncode}")
         print(p.stderr or p.stdout)
-    
+
     # Locate the latest report JSON generated in EVIDENCE_DIR_R9
     reports = list(EVIDENCE_DIR_R9.glob("run-r9-*_report.json"))
     if not reports:
@@ -184,7 +184,7 @@ def extract_metrics(report: Dict[str, Any]) -> Dict[str, Any]:
     lat = cm.get("latencies", {})
     cmd_res = lat.get("commandResult", {})
     e2e = lat.get("e2eTotal", {})
-    
+
     return {
         "runId": report.get("runId"),
         "scenario": report.get("scenario"),
@@ -377,7 +377,7 @@ def run_experiment_c5():
     print("[*] Simulating abrupt worker restart...")
     run_cmd(["docker", "restart", "pocoma-functional-runtime-monolith-1"])
     time.sleep(8)
-    
+
     # Hand over partition leases immediately to simulate natural lease expiration
     reset_sql = (
         "SET search_path = v3_write, public; "
