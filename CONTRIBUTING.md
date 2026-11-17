@@ -29,10 +29,17 @@ python3 -B scripts/testing/verify.py FAST identity
 
 Run the global architecture gate (`./mvnw -pl architecture-tests -am test`) or the full reactor (`./mvnw --batch-mode --no-transfer-progress test`) only when required by the verification policy (e.g., module dependency changes, cross-cutting infrastructure, or integration into `main`).
 
-For local Python CLI tooling (`scripts/local/`), run:
+For fast local Python CLI unit tests (`scripts/local/`, < 1 s without Docker), run:
 
 ```bash
-PYTHONPATH=scripts/local python3 -B -m unittest discover -s scripts/local -p 'test_*.py'
+PYTHONPATH=scripts/local python3 -B -m unittest \
+  scripts/local/test_s6_hardening.py \
+  scripts/local/test_recovery.py \
+  scripts/local/test_prerequisites.py \
+  scripts/local/test_grafana.py \
+  scripts/local/test_local.py \
+  scripts/local/test_keycloak.py \
+  scripts/local/test_volume_ownership.py
 ```
 
 ## Making a change
@@ -45,6 +52,6 @@ PYTHONPATH=scripts/local python3 -B -m unittest discover -s scripts/local -p 'te
 - Preserve the existing dependency direction ([docs/architecture/modules.md](docs/architecture/modules.md)). Do not introduce cross-layer or runtime-to-runtime dependencies that contradict the documented architecture.
 - Do not mix opportunistic dependency, Maven model, workflow, or architecture changes into an unrelated contribution.
 
-Before opening a pull request, run the relevant slice tests, check `git diff --check`, and complete the [pull request template](.github/pull_request_template.md). The CI contract is documented in [docs/development/ci.md](docs/development/ci.md).
+Before opening a pull request, run the relevant slice tests, check `git diff --check`, and complete the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). The CI contract is documented in [docs/development/ci.md](docs/development/ci.md).
 
 By participating, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md). Contributions are submitted under the repository's [Apache License 2.0](LICENSE).

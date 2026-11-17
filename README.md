@@ -38,8 +38,8 @@ Automatically verified by `./pocoma-local` ([`scripts/local/toolchain.json`](scr
 - **Docker Engine / Docker Desktop** running (≥ 8 GB RAM recommended for the 9 containers)
 - **Python ≥ 3.11**
 - **JDK 21** (`java` 21)
-- **Node 24** and **npm ≥ 7** (for Bruno CLI `4.3.0`)
-- Clean shell environment: no global `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, or `_JAVA_OPTIONS` variables, and no `maven.config` / `jvm.config` / `extensions.xml` files under `app/.mvn/`
+- **Node ≥ 22** and **npm ≥ 7** (for Bruno CLI `4.3.0`)
+- Clean Maven wrapper config: no `maven.config` / `jvm.config` / `extensions.xml` files under `app/.mvn/` (global `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, and `_JAVA_OPTIONS` shell variables are automatically isolated during builds)
 
 For full details and the complete checklist: [Installation](docs/getting-started/installation.md).
 

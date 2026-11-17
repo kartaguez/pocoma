@@ -11,7 +11,7 @@ Required versions are defined in [`scripts/local/toolchain.json`](../../scripts/
 | **Docker** | Docker Engine or Docker Desktop **running** | Runs the 9 local containers (PostgreSQL, Keycloak, Prometheus, Grafana, 5 JVMs) |
 | **Python** | **≥ 3.11** | Runs `./pocoma-local` and initialization scripts |
 | **Java (JDK)** | Major version **21** | Compiles via the Maven Wrapper (`app/mvnw`) |
-| **Node.js & npm** | Node **24** (major `24`), `npm` **≥ 7** | Runs Bruno CLI (`4.3.0`) |
+| **Node.js & npm** | Node **≥ 22**, `npm` **≥ 7** | Runs Bruno CLI (`4.3.0`) |
 | **Bruno CLI** | Version **`4.3.0`** (installed in `scripts/bruno-v3`) | Runs automated collections and E2E journeys |
 
 > [!NOTE]
@@ -23,16 +23,10 @@ A local instance starts **9 containers** (4 infrastructure services and 5 `eclip
 
 ### Shell Environment & Maven / Java Restrictions
 
-To guarantee reproducible builds, `./pocoma-local` **refuses to start** (`exit code 2`, `PRE-*` error) if uncontrolled global options are present:
+To guarantee reproducible builds:
 
-- **Forbidden environment variables**: `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`.
-- **Forbidden files under `app/.mvn/`**: `maven.config`, `jvm.config`, `extensions.xml`.
-
-If needed, clear your current shell before running `./pocoma-local`:
-
-```bash
-unset MAVEN_ARGS MAVEN_OPTS JAVA_TOOL_OPTIONS JDK_JAVA_OPTIONS _JAVA_OPTIONS
-```
+- **Forbidden files under `app/.mvn/`**: `maven.config`, `jvm.config`, `extensions.xml` (`./pocoma-local` refuses with `PRE-UNREVIEWED-MAVEN-CONFIG`).
+- **Automatic isolation of JVM/Maven shell variables**: if `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, or `_JAVA_OPTIONS` are set in your shell, `./pocoma-local` automatically strips them from its build and probe subprocesses without modifying your shell.
 
 ### Quick Workstation Check
 
@@ -111,7 +105,7 @@ The output of `status` (and `start`) prints the instance's local endpoints:
 
 ## 5. Initial Troubleshooting
 
-- **`PRE-*` on startup**: verify Docker Desktop is running and no forbidden Maven/JVM variables are exported.
+- **`PRE-*` on startup**: verify Docker Desktop is running and no unreviewed `app/.mvn/{maven.config,jvm.config,extensions.xml}` files exist.
 - **`PRE-INPUT-DRIFT` or `DB-INPUT-DRIFT` on an existing instance**: source code or SQL schemas changed since the instance was created; use another `--instance <name>` or run `reset`.
 - **`qualificationState=STALE` (`exit code 1`)**: the canary proof is older than `300 s` while services are healthy (`operationalState=OPERATIONAL`); rerun `./pocoma-local start --instance demo` to refresh the canary.
 - For the full error catalog and procedures: [Troubleshooting & Diagnostics](../operations/troubleshooting.md) and [Crash Recovery & Lifecycle](../operations/recovery.md).
