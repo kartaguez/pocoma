@@ -531,9 +531,7 @@ class L73TerminationCrashAndCompositePostgresTest {
                                     RoutingV1.partition(
                                             RoutingV1.hash(ConsumableFamily.IDENTITY_REQUEST, reqId),
                                             4);
-                            var lease = acquireLeaseWithRetry(sharedIdEngine, part);
-                            var claim =
-                                    sharedIdEngine.acquire(lease, List.of(reqId)).claims().getFirst();
+                            var claim = acquireClaimWithRetry(sharedIdEngine, part, reqId);
                             var execRes = sharedIdEngine.execute(claim);
                             assertEquals(
                                     ConsumptionProtocol.Status.COMMITTED,
@@ -1152,6 +1150,19 @@ class L73TerminationCrashAndCompositePostgresTest {
                 COMMAND_CONSUMPTION_ID,
                 command.requestId(),
                 command.requestId());
+    }
+
+    private static ConsumptionEngine.AcquiredClaim acquireClaimWithRetry(
+            ConsumptionEngine engine, int partition, UUID consumableId)
+            throws InterruptedException {
+        for (int i = 0; i < 100; i++) {
+            var lease = acquireLeaseWithRetry(engine, partition);
+            var claims = engine.acquire(lease, List.of(consumableId)).claims();
+            if (!claims.isEmpty()) return claims.getFirst();
+            Thread.sleep(50);
+        }
+        fail("Could not acquire claim for " + consumableId + " on partition " + partition);
+        return null;
     }
 
     private static PartitionLease acquireLeaseWithRetry(ConsumptionEngine engine, int partition)
