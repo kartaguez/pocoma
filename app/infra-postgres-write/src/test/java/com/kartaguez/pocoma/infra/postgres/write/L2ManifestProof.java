@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -66,6 +67,7 @@ import com.kartaguez.pocoma.port.transaction.RecoveryReadContext;
 /**
  * Direct I2 Engine proofs; no compatibility cession. Oracles use a separate physical connection.
  */
+@Tag("slow")
 @Testcontainers
 class L2ManifestProof {
     @Container static final PostgreSQLContainer POSTGRES = CommandExecutionPostgresTest.POSTGRES;

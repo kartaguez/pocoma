@@ -44,6 +44,7 @@ import java.util.function.*;
 import javax.sql.DataSource;
 
 /** Real Identity producers, Command factory/classifier, Discovery and acquired L2 claims. */
+@Tag("slow")
 @Testcontainers
 class IdentityPotCommandPostgresTest {
     @Container static final PostgreSQLContainer PG = IdentityRequestCompositionPostgresTest.PG;

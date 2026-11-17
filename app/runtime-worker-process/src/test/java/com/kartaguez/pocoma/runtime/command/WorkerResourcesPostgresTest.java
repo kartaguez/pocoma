@@ -53,6 +53,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -81,6 +82,7 @@ import com.kartaguez.pocoma.runtime.command.WorkerPostgresTest.ForwardingTransac
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.metrics.IMetricsTracker;
 
+@Tag("slow")
 @Testcontainers
 class WorkerResourcesPostgresTest {
     @Container

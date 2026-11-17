@@ -8,11 +8,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
 import java.util.*;
 
+@Tag("slow")
 class InvitationTopologyPostgresTest extends InvitationFixture {
     @Test
     void invitationPrivilegePreflightsRejectColumnEscalation() throws Exception {

@@ -43,6 +43,7 @@ import java.util.function.*;
 /**
  * Real lifecycle operations on both authorities; every test saves a separate external SQL vector.
  */
+@Tag("slow")
 @Testcontainers
 class ConsumptionLifecyclePostgresTest {
     @Container

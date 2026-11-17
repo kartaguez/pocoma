@@ -45,6 +45,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.*;
 
+@Tag("slow")
 @Testcontainers
 class ReadWorkerResourcesPostgresTest {
     @Container
