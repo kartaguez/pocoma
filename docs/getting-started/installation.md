@@ -31,9 +31,10 @@ To guarantee reproducible builds:
 ### Quick Workstation Check
 
 ```bash
-docker info >/dev/null && python3 --version && java -version && node -v && npm -v
-./pocoma-local --help
+./pocoma-local doctor
 ```
+
+`doctor` performs a read-only check of Docker (daemon + allocated RAM), Python, JDK 21, Node ≥ 22, npm/Bruno CLI, and whether the Maven build or Docker images are already cached — without creating any instance state.
 
 ## 2. Installation & First Startup
 

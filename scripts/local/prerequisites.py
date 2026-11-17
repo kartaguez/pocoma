@@ -85,7 +85,7 @@ def tools(root, command, dry_run=False, *, build_required=True):
           'Start Docker; verify its context/socket permissions, then retry. No instance was changed.')
     probe('docker', ['compose', 'version', '--short'], 'Docker Compose plugin',
           'Install/enable the docker compose plugin (not only docker-compose), then retry.')
-    starting = command in ('start', 'reload', 'upgrade-grafana') or (command == 'reset' and not dry_run)
+    starting = command in ('start', 'reload', 'upgrade-grafana', 'doctor') or (command == 'reset' and not dry_run)
     if starting:
         probe('docker', ['compose', '-f', '-', 'config', '--quiet'], 'Compose support for the distribution configuration',
               'Update the docker compose plugin to support JSON, limits, healthchecks and tmpfs, then retry.',

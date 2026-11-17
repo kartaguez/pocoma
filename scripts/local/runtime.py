@@ -1290,10 +1290,40 @@ def prepare(command, instance, dry_run=False):
         ownership(m)
 
 
+def doctor():
+    """Read-only workstation and cache check without creating instance state."""
+    safe_tree(HOME_LOCAL)
+    prerequisites.sources(ROOT, RUNTIMES)
+    inputs = source_hash()
+    prerequisites.tools(ROOT, 'doctor', False, build_required=True)
+    build_cached = (HOME_LOCAL / 'builds' / inputs / 'receipt.json').exists()
+    bruno_cli = (ROOT / 'scripts/bruno-v3/node_modules/.bin/bru').exists()
+    cached_images, missing_images = [], []
+    for image in IMAGES.values():
+        probe = subprocess.run(['docker', 'image', 'inspect', image], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        (cached_images if probe.returncode == 0 else missing_images).append(image)
+    mem_raw = run(['docker', 'info', '--format', '{{.MemTotal}}'])
+    mem_mib = int(mem_raw) // (1024 * 1024) if mem_raw.isdigit() else None
+    return dict(
+        state='READY',
+        exit=0,
+        readOnly=True,
+        python='.'.join(str(v) for v in sys.version_info[:3]),
+        inputs=inputs,
+        buildCached=build_cached,
+        brunoCliInstalled=bruno_cli,
+        cachedImages=cached_images,
+        missingImages=missing_images,
+        dockerMemoryMiB=mem_mib,
+        recommendedMemoryMiB=8192,
+        memorySufficient=(mem_mib is None or mem_mib >= 7680),
+    )
+
+
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(prog='pocoma-local', description=__doc__)
-    parser.add_argument('command', choices=['start', 'reload', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
+    parser.add_argument('command', choices=['start', 'reload', 'doctor', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
@@ -1307,6 +1337,10 @@ def main():
     instance = args.instance or 'demo'
     path = evidence = m = None
     try:
+        if args.command == 'doctor':
+            result = doctor()
+            print(json.dumps(result, indent=2))
+            return result['exit']
         if args.command == 'reset' and (args.instance is None or args.confirm != 'RESET:' + instance):
             raise Refusal('RESET-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED')
         if args.command == 'destroy' and (args.instance is None or args.confirm != 'DESTROY:' + instance):

@@ -83,6 +83,13 @@ The Maven reactor under `app/` contains **42 child modules** and one aggregator.
    ./pocoma-local start --instance dev-v2
    ```
 
+### IDE & Fast Debugging Workflow
+
+- **Opening in IntelliJ IDEA / VS Code**: import `app/pom.xml` as a Maven project using **JDK 21**.
+- **Running & debugging tests directly from the IDE**: integration tests (`*PostgresTest`) use **Testcontainers PostgreSQL** automatically (Docker Desktop must be running), so you can set breakpoints and run/debug any JUnit 5 test class directly without starting `./pocoma-local`.
+- **Fast domain feedback from the CLI**: use `verify.py FAST <domain>` from the repository root (for example `python3 -B scripts/testing/verify.py FAST identity`) before running the full slice command.
+- **Monolith composition checks**: `app/runtime-monolith/src/main/resources/` contains the Spring profiles (`application.properties`, `application-v3-consumption-worker-dev.properties`, `application-v3-read-worker.properties`) used when testing combined runtime wiring in `runtime-monolith`.
+
 ### Canonical Maven Verification Slices
 
 Per the normative [Reactor_Verification_Policy.md](../testing/Reactor_Verification_Policy.md), **do not run `./mvnw test` across the whole reactor by default**; run the slice matching your change from `app/`:

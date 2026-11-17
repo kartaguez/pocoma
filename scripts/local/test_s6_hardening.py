@@ -196,7 +196,7 @@ class S6HardeningTests(unittest.TestCase):
         self.assertEqual('QUALIFIED', result['qualificationState'])
 
     def test_s64_dry_run_rejected_on_unsupported_commands(self):
-        for cmd in ('start', 'reload', 'upgrade-grafana', 'status', 'stop', 'bruno', 'login', 'gui'):
+        for cmd in ('start', 'reload', 'doctor', 'upgrade-grafana', 'status', 'stop', 'bruno', 'login', 'gui'):
             with patch.object(sys, 'argv', ['runtime.py', cmd, '--dry-run']), \
                     patch.object(rt, 'prepare') as prepare_mock:
                 with self.assertRaises(SystemExit) as ctx:
@@ -273,6 +273,27 @@ class S6HardeningTests(unittest.TestCase):
                     with self.assertRaisesRegex(rt.Refusal, 'RELOAD_RESET_REQUIRED'):
                         rt.reload_instance(path, m, evidence)
                 self.assertTrue((evidence / 'reload-refused.json').exists())
+
+    def test_doctor_is_read_only_and_reports_cache_and_memory(self):
+        with tempfile.TemporaryDirectory() as folder:
+            home_local = Path(folder) / '.pocoma-local'
+            fake_proc = type('Proc', (), {'returncode': 0})()
+            with patch.object(rt, 'HOME_LOCAL', home_local), \
+                    patch.object(rt, 'safe_tree'), \
+                    patch.object(rt.prerequisites, 'sources'), \
+                    patch.object(rt.prerequisites, 'tools') as tools_mock, \
+                    patch.object(rt, 'source_hash', return_value='abc123'), \
+                    patch.object(rt.subprocess, 'run', return_value=fake_proc), \
+                    patch.object(rt, 'run', return_value=str(8 * 1024 * 1024 * 1024)):
+                result = rt.doctor()
+            self.assertEqual('READY', result['state'])
+            self.assertEqual(0, result['exit'])
+            self.assertTrue(result['readOnly'])
+            self.assertFalse(result['buildCached'])
+            self.assertEqual(8192, result['dockerMemoryMiB'])
+            self.assertTrue(result['memorySufficient'])
+            self.assertFalse((home_local / 'instances').exists())
+            tools_mock.assert_called_once_with(rt.ROOT, 'doctor', False, build_required=True)
 
 
 if __name__ == '__main__':
