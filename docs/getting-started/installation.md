@@ -1,119 +1,119 @@
-# Installation et prérequis
+# Installation & Prerequisites
 
-Ce guide explique comment préparer votre poste, installer et démarrer une instance locale de Pocoma avec [`./pocoma-local`](../reference/cli.md), vérifier son état `READY`, puis l'arrêter ou la supprimer proprement.
+This guide explains how to prepare your workstation, install and start a local Pocoma instance with [`./pocoma-local`](../reference/cli.md), verify its `READY` state, and stop or destroy it cleanly.
 
-## 1. Prérequis système
+## 1. System Prerequisites
 
-Les versions requises sont définies dans [`scripts/local/toolchain.json`](../../scripts/local/toolchain.json) et contrôlées automatiquement par `./pocoma-local` avant toute action sur les conteneurs :
+Required versions are defined in [`scripts/local/toolchain.json`](../../scripts/local/toolchain.json) and automatically checked by `./pocoma-local` before any container operation:
 
-| Composant | Exigence | Rôle |
+| Component | Requirement | Role |
 | :--- | :--- | :--- |
-| **Docker** | Docker Engine ou Docker Desktop **démarré** | Exécution des 9 conteneurs locaux (PostgreSQL, Keycloak, Prometheus, Grafana, 5 JVM) |
-| **Python** | **≥ 3.11** | Exécution de `./pocoma-local` et des scripts d'initialisation |
-| **Java (JDK)** | Version majeure **21** | Compilation via le wrapper Maven (`app/mvnw`) |
-| **Node.js & npm** | Node **24** (majeure `24`), `npm` **≥ 7** | Exécution de Bruno CLI (`4.3.0`) |
-| **Bruno CLI** | Version **`4.3.0`** (installé dans `scripts/bruno-v3`) | Exécution des collections et parcours automatisés |
+| **Docker** | Docker Engine or Docker Desktop **running** | Runs the 9 local containers (PostgreSQL, Keycloak, Prometheus, Grafana, 5 JVMs) |
+| **Python** | **≥ 3.11** | Runs `./pocoma-local` and initialization scripts |
+| **Java (JDK)** | Major version **21** | Compiles via the Maven Wrapper (`app/mvnw`) |
+| **Node.js & npm** | Node **24** (major `24`), `npm` **≥ 7** | Runs Bruno CLI (`4.3.0`) |
+| **Bruno CLI** | Version **`4.3.0`** (installed in `scripts/bruno-v3`) | Runs automated collections and E2E journeys |
 
 > [!NOTE]
-> Aucune installation globale de Maven n'est nécessaire : `./pocoma-local` utilise le wrapper `app/mvnw` du dépôt avec votre JDK 21.
+> No global Maven installation is required: `./pocoma-local` uses the repository's `app/mvnw` wrapper with your JDK 21.
 
-### Ressources Docker recommandées
+### Recommended Docker Resources
 
-Une instance locale démarre **9 conteneurs** (4 services d'infrastructure et 5 runtimes JVM `eclipse-temurin:21.0.8_9-jre`), pour une somme de limites mémoire d'environ **5 760 MiB**. Allouez au moins **8 Go de RAM** à Docker Desktop afin d'éviter toute terminaison OOM lors du build ou du démarrage simultané.
+A local instance starts **9 containers** (4 infrastructure services and 5 `eclipse-temurin:21.0.8_9-jre` JVM runtimes), with combined memory limits around **5,760 MiB**. Allocate at least **8 GB of RAM** to Docker Desktop to avoid OOM kills during simultaneous build or startup.
 
-### Environnement shell et restrictions Maven / Java
+### Shell Environment & Maven / Java Restrictions
 
-Pour garantir un build reproductible, `./pocoma-local` **refuse de démarrer** (`code 2`, erreur `PRE-*`) si des options globales non maîtrisées sont présentes :
+To guarantee reproducible builds, `./pocoma-local` **refuses to start** (`exit code 2`, `PRE-*` error) if uncontrolled global options are present:
 
-- **Variables d'environnement interdites** : `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`.
-- **Fichiers interdits dans `app/.mvn/`** : `maven.config`, `jvm.config`, `extensions.xml`.
+- **Forbidden environment variables**: `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`.
+- **Forbidden files under `app/.mvn/`**: `maven.config`, `jvm.config`, `extensions.xml`.
 
-Si besoin, nettoyez votre terminal courant avant de lancer `./pocoma-local` :
+If needed, clear your current shell before running `./pocoma-local`:
 
 ```bash
 unset MAVEN_ARGS MAVEN_OPTS JAVA_TOOL_OPTIONS JDK_JAVA_OPTIONS _JAVA_OPTIONS
 ```
 
-### Vérification rapide du poste
+### Quick Workstation Check
 
 ```bash
 docker info >/dev/null && python3 --version && java -version && node -v && npm -v
 ./pocoma-local --help
 ```
 
-## 2. Installation et premier démarrage
+## 2. Installation & First Startup
 
-Depuis la racine du dépôt, créez et démarrez l'instance par défaut (`demo`) ou une instance nommée (`[a-z][a-z0-9-]{0,30}`) :
+From the repository root, create and start the default instance (`demo`) or a named instance (`[a-z][a-z0-9-]{0,30}`):
 
 ```bash
 ./pocoma-local start --instance demo
 ```
 
-Lors de la création d'une instance neuve, `./pocoma-local start` exécute de façon déterministe :
+When creating a fresh instance, `./pocoma-local start` deterministically executes:
 
-1. Le contrôle des prérequis et la génération de secrets locaux isolés sous `.pocoma-local/instances/demo/`.
-2. La compilation des artefacts Java (`app/mvnw`) et la préparation des images Docker si nécessaire.
-3. Le démarrage de **PostgreSQL 17.6** et l'initialisation des bases `pocoma_write` (schéma `v3_write`) et `pocoma_read` (schéma `v3_read`) à partir des baselines SQL V1 actives, sans aucune migration manuelle à rejouer.
-4. L'initialisation des **36 partitions** de routage et du marqueur de bootstrap `public.pocoma_local_bootstrap`.
-5. Le démarrage de **Keycloak 26.7.0**, des **5 runtimes JVM**, de **Prometheus** et de **Grafana**.
-6. La vérification de disponibilité (`READY`) et l'exécution du canari fonctionnel de bout en bout.
+1. Prerequisite checks and generation of isolated local secrets under `.pocoma-local/instances/demo/`.
+2. Compilation of Java artifacts (`app/mvnw`) and preparation of Docker images if needed.
+3. Startup of **PostgreSQL 17.6** and initialization of `pocoma_write` (`v3_write` schema) and `pocoma_read` (`v3_read` schema) from the active V1 SQL baselines, with no manual migrations to replay.
+4. Initialization of the **36 routing partitions** and the `public.pocoma_local_bootstrap` marker.
+5. Startup of **Keycloak 26.7.0**, the **5 JVM runtimes**, **Prometheus**, and **Grafana**.
+6. Availability verification (`READY`) and execution of the end-to-end functional canary.
 
-## 3. Vérifier l'état `READY` et accéder aux services
+## 3. Verify `READY` State & Access Services
 
-Consultez l'état consolidé de l'instance et les URL locales exposées :
+Inspect the consolidated instance status and exposed local URLs:
 
 ```bash
 ./pocoma-local status --instance demo
 ```
 
-| Code retour | État | Signification |
+| Exit Code | State | Meaning |
 | :---: | :--- | :--- |
-| `0` | `READY` | Les 9 conteneurs sont sains, les 5 runtimes sont opérationnels et le canari a réussi. |
-| `4` | `DEGRADED` | Les services métier et le canari fonctionnent, mais Prometheus est indisponible. |
-| `1` | `NOT_READY` / `STOPPED` / `STALE` | Instance arrêtée, en échec de santé, ou preuve canari expirée (`> 300 s`). |
-| `2` / `3` | `PRE-*` / verrou | Prérequis manquant, dérive détectée ou opération concurrente verrouillée. |
+| `0` | `READY` | All 9 containers are healthy, all 5 runtimes are operational, and the canary succeeded. |
+| `4` | `DEGRADED` | Business services and canary are healthy, but Prometheus is unavailable. |
+| `1` | `NOT_READY` / `STOPPED` / `STALE` | Instance is stopped, unhealthy, or canary proof expired (`> 300 s`). |
+| `2` / `3` | `PRE-*` / lock | Missing prerequisite, input drift detected, or concurrent operation lock. |
 
-La sortie de `status` (et de `start`) affiche les points d'accès locaux de l'instance :
+The output of `status` (and `start`) prints the instance's local endpoints:
 
-- **API HTTP WRITE (`WRITE_URL`)** : admission des commandes `/api/v3` (`http-write`, port interne `8080`).
-- **API HTTP READ (`READ_URL`)** : requêtes de lecture `/api/v3` (`http-read`, port interne `8082`).
-- **Keycloak (`ISSUER`)** : console admin `admin` / `pocoma` ; comptes applicatifs locaux `third`, `guest`, `bruno` (mot de passe `pocoma`).
-- **Grafana** : connexion `admin` / `pocoma`, avec deux dashboards provisionnés en lecture seule (*Pocoma runtime*, *Pocoma V3 - Architecture & Observability Overview*).
-- **PostgreSQL** : volontairement isolé sur le réseau Docker interne, sans port hôte publié.
+- **HTTP WRITE API (`WRITE_URL`)**: command admission `/api/v3` (`http-write`, internal port `8080`).
+- **HTTP READ API (`READ_URL`)**: read queries `/api/v3` (`http-read`, internal port `8082`).
+- **Keycloak (`ISSUER`)**: admin console `admin` / `pocoma`; local test accounts `third`, `guest`, `bruno` (password `pocoma`).
+- **Grafana**: login `admin` / `pocoma`, with two read-only provisioned dashboards (*Pocoma runtime*, *Pocoma V3 - Architecture & Observability Overview*).
+- **PostgreSQL**: intentionally isolated on the internal Docker network, with no host port published.
 
-## 4. Arrêter, réinitialiser et supprimer une instance
+## 4. Stop, Reset, and Destroy an Instance
 
-- **Arrêter en conservant les données** (bases PostgreSQL, état Keycloak, secrets et volumes intacts) :
+- **Stop while preserving data** (PostgreSQL databases, Keycloak state, secrets, and volumes remain intact):
 
   ```bash
   ./pocoma-local stop --instance demo
   ```
 
-- **Redémarrer** une instance existante :
+- **Restart** an existing instance:
 
   ```bash
   ./pocoma-local start --instance demo
   ```
 
-- **Réinitialiser les données** (repartir sur des bases WRITE/READ neuves) :
+- **Reset data** (recreate fresh WRITE/READ databases):
 
   ```bash
   ./pocoma-local reset --instance demo --dry-run
   ./pocoma-local reset --instance demo --confirm RESET:demo
   ```
 
-- **Supprimer complètement l'instance** (conteneurs, volumes, état et secrets) :
+- **Completely destroy the instance** (containers, volumes, state, and secrets):
 
   ```bash
   ./pocoma-local destroy --instance demo --dry-run
   ./pocoma-local destroy --instance demo --confirm DESTROY:demo
   ```
 
-## 5. Premières pistes de dépannage
+## 5. Initial Troubleshooting
 
-- **`PRE-*` au lancement** : vérifiez que Docker Desktop est démarré et qu'aucune variable Maven/JVM interdite n'est exportée.
-- **`PRE-INPUT-DRIFT` ou `DB-INPUT-DRIFT` sur une instance existante** : le code ou les schémas SQL ont changé depuis la création de l'instance ; utilisez un autre `--instance <nom>` ou réinitialisez avec `reset`.
-- **`qualificationState=STALE` (`code 1`)** : la preuve canari a dépassé `300 s` alors que les services sont sains (`operationalState=OPERATIONAL`) ; relancez `./pocoma-local start --instance demo` pour rafraîchir le canari.
-- Pour le catalogue complet des erreurs et procédures : [Diagnostic et dépannage](../operations/troubleshooting.md) et [Reprise après panne](../operations/recovery.md).
+- **`PRE-*` on startup**: verify Docker Desktop is running and no forbidden Maven/JVM variables are exported.
+- **`PRE-INPUT-DRIFT` or `DB-INPUT-DRIFT` on an existing instance**: source code or SQL schemas changed since the instance was created; use another `--instance <name>` or run `reset`.
+- **`qualificationState=STALE` (`exit code 1`)**: the canary proof is older than `300 s` while services are healthy (`operationalState=OPERATIONAL`); rerun `./pocoma-local start --instance demo` to refresh the canary.
+- For the full error catalog and procedures: [Troubleshooting & Diagnostics](../operations/troubleshooting.md) and [Crash Recovery & Lifecycle](../operations/recovery.md).
 
-Étape suivante : [Premiers pas](first-steps.md).
+Next step: [First Steps](first-steps.md).

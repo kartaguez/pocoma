@@ -1,8 +1,8 @@
-# Guides pratiques
+# Practical Guides
 
-Ces guides couvrent les usages courants de Pocoma avec des exemples concrets :
+These guides cover common Pocoma workflows with concrete examples:
 
-- **[Authentification et liaison (`Binding`)](authentication.md)** — connexion OIDC Keycloak, inscription (`Registration`), `bindingToken` et désaffiliation (`Unlink`).
-- **[Commandes et résultats asynchrones](commands.md)** — admission HTTP, idempotence, suivi de résultat et opérations métier sur les cagnottes et invitations.
-- **[Requêtes READ et projections](queries.md)** — lecture à version minimale, historique exact, soldes, pagination et règles de confidentialité.
-- **[Développement local et Bruno](local-development.md)** — gestion des instances locales, Bruno GUI/CLI, Grafana et workflow de test Maven par slices.
+- **[Authentication & Binding](authentication.md)** — Keycloak OIDC login, `Registration`, `bindingToken`, and `Unlink`.
+- **[Commands & Asynchronous Results](commands.md)** — HTTP admission, idempotency, result polling, and business operations on pots and invitations.
+- **[READ Queries & Projections](queries.md)** — `minVersion` reads, exact history, balances, pagination, and privacy rules.
+- **[Local Development & Bruno](local-development.md)** — local instance management, Bruno GUI/CLI, Grafana, Java inner-loop workflow, and Maven slice verification.

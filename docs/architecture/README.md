@@ -1,8 +1,9 @@
 # Architecture
 
-Cette section présente progressivement l'architecture de Pocoma :
+This section progressively introduces Pocoma's architecture:
 
-1. **[Vue d'ensemble](overview.md)** — concepts métier, séparation WRITE/READ, flux asynchrone et topologie des 9 conteneurs.
-2. **[Runtimes JVM et parallélisme](runtimes.md)** — les 5 runtimes JVM, 36 partitions, baux SQL (`30 s`), renouvellement groupé (`renewBatch`) et fencing.
-3. **[Persistance PostgreSQL](persistence.md)** — bases `pocoma_write` et `pocoma_read`, baselines SQL V1, contrôle de bootstrap et tables de coordination.
-4. **[Sécurité](security.md)** — authentification OIDC (Keycloak PKCE S256), liaison (`Binding`), validation pré-sémaphore, idempotence HMAC et gestion des secrets locaux.
+1. **[Overview](overview.md)** — domain concepts, WRITE/READ separation, asynchronous flow, and the 9-container topology.
+2. **[Maven Modules (42 modules)](modules.md)** — layer taxonomy (`domain`, `contract`, `port`, `engine`, `orchestrator`, `supra`, `infra`, `compose`, `runtime`), dependency rules, and where to place new code.
+3. **[JVM Runtimes & Concurrency](runtimes.md)** — the 5 JVM runtimes, 36 partitions, SQL leases (`30 s`), batched renewal (`renewBatch`), and fencing.
+4. **[PostgreSQL Persistence](persistence.md)** — `pocoma_write` and `pocoma_read` databases, V1 SQL baselines, bootstrap verification, and coordination tables.
+5. **[Security](security.md)** — OIDC authentication (Keycloak PKCE S256), application binding (`Binding`), pre-semaphore validation, HMAC idempotency, and local secret management.

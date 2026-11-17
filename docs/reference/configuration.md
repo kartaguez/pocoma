@@ -1,65 +1,65 @@
-# Référence de configuration des runtimes
+# Runtime Configuration Reference
 
-Les propriétés par défaut des cinq services Java pour la distribution locale sont définies sous [`docker/v3-five-runtimes/`](../../docker/v3-five-runtimes/http-write.properties) et orchestrées par [`scripts/local/runtime.py`](../../scripts/local/runtime.py).
+Default properties for the five Java services in the local distribution are defined under [`docker/v3-five-runtimes/`](../../docker/v3-five-runtimes/http-write.properties) and orchestrated by [`scripts/local/runtime.py`](../../scripts/local/runtime.py).
 
-## Configuration des 5 runtimes JVM
+## Configuration of the 5 JVM Runtimes
 
-Tous les runtimes JVM utilisent l'image **`eclipse-temurin:21.0.8_9-jre`**, la ligne JVM **`-Xms64m -Xmx384m -XX:+UseSerialGC`**, et des limites Docker de **`640m`** / **`1` CPU** par conteneur :
+All JVM runtimes use the **`eclipse-temurin:21.0.8_9-jre`** image, JVM flags **`-Xms64m -Xmx384m -XX:+UseSerialGC`**, and Docker container limits of **`640m`** / **`1` CPU** each:
 
-| Runtime | Module & Profil Spring | Ports internes (HTTP / Actuator) | Paramètres clés de concurrence et pools JDBC | Fichier source |
+| Runtime | Module & Spring Profile | Internal Ports (HTTP / Actuator) | Key Concurrency & JDBC Pool Settings | Source File |
 | :--- | :--- | :---: | :--- | :--- |
-| `http-write` | `runtime-web-write`<br>`v3-http-admission` | `8080` / `18080` | Tomcat `maxThreads=4`, `pocoma.v3.http.admission.capacity=4` (sémaphore d'admission + pool Hikari `v3-http-admission` `maximumPoolSize=4` / `minimumIdle=4`) | [`http-write.properties`](../../docker/v3-five-runtimes/http-write.properties) |
-| `http-read` | `runtime-web-read`<br>`v3-http-read` | `8082` / `18082` | Tomcat `maxThreads=4`, `http-permits=8` (`Q=8`), `sql-permits=8`, pool principal `maximum-pool-size=8` / `minimum-idle=8`, pool maintenance `1` | [`http-read.properties`](../../docker/v3-five-runtimes/http-read.properties) |
-| `command-worker` | `runtime-worker-process`<br>`v3-consumption-worker-dev` | — / `18083` | **JDBC pur (sans JPA/Hibernate)** ; `worker-limit=2`, `Command=2`, `IdentityRequest=2`, `write-business=4`, `write-control=8` | [`command-worker.properties`](../../docker/v3-five-runtimes/command-worker.properties) |
+| `http-write` | `runtime-web-write`<br>`v3-http-admission` | `8080` / `18080` | Tomcat `maxThreads=4`, `pocoma.v3.http.admission.capacity=4` (admission semaphore + Hikari pool `v3-http-admission` `maximumPoolSize=4` / `minimumIdle=4`) | [`http-write.properties`](../../docker/v3-five-runtimes/http-write.properties) |
+| `http-read` | `runtime-web-read`<br>`v3-http-read` | `8082` / `18082` | Tomcat `maxThreads=4`, `http-permits=8` (`Q=8`), `sql-permits=8`, main pool `maximum-pool-size=8` / `minimum-idle=8`, maintenance pool `1` | [`http-read.properties`](../../docker/v3-five-runtimes/http-read.properties) |
+| `command-worker` | `runtime-worker-process`<br>`v3-consumption-worker-dev` | — / `18083` | **Pure JDBC (no JPA/Hibernate)**; `worker-limit=2`, `Command=2`, `IdentityRequest=2`, `write-business=4`, `write-control=8` | [`command-worker.properties`](../../docker/v3-five-runtimes/command-worker.properties) |
 | `results-worker` | `runtime-worker-materialize`<br>`v3-read-worker` | — / `18084` | `worker-limit=2`, `MaterializeCommandResult=2`, `MaterializeIdentityRequestResult=2`, `write-source-read=4`, `read-business=4`, `read-control=4` | [`results-worker.properties`](../../docker/v3-five-runtimes/results-worker.properties) |
-| `business-read-worker` | `runtime-worker-materialize`<br>`v3-read-worker` | — / `18085` | `worker-limit=3`, `MaterializePotVersion=2`, `MaterializePotBalance=2`, `MaterializePotVisibility=2`, `MaterializeCurrentBinding=2`, `MaterializeInvitation=2`, `write-source-read=5`, `read-business=5`, pool `read-control` dédié | [`business-read-worker.properties`](../../docker/v3-five-runtimes/business-read-worker.properties) |
+| `business-read-worker` | `runtime-worker-materialize`<br>`v3-read-worker` | — / `18085` | `worker-limit=3`, `MaterializePotVersion=2`, `MaterializePotBalance=2`, `MaterializePotVisibility=2`, `MaterializeCurrentBinding=2`, `MaterializeInvitation=2`, `write-source-read=5`, `read-business=5`, dedicated `read-control` pool | [`business-read-worker.properties`](../../docker/v3-five-runtimes/business-read-worker.properties) |
 
-## Baux, concurrence et délais effectifs de reprise
+## Leases, Concurrency, and Effective Recovery Delays
 
-Paramètres de coordination définis entre `ProcessSettings`, `MaterializeSettings` et les fichiers `.properties` :
+Coordination parameters defined across `ProcessSettings`, `MaterializeSettings`, and `.properties` files:
 
-| Paramètre | Valeur nominale | Unité / Rôle |
+| Parameter | Nominal Value | Unit / Role |
 | :--- | :---: | :--- |
-| `lease-duration-ms` | `30000` | Durée de validité (TTL) d'un bail SQL de partition (**30 s**) |
-| `renewal-interval-ms` | `10000` | Périodicité du renouvellement groupé `renewBatch` (**10 s**) |
-| `claim-duration-ms` | `60000` | Durée de réclamation d'un slot (**60 s**) |
-| `batch-size` | `32` | Taille de lot maximale |
-| `retry-max-failures` | `3` | Nombre maximal d'échecs avant report |
-| `retry-delay-ms` | `30000` | Temporisation de réessai (**30 s**) |
-| `drain-timeout` | `90000` | Délai de drainage à l'arrêt gracieux (**90 s**) |
-| Polling workers (`min-poll` / `max-poll` / `error-poll`) | `2` / `20` / `50` | Intervalles de scrutation configurés dans les `.properties` locaux (**en millisecondes**, lus via `Duration.ofMillis(...)`) |
+| `lease-duration-ms` | `30000` | SQL partition lease validity TTL (**30 s**) |
+| `renewal-interval-ms` | `10000` | `renewBatch` periodic renewal cadence (**10 s**) |
+| `claim-duration-ms` | `60000` | Slot claim duration (**60 s**) |
+| `batch-size` | `32` | Maximum batch size |
+| `retry-max-failures` | `3` | Maximum failures before deferral |
+| `retry-delay-ms` | `30000` | Retry backoff delay (**30 s**) |
+| `drain-timeout` | `90000` | Graceful shutdown drain timeout (**90 s**) |
+| Worker polling (`min-poll` / `max-poll` / `error-poll`) | `2` / `20` / `50` | Polling intervals configured in local `.properties` (**in milliseconds**, parsed via `Duration.ofMillis(...)`) |
 
 > [!IMPORTANT]
-> **`30 s` = TTL du bail SQL, pas SLA de reprise de bout en bout** : la réduction des baux à `30000 ms` réduit l'attente maximale sur le bail expiré, mais le délai effectif de reprise après arrêt non gracieux dépend aussi des cycles de scrutation/acquisition des workers et de `claim-duration-ms=60000` si un slot était réclamé. Côté exploitation locale, `./pocoma-local` conserve un budget d'observation de récupération borné à **`270 s`**.
+> **`30 s` = SQL lease TTL, not end-to-end recovery SLA**: reducing leases to `30000 ms` lowers maximum wait on an expired lease, but effective recovery after an ungraceful stop also depends on worker polling/acquisition cycles and `claim-duration-ms=60000` if a slot was claimed. Locally, `./pocoma-local` enforces a bounded recovery observation budget of **`270 s`**.
 
-## Variables d'environnement, ports internes et conteneurs d'infrastructure
+## Environment Variables, Internal Ports, and Infrastructure Containers
 
-### Conteneurs d'infrastructure
+### Infrastructure Containers
 
-| Service | Image | Limites Docker | Paramètres principaux |
+| Service | Image | Docker Limits | Key Settings |
 | :--- | :--- | :--- | :--- |
-| `postgres` | `postgres:17.6-alpine` | `1024m` / `1.5` CPU | Bases `pocoma_write` (`v3_write`) et `pocoma_read` (`v3_read`) ; **aucun port hôte publié** |
-| `keycloak` | `quay.io/keycloak/keycloak:26.7.0` | `896m` / `1.5` CPU | JVM `-Xms128m -Xmx512m`, royaume `docker/keycloak/pocoma-realm.json` |
-| `prometheus` | `prom/prometheus:v3.5.0` | `256m` / `0.5` CPU | `scrape_interval: 2s` sur `:18080`–`:18085` |
-| `grafana` | `grafana/grafana:12.3.2` | `384m` (`128m` `tmpfs`) / `0.5` CPU | UID `472`, provisioning & dashboards en lecture seule |
+| `postgres` | `postgres:17.6-alpine` | `1024m` / `1.5` CPU | Databases `pocoma_write` (`v3_write`) and `pocoma_read` (`v3_read`); **no host port published** |
+| `keycloak` | `quay.io/keycloak/keycloak:26.7.0` | `896m` / `1.5` CPU | JVM `-Xms128m -Xmx512m`, realm `docker/keycloak/pocoma-realm.json` |
+| `prometheus` | `prom/prometheus:v3.5.0` | `256m` / `0.5` CPU | `scrape_interval: 2s` on `:18080`–`:18085` |
+| `grafana` | `grafana/grafana:12.3.2` | `384m` (`128m` `tmpfs`) / `0.5` CPU | UID `472`, read-only provisioning & dashboards |
 
-### Restrictions d'environnement shell et Maven
+### Shell & Maven Environment Restrictions
 
-Conformément à [`scripts/local/prerequisites.py`](../../scripts/local/prerequisites.py) :
+Per [`scripts/local/prerequisites.py`](../../scripts/local/prerequisites.py):
 
-- **Interdiction dans l'environnement** : `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`.
-- **Interdiction dans `app/.mvn/`** : `maven.config`, `jvm.config`, `extensions.xml`.
-- **Versions contrôlées (`scripts/local/toolchain.json`)** : Python ≥ `3.11`, Java `21`, Node `24`, npm ≥ `7`, Bruno CLI `4.3.0`.
+- **Forbidden in environment**: `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`.
+- **Forbidden in `app/.mvn/`**: `maven.config`, `jvm.config`, `extensions.xml`.
+- **Checked versions (`scripts/local/toolchain.json`)**: Python ≥ `3.11`, Java `21`, Node `24`, npm ≥ `7`, Bruno CLI `4.3.0`.
 
-## Nomenclature historique (identifiants techniques conservés)
+## Historical Nomenclature (Retained Technical Identifiers)
 
-Par choix de stabilité durant S4 (afin de ne pas rompre les contrats externes, les schémas SQL ni l'empreinte d'instance existante `demo`), les identifiants techniques suivants conservent délibérément le marqueur historique `v3` :
+For stability (to avoid breaking external contracts, SQL schemas, or existing `demo` instance fingerprints), the following technical identifiers deliberately retain the historical `v3` marker:
 
-| Catégorie | Identifiants conservés | Raison du maintien |
+| Category | Retained Identifiers | Reason |
 | :--- | :--- | :--- |
-| **Contrats HTTP** | Routes `/api/v3/...` | Contrat API public exposé aux clients et aux collections Bruno |
-| **Identifiants SQL persistants** | Schémas `v3_write` / `v3_read`, tables `pocoma_v3_lease_local`, `pocoma_v3_worker_state` | Baselines SQL V1 actives et compatibilité runtime/observabilité |
-| **Profils Spring & propriétés Java** | `v3-http-admission`, `v3-http-read`, `v3-consumption-worker-dev`, `v3-read-worker`, préfixes de configuration applicatifs | Chargés directement par les modules `runtime-*` et tests ciblés |
-| **Chemins outillés** | `docker/v3-five-runtimes/`, `scripts/v3/`, `scripts/operations/setup-v3-database.py`, `scripts/bruno-v3/` | Référencés directement dans `runtime.py`, `prerequisites.py` et les tests |
+| **HTTP contracts** | `/api/v3/...` routes | Public API contract exposed to clients and Bruno collections |
+| **Persistent SQL identifiers** | `v3_write` / `v3_read` schemas, `pocoma_v3_lease_local`, `pocoma_v3_worker_state` tables | Active V1 SQL baselines and runtime/observability compatibility |
+| **Spring profiles & Java properties** | `v3-http-admission`, `v3-http-read`, `v3-consumption-worker-dev`, `v3-read-worker`, application property prefixes | Loaded directly by `runtime-*` modules and targeted tests |
+| **Tooling paths** | `docker/v3-five-runtimes/`, `scripts/v3/`, `scripts/operations/setup-v3-database.py`, `scripts/bruno-v3/` | Referenced directly in `runtime.py`, `prerequisites.py`, and tests |
 
-Tout renommage de ces identifiants techniques nécessitera une étape dédiée avec adaptation coordonnée des scripts, des tests et des empreintes d'instance.
+Any renaming of these technical identifiers requires a dedicated step with coordinated updates across scripts, tests, and instance fingerprints.

@@ -1,63 +1,63 @@
-# Commandes et résultats asynchrones
+# Commands & Asynchronous Results
 
-Toute modification métier dans Pocoma passe par l'admission HTTP sur `http-write` (`WRITE_URL/api/v3/commands`), suivie d'une exécution asynchrone par `command-worker` et d'une matérialisation du résultat par `results-worker`.
+Every business mutation in Pocoma goes through HTTP admission on `http-write` (`WRITE_URL/api/v3/commands`), followed by asynchronous execution by `command-worker` and result materialization by `results-worker`.
 
-## 1. Règles d'admission et d'idempotence
+## 1. Admission & Idempotency Rules
 
-Chaque requête `POST /api/v3/commands` doit inclure :
+Every `POST /api/v3/commands` request must include:
 - `Authorization: Bearer <access_token>`
 - `Content-Type: application/json`
-- `Idempotency-Key: <clé unique par intention>`
+- `Idempotency-Key: <unique key per intent>`
 
-### Comportement de `Idempotency-Key`
+### `Idempotency-Key` Behavior
 
-- Réutiliser **la même clé et exactement le même corps** permet de rejouer une admission dont la réponse réseau a été perdue et retrouve le même `requestId`.
-- Réutiliser **la même clé avec un corps différent** retourne **`409 Conflict`**.
-- La clé d'idempotence est isolée par identité appelante.
+- Reusing **the same key and exact same body** lets you safely retry an admission whose network response was lost, returning the same `requestId`.
+- Reusing **the same key with a different body** returns **`409 Conflict`**.
+- Idempotency keys are isolated per caller identity.
 
-### Signification de `202 Accepted`
+### Meaning of `202 Accepted`
 
-La réponse `202 Accepted` contient uniquement `{"requestId":"<UUID>"}` (et l'en-tête `Location`). Elle garantit la persistance durable de la demande dans `pocoma_write`, **jamais** son acceptation métier ni la disponibilité immédiate de la projection READ.
+The `202 Accepted` response contains only `{"requestId":"<UUID>"}` (plus the `Location` header). It guarantees durable persistence of the request in `pocoma_write`, **never** business acceptance or immediate READ projection availability.
 
-## 2. Consulter le résultat terminal
+## 2. Polling the Terminal Result
 
-Interrogez le runtime READ (`READ_URL`) avec le `requestId` obtenu :
+Query the READ runtime (`READ_URL`) with the returned `requestId`:
 
 ```bash
 curl -sS "$READ_URL/api/v3/commands/$REQUEST_ID/result" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-- Tant que le résultat n'est pas matérialisé (ou si l'identifiant est inconnu / appartient à un autre utilisateur), l'endpoint retourne **`404 Not Found`**.
-- Une fois matérialisé (`200 OK`), `outcome` vaut :
-  - **`COMPLETED`** : commande appliquée, avec `resultingPotVersion` (entier positif).
-  - **`REJECTED`** : refus métier explicite (`rejection`), sans erreur de transport.
+- While unmaterialized (or if the ID is unknown / belongs to another user), the endpoint returns **`404 Not Found`**.
+- Once materialized (`200 OK`), `outcome` is either:
+  - **`COMPLETED`**: command applied, with `resultingPotVersion` (positive integer).
+  - **`REJECTED`**: explicit business rejection (`rejection`), with no transport error.
 
 > [!TIP]
-> Après un `COMPLETED` donnant `resultingPotVersion = V`, passez `?minVersion=V` lors de la lecture du Pot pour garantir que la projection lue intègre bien votre mutation.
+> After a `COMPLETED` outcome returning `resultingPotVersion = V`, pass `?minVersion=V` when reading the Pot to ensure the returned projection includes your mutation.
 
-## 3. Enveloppe commune et contrôle de version (`observedVersion`)
+## 3. Common Envelope & Version Control (`observedVersion`)
 
-Toutes les commandes partagent la même enveloppe JSON :
+All commands share the same JSON envelope:
 
 ```json
 {
   "operation": "CreatePot",
-  "potId": "<UUID généré par le client>",
+  "potId": "<client-generated UUID>",
   "observedVersion": 0,
   "bindingToken": "<BINDING_TOKEN>",
   "payload": {
-    "label": "Voyage"
+    "label": "Trip"
   }
 }
 ```
 
-- Pour `CreatePot`, `CreateInvitation` et `AttachShareholderViaInvitation`, `observedVersion` vaut `0`.
-- Pour les mutations sur un Pot existant, `observedVersion` doit correspondre à la version courante observée ; en cas de conflit concurrent, la commande est `REJECTED` et le client doit relire le Pot avant de soumettre une nouvelle intention.
+- For `CreatePot`, `CreateInvitation`, and `AttachShareholderViaInvitation`, `observedVersion` is `0`.
+- For mutations on an existing Pot, `observedVersion` must match the current observed version; on concurrent conflict, the command is `REJECTED` and the client must re-read the Pot before submitting a new intent.
 
-## 4. Exemples de commandes métier
+## 4. Business Command Examples
 
-### Ajouter un membre (`AddShareholders`)
+### Add a shareholder (`AddShareholders`)
 
 ```json
 {
@@ -78,11 +78,11 @@ Toutes les commandes partagent la même enveloppe JSON :
 }
 ```
 
-Valeurs d'`attachment` à l'ajout : `FREE` ou `SELF`. Pour `UpdateShareholderDetails` : `KEEP`, `SELF`, `DETACH`.
+`attachment` values on creation: `FREE` or `SELF`. For `UpdateShareholderDetails`: `KEEP`, `SELF`, `DETACH`.
 
-### Créer une dépense avec montants rationnels (`CreateExpense`)
+### Create an expense with rational amounts (`CreateExpense`)
 
-Pocoma n'utilise **aucun nombre flottant** pour les montants : tous les montants et poids utilisent des rationnels exacts `{"numerator":"...","denominator":"..."}` en entrée (et `{"n":"...","d":"..."}` en sortie READ). Un `weight` à `null` sur un participant utilise son poids par défaut.
+Pocoma uses **no floating-point numbers** for amounts: all amounts and weights use exact rationals `{"numerator":"...","denominator":"..."}` on input (and `{"n":"...","d":"..."}` on READ output). A `weight` of `null` on a participant uses their default shareholder weight.
 
 ```json
 {
@@ -92,7 +92,7 @@ Pocoma n'utilise **aucun nombre flottant** pour les montants : tous les montants
   "bindingToken": "<BINDING_TOKEN>",
   "payload": {
     "id": "<EXPENSE_UUID>",
-    "label": "Courses",
+    "label": "Groceries",
     "date": "2026-11-15",
     "amount": {"numerator": "10", "denominator": "3"},
     "payerId": "<PAYER_SHAREHOLDER_UUID>",
@@ -104,10 +104,10 @@ Pocoma n'utilise **aucun nombre flottant** pour les montants : tous les montants
 }
 ```
 
-### Inviter un participant (`CreateInvitation` → `AttachShareholderViaInvitation`)
+### Invite a participant (`CreateInvitation` → `AttachShareholderViaInvitation`)
 
-1. Le propriétaire soumet `CreateInvitation` (`observedVersion: 0`, `payload: {"expiresAt": "2026-11-20T12:00:00Z"}` — instant UTC suffixé `Z`, précision ≤ microseconde, strictement futur à l'exécution).
-2. Une fois le résultat `COMPLETED`, le créateur récupère le lien `pocoma://invitation/<secret>` via `GET /api/v3/invitations/by-creation-request/{requestId}`.
-3. L'invité liste les places éligibles via `POST /api/v3/invitations/available-shareholders/query` puis soumet `AttachShareholderViaInvitation` (`observedVersion: 0`, `payload: {"invitationToken": "<secret>", "shareholderId": "<UUID>"}`).
+1. The owner submits `CreateInvitation` (`observedVersion: 0`, `payload: {"expiresAt": "2026-11-20T12:00:00Z"}` — UTC timestamp with `Z` suffix, ≤ microsecond precision, strictly in the future at execution time).
+2. Once the result is `COMPLETED`, the creator retrieves the `pocoma://invitation/<secret>` link via `GET /api/v3/invitations/by-creation-request/{requestId}`.
+3. The invitee lists eligible slots via `POST /api/v3/invitations/available-shareholders/query` and submits `AttachShareholderViaInvitation` (`observedVersion: 0`, `payload: {"invitationToken": "<secret>", "shareholderId": "<UUID>"}`).
 
-Pour la liste complète des 13 opérations et payloads : [Référence API `/api/v3`](../reference/api.md).
+For the complete list of all 13 operations and payloads: [Public API `/api/v3` Reference](../reference/api.md).

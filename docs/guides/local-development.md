@@ -1,10 +1,10 @@
-# Développement local et Bruno
+# Local Development & Bruno
 
-Ce guide rassemble les outils quotidiens pour travailler en local sur Pocoma : gestion d'instances isolées, tests interactifs et automatisés avec Bruno, observabilité Grafana et compilation Maven ciblée.
+This guide covers daily local development tools for Pocoma: isolated instances, interactive and automated Bruno testing, Grafana observability, and the Java inner-loop / Maven slice workflow.
 
-## 1. Gérer plusieurs instances locales
+## 1. Managing Multiple Local Instances
 
-Par défaut, `./pocoma-local` cible l'instance `demo`. Vous pouvez créer des instances isolées (noms conformes à `[a-z][a-z0-9-]{0,30}`) pour tester une branche ou repartir d'une base vierge sans toucher à `demo` :
+By default, `./pocoma-local` targets the `demo` instance. You can create isolated instances (names matching `[a-z][a-z0-9-]{0,30}`) to test a branch or start from a clean database without touching `demo`:
 
 ```bash
 ./pocoma-local start --instance dev-feature
@@ -12,60 +12,75 @@ Par défaut, `./pocoma-local` cible l'instance `demo`. Vous pouvez créer des in
 ./pocoma-local stop --instance dev-feature
 ```
 
-Chaque instance stocke ses métadonnées, empreintes, secrets locaux et journaux d'exécution sous `.pocoma-local/instances/<instance>/`.
+Each instance stores its metadata, input fingerprints, local secrets, and execution logs under `.pocoma-local/instances/<instance>/`.
 
 > [!NOTE]
-> Si vous modifiez du code Java, des fichiers `.properties` ou des scripts SQL entre deux démarrages d'une même instance, `./pocoma-local start` refuse de démarrer sur des volumes devenus incompatibles (`PRE-INPUT-DRIFT` / `DB-INPUT-DRIFT`). Utilisez `reset --confirm RESET:<instance>` ou créez une nouvelle instance `--instance <nom>`.
+> If you modify Java code, `.properties` files, or SQL scripts between restarts of the same instance, `./pocoma-local start` refuses to start against potentially incompatible volumes (`PRE-INPUT-DRIFT` / `DB-INPUT-DRIFT`). Use `reset --confirm RESET:<instance>` or create a new `--instance <name>`.
 
-## 2. Tester avec Bruno (GUI et CLI)
+## 2. Testing with Bruno (GUI and CLI)
 
-La collection produit se trouve dans `scripts/bruno-playground/` (**Pocoma V3 Playground**, `171` requêtes visibles dont `118` étapes réparties en 3 parcours de bout en bout).
+The product collection lives in `scripts/bruno-playground/` (**Pocoma V3 Playground**, `171` visible requests including `118` steps across 3 end-to-end journeys).
 
-### Mode interactif (Bruno GUI)
+> [!NOTE]
+> The repository also contains `scripts/bruno/` (legacy) and `scripts/bruno-v3/` (specialized qualification fixtures). **Always use `scripts/bruno-playground/`** for local exploration and playground testing.
+
+### Interactive Mode (Bruno GUI)
 
 ```bash
 ./pocoma-local gui --instance demo
 ```
 
-Dans Bruno :
-1. Ouvrez le dossier `scripts/bruno-playground`.
-2. Sélectionnez l'environnement **`Instance-demo`** en haut à droite (l'environnement `Local` est réservé à la CLI).
-3. Activez **`Developer Mode`** dans le menu `</>` (*JavaScript Sandbox*).
-4. Exécutez `00 - Getting Started / E00 Environment Check`, puis connectez `00 Login Owner` (`third` / `pocoma`) et `01 Login Guest` (`guest` / `pocoma`) via **Auth → Get Access Token**.
-5. Lancez un parcours complet dans `90 - End-to-End Journeys` (**Run**) ou envoyez des requêtes isolées par domaine.
+In Bruno:
+1. Open the `scripts/bruno-playground` folder.
+2. Select the **`Instance-demo`** environment in the top-right corner (`Local` is reserved for the CLI).
+3. Enable **`Developer Mode`** in the `</>` menu (*JavaScript Sandbox*).
+4. Run `00 - Getting Started / E00 Environment Check`, then authenticate `00 Login Owner` (`third` / `pocoma`) and `01 Login Guest` (`guest` / `pocoma`) via **Auth → Get Access Token**.
+5. Run a full journey under `90 - End-to-End Journeys` (**Run**) or send individual requests by domain.
 
-### Mode automatisé (Bruno CLI 4.3.0)
+### Automated Mode (Bruno CLI 4.3.0)
 
 ```bash
 ./pocoma-local bruno --instance demo
 ```
 
-Exécute les **3 parcours (`J01`, `J02`, `J03`)** — soit **118 requêtes et 236 tests nommés** :
-- **`J01 Complete Ledger and Invitation`** (`66` étapes) : inscription, création de Pot, invitation Guest, dépenses en rationnels (`10/3`, `20/3`), soldes exacts, historique, départ volontaire et suppressions.
-- **`J02 Errors Privacy and Idempotency`** (`31` étapes) : rejeu idempotent, conflit `409`, pagination, rejets `400`/`401`/`404` opaques et refus métier.
-- **`J03 Unlink Re-register and Historical Ownership`** (`21` étapes) : désaffiliation `Unlink`, invalidation de l'ancien `bindingToken`, ré-inscription et conservation des résultats historiques.
+Executes the **3 journeys (`J01`, `J02`, `J03`)** — **118 requests and 236 named tests**:
+- **`J01 Complete Ledger and Invitation`** (`66` steps): registration, Pot creation, Guest invitation, rational expenses (`10/3`, `20/3`), exact balances, history, voluntary leave, and deletions.
+- **`J02 Errors Privacy and Idempotency`** (`31` steps): idempotent replay, `409` conflict, pagination, opaque `400`/`401`/`404` rejections, and business rejections.
+- **`J03 Unlink Re-register and Historical Ownership`** (`21` steps): `Unlink`, invalidation of the old `bindingToken`, re-registration, and preservation of historical results.
 
-## 3. Observabilité locale (Prometheus & Grafana)
+## 3. Local Observability (Prometheus & Grafana)
 
-- Prometheus collecte `/actuator/prometheus` sur les 5 runtimes (`:18080` à `:18085`) toutes les `2 s`.
-- Grafana (`12.3.2`, identifiants `admin` / `pocoma`, URL affichée par `./pocoma-local status`) expose deux dashboards en lecture seule :
-  - **`Pocoma runtime`** : santé JVM, pools HikariCP, concurrence HTTP et état des workers (`draining`, baux).
-  - **`Pocoma V3 - Architecture & Observability Overview`** : flux WRITE/READ, latences et compteurs de partitions.
-- Pour rafraîchir uniquement les dashboards Grafana sans réinitialiser vos données :
+- Prometheus scrapes `/actuator/prometheus` on all 5 runtimes (`:18080` to `:18085`) every `2 s`.
+- Grafana (`12.3.2`, credentials `admin` / `pocoma`, URL printed by `./pocoma-local status`) exposes two read-only dashboards:
+  - **`Pocoma runtime`**: JVM health, HikariCP pools, HTTP concurrency, and worker state (`draining`, leases).
+  - **`Pocoma V3 - Architecture & Observability Overview`**: WRITE/READ throughput, latencies, and partition counters.
+- To refresh only Grafana dashboards without resetting your data:
 
 ```bash
 ./pocoma-local upgrade-grafana --instance demo
 ```
 
-## 4. Modifier et tester le code Java (`app/`)
+## 4. Modifying & Testing Java Code (`app/`)
 
-Le réacteur Maven sous `app/` contient **42 modules** et un agrégateur. Conformément à la politique normative [Reactor_Verification_Policy.md](../testing/Reactor_Verification_Policy.md), **ne lancez pas `./mvnw test` sur tout le réacteur par défaut** ; exécutez la slice correspondant à votre changement depuis `app/` :
+The Maven reactor under `app/` contains **42 child modules** and one aggregator. Before editing Java code, review [Modular Architecture (42 modules)](../architecture/modules.md) to identify which layer owns your change.
 
-| Slice | Commande canonique (depuis `app/`) | Périmètre |
+### Recommended Java Inner Loop
+
+1. **Fast feedback (no full stack rebuild)**: iterate using targeted Maven slice tests (or `verify.py FAST`) backed by Testcontainers PostgreSQL.
+2. **Checking runtime composition**: if your change touches Spring wiring or multiple slices, check `runtime-monolith` or the affected `runtime-*` slice.
+3. **Validating in the 9-container playground**: once your slice tests pass, test end-to-end in `./pocoma-local`. Because `./pocoma-local` hashes `app/` to prevent stale deployments (`PRE-INPUT-DRIFT`), either:
+   - Reset your dev instance: `./pocoma-local reset --instance dev-feature --confirm RESET:dev-feature && ./pocoma-local start --instance dev-feature`
+   - Or spin up a fresh instance name: `./pocoma-local start --instance dev-v2`
+
+### Canonical Maven Verification Slices
+
+Per the normative [Reactor_Verification_Policy.md](../testing/Reactor_Verification_Policy.md), **do not run `./mvnw test` across the whole reactor by default**; run the slice matching your change from `app/`:
+
+| Slice | Canonical command (from `app/`) | Scope |
 | :--- | :--- | :--- |
-| **WEB** | `./mvnw -pl runtime-web-write,runtime-web-read -am test` | Admission WRITE, requêtes READ, sécurité HTTP |
-| **COMMAND** | `./mvnw -pl runtime-worker-process -am test` | Exécution commandes/identités, fencing, reprise |
-| **PROJECTION** | `./mvnw -pl runtime-worker-materialize -am test` | Matérialisation résultats et vues READ |
-| **FOUNDATION** | `./mvnw -pl infra-tx-spring -am test` | Contextes et isolation transactionnelle |
+| **WEB** | `./mvnw -pl runtime-web-write,runtime-web-read -am test` | WRITE admission, READ queries, HTTP security |
+| **COMMAND** | `./mvnw -pl runtime-worker-process -am test` | Command/identity execution, fencing, recovery |
+| **PROJECTION** | `./mvnw -pl runtime-worker-materialize -am test` | Result & business READ materialization |
+| **FOUNDATION** | `./mvnw -pl infra-tx-spring -am test` | Transaction contexts & isolation |
 
-Pour les règles d'intégration continue et le gate d'architecture (`architecture-tests`), consultez [Intégration continue (CI)](../development/ci.md).
+For CI rules and the global architecture gate (`architecture-tests`), see [Continuous Integration (CI)](../development/ci.md).

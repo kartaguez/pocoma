@@ -1,7 +1,7 @@
-# Références
+# Reference
 
-Cette section fournit les spécifications exactes de la distribution locale Pocoma :
+This section provides exact specifications for the Pocoma local distribution:
 
-- **[CLI `./pocoma-local`](cli.md)** — syntaxe générale, les 9 sous-commandes, options, règles de confirmation (`--dry-run`, `--confirm`) et codes de sortie.
-- **[Configuration des runtimes](configuration.md)** — profils Spring, pools HikariCP, paramètres de baux et scrutation (`ms`), limites conteneurs et identifiants techniques conservés.
-- **[API publique `/api/v3`](api.md)** — les 12 routes WRITE/READ, en-têtes requis, les 13 opérations métier, rationnels exacts, codes d'erreur et limites de requêtes.
+- **[`./pocoma-local` CLI](cli.md)** — general syntax, all 9 subcommands, options, confirmation rules (`--dry-run`, `--confirm`), and exit codes.
+- **[Runtime Configuration](configuration.md)** — Spring profiles, HikariCP pools, lease and polling parameters (`ms`), container limits, and retained technical identifiers.
+- **[Public API `/api/v3`](api.md)** — all 12 WRITE/READ routes, required headers, all 13 business operations, exact rationals, error codes, and request limits.

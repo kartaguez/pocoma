@@ -31,7 +31,7 @@ The workflow creates the stable `build-and-test` check, displayed as `Pocoma CI 
 the Actions UI. To make it mandatory on a protected branch in GitHub:
 
 1. open **Settings → Branches → Branch protection rules**;
-2. create or edit the rule covering the target branch, for example `v2-make-it-pull`;
+2. create or edit the rule covering the target branch, for example `main`;
 3. enable **Require status checks to pass before merging**;
 4. select the `build-and-test` check produced by `Pocoma CI`;
 5. optionally enable **Require branches to be up to date before merging**;

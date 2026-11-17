@@ -1,34 +1,34 @@
-# Sécurité, authentification et gestion des secrets
+# Security, Authentication, and Secrets Management
 
-L'accès aux API `/api/v3` repose sur une authentification OIDC déléguée à Keycloak et sur une séparation nette entre identité OIDC, liaison applicative (`Binding`) et gestion locale des secrets.
+Access to `/api/v3` endpoints relies on OIDC authentication delegated to Keycloak and a clear separation between OIDC identity, application binding (`Binding`), and local secret management.
 
-## Authentification OIDC (Keycloak, Code + PKCE S256)
+## OIDC Authentication (Keycloak, Code + PKCE S256)
 
-L'infrastructure locale déploie **Keycloak `26.7.0`** (`quay.io/keycloak/keycloak:26.7.0`, limite `896m` / `1.5` CPU, heap `-Xms128m -Xmx512m`) importé avec le royaume [`docker/keycloak/pocoma-realm.json`](../../docker/keycloak/pocoma-realm.json).
+The local infrastructure deploys **Keycloak `26.7.0`** (`quay.io/keycloak/keycloak:26.7.0`, limit `896m` / `1.5` CPU, heap `-Xms128m -Xmx512m`) imported with the [`docker/keycloak/pocoma-realm.json`](../../docker/keycloak/pocoma-realm.json) realm:
 
-- **Flux utilisateur et Bruno GUI** : Authorization Code + PKCE (`S256`). Le parcours `./pocoma-local gui` / `./pocoma-local login` réalise l'authentification OAuth native sans copie manuelle de JWT (voir [Authentification et liaison](../guides/authentication.md)).
-- **Comptes provisionnés pour le playground local uniquement** :
-  - Console d'administration Keycloak : `admin` / `pocoma`
-  - Utilisateurs applicatifs de test : `third`, `guest`, `bruno` (mot de passe `pocoma`)
+- **User & Bruno GUI flow**: Authorization Code + PKCE (`S256`). `./pocoma-local gui` / `./pocoma-local login` performs native OAuth authentication without manual JWT copying (see [Authentication & Binding](../guides/authentication.md)).
+- **Accounts provisioned for the local playground only**:
+  - Keycloak admin console: `admin` / `pocoma`
+  - Test application users: `third`, `guest`, `bruno` (password `pocoma`)
 
 > [!WARNING]
-> Les identifiants ci-dessus concernent exclusivement l'environnement de développement local géré par `docker/keycloak/pocoma-realm.json` et ne doivent jamais être réutilisés dans un environnement partagé ou exposé.
+> These credentials apply exclusively to the local development environment managed by `docker/keycloak/pocoma-realm.json` and must never be reused in a shared or exposed environment.
 
-## Autorisation applicative et périmètres HTTP
+## Application Authorization & HTTP Boundaries
 
-Côté runtimes web, la configuration de sécurité (`HttpSecurityConfiguration`, `AdmissionHttpConfiguration`, `ReadHttpConfiguration`) applique les contrôles suivants :
+On the web runtimes, the security configuration (`HttpSecurityConfiguration`, `AdmissionHttpConfiguration`, `ReadHttpConfiguration`) enforces:
 
-1. **Authentification Bearer JWT** : contrôle des jetons émis par Keycloak sur les routes applicatives `/api/v3`.
-2. **Liaison applicative (`Binding`)** : association explicite entre le sujet authentifié et les identifiants métier manipulant les ressources/cagnottes (voir [Authentification et liaison](../guides/authentication.md) et [Référence API `/api/v3`](../reference/api.md)).
-3. **Validation avant sémaphore sur `http-read`** : la validation du protocole HTTP et de l'accès s'effectue **avant** l'acquisition des permis de concurrence (`Q=8`), ce qui évite qu'une rafale de requêtes invalides ou non autorisées ne sature les connexions SQL de lecture.
+1. **Bearer JWT authentication**: validates tokens issued by Keycloak on `/api/v3` application routes.
+2. **Application binding (`Binding`)**: explicit link between the authenticated subject and the internal identifiers manipulating pots (see [Authentication & Binding](../guides/authentication.md) and [Public API `/api/v3` Reference](../reference/api.md)).
+3. **Pre-semaphore validation on `http-read`**: HTTP protocol and access validation runs **before** acquiring concurrency permits (`Q=8`), preventing bursts of invalid or unauthorized requests from saturating READ SQL connections.
 
-## Idempotence et protection contre la relecture
+## Idempotency & Replay Protection
 
-Les opérations d'écriture exposées sur `/api/v3` utilisent des mécanismes d'idempotence (clé d'idempotence et contrôle d'empreinte HMAC côté admission) afin de garantir qu'une soumission rejouée à l'identique ne produise pas d'effets dupliqués et qu'un écart de charge utile soit rejeté selon les statuts contractuels documentés dans [Référence API `/api/v3`](../reference/api.md).
+Write operations exposed on `/api/v3` use idempotency mechanisms (idempotency key and HMAC payload-fingerprint verification at admission) to guarantee that replaying an identical submission produces no duplicate effects and that a payload mismatch is rejected with the contractual HTTP statuses documented in [Public API `/api/v3` Reference](../reference/api.md).
 
-## Secrets locaux et rédaction dans les journaux
+## Local Secrets & Log Redaction
 
-Lors de la création d'une instance par `./pocoma-local start`, des secrets locaux (mots de passe techniques de base de données, secrets clients/sessions propres à l'instance) sont générés dans le répertoire privé de l'instance sous `.pocoma-local/instances/<instance>/` (et non versionnés dans Git).
+When an instance is created by `./pocoma-local start`, local secrets (database technical passwords, instance-specific client/session keys) are generated in the instance's private directory under `.pocoma-local/instances/<instance>/` (untracked by Git).
 
-- **Protection au redémarrage** : si une instance existante est redémarrée sans ses secrets locaux attendus, `./pocoma-local` échoue avec `PRE-SECRETS-MISSING` plutôt que de régénérer silencieusement des secrets incohérents avec PostgreSQL ou Keycloak.
-- **Rédaction dans les journaux** : les utilitaires d'exploitation et les rapports de diagnostic masquent les secrets et jetons dans les journaux conservés sur disque. Consultez [Diagnostic et dépannage](../operations/troubleshooting.md) pour les diagnostics liés à Keycloak.
+- **Restart protection**: if an existing instance is restarted without its expected local secrets, `./pocoma-local` fails with `PRE-SECRETS-MISSING` rather than silently regenerating secrets inconsistent with PostgreSQL or Keycloak.
+- **Log redaction**: operational utilities and diagnostic reports redact secrets and tokens in logs persisted to disk. See [Troubleshooting & Diagnostics](../operations/troubleshooting.md) for Keycloak-related diagnostics.

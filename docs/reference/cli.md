@@ -1,8 +1,8 @@
-# Référence des commandes (`./pocoma-local`)
+# CLI Reference (`./pocoma-local`)
 
-L'interface en ligne de commande `./pocoma-local` (implémentée par [`scripts/local/entrypoint.py`](../../scripts/local/entrypoint.py) et [`scripts/local/runtime.py`](../../scripts/local/runtime.py)) est le point d'entrée unique pour créer, vérifier, opérer et nettoyer une instance locale.
+The `./pocoma-local` command-line interface (implemented by [`scripts/local/entrypoint.py`](../../scripts/local/entrypoint.py) and [`scripts/local/runtime.py`](../../scripts/local/runtime.py)) is the single entry point to create, verify, operate, and clean up a local instance.
 
-## Syntaxe générale et options
+## General Syntax & Options
 
 ```text
 usage: pocoma-local [-h] [--instance INSTANCE] [--confirm CONFIRM] [--dry-run]
@@ -10,45 +10,45 @@ usage: pocoma-local [-h] [--instance INSTANCE] [--confirm CONFIRM] [--dry-run]
                     {start,upgrade-grafana,status,stop,reset,destroy,bruno,login,gui}
 ```
 
-| Option | Valeur par défaut / Format | Portée et comportement |
+| Option | Default / Format | Scope & Behavior |
 | :--- | :--- | :--- |
-| `-h`, `--help` | — | Affiche l'aide CLI et quitte |
-| `--instance INSTANCE` | `demo` (`[a-z][a-z0-9-]{0,30}`) | Cible l'instance locale nommée |
-| `--confirm CONFIRM` | `RESET:<instance>` ou `DESTROY:<instance>` | Obligatoire pour exécuter `reset` ou `destroy` sans `--dry-run` |
-| `--dry-run` | booléen | Simule `reset` ou `destroy` sans modifier ni supprimer de données ; explicitement rejetée (`code 2`) sur toutes les autres sous-commandes |
-| `--interactive` | booléen | Option d'exécution interactive pour `bruno` |
-| `--run RUN` | `[0-9]{10}-[0-9a-f]{8}` | Réservé à `status` : lit le résultat tardif d'une exécution expirée |
+| `-h`, `--help` | — | Show CLI help and exit |
+| `--instance INSTANCE` | `demo` (`[a-z][a-z0-9-]{0,30}`) | Target the named local instance |
+| `--confirm CONFIRM` | `RESET:<instance>` or `DESTROY:<instance>` | Required to execute `reset` or `destroy` without `--dry-run` |
+| `--dry-run` | boolean | Simulate `reset` or `destroy` without modifying or deleting data; explicitly rejected (`exit code 2`) on all other subcommands |
+| `--interactive` | boolean | Interactive execution option for `bruno` |
+| `--run RUN` | `[0-9]{10}-[0-9a-f]{8}` | Reserved for `status`: read the late result of a timed-out execution |
 
-## Détail des sous-commandes
+## Subcommands
 
-| Sous-commande | Effet réel | Exemples |
+| Subcommand | Actual Effect | Examples |
 | :--- | :--- | :--- |
-| `start` | Vérifie les prérequis et verrous, construit si besoin, initialise PostgreSQL (`pocoma_write`/`pocoma_read`), Keycloak, les 5 JVM, Prometheus et Grafana, puis exécute le contrôle `READY` et le canari. Sur une instance existante, vérifie que PostgreSQL est sain, redémarre de façon bornée les seuls runtimes restés fail-closed (`draining` ou capacité d'admission `http-write` entamée) et requalifie le canari ; en cas de dérive d'entrée ou de schéma incompatible, refuse proprement (`code 2`). | `./pocoma-local start --instance demo` |
-| `status` | Inspecte la disponibilité des conteneurs, l'état des runtimes/workers (y compris `draining`), les URL exposées et le résultat du canari (ou d'un `--run` donné). Distingue explicitement `operationalState` / `operational` (services, workers, dépendances) et `qualificationState` / `qualification` (`QUALIFIED`, `STALE`, `GENERATION_MISMATCH`, `UNQUALIFIED`, `MAX_AGE=300 s`). | `./pocoma-local status --instance demo`<br>`./pocoma-local status --instance demo --run <run-id>` |
-| `stop` | Arrête proprement les conteneurs de l'instance tout en conservant les volumes PostgreSQL, Keycloak, Prometheus et secrets locaux. | `./pocoma-local stop --instance demo` |
-| `upgrade-grafana` | Met à jour la configuration et les dashboards Grafana de l'instance sans toucher aux données métier ni réinitialiser les bases. | `./pocoma-local upgrade-grafana --instance demo` |
-| `reset` | Réinitialise les données et bases PostgreSQL de l'instance à partir des baselines V1 actives. Exige `--confirm RESET:<instance>` (ou `--dry-run`). | `./pocoma-local reset --instance demo --dry-run`<br>`./pocoma-local reset --instance demo --confirm RESET:demo` |
-| `destroy` | Supprime complètement les conteneurs, volumes et répertoire local de l'instance. Exige `--confirm DESTROY:<instance>` (ou `--dry-run`). | `./pocoma-local destroy --instance demo --dry-run`<br>`./pocoma-local destroy --instance demo --confirm DESTROY:demo` |
-| `login` | Exécute le parcours d'authentification OIDC locale (Code + PKCE S256 via Keycloak) pour l'instance. | `./pocoma-local login --instance demo` |
-| `gui` | Ouvre l'interface graphique Bruno préconfigurée pour l'instance avec authentification OIDC sans copie manuelle de JWT. | `./pocoma-local gui --instance demo` |
-| `bruno` | Lance la collection automatisée Bruno (`J01`, `J02`, `J03` — 118 requêtes, 236 tests nommés) via Bruno CLI `4.3.0`. Supporte `--interactive`. | `./pocoma-local bruno --instance demo` |
+| `start` | Checks prerequisites and locks, builds if needed, initializes PostgreSQL (`pocoma_write`/`pocoma_read`), Keycloak, the 5 JVMs, Prometheus, and Grafana, then runs the `READY` check and canary. On an existing instance, verifies PostgreSQL health, performs a bounded restart of runtimes left fail-closed (`draining` or `http-write` admission capacity depleted), and re-qualifies the canary; refuses cleanly (`exit code 2`) on input drift or incompatible schema. | `./pocoma-local start --instance demo` |
+| `status` | Inspects container availability, runtime/worker state (including `draining`), exposed URLs, and the canary result (or a given `--run`). Explicitly distinguishes `operationalState` / `operational` (services, workers, dependencies) from `qualificationState` / `qualification` (`QUALIFIED`, `STALE`, `GENERATION_MISMATCH`, `UNQUALIFIED`, `MAX_AGE=300 s`). | `./pocoma-local status --instance demo`<br>`./pocoma-local status --instance demo --run <run-id>` |
+| `stop` | Cleanly stops the instance's containers while preserving PostgreSQL, Keycloak, Prometheus volumes, and local secrets. | `./pocoma-local stop --instance demo` |
+| `upgrade-grafana` | Updates Grafana configuration and dashboards for the instance without touching business data or resetting databases. | `./pocoma-local upgrade-grafana --instance demo` |
+| `reset` | Resets PostgreSQL databases and data for the instance from active V1 baselines. Requires `--confirm RESET:<instance>` (or `--dry-run`). | `./pocoma-local reset --instance demo --dry-run`<br>`./pocoma-local reset --instance demo --confirm RESET:demo` |
+| `destroy` | Completely deletes containers, volumes, and the local instance directory. Requires `--confirm DESTROY:<instance>` (or `--dry-run`). | `./pocoma-local destroy --instance demo --dry-run`<br>`./pocoma-local destroy --instance demo --confirm DESTROY:demo` |
+| `login` | Runs the local OIDC authentication flow (Code + PKCE S256 via Keycloak) for the instance. | `./pocoma-local login --instance demo` |
+| `gui` | Opens Bruno GUI preconfigured for the instance with OIDC authentication and no manual JWT copying. | `./pocoma-local gui --instance demo` |
+| `bruno` | Runs the automated Bruno collection (`J01`, `J02`, `J03` — 118 requests, 236 named tests) via Bruno CLI `4.3.0`. Supports `--interactive`. | `./pocoma-local bruno --instance demo` |
 
-## Codes de sortie CLI
+## CLI Exit Codes
 
-| Code | Signification |
+| Code | Meaning |
 | :---: | :--- |
-| `0` | Succès (`READY`, opération terminée sans anomalie) |
-| `1` | État `NOT_READY`, `STOPPED`, `STALE` ou échec d'exécution |
-| `2` | Erreur d'arguments, refus de confirmation ou échec `PRE-*` / `DB-*` / `INCOMPATIBLE-*` |
-| `3` | Conflit de verrou actif (`PRE-INSTANCE-LOCKED`, `PRE-LIFECYCLE-LOCKED`, `PRE-BUILD-LOCKED`) |
-| `4` | État `DEGRADED` (cœur applicatif et canari OK, observabilité Prometheus dégradée) |
-| `130` | Interruption par signal utilisateur (`SIGINT`) |
+| `0` | Success (`READY`, operation completed without error) |
+| `1` | `NOT_READY`, `STOPPED`, `STALE`, or runtime execution failure |
+| `2` | Argument error, missing confirmation, or `PRE-*` / `DB-*` / `INCOMPATIBLE-*` refusal |
+| `3` | Active lock conflict (`PRE-INSTANCE-LOCKED`, `PRE-LIFECYCLE-LOCKED`, `PRE-BUILD-LOCKED`) |
+| `4` | `DEGRADED` state (core app and canary OK, Prometheus observability degraded) |
+| `130` | Interrupted by user signal (`SIGINT`) |
 
-## Commandes associées (Bruno et vérification Maven)
+## Related Commands (Bruno & Maven Verification)
 
-Pour les développeurs modifiant le code Java sous `app/`, la vérification ne passe pas par `./mvnw test` sur l'ensemble du réacteur par défaut, mais par des **slices Maven ciblées** (`WEB`, `COMMAND`, `PROJECTION`, `FOUNDATION`, `Monolith`, `architecture-tests`).
+For developers modifying Java code under `app/`, verification does not run `./mvnw test` across the full reactor by default; instead it uses **targeted Maven slices** (`WEB`, `COMMAND`, `PROJECTION`, `FOUNDATION`, `Monolith`, `architecture-tests`).
 
-Consultez impérativement la politique normative avant toute compilation ou test Maven :
+Always consult the normative policy before compiling or running Maven tests:
 
-- [Politique de vérification Maven par slices](../testing/Reactor_Verification_Policy.md)
-- [Guide Développement local et Bruno](../guides/local-development.md)
+- [Reactor Verification Policy](../testing/Reactor_Verification_Policy.md)
+- [Local Development & Bruno Guide](../guides/local-development.md)
