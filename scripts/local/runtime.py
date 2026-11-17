@@ -339,7 +339,7 @@ def properties(path, m, credentials):
         (path / (name + '.properties')).write_text(text)
 
 
-def package(path, m, evidence):
+def package(path, m, evidence, *, only_modules=None):
     for name in ('maven.config', 'jvm.config', 'extensions.xml'):
         if (ROOT / 'app/.mvn' / name).exists():
             raise Refusal('PRE-UNREVIEWED-MAVEN-CONFIG:' + name)
@@ -351,26 +351,42 @@ def package(path, m, evidence):
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             raise Refusal('PRE-BUILD-LOCKED', 3) from None
-        modules = sorted({v[0] for v in RUNTIMES.values()})
-        if not (build / 'receipt.json').exists():
+        all_modules = sorted({v[0] for v in RUNTIMES.values()})
+        selected = sorted(only_modules) if only_modules is not None else all_modules
+        partial = set(selected) != set(all_modules)
+        if not partial:
+            if not (build / 'receipt.json').exists():
+                command = [str(ROOT / 'app/mvnw'), '-f', str(ROOT / 'app/pom.xml'), '-pl',
+                           ','.join('runtime-' + module for module in all_modules), '-am', 'package', '-DskipTests']
+                run(command, timeout=1200, log=evidence / 'package.log', env=prerequisites.clean_toolchain_env())
+                hashes = {}
+                for module in all_modules:
+                    source = ROOT / f'app/runtime-{module}/target/pocoma-runtime-{module}-0.0.1-SNAPSHOT-exec.jar'
+                    target = build / (module + '.jar')
+                    shutil.copyfile(source, target)
+                    hashes[module] = hashlib.sha256(target.read_bytes()).hexdigest()
+                save(build / 'receipt.json', dict(command=command, sha=run(['git', 'rev-parse', 'HEAD']),
+                                                inputs=m['inputs'], jars=hashes, tests='SKIPPED: packaging only'))
+            receipt = read(build / 'receipt.json')
+            for module, expected in receipt['jars'].items():
+                source = build / (module + '.jar')
+                if hashlib.sha256(source.read_bytes()).hexdigest() != expected:
+                    raise Refusal('PRE-JAR-HASH')
+                shutil.copyfile(source, path / (module + '.jar'))
+            m['build'] = receipt
+        else:
             command = [str(ROOT / 'app/mvnw'), '-f', str(ROOT / 'app/pom.xml'), '-pl',
-                       ','.join('runtime-' + module for module in modules), '-am', 'package', '-DskipTests']
+                       ','.join('runtime-' + module for module in selected), '-am', 'package', '-DskipTests']
             run(command, timeout=1200, log=evidence / 'package.log', env=prerequisites.clean_toolchain_env())
-            hashes = {}
-            for module in modules:
+            hashes = dict(m.get('build', {}).get('jars', {}))
+            for module in selected:
                 source = ROOT / f'app/runtime-{module}/target/pocoma-runtime-{module}-0.0.1-SNAPSHOT-exec.jar'
-                target = build / (module + '.jar')
+                target = path / (module + '.jar')
                 shutil.copyfile(source, target)
                 hashes[module] = hashlib.sha256(target.read_bytes()).hexdigest()
-            save(build / 'receipt.json', dict(command=command, sha=run(['git', 'rev-parse', 'HEAD']),
-                                            inputs=m['inputs'], jars=hashes, tests='SKIPPED: packaging only'))
-        receipt = read(build / 'receipt.json')
-        for module, expected in receipt['jars'].items():
-            source = build / (module + '.jar')
-            if hashlib.sha256(source.read_bytes()).hexdigest() != expected:
-                raise Refusal('PRE-JAR-HASH')
-            shutil.copyfile(source, path / (module + '.jar'))
-        m['build'] = receipt
+            m['build'] = dict(command=command, sha=run(['git', 'rev-parse', 'HEAD']),
+                              inputs=m['inputs'], jars=hashes, partialModules=selected,
+                              tests='SKIPPED: selective packaging only')
 
 
 def generations(path, m):
@@ -758,8 +774,8 @@ def upgrade_grafana(path, m, evidence):
     return start(path, m, evidence)
 
 
-def reload_instance(path, m, evidence):
-    """Rebuild and recreate only the 5 runtime containers when SQL/infra inputs are unchanged."""
+def reload_instance(path, m, evidence, *, runtimes=None):
+    """Rebuild and recreate selected (or all 5) runtime containers when SQL/infra inputs are unchanged."""
     ownership(m)
     baseline = m.get('build', {}).get('sha', '')
     if not re.fullmatch(r'[0-9a-f]{40}', baseline):
@@ -768,6 +784,8 @@ def reload_instance(path, m, evidence):
         raise Refusal('RELOAD_BASELINE_UNPROVEN: start this instance first')
     if 'grafana' not in m['ports']:
         raise Refusal('GRAFANA_UPGRADE_REQUIRED: run upgrade-grafana --instance ' + m['instance'])
+    selected_runtimes = tuple(dict.fromkeys(runtimes)) if runtimes else tuple(RUNTIMES)
+    selected_modules = {RUNTIMES[r][0] for r in selected_runtimes}
     new_inputs = source_hash()
     if m['inputs'] == new_inputs:
         return start(path, m, evidence)
@@ -799,21 +817,22 @@ def reload_instance(path, m, evidence):
             raise Refusal('PRE-OTHER-PLAYGROUND-ACTIVE: stop the other instance first')
     candidate['inputs'] = new_inputs
     candidate['sha'] = run(['git', 'rev-parse', 'HEAD'])
-    package(path, candidate, evidence)
+    package(path, candidate, evidence, only_modules=selected_modules if runtimes else None)
     save(evidence / 'reload.json', dict(
         baseline=baseline,
         previousInputs=m['inputs'],
         inputs=candidate['inputs'],
         sha=candidate['sha'],
+        runtimes=list(selected_runtimes),
         jars=candidate['build']['jars'],
     ))
     m.clear()
     m.update(candidate)
     save(path / 'manifest.json', m)
-    return start(path, m, evidence, force_recreate_runtimes=True)
+    return start(path, m, evidence, force_recreate_runtimes=selected_runtimes)
 
 
-def start(path, m, evidence, *, force_recreate_runtimes=False):
+def start(path, m, evidence, *, force_recreate_runtimes=None):
     history_file = path / 'start-history.json'
     history = read(history_file) if history_file.exists() else {}
     attempt = dict(runId=evidence.name, startedAt=time.time(), state='STARTING',
@@ -858,7 +877,7 @@ def start(path, m, evidence, *, force_recreate_runtimes=False):
         save(evidence / 'start-attempt.json', attempt)
 
 
-def start_distribution(path, m, evidence, *, force_recreate_runtimes=False):
+def start_distribution(path, m, evidence, *, force_recreate_runtimes=None):
     if m['inputs'] != source_hash():
         refresh_tooling(path, m, evidence)
     if 'grafana' not in m['ports']:
@@ -897,8 +916,10 @@ def start_distribution(path, m, evidence, *, force_recreate_runtimes=False):
     await_check(lambda: discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = identities(m['issuer'], lambda data: save(evidence / 'keycloak-auth.json', data))
     if force_recreate_runtimes:
-        compose(path, m, 'up', '-d', '--force-recreate', *RUNTIMES, log=evidence / 'runtimes-up.log')
-        compose(path, m, 'up', '-d', 'prometheus', 'grafana', log=evidence / 'observability-up.log')
+        recreate = tuple(RUNTIMES) if force_recreate_runtimes is True else tuple(force_recreate_runtimes)
+        remaining = [r for r in RUNTIMES if r not in recreate]
+        compose(path, m, 'up', '-d', '--force-recreate', *recreate, log=evidence / 'runtimes-up.log')
+        compose(path, m, 'up', '-d', *remaining, 'prometheus', 'grafana', log=evidence / 'observability-up.log')
     else:
         compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', 'grafana', log=evidence / 'runtimes-up.log')
     observed_catalogue = catalogue(path, m)
@@ -1329,9 +1350,13 @@ def main():
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--interactive', action='store_true')
     parser.add_argument('--run', help='status only: read the late result of a timed-out run')
+    parser.add_argument('--runtime', action='append', choices=sorted(RUNTIMES),
+                        help='reload only: rebuild and recreate only the selected runtime(s)')
     args = parser.parse_args()
     if args.run and args.command != 'status':
         parser.error('--run is only valid with status')
+    if args.runtime and args.command != 'reload':
+        parser.error('--runtime is only valid with reload')
     if args.dry_run and args.command not in ('reset', 'destroy'):
         parser.error('--dry-run is only valid with reset or destroy')
     instance = args.instance or 'demo'
@@ -1361,7 +1386,7 @@ def main():
             if args.command == 'start':
                 result = start(path, m, evidence)
             elif args.command == 'reload':
-                result = reload_instance(path, m, evidence)
+                result = reload_instance(path, m, evidence, runtimes=args.runtime)
             elif args.command == 'upgrade-grafana':
                 result = upgrade_grafana(path, m, evidence)
             elif args.command == 'status':

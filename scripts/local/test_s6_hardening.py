@@ -227,7 +227,8 @@ class S6HardeningTests(unittest.TestCase):
                     return ''
                 return ''
 
-            def fake_package(_path, candidate, _evidence):
+            def fake_package(_path, candidate, _evidence, *, only_modules=None):
+                self.assertIsNone(only_modules)
                 candidate['build'] = dict(sha=candidate['sha'], jars={'web-write': 'newhash'})
 
             with patch.object(rt, 'ownership'), \
@@ -240,10 +241,55 @@ class S6HardeningTests(unittest.TestCase):
 
             self.assertEqual('READY', result['state'])
             start_mock.assert_called_once()
-            self.assertTrue(start_mock.call_args.kwargs.get('force_recreate_runtimes'))
+            self.assertEqual(tuple(rt.RUNTIMES), start_mock.call_args.kwargs.get('force_recreate_runtimes'))
             self.assertEqual('new-inputs', m['inputs'])
             self.assertEqual('b' * 40, m['sha'])
             self.assertTrue((evidence / 'reload.json').exists())
+
+    def test_reload_selective_runtime_builds_and_recreates_subset(self):
+        m = make_manifest()
+        m['build'] = dict(sha='a' * 40, jars={'web-write': 'oldhash', 'web-read': 'readhash'})
+        m['catalogue'] = dict(pocoma_write='cat1', pocoma_read='cat2')
+        m['ports'] = dict(grafana=3000)
+        m['inputs'] = 'old-inputs'
+        m['owner'] = 'owner-1'
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)
+            evidence = path / 'runs/r-reload-sel'
+            evidence.mkdir(parents=True)
+
+            def fake_run(cmd, **_kwargs):
+                if cmd[:3] == ['git', 'diff', '--name-only']:
+                    return 'app/runtime-web-write/src/main/java/Foo.java\n' if cmd[-1] == 'app' else ''
+                if cmd[:3] == ['git', 'ls-files', '--others']:
+                    return ''
+                if cmd[:2] == ['git', 'rev-parse']:
+                    return 'b' * 40
+                return ''
+
+            def fake_package(_path, candidate, _evidence, *, only_modules=None):
+                self.assertEqual({'web-write'}, only_modules)
+                candidate['build'] = dict(sha=candidate['sha'], jars={'web-write': 'newhash', 'web-read': 'readhash'})
+
+            with patch.object(rt, 'ownership'), \
+                    patch.object(rt, 'source_hash', return_value='new-inputs'), \
+                    patch.object(rt, 'preflight', return_value='arm64'), \
+                    patch.object(rt, 'run', side_effect=fake_run), \
+                    patch.object(rt, 'package', side_effect=fake_package), \
+                    patch.object(rt, 'start', return_value=dict(state='READY', exit=0)) as start_mock:
+                result = rt.reload_instance(path, m, evidence, runtimes=['http-write'])
+
+            self.assertEqual('READY', result['state'])
+            self.assertEqual(('http-write',), start_mock.call_args.kwargs.get('force_recreate_runtimes'))
+
+    def test_runtime_flag_rejected_outside_reload(self):
+        for cmd in ('start', 'doctor', 'status', 'stop', 'reset', 'destroy'):
+            with patch.object(sys, 'argv', ['runtime.py', cmd, '--runtime', 'http-write']), \
+                    patch.object(rt, 'prepare') as prepare_mock:
+                with self.assertRaises(SystemExit) as ctx:
+                    rt.main()
+                self.assertEqual(2, ctx.exception.code)
+                prepare_mock.assert_not_called()
 
     def test_reload_refuses_sql_or_infra_change(self):
         for changed_app, changed_infra in [

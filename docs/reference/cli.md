@@ -7,6 +7,7 @@ The `./pocoma-local` command-line interface (implemented by [`scripts/local/entr
 ```text
 usage: pocoma-local [-h] [--instance INSTANCE] [--confirm CONFIRM] [--dry-run]
                     [--interactive] [--run RUN]
+                    [--runtime {business-read-worker,command-worker,http-read,http-write,results-worker}]
                     {start,reload,doctor,upgrade-grafana,status,stop,reset,destroy,bruno,login,gui}
 ```
 
@@ -18,6 +19,7 @@ usage: pocoma-local [-h] [--instance INSTANCE] [--confirm CONFIRM] [--dry-run]
 | `--dry-run` | boolean | Simulate `reset` or `destroy` without modifying or deleting data; explicitly rejected (`exit code 2`) on all other subcommands |
 | `--interactive` | boolean | Interactive execution option for `bruno` |
 | `--run RUN` | `[0-9]{10}-[0-9a-f]{8}` | Reserved for `status`: read the late result of a timed-out execution |
+| `--runtime RUNTIME` | repeatable runtime name | Reserved for `reload`: rebuild and recreate only the selected runtime(s) |
 
 ## Subcommands
 

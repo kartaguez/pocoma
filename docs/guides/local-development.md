@@ -72,6 +72,8 @@ The Maven reactor under `app/` contains **42 child modules** and one aggregator.
 
    ```bash
    ./pocoma-local reload --instance dev-feature
+   # Or rebuild/recreate only the runtime(s) you changed:
+   ./pocoma-local reload --instance dev-feature --runtime http-write
    ```
 
    `reload` rebuilds the 5 `runtime-*` JARs, recreates only the 5 JVM runtime containers (`postgres`, `keycloak`, `prometheus`, `grafana`, and your database volumes stay intact), verifies that the PostgreSQL schema did not drift (`DB-CATALOGUE-DRIFT`), and re-qualifies the instance.
