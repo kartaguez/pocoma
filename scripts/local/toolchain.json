@@ -2,6 +2,7 @@
   "pythonMinimum": [3, 11],
   "javaMajor": 21,
   "nodeMajor": 24,
+  "nodeMinimumMajor": 22,
   "npmMinimumMajor": 7,
   "brunoVersion": "4.3.0"
 }

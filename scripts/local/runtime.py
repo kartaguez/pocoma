@@ -51,9 +51,9 @@ class Refusal(RuntimeError):
         self.code = code
 
 
-def run(args, *, input=None, timeout=120, log=None):
+def run(args, *, input=None, timeout=120, log=None, env=None):
     result = subprocess.run([str(a) for a in args], input=input, text=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=ROOT)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=ROOT, env=env)
     if log:
         log.write_text(result.stdout + result.stderr)
     if result.returncode:
@@ -340,9 +340,6 @@ def properties(path, m, credentials):
 
 
 def package(path, m, evidence):
-    for variable in ('MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS'):
-        if os.environ.get(variable):
-            raise Refusal('PRE-TOOLCHAIN-ENV:' + variable)
     for name in ('maven.config', 'jvm.config', 'extensions.xml'):
         if (ROOT / 'app/.mvn' / name).exists():
             raise Refusal('PRE-UNREVIEWED-MAVEN-CONFIG:' + name)
@@ -358,7 +355,7 @@ def package(path, m, evidence):
         if not (build / 'receipt.json').exists():
             command = [str(ROOT / 'app/mvnw'), '-f', str(ROOT / 'app/pom.xml'), '-pl',
                        ','.join('runtime-' + module for module in modules), '-am', 'package', '-DskipTests']
-            run(command, timeout=1200, log=evidence / 'package.log')
+            run(command, timeout=1200, log=evidence / 'package.log', env=prerequisites.clean_toolchain_env())
             hashes = {}
             for module in modules:
                 source = ROOT / f'app/runtime-{module}/target/pocoma-runtime-{module}-0.0.1-SNAPSHOT-exec.jar'
