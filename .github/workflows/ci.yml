@@ -2,17 +2,25 @@ name: Pocoma CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  build-and-test:
-    name: build-and-test
+  core-web-and-architecture:
+    name: core-web-and-architecture
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: app
@@ -36,8 +44,73 @@ jobs:
         run: npm ci --prefix scripts/bruno-v3
       - name: Verify Maven Wrapper
         run: test -x mvnw && test -f .mvn/wrapper/maven-wrapper.properties
-      - name: Compile and test
-        run: ./mvnw --batch-mode --no-transfer-progress test
+      - name: Compile and test core, web and architecture
+        run: |
+          ./mvnw --batch-mode --no-transfer-progress install -DskipTests
+          ./mvnw --batch-mode --no-transfer-progress test -pl '!infra-postgres-write,!runtime-worker-process,!runtime-worker-materialize,!runtime-monolith'
       - name: Check whitespace errors
         working-directory: .
         run: git diff --check HEAD^ HEAD
+
+  heavy-modules:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: infra-postgres-write-discovery
+            module: infra-postgres-write
+            test_filter: "'-Dtest=DiscoveryPostgresTest'"
+            bruno: false
+          - name: infra-postgres-write-rest
+            module: infra-postgres-write
+            test_filter: "'-Dtest=!DiscoveryPostgresTest'"
+            bruno: false
+          - name: worker-process-e2e
+            module: runtime-worker-process
+            test_filter: "'-Dtest=WorkerPostgresTest'"
+            bruno: false
+          - name: worker-process-rest
+            module: runtime-worker-process
+            test_filter: "'-Dtest=!WorkerPostgresTest'"
+            bruno: false
+          - name: worker-materialize
+            module: runtime-worker-materialize
+            test_filter: ""
+            bruno: false
+          - name: monolith-resources
+            module: runtime-monolith
+            test_filter: "'-Dtest=ReadWorkerResourcesPostgresTest,ReadRootsCoexistencePostgresTest'"
+            bruno: false
+          - name: monolith-rest
+            module: runtime-monolith
+            test_filter: "'-Dtest=!ReadWorkerResourcesPostgresTest,!ReadRootsCoexistencePostgresTest'"
+            bruno: true
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: |
+            app/pom.xml
+            app/*/pom.xml
+            app/.mvn/wrapper/maven-wrapper.properties
+      - name: Set up Node.js and Bruno CLI
+        if: matrix.bruno
+        working-directory: .
+        run: npm ci --prefix scripts/bruno-v3
+      - name: Verify Maven Wrapper
+        run: test -x mvnw && test -f .mvn/wrapper/maven-wrapper.properties
+      - name: Compile and test
+        run: |
+          ./mvnw --batch-mode --no-transfer-progress install -DskipTests -pl ${{ matrix.module }} -am
+          ./mvnw --batch-mode --no-transfer-progress test -pl ${{ matrix.module }} ${{ matrix.test_filter }}
