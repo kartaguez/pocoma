@@ -5,14 +5,18 @@ This guide describes the full lifecycle of a [`./pocoma-local`](../reference/cli
 ## 1. Instance Lifecycle
 
 ```text
-    (absent)
+    (absent) ──[ doctor (read-only prerequisites & cache check) ]
        │
        ▼  ./pocoma-local start --instance <name>
    [ READY ] ◀──────────────────────────────┐
        │                                    │ start (same fingerprint)
-       ├── stop ──▶ [ STOPPED (data preserved) ]
+       ├── status / login / gui / bruno ────┤ (read-only inspection, auth, E2E tests)
+       │                                    │
+       ├── reload [--runtime <r>] ──────────┤ (rebuild & recreate JVM runtime(s); DB & Keycloak preserved)
+       │                                    │
+       ├── upgrade-grafana ─────────────────┘ (update Grafana configuration only; DB & Keycloak preserved)
        │
-       ├── upgrade-grafana ──▶ update Grafana configuration only
+       ├── stop ──▶ [ STOPPED (data preserved) ] ──( start )──▶ [ READY ]
        │
        ├── reset --confirm RESET:<name> ──▶ reinitialize DBs/data from V1
        │
@@ -71,7 +75,14 @@ If a command hits a client-side timeout, inspect the final outcome using the pri
 ./pocoma-local status --instance <name> --run <run-id>
 ```
 
-## 5. Resetting or Destroying Completely
+## 5. Updating, Resetting, or Destroying
+
+- **Reload Java runtime(s) only** (when Java code changed without SQL migration or infrastructure changes):
+
+  ```bash
+  ./pocoma-local reload --instance <name>
+  ./pocoma-local reload --instance <name> --runtime http-write
+  ```
 
 - **Update Grafana only** (read-only configuration and dashboards):
 
