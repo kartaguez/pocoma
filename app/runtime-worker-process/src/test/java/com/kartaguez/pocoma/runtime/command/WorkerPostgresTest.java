@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
@@ -78,6 +79,7 @@ import com.kartaguez.pocoma.supra.polling.consumption.ConsumptionWorker;
 import com.zaxxer.hikari.HikariDataSource;
 
 /** Real roots, engines and four physical pools. READ effects are explicitly technical. */
+@Tag("slow")
 @Testcontainers
 class WorkerPostgresTest {
     static final String IMAGE =

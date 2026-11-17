@@ -20,6 +20,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.*;
 import java.util.*;
 
+@Tag("slow")
 @Testcontainers
 class ReadRootsCoexistencePostgresTest {
     @Container

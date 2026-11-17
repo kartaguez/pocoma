@@ -2,6 +2,17 @@ Pocoma Reactor Verification Policy
 
 Status: NORMATIVE
 
+> [!TIP]
+> **Developer TL;DR (30-second summary)**:
+> - **Do not run `./mvnw test` across all 42 modules by default** (~50 min, includes quarantined tests).
+> - Run the canonical slice matching your change from `app/`:
+>   - **WEB**: `./mvnw -pl runtime-web-write,runtime-web-read -am test`
+>   - **COMMAND**: `./mvnw -pl runtime-worker-process -am test`
+>   - **PROJECTION**: `./mvnw -pl runtime-worker-materialize -am test`
+>   - **FOUNDATION**: `./mvnw -pl infra-tx-spring -am test`
+> - For fast inner-loop feedback from repo root: `python3 -B scripts/testing/verify.py FAST identity`
+> - Run `./mvnw -pl architecture-tests -am test` only when changing module dependencies or layer boundaries (§17).
+
 Operational commands and risk matrix: [§35 — FAST / CHANGE / INTEGRATION /
 CERTIFICATION](#35-operational-verification-and-build-cycle--fast--change--integration--certification).
 These levels do not replace the canonical slice/lot gates below or V3 milestones G0–G3.

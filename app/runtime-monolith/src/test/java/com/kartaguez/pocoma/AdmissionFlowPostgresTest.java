@@ -954,7 +954,7 @@ class AdmissionFlowPostgresTest {
                                     "orphans",
                                     0)));
             for (var file :
-                    java.nio.file.Files.list(output)
+                    java.nio.file.Files.list(brunoOutput)
                             .filter(java.nio.file.Files::isRegularFile)
                             .toList()) {
                 String content = java.nio.file.Files.readString(file);

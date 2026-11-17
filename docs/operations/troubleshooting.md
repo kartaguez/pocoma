@@ -1,75 +1,75 @@
-# Diagnostic et dépannage
+# Troubleshooting & Diagnostics
 
-Ce guide recense les vérifications de premier niveau, les états opérationnels et de qualification, les codes d'erreur et les limites connues de la distribution locale [`./pocoma-local`](../reference/cli.md).
+This guide lists first-level checks, operational and qualification states, error codes, and known limits of the [`./pocoma-local`](../reference/cli.md) local distribution.
 
-## 1. Commande de diagnostic et codes de sortie
+## 1. Diagnostic Command & Exit Codes
 
-Commencez toujours par interroger l'état de l'instance :
+Always start by checking the instance status:
 
 ```bash
 ./pocoma-local status --instance demo
 ```
 
-Si une commande antérieure a expiré et vous a fourni un identifiant `--run` (`[0-9]{10}-[0-9a-f]{8}`) :
+If an earlier command timed out and printed a `--run` identifier (`[0-9]{10}-[0-9a-f]{8}`):
 
 ```bash
 ./pocoma-local status --instance demo --run <run-id>
 ```
 
-| Code | Signification | Action immédiate |
+| Code | Meaning | Immediate Action |
 | :---: | :--- | :--- |
-| `0` | `READY` / commande réussie | Instance opérationnelle et canari validé |
-| `1` | `NOT_READY` / `STOPPED` / `STALE` / erreur runtime | Consulter le message retourné, `operationalState` / `qualificationState` et les journaux sous `.pocoma-local/instances/<instance>/` |
-| `2` | Erreur d'usage, refus de prérequis (`PRE-*`), dérive ou schéma incompatible (`DB-*` / `INCOMPATIBLE-*`) | Corriger le poste ou choisir `reset` / `destroy` / nouveau `--instance` |
-| `3` | Conflit de verrou (`PRE-INSTANCE-LOCKED`, `PRE-LIFECYCLE-LOCKED`, `PRE-BUILD-LOCKED`) | Attendre la fin de l'opération concurrente en cours |
-| `4` | `DEGRADED` | API métier et canari OK, mais Prometheus indisponible ; inspecter `prometheus` / `grafana` |
-| `130` | Interruption clavier (`Ctrl+C`) | Relancer `status` pour vérifier l'état résultant |
+| `0` | `READY` / command succeeded | Instance is operational and canary is qualified |
+| `1` | `NOT_READY` / `STOPPED` / `STALE` / runtime error | Inspect the returned message, `operationalState` / `qualificationState`, and logs under `.pocoma-local/instances/<instance>/` |
+| `2` | Usage error, prerequisite refusal (`PRE-*`), drift, or incompatible schema (`DB-*` / `INCOMPATIBLE-*`) | Fix workstation setup or choose `reset` / `destroy` / new `--instance` |
+| `3` | Lock conflict (`PRE-INSTANCE-LOCKED`, `PRE-LIFECYCLE-LOCKED`, `PRE-BUILD-LOCKED`) | Wait for the concurrent operation to finish |
+| `4` | `DEGRADED` | Business API and canary OK, but Prometheus unavailable; inspect `prometheus` / `grafana` |
+| `130` | Keyboard interrupt (`Ctrl+C`) | Re-run `status` to inspect the resulting state |
 
-## 2. États opérationnels et états de qualification
+## 2. Operational States vs. Qualification States
 
-`./pocoma-local status` distingue explicitement la santé courante des services (`operationalState`) de la fraîcheur de la preuve canari (`qualificationState`) :
+`./pocoma-local status` explicitly separates current service health (`operationalState`) from canary proof freshness (`qualificationState`):
 
-| Champ | Valeurs | Signification |
+| Field | Values | Meaning |
 | :--- | :--- | :--- |
-| `operationalState` | `OPERATIONAL` | Les 9 conteneurs, PostgreSQL, Keycloak, les 5 JVM (sans `draining` ni capacité épuisée) et Prometheus répondent |
-| `operationalState` | `DEGRADED_OBSERVABILITY` | Cœur applicatif sain, mais Prometheus indisponible (`code 4`) |
-| `operationalState` | `UNAVAILABLE` | Au moins un service critique (PostgreSQL, Keycloak, runtime web ou worker en `draining`) est indisponible |
-| `qualificationState` | `QUALIFIED` | Preuve canari fraîche (`≤ 300 s`) et génération de conteneurs cohérente |
-| `qualificationState` | `STALE` | Services opérationnels, mais preuve canari expirée (`> 300 s`, `code 1`) ; relancez `./pocoma-local start` pour rafraîchir |
-| `qualificationState` | `GENERATION_MISMATCH` | Redémarrage partiel détecté entre générations de conteneurs ; relancez `./pocoma-local start` |
-| `qualificationState` | `UNQUALIFIED` | Aucune preuve canari valide disponible |
+| `operationalState` | `OPERATIONAL` | All 9 containers, PostgreSQL, Keycloak, all 5 JVMs (no `draining` or exhausted capacity), and Prometheus are healthy |
+| `operationalState` | `DEGRADED_OBSERVABILITY` | Core application healthy, but Prometheus unavailable (`exit code 4`) |
+| `operationalState` | `UNAVAILABLE` | At least one critical service (PostgreSQL, Keycloak, web runtime, or worker in `draining`) is unavailable |
+| `qualificationState` | `QUALIFIED` | Canary proof is fresh (`≤ 300 s`) and container generation is consistent |
+| `qualificationState` | `STALE` | Services operational, but canary proof expired (`> 300 s`, `exit code 1`); re-run `./pocoma-local start` to refresh |
+| `qualificationState` | `GENERATION_MISMATCH` | Partial restart detected across container generations; re-run `./pocoma-local start` |
+| `qualificationState` | `UNQUALIFIED` | No valid canary proof available |
 
-## 3. Refus de prérequis (`PRE-*`)
+## 3. Prerequisite Refusals (`PRE-*`)
 
-| Symptôme / Code | Cause vérifiée | Résolution |
+| Symptom / Code | Verified Cause | Resolution |
 | :--- | :--- | :--- |
-| Échec prérequis toolchain | Docker arrêté ou version hors contrat ([`scripts/local/toolchain.json`](../../scripts/local/toolchain.json) : Python ≥ `3.11`, JDK `21`, Node `24`, npm ≥ `7`, Bruno `4.3.0`) | Démarrer Docker ; ajuster JDK/Node/Python dans le shell courant |
-| Variable globale détectée (`PRE-*`) | Présence de `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` ou `_JAVA_OPTIONS` | `unset MAVEN_ARGS MAVEN_OPTS JAVA_TOOL_OPTIONS JDK_JAVA_OPTIONS _JAVA_OPTIONS` |
-| Fichier `.mvn` interdit (`PRE-*`) | Présence de `maven.config`, `jvm.config` ou `extensions.xml` dans `app/.mvn/` | Retirer le fichier local non autorisé de `app/.mvn/` |
-| `PRE-*-LOCKED` | Opération concurrente ou verrou actif (`code 3`) | Patienter jusqu'à la libération du verrou avant de relancer |
-| `PRE-SECRETS-MISSING` | Répertoire d'instance existant sans ses secrets privés attendus | Réinitialiser (`reset --confirm RESET:<instance>`) ou supprimer (`destroy`) l'instance |
-| `PRE-INPUT-DRIFT` | Code source, schémas SQL ou configuration modifiés depuis la création de l'instance | Utiliser un autre `--instance <nom>` ou réinitialiser avec `reset` |
+| Toolchain prerequisite failure | Docker stopped or version outside contract ([`scripts/local/toolchain.json`](../../scripts/local/toolchain.json): Python ≥ `3.11`, JDK `21`, Node `24`, npm ≥ `7`, Bruno `4.3.0`) | Start Docker; align JDK/Node/Python in the current shell |
+| Global variable detected (`PRE-*`) | Presence of `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, or `_JAVA_OPTIONS` | `unset MAVEN_ARGS MAVEN_OPTS JAVA_TOOL_OPTIONS JDK_JAVA_OPTIONS _JAVA_OPTIONS` |
+| Forbidden `.mvn` file (`PRE-*`) | Presence of `maven.config`, `jvm.config`, or `extensions.xml` under `app/.mvn/` | Remove the unauthorized local file from `app/.mvn/` |
+| `PRE-*-LOCKED` | Concurrent operation or active lock (`exit code 3`) | Wait until the lock is released before retrying |
+| `PRE-SECRETS-MISSING` | Existing instance directory missing its expected private secrets | Reset (`reset --confirm RESET:<instance>`) or destroy (`destroy`) the instance |
+| `PRE-INPUT-DRIFT` | Source code, SQL schemas, or config modified since instance creation | Use another `--instance <name>` or reset with `reset` |
 
-## 4. Incidents de base de données et de dérive
+## 4. Database & Drift Incidents
 
-| Code | Cause | Résolution recommandée |
+| Code | Cause | Recommended Resolution |
 | :--- | :--- | :--- |
-| `INCOMPATIBLE-LEGACY-FLYWAY-HISTORY` | L'instance contient un historique Flyway hérité incompatible avec les baselines V1 actives | Ne pas lancer d'anciennes migrations ; recréer via `reset --confirm RESET:<instance>` ou créer une nouvelle instance |
-| `INCOMPATIBLE-EXISTING-SCHEMA` | Schéma PostgreSQL existant dépourvu du marqueur `public.pocoma_local_bootstrap` attendu | Utiliser `reset` ou `destroy` (avec `--dry-run` préalable) ou un autre `--instance` |
-| `DB-INPUT-DRIFT` | Les scripts SQL ou paramètres d'initialisation ont changé par rapport au bootstrap enregistré en base | Réinitialiser explicitement avec `./pocoma-local reset --instance <nom> --confirm RESET:<nom>` |
-| `DB-INIT-TIMEOUT` | PostgreSQL reste injoignable au démarrage | Vérifier Docker et la santé du conteneur `postgres` avant de relancer `start` |
+| `INCOMPATIBLE-LEGACY-FLYWAY-HISTORY` | Instance contains legacy Flyway history incompatible with active V1 baselines | Do not run old migrations; recreate via `reset --confirm RESET:<instance>` or create a new instance |
+| `INCOMPATIBLE-EXISTING-SCHEMA` | Existing PostgreSQL schema missing the expected `public.pocoma_local_bootstrap` marker | Use `reset` or `destroy` (with `--dry-run` first) or another `--instance` |
+| `DB-INPUT-DRIFT` | SQL scripts or init parameters changed compared to the recorded bootstrap in DB | Explicitly reset with `./pocoma-local reset --instance <name> --confirm RESET:<name>` |
+| `DB-INIT-TIMEOUT` | PostgreSQL remains unreachable at startup | Check Docker and the `postgres` container health before re-running `start` |
 
-## 5. Incidents Keycloak, Bruno et observabilité
+## 5. Keycloak, Bruno, and Observability Incidents
 
-- **Authentification / Keycloak (`KEYCLOAK_*`)** : vérifiez l'état du conteneur `keycloak` dans `status` et renouvelez la session locale avec `./pocoma-local login --instance demo`. Sur macOS, assurez-vous qu'aucun fichier `.DS_Store` parasite ne perturbe les montages locaux si vous manipulez le répertoire d'instance. Pour l'authentification Bruno, consultez [Développement local et Bruno](../guides/local-development.md).
-- **Grafana / Prometheus** :
-  - `GRAFANA-HTTP` : Grafana ne répond pas sur son point d'accès HTTP ou santé attendu.
-  - `GRAFANA-DATASOURCE` : la source de données Prometheus n'est pas joignable ou mal provisionnée.
-  - `GRAFANA-DASHBOARD` : un des deux dashboards obligatoires (*Pocoma runtime*, *Pocoma V3 - Architecture & Observability Overview*) est absent ou invalide.
-  - Pour réappliquer la configuration Grafana sans perdre vos données : `./pocoma-local upgrade-grafana --instance demo`.
+- **Authentication / Keycloak (`KEYCLOAK_*`)**: check the `keycloak` container state in `status` and renew the local session with `./pocoma-local login --instance demo`. On macOS, ensure no stray `.DS_Store` files interfere with local bind mounts inside the instance directory. For Bruno authentication, see [Local Development & Bruno](../guides/local-development.md).
+- **Grafana / Prometheus**:
+  - `GRAFANA-HTTP`: Grafana does not respond on its expected HTTP or health endpoint.
+  - `GRAFANA-DATASOURCE`: the Prometheus datasource is unreachable or misprovisioned.
+  - `GRAFANA-DASHBOARD`: one of the two mandatory dashboards (*Pocoma runtime*, *Pocoma V3 - Architecture & Observability Overview*) is missing or invalid.
+  - To re-apply Grafana configuration without losing data: `./pocoma-local upgrade-grafana --instance demo`.
 
-## 6. Limites connues de la distribution locale
+## 6. Known Limits of the Local Distribution
 
-- **Enveloppe de charge nominale (`25 cmd/s`)** : avec `pocoma.v3.http.admission.capacity=4`, l'admission WRITE soutient `50 cmd/s` sans rejet `503` ni perte de données, mais la file d'attente de `business-read-worker` entraîne une saturation de la latence READ visible à `50 cmd/s` continus (`p95 ~ 25,2 s`). **`25 cmd/s`** constitue l'enveloppe nominale soutenable sur la distribution locale.
-- **Topologie mono-worker et PostgreSQL partagé** : chaque rôle dispose d'un conteneur worker unique partageant l'instance PostgreSQL locale ; le basculement multi-nœuds haute disponibilité est hors périmètre de la distribution locale.
-- **Journaux** : les secrets et jetons sont masqués dans les journaux conservés sous `.pocoma-local/instances/<instance>/`.
+- **Nominal load envelope (`25 cmd/s`)**: with `pocoma.v3.http.admission.capacity=4`, WRITE admission sustains `50 cmd/s` without `503` rejections or data loss, but `business-read-worker` queuing degrades visible READ latency at continuous `50 cmd/s` (`p95 ~ 25.2 s`). **`25 cmd/s`** is the sustainable nominal envelope on the local distribution.
+- **Single-worker topology & shared PostgreSQL**: each role has a single worker container sharing the local PostgreSQL instance; multi-node high-availability failover is outside the scope of the local distribution.
+- **Logs**: secrets and tokens are redacted in logs stored under `.pocoma-local/instances/<instance>/`.

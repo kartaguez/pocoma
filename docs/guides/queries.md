@@ -1,13 +1,13 @@
-# Requêtes READ et projections
+# READ Queries & Projections
 
-Les lectures sont servies exclusivement par `http-read` (`READ_URL/api/v3`) depuis la base matérialisée `pocoma_read`. Toutes les routes de lecture portent `Cache-Control: no-store`.
+Reads are served exclusively by `http-read` (`READ_URL/api/v3`) from the materialized `pocoma_read` database. All read routes return `Cache-Control: no-store`.
 
-## 1. En-têtes requis
+## 1. Required Headers
 
-- `Authorization: Bearer <access_token>` sur toutes les routes `/api/v3`.
-- `X-Pocoma-Binding-Token: <bindingToken>` sur les routes métier (cagnottes, soldes, dépenses, liste `/me/pots`, recherche d'invitations).
+- `Authorization: Bearer <access_token>` on all `/api/v3` routes.
+- `X-Pocoma-Binding-Token: <bindingToken>` on business routes (pots, balances, expenses, `/me/pots` list, invitation lookup).
 
-## 2. Lire l'état courant d'un Pot (`minVersion`)
+## 2. Read Current Pot State (`minVersion`)
 
 ```bash
 curl -sS "$READ_URL/api/v3/pots/$POT_ID?minVersion=1" \
@@ -15,13 +15,13 @@ curl -sS "$READ_URL/api/v3/pots/$POT_ID?minVersion=1" \
   -H "X-Pocoma-Binding-Token: $BINDING_TOKEN"
 ```
 
-- `minVersion=V` garantit que la version retournée `W` satisfait `W >= V`.
-- Si une écriture concurrente a avancé le Pot à `W > V`, utilisez ce `W` retourné pour vos consultations associées (historique ou soldes) afin de conserver une vue cohérente.
-- Tant que la projection n'a pas atteint `minVersion=V`, ou si l'utilisateur n'est pas autorisé, l'API retourne `404 Not Found`.
+- `minVersion=V` guarantees that the returned version `W` satisfies `W >= V`.
+- If a concurrent write advanced the Pot to `W > V`, use that returned `W` for subsequent related queries (history or balances) to keep a consistent view.
+- Until the projection reaches `minVersion=V`, or if the user is not authorized, the API returns `404 Not Found`.
 
-## 3. Consulter l'historique exact et les soldes
+## 3. Query Exact History & Balances
 
-### Version historique exacte
+### Exact historical version
 
 ```bash
 curl -sS "$READ_URL/api/v3/pots/$POT_ID/versions/$VERSION" \
@@ -29,9 +29,9 @@ curl -sS "$READ_URL/api/v3/pots/$POT_ID/versions/$VERSION" \
   -H "X-Pocoma-Binding-Token: $BINDING_TOKEN"
 ```
 
-Retourne l'état exact de la version `VERSION` (sans jamais substituer une version plus récente).
+Returns the exact state at `VERSION` (never substituting a newer version).
 
-### Soldes exacts d'une version
+### Exact balances for a version
 
 ```bash
 curl -sS "$READ_URL/api/v3/pots/$POT_ID/versions/$VERSION/balance" \
@@ -39,21 +39,21 @@ curl -sS "$READ_URL/api/v3/pots/$POT_ID/versions/$VERSION/balance" \
   -H "X-Pocoma-Binding-Token: $BINDING_TOKEN"
 ```
 
-Les soldes sont retournés en rationnels `{"n":"5","d":"3"}`. Un solde positif indique un créancier ; la somme exacte des soldes d'un Pot est toujours nulle.
+Balances are returned as rationals `{"n":"5","d":"3"}`. A positive balance indicates a creditor; the exact sum of balances in a Pot is always zero.
 
-### Détail des dépenses par références opaques
+### Expense details via opaque references
 
-Les références retournées dans la vue d'un Pot sont des objets opaques à recopier tels quels (batch de `1` à `50` références) :
+The references returned inside a Pot view are opaque objects to be echoed back verbatim (batch of `1` to `50` references):
 
 ```bash
 curl -sS -X POST "$READ_URL/api/v3/pots/$POT_ID/versions/$VERSION/expenses/query" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "X-Pocoma-Binding-Token: $BINDING_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"references":[<référence opaque lue sur le Pot@VERSION>]}'
+  -d '{"references":[<opaque reference read from Pot@VERSION>]}'
 ```
 
-## 4. Paginer ses cagnottes (`/me/pots`)
+## 4. Paginate Your Pots (`/me/pots`)
 
 ```bash
 curl -sS "$READ_URL/api/v3/me/pots?limit=20" \
@@ -61,11 +61,11 @@ curl -sS "$READ_URL/api/v3/me/pots?limit=20" \
   -H "X-Pocoma-Binding-Token: $BINDING_TOKEN"
 ```
 
-- `limit` : défaut `20`, maximum `100`.
-- `cursor` : valeur opaque retournée dans `nextCursor` (ne jamais la modifier ou la reconstruire).
+- `limit`: default `20`, maximum `100`.
+- `cursor`: opaque value returned in `nextCursor` (never modify or reconstruct it).
 
-## 5. Confidentialité (`404` opaque) et protection de charge (`503`)
+## 5. Opaque Privacy (`404`) & Load Protection (`503`)
 
-- **Confidentialité `404`** : un objet inexistant, une projection non encore matérialisée et une ressource appartenant à un tiers produisent tous `404 Not Found` avec un corps `{code, message, traceId}` non discriminant.
-- **Suppression (`DeletePot`)** : après un `DeletePot` confirmé `COMPLETED` à la version `D`, l'état courant et la version `D` retournent `404`, tandis que les versions antérieures `V < D` restent consultables pour les membres autorisés historiques.
-- **Protection `503`** : `http-read` valide le protocole et le jeton **avant** d'acquérir l'un des `8` permis de concurrence (`Q=8`) ; en cas de saturation ou de maintenance READ, l'API répond `503 Service Unavailable`.
+- **Opaque `404` privacy**: a nonexistent resource, an unmaterialized projection, and a resource owned by another user all return `404 Not Found` with a non-discriminating `{code, message, traceId}` body.
+- **Deletion (`DeletePot`)**: after a `DeletePot` completes (`COMPLETED`) at version `D`, both the current state and version `D` return `404`, while earlier versions `V < D` remain queryable by historical authorized members.
+- **Load protection (`503`)**: `http-read` validates the HTTP protocol and token **before** acquiring one of its `8` concurrency permits (`Q=8`); under saturation or READ maintenance, the API responds `503 Service Unavailable`.

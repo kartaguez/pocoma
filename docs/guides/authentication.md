@@ -1,42 +1,42 @@
-# Authentification et liaison (`Binding`)
+# Authentication & Binding
 
-L'accès aux API Pocoma (`/api/v3`) combine une authentification **OIDC** (Keycloak) et une liaison applicative explicite (`Binding`) entre votre identité externe et un utilisateur interne Pocoma.
+Access to Pocoma APIs (`/api/v3`) combines **OIDC** authentication (Keycloak) with an explicit application binding (`Binding`) between your external identity and an internal Pocoma user.
 
-## 1. Authentification OIDC (Keycloak)
+## 1. OIDC Authentication (Keycloak)
 
-L'infrastructure locale déploie **Keycloak 26.7.0** avec le royaume [`docker/keycloak/pocoma-realm.json`](../../docker/keycloak/pocoma-realm.json) :
+The local infrastructure deploys **Keycloak 26.7.0** with the [`docker/keycloak/pocoma-realm.json`](../../docker/keycloak/pocoma-realm.json) realm:
 
-- **Flux** : Authorization Code + PKCE (`S256`) avec vérification de `state`.
-- **Découverte OIDC** : `ISSUER/.well-known/openid-configuration` (`ISSUER` est affiché par `./pocoma-local status`).
-- **Client public** : `pocoma-functional-tests` (sans `Client Secret`), callback `http://127.0.0.1:8765/callback`, scope `openid`.
-- **Audience attendue du Bearer JWT** : `pocoma-api`.
-- **Comptes de test locaux** : `third`, `guest` et `bruno` (mot de passe `pocoma`).
+- **Flow**: Authorization Code + PKCE (`S256`) with `state` verification.
+- **OIDC Discovery**: `ISSUER/.well-known/openid-configuration` (`ISSUER` is printed by `./pocoma-local status`).
+- **Public client**: `pocoma-functional-tests` (no `Client Secret`), callback `http://127.0.0.1:8765/callback`, scope `openid`.
+- **Expected Bearer JWT audience**: `pocoma-api`.
+- **Local test accounts**: `third`, `guest`, and `bruno` (password `pocoma`).
 
 > [!WARNING]
-> Ces comptes et ce royaume sont réservés au playground local. L'API vérifie l'issuer exact, l'audience `pocoma-api`, la signature et l'expiration du jeton ; le scope `openid` ne porte pas de rôle métier (les autorisations dépendent de l'identité liée et des droits sur chaque Pot).
+> These accounts and this realm are reserved for the local playground. The API verifies the exact issuer, `pocoma-api` audience, signature, and token expiration; the `openid` scope carries no business roles (authorization depends on the bound identity and per-Pot rights).
 
-### En ligne de commande ou via Bruno GUI
+### Via CLI or Bruno GUI
 
-- `./pocoma-local login --instance demo` ouvre/renouvelle la session OIDC en ligne de commande.
-- `./pocoma-local gui --instance demo` ouvre Bruno préconfiguré avec OAuth natif PKCE (utilisez `00 Login Owner` pour `third` et `01 Login Guest` pour `guest`). Aucune copie manuelle de JWT n'est nécessaire.
+- `./pocoma-local login --instance demo` opens/renews the OIDC session from the command line.
+- `./pocoma-local gui --instance demo` opens Bruno preconfigured with native PKCE OAuth (use `00 Login Owner` for `third` and `01 Login Guest` for `guest`). No manual JWT copying is required.
 
-## 2. Consulter ou créer sa liaison (`Binding`)
+## 2. Check or Create Your Binding
 
-Un jeton OIDC valide ne suffit pas pour manipuler des cagnottes : votre identité externe doit être liée à un utilisateur Pocoma via un `bindingToken` actif.
+A valid OIDC token alone is not enough to manipulate pots: your external identity must be bound to a Pocoma user via an active `bindingToken`.
 
-### Vérifier le binding courant
+### Check the current binding
 
 ```bash
 curl -sS -i "$READ_URL/api/v3/me/binding" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-- **`200 OK`** : retourne `active`, `euiVersion` et `bindingToken`.
-- **`404 Not Found`** : votre identité n'est pas encore enregistrée.
+- **`200 OK`**: returns `active`, `euiVersion`, and `bindingToken`.
+- **`404 Not Found`**: your identity is not registered yet.
 
-### Enregistrer son identité (`Registration`)
+### Register your identity (`Registration`)
 
-Soumettez une demande d'inscription côté WRITE (le client ne choisit jamais son `userId` ni son `subject` : ils sont extraits du JWT) :
+Submit a registration request on the WRITE side (the client never picks its `userId` or `subject`; they are extracted from the JWT):
 
 ```bash
 curl -sS -X POST "$WRITE_URL/api/v3/identity/requests" \
@@ -46,26 +46,26 @@ curl -sS -X POST "$WRITE_URL/api/v3/identity/requests" \
   -d '{"operation":"Registration"}'
 ```
 
-La réponse `202 Accepted` retourne `{"requestId":"..."}`. Interrogez ensuite le résultat côté READ jusqu'à obtenir `COMPLETED` :
+The `202 Accepted` response returns `{"requestId":"..."}`. Poll the result on the READ side until `COMPLETED`:
 
 ```bash
 curl -sS "$READ_URL/api/v3/identity/requests/<requestId>/result" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-Relisez enfin `GET $READ_URL/api/v3/me/binding` jusqu'à observer le `bindingToken` actif correspondant à `targetVersion`. Une nouvelle `Registration` sur une identité déjà liée est rejetée avec `outcome: "REJECTED"` (`TARGET_ALREADY_BOUND`).
+Then query `GET $READ_URL/api/v3/me/binding` again until you observe the active `bindingToken` matching `targetVersion`. Submitting another `Registration` for an already-bound identity is rejected with `outcome: "REJECTED"` (`TARGET_ALREADY_BOUND`).
 
-## 3. Utiliser le `bindingToken` dans les appels API
+## 3. Using `bindingToken` in API Calls
 
-- **En écriture (`POST /api/v3/commands` ou `Unlink`)** : transmettez `"bindingToken": "..."` dans le corps JSON.
-- **En lecture (`GET/POST` sur les cagnottes et invitations)** : transmettez l'en-tête HTTP `X-Pocoma-Binding-Token: <bindingToken>`.
+- **On WRITE (`POST /api/v3/commands` or `Unlink`)**: pass `"bindingToken": "..."` in the JSON body.
+- **On READ (`GET`/`POST` on pots and invitations)**: pass the `X-Pocoma-Binding-Token: <bindingToken>` HTTP header.
 
 > [!IMPORTANT]
-> Conservez le bearer JWT, le `bindingToken` et les secrets d'invitation exclusivement côté serveur/session protégée (ou en mémoire Bruno) ; ne les placez jamais dans une URL d'API ni dans les journaux.
+> Keep the Bearer JWT, `bindingToken`, and invitation secrets strictly server-side / in protected session memory (or Bruno runtime memory); never place them in API URLs or logs.
 
-## 4. Désaffiliation (`Unlink`)
+## 4. Unlinking (`Unlink`)
 
-Pour détacher votre identité externe courante :
+To detach your current external identity:
 
 ```json
 {
@@ -78,4 +78,4 @@ Pour détacher votre identité externe courante :
 }
 ```
 
-Soumis sur `POST $WRITE_URL/api/v3/identity/requests` avec `Idempotency-Key`, `Unlink` révoque le `bindingToken` courant. Un jeton de binding révoqué reste invalide même avec un nouveau JWT ; toutefois, les résultats historiques des commandes que vous avez soumises restent consultables par votre identité historique.
+Submitted to `POST $WRITE_URL/api/v3/identity/requests` with an `Idempotency-Key`, `Unlink` revokes the current `bindingToken`. A revoked binding token remains invalid even with a fresh JWT; however, historical results of commands you submitted remain queryable by your historical identity.

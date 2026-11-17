@@ -1,29 +1,29 @@
-# Vue d'ensemble de l'architecture
+# Architecture Overview
 
-Pocoma est une plateforme transactionnelle asynchrone bâtie sur le modèle **CQRS** (*Command Query Responsibility Segregation*) : elle sépare strictement l'admission des intentions d'écriture, leur exécution métier, la matérialisation des vues de lecture et l'exposition HTTP en lecture seule.
+Pocoma is an asynchronous transactional platform built on the **CQRS** (*Command Query Responsibility Segregation*) pattern: it strictly separates write-intent admission, business execution, read-view materialization, and read-only HTTP queries.
 
-## 1. Concepts métier
+## 1. Domain Concepts
 
-Pocoma manipule deux domaines principaux :
+Pocoma manages two primary domains:
 
-- **Identité et liaison (`User`, `ExternalIdentity`, `Binding`)** : une identité externe authentifiée par OIDC (Keycloak) est enregistrée (`Registration`) pour créer un utilisateur interne et un jeton de liaison applicatif (`bindingToken`). Un utilisateur peut se désaffilier (`Unlink`), ce qui révoque son `bindingToken` courant tout en conservant la traçabilité historique de ses commandes.
-- **Cagnotte (`Pot`, `Shareholder`, `Expense`, `Invitation`)** : une cagnotte versionnée regroupe des participants (`Shareholder` avec poids rationnels), des dépenses (`Expense` sans flottants, calculées en rationnels exacts) et des soldes dont la somme est toujours nulle. L'accès à une cagnotte repose sur l'appartenance active ou historique et sur des invitations privées (`pocoma://invitation/<secret>`).
+- **Identity & Binding (`User`, `ExternalIdentity`, `Binding`)**: an external identity authenticated via OIDC (Keycloak) is registered (`Registration`) to create an internal user and an application binding token (`bindingToken`). A user can unlink (`Unlink`), revoking their current `bindingToken` while preserving historical command traceability.
+- **Pot (`Pot`, `Shareholder`, `Expense`, `Invitation`)**: a versioned pot groups participants (`Shareholder` with rational weights), expenses (`Expense` with zero floating-point math, computed in exact rationals), and balances whose sum is always zero. Access to a pot is governed by active or historical membership and private invitations (`pocoma://invitation/<secret>`).
 
-## 2. Séparation WRITE / READ et flux asynchrone
+## 2. WRITE / READ Separation & Asynchronous Flow
 
-Le système découpe le traitement en quatre étapes exécutées par des processus distincts :
+Processing is split into four stages executed by distinct processes:
 
-1. **Admission HTTP (`http-write`)** : vérifie le jeton OIDC, l'en-tête `Idempotency-Key` et le `bindingToken`, persiste l'admission dans `pocoma_write` et répond immédiatement `202 Accepted` avec un `requestId`.
-2. **Traitement métier asynchrone (`command-worker`)** : acquiert des baux sur 8 partitions WRITE (`Command` et `IdentityRequest`), exécute la logique transactionnelle en JDBC pur (sans JPA/Hibernate) et enregistre les décisions et résultats dans `pocoma_write`.
-3. **Matérialisation des projections (`results-worker` et `business-read-worker`)** : lit les événements et résultats depuis `pocoma_write` (avec un rôle en lecture seule `pocoma_write_source_read`) et met à jour les vues matérialisées dans `pocoma_read` sur 28 partitions dédiées.
-4. **Exposition HTTP en lecture (`http-read`)** : valide la requête HTTP et le jeton OIDC **avant** d'acquérir un permis de concurrence (`Q=8`), puis interroge exclusivement `pocoma_read`.
+1. **HTTP Admission (`http-write`)**: validates the OIDC token, `Idempotency-Key` header, and `bindingToken`, persists the admission in `pocoma_write`, and immediately responds `202 Accepted` with a `requestId`.
+2. **Asynchronous Business Execution (`command-worker`)**: acquires leases on 8 WRITE partitions (`Command` and `IdentityRequest`), executes transactional logic in pure JDBC (no JPA/Hibernate), and records decisions and results in `pocoma_write`.
+3. **Projection Materialization (`results-worker` and `business-read-worker`)**: reads events and terminal results from `pocoma_write` (via a read-only `pocoma_write_source_read` role) and updates materialized views in `pocoma_read` across 28 dedicated partitions.
+4. **HTTP Read Exposure (`http-read`)**: validates the HTTP request and OIDC token **before** acquiring a concurrency permit (`Q=8`), then queries `pocoma_read` exclusively.
 
 ```text
                         ┌────────────────────────────────────┐
                         │        Keycloak 26.7.0             │
                         │    OIDC Auth Code + PKCE S256      │
                         └─────────────────▲──────────────────┘
-                                          │ validation JWT
+                                          │ JWT validation
         POST / commands (/api/v3)         │         GET / queries (/api/v3)
       ┌───────────────────────────────────┴───────────────────────────────────┐
       ▼                                                                       ▼
@@ -31,43 +31,44 @@ Le système découpe le traitement en quatre étapes exécutées par des process
 │http-write │                                                           │ http-read │
 │ :8080     │                                                           │  :8082    │
 └─────┬─────┘                                                           └─────┬─────┘
-      │ SQL écriture                                              SQL lecture │ (Q=8)
+      │ SQL write                                                    SQL read │ (Q=8)
       ▼                                                                       ▼
-┌───────────────────────────┐   lecture source    ┌───────────────────────────┐
+┌───────────────────────────┐    source read      ┌───────────────────────────┐
 │  PostgreSQL WRITE         │ ──────────────────▶ │  PostgreSQL READ          │
-│  base: pocoma_write       │  results-worker (8) │  base: pocoma_read        │
-│  schéma: v3_write         │  business-read (20) │  schéma: v3_read          │
+│  db: pocoma_write         │  results-worker (8) │  db: pocoma_read          │
+│  schema: v3_write         │  business-read (20) │  schema: v3_read          │
 └─────────────▲─────────────┘                     └─────────────▲─────────────┘
-              │ baux 30s + renewBatch                           │ baux 30s + renewBatch
+              │ 30s leases + renewBatch                         │ 30s leases + renewBatch
         ┌─────┴──────────┐                         ┌────────────┴──────────────┐
         │ command-worker │                         │ results-worker            │
         │  8 partitions  │                         │ business-read-worker      │
         └────────────────┘                         └───────────────────────────┘
 ```
 
-## 3. Les cinq runtimes et la topologie locale (9 conteneurs)
+## 3. The Five Runtimes & Local Topology (9 Containers)
 
-L'orchestrateur [`./pocoma-local`](../reference/cli.md) déploie **9 conteneurs** Docker isolés par instance :
+The [`./pocoma-local`](../reference/cli.md) orchestrator deploys **9 isolated Docker containers** per instance:
 
-| Rôle | Conteneur | Technologie / Module | Responsabilité principale |
+| Role | Container | Image / Module | Primary Responsibility |
 | :--- | :--- | :--- | :--- |
-| Base de données | `postgres` | `postgres:17.6-alpine` | Héberge `pocoma_write` et `pocoma_read` (sans port hôte publié) |
-| Identité | `keycloak` | `quay.io/keycloak/keycloak:26.7.0` | Royaume local OIDC PKCE S256 et comptes de test |
-| Métriques | `prometheus` | `prom/prometheus:v3.5.0` | Collecte `/actuator/prometheus` toutes les `2 s` |
-| Tableaux de bord | `grafana` | `grafana/grafana:12.3.2` | 2 dashboards provisionnés en lecture seule |
-| HTTP WRITE | `http-write` | `runtime-web-write` (JDK 21) | Admission des commandes et demandes d'identité (`/api/v3`) |
-| HTTP READ | `http-read` | `runtime-web-read` (JDK 21) | Requêtes HTTP de lecture seule (`/api/v3`) |
-| Worker WRITE | `command-worker` | `runtime-worker-process` (JDK 21) | Exécution des commandes en JDBC pur (sans JPA/Hibernate) |
-| Worker READ résultats | `results-worker` | `runtime-worker-materialize` (JDK 21) | Projections `CommandResult` et `IdentityRequestResult` |
-| Worker READ métier | `business-read-worker` | `runtime-worker-materialize` (JDK 21) | Projections `PotVersion`, `PotBalance`, `PotVisibility`, `CurrentBinding`, `Invitation` |
+| Database | `postgres` | `postgres:17.6-alpine` | Hosts `pocoma_write` and `pocoma_read` (no host port published) |
+| Identity | `keycloak` | `quay.io/keycloak/keycloak:26.7.0` | Local OIDC PKCE S256 realm and test accounts |
+| Metrics | `prometheus` | `prom/prometheus:v3.5.0` | Scrapes `/actuator/prometheus` every `2 s` |
+| Dashboards | `grafana` | `grafana/grafana:12.3.2` | 2 read-only provisioned dashboards |
+| HTTP WRITE | `http-write` | `runtime-web-write` (JDK 21) | Command and identity request admission (`/api/v3`) |
+| HTTP READ | `http-read` | `runtime-web-read` (JDK 21) | Read-only HTTP queries (`/api/v3`) |
+| WRITE Worker | `command-worker` | `runtime-worker-process` (JDK 21) | Command execution in pure JDBC (no JPA/Hibernate) |
+| READ Results Worker | `results-worker` | `runtime-worker-materialize` (JDK 21) | `CommandResult` and `IdentityRequestResult` projections |
+| READ Business Worker | `business-read-worker` | `runtime-worker-materialize` (JDK 21) | `PotVersion`, `PotBalance`, `PotVisibility`, `CurrentBinding`, `Invitation` projections |
 
-## 4. Partitions, baux, fencing et sécurité
+## 4. Partitions, Leases, Fencing, and Security
 
-- **Partitionnement et baux** : le travail asynchrone est réparti sur **36 partitions** (`8` WRITE, `8` résultats, `20` projections métier). Chaque partition est protégée par un bail SQL (`30 s`), renouvelé par lots (`renewBatch` toutes les `10 s`) avec **fencing strict** : un worker ayant perdu un bail retire immédiatement la partition de son ensemble actif sans jamais écraser un nouveau détenteur.
-- **Sécurité** : authentification Bearer JWT (Keycloak), liaison `Binding` obligatoire, idempotence HMAC à l'admission, validation pré-sémaphore sur `http-read` et confidentialité opaque (`404` non discriminant).
+- **Partitioning and leases**: asynchronous work is distributed across **36 partitions** (`8` WRITE, `8` results, `20` business projections). Each partition is protected by a SQL lease (`30 s`), renewed in batches (`renewBatch` every `10 s`) with **strict fencing**: a worker that loses a lease immediately removes the partition from its active set and never overwrites a new owner.
+- **Security**: Bearer JWT authentication (Keycloak), mandatory `Binding`, HMAC idempotency at admission, pre-semaphore validation on `http-read`, and opaque privacy (`404` non-discriminating responses).
 
-Pour approfondir chaque couche :
-- [Runtimes JVM et parallélisme](runtimes.md)
-- [Persistance PostgreSQL](persistence.md)
-- [Sécurité](security.md)
-- [Référence API `/api/v3`](../reference/api.md)
+To explore each layer further:
+- [Maven Modules (42 modules)](modules.md)
+- [JVM Runtimes & Concurrency](runtimes.md)
+- [PostgreSQL Persistence](persistence.md)
+- [Security](security.md)
+- [Public API `/api/v3` Reference](../reference/api.md)

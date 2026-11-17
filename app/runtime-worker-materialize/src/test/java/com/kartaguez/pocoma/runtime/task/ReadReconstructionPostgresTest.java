@@ -28,6 +28,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.Duration;
 import java.util.*;
 
+@Tag("slow")
 @Testcontainers
 class ReadReconstructionPostgresTest {
 

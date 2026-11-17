@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+@Tag("slow")
 @Testcontainers
 class DiscoveryPostgresTest {
     @Container

@@ -1,47 +1,47 @@
-# Premiers pas
+# First Steps
 
-Ce parcours autonome vous fait exécuter votre premier cycle complet sur Pocoma : **démarrer l'instance**, **vous authentifier**, **soumettre une commande métier**, **retrouver son résultat** et **lire la projection correspondante**.
+This self-contained walkthrough takes you through your first complete cycle on Pocoma: **start the instance**, **authenticate**, **submit a business command**, **retrieve its result**, and **read the resulting projection**.
 
 > [!TIP]
-> Pour explorer visuellement sans écrire de requêtes à la main, vous pouvez aussi lancer `./pocoma-local gui --instance demo` (Bruno GUI préconfiguré avec OIDC PKCE) ou `./pocoma-local bruno --instance demo` (collection automatisée). Voir [Développement local et Bruno](../guides/local-development.md).
+> To explore visually without writing requests by hand, you can also run `./pocoma-local gui --instance demo` (Bruno GUI preconfigured with OIDC PKCE) or `./pocoma-local bruno --instance demo` (automated collection). See [Local Development & Bruno](../guides/local-development.md).
 
-## 1. Démarrer Pocoma et récupérer les URL locales
+## 1. Start Pocoma & Retrieve Local URLs
 
-Démarrez l'instance `demo` et vérifiez qu'elle est `READY` :
+Start the `demo` instance and verify it is `READY`:
 
 ```bash
 ./pocoma-local start --instance demo
 ./pocoma-local status --instance demo
 ```
 
-Relevez dans la sortie les trois URL de votre instance (les ports hôtes sont attribués par instance) :
-- `WRITE_URL` (ex. `http://127.0.0.1:<port_write>`)
-- `READ_URL` (ex. `http://127.0.0.1:<port_read>`)
-- `ISSUER` (ex. `http://localhost:<port_keycloak>/realms/pocoma`)
+Note the three URLs from the output (host ports are allocated per instance):
+- `WRITE_URL` (e.g., `http://127.0.0.1:<port_write>`)
+- `READ_URL` (e.g., `http://127.0.0.1:<port_read>`)
+- `ISSUER` (e.g., `http://localhost:<port_keycloak>/realms/pocoma`)
 
-## 2. S'authentifier et obtenir son `bindingToken`
+## 2. Authenticate & Obtain Your `bindingToken`
 
-Pocoma utilise **Keycloak** (OIDC Authorization Code + PKCE S256, client public `pocoma-functional-tests`, scope `openid`). Les comptes de test locaux sont `third`, `guest` et `bruno` (mot de passe `pocoma`).
+Pocoma uses **Keycloak** (OIDC Authorization Code + PKCE S256, public client `pocoma-functional-tests`, scope `openid`). Local test accounts are `third`, `guest`, and `bruno` (password `pocoma`).
 
-### Option A — Via le CLI `./pocoma-local login` ou Bruno GUI
+### Option A — Via `./pocoma-local login` or Bruno GUI
 
 ```bash
 ./pocoma-local login --instance demo
 ```
 
-Ou ouvrez Bruno GUI (`./pocoma-local gui --instance demo`) et lancez la connexion `00 Login Owner` avec le compte `third` / `pocoma` (voir [Authentification et liaison](../guides/authentication.md)).
+Or open Bruno GUI (`./pocoma-local gui --instance demo`) and run `00 Login Owner` with `third` / `pocoma` (see [Authentication & Binding](../guides/authentication.md)).
 
-### Option B — Liaison applicative (`Registration` → `bindingToken`)
+### Option B — Application Binding (`Registration` → `bindingToken`)
 
-Une fois votre jeton d'accès `ACCESS_TOKEN` obtenu auprès de `ISSUER`, vérifiez si votre identité OIDC est déjà liée à un utilisateur Pocoma :
+Once you have an `ACCESS_TOKEN` from `ISSUER`, check whether your OIDC identity is already bound to a Pocoma user:
 
 ```bash
 curl -sS -i "$READ_URL/api/v3/me/binding" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-- Si la réponse est **`200 OK`**, récupérez la valeur `bindingToken` du JSON retourné.
-- Si la réponse est **`404 Not Found`**, enregistrez votre identité côté WRITE :
+- If the response is **`200 OK`**, extract `bindingToken` from the returned JSON.
+- If the response is **`404 Not Found`**, register your identity on the WRITE side:
 
 ```bash
 IDEMP_REG=$(python3 -c 'import uuid; print(uuid.uuid4())')
@@ -52,18 +52,18 @@ curl -sS -X POST "$WRITE_URL/api/v3/identity/requests" \
   -d '{"operation":"Registration"}'
 ```
 
-La réponse **`202 Accepted`** retourne `{"requestId":"<REG_REQUEST_ID>"}`. Consultez son résultat asynchrone jusqu'au statut terminal `COMPLETED` :
+The **`202 Accepted`** response returns `{"requestId":"<REG_REQUEST_ID>"}`. Poll its asynchronous result until `COMPLETED`:
 
 ```bash
 curl -sS "$READ_URL/api/v3/identity/requests/$REG_REQUEST_ID/result" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-Relisez ensuite `GET $READ_URL/api/v3/me/binding` pour obtenir votre `bindingToken` actif.
+Then query `GET $READ_URL/api/v3/me/binding` again to retrieve your active `bindingToken`.
 
-## 3. Soumettre une commande métier (`CreatePot`)
+## 3. Submit a Business Command (`CreatePot`)
 
-Générez un UUID pour la nouvelle cagnotte (`POT_ID`) et une clé d'idempotence unique (`IDEMP_CMD`), puis soumettez la commande `CreatePot` avec `observedVersion: 0` et votre `BINDING_TOKEN` :
+Generate a UUID for the new pot (`POT_ID`) and a unique idempotency key (`IDEMP_CMD`), then submit `CreatePot` with `observedVersion: 0` and your `BINDING_TOKEN`:
 
 ```bash
 POT_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
@@ -78,22 +78,22 @@ curl -sS -i -X POST "$WRITE_URL/api/v3/commands" \
     \"potId\": \"$POT_ID\",
     \"observedVersion\": 0,
     \"bindingToken\": \"$BINDING_TOKEN\",
-    \"payload\": {\"label\": \"Voyage\"}
+    \"payload\": {\"label\": \"Trip\"}
   }"
 ```
 
-La réponse **`202 Accepted`** contient `{"requestId":"<CMD_REQUEST_ID>"}` (ainsi que l'en-tête `Location`). Elle confirme la persistance durable de l'admission dans `pocoma_write`, pas encore l'exécution métier.
+The **`202 Accepted`** response contains `{"requestId":"<CMD_REQUEST_ID>"}` (along with the `Location` header). It confirms durable admission persistence in `pocoma_write`, not yet business execution.
 
-## 4. Retrouver le résultat de la commande
+## 4. Retrieve the Command Result
 
-Interrogez l'endpoint de résultat côté READ avec le `CMD_REQUEST_ID` jusqu'à obtenir `200 OK` (tant que le résultat n'est pas matérialisé, l'API retourne `404`) :
+Poll the READ result endpoint with `CMD_REQUEST_ID` until `200 OK` (while unmaterialized, the API returns `404`):
 
 ```bash
 curl -sS "$READ_URL/api/v3/commands/$CMD_REQUEST_ID/result" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-Une exécution réussie retourne :
+A successful execution returns:
 
 ```json
 {
@@ -103,11 +103,11 @@ Une exécution réussie retourne :
 }
 ```
 
-Notez `resultingPotVersion` (`1` ici).
+Note `resultingPotVersion` (`1` here).
 
-## 5. Lire la projection correspondante
+## 5. Read the Resulting Projection
 
-Consultez la projection courante du Pot en exigeant au minimum la version produite (`minVersion=1`) et en transmettant votre `bindingToken` dans l'en-tête `X-Pocoma-Binding-Token` :
+Query the current Pot projection requiring at least the produced version (`minVersion=1`) and passing your `bindingToken` in the `X-Pocoma-Binding-Token` header:
 
 ```bash
 curl -sS "$READ_URL/api/v3/pots/$POT_ID?minVersion=1" \
@@ -115,11 +115,11 @@ curl -sS "$READ_URL/api/v3/pots/$POT_ID?minVersion=1" \
   -H "X-Pocoma-Binding-Token: $BINDING_TOKEN"
 ```
 
-La réponse `200 OK` retourne la vue matérialisée complète dans `pocoma_read` (`potVersion`, `label`, `shareholders`, `expenses`, `balances`).
+The `200 OK` response returns the full materialized view from `pocoma_read` (`potVersion`, `label`, `shareholders`, `expenses`, `balances`).
 
-## Pour aller plus loin
+## Next Steps
 
-- [Authentification et liaison](../guides/authentication.md)
-- [Commandes et résultats asynchrones](../guides/commands.md)
-- [Requêtes READ et projections](../guides/queries.md)
-- [Référence API `/api/v3`](../reference/api.md)
+- [Authentication & Binding](../guides/authentication.md)
+- [Commands & Asynchronous Results](../guides/commands.md)
+- [READ Queries & Projections](../guides/queries.md)
+- [Public API `/api/v3` Reference](../reference/api.md)

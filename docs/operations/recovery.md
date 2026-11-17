@@ -1,94 +1,105 @@
-# Reprise après panne et cycle de vie
+# Crash Recovery & Lifecycle
 
-Ce guide décrit le cycle de vie complet d'une instance locale [`./pocoma-local`](../reference/cli.md) et les procédures de récupération après arrêt brutal ou coupure PostgreSQL.
+This guide describes the full lifecycle of a [`./pocoma-local`](../reference/cli.md) local instance and recovery procedures after an ungraceful stop or PostgreSQL outage.
 
-## 1. Cycle de vie d'une instance
+## 1. Instance Lifecycle
 
 ```text
-   (absente)
+    (absent) ──[ doctor (read-only prerequisites & cache check) ]
        │
-       ▼  ./pocoma-local start --instance <nom>
+       ▼  ./pocoma-local start --instance <name>
    [ READY ] ◀──────────────────────────────┐
-       │                                    │ start (même empreinte)
-       ├── stop ──▶ [ STOPPED (données conservées) ]
+       │                                    │ start (same fingerprint)
+       ├── status / login / gui / bruno ────┤ (read-only inspection, auth, E2E tests)
+       │                                    │
+       ├── reload [--runtime <r>] ──────────┤ (rebuild & recreate JVM runtime(s); DB & Keycloak preserved)
+       │                                    │
+       ├── upgrade-grafana ─────────────────┘ (update Grafana configuration only; DB & Keycloak preserved)
        │
-       ├── upgrade-grafana ──▶ mise à jour configuration Grafana uniquement
+       ├── stop ──▶ [ STOPPED (data preserved) ] ──( start )──▶ [ READY ]
        │
-       ├── reset --confirm RESET:<nom> ──▶ réinitialisation bases/données depuis V1
+       ├── reset --confirm RESET:<name> ──▶ reinitialize DBs/data from V1
        │
-       └── destroy --confirm DESTROY:<nom> ──▶ suppression complète (conteneurs, volumes, état)
+       └── destroy --confirm DESTROY:<name> ──▶ full deletion (containers, volumes, state)
 ```
 
-- **Confirmation obligatoire** : `reset` et `destroy` refusent d'agir sans `--confirm RESET:<instance>` ou `--confirm DESTROY:<instance>`. Utilisez `--dry-run` pour simuler sans effet destructeur (`--dry-run` est rejeté avec `code 2` sur toutes les autres sous-commandes).
-- **Ne jamais modifier une instance à la main** : évitez les suppressions manuelles partielles de conteneurs, volumes ou tables PostgreSQL ; utilisez exclusivement `stop`, `reset` ou `destroy`.
+- **Mandatory confirmation**: `reset` and `destroy` refuse to run without `--confirm RESET:<instance>` or `--confirm DESTROY:<instance>`. Use `--dry-run` to simulate without destructive effects (`--dry-run` is rejected with `exit code 2` on all other subcommands).
+- **Never edit an instance by hand**: avoid manually deleting individual containers, volumes, or PostgreSQL tables; always use `stop`, `reset`, or `destroy`.
 
-## 2. Redémarrage après arrêt gracieux (`stop` → `start`)
+## 2. Restarting After a Graceful Stop (`stop` → `start`)
 
-`./pocoma-local stop --instance <nom>` arrête proprement les 9 conteneurs tout en conservant les bases `pocoma_write` / `pocoma_read`, l'état Keycloak, les métriques Prometheus et les secrets locaux sous `.pocoma-local/instances/<nom>/`.
+`./pocoma-local stop --instance <name>` cleanly stops all 9 containers while preserving `pocoma_write` / `pocoma_read` databases, Keycloak state, Prometheus metrics, and local secrets under `.pocoma-local/instances/<name>/`.
 
-Pour redémarrer :
+To restart:
 
 ```bash
-./pocoma-local start --instance <nom>
+./pocoma-local start --instance <name>
 ```
 
-## 3. Récupération après coupure PostgreSQL
+## 3. Recovering From a PostgreSQL Outage
 
-Lors d'une coupure prolongée de PostgreSQL, les trois workers (`command-worker`, `results-worker`, `business-read-worker`) basculent en mode **fail-closed** (`draining`) :
-- `/actuator/health` passe à **`503 DOWN`** (`pocoma_v3_worker_state{state="draining"} = 1.0`), tandis que `/actuator/health/readiness` peut rester `200 UP`.
-- Une admission `http-write` restée `UNRESOLVED` pendant la coupure peut également consommer un permis (`pocoma_v3_admission_capacity_available < 4.0`).
+During a prolonged PostgreSQL outage, the three workers (`command-worker`, `results-worker`, `business-read-worker`) switch to **fail-closed** (`draining`) mode:
+- `/actuator/health` switches to **`503 DOWN`** (`pocoma_v3_worker_state{state="draining"} = 1.0`), while `/actuator/health/readiness` may remain `200 UP`.
+- An `http-write` admission left `UNRESOLVED` during the outage may also hold a permit (`pocoma_v3_admission_capacity_available < 4.0`).
 
-### Procédure de récupération
+### Recovery Procedure
 
-1. Assurez-vous que le service PostgreSQL est de nouveau accessible.
-2. Lancez simplement :
-
-   ```bash
-   ./pocoma-local start --instance <nom>
-   ```
-
-3. `./pocoma-local start` vérifie d'abord la disponibilité de PostgreSQL et de Keycloak (si PostgreSQL est encore down, `start` échoue proprement sur `DB-INIT-TIMEOUT` sans redémarrer inutilement les runtimes).
-4. Une fois PostgreSQL sain, l'orchestrateur détecte automatiquement les workers en état `draining` et l'éventuelle saturation résiduelle de `http-write`, les redémarre **une seule fois** de manière bornée (journalisé dans `runtime-recovery.json`), attend la réacquisition des **36 baux** avec de nouveaux `owner_token` (fencing), puis exécute le canari.
-5. Vérifiez le retour à l'état nominal :
+1. Ensure the PostgreSQL service is reachable again.
+2. Simply run:
 
    ```bash
-   ./pocoma-local status --instance <nom>
+   ./pocoma-local start --instance <name>
    ```
 
-   Attendu : `exit=0`, `state=READY`, `operationalState=OPERATIONAL`, `qualificationState=QUALIFIED`.
+3. `./pocoma-local start` first checks PostgreSQL and Keycloak availability (if PostgreSQL is still down, `start` fails cleanly with `DB-INIT-TIMEOUT` without needlessly restarting runtimes).
+4. Once PostgreSQL is healthy, the orchestrator automatically detects workers in `draining` state and any residual `http-write` saturation, performs a **single** bounded restart (logged in `runtime-recovery.json`), waits for re-acquisition of all **36 leases** with new `owner_token` values (fencing), and runs the canary.
+5. Verify return to nominal state:
 
-## 4. Reprise après arrêt brutal (crash Docker / kill)
+   ```bash
+   ./pocoma-local status --instance <name>
+   ```
 
-Après un arrêt non gracieux :
+   Expected: `exit=0`, `state=READY`, `operationalState=OPERATIONAL`, `qualificationState=QUALIFIED`.
 
-- Le TTL SQL nominal des baux de partition est de **`30 s`** (`lease-duration-ms=30000`), avec renouvellement groupé (`renewBatch`) toutes les **`10 s`**.
-- La reprise complète combine l'expiration des baux (`30 s`), les cycles de scrutation des workers (`min-poll=2 ms`, `max-poll=20 ms`), l'éventuel `claim-duration-ms=60000` si un slot était réclamé, et la convergence des projections.
-- `./pocoma-local` applique un **budget d'observation de récupération borné à `270 s`**.
+## 4. Recovering After an Ungraceful Stop (Docker crash / kill)
 
-Si une commande atteint un délai d'attente côté client, consultez le résultat final avec l'identifiant d'exécution affiché :
+After an ungraceful stop:
+
+- The nominal SQL TTL for partition leases is **`30 s`** (`lease-duration-ms=30000`), with batched renewal (`renewBatch`) every **`10 s`**.
+- Full recovery combines lease expiration (`30 s`), worker polling cycles (`min-poll=2 ms`, `max-poll=20 ms`), any `claim-duration-ms=60000` if a slot was claimed, and projection convergence.
+- `./pocoma-local` enforces a **bounded recovery observation budget of `270 s`**.
+
+If a command hits a client-side timeout, inspect the final outcome using the printed run ID:
 
 ```bash
-./pocoma-local status --instance <nom> --run <run-id>
+./pocoma-local status --instance <name> --run <run-id>
 ```
 
-## 5. Remise à zéro ou suppression complète
+## 5. Updating, Resetting, or Destroying
 
-- **Mettre à jour uniquement Grafana** (configuration et dashboards en lecture seule) :
+- **Reload Java runtime(s) only** (when Java code changed without SQL migration or infrastructure changes):
 
   ```bash
-  ./pocoma-local upgrade-grafana --instance <nom>
+  ./pocoma-local reload --instance <name>
+  ./pocoma-local reload --instance <name> --runtime http-write
   ```
 
-- **Réinitialiser les bases depuis les baselines V1** (toutes les données métier locales sont effacées) :
+- **Update Grafana only** (read-only configuration and dashboards):
 
   ```bash
-  ./pocoma-local reset --instance <nom> --dry-run
-  ./pocoma-local reset --instance <nom> --confirm RESET:<nom>
+  ./pocoma-local upgrade-grafana --instance <name>
   ```
 
-- **Supprimer complètement l'instance** (conteneurs, volumes et répertoire `.pocoma-local/instances/<nom>/`) :
+- **Reset databases from V1 baselines** (all local business data is wiped):
 
   ```bash
-  ./pocoma-local destroy --instance <nom> --dry-run
-  ./pocoma-local destroy --instance <nom> --confirm DESTROY:<nom>
+  ./pocoma-local reset --instance <name> --dry-run
+  ./pocoma-local reset --instance <name> --confirm RESET:<name>
+  ```
+
+- **Completely destroy the instance** (containers, volumes, and `.pocoma-local/instances/<name>/` directory):
+
+  ```bash
+  ./pocoma-local destroy --instance <name> --dry-run
+  ./pocoma-local destroy --instance <name> --confirm DESTROY:<name>
   ```

@@ -84,7 +84,7 @@ final class ConsumptionLifecyclePostgresFixture implements AutoCloseable {
                 pg.getJdbcUrl().replace("/" + pg.getDatabaseName() + "?", "/" + database + "?")
                         + "&currentSchema="
                         + schema
-                        + "&socketTimeout=15";
+                        + "&socketTimeout=60";
         admin = new DriverManagerDataSource(url, pg.getUsername(), pg.getPassword());
         oracle = new JdbcTemplate(admin);
         oracle.execute(

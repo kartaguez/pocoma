@@ -10,6 +10,17 @@ import shutil
 import subprocess
 
 
+TOOLCHAIN_ENV_VARS = ('MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS')
+
+
+def clean_toolchain_env(env=None):
+    """Return a subprocess environment with JVM/Maven override variables stripped."""
+    cleaned = dict(os.environ if env is None else env)
+    for variable in TOOLCHAIN_ENV_VARS:
+        cleaned.pop(variable, None)
+    return cleaned
+
+
 class Failure(RuntimeError):
     code = 2
 
@@ -42,7 +53,7 @@ def probe(tool, args, required, action, *, cwd=None, input=None):
     if not shutil.which(str(tool)):
         reject('PRE-TOOL-MISSING', required, str(tool) + ': not found or not executable', action)
     try:
-        result = subprocess.run([str(tool), *args], input=input, capture_output=True, text=True, timeout=20, cwd=cwd)
+        result = subprocess.run([str(tool), *args], input=input, capture_output=True, text=True, timeout=20, cwd=cwd, env=clean_toolchain_env())
     except (OSError, subprocess.TimeoutExpired):
         reject('PRE-TOOL-UNAVAILABLE', required, str(tool) + ': could not execute or timed out', action)
     if result.returncode:
@@ -51,13 +62,16 @@ def probe(tool, args, required, action, *, cwd=None, input=None):
     return (result.stdout + result.stderr).strip()
 
 
-def major(tool, args, expected):
-    action = 'Install/select ' + tool + ' ' + str(expected) + '; check PATH and JAVA_HOME, then retry.'
-    value = probe(tool, args, tool + ' major ' + str(expected), action)
+def major(tool, args, expected, *, minimum=False):
+    label = tool + (' major >= ' if minimum else ' major ') + str(expected)
+    action = 'Install/select ' + label + '; check PATH and JAVA_HOME, then retry.'
+    value = probe(tool, args, label, action)
     match = re.search(r'(?:version\s+"?|(?:^|\n)(?:javac\s+)?v?)(\d+)(?:[.\s"+-]|$)', value)
-    if not match or int(match[1]) != expected:
+    parsed = int(match[1]) if match else None
+    valid = parsed is not None and (parsed >= expected if minimum else parsed == expected)
+    if not valid:
         # Report only a parsed version, never arbitrary process output.
-        reject('PRE-TOOL-VERSION', tool + ' major ' + str(expected),
+        reject('PRE-TOOL-VERSION', label,
                tool + ' major ' + (match[1] if match else 'unrecognized'), action)
     return value
 
@@ -71,14 +85,14 @@ def tools(root, command, dry_run=False, *, build_required=True):
           'Start Docker; verify its context/socket permissions, then retry. No instance was changed.')
     probe('docker', ['compose', 'version', '--short'], 'Docker Compose plugin',
           'Install/enable the docker compose plugin (not only docker-compose), then retry.')
-    starting = command in ('start', 'upgrade-grafana') or (command == 'reset' and not dry_run)
+    starting = command in ('start', 'reload', 'upgrade-grafana', 'doctor') or (command == 'reset' and not dry_run)
     if starting:
         probe('docker', ['compose', '-f', '-', 'config', '--quiet'], 'Compose support for the distribution configuration',
               'Update the docker compose plugin to support JSON, limits, healthchecks and tmpfs, then retry.',
               input=json.dumps(dict(services=dict(check=dict(image='pocoma-probe:unused', mem_limit='64m', cpus=.5,
                   tmpfs=['/tmp:rw,size=1m'], healthcheck=dict(test=['CMD', 'true']), labels={'io.pocoma.probe':'true'})))))
     if starting or command == 'bruno':
-        major('node', ['--version'], expected['nodeMajor'])
+        major('node', ['--version'], expected.get('nodeMinimumMajor', expected['nodeMajor']), minimum=True)
         cli = root / 'scripts/bruno-v3/node_modules/.bin/bru'
         if cli.exists():
             value = probe(cli, ['--version'], 'Bruno CLI ' + expected['brunoVersion'],
@@ -103,10 +117,6 @@ def tools(root, command, dry_run=False, *, build_required=True):
                 reject('PRE-NPM-DEV-DEPS', 'Bruno devDependencies enabled', 'npm configuration omits devDependencies',
                        'Remove omit=dev from the relevant npm configuration for preparation, then retry.')
     if starting:
-        for variable in ('MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS'):
-            if os.environ.get(variable):
-                reject('PRE-TOOLCHAIN-ENV', 'Unmodified build toolchain', variable + ' is set',
-                       'Unset ' + variable + ' for the distribution build and retry.')
         for name in ('maven.config', 'jvm.config', 'extensions.xml'):
             if (root / 'app/.mvn' / name).exists():
                 reject('PRE-UNREVIEWED-MAVEN-CONFIG', 'Reviewed Maven configuration', 'app/.mvn/' + name + ' exists')
@@ -272,12 +282,12 @@ def instance(path, command, runtimes, roles, users):
             reject('PRE-MANIFEST-MISSING', 'Existing instance manifest', 'manifest absent')
         return None
     m = manifest(path)
-    if command in ('start', 'upgrade-grafana', 'bruno'):
+    if command in ('start', 'reload', 'upgrade-grafana', 'bruno'):
         if not (path / 'secrets.json').is_file():
             reject('PRE-SECRETS-MISSING', 'Original secrets.json for this instance', 'secrets absent',
                    'Restore the original secrets from backup; preserve data. Secrets will not be regenerated.')
         credentials(path / 'secrets.json', roles, users)
-    if command in ('start', 'upgrade-grafana'):
+    if command in ('start', 'reload', 'upgrade-grafana'):
         expected = {'write', 'read', 'issuer', *runtimes, 'metrics'}
         if not expected.issubset(m['ports']):
             reject('PRE-CONFIG-PORTS', 'Complete endpoint ports', 'missing manifest ports')

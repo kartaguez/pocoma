@@ -2,87 +2,87 @@
 
 [![Pocoma CI](https://github.com/kartaguez/pocoma/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kartaguez/pocoma/actions/workflows/ci.yml)
 
-Pocoma est une plateforme transactionnelle asynchrone bâtie sur le modèle **CQRS** (*Command Query Responsibility Segregation*) en Java 21 / Spring Boot et PostgreSQL 17. Elle sépare strictement l'admission HTTP des commandes, leur exécution asynchrone, la matérialisation des projections de lecture et l'exposition HTTP en lecture seule, avec authentification **OIDC** (Keycloak) et observabilité **Prometheus / Grafana**.
+Pocoma is an asynchronous transactional platform built on the **CQRS** (*Command Query Responsibility Segregation*) pattern in Java 21 / Spring Boot and PostgreSQL 17. It strictly separates HTTP command admission, asynchronous command execution, read-projection materialization, and read-only HTTP queries, with **OIDC** authentication (Keycloak) and **Prometheus / Grafana** observability.
 
-## Capacités principales
+## Key Capabilities
 
-- **Admission HTTP idempotente (`http-write`)** : expose l'API d'écriture `/api/v3`, vérifie les jetons OIDC et la liaison applicative (`Binding`), contrôle l'idempotence et accuse réception en `202 Accepted`.
-- **Exécution asynchrone partitionnée (`command-worker`)** : traite les commandes et demandes d'identité en JDBC pur sur PostgreSQL, avec baux de partition (`30 s`), renouvellement groupé (`renewBatch`) et fencing strict.
-- **Matérialisation des projections (`results-worker`, `business-read-worker`)** : projette de manière asynchrone les résultats terminaux et les vues métier (cagnottes, membres, dépenses, soldes exacts en rationnels, invitations) vers la base de lecture.
-- **Lecture HTTP protégée (`http-read`)** : valide les requêtes et jetons OIDC **avant** l'acquisition des permis de concurrence (`Q=8`), puis sert les vues matérialisées avec confidentialité opaque (`404`).
-- **Sécurité et observabilité** : authentification OIDC (Authorization Code + PKCE S256 via Keycloak), secrets locaux isolés et masqués dans les journaux, métriques Actuator collectées toutes les `2 s` par Prometheus vers Grafana.
+- **Idempotent HTTP admission (`http-write`)**: exposes the `/api/v3` write API, validates OIDC tokens and application bindings (`Binding`), enforces idempotency, and acknowledges requests with `202 Accepted`.
+- **Partitioned asynchronous execution (`command-worker`)**: processes commands and identity requests using pure JDBC on PostgreSQL, with partition leases (`30 s`), batched renewal (`renewBatch`), and strict fencing.
+- **Projection materialization (`results-worker`, `business-read-worker`)**: asynchronously projects terminal results and business views (pots, shareholders, expenses, exact rational balances, invitations) into the read database.
+- **Protected HTTP reads (`http-read`)**: validates requests and OIDC tokens **before** acquiring concurrency permits (`Q=8`), then serves materialized views with opaque privacy (`404`).
+- **Security and observability**: OIDC authentication (Authorization Code + PKCE S256 via Keycloak), isolated local secrets redacted from logs, and Actuator metrics scraped every `2 s` by Prometheus for Grafana.
 
-## Architecture en bref
+## Architecture at a Glance
 
-L'orchestrateur local [`./pocoma-local`](docs/reference/cli.md) déploie **9 conteneurs** (5 runtimes JVM et 4 services d'infrastructure) :
+The local orchestrator [`./pocoma-local`](docs/reference/cli.md) deploys **9 containers** (5 JVM runtimes and 4 infrastructure services):
 
 ```text
 Client / Bruno ──(OIDC PKCE S256)──▶ Keycloak (26.7.0)
       │
-      ├── HTTP écriture (/api/v3) ──▶ http-write (:8080 interne) ──▶ PostgreSQL WRITE (pocoma_write)
-      │                                                                       ▲
-      │                                                      command-worker ──┘ (8 partitions)
-      │                                                                       │
-      │                              results-worker (8 partitions) ◀──────────┤ (source WRITE → READ)
-      │                              business-read-worker (20 partitions) ◀───┘
-      │                                                                       ▼
-      └── HTTP lecture  (/api/v3) ──▶ http-read  (:8082 interne) ──▶ PostgreSQL READ  (pocoma_read)
+      ├── HTTP write (/api/v3) ──▶ http-write (:8080 internal) ──▶ PostgreSQL WRITE (pocoma_write)
+      │                                                                      ▲
+      │                                                     command-worker ──┘ (8 partitions)
+      │                                                                      │
+      │                             results-worker (8 partitions) ◀──────────┤ (source WRITE → READ)
+      │                             business-read-worker (20 partitions) ◀───┘
+      │                                                                      ▼
+      └── HTTP read  (/api/v3) ──▶ http-read  (:8082 internal) ──▶ PostgreSQL READ  (pocoma_read)
 
-Métriques Actuator (:18080–:18085) ──▶ Prometheus (v3.5.0, 2 s) ──▶ Grafana (12.3.2)
+Actuator metrics (:18080–:18085) ──▶ Prometheus (v3.5.0, 2 s) ──▶ Grafana (12.3.2)
 ```
 
-## Prérequis essentiels
+## Essential Prerequisites
 
-Vérifiés automatiquement par `./pocoma-local` ([`scripts/local/toolchain.json`](scripts/local/toolchain.json)) :
+Automatically verified by `./pocoma-local` ([`scripts/local/toolchain.json`](scripts/local/toolchain.json)):
 
-- **Docker Engine / Docker Desktop** démarré (≥ 8 Go de RAM recommandés pour les 9 conteneurs)
+- **Docker Engine / Docker Desktop** running (≥ 8 GB RAM recommended for the 9 containers)
 - **Python ≥ 3.11**
 - **JDK 21** (`java` 21)
-- **Node 24** et **npm ≥ 7** (pour Bruno CLI `4.3.0`)
-- Environnement propre : aucune variable globale `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` ou `_JAVA_OPTIONS`, et aucun fichier `maven.config` / `jvm.config` / `extensions.xml` dans `app/.mvn/`
+- **Node ≥ 22** and **npm ≥ 7** (for Bruno CLI `4.3.0`)
+- Clean Maven wrapper config: no `maven.config` / `jvm.config` / `extensions.xml` files under `app/.mvn/` (global `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS`, and `_JAVA_OPTIONS` shell variables are automatically isolated during builds)
 
-Pour les détails et la checklist complète : [Installation](docs/getting-started/installation.md).
+For full details and the complete checklist: [Installation](docs/getting-started/installation.md).
 
-## Démarrage rapide
+## Quick Start
 
-Créer, démarrer et vérifier l'instance locale par défaut (`demo`) :
+Create, start, and verify the default local instance (`demo`):
 
 ```bash
 ./pocoma-local start --instance demo
 ./pocoma-local status --instance demo
 ```
 
-Exécuter les parcours automatisés ou ouvrir Bruno avec authentification OIDC :
+Run the automated end-to-end journeys or open Bruno with OIDC authentication:
 
 ```bash
 ./pocoma-local bruno --instance demo
 ./pocoma-local gui --instance demo
 ```
 
-Arrêter proprement l'instance en conservant les données :
+Stop the instance cleanly while preserving all data:
 
 ```bash
 ./pocoma-local stop --instance demo
 ```
 
-Pour réaliser votre premier appel API de bout en bout : [Premiers pas](docs/getting-started/first-steps.md).
+To run your first end-to-end API call: [First Steps](docs/getting-started/first-steps.md).
 
 ## Documentation
 
-| Besoin | Point d'entrée |
+| Topic | Entry Point |
 | :--- | :--- |
-| Portail de la documentation | [docs/README.md](docs/README.md) |
-| Installation et prérequis | [docs/getting-started/installation.md](docs/getting-started/installation.md) |
-| Premiers pas (authentification → commande → lecture) | [docs/getting-started/first-steps.md](docs/getting-started/first-steps.md) |
-| Guides pratiques (auth, commandes, requêtes, dev local) | [docs/guides/README.md](docs/guides/README.md) |
-| Architecture (CQRS, runtimes, persistance, sécurité) | [docs/architecture/overview.md](docs/architecture/overview.md) |
-| Références (CLI, configuration, API `/api/v3`) | [docs/reference/README.md](docs/reference/README.md) |
-| Exploitation (dépannage, reprise après panne) | [docs/operations/README.md](docs/operations/README.md) |
+| Documentation portal | [docs/README.md](docs/README.md) |
+| Installation & prerequisites | [docs/getting-started/installation.md](docs/getting-started/installation.md) |
+| First steps (auth → command → read) | [docs/getting-started/first-steps.md](docs/getting-started/first-steps.md) |
+| Practical guides (auth, commands, queries, local dev) | [docs/guides/README.md](docs/guides/README.md) |
+| Architecture (CQRS, 42 modules, runtimes, persistence, security) | [docs/architecture/overview.md](docs/architecture/overview.md) |
+| Reference (CLI, configuration, `/api/v3` API) | [docs/reference/README.md](docs/reference/README.md) |
+| Operations (troubleshooting, crash recovery) | [docs/operations/README.md](docs/operations/README.md) |
 
-## Contribution, sécurité et licence
+## Contributing, Security, and License
 
-Les contributions ciblées, testées et respectant les frontières modulaires documentées sont les bienvenues. Consultez [CONTRIBUTING.md](CONTRIBUTING.md) et respectez le [Code of Conduct](CODE_OF_CONDUCT.md).
+Focused, well-tested contributions that respect the documented module boundaries are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-Merci de ne pas divulguer publiquement une vulnérabilité exploitable : suivez les instructions de [SECURITY.md](SECURITY.md) pour tout signalement privé.
+Please do not publicly disclose an exploitable vulnerability: follow the private reporting instructions in [SECURITY.md](SECURITY.md).
 
-Pocoma est distribué sous licence [Apache License 2.0](LICENSE). Voir [NOTICE](NOTICE) pour les informations d'attribution.
+Pocoma is licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution details.

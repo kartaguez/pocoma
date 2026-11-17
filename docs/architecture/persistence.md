@@ -1,18 +1,18 @@
-# Persistance PostgreSQL et baselines SQL
+# PostgreSQL Persistence & SQL Baselines
 
-Pocoma exécute une séparation physique des données entre le store d'écriture (`pocoma_write`) et le store de lecture (`pocoma_read`), hébergés sur une instance `postgres:17.6-alpine` locale sans port hôte exposé.
+Pocoma enforces physical data separation between the write store (`pocoma_write`) and the read store (`pocoma_read`), hosted on a local `postgres:17.6-alpine` instance with no host port published.
 
-## Séparation stricte des bases WRITE et READ
+## Strict WRITE / READ Database Separation
 
-| Aspect | Store WRITE | Store READ |
+| Aspect | WRITE Store | READ Store |
 | :--- | :--- | :--- |
-| Base PostgreSQL | `pocoma_write` | `pocoma_read` |
-| Schéma principal | `v3_write` | `v3_read` (+ table `public.read_maintenance_state`) |
-| Runtimes en écriture | `http-write`, `command-worker` | `results-worker`, `business-read-worker` |
-| Runtimes en lecture seule | `results-worker`, `business-read-worker` (via droits `write-source-read`) | `http-read` |
-| Chemin Flyway courant | `classpath:db/write/migration` | `classpath:db/read/migration` |
+| PostgreSQL database | `pocoma_write` | `pocoma_read` |
+| Main schema | `v3_write` | `v3_read` (+ `public.read_maintenance_state` table) |
+| Writing runtimes | `http-write`, `command-worker` | `results-worker`, `business-read-worker` |
+| Read-only runtimes | `results-worker`, `business-read-worker` (via `write-source-read` grants) | `http-read` |
+| Current Flyway path | `classpath:db/write/migration` | `classpath:db/read/migration` |
 
-Les privilèges minimaux et la configuration des schémas locaux sont appliqués par [`scripts/operations/setup-v3-database.py`](../../scripts/operations/setup-v3-database.py) à l'aide des scripts SQL dédiés sous `scripts/v3/` :
+Least-privilege grants and local schema setup are applied by [`scripts/operations/setup-v3-database.py`](../../scripts/operations/setup-v3-database.py) using dedicated SQL scripts under `scripts/v3/`:
 
 - `configure-l3-identity-logging.sql`
 - `bootstrap-read-maintenance.sql`
@@ -20,47 +20,47 @@ Les privilèges minimaux et la configuration des schémas locaux sont appliqués
 - `grant-l7-write-source-read.sql`
 - `bootstrap-l2-routing.sql`
 
-## Baselines SQL actives (V1)
+## Active SQL Baselines (V1)
 
-Chaque store dispose d'une **baseline unique et active** `V1__initial_schema.sql` :
+Each store has a **single active baseline** `V1__initial_schema.sql`:
 
-- **WRITE** : [`app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql`](../../app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql)
-  - `37` tables, `221` colonnes, `271` contraintes, `116` index, `8` séquences, `38` fonctions, `62` triggers.
-- **READ** : [`app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql`](../../app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql)
-  - `14` tables, `74` colonnes, `67` contraintes, `22` index, `5` fonctions, `16` triggers.
+- **WRITE**: [`app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql`](../../app/infra-postgres-write/src/main/resources/db/write/migration/V1__initial_schema.sql)
+  - `37` tables, `221` columns, `271` constraints, `116` indexes, `8` sequences, `38` functions, `62` triggers.
+- **READ**: [`app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql`](../../app/infra-postgres-read/src/main/resources/db/read/migration/V1__initial_schema.sql)
+  - `14` tables, `74` columns, `67` constraints, `22` indexes, `5` functions, `16` triggers.
 
-Aucune autre migration SQL ne réside dans les répertoires `src/main/resources/` de production.
+No other SQL migrations exist in production `src/main/resources/` directories.
 
-## Baselines consolidées et isolation des migrations historiques
+## Consolidated Baselines & Isolated Historical Migrations
 
-Pour fournir une distribution neuve sans historique Flyway incrémental à rejouer au démarrage, les migrations antérieures ont été isolées hors du chemin de production :
+To provide a clean distribution with no incremental Flyway history to replay at startup, earlier migrations were isolated outside the production path:
 
-- **19 migrations V3 archivées** (`11` fichiers WRITE et `8` fichiers READ) : conservées pour audit et traçabilité dans [`docs/archive/v3-sql-migrations/`](../archive/v3-sql-migrations/MANIFEST.json) avec leur manifeste `MANIFEST.json`. Voir [Index des archives](../archive/README.md).
-- **45 migrations historiques V2 isolées dans les ressources de test** (non embarquées dans les JAR applicatifs de production) :
-  - `app/infra-postgres-write/src/test/resources/db/migration/` : `31` fichiers SQL V2 ;
-  - `app/infra-postgres-read/src/test/resources/db/read-store/migration/` : `14` fichiers SQL V2 (en complément de `app/infra-postgres-read/src/test/resources/db/primary-test-migration/V1__initialize_primary_test.sql` pour les tests).
+- **19 archived V3 migrations** (`11` WRITE files and `8` READ files): kept for audit and traceability in [`docs/archive/v3-sql-migrations/`](../archive/v3-sql-migrations/MANIFEST.json) with their `MANIFEST.json`. See [Archive Index](../archive/README.md).
+- **45 historical V2 migrations isolated in test resources** (never packaged in production application JARs):
+  - `app/infra-postgres-write/src/test/resources/db/migration/`: `31` V2 SQL files;
+  - `app/infra-postgres-read/src/test/resources/db/read-store/migration/`: `14` V2 SQL files (alongside `app/infra-postgres-read/src/test/resources/db/primary-test-migration/V1__initialize_primary_test.sql` for tests).
 
-Ces archives ne sont **jamais** nécessaires pour installer ou démarrer une instance locale de Pocoma.
+These archives are **never** needed to install or start a local Pocoma instance.
 
-## Contrôle d'intégrité au bootstrap et refus d'instances incompatibles
+## Bootstrap Integrity Check & Incompatible Instance Refusal
 
-Lors du bootstrap de base par `./pocoma-local`, une empreinte est enregistrée dans la table de contrôle :
+During database bootstrap by `./pocoma-local`, a fingerprint is recorded in the control table:
 
 ```sql
 public.pocoma_local_bootstrap(fingerprint text PRIMARY KEY)
 ```
 
-À chaque démarrage ultérieur, l'orchestrateur compare l'état existant en base avec les entrées courantes du dépôt :
+On every subsequent startup, the orchestrator compares the existing database state against the current repository inputs:
 
-| Code de refus | Condition détectée | Action attendue |
+| Refusal Code | Detected Condition | Expected Action |
 | :--- | :--- | :--- |
-| `INCOMPATIBLE-LEGACY-FLYWAY-HISTORY` | Présence d'un ancien historique Flyway antérieur à la baseline V1 consolidée | Ne pas migrer manuellement ; utiliser `reset` ou `destroy` ou choisir un nouveau `--instance` |
-| `INCOMPATIBLE-EXISTING-SCHEMA` | Schéma existant dépourvu du marqueur attendu ou structurellement divergent | Ne pas forcer sur place ; réinitialiser via `reset` ou isoler dans une autre instance |
-| `DB-INPUT-DRIFT` | L'empreinte SQL/configuration courante diffère de `pocoma_local_bootstrap` | Réinitialiser explicitement (`reset --confirm RESET:<instance>`) si le changement est voulu |
+| `INCOMPATIBLE-LEGACY-FLYWAY-HISTORY` | Legacy Flyway history predating the consolidated V1 baseline | Do not migrate manually; use `reset` or `destroy`, or pick a new `--instance` |
+| `INCOMPATIBLE-EXISTING-SCHEMA` | Existing schema missing the expected marker or structurally divergent | Do not force in place; reset via `reset` or isolate in another instance |
+| `DB-INPUT-DRIFT` | Current SQL/config fingerprint differs from `pocoma_local_bootstrap` | Explicitly reset (`reset --confirm RESET:<instance>`) if the change is intended |
 
-## Tables de coordination et de routage
+## Coordination & Routing Tables
 
-En complément des tables métier des schémas `v3_write` et `v3_read`, les runtimes et l'orchestrateur s'appuient notamment sur les tables techniques de suivi des baux et des workers :
+In addition to business tables in `v3_write` and `v3_read`, runtimes and the orchestrator rely on technical tables for lease and worker tracking:
 
-- `pocoma_v3_lease_local` : détention courante et échéance des baux de partitions L2 (`lease-duration-ms=30000`, renouvelés par `renewBatch`).
-- `pocoma_v3_worker_state` : état observé des workers et métadonnées de cycle de vie utilisées lors du démarrage et des vérifications de reprise ([Reprise après panne](../operations/recovery.md)).
+- `pocoma_v3_lease_local`: current ownership and expiration of L2 partition leases (`lease-duration-ms=30000`, renewed via `renewBatch`).
+- `pocoma_v3_worker_state`: observed worker state and lifecycle metadata used during startup and recovery checks ([Crash Recovery & Lifecycle](../operations/recovery.md)).

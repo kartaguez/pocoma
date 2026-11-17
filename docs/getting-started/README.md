@@ -1,6 +1,6 @@
-# Prise en main
+# Getting Started
 
-Cette section guide votre arrivée sur Pocoma en deux étapes :
+This section guides you through your first experience with Pocoma in two steps:
 
-1. **[Installation et prérequis](installation.md)** — préparer le poste, vérifier la chaîne d'outillage, démarrer la pile locale, contrôler l'état `READY`, arrêter ou supprimer une instance.
-2. **[Premiers pas](first-steps.md)** — s'authentifier via Keycloak, obtenir un `bindingToken`, soumettre une commande métier (`CreatePot`), retrouver son résultat et consulter la projection de lecture correspondante.
+1. **[Installation & Prerequisites](installation.md)** — prepare your workstation, verify the toolchain, start the local stack, check `READY` status, and stop or destroy an instance.
+2. **[First Steps](first-steps.md)** — authenticate via Keycloak, obtain a `bindingToken`, submit a business command (`CreatePot`), retrieve its result, and query the resulting read projection.

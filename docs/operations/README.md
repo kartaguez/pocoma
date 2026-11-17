@@ -1,6 +1,6 @@
-# Exploitation
+# Operations
 
-Cette section couvre le diagnostic, le suivi d'état et la récupération des instances locales Pocoma :
+This section covers diagnostics, status tracking, and recovery for local Pocoma instances:
 
-- **[Diagnostic et dépannage](troubleshooting.md)** — interprétation des états (`operationalState` / `qualificationState`), codes d'erreur (`PRE-*`, `DB-*`, `INCOMPATIBLE-*`, `KEYCLOAK_*`, `GRAFANA-*`) et limites connues de la distribution locale.
-- **[Reprise après panne et cycle de vie](recovery.md)** — redémarrage gracieux, reprise après arrêt brutal (`270 s`), récupération après coupure PostgreSQL (`draining` / capacité d'admission), `reset`, `destroy` et `upgrade-grafana`.
+- **[Troubleshooting & Diagnostics](troubleshooting.md)** — interpreting states (`operationalState` / `qualificationState`), error codes (`PRE-*`, `DB-*`, `INCOMPATIBLE-*`, `KEYCLOAK_*`, `GRAFANA-*`), and known limits of the local distribution.
+- **[Crash Recovery & Lifecycle](recovery.md)** — graceful restart, ungraceful stop recovery (`270 s`), PostgreSQL outage recovery (`draining` / admission capacity), `reset`, `destroy`, and `upgrade-grafana`.

@@ -51,9 +51,9 @@ class Refusal(RuntimeError):
         self.code = code
 
 
-def run(args, *, input=None, timeout=120, log=None):
+def run(args, *, input=None, timeout=120, log=None, env=None):
     result = subprocess.run([str(a) for a in args], input=input, text=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=ROOT)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, cwd=ROOT, env=env)
     if log:
         log.write_text(result.stdout + result.stderr)
     if result.returncode:
@@ -121,7 +121,7 @@ def locked(instance, create=False):
 
 @contextmanager
 def lifecycle_lock(command):
-    if command not in ('start', 'upgrade-grafana', 'reset', 'destroy'):
+    if command not in ('start', 'reload', 'upgrade-grafana', 'reset', 'destroy'):
         yield
         return
     with (HOME_LOCAL / 'lifecycle.lock').open('a') as lock:
@@ -339,10 +339,7 @@ def properties(path, m, credentials):
         (path / (name + '.properties')).write_text(text)
 
 
-def package(path, m, evidence):
-    for variable in ('MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS'):
-        if os.environ.get(variable):
-            raise Refusal('PRE-TOOLCHAIN-ENV:' + variable)
+def package(path, m, evidence, *, only_modules=None):
     for name in ('maven.config', 'jvm.config', 'extensions.xml'):
         if (ROOT / 'app/.mvn' / name).exists():
             raise Refusal('PRE-UNREVIEWED-MAVEN-CONFIG:' + name)
@@ -354,26 +351,42 @@ def package(path, m, evidence):
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             raise Refusal('PRE-BUILD-LOCKED', 3) from None
-        modules = sorted({v[0] for v in RUNTIMES.values()})
-        if not (build / 'receipt.json').exists():
+        all_modules = sorted({v[0] for v in RUNTIMES.values()})
+        selected = sorted(only_modules) if only_modules is not None else all_modules
+        partial = set(selected) != set(all_modules)
+        if not partial:
+            if not (build / 'receipt.json').exists():
+                command = [str(ROOT / 'app/mvnw'), '-f', str(ROOT / 'app/pom.xml'), '-pl',
+                           ','.join('runtime-' + module for module in all_modules), '-am', 'package', '-DskipTests']
+                run(command, timeout=1200, log=evidence / 'package.log', env=prerequisites.clean_toolchain_env())
+                hashes = {}
+                for module in all_modules:
+                    source = ROOT / f'app/runtime-{module}/target/pocoma-runtime-{module}-0.0.1-SNAPSHOT-exec.jar'
+                    target = build / (module + '.jar')
+                    shutil.copyfile(source, target)
+                    hashes[module] = hashlib.sha256(target.read_bytes()).hexdigest()
+                save(build / 'receipt.json', dict(command=command, sha=run(['git', 'rev-parse', 'HEAD']),
+                                                inputs=m['inputs'], jars=hashes, tests='SKIPPED: packaging only'))
+            receipt = read(build / 'receipt.json')
+            for module, expected in receipt['jars'].items():
+                source = build / (module + '.jar')
+                if hashlib.sha256(source.read_bytes()).hexdigest() != expected:
+                    raise Refusal('PRE-JAR-HASH')
+                shutil.copyfile(source, path / (module + '.jar'))
+            m['build'] = receipt
+        else:
             command = [str(ROOT / 'app/mvnw'), '-f', str(ROOT / 'app/pom.xml'), '-pl',
-                       ','.join('runtime-' + module for module in modules), '-am', 'package', '-DskipTests']
-            run(command, timeout=1200, log=evidence / 'package.log')
-            hashes = {}
-            for module in modules:
+                       ','.join('runtime-' + module for module in selected), '-am', 'package', '-DskipTests']
+            run(command, timeout=1200, log=evidence / 'package.log', env=prerequisites.clean_toolchain_env())
+            hashes = dict(m.get('build', {}).get('jars', {}))
+            for module in selected:
                 source = ROOT / f'app/runtime-{module}/target/pocoma-runtime-{module}-0.0.1-SNAPSHOT-exec.jar'
-                target = build / (module + '.jar')
+                target = path / (module + '.jar')
                 shutil.copyfile(source, target)
                 hashes[module] = hashlib.sha256(target.read_bytes()).hexdigest()
-            save(build / 'receipt.json', dict(command=command, sha=run(['git', 'rev-parse', 'HEAD']),
-                                            inputs=m['inputs'], jars=hashes, tests='SKIPPED: packaging only'))
-        receipt = read(build / 'receipt.json')
-        for module, expected in receipt['jars'].items():
-            source = build / (module + '.jar')
-            if hashlib.sha256(source.read_bytes()).hexdigest() != expected:
-                raise Refusal('PRE-JAR-HASH')
-            shutil.copyfile(source, path / (module + '.jar'))
-        m['build'] = receipt
+            m['build'] = dict(command=command, sha=run(['git', 'rev-parse', 'HEAD']),
+                              inputs=m['inputs'], jars=hashes, partialModules=selected,
+                              tests='SKIPPED: selective packaging only')
 
 
 def generations(path, m):
@@ -761,7 +774,65 @@ def upgrade_grafana(path, m, evidence):
     return start(path, m, evidence)
 
 
-def start(path, m, evidence):
+def reload_instance(path, m, evidence, *, runtimes=None):
+    """Rebuild and recreate selected (or all 5) runtime containers when SQL/infra inputs are unchanged."""
+    ownership(m)
+    baseline = m.get('build', {}).get('sha', '')
+    if not re.fullmatch(r'[0-9a-f]{40}', baseline):
+        raise Refusal('PRE-TOOLING-BASELINE-UNPROVEN')
+    if not m.get('catalogue'):
+        raise Refusal('RELOAD_BASELINE_UNPROVEN: start this instance first')
+    if 'grafana' not in m['ports']:
+        raise Refusal('GRAFANA_UPGRADE_REQUIRED: run upgrade-grafana --instance ' + m['instance'])
+    selected_runtimes = tuple(dict.fromkeys(runtimes)) if runtimes else tuple(RUNTIMES)
+    selected_modules = {RUNTIMES[r][0] for r in selected_runtimes}
+    new_inputs = source_hash()
+    if m['inputs'] == new_inputs:
+        return start(path, m, evidence)
+    forbidden_roots = [
+        'docker/v3-five-runtimes', 'docker/keycloak', 'scripts/v3',
+        'scripts/operations/setup-v3-database.py', 'scripts/local/bootstrap.py',
+        'scripts/local/keycloak.py', 'scripts/local/auth.py',
+        'scripts/local/public_api.py',
+        'scripts/bruno-v3/package.json', 'scripts/bruno-v3/package-lock.json',
+    ]
+    try:
+        changed_infra = run(['git', 'diff', '--name-only', baseline, '--', *forbidden_roots]).splitlines()
+        changed_infra += run(['git', 'ls-files', '--others', '--exclude-standard', '--', *forbidden_roots]).splitlines()
+        changed_app = run(['git', 'diff', '--name-only', baseline, '--', 'app']).splitlines()
+        changed_app += run(['git', 'ls-files', '--others', '--exclude-standard', '--', 'app']).splitlines()
+    except RuntimeError:
+        raise Refusal('PRE-INPUT-DRIFT: tooling baseline unavailable') from None
+    changed_sql = [p for p in changed_app if '/src/test/' not in p and p.lower().endswith('.sql')]
+    incompatible = sorted(set(changed_infra) | set(changed_sql))
+    if incompatible:
+        save(evidence / 'reload-refused.json', dict(baseline=baseline, changedIncompatibleInputs=incompatible))
+        raise Refusal('RELOAD_RESET_REQUIRED: SQL or infrastructure inputs changed; run reset')
+    candidate = json.loads(json.dumps(m))
+    candidate['architecture'] = preflight(path, m)
+    active = run(['docker', 'ps', '-q', '--filter', 'label=' + LABEL]).splitlines()
+    for resource in active:
+        value, = docker_json('inspect', resource)
+        if value['Config']['Labels'].get(LABEL) != m['owner']:
+            raise Refusal('PRE-OTHER-PLAYGROUND-ACTIVE: stop the other instance first')
+    candidate['inputs'] = new_inputs
+    candidate['sha'] = run(['git', 'rev-parse', 'HEAD'])
+    package(path, candidate, evidence, only_modules=selected_modules if runtimes else None)
+    save(evidence / 'reload.json', dict(
+        baseline=baseline,
+        previousInputs=m['inputs'],
+        inputs=candidate['inputs'],
+        sha=candidate['sha'],
+        runtimes=list(selected_runtimes),
+        jars=candidate['build']['jars'],
+    ))
+    m.clear()
+    m.update(candidate)
+    save(path / 'manifest.json', m)
+    return start(path, m, evidence, force_recreate_runtimes=selected_runtimes)
+
+
+def start(path, m, evidence, *, force_recreate_runtimes=None):
     history_file = path / 'start-history.json'
     history = read(history_file) if history_file.exists() else {}
     attempt = dict(runId=evidence.name, startedAt=time.time(), state='STARTING',
@@ -770,7 +841,7 @@ def start(path, m, evidence):
     save(history_file, history)
     save(evidence / 'start-attempt.json', attempt)
     try:
-        result = start_distribution(path, m, evidence)
+        result = start_distribution(path, m, evidence, force_recreate_runtimes=force_recreate_runtimes)
         attempt.update(state='SUCCEEDED' if result['exit'] == 0 else 'FAILED',
                        completedAt=time.time(), generationId=result['canaryProof']['generationId'])
         if result['exit'] == 0:
@@ -806,7 +877,7 @@ def start(path, m, evidence):
         save(evidence / 'start-attempt.json', attempt)
 
 
-def start_distribution(path, m, evidence):
+def start_distribution(path, m, evidence, *, force_recreate_runtimes=None):
     if m['inputs'] != source_hash():
         refresh_tooling(path, m, evidence)
     if 'grafana' not in m['ports']:
@@ -844,7 +915,13 @@ def start_distribution(path, m, evidence):
     compose(path, m, 'up', '-d', 'keycloak', log=evidence / 'keycloak-up.log')
     await_check(lambda: discovery(m['issuer']), 150, 'KEYCLOAK_OIDC_DISCOVERY_UNAVAILABLE')
     auth_checks, tokens = identities(m['issuer'], lambda data: save(evidence / 'keycloak-auth.json', data))
-    compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', 'grafana', log=evidence / 'runtimes-up.log')
+    if force_recreate_runtimes:
+        recreate = tuple(RUNTIMES) if force_recreate_runtimes is True else tuple(force_recreate_runtimes)
+        remaining = [r for r in RUNTIMES if r not in recreate]
+        compose(path, m, 'up', '-d', '--force-recreate', *recreate, log=evidence / 'runtimes-up.log')
+        compose(path, m, 'up', '-d', *remaining, 'prometheus', 'grafana', log=evidence / 'observability-up.log')
+    else:
+        compose(path, m, 'up', '-d', *RUNTIMES, 'prometheus', 'grafana', log=evidence / 'runtimes-up.log')
     observed_catalogue = catalogue(path, m)
     if m.get('catalogue') and m['catalogue'] != observed_catalogue:
         raise Refusal('DB-CATALOGUE-DRIFT')
@@ -1214,7 +1291,7 @@ def prepare(command, instance, dry_run=False):
     safe_tree(HOME_LOCAL)
     safe_tree(path)
     m = prerequisites.instance(path, command, RUNTIMES, ROLES, LOCAL_USERS)
-    starting = command in ('start', 'upgrade-grafana') or (command == 'reset' and not dry_run)
+    starting = command in ('start', 'reload', 'upgrade-grafana') or (command == 'reset' and not dry_run)
     build_required = False
     if starting:
         prerequisites.sources(ROOT, RUNTIMES)
@@ -1234,23 +1311,61 @@ def prepare(command, instance, dry_run=False):
         ownership(m)
 
 
+def doctor():
+    """Read-only workstation and cache check without creating instance state."""
+    safe_tree(HOME_LOCAL)
+    prerequisites.sources(ROOT, RUNTIMES)
+    inputs = source_hash()
+    prerequisites.tools(ROOT, 'doctor', False, build_required=True)
+    build_cached = (HOME_LOCAL / 'builds' / inputs / 'receipt.json').exists()
+    bruno_cli = (ROOT / 'scripts/bruno-v3/node_modules/.bin/bru').exists()
+    cached_images, missing_images = [], []
+    for image in IMAGES.values():
+        probe = subprocess.run(['docker', 'image', 'inspect', image], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        (cached_images if probe.returncode == 0 else missing_images).append(image)
+    mem_raw = run(['docker', 'info', '--format', '{{.MemTotal}}'])
+    mem_mib = int(mem_raw) // (1024 * 1024) if mem_raw.isdigit() else None
+    return dict(
+        state='READY',
+        exit=0,
+        readOnly=True,
+        python='.'.join(str(v) for v in sys.version_info[:3]),
+        inputs=inputs,
+        buildCached=build_cached,
+        brunoCliInstalled=bruno_cli,
+        cachedImages=cached_images,
+        missingImages=missing_images,
+        dockerMemoryMiB=mem_mib,
+        recommendedMemoryMiB=8192,
+        memorySufficient=(mem_mib is None or mem_mib >= 7680),
+    )
+
+
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(prog='pocoma-local', description=__doc__)
-    parser.add_argument('command', choices=['start', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
+    parser.add_argument('command', choices=['start', 'reload', 'doctor', 'upgrade-grafana', 'status', 'stop', 'reset', 'destroy', 'bruno', 'login', 'gui'])
     parser.add_argument('--instance', default=None)
     parser.add_argument('--confirm')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--interactive', action='store_true')
     parser.add_argument('--run', help='status only: read the late result of a timed-out run')
+    parser.add_argument('--runtime', action='append', choices=sorted(RUNTIMES),
+                        help='reload only: rebuild and recreate only the selected runtime(s)')
     args = parser.parse_args()
     if args.run and args.command != 'status':
         parser.error('--run is only valid with status')
+    if args.runtime and args.command != 'reload':
+        parser.error('--runtime is only valid with reload')
     if args.dry_run and args.command not in ('reset', 'destroy'):
         parser.error('--dry-run is only valid with reset or destroy')
     instance = args.instance or 'demo'
     path = evidence = m = None
     try:
+        if args.command == 'doctor':
+            result = doctor()
+            print(json.dumps(result, indent=2))
+            return result['exit']
         if args.command == 'reset' and (args.instance is None or args.confirm != 'RESET:' + instance):
             raise Refusal('RESET-EXPLICIT-INSTANCE-AND-CONFIRMATION-REQUIRED')
         if args.command == 'destroy' and (args.instance is None or args.confirm != 'DESTROY:' + instance):
@@ -1270,6 +1385,8 @@ def main():
             evidence.mkdir(parents=True)
             if args.command == 'start':
                 result = start(path, m, evidence)
+            elif args.command == 'reload':
+                result = reload_instance(path, m, evidence, runtimes=args.runtime)
             elif args.command == 'upgrade-grafana':
                 result = upgrade_grafana(path, m, evidence)
             elif args.command == 'status':
@@ -1305,10 +1422,10 @@ def main():
             result.update(instance=instance, project=m['project'], sha=run(['git', 'rev-parse', 'HEAD']),
                           dirty=bool(run(['git', 'status', '--porcelain'])), urls=dict(zip(('write', 'read'), urls(m))),
                           issuer=m.get('issuer'), evidence=str(evidence))
-            if args.command in ('start', 'upgrade-grafana', 'status', 'gui', 'login') and m.get('issuer'):
+            if args.command in ('start', 'reload', 'upgrade-grafana', 'status', 'gui', 'login') and m.get('issuer'):
                 result.update(access(m['issuer']))
                 result['grafana'] = grafana.access(m)
-                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'upgrade-grafana', 'status') else None
+                result['keycloakAuthEvidence'] = str(evidence / 'keycloak-auth.json') if args.command in ('start', 'reload', 'upgrade-grafana', 'status') else None
             save(evidence / 'receipt.json', result)
             if result['exit']:
                 diagnostics(path, m, evidence)

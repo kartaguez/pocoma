@@ -242,13 +242,31 @@ class ToolChecks(unittest.TestCase):
                 pre.tools(root,'start')
             self.assertEqual('PRE-WRAPPER',str(error.exception))
 
-    def test_java_environment_injection_refused_without_echoing_value(self):
+    def test_java_environment_variables_are_isolated_not_refused(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);self.tool_root(root)
-            with patch.dict(os.environ,{'MAVEN_OPTS':'secret'},clear=True), \
-                 patch.object(pre,'probe',side_effect=self.response),self.assertRaises(pre.Failure) as error:
+            injected={'MAVEN_OPTS':'secret','JAVA_TOOL_OPTIONS':'-Xmx64m','_JAVA_OPTIONS':'secret2','PATH':'/usr/bin'}
+            with patch.dict(os.environ,injected,clear=True), \
+                 patch.object(pre,'probe',side_effect=self.response):
                 pre.tools(root,'start')
-            self.assertNotIn('secret',str(error.exception.diagnostic))
+                cleaned=pre.clean_toolchain_env()
+            for var in pre.TOOLCHAIN_ENV_VARS:
+                self.assertNotIn(var,cleaned)
+            self.assertEqual('/usr/bin',cleaned['PATH'])
+
+    def test_node_accepts_minimum_major_and_rejects_older(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);self.tool_root(root)
+            for node_ver in ('v22.14.0','v24.15.0','v25.1.0'):
+                def ok_resp(tool,args,*a,**kw):
+                    return node_ver if tool=='node' else self.response(tool,args,*a,**kw)
+                with patch.object(pre,'probe',side_effect=ok_resp):
+                    pre.tools(root,'start')
+            def old_resp(tool,args,*a,**kw):
+                return 'v20.19.0' if tool=='node' else self.response(tool,args,*a,**kw)
+            with patch.object(pre,'probe',side_effect=old_resp),self.assertRaises(pre.Failure) as error:
+                pre.tools(root,'start')
+            self.assertEqual('PRE-TOOL-VERSION',str(error.exception))
 
 
 class InstanceChecks(unittest.TestCase):
