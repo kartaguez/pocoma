@@ -962,7 +962,7 @@ class ReadWorkerResourcesPostgresTest {
                     replace(selected.engine(), "transactions", owner);
                     replace(selected.engine(), "slots", new JdbcConsumptionSlotStore(fault));
                     replace(
-                            selected.engine(),
+                            field(selected.engine(), "recoveryPolicy"),
                             "admissions",
                             new JdbcDiscoveryAdmissionStore(
                                     fault,
