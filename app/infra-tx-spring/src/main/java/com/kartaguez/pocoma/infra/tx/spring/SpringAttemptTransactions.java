@@ -248,6 +248,9 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         Throwable[] callbackFailure = {null};
         Unit[] capturedUnit = {null};
         try {
+            if (TransactionSynchronizationManager.getResource(source) != null)
+                throw new IllegalTransactionStateException(
+                        "Attempt owner requires no retained JDBC holder");
             T result =
                     template.execute(
                             status -> {
